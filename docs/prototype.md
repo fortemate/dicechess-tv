@@ -54,7 +54,7 @@ The UI heartbeat is a diagnostic counter, not a performance benchmark. The probe
 
 ## Vega gate still open
 
-The initial disk-space blocker was resolved and SDK installation completed. See the [SDK experiment](vega-sdk-experiment.md) for versions, reproducible commands and the native WebView crash that now blocks runtime validation.
+The initial disk-space blocker was resolved and SDK installation completed. See the [SDK experiment](vega-sdk-experiment.md) for versions, reproducible commands and the SDK 0.24 native WebView crash and the non-crashing SDK 0.23 comparison, whose visual/gameplay checks remain open.
 
 Remaining acceptance checklist (build/install evidence alone does not close these checks):
 

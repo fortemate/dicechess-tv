@@ -2,20 +2,20 @@
 
 ## Result
 
-The SDK installation and ARM64 release-package build work. A Hello World app was installed and appeared in the running-app list. A WebView shell containing the browser probe was built and installed, but crashed. Replacing its entry page with plain HTML without JavaScript also produced a lifecycle crash record. The browser probe remains the only validated gameplay environment.
+SDK installation and ARM64 release-package builds work on this MacBook Air. The user confirmed the native Hello Vega screen. SDK 0.24.12044 / VVD OS 1.2 consistently crashed both the game shell and minimal WebView controls. A controlled comparison with SDK 0.23.9221 / VVD OS 1.1 kept the RN 0.72 WebView control running with no crash records. The packaged board shell also remains running on 0.23, including its renderer service; visual rendering and gameplay are awaiting confirmation. The browser probe remains the only validated gameplay environment.
 
-This is a local experiment outside the repository, under `~/vega/samples`. Generated SDK templates, crash reports, dependency trees and binaries are not committed. The WebView sample currently contains the HTML control; its game entry page was saved as `game-index.html.saved`. Its other bundled game assets are unused by the control page.
+This is a local experiment outside the repository, under `~/vega/samples`. Generated SDK templates, crash reports, dependency trees and binaries are not committed. The WebView sample was subsequently reduced to an inline HTML control with only a View and WebView component; its game entry page was saved as `game-index.html.saved`. Its other bundled game assets are unused by the control page.
 
 ## Environment and installation
 
 - Host: Apple Silicon macOS; Node 26.8.2.
 - Vega CLI: **1.3.4**.
-- Active SDK: **0.24.12044**, main channel.
+- Installed SDKs: **0.24.12044** and **0.23.9221**, main channel; **0.23.9221 is now active** for the comparison below.
 - SDK-provided Vega Virtual Device, 1920 × 1080, ARM64.
-- React Native: **0.83.0**; React **19.2.0**.
+- Initial 0.24 template: React Native **0.83.0**; React **19.2.0**.
 - `@amazon-devices/react-native-kepler`: **4.0.1+rn0.83.0**.
 - `@amazon-devices/webview`: **4.0.2**.
-- After installation and sample builds, the host reported about 14 GiB free; another full SDK installation needs a fresh space check.
+- After both SDK installations and sample builds, the latest host check reported about **21 GiB free**. Recheck space before another SDK installation.
 - Rosetta was already installed. Missing Homebrew prerequisites were installed.
 - The official installer created `~/vega` and added its environment source to existing shell profiles. The optional VS Code extension was skipped.
 - The SDK installer reports telemetry enabled by default; see [Amazon telemetry configuration](https://developer.amazon.com/docs/vega/0.24/telemetry).
@@ -45,7 +45,7 @@ vega exec npx react-native build-vega --build-type Release \
   --target aarch64 --max-workers 2
 ```
 
-Use the actual VPKG path printed by the build with `vega run-app <path> com.fortemate.vegahelloprobe.main -d VirtualDevice`. Build and manifest validation passed. Installation and launch completed, and `vega device running-apps` listed the component. It was subsequently terminated to isolate the WebView run. Successful visual rendering was not verified.
+Use the actual VPKG path printed by the build with `vega run-app <path> com.fortemate.vegahelloprobe.main -d VirtualDevice`. Build and manifest validation passed. Installation and launch completed, and `vega device running-apps` listed the component. It was subsequently terminated to isolate the WebView run. The user subsequently supplied a screenshot showing the Hello Vega page and its four navigation tiles, confirming that the native template renders on this MacBook Air.
 
 ## WebView and HTML control
 
@@ -69,11 +69,46 @@ vega device copy-logs -d emulator-5554 \
 
 Do not use `vda install` for these VPKGs: the installed VDA command rejected them as non-APK/APEX files. Use `vega device install-app`.
 
+## Follow-up on the same MacBook Air
+
+User-confirmed macOS prompts and a full emulator restart did not resolve the WebView crash. Manual launch from Terminal and from the installed-app tile also failed.
+
+With SDK 0.24.12044 and its VVD (OS 1.2, release 21, build 2111244708030):
+
+| Control                                                              | Result                                                    |
+| -------------------------------------------------------------------- | --------------------------------------------------------- |
+| RN 0.83 / WebView 4.0.2, only View + WebView with inline static HTML | New lifecycle crash                                       |
+| RN 0.72 / react-native-kepler 2.1.0 / WebView 3.5.7, inline HTML     | SIGSEGV; native WebView frame at the same 0x2471ba offset |
+| RN 0.83 minimal control, `--use-system-js-bundles false`             | Build produced a regular bundle; new lifecycle crash      |
+
+The RN 0.72 control is a separate local sample, `~/vega/samples/VegaWeb72Probe`. These experiments change the JS/runtime branch while retaining the same VVD image; they do not establish that other SDK images or physical devices fail.
+
+## SDK 0.23 comparison
+
+The same Air was used; no installation on a work Mac or Windows computer was needed. SDK 0.24 was preserved alongside 0.23.
+
+```bash
+source ~/vega/env
+vega sdk install 0.23.9221 --non-interactive
+# Stop the running 0.24 virtual device before starting the other image.
+vega sdk use 0.23.9221
+vega --version
+vega virtual-device start --display-res=1920,1080
+```
+
+The older VVD reports **OS 1.1, release 19, build 1911127759030**. The local RN 0.72 sample uses React 18.2.0, react-native-kepler 2.1.0 and WebView 3.5.7. Its generated manifest required OS 1.2 / IVega_1_2; those two requirement blocks were removed for this older-image diagnostic and the original manifest retained locally. The runtime loader remains IKeplerScript_2_0. This is a compatibility experiment, not a production target decision.
+
+Rebuilding and installing the inline HTML control with SDK 0.23 succeeded. Repeated running-app checks listed the component; the new VVD's crash-history buffer remained empty. Next, the browser production assets were copied into that shell, with `allowFileAccess`, `javaScriptEnabled`, `domStorageEnabled`, `hasTVPreferredFocus` and `allowSystemKeyEvents`, using `file:///pkg/assets/index.html`. This package also built and installed successfully, remained running and started `com.amazon.webview.renderer_service`, without a recorded crash.
+
+The shell displays load status above the WebView. A load event or a running process alone does not establish that module scripts, the board or Worker executed. User visual confirmation and the keyboard scenario are still required. The local sample currently contains the game shell; the minimal control source is preserved as `App.inline-control.tsx.saved`.
+
+The comparison points to a difference between SDK/VVD environments. It does not isolate the exact native defect: the image, build tooling and manifest requirements changed together.
+
 ## Verification still required
 
-- Resolve the native crash with a minimal official WebView shell. Check SDK/VVD compatibility and a controlled supported runtime comparison before changing the game architecture.
+- Confirm visual rendering and input with the non-crashing SDK 0.23 shell; separately investigate SDK 0.24 compatibility before choosing a release target.
 - Establish reliable visual inspection. The desktop automation could not select the emulator executable as an app; a QEMU framebuffer screenshot was black, which is not sufficient evidence of what the accelerated window displayed. The device screenshot command did not finish during this experiment.
 - Verify local module scripts, Worker creation and response, Unicode chess glyphs, remote D-pad/OK/Back, persistence across termination, and network-disabled cold start.
 - Review template dependencies and combined redistribution licensing before importing a shell into the repository or distributing a binary.
 
-The native crash occurs before the planned gameplay acceptance checks. No Vega gameplay, offline cold-start or TV remote-input success is claimed.
+SDK 0.23 avoids the observed lifecycle crash in these controls, but does not yet close the gameplay acceptance checks. No Vega gameplay, offline cold-start or TV remote-input success is claimed.
