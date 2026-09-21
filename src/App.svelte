@@ -1,17 +1,11 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { SaveStore } from './storage';
   import BotWorker from './bot.worker?worker&inline';
   import { Chessground } from '@lichess-org/chessground';
   import type { Api } from '@lichess-org/chessground/api';
   import type { Key } from '@lichess-org/chessground/types';
-  import {
-    INITIAL,
-    STORAGE_KEY,
-    decode,
-    derive,
-    shiftSquare,
-    type Snapshot,
-  } from './model';
+  import { INITIAL, derive, shiftSquare, type Snapshot } from './model';
   import '@lichess-org/chessground/assets/chessground.base.css';
   import '@lichess-org/chessground/assets/chessground.brown.css';
 
@@ -31,6 +25,10 @@
   let workerStatus = $state('Not requested');
   let ticks = $state(0);
   let ready = false;
+  let disposed = false;
+  let busy = $state(true);
+  let saveStatus = $state('Loading');
+  let saves: SaveStore;
   const targets = $derived(
     selected
       ? current.legal
@@ -45,15 +43,26 @@
     worker = undefined;
     clearTimeout(timer);
   }
-  function commit(next: Snapshot) {
+  async function commit(next: Snapshot) {
+    if (busy) throw new Error('Another save is pending');
     derive(next);
-    // Do not advance the visible state if durable storage fails.
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    snapshot = next;
-    selected = null;
+    busy = true;
+    saveStatus = 'Saving';
+    try {
+      await saves.save(next);
+      if (disposed) return;
+      snapshot = next;
+      selected = null;
+      saveStatus = 'Committed';
+    } catch (reason) {
+      saveStatus = 'Failed';
+      throw reason;
+    } finally {
+      busy = false;
+    }
   }
   function runBot() {
-    if (!ready || current.phase !== 'bot' || error || worker) return;
+    if (!ready || busy || current.phase !== 'bot' || error || worker) return;
     const dfen = current.dfen;
     const id = ++request;
     workerStatus = 'Computing in Worker';
@@ -69,7 +78,7 @@
         fail(
           'Worker failed to load or execute. Open the menu to restart the probe.',
         );
-      worker.onmessage = (event) => {
+      worker.onmessage = async (event) => {
         const data = event.data;
         if (
           id !== request ||
@@ -89,11 +98,15 @@
               'Expected one knight action in this diagnostic fixture',
             );
           }
-          commit({ ...snapshot, botMove: data.moves[0] });
-          workerStatus = 'Reply validated and saved';
+          // A valid reply no longer needs the Worker or its computation timer.
           stopWorker();
+          workerStatus = 'Saving reply';
+          await commit({ ...snapshot, botMove: data.moves[0] });
+          if (!disposed) workerStatus = 'Reply validated and saved';
         } catch (reason) {
-          fail(String(reason));
+          stopWorker();
+          workerStatus = 'Failed';
+          error = String(reason);
         }
       };
       timer = setTimeout(
@@ -107,10 +120,10 @@
       error = String(reason);
     }
   }
-  function restart() {
+  async function restart() {
     stopWorker();
     try {
-      commit({ schema: 1 });
+      await commit({ schema: 1 });
       cursor = 'b1';
       menu = false;
       error = '';
@@ -120,7 +133,7 @@
       error = 'Unable to write local save: ' + String(reason);
     }
   }
-  function onKey(event: KeyboardEvent) {
+  async function onKey(event: KeyboardEvent) {
     const key = event.key === 'GoBack' ? 'Escape' : event.key;
     if (
       ![
@@ -135,6 +148,7 @@
     )
       return;
     event.preventDefault();
+    if (busy || !ready) return;
     if (event.repeat && ['Enter', 'Escape', 'Backspace'].includes(key)) return;
     if (key === 'Escape' || key === 'Backspace') {
       if (selected) selected = null;
@@ -148,7 +162,7 @@
       if (key.startsWith('Arrow')) menuIndex = 1 - menuIndex;
       else if (key === 'Enter') {
         if (menuIndex === 0) menu = false;
-        else restart();
+        else await restart();
       }
       return;
     }
@@ -157,7 +171,7 @@
       return;
     }
     if (current.phase === 'done' && !error) {
-      restart();
+      await restart();
       return;
     }
     if (current.phase !== 'human' || error) return;
@@ -165,7 +179,7 @@
       selected && current.legal.find((m) => m.startsWith(selected! + cursor));
     if (move) {
       try {
-        commit({ schema: 1, humanMove: move });
+        await commit({ schema: 1, humanMove: move });
         runBot();
       } catch (reason) {
         error = String(reason);
@@ -189,23 +203,35 @@
       coordinates: true,
       animation: { enabled: true, duration: 180 },
     });
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        snapshot = decode(saved);
-        restored = true;
-        if (snapshot.botMove) workerStatus = 'Completed result restored';
+    saves = new SaveStore(indexedDB);
+    void (async () => {
+      try {
+        const saved = await saves.restore(localStorage);
+        if (disposed) return;
+        if (saved) {
+          snapshot = saved;
+          restored = true;
+          if (saved.botMove) workerStatus = 'Completed result restored';
+        }
+        saveStatus = saved ? 'Restored' : 'Ready';
+      } catch (reason) {
+        if (disposed) return;
+        saveStatus = 'Failed';
+        error =
+          'Save unavailable or invalid. Restart from the menu: ' +
+          String(reason);
       }
-    } catch (reason) {
-      error =
-        'Save unavailable or invalid. Restart from the menu: ' + String(reason);
-    }
-    ready = true;
-    runBot();
+      if (disposed) return;
+      busy = false;
+      ready = true;
+      runBot();
+    })();
     const heartbeat = setInterval(() => ticks++, 250);
     window.addEventListener('keydown', onKey);
     return () => {
+      disposed = true;
       ready = false;
+      void saves.close().catch(() => {});
       stopWorker();
       clearInterval(heartbeat);
       window.removeEventListener('keydown', onKey);
@@ -214,7 +240,7 @@
   });
 </script>
 
-<main>
+<main data-dfen={current.dfen}>
   <section class="board-section" aria-label="Diagnostic chessboard">
     <div class="board-frame">
       <div class="cg-wrap" bind:this={boardElement}></div>
@@ -246,6 +272,8 @@
       <dd>{workerStatus}</dd>
       <dt>Saved state</dt>
       <dd>{restored ? 'Restored' : 'Current session'}</dd>
+      <dt>Save transaction</dt>
+      <dd data-testid="save-status">{saveStatus}</dd>
       <dt>UI heartbeat</dt>
       <dd>{ticks}</dd>
     </dl>
@@ -259,8 +287,7 @@
       </p>{/if}
     {#if error}<p class="error" role="alert">{error}</p>{/if}
     <p class="status">
-      Diagnostic fixture. Full games and network-disabled cold start remain
-      unverified.
+      Technical probe. Full games and statistics are not implemented.
     </p>
   </aside>
   {#if menu}<div class="veil">

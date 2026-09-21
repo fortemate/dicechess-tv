@@ -37,7 +37,9 @@ A cyan outline shows cursor focus; dashed yellow outlines show legal destination
 
 ## State and failure behavior
 
-The versioned diagnostic save contains the validated human/bot action sequence. Position, fixed dice and phase are reconstructed with the same pinned engine. Illegal or incompatible saves display an error and require explicit restart from the menu. A failed storage write must not advance the visible game state.
+The versioned diagnostic save contains the validated human/bot action sequence. Position, fixed dice and phase are reconstructed with the same pinned engine. Illegal or incompatible saves display an error and require explicit restart from the menu. A failed storage write must not advance the visible game state. Saves now use IndexedDB with `durability: 'strict'`; the app waits for transaction completion before showing a committed move or starting the bot. Input is paused during load/write, and the Worker watchdog is stopped once a validated response enters its save transaction. The UI exposes Loading/Saving/Committed/Restored/Failed status.
+
+On first load, an existing localStorage snapshot is validated and copied into IndexedDB before use. Thereafter the database is authoritative, including an explicit reset. The old entry is retained for rollback and never supersedes an existing database snapshot. Corrupt data causes an explicit error; unsupported strict transactions are rejected rather than silently downgraded.
 
 Worker requests carry IDs and the requested DFEN. Restart terminates the current Worker and invalidates its request; responses are checked against the current position. A 10-second watchdog reports a failure without substituting a remote or main-thread bot. This is a failure guard, not the bot's search budget.
 
@@ -47,7 +49,7 @@ The UI heartbeat is a diagnostic counter, not a performance benchmark. The probe
 
 - macOS arm64, Node 26.8.2; npm install completed with zero reported vulnerabilities.
 - Svelte/TypeScript diagnostics: zero errors and warnings.
-- Three Node tests passed: engine/bot transition and save round trip; invalid saves/actions; cursor edges and orientation.
+- The original three Node tests passed: engine/bot transition and save round trip; invalid saves/actions; cursor edges and orientation.
 - Vite production build passed and initially emitted separate local JS/CSS/Worker assets. The follow-up embeds a classic Worker and adds a single-HTML packaging command for Vega.
 - In-app browser: Enter and directions completed b1-c3 and a local Random Worker reply; reload restored the moved pieces and completed phase. The Back menu, restart and cancel-selection scenario passed.
 - Visual inspection caught a non-reactive board update during development; the corrected build was inspected with restored knights on their moved squares.
@@ -65,16 +67,14 @@ npm run build:vega-web
 
 This command embeds the bundled module and CSS into HTML. The bot uses Vite's inline Worker import with IIFE output, producing a separate classic Worker from bundled code instead of a file URL. No security flags, web server or main-thread fallback are needed. The script expects one JS entry and one stylesheet and fails if that build structure changes. It is a narrow probe packager, not a general asset inliner. The roughly 740 kB JS bundle triggers Vite's size warning; optimization is deferred.
 
-SDK 0.23 runtime diagnostics confirmed creation of the app DOM, b1-c3 via SDK-injected D-pad/OK events, a validated/saved Worker reply, and delivery of `GoBack`. Back → Down → OK restarted the fixture. These are runtime/DOM observations, not a visual screenshot or a physical remote test. A rapid forced termination restored an older initial save, so reliable lifecycle persistence remains an open gate despite the in-session saved status.
+SDK 0.23 runtime diagnostics and the owner's manual test confirmed the board, input, a legal human action and a local bot reply. `GoBack` opens the menu. Following the storage change, three forced-stop/relaunch runs restored the exact DFEN and `done` phase. With both emulated network links disabled, cold launch, b1-a3, a local reply and restore passed; the external connectivity control failed during the offline window and succeeded before/after. See [durable save and offline verification](durable-save-and-offline.md) for the method and limits.
 
-Remaining acceptance checklist (build/install evidence alone does not close these checks):
+Remaining acceptance checklist:
 
-1. Record CLI/SDK versions and run the official Hello World in VVD.
-2. Generate the official `vegaWebview` shell, then package the built web assets using the documented local-file path.
-3. Complete visual verification of bundled HTML/CSS, Unicode fonts and board updates; classic inline Worker execution has passed on SDK 0.23.
-4. Verify virtual-remote directions/OK/Back and avoid competing native/WebView navigation.
-5. Verify save behavior across app termination and restart, including interruption before the Worker reply.
-6. Install the package, disable networking, and verify cold launch, move, local reply and resume without a development server.
-7. Record results and decide whether the WebView architecture is viable.
+1. Adopt and review a reproducible native shell/package in the repository, including SDK-template licensing and dependencies.
+2. Resolve SDK 0.24 compatibility or choose a supported release target with evidence.
+3. Extend save/recovery testing to full games, interrupted bot work, promotions and real dice rolls as those features are implemented.
+4. Test real Fire TV hardware, its physical remote, fonts, sizing and performance.
+5. Build the full hotseat/Random game loop; this probe is still a fixed two-action fixture.
 
-No offline cold-start or Vega compatibility claim is made by the browser results. A preview server on localhost is still a server.
+The offline result applies to the installed diagnostic on the tested VVD image. It is not a physical-device, power-loss or Appstore-readiness claim.

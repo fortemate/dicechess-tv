@@ -2,7 +2,7 @@
 
 Dice Chess for Amazon Fire TV: two players sharing one screen and remote, or a game against a choice of on-device bots.
 
-**Status: browser and Vega feasibility probe.** A small Svelte/Chessground scene validates a fixed engine transition and a local Random bot Worker. On the development MacBook Air, an external RN 0.72 shell with SDK 0.23 now executes the packaged scene, accepts virtual-remote input and validates a bot reply. The web assets are bundled into local HTML with a Blob-backed classic Worker. SDK 0.24 WebView crashes, reliable save recovery, visual verification and network-disabled cold start remain open; this repository does not yet include the native shell or a complete game.
+**Status: Vega feasibility loop verified.** On the development MacBook Air, an external RN 0.72 shell with SDK 0.23 displays the bundled Svelte/Chessground scene, accepts input and executes a local Random bot reply. The owner confirmed the board and manual move. IndexedDB strict transactions now gate visible state changes; three rapid forced-stop/relaunch checks restored the exact completed position. A network-disabled cold-launch, move, reply and restore check also passed. This is a one-move diagnostic, not a complete game. SDK 0.24 WebView crashes and physical Fire TV validation remain open; the native shell remains outside this repository.
 
 See [prototype setup and verification](docs/prototype.md) for commands, keyboard controls, observed results and remaining Vega checks.
 
@@ -47,7 +47,7 @@ Fire OS is a possible later target with a separate build. Samsung/Tizen, Raspber
 6. Save, close and restore the exact position, roll and phase.
 7. Repeat without a development server or network, and record actual limitations.
 
-Only then proceed to a complete hotseat game, the Random/Aggressive bot selection, local statistics and user testing. The browser probe implements a narrow diagnostic fixture only; see the linked prototype guide for runnable commands. It is not the completed milestone above.
+Only then proceed to a complete hotseat game, the Random/Aggressive bot selection, local statistics and user testing. The browser probe implements a narrow diagnostic fixture only; see the linked prototype guide for runnable commands. The external SDK experiment now covers this diagnostic loop on SDK 0.23; production packaging and physical-device testing remain separate work.
 
 ## Hackathon
 
