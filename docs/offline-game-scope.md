@@ -1,6 +1,6 @@
 # Offline game scope
 
-Status: requirements and implementation plan, agreed on 21 September 2026. No gameplay or bot capability is implemented by this document.
+Status: requirements agreed on 21 September 2026. Hotseat and Random now have a full-game implementation; see [behavior and verification](full-game.md). Aggressive, the result ledger and W/D/L remain planned.
 
 ## Accepted product requirements
 
@@ -15,7 +15,7 @@ Status: requirements and implementation plan, agreed on 21 September 2026. No ga
 
 | Bot | Intended role | Delivery status |
 | --- | --- | --- |
-| Random | Easy opponent choosing among engine-approved legal actions or turns | First bot to implement; specify the sampling policy explicitly |
+| Random | Easy opponent choosing among engine-approved legal actions or turns | Implemented with engine 0.12.2 `random`, choosing complete legal paths in a local Worker |
 | Aggressive | More challenging opponent using a compatible local search implementation | Initial roster target; validate runtime cost and actual strength |
 | Hunter | Optional advanced opponent | Conditional extension after compatibility, performance and licensing review |
 
