@@ -9,8 +9,9 @@
     "preview": "vite preview --host 127.0.0.1",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "test": "node --experimental-strip-types --test test/*.test.ts",
-    "format": "prettier --write src test *.json *.ts *.js index.html README.md docs/prototype.md THIRD_PARTY_NOTICES.md .github/workflows/ci.yaml",
-    "format:check": "prettier --check src test *.json *.ts *.js index.html README.md docs/prototype.md THIRD_PARTY_NOTICES.md .github/workflows/ci.yaml"
+    "format": "prettier --write src test scripts *.json *.ts *.js index.html README.md docs/prototype.md docs/vega-sdk-experiment.md THIRD_PARTY_NOTICES.md .github/workflows/ci.yaml",
+    "format:check": "prettier --check src test scripts *.json *.ts *.js index.html README.md docs/prototype.md docs/vega-sdk-experiment.md THIRD_PARTY_NOTICES.md .github/workflows/ci.yaml",
+    "build:vega-web": "vite build --outDir dist-vega && node scripts/inline-vega-assets.mjs"
   },
   "dependencies": {
     "@fortemate/dicechess-engine": "0.12.2",

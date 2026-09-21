@@ -2,7 +2,7 @@
 
 Dice Chess for Amazon Fire TV: two players sharing one screen and remote, or a game against a choice of on-device bots.
 
-**Status: browser feasibility probe.** A small Svelte/Chessground scene validates a fixed engine transition, a local Random bot Worker and saved-state restoration. An external ARM64 SDK experiment found WebView crashes on SDK 0.24; the same Air now keeps a packaged shell running on SDK 0.23, with visual/gameplay validation pending. The committed runnable prototype remains the browser probe. The target remains Vega Virtual Device on an Apple Silicon Mac; device input, bundled-file loading and offline cold start remain unverified.
+**Status: browser and Vega feasibility probe.** A small Svelte/Chessground scene validates a fixed engine transition and a local Random bot Worker. On the development MacBook Air, an external RN 0.72 shell with SDK 0.23 now executes the packaged scene, accepts virtual-remote input and validates a bot reply. The web assets are bundled into local HTML with a Blob-backed classic Worker. SDK 0.24 WebView crashes, reliable save recovery, visual verification and network-disabled cold start remain open; this repository does not yet include the native shell or a complete game.
 
 See [prototype setup and verification](docs/prototype.md) for commands, keyboard controls, observed results and remaining Vega checks.
 
