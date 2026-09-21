@@ -2,7 +2,7 @@
 
 ## Purpose and boundary
 
-This is the web portion of the proposed Vega WebView experiment. It uses Svelte, Chessground, the canonical engine rules entry and the full engine inside a dedicated module Worker. It does not include a React Native/Vega shell or a VPKG.
+This is the web portion of the proposed Vega WebView experiment. It uses Svelte, Chessground, the canonical engine rules entry and the full engine inside a dedicated classic Worker. It does not include a React Native/Vega shell or a VPKG.
 
 The fixture starts from the normal piece placement with **one remaining knight die** for White. After one legal White action, the engine ends the turn and the diagnostic supplies one knight die to Black. The local Random bot makes one reply, which is validated and saved. The probe then stops. These predetermined dice are diagnostic inputs, not the game's random-roll implementation. Full games, promotions, dice rolling, hotseat, Aggressive, W/D/L and purchases are outside this probe.
 
@@ -31,7 +31,7 @@ Open http://127.0.0.1:4173/. `npm run dev` is available for editing, but the bro
 6. Select b1 with Enter, then Escape. Selection clears without making a move.
 7. With no selection, Escape opens/closes the menu; directions and Enter operate it.
 
-Escape and Backspace are browser stand-ins for Back. Vega's actual system Back delivery and focus behavior must be verified through the SDK; browser key handling does not prove that mapping.
+Escape and Backspace are browser stand-ins for Back. Vega delivers `GoBack`, normalized to Escape by the input handler; this was observed using SDK-injected virtual-remote input. A physical remote remains untested.
 
 A cyan outline shows cursor focus; dashed yellow outlines show legal destinations. Pieces use system Unicode glyphs, whose appearance and availability must also be checked in Vega.
 
@@ -48,19 +48,30 @@ The UI heartbeat is a diagnostic counter, not a performance benchmark. The probe
 - macOS arm64, Node 26.8.2; npm install completed with zero reported vulnerabilities.
 - Svelte/TypeScript diagnostics: zero errors and warnings.
 - Three Node tests passed: engine/bot transition and save round trip; invalid saves/actions; cursor edges and orientation.
-- Vite production build passed and emitted separate local JS/CSS/Worker assets with relative base paths.
+- Vite production build passed and initially emitted separate local JS/CSS/Worker assets. The follow-up embeds a classic Worker and adds a single-HTML packaging command for Vega.
 - In-app browser: Enter and directions completed b1-c3 and a local Random Worker reply; reload restored the moved pieces and completed phase. The Back menu, restart and cancel-selection scenario passed.
 - Visual inspection caught a non-reactive board update during development; the corrected build was inspected with restored knights on their moved squares.
 
 ## Vega gate still open
 
-The initial disk-space blocker was resolved and SDK installation completed. See the [SDK experiment](vega-sdk-experiment.md) for versions, reproducible commands and the SDK 0.24 native WebView crash and the non-crashing SDK 0.23 comparison, whose visual/gameplay checks remain open.
+The initial setup and local-file loading blockers were investigated on the same MacBook Air. See the [SDK experiment](vega-sdk-experiment.md) for the native 0.24 crash, the 0.23 comparison, file-origin restrictions and observed gameplay.
+
+Build the web payload for the external Vega shell:
+
+```bash
+npm run build:vega-web
+# Copy dist-vega/index.html to the shell's assets/index.html, then rebuild its VPKG.
+```
+
+This command embeds the bundled module and CSS into HTML. The bot uses Vite's inline Worker import with IIFE output, producing a separate classic Worker from bundled code instead of a file URL. No security flags, web server or main-thread fallback are needed. The script expects one JS entry and one stylesheet and fails if that build structure changes. It is a narrow probe packager, not a general asset inliner. The roughly 740 kB JS bundle triggers Vite's size warning; optimization is deferred.
+
+SDK 0.23 runtime diagnostics confirmed creation of the app DOM, b1-c3 via SDK-injected D-pad/OK events, a validated/saved Worker reply, and delivery of `GoBack`. Back → Down → OK restarted the fixture. These are runtime/DOM observations, not a visual screenshot or a physical remote test. A rapid forced termination restored an older initial save, so reliable lifecycle persistence remains an open gate despite the in-session saved status.
 
 Remaining acceptance checklist (build/install evidence alone does not close these checks):
 
 1. Record CLI/SDK versions and run the official Hello World in VVD.
 2. Generate the official `vegaWebview` shell, then package the built web assets using the documented local-file path.
-3. Verify module JS, CSS, Unicode fonts and the module Worker under the actual local-file origin. Relative Vite paths alone do not prove these work; file-origin Worker/CORS behavior may require a different packaging strategy.
+3. Complete visual verification of bundled HTML/CSS, Unicode fonts and board updates; classic inline Worker execution has passed on SDK 0.23.
 4. Verify virtual-remote directions/OK/Back and avoid competing native/WebView navigation.
 5. Verify save behavior across app termination and restart, including interruption before the Worker reply.
 6. Install the package, disable networking, and verify cold launch, move, local reply and resume without a development server.

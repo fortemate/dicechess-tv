@@ -2,7 +2,7 @@
 
 ## Result
 
-SDK installation and ARM64 release-package builds work on this MacBook Air. The user confirmed the native Hello Vega screen. SDK 0.24.12044 / VVD OS 1.2 consistently crashed both the game shell and minimal WebView controls. A controlled comparison with SDK 0.23.9221 / VVD OS 1.1 kept the RN 0.72 WebView control running with no crash records. The packaged board shell also remains running on 0.23, including its renderer service; visual rendering and gameplay are awaiting confirmation. The browser probe remains the only validated gameplay environment.
+SDK installation and ARM64 release-package builds work on this MacBook Air. Native Hello Vega rendering was confirmed by the user. SDK 0.24.12044 / VVD OS 1.2 crashed minimal WebView controls. SDK 0.23.9221 / VVD OS 1.1 kept the RN 0.72 shell running, but its first external-resource build showed a blank page. Embedding the JS/CSS and using a classic inline Worker subsequently allowed the app to handle a virtual-remote move and validate a local bot reply. Visual readback, reliable lifecycle persistence and network-disabled cold start remain open.
 
 This is a local experiment outside the repository, under `~/vega/samples`. Generated SDK templates, crash reports, dependency trees and binaries are not committed. The WebView sample was subsequently reduced to an inline HTML control with only a View and WebView component; its game entry page was saved as `game-index.html.saved`. Its other bundled game assets are unused by the control page.
 
@@ -100,15 +100,29 @@ The older VVD reports **OS 1.1, release 19, build 1911127759030**. The local RN 
 
 Rebuilding and installing the inline HTML control with SDK 0.23 succeeded. Repeated running-app checks listed the component; the new VVD's crash-history buffer remained empty. Next, the browser production assets were copied into that shell, with `allowFileAccess`, `javaScriptEnabled`, `domStorageEnabled`, `hasTVPreferredFocus` and `allowSystemKeyEvents`, using `file:///pkg/assets/index.html`. This package also built and installed successfully, remained running and started `com.amazon.webview.renderer_service`, without a recorded crash.
 
-The shell displays load status above the WebView. A load event or a running process alone does not establish that module scripts, the board or Worker executed. User visual confirmation and the keyboard scenario are still required. The local sample currently contains the game shell; the minimal control source is preserved as `App.inline-control.tsx.saved`.
+The shell displays load status above the WebView. A load event or a running process alone does not establish that module scripts, the board or Worker executed. The user screenshot subsequently confirmed a blank white page. An inline diagnostic script executed and reported `phase=undefined children=0`: the web app container was empty. This rules out treating the native load callback as board-rendering evidence. At that stage the keyboard scenario was blocked. The local sample currently contains the game shell; the minimal control source is preserved as `App.inline-control.tsx.saved`.
 
 The comparison points to a difference between SDK/VVD environments. It does not isolate the exact native defect: the image, build tooling and manifest requirements changed together.
+
+## Local-file loading follow-up
+
+The packaged browser build initially references an external module script and external CSS, both with `crossorigin`. An inline diagnostic script can execute and communicate with the native shell, while the app container remains empty. This narrows the issue to application startup/resource loading; it does not yet prove a CORS cause.
+
+Embedding the production JS module and CSS changed the diagnostic result to `phase=human children=1`. SDK `inputd-cli` button injection then completed the human b1-c3 action. Constructing the external Worker failed with `SecurityError`, identifying the file URL and origin `null`. An inline module Worker also failed to execute. Vite's `?worker&inline` import plus `worker.format: 'iife'` succeeded: the app reported `done` and `Reply validated and saved`.
+
+The repository now provides `npm run build:vega-web`, producing `dist-vega/index.html` with embedded JS/CSS and a classic Worker bundled into the main script. Copy that HTML into the existing external shell's assets and rebuild the VPKG. No native shell, generated SDK source, diagnostic receiver or device logs are committed.
+
+A temporary RN message handler forwarded DOM diagnostics through a device reverse port to a loopback-only receiver on the development Mac. This measured app state without relying on native process liveness; it was not a game server. The receiver, forwarding rule and native fetch were removed after diagnosis. SDK-injected Enter/Up/Up/Right/Enter produced a legal human move and local reply. `KEY_BACK` arrived as `GoBack`; normalizing it to Escape enabled the fixture's Back menu and restart sequence.
+
+A rapid forced termination after `done` restored the older initial snapshot (`human`, `Restored`) on relaunch. Thus the in-session `saved` label does not prove durable storage across forced termination. Repeating after a longer delay before termination restored `done` with `Completed result restored`. That is consistent with delayed persistence, but does not establish the cause or a safe timeout. This remains a separate issue to resolve before the MVP; a browser reload pass does not close it.
+
+WebView console output is not automatically exposed by connection-error callbacks; see [Amazon's triage guidance](https://www.developer.amazon.com/docs/vega/0.23/triage-guidelines). The local diagnostic reports errors and DOM status through the supported WebView message bridge.
 
 ## Verification still required
 
 - Confirm visual rendering and input with the non-crashing SDK 0.23 shell; separately investigate SDK 0.24 compatibility before choosing a release target.
 - Establish reliable visual inspection. The desktop automation could not select the emulator executable as an app; a QEMU framebuffer screenshot was black, which is not sufficient evidence of what the accelerated window displayed. The device screenshot command did not finish during this experiment.
-- Verify local module scripts, Worker creation and response, Unicode chess glyphs, remote D-pad/OK/Back, persistence across termination, and network-disabled cold start.
+- Verify Unicode chess glyphs and visual board updates, physical-remote behavior, reliable persistence across forced termination, and network-disabled cold start. The inline script/classic Worker and SDK-injected input paths now execute successfully.
 - Review template dependencies and combined redistribution licensing before importing a shell into the repository or distributing a binary.
 
-SDK 0.23 avoids the observed lifecycle crash in these controls, but does not yet close the gameplay acceptance checks. No Vega gameplay, offline cold-start or TV remote-input success is claimed.
+SDK 0.23 now has a narrow runtime gameplay/input pass for this diagnostic fixture. Visual quality, physical-remote behavior, durable lifecycle saves and network-disabled cold start are not yet validated.

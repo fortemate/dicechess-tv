@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import BotWorker from './bot.worker?worker&inline';
   import { Chessground } from '@lichess-org/chessground';
   import type { Api } from '@lichess-org/chessground/api';
   import type { Key } from '@lichess-org/chessground/types';
@@ -57,9 +58,7 @@
     const id = ++request;
     workerStatus = 'Computing in Worker';
     try {
-      worker = new Worker(new URL('./bot.worker.ts', import.meta.url), {
-        type: 'module',
-      });
+      worker = new BotWorker();
       const fail = (message: string) => {
         if (id !== request) return;
         stopWorker();
@@ -122,7 +121,7 @@
     }
   }
   function onKey(event: KeyboardEvent) {
-    const key = event.key;
+    const key = event.key === 'GoBack' ? 'Escape' : event.key;
     if (
       ![
         'ArrowUp',
@@ -260,7 +259,7 @@
       </p>{/if}
     {#if error}<p class="error" role="alert">{error}</p>{/if}
     <p class="status">
-      Browser probe. Vega package, device buttons and offline cold start remain
+      Diagnostic fixture. Full games and network-disabled cold start remain
       unverified.
     </p>
   </aside>
