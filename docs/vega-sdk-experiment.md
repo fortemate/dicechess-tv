@@ -2,7 +2,7 @@
 
 ## Result
 
-SDK installation and ARM64 release-package builds work on this MacBook Air. Native Hello Vega rendering was confirmed by the user. SDK 0.24.12044 / VVD OS 1.2 crashed minimal WebView controls. SDK 0.23.9221 / VVD OS 1.1 kept the RN 0.72 shell running, but its first external-resource build showed a blank page. Embedding the JS/CSS and using a classic inline Worker subsequently allowed the app to handle a virtual-remote move and validate a local bot reply. Visual readback, reliable lifecycle persistence and network-disabled cold start remain open.
+SDK installation and ARM64 release-package builds work on this MacBook Air. Native Hello Vega rendering was confirmed by the user. SDK 0.24.12044 / VVD OS 1.2 crashed minimal WebView controls. SDK 0.23.9221 / VVD OS 1.1 kept the RN 0.72 shell running, but its first external-resource build showed a blank page. Embedding the JS/CSS and using a classic inline Worker subsequently allowed the app to handle a virtual-remote move and validate a local bot reply. The owner subsequently confirmed the board, manual move and completed bot reply. Follow-up strict IndexedDB saves and the network-disabled diagnostic scenario passed; see the linked verification note below.
 
 This is a local experiment outside the repository, under `~/vega/samples`. Generated SDK templates, crash reports, dependency trees and binaries are not committed. The WebView sample was subsequently reduced to an inline HTML control with only a View and WebView component; its game entry page was saved as `game-index.html.saved`. Its other bundled game assets are unused by the control page.
 
@@ -114,15 +114,15 @@ The repository now provides `npm run build:vega-web`, producing `dist-vega/index
 
 A temporary RN message handler forwarded DOM diagnostics through a device reverse port to a loopback-only receiver on the development Mac. This measured app state without relying on native process liveness; it was not a game server. The receiver, forwarding rule and native fetch were removed after diagnosis. SDK-injected Enter/Up/Up/Right/Enter produced a legal human move and local reply. `KEY_BACK` arrived as `GoBack`; normalizing it to Escape enabled the fixture's Back menu and restart sequence.
 
-A rapid forced termination after `done` restored the older initial snapshot (`human`, `Restored`) on relaunch. Thus the in-session `saved` label does not prove durable storage across forced termination. Repeating after a longer delay before termination restored `done` with `Completed result restored`. That is consistent with delayed persistence, but does not establish the cause or a safe timeout. This remains a separate issue to resolve before the MVP; a browser reload pass does not close it.
+A rapid forced termination after `done` restored the older initial snapshot (`human`, `Restored`) on relaunch. Thus the in-session `saved` label does not prove durable storage across forced termination. Repeating after a longer delay before termination restored `done` with `Completed result restored`. That is consistent with delayed persistence, but does not establish the cause or a safe timeout. This historical localStorage issue motivated the strict IndexedDB fix described in [durable save and offline verification](durable-save-and-offline.md).
 
 WebView console output is not automatically exposed by connection-error callbacks; see [Amazon's triage guidance](https://www.developer.amazon.com/docs/vega/0.23/triage-guidelines). The local diagnostic reports errors and DOM status through the supported WebView message bridge.
 
 ## Verification still required
 
-- Confirm visual rendering and input with the non-crashing SDK 0.23 shell; separately investigate SDK 0.24 compatibility before choosing a release target.
+- Investigate SDK 0.24 compatibility before choosing a release target. The owner has confirmed board rendering and manual input on SDK 0.23.
 - Establish reliable visual inspection. The desktop automation could not select the emulator executable as an app; a QEMU framebuffer screenshot was black, which is not sufficient evidence of what the accelerated window displayed. The device screenshot command did not finish during this experiment.
-- Verify Unicode chess glyphs and visual board updates, physical-remote behavior, reliable persistence across forced termination, and network-disabled cold start. The inline script/classic Worker and SDK-injected input paths now execute successfully.
+- Verify physical-remote behavior, glyph quality and full-game lifecycle handling on actual Fire TV hardware. The SDK 0.23 diagnostic now passes strict-save rapid restart and offline checks.
 - Review template dependencies and combined redistribution licensing before importing a shell into the repository or distributing a binary.
 
-SDK 0.23 now has a narrow runtime gameplay/input pass for this diagnostic fixture. Visual quality, physical-remote behavior, durable lifecycle saves and network-disabled cold start are not yet validated.
+SDK 0.23 now has owner-confirmed rendering/input and a narrow runtime gameplay, rapid-restart and offline pass for this diagnostic fixture. Physical hardware, full-game behavior and production packaging remain unvalidated.

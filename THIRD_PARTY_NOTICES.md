@@ -11,3 +11,5 @@ This private technical prototype imports the following runtime dependencies. The
 The engine and Chessground license texts are in [AGPL-3.0](licenses/AGPL-3.0.txt) and [GPL-3.0](licenses/GPL-3.0.txt). Full installed-package notices are retained in node_modules, and build-generated license comments must not be removed. The package lock records the exact dependency graph. Before any external binary distribution, resolve the combined license, required notices and complete corresponding-source delivery, including applicable transitive dependencies.
 
 Piece glyphs are Unicode characters rendered by system fonts. No cburnett artwork, opening book, private model or server implementation is bundled. No Vega SDK or Amazon sample code has yet been copied into this repository.
+
+Development-only tests use fake-indexeddb 6.2.5 (Apache-2.0), from https://github.com/dumbmatter/fakeIndexedDB. Its license is retained in the installed package; it is not included in the runtime bundle.
