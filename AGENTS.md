@@ -11,7 +11,7 @@ Dice Chess TV is a bootstrap repository for a Fire TV game. Read README.md for t
 - Verify every required action with D-pad, OK and Back. Mouse interaction alone is not TV validation.
 - Audit licenses before importing code or assets. Do not silently select a license or treat private visibility as a license exemption.
 - Before editing, inspect `git status`. Preserve unrelated changes and stage explicit paths only.
-- For this documentation-only bootstrap, run `git diff --check` and validate relative Markdown links. No application toolchain or runtime checks exist yet. Introduce documented build and verification commands alongside the first implementation.
+- Run `npm run check`, `npm run format:check`, `npm test`, `npm run build` and `git diff --check`. Use the Node version in mise.toml. For UI changes, exercise the built browser probe with keyboard-only input and verify rendering and reload recovery. Browser success is not Vega runtime or offline-package evidence.
 - Use branches and pull requests after bootstrap. Never merge, release, publish to Appstore or submit a contest entry without the required owner action/authorization.
 
 ## Publication boundary
