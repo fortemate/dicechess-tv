@@ -49,7 +49,7 @@ Fire OS is a possible later target with a separate build. Samsung/Tizen, Raspber
 6. Save, close and restore the exact position, roll and phase.
 7. Repeat without a development server or network, and record actual limitations.
 
-The narrow feasibility loop is complete on SDK 0.23. The next delivery step is the local result ledger and W/D/L view, followed by an evaluated Aggressive opponent. Full-game code and tests are now available; production packaging and physical-device testing remain separate work.
+The narrow feasibility loop is complete on SDK 0.23. The next delivery step is the local result ledger and W/D/L view, followed by polished TV interaction, rules and onboarding. Aggressive is a stretch goal. See the [delivery roadmap](docs/roadmap.md) and [GitHub milestones](https://github.com/fortemate/dicechess-tv/milestones). Full-game code and tests are now available; production packaging and physical-device testing remain separate work.
 
 ## Hackathon
 
@@ -57,7 +57,7 @@ Prepared for [Build, Ship, Shape: Amazon Developer Hackathon 2026](https://amazo
 
 - Submission deadline: **23 October 2026, 12:00 Pacific / 22:00 Europe/Riga**.
 - Internal submission target: **21 October 2026**.
-- Registration, final submission and Appstore publication are separate actions; none is implied by this repository.
+- Owner confirmed registration on 21 September 2026. Final submission and Appstore publication remain separate, unconfirmed actions.
 - Demonstrate the actual Vega/Fire TV environment and clearly distinguish reused components from work completed during the contest window.
 - Keep a reproducible SDK friction log and record tool versions from the first experiment.
 
