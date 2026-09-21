@@ -65,7 +65,7 @@ Full decisions and the detailed schedule are maintained in the private Fortemate
 
 ## Licensing
 
-The repository license has not been selected. The private prototype imports pinned engine, Chessground and Svelte packages; see [third-party notices](THIRD_PARTY_NOTICES.md). No third-party piece artwork is bundled. Resolve the combined distribution license before shipping a binary.
+The repository license has not been selected. The private prototype imports pinned engine, Chessground and Svelte packages, and bundles 12 CC0 RhosGFX vector SVG pieces; see [third-party notices](THIRD_PARTY_NOTICES.md). Resolve the combined distribution license before shipping a binary.
 
 Chessground is GPL-3.0-or-later. Reusing it requires a compatible distribution and source-availability plan; private repository visibility does not remove those obligations. Check the licenses of the engine, reused play-client code, piece artwork, fonts and samples before importing or distributing them. Commercial sale and closed-source distribution are different questions.
 
