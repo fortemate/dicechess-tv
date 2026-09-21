@@ -1,0 +1,8 @@
+[tools]
+node = "26.8.2"
+
+[tasks.check]
+run = "npm run check && npm run format:check && npm test"
+
+[tasks.build]
+run = "npm run build"

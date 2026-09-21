@@ -2,7 +2,9 @@
 
 Dice Chess for Amazon Fire TV: two players sharing one screen and remote, or a game against a choice of on-device bots.
 
-**Status: project bootstrap.** There is no runnable TV application yet. The first target is Vega Virtual Device on an Apple Silicon Mac; compatibility, offline operation and bot performance still need runtime verification.
+**Status: browser feasibility probe.** A small Svelte/Chessground scene validates a fixed engine transition, a local Random bot Worker and saved-state restoration. An external SDK experiment built and installed an ARM64 Vega package, but its WebView shell crashed; the committed runnable prototype remains the browser probe. The target remains Vega Virtual Device on an Apple Silicon Mac; device input, bundled-file loading and offline cold start remain unverified.
+
+See [prototype setup and verification](docs/prototype.md) for commands, keyboard controls, observed results and remaining Vega checks.
 
 ## Product scope
 
@@ -45,7 +47,7 @@ Fire OS is a possible later target with a separate build. Samsung/Tizen, Raspber
 6. Save, close and restore the exact position, roll and phase.
 7. Repeat without a development server or network, and record actual limitations.
 
-Only then proceed to a complete hotseat game, the Random/Aggressive bot selection, local statistics and user testing. There are no installation, build or test commands for this repository yet; add reproducible commands with the first runnable implementation.
+Only then proceed to a complete hotseat game, the Random/Aggressive bot selection, local statistics and user testing. The browser probe implements a narrow diagnostic fixture only; see the linked prototype guide for runnable commands. It is not the completed milestone above.
 
 ## Hackathon
 
@@ -61,7 +63,7 @@ Full decisions and the detailed schedule are maintained in the private Fortemate
 
 ## Licensing
 
-The repository license has not been selected. No third-party application code or artwork has been copied into this bootstrap.
+The repository license has not been selected. The private prototype imports pinned engine, Chessground and Svelte packages; see [third-party notices](THIRD_PARTY_NOTICES.md). No third-party piece artwork is bundled. Resolve the combined distribution license before shipping a binary.
 
 Chessground is GPL-3.0-or-later. Reusing it requires a compatible distribution and source-availability plan; private repository visibility does not remove those obligations. Check the licenses of the engine, reused play-client code, piece artwork, fonts and samples before importing or distributing them. Commercial sale and closed-source distribution are different questions.
 
