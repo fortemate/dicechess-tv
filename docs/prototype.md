@@ -54,9 +54,9 @@ The UI heartbeat is a diagnostic counter, not a performance benchmark. The probe
 
 ## Vega gate still open
 
-`vega` was not found in PATH. The Mac reported about 13 GiB of available disk space; Amazon specifies 20 GB for tools and the development environment. SDK installation was not attempted. Select/free sufficient storage before installing from the [official instructions](https://developer.amazon.com/docs/vega/0.24/install-vega-sdk).
+The initial disk-space blocker was resolved and SDK installation completed. See the [SDK experiment](vega-sdk-experiment.md) for versions, reproducible commands and the native WebView crash that now blocks runtime validation.
 
-After the SDK is available:
+Remaining acceptance checklist (build/install evidence alone does not close these checks):
 
 1. Record CLI/SDK versions and run the official Hello World in VVD.
 2. Generate the official `vegaWebview` shell, then package the built web assets using the documented local-file path.
