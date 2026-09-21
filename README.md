@@ -2,9 +2,11 @@
 
 Dice Chess for Amazon Fire TV: two players sharing one screen and remote, or a game against a choice of on-device bots.
 
-**Status: Vega feasibility loop verified.** On the development MacBook Air, an external RN 0.72 shell with SDK 0.23 displays the bundled Svelte/Chessground scene, accepts input and executes a local Random bot reply. The owner confirmed the board and manual move. IndexedDB strict transactions now gate visible state changes; three rapid forced-stop/relaunch checks restored the exact completed position. A network-disabled cold-launch, move, reply and restore check also passed. This is a one-move diagnostic, not a complete game. SDK 0.24 WebView crashes and physical Fire TV validation remain open; the native shell remains outside this repository.
+**Status: full offline gameplay prototype.** The web app now supports hotseat and a local Random opponent, three-die turns, promotion, king capture, resignation, draw agreement and save/resume during a turn. Browser checks cover keyboard-only play and result recovery. The external SDK 0.23 / RN 0.72 shell runs the bundled app on Vega Virtual Device on the development MacBook Air. See [full-game behavior and evidence](docs/full-game.md) for the exact verification boundary.
 
-See [prototype setup and verification](docs/prototype.md) for commands, keyboard controls, observed results and remaining Vega checks.
+Aggressive, W/D/L statistics, physical Fire TV testing and production native packaging remain future work. SDK 0.24 WebView compatibility is still unresolved. The native shell remains outside this repository.
+
+The earlier [feasibility probe](docs/prototype.md), [SDK experiment](docs/vega-sdk-experiment.md) and [durable-save/offline checks](docs/durable-save-and-offline.md) document the diagnostic that preceded this game.
 
 ## Product scope
 
@@ -31,13 +33,13 @@ React Native for Vega shell
         └── Versioned local game snapshot
 ```
 
-The shell handles platform integration. The web layer renders the game and handles remote navigation. The canonical engine determines legal actions, dice consumption, complete turns and terminal states; the board must not implement a second set of rules.
+The shell handles platform integration. The web layer renders the game and handles remote navigation. The canonical engine determines legal actions and board transitions. A narrow adapter retains dice across the pinned engine API’s board-only `applyMove` result; the controller applies the existing game-service terminal policy. See the compatibility note in the full-game guide. The board only renders state and emits intent.
 
 This repository owns TV-specific packaging, input and application integration. Reuse appropriate public components from [dicechess-play](https://github.com/fortemate/dicechess-play) and [dicechess-engine](https://github.com/fortemate/dicechess-engine) after checking their licenses. Shared fixes should return to their source repositories.
 
 Fire OS is a possible later target with a separate build. Samsung/Tizen, Raspberry Pi and hardware purchases are deferred.
 
-## First implementation milestone
+## Completed feasibility milestone
 
 1. Install and record Vega CLI/SDK and Node versions on the development Mac.
 2. Run the official Hello World in Vega Virtual Device.
@@ -47,7 +49,7 @@ Fire OS is a possible later target with a separate build. Samsung/Tizen, Raspber
 6. Save, close and restore the exact position, roll and phase.
 7. Repeat without a development server or network, and record actual limitations.
 
-Only then proceed to a complete hotseat game, the Random/Aggressive bot selection, local statistics and user testing. The browser probe implements a narrow diagnostic fixture only; see the linked prototype guide for runnable commands. The external SDK experiment now covers this diagnostic loop on SDK 0.23; production packaging and physical-device testing remain separate work.
+The narrow feasibility loop is complete on SDK 0.23. The next delivery step is the local result ledger and W/D/L view, followed by an evaluated Aggressive opponent. Full-game code and tests are now available; production packaging and physical-device testing remain separate work.
 
 ## Hackathon
 

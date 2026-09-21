@@ -1,4 +1,6 @@
-# Browser feasibility probe
+# Browser feasibility probe (historical)
+
+The main app now runs the [full-game prototype](full-game.md). This page records the earlier one-move diagnostic; its controls and fixed dice do not describe the current UI. Diagnostic model/storage tests remain as regression coverage.
 
 ## Purpose and boundary
 
