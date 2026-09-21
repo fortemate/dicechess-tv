@@ -1,18 +1,22 @@
 # Dice Chess TV
 
-Dice Chess for Amazon Fire TV: two players sharing one screen and remote, or a game against an on-device bot.
+Dice Chess for Amazon Fire TV: two players sharing one screen and remote, or a game against a choice of on-device bots.
 
 **Status: project bootstrap.** There is no runnable TV application yet. The first target is Vega Virtual Device on an Apple Silicon Mac; compatibility, offline operation and bot performance still need runtime verification.
 
 ## Product scope
 
 - Hotseat: two people take turns using one remote after each complete Dice Chess turn.
-- One lightweight local bot, with computation kept off the UI thread.
+- Several entirely local bots, starting with Random and Aggressive; computation stays off the UI thread.
+- No stake doubling, coins, wallets or betting in the initial game.
+- Local win/draw/loss (W/D/L) statistics, separated by opponent and hotseat mode.
 - D-pad, OK and Back navigation through the board, dice, promotion, menus and results.
 - Save and resume the full game state, including the existing dice roll and remaining actions.
 - A self-contained installed package as the offline target.
 
-Online matchmaking, accounts, rankings, cloud bots and subscriptions are outside the initial MVP.
+Online matchmaking, accounts, rankings, cloud bots and subscriptions are outside the initial MVP. Hunter is a conditional later bot; a one-time unlock is a monetization idea, not an implemented or committed purchase feature.
+
+See [offline game scope](docs/offline-game-scope.md) for the accepted requirements, proposed statistics behavior and delivery order. This scope update supersedes the earlier single-bot MVP description in the hackathon research notes.
 
 ## Proposed architecture
 
@@ -41,7 +45,7 @@ Fire OS is a possible later target with a separate build. Samsung/Tizen, Raspber
 6. Save, close and restore the exact position, roll and phase.
 7. Repeat without a development server or network, and record actual limitations.
 
-Only then proceed to a complete hotseat game, bot integration and user testing. There are no installation, build or test commands for this repository yet; add reproducible commands with the first runnable implementation.
+Only then proceed to a complete hotseat game, the Random/Aggressive bot selection, local statistics and user testing. There are no installation, build or test commands for this repository yet; add reproducible commands with the first runnable implementation.
 
 ## Hackathon
 
