@@ -1,0 +1,19 @@
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+mise.local.toml
+
+# Dependencies and generated outputs
+node_modules/
+build/
+dist/
+.svelte-kit/
+coverage/
+*.vpkg
+*.apk
+*.log
+
+# Local editor and OS files
+.DS_Store
+.idea/
