@@ -162,6 +162,17 @@ before a forced process kill is the value read back after it.
 
 The cursor is deliberately not saved. Where someone is looking is not game state.
 
+Verified on a device on 22 September 2026, driven from the keyboard. A turn was
+played to `dice "QR" | legal 1 | last b1c3 | moves b1c3`, the app was force-killed,
+and the relaunch reported `phase move | dice "QR" | legal 1 | last b1c3 | moves
+b1c3` with the cursor back at its starting square. The consumed knight die stays
+consumed, so a restart cannot reroll a partial turn.
+
+One trap worth keeping: an earlier version of this app rendered `null` until an
+effect had read the store. The board then never received remote input at all —
+every key press was lost, silently. Reading the snapshot synchronously during the
+first render fixed it. Do not give this app a loading frame.
+
 ## Raster alternative
 
 Pieces are vectors and no raster fallback is needed. PNGs remain available if
