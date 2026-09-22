@@ -4,8 +4,8 @@ import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 import { press, hold, isSubscribed } from './stubs/react-native-kepler.mjs';
 import { GameScreen } from '../src/GameScreen';
-import { PIECES } from '../src/pieces';
 import { THEME } from '../src/theme';
+import type { ScreenOptions } from '../src/screen';
 
 type Instance = renderer.ReactTestInstance;
 type Style = Record<string, string | number | undefined>;
@@ -18,23 +18,30 @@ const isHost = (node: Instance, name: string) =>
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
 ).IS_REACT_ACT_ENVIRONMENT = true;
 
-const mount = () => {
+// A fixed instructional roll: queen, rook, knight. Not production randomness.
+const options: ScreenOptions = { roll: () => [5, 4, 2], newId: () => 'test' };
+
+// Assertions read the screen's own state report rather than panel wording, so
+// they test behaviour instead of copy.
+type Mounted = { root: Instance; state: () => string };
+
+const mount = (): Mounted => {
   let tree!: renderer.ReactTestRenderer;
+  const reports: string[] = [];
   act(() => {
-    tree = renderer.create(React.createElement(GameScreen));
+    tree = renderer.create(
+      React.createElement(GameScreen, {
+        options,
+        onState: (line: string) => reports.push(line),
+      }),
+    );
   });
-  return tree.root;
+  return { root: tree.root, state: () => reports[reports.length - 1] ?? '' };
 };
 
 const send = (...keys: string[]) => {
   for (const key of keys) act(() => press(key));
 };
-
-const text = (root: Instance) =>
-  root
-    .findAll((node) => isHost(node, 'Text'), { deep: true })
-    .map((node) => String(node.props.children))
-    .join('\n');
 
 const overlays = (root: Instance, match: (style: Style) => boolean) =>
   root.findAll(
@@ -45,8 +52,8 @@ const overlays = (root: Instance, match: (style: Style) => boolean) =>
     { deep: true },
   );
 
-// Vega's own event names. A keyboard on the Virtual Device sends `enter` for
-// the OK button; a physical remote sends `select`.
+// Vega's own event names. The Virtual Device keyboard sends `enter` for OK; a
+// physical remote sends `select`.
 const Up = 'up';
 const Down = 'down';
 const Left = 'left';
@@ -59,68 +66,59 @@ test('the screen subscribes to the TV event channel', () => {
   assert.equal(isSubscribed(), true);
 });
 
-test('OK arrives as either enter or select, and acts once per press', () => {
+test('OK arrives as either enter or select', () => {
   const first = mount();
   send('enter');
-  assert.match(text(first), /Remaining: Queen · Rook · Knight/);
+  assert.match(first.state(), /dice "QRN"/);
 
   const second = mount();
   send('select');
-  assert.match(text(second), /Remaining: Queen · Rook · Knight/);
+  assert.match(second.state(), /dice "QRN"/);
 });
 
 test('holding a direction walks the cursor; holding OK acts once', () => {
-  const root = mount();
+  const { state } = mount();
   send(Select);
-  assert.match(text(root), /Cursor e2/);
+  assert.match(state(), /cursor e2/);
 
   // Three down events without a release move three squares.
   act(() => hold('right', 3));
-  assert.match(text(root), /Cursor h2/);
+  assert.match(state(), /cursor h2/);
 
   // Holding OK repeats the down event, but nothing happens until release.
   act(() => hold('enter', 3));
-  assert.match(text(root), /Arrows: move focus/);
+  assert.match(state(), /selected -/);
 });
 
 test('an unknown key is ignored', () => {
-  const root = mount();
+  const { state } = mount();
   send(Select);
-  const before = text(root);
+  const before = state();
   send('playpause');
-  assert.equal(text(root), before);
+  assert.equal(state(), before);
 });
 
-test('it opens waiting for a roll, and OK rolls the instructional dice', () => {
-  const root = mount();
-  assert.match(text(root), /OK: roll three dice/);
-  assert.match(text(root), /TURN 1/);
-
+test('it opens on the board waiting for a roll', () => {
+  const { state } = mount();
+  assert.match(state(), /overlay none \| turn 1 \| phase roll/);
   send(Select);
-  // Queen, rook, knight, and it is White's turn to act.
-  assert.match(text(root), /Remaining: Queen · Rook · Knight/);
-  assert.match(text(root), /White to play/);
-  assert.match(text(root), /Arrows: move focus/);
+  assert.match(state(), /phase move \| side w \| dice "QRN" \| legal 4/);
 });
 
-test('arrows move the focus ring and OK picks a piece up', () => {
-  const root = mount();
+test('arrows move the focus, OK picks a piece up and marks its destinations', () => {
+  const { root, state } = mount();
   send(Select);
-  assert.match(text(root), /Cursor e2/);
 
-  // e2 holds a pawn with no die for it, so OK there does nothing.
+  // e2 holds a pawn with no die for it, so OK there selects nothing.
   send(Select);
-  assert.match(text(root), /Arrows: move focus/);
+  assert.match(state(), /selected -/);
 
-  // Walk to b1 and select the knight.
   send(Down, Left, Left, Left, Select);
-  assert.match(text(root), /Cursor b1/);
-  assert.match(text(root), /Choose a destination for b1/);
+  assert.match(state(), /cursor b1 \| selected b1/);
   assert.equal(
     overlays(root, (s) => s.backgroundColor === THEME.selected).length,
     1,
   );
-  // Its two legal destinations are marked.
   assert.equal(
     overlays(
       root,
@@ -130,56 +128,45 @@ test('arrows move the focus ring and OK picks a piece up', () => {
   );
 });
 
-test('Back drops a selection without touching the position', () => {
-  const root = mount();
+test('Back cancels a selection before it opens the menu', () => {
+  const { state } = mount();
   send(Select, Down, Left, Left, Left, Select);
-  assert.match(text(root), /Choose a destination for b1/);
+  assert.match(state(), /selected b1/);
 
   send(Back);
-  assert.match(text(root), /Arrows: move focus/);
-  assert.equal(
-    overlays(root, (s) => s.backgroundColor === THEME.selected).length,
-    0,
-  );
-  // The knight is still home and the dice are untouched.
-  assert.match(text(root), /Remaining: Queen · Rook · Knight/);
+  assert.match(state(), /overlay none/);
+  assert.match(state(), /selected -/);
+  assert.match(state(), /dice "QRN"/);
+
+  send(Back);
+  assert.match(state(), /overlay menu/);
 });
 
 test('a complete turn plays out on the remote and hands over', () => {
-  const root = mount();
+  const { root, state } = mount();
   send(Select);
 
-  // b1c3 with the knight die.
   send(Down, Left, Left, Left, Select, Up, Up, Right, Select);
-  assert.match(text(root), /Remaining: Queen · Rook/);
-  assert.equal(root.findAllByType(PIECES.N as never).length, 2);
-  // Both ends of the move are marked.
+  assert.match(state(), /dice "QR" \| legal 1/);
+  assert.match(state(), /last b1c3/);
   assert.equal(
     overlays(root, (s) => s.backgroundColor === THEME.lastMove).length,
     2,
   );
 
-  // a1b1 with the rook die: the only action left.
   send(Left, Left, Down, Down, Select, Right, Select);
-  assert.match(text(root), /Remaining: Queen/);
+  assert.match(state(), /dice "Q"/);
+  assert.match(state(), /phase handoff/);
 
-  // The queen die is unusable, so the turn ends and hands over.
-  assert.match(text(root), /OK: continue/);
   send(Select);
-  assert.match(text(root), /TURN 2/);
-  assert.match(text(root), /Black to play/);
-  assert.match(text(root), /OK: roll three dice/);
+  assert.match(state(), /turn 2 \| phase roll \| side b/);
 });
 
-test('an illegal destination changes nothing', () => {
-  const root = mount();
+test('an illegal destination changes nothing but the cursor', () => {
+  const { state } = mount();
   send(Select, Down, Left, Left, Left, Select);
-  const before = text(root);
 
-  // d4 is not one of the knight's destinations and holds no piece that can act.
   send(Up, Up, Up, Right, Right, Select);
-  assert.match(text(root), /Choose a destination for b1/);
-  assert.match(text(root), /Remaining: Queen · Rook · Knight/);
-  assert.notEqual(before, text(root)); // only the cursor moved
-  assert.match(text(root), /Cursor d4/);
+  assert.match(state(), /cursor d4 \| selected b1/);
+  assert.match(state(), /dice "QRN"/);
 });

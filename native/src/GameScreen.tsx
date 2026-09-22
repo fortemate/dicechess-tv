@@ -1,33 +1,25 @@
-// A turn played with the remote, end to end, on the canonical engine.
+// The native game screen: a board, a panel, and the overlays the remote opens.
 //
-// The board draws, the reducer interprets the remote, and the shared controller
-// in src/core/game.ts owns the rules. Nothing here decides legality: every move
-// it applies came out of the engine's own list of legal actions.
-//
-// The roll is a fixed instructional fixture, not production randomness.
+// All flow lives in screen.ts as a pure reducer; this file only draws what that
+// reducer says and hands key presses to it.
 import React from 'react';
 import { View, Text, useWindowDimensions } from 'react-native';
-import {
-  newGame,
-  rollGame,
-  moveGame,
-  nextTurn,
-  viewGame,
-  sideName,
-  type Game,
-} from '../../src/core/game';
-import {
-  boardInput,
-  type BoardFocus,
-  type BoardKey,
-} from '../../src/core/boardInput';
-import type { Square } from '../../src/core/board';
+import { viewGame, sideName, type Game } from '../../src/core/game';
+import type { BoardKey } from '../../src/core/boardInput';
 import { Board } from './Board';
 import { useRemoteInput } from './useRemoteInput';
 import { THEME } from './theme';
+import {
+  screenReducer,
+  initialState,
+  homeOptions,
+  menuOptions,
+  confirmOptions,
+  resumable,
+  type ScreenOptions,
+  type ScreenState,
+} from './screen';
 
-const ROLL = [5, 4, 2];
-const START: Square = 'e2';
 const DIE = {
   P: 'Pawn',
   N: 'Knight',
@@ -42,73 +34,16 @@ const dice = (remaining: string) =>
     .map((letter) => DIE[letter as keyof typeof DIE] ?? letter)
     .join(' · ');
 
-// The screen's whole flow as a pure function of state and one key.
-//
-// It is a reducer rather than a set of handlers because remote repeats can
-// arrive faster than React re-renders: handlers closing over state would read a
-// stale cursor and drop moves while a direction is held.
-export type ScreenState = {
-  game: Game;
-  focus: BoardFocus;
-  promotion: string[] | null;
-  promotionIndex: number;
-};
-
-// A restored game resumes exactly where it was left; without one the screen
-// starts a fresh game. The cursor is not saved: it is where the player is
-// looking, not part of the game.
-export const initialState = (restored?: Game | null): ScreenState => ({
-  game: restored ?? newGame('hotseat', 'remote'),
-  focus: { cursor: START, selected: null },
-  promotion: null,
-  promotionIndex: 0,
-});
-
-// A played move clears the selection and any promotion choice; the cursor stays
-// where the player left it.
-const played = (state: ScreenState, game: Game): ScreenState => ({
-  game,
-  focus: { ...state.focus, selected: null },
-  promotion: null,
-  promotionIndex: 0,
-});
-
-export function screenReducer(state: ScreenState, key: BoardKey): ScreenState {
-  const { game, promotion } = state;
-  if (promotion) {
-    if (key === 'back') return { ...state, promotion: null, promotionIndex: 0 };
-    if (key === 'select')
-      return played(state, moveGame(game, promotion[state.promotionIndex]));
-    const step = key === 'up' || key === 'left' ? -1 : 1;
-    return {
-      ...state,
-      promotionIndex:
-        (state.promotionIndex + step + promotion.length) % promotion.length,
-    };
-  }
-  if (game.phase === 'roll')
-    return key === 'select' ? played(state, rollGame(game, ROLL)) : state;
-  if (game.phase === 'handoff')
-    return key === 'select' ? played(state, nextTurn(game)) : state;
-  if (game.phase === 'ended') return state;
-
-  const result = boardInput(state.focus, key, viewGame(game).legal);
-  if (result.action.type === 'move')
-    return played(
-      { ...state, focus: result.focus },
-      moveGame(game, result.action.move),
-    );
-  if (result.action.type === 'promote')
-    return {
-      ...state,
-      focus: result.focus,
-      promotion: result.action.moves,
-      promotionIndex: 0,
-    };
-  return { ...state, focus: result.focus };
-}
+const RESULT = {
+  'king-captured': 'King captured',
+  resigned: 'Resigned',
+  'agreed-draw': 'Draw agreed',
+  '100-halfmoves': 'Draw: 100 halfmoves',
+  'turn-limit': 'Draw: turn limit',
+} as const;
 
 export type GameScreenProps = {
+  options: ScreenOptions;
   // A game to resume, read before the first render so the board never shows a
   // fresh position that is about to be replaced.
   initial?: Game | null;
@@ -117,28 +52,65 @@ export type GameScreenProps = {
   onCommit?: (game: Game) => void;
   // Diagnostic seam for device checks. Vega has no screenshot command and a
   // Release build does not route console output anywhere readable, so the only
-  // way to know what the screen shows is to let it say so. The app passes
-  // nothing and the effect does not run.
+  // way to know what the screen shows is to let it say so.
   onState?: (report: string) => void;
 };
 
+const Choices = ({
+  title,
+  note,
+  options,
+  index,
+}: {
+  title: string;
+  note?: string;
+  options: string[];
+  index: number;
+}) => (
+  <View style={{ marginTop: 12 }}>
+    <Text style={{ color: '#f0f4f8', fontSize: 30, marginBottom: 8 }}>
+      {title}
+    </Text>
+    {note ? (
+      <Text style={{ color: '#aab8c9', fontSize: 20, marginBottom: 10 }}>
+        {note}
+      </Text>
+    ) : null}
+    {options.map((option, i) => (
+      <Text
+        key={option}
+        style={{
+          color: i === index ? THEME.cursor : '#aab8c9',
+          fontSize: 26,
+          marginBottom: 4,
+        }}
+      >
+        {(i === index ? '> ' : '  ') + option}
+      </Text>
+    ))}
+  </View>
+);
+
 export const GameScreen = ({
+  options,
   initial,
   onCommit,
   onState,
-}: GameScreenProps = {}) => {
+}: GameScreenProps) => {
   const { width, height } = useWindowDimensions();
-  const [{ game, focus, promotion, promotionIndex }, onKey] = React.useReducer(
-    screenReducer,
+  const reduce = React.useCallback(
+    (state: ScreenState, key: BoardKey) => screenReducer(state, key, options),
+    [options],
+  );
+  const [{ game, focus, overlay }, onKey] = React.useReducer(
+    reduce,
     initial,
-    initialState,
+    (restored) => initialState(options, restored),
   );
   const state = React.useMemo(() => viewGame(game), [game]);
 
   useRemoteInput(onKey);
 
-  // Saving is the app's business, not the board's; the board only says when
-  // there is something new worth saving.
   // Seeded with the game the screen opened on, so mounting never re-saves what
   // was just restored.
   const committed = React.useRef(game);
@@ -151,6 +123,7 @@ export const GameScreen = ({
   React.useEffect(() => {
     onState?.(
       [
+        `overlay ${overlay.kind}`,
         `turn ${game.turn}`,
         `phase ${game.phase}`,
         `side ${state.side}`,
@@ -159,23 +132,22 @@ export const GameScreen = ({
         `cursor ${focus.cursor}`,
         `selected ${focus.selected ?? '-'}`,
         `last ${game.lastMove ?? '-'}`,
-        `moves ${game.moves.join(',') || '-'}`,
+        `result ${game.result?.reason ?? '-'}`,
       ].join(' | '),
     );
-  }, [onState, game, state, focus]);
+  }, [onState, game, state, focus, overlay]);
 
   const size = Math.min(height - 64, width * 0.62);
-  const prompt = promotion
-    ? 'Arrows: choose a piece · OK: confirm · Back: cancel'
-    : game.phase === 'roll'
+  const prompt =
+    game.phase === 'roll'
       ? 'OK: roll three dice'
       : game.phase === 'handoff'
         ? 'OK: continue'
         : game.phase === 'ended'
-          ? 'Game over'
+          ? 'OK: back to the menu'
           : focus.selected
             ? `Choose a destination for ${focus.selected}`
-            : 'Arrows: move focus · OK: select';
+            : 'Arrows: move focus · OK: select · Back: menu';
 
   return (
     <View
@@ -199,33 +171,61 @@ export const GameScreen = ({
         <Text style={{ color: '#8dc9b6', fontSize: 20, letterSpacing: 2 }}>
           {`HOTSEAT · TURN ${game.turn}`}
         </Text>
-        <Text style={{ color: '#f0f4f8', fontSize: 40, marginBottom: 20 }}>
+        <Text style={{ color: '#f0f4f8', fontSize: 38, marginBottom: 16 }}>
           {game.result
-            ? `${game.result.reason}`
+            ? RESULT[game.result.reason]
             : `${sideName(state.side)} to play`}
         </Text>
-        <Text style={{ color: '#aab8c9', fontSize: 22, marginBottom: 6 }}>
-          {state.remaining ? `Remaining: ${dice(state.remaining)}` : 'No dice'}
-        </Text>
-        <Text style={{ color: '#f0f4f8', fontSize: 24, marginBottom: 16 }}>
-          {prompt}
-        </Text>
-        {promotion
-          ? promotion.map((move, index) => (
-              <Text
-                key={move}
-                style={{
-                  color: index === promotionIndex ? THEME.cursor : '#aab8c9',
-                  fontSize: 22,
-                }}
-              >
-                {DIE[move.slice(4).toUpperCase() as keyof typeof DIE] ?? move}
-              </Text>
-            ))
-          : null}
-        <Text style={{ color: '#98a9ba', fontSize: 16, marginTop: 20 }}>
-          {`Cursor ${focus.cursor} · ${game.phase} · fixed instructional roll`}
-        </Text>
+        {game.result ? (
+          <Text style={{ color: '#aab8c9', fontSize: 24, marginBottom: 12 }}>
+            {game.result.winner
+              ? `${sideName(game.result.winner)} wins`
+              : 'Drawn'}
+          </Text>
+        ) : (
+          <Text style={{ color: '#aab8c9', fontSize: 22, marginBottom: 6 }}>
+            {state.remaining
+              ? `Remaining: ${dice(state.remaining)}`
+              : 'No dice'}
+          </Text>
+        )}
+
+        {overlay.kind === 'home' ? (
+          <Choices
+            title="Dice Chess"
+            options={homeOptions(resumable(game))}
+            index={overlay.index}
+          />
+        ) : overlay.kind === 'menu' ? (
+          <Choices
+            title="Menu"
+            options={menuOptions(game)}
+            index={overlay.index}
+          />
+        ) : overlay.kind === 'confirm' ? (
+          <Choices
+            title={
+              overlay.action === 'resign' ? 'Resign?' : 'Replace this game?'
+            }
+            note={
+              overlay.action === 'resign'
+                ? 'The other player wins.'
+                : 'The game in progress is lost.'
+            }
+            options={confirmOptions}
+            index={overlay.index}
+          />
+        ) : overlay.kind === 'promotion' ? (
+          <Choices
+            title="Promote to"
+            options={overlay.moves.map(
+              (move) => DIE[move.slice(4).toUpperCase() as keyof typeof DIE],
+            )}
+            index={overlay.index}
+          />
+        ) : (
+          <Text style={{ color: '#f0f4f8', fontSize: 24 }}>{prompt}</Text>
+        )}
       </View>
     </View>
   );

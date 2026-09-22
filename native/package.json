@@ -5,7 +5,7 @@
   "description": "React Native for Vega board renderer. Typechecked and tested here; built inside a scaffolded Vega project, see README.md.",
   "scripts": {
     "check": "tsc --noEmit",
-    "test": "node --test --import ./test/hooks.mjs test/*.test.tsx"
+    "test": "node --test --import ./test/hooks.mjs test/*.test.tsx test/*.test.ts"
   },
   "dependencies": {
     "@amazon-devices/react-native-kepler": "^4.0.1",
