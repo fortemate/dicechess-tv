@@ -1,7 +1,6 @@
 import { DiceChess } from '@fortemate/dicechess-engine/rules';
 import { applyLegal } from './model.ts';
-import { read as readFen } from '@lichess-org/chessground/fen';
-import type { Key } from '@lichess-org/chessground/types';
+import { pieceAt } from './board.ts';
 
 export const INITIAL_POSITION =
   'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
@@ -67,16 +66,9 @@ export function viewGame(game: Game) {
     // Engine 0.12.2 applyMove returns board fields but clears the dice field.
     // Reattach the surviving dice, as the play client does. Legality, including
     // maximal use and promotion restrictions, is checked by applyLegal first.
-    const piece = readFen(board).get(move.slice(0, 2) as Key);
+    const piece = pieceAt(board, move.slice(0, 2));
     if (!piece) throw new Error('Missing moving piece');
-    const letter = {
-      pawn: 'P',
-      knight: 'N',
-      bishop: 'B',
-      rook: 'R',
-      queen: 'Q',
-      king: 'K',
-    }[piece.role];
+    const letter = piece.toUpperCase();
     let remaining = (dfen.split(' ')[6] ?? '').toUpperCase();
     const consume = (die: string) => {
       if (!remaining.includes(die)) throw new Error('Missing required die');
@@ -85,7 +77,7 @@ export function viewGame(game: Game) {
     const next = applyLegal(dfen, move);
     consume(letter);
     if (
-      piece.role === 'king' &&
+      letter === 'K' &&
       Math.abs(move.charCodeAt(0) - move.charCodeAt(2)) === 2
     )
       consume('R');
@@ -233,11 +225,11 @@ export function agreeDraw(game: Game): Game {
     result: { winner: null, reason: 'agreed-draw' },
   };
 }
+// The caller supplies the random source. Core stays free of platform globals:
+// crypto.getRandomValues is not guaranteed outside a browser runtime.
 // Rejection sampling avoids the modulo bias of an arbitrary byte % 6.
 export function rollDice(
-  fill: (bytes: Uint8Array<ArrayBuffer>) => void = (bytes) => {
-    crypto.getRandomValues(bytes);
-  },
+  fill: (bytes: Uint8Array<ArrayBuffer>) => void,
 ): number[] {
   const dice: number[] = [];
   const bytes = new Uint8Array(8);

@@ -7,7 +7,7 @@ import {
   decode,
   derive,
   shiftSquare,
-} from '../src/model.ts';
+} from '../src/core/model.ts';
 
 test('one human action hands the fixed knight fixture to a local random bot', () => {
   const after = { schema: 1 as const, humanMove: 'b1c3' };
