@@ -1,0 +1,22 @@
+{
+  "name": "@fortemate/dicechess-tv-native",
+  "version": "0.0.0",
+  "private": true,
+  "description": "React Native for Vega board renderer. Typechecked and tested here; built inside a scaffolded Vega project, see README.md.",
+  "scripts": {
+    "check": "tsc --noEmit",
+    "test": "node --test --import ./test/hooks.mjs test/*.test.tsx"
+  },
+  "dependencies": {
+    "@amazon-devices/react-native-svg": "3.0.9000000001",
+    "react": "19.2.0",
+    "react-native": "0.83.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.2",
+    "@types/react-test-renderer": "^19.3.0",
+    "esbuild": "0.25.10",
+    "react-test-renderer": "19.2.0",
+    "typescript": "5.8.3"
+  }
+}
