@@ -50,6 +50,10 @@ export type ScreenState = {
   game: Game;
   focus: BoardFocus;
   overlay: Overlay;
+  // The opponent's remaining actions, revealed one at a time. Validated as a
+  // complete path before the first is played, so this is a reveal and not a
+  // decision taken in instalments.
+  pending: string[];
 };
 
 export type ScreenOptions = {
@@ -92,6 +96,7 @@ const board = (game: Game, cursor: Square = START): ScreenState => ({
   game,
   focus: { cursor, selected: null },
   overlay: { kind: 'none' },
+  pending: [],
 });
 
 // A played move clears the selection; the cursor stays where the player left it.
@@ -99,6 +104,7 @@ const played = (state: ScreenState, game: Game): ScreenState => ({
   game,
   focus: { ...state.focus, selected: null },
   overlay: { kind: 'none' },
+  pending: [],
 });
 
 const step = (key: BoardKey, index: number, length: number): number =>
@@ -120,21 +126,41 @@ export const initialState = (
     // game should be resumed deliberately rather than dropping the player
     // mid-turn into a game they may not remember.
     overlay: { kind: 'home', index: 0 },
+    pending: [],
   };
 };
 
-// One step of the local opponent's turn: roll, play a complete legal path, or
-// end the turn. Each step is its own state so the player sees it happen rather
-// than the board jumping.
+// One step of the local opponent's turn: roll, reveal one action of its path,
+// or end the turn. A three-dice turn is three visible steps rather than a board
+// that changes by three moves at once, because a player who cannot see what the
+// opponent did cannot read the game.
 function botStep(state: ScreenState, options: ScreenOptions): ScreenState {
-  const { game } = state;
+  const { game, pending } = state;
   if (!botToAct(game)) return state;
+
+  // Mid-path: reveal the next action. moveGame revalidates it against the
+  // position it is actually applied to.
+  if (pending.length)
+    return {
+      ...state,
+      game: moveGame(game, pending[0]),
+      pending: pending.slice(1),
+    };
+
   if (game.phase === 'roll')
     return { ...state, game: rollGame(game, options.roll()) };
   if (game.phase === 'handoff') return { ...state, game: nextTurn(game) };
-  // applyBotReply revalidates every action and rejects a stale or incomplete
-  // path, so a reply for a position that has moved on cannot be applied.
-  return { ...state, game: applyBotReply(game, botReply(game)) };
+
+  // Decide the whole turn at once and check it as a whole: applyBotReply
+  // rejects a stale or incomplete path. Its result is discarded and the path is
+  // replayed a move at a time, so the check covers what is about to be shown.
+  const reply = botReply(game);
+  applyBotReply(game, reply);
+  return {
+    ...state,
+    game: moveGame(game, reply.moves[0]),
+    pending: reply.moves.slice(1),
+  };
 }
 
 export function screenReducer(

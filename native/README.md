@@ -233,14 +233,24 @@ opponent rolled `BRK`, had no legal action and handed back immediately; the
 player took a turn; the opponent then rolled `PNQ` and spent all three dice,
 ending on `d8b6`.
 
-### Two gaps this leaves
+Its path is **decided as a whole and checked as a whole**, then revealed one
+action at a time: `applyBotReply` rejects a stale or incomplete path before the
+first move is shown, and the moves are then replayed individually. That is a
+reveal, not a decision taken in instalments. Each action marks its own pair of
+squares and spends one die, so a three-dice turn reads as three moves rather
+than a board that changes by three at once.
 
-- **The opponent's whole path applies in one state.** Its three dice go from
-  `PNQ` to `""` in a single step and only the last move is marked, so a player
-  cannot see what it actually did. Playing the path one move at a time matters
-  more for reading the game than animation does.
+Measured on a device with a forced three-pawn roll: `PPP` → `h7h5` → `PP` →
+`a7a6` → `P` → `e7e6` → handoff.
+
+An interrupted turn is **recomputed, not resumed half-played**. The pending path
+is state, not save data, so a relaunch mid-turn has the opponent decide afresh
+from the position it actually finds.
+
+### What this still leaves
+
 - **Nothing animates.** Pieces are placed, not moved; there is no slide between
-  squares for either side. That is M2 polish.
+  squares for either side. That is M2 polish, and the owner has deferred it.
 
 ## Raster alternative
 
