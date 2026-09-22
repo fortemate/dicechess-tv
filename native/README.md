@@ -60,6 +60,28 @@ template's `src/App.tsx` at `BoardScreen`.
 Target **SDK 0.24**. Its Metro resolves the engine without configuration, and the
 native path does not use the WebView whose crash pinned the web app to SDK 0.23.
 
+## Verification
+
+Run on a Vega Virtual Device at 1920x1080, SDK 0.24.12112. The package builds,
+installs, launches and stays running with an empty crash buffer; the SVG
+primitives and all twelve piece components resolve; and the device reports 64
+squares, 32 pieces and 32 dark squares with the cursor, selection, legal
+destinations and last move on four distinct sets of squares.
+
+**The owner confirmed on 22 September 2026 that all twelve pieces display well.**
+That confirmation is by eye, because the screen could not be captured: the
+device's `screenshooter` fails its capture call even once its buffer-permission
+problem is worked around, and the host cannot grab the emulator window. Not yet
+confirmed by anyone: that the focus and destination overlays stay visible, and
+legibility at TV viewing distance.
+
+## Raster alternative
+
+Pieces are vectors and no raster fallback is needed. PNGs remain available if
+measurement on physical hardware ever shows that redrawing 32 multi-path pieces
+costs too much while the cursor moves; the generator makes that switch cheap. Do
+not make it without that measurement.
+
 ## Known gaps
 
 - **Not typechecked or tested in CI.** `tsconfig.json` covers `src/` and `test/`
