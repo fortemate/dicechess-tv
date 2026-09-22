@@ -16,6 +16,10 @@ const STUBS = {
     './stubs/react-native-kepler.mjs',
     import.meta.url,
   ).href,
+  '@amazon-devices/react-native-mmkv': new URL(
+    './stubs/react-native-mmkv.mjs',
+    import.meta.url,
+  ).href,
 };
 
 registerHooks({

@@ -79,9 +79,12 @@ the cursor e2 → e1 → d1 → c1 → b1; OK gave `selected b1`; three presses 
 b2 → b3 → c3; OK left `dice QR legal 1 last b1c3`. Ten presses, ten reactions, no
 spurious ones.
 
-Not confirmed by anyone yet: Back cancelling a selection on a device, whether the
-focus and destination overlays stay visible on both square colours, and
-legibility at TV viewing distance.
+The Back key reaches the app: the owner saw `HW type=back` on a diagnostic screen
+that printed raw events. That its cancel behaviour works inside `GameScreen` is
+still covered only by tests.
+
+Not confirmed by anyone yet: whether the focus and destination overlays stay
+visible on both square colours, and legibility at TV viewing distance.
 
 ## Checks
 
@@ -139,6 +142,25 @@ and back act on the release so one press is one action.
 arrive faster than React re-renders. Handlers closing over state read a stale
 cursor and silently drop moves; a test that holds a direction for three repeats
 catches it.
+
+## Saving
+
+`@amazon-devices/react-native-mmkv` is synchronous and backed by a memory-mapped
+file, so the saved game is read before the first render and the board never shows
+a fresh position that is about to be replaced. An asynchronous store would need a
+loading state.
+
+The contract lives in `src/core/snapshotStore.ts` and both frontends honour it: a
+snapshot is serialised and validated _before_ anything is written, so a damaged
+snapshot cannot replace a good one and a caller cannot mutate a write in flight.
+
+What this does **not** carry over from the web store is its explicit
+strict-durability assertion. IndexedDB lets that store check
+`transaction.durability === 'strict'` and refuse to write otherwise; MMKV exposes
+no such flag, so this store claims only what was measured — a value written
+before a forced process kill is the value read back after it.
+
+The cursor is deliberately not saved. Where someone is looking is not game state.
 
 ## Raster alternative
 
