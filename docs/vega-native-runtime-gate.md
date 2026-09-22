@@ -1,53 +1,188 @@
 # Native runtime gate — 22 September 2026
 
 First checkpoint of [#12](https://github.com/fortemate/dicechess-tv/issues/12): can the
-canonical engine and the extracted core run in a React Native bundle without a WebView,
-DOM, Svelte or Chessground? This records the bundler and JavaScript-engine half. It is
-not a device result.
+canonical engine and the extracted core run in React Native for Vega without a WebView,
+DOM, Svelte or Chessground?
 
 ## Result
 
-`@fortemate/dicechess-engine` 0.12.2 and `src/core` bundle and execute under both React
-Native toolchains that the two Vega SDK lines correspond to, and a complete Dice
-Chess turn produces identical output on each. Hermes accepts the whole bundle: `hermesc`
-compiled it to bytecode without errors. No host global that a restricted runtime is
-likely to lack is required on a reachable code path.
+Yes, on a Vega Virtual Device. A native package containing
+`@fortemate/dicechess-engine` 0.12.2 and `src/core` installs, launches, renders and stays
+running on SDK 0.24.12112, and a complete Dice Chess turn executes with output identical
+to the same fixture on the development host. The crash buffer stayed empty — the WebView
+probe's `SIGSEGV` is not reproduced on the native path.
 
-The one real obstacle behaves exactly as predicted and is fixed by one line of Metro
-configuration. It affects only the older toolchain.
+No Metro configuration change was needed. The generated template resolved the
+ES-module-only engine on its default config.
 
 ## What this does not show
 
-The gate ran on the development Mac, against Metro and Hermes. It did **not** run on a
-Vega Virtual Device or on Fire TV hardware, and Vega's runtime is KeplerScript, not
-Hermes. A Hermes result is the closest widely available proxy for a restricted mobile
-engine; it is evidence that the code survives a native bundler and a non-browser engine,
-not evidence that Vega loads it. Nothing here measures launch time, input latency or
-memory, and nothing here renders a board.
+This ran on the **Virtual Device, not on Fire TV hardware**. It renders a text report, not
+a board: nothing here draws a piece or accepts a remote key. The one timing number below
+is the device's own launch metric for this probe, not a board measurement, and there is no
+memory measurement. No visual capture was taken, because the CLI has no screenshot
+command.
 
-Device execution remains the open half of the #12 checkpoint.
+The remote-input, board-rendering and measurement criteria of #12 remain open. Only the
+runtime question is answered.
 
-## Environment
+## Device run
+
+### Environment
 
 - Host: Apple Silicon macOS 26.7, Node 26.8.2 (the version in `mise.toml`).
-- Engine: `@fortemate/dicechess-engine` 0.12.2, from public npm.
-- Core under test: `src/core/{board,game,model}.ts`, copied unmodified into each sample.
-  That directory arrives with
-  [#13](https://github.com/fortemate/dicechess-tv/pull/13); before it merges, take the
-  three files from that branch.
+- Vega CLI **1.3.4**; SDK **0.24.12112**, released 21 September 2026, installed fresh on
+  this machine and set active. This is one build newer than the 0.24.12044 whose WebView
+  crash is recorded in [the SDK experiment](vega-sdk-experiment.md).
+- Vega Virtual Device, 1920 × 1080, aarch64, OS 1.2. It stayed up for the whole session;
+  the earlier note's silent first-launch exit did not recur.
+- Template `helloWorld` — the **native** template, not `vegaWebview` — generated as
+  `DiceChessGateProbe`, package id `com.fortemate.dicechessgateprobe`, under
+  `~/vega/samples`. React Native 0.83.0, React 19.2.0,
+  `@amazon-devices/react-native-kepler` 4.0.0.
+- Core under test: `src/core/{board,game,model}.ts`, copied unmodified. That directory
+  arrives with [#13](https://github.com/fortemate/dicechess-tv/pull/13); before it merges,
+  take the three files from that branch.
+
+As with the earlier SDK work, the generated template is not committed. Installing the
+template's dependencies reported **27 npm audit findings (14 moderate, 13 high)**, the
+same count the earlier note recorded; they still need review before a shell is adopted.
+
+### Steps
+
+```bash
+vega project generate --template helloWorld --name DiceChessGateProbe \
+  --packageId com.fortemate.dicechessgateprobe \
+  --outputDir ~/vega/samples/DiceChessGateProbe
+cd ~/vega/samples/DiceChessGateProbe
+vega exec npm install
+vega exec npm install @fortemate/dicechess-engine@0.12.2
+# copy src/core/{board,game,model}.ts to src/core/, add the fixture below as src/gate.ts,
+# and replace src/App.tsx with a View/Text screen that renders runGate()
+vega exec npx react-native build-vega --build-type Release --target aarch64 --max-workers 2
+vega virtual-device start --display-res=1920,1080
+vega device install-app -d VirtualDevice -p build/aarch64-release/dicechessgateprobe_aarch64.vpkg
+vega device launch-app -d VirtualDevice -a com.fortemate.dicechessgateprobe.main
+```
+
+`metro.config.js` was left exactly as generated.
+
+### Observations
+
+| Check                                  | Result                                       |
+| -------------------------------------- | -------------------------------------------- |
+| Metro resolves the engine              | yes, on the template's default config        |
+| Release aarch64 package                | built, 2,327,157 bytes, OS version 1.2       |
+| Install and launch                     | success, reached `FOREGROUND in state READY` |
+| App stays running                      | yes, still running after the run             |
+| `vlcm crash-history`                   | `AppCrashInfoBuffer: Size: 0`                |
+| Rendering                              | `Volta: Shader cache has been saved to disk` |
+| JS errors in the log stream            | none                                         |
+| `cool_app_launch_time` (device metric) | 404 ms, then 426 ms                          |
+
+The gate report, sent by the app from the device:
+
+```
+engine rules module: object
+rolled dice: QRN
+  legal 4 dice QRN -> b1a3
+  legal 1 dice QR -> a1b1
+phase handoff moves b1a3,a1b1 left "Q"
+dfen rnbqkbnr/pppppppp/8/8/8/N7/PPPPPPPP/1RBQKBNR w Kkq - 2 1 Q
+handoff -> side b turn 2
+GATE PASS
+```
+
+This is byte-identical to the host pre-gate below. The turn is canonical throughout: four
+legal actions on the opening roll, one after the knight moves, the queen die left unusable
+so the turn ends in `handoff` rather than a fourth action, castling rights updated from
+`KQkq` to `Kkq` because the a1 rook moved, and `endTurn` handing play to Black on turn 2.
+
+### Reading the result off the device
+
+A Release build does **not** route `console.log` to `vega device start-log-stream`; only
+system and graphics lines appear. The CLI has no screenshot command, so the rendered
+screen could not be captured either.
+
+The report was therefore retrieved the way the earlier experiment retrieved DOM
+diagnostics: a loopback-only receiver on the development Mac, reached through
+`vega device start-port-forwarding --port 8099 --forward false`, with a single `fetch`
+from the app. The receiver, the forwarding rule and the `fetch` were removed after the
+run; the fixture below contains no network call. This is development instrumentation, not
+a game server, and nothing about the eventual offline requirement changes.
+
+Anyone reproducing this should plan for the same problem: decide up front how the device
+will report, because neither logs nor screenshots will do it.
+
+## Host pre-gate
+
+Before the SDK was installed, the same fixture was run against both React Native
+toolchains that the two Vega SDK lines correspond to. It is kept here because it isolates
+the bundler question from the device, and because it found the one real obstacle.
 
 | Toolchain            | Corresponds to | Versions                                                         |
 | -------------------- | -------------- | ---------------------------------------------------------------- |
-| React Native 0.83.10 | SDK 0.24.12044 | React 19.2.0, Metro 0.83.8, `@react-native/metro-config` 0.83.10 |
+| React Native 0.83.10 | SDK 0.24 line  | React 19.2.0, Metro 0.83.8, `@react-native/metro-config` 0.83.10 |
 | React Native 0.72.17 | SDK 0.23.9221  | React 18.2.0, Metro 0.76.9, `@react-native/metro-config` 0.72.11 |
 
-The samples were built outside the repository, as the earlier SDK work was. No generated
-template, lockfile or bundle is committed.
+| Check                               | RN 0.83             | RN 0.72                                 |
+| ----------------------------------- | ------------------- | --------------------------------------- |
+| Metro resolves `@fortemate/…/rules` | yes, default config | **no** without configuration; see below |
+| Complete turn executes              | `GATE PASS`         | `GATE PASS`, identical output           |
+| `hermesc -emit-binary`              | no errors           | no errors                               |
 
-## Method
+Sizes, as an input to a later device measurement rather than a measurement:
 
-In an empty directory per toolchain, install the versions above plus the engine, copy
-`src/core/*.ts` to `core/`, add the default Metro config, and write this fixture:
+| Bundle                            | JavaScript | Hermes bytecode |
+| --------------------------------- | ---------- | --------------- |
+| `/rules` + core (RN 0.83)         | 374,766 B  | 838,295 B       |
+| `/rules` + core (RN 0.72)         | 374,121 B  | 809,168 B       |
+| full engine entry point (RN 0.83) | 498,048 B  | 1,057,691 B     |
+
+The board needs only `/rules`, which is what `src/core/game.ts` imports. The full entry
+point is what `src/bot.worker.ts` imports today, so a native bot would carry the larger
+payload.
+
+### The Metro resolution obstacle
+
+The engine is published as ES modules only, with a `./rules` subpath in `exports` and no
+`require` or `react-native` condition. Metro 0.76, which ships with React Native 0.72,
+does not read `exports` by default and fails with:
+
+```
+Unable to resolve module @fortemate/dicechess-engine/rules
+```
+
+Metro 0.76 implements the resolution; it is off by default. Enabling it is sufficient:
+
+```js
+resolver: {
+  unstable_enablePackageExports: true,
+  unstable_conditionNames: ['require', 'import', 'react-native'],
+}
+```
+
+Metro 0.83, including the version in the SDK 0.24 template, needs none of this.
+
+### Host globals
+
+Grepping the production bundles for globals a restricted engine may lack, then reading
+each reference in context:
+
+| Global                                     | Where                                       | Reachable?                             |
+| ------------------------------------------ | ------------------------------------------- | -------------------------------------- |
+| `BigInt`                                   | a `case 'bigint'` arm of a typeof switch    | no — the API takes strings and numbers |
+| `window`                                   | `typeof window !== 'undefined' ? …`         | guarded global detection               |
+| `performance`                              | `… && performance.now ? performance : Date` | guarded, falls back to `Date`          |
+| `process`                                  | Metro's own prelude                         | Metro supplies it                      |
+| `Reflect`, `WeakMap`, `Symbol.iterator`    | engine                                      | present in Hermes-class engines        |
+| `Math.imul`/`clz32`/`fround`, typed arrays | engine                                      | present in Hermes-class engines        |
+
+No `Proxy`, `Intl`, `TextDecoder`, `eval`, `Function` constructor, `SharedArrayBuffer`,
+`Atomics`, `WeakRef` or `FinalizationRegistry`. `performance` does not appear in the
+`/rules` bundle at all, so the board path never reaches it.
+
+## Fixture
 
 ```ts
 import { DiceChess } from '@fortemate/dicechess-engine/rules';
@@ -98,129 +233,31 @@ export function runGate(): string[] {
   }
   return lines;
 }
-
-for (const line of runGate()) console.log(line);
 ```
-
-Then bundle, execute the bundle, and compile it to Hermes bytecode:
-
-```bash
-npx metro build gate.ts --out bundle.js --platform android --dev false
-node bundle.js
-<hermesc> -emit-binary -out bundle.hbc bundle.js
-```
-
-Executing a Metro bundle under Node exercises Metro's module registry and the engine's
-own code, not a native engine. `hermesc` covers what Node cannot: whether Hermes accepts
-the syntax and generates code for all of it. The two together are the proxy; neither is
-a device.
 
 The fixture chooses `legal[0]` rather than hard-coded moves. An earlier version played
 hard-coded moves and the engine rejected one as illegal, which is itself useful: the
 bundled engine is deciding legality, not returning a stub.
 
-## Results
-
-| Check                               | RN 0.83 / SDK 0.24  | RN 0.72 / SDK 0.23                      |
-| ----------------------------------- | ------------------- | --------------------------------------- |
-| Metro resolves `@fortemate/…/rules` | yes, default config | **no** without configuration; see below |
-| Bundle builds                       | yes                 | yes, once package exports are enabled   |
-| Complete turn executes              | `GATE PASS`         | `GATE PASS`, identical output           |
-| `hermesc -emit-binary`              | no errors           | no errors                               |
-
-Identical output from both:
-
-```
-engine rules module: object
-rolled dice: QRN
-  legal 4 dice QRN -> b1a3
-  legal 1 dice QR -> a1b1
-phase handoff moves b1a3,a1b1 left "Q"
-dfen rnbqkbnr/pppppppp/8/8/8/N7/PPPPPPPP/1RBQKBNR w Kkq - 2 1 Q
-handoff -> side b turn 2
-```
-
-The turn is canonical throughout: the engine filters to four legal actions on the opening
-roll, reduces to one after the knight moves, leaves the queen die unusable so the turn
-ends in `handoff` rather than a fourth action, updates castling rights from `KQkq` to
-`Kkq` because the a1 rook moved, and `endTurn` hands play to Black on turn 2.
-
-### The Metro resolution obstacle
-
-The engine is published as ES modules only, with a `./rules` subpath in `exports` and no
-`require` or `react-native` condition. Metro 0.76, which ships with React Native 0.72,
-does not read `exports` by default and fails with:
-
-```
-Unable to resolve module @fortemate/dicechess-engine/rules
-```
-
-Metro 0.76 does implement the resolution; it is off by default. Enabling it is sufficient
-and no other change was needed:
-
-```js
-const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
-module.exports = mergeConfig(getDefaultConfig(__dirname), {
-  resolver: {
-    unstable_enablePackageExports: true,
-    unstable_conditionNames: ['require', 'import', 'react-native'],
-  },
-});
-```
-
-Metro 0.83 needs none of this.
-
-### Host globals
-
-Grepping the production bundles for globals a restricted engine may lack, then reading
-each reference in context:
-
-| Global                                     | Where                                       | Reachable?                             |
-| ------------------------------------------ | ------------------------------------------- | -------------------------------------- |
-| `BigInt`                                   | a `case 'bigint'` arm of a typeof switch    | no — the API takes strings and numbers |
-| `window`                                   | `typeof window !== 'undefined' ? …`         | guarded global detection               |
-| `performance`                              | `… && performance.now ? performance : Date` | guarded, falls back to `Date`          |
-| `process`                                  | Metro's own prelude                         | Metro supplies it                      |
-| `Reflect`, `WeakMap`, `Symbol.iterator`    | engine                                      | present in Hermes-class engines        |
-| `Math.imul`/`clz32`/`fround`, typed arrays | engine                                      | present in Hermes-class engines        |
-
-No `Proxy`, `Intl`, `TextDecoder`, `eval`, `Function` constructor, `SharedArrayBuffer`,
-`Atomics`, `WeakRef` or `FinalizationRegistry`. `hermesc` warns that `performance` is
-undeclared, which is expected for a `typeof` guard and did not stop it emitting bytecode.
-
-`performance` appears only in the full engine entry point, not in `/rules`, so the board
-path does not reach it at all.
-
-### Size
-
-Payload the runtime has to parse, as a first input to a later device measurement. These
-are bundler outputs on a development host; they are not launch measurements.
-
-| Bundle                            | JavaScript | Hermes bytecode |
-| --------------------------------- | ---------- | --------------- |
-| `/rules` + core (RN 0.83)         | 374,766 B  | 838,295 B       |
-| `/rules` + core (RN 0.72)         | 374,121 B  | 809,168 B       |
-| full engine entry point (RN 0.83) | 498,048 B  | 1,057,691 B     |
-
-The board needs only `/rules`, which is what `src/core/game.ts` imports. The full entry
-point is what `src/bot.worker.ts` imports today, so a native bot would carry the larger
-payload.
-
 ## Consequence for the SDK target
 
 SDK 0.23 was adopted because SDK 0.24 crashed the native WebView library. A native board
-does not use a WebView, so that reason does not apply to it, and SDK 0.24's newer Metro
-also resolves the engine without configuration. The prototype should therefore be built
-against SDK 0.24 unless device testing contradicts it — while noting that evidence
-gathered on 0.24 does not transfer to the WebView application, which remains on 0.23.
+uses no WebView, that crash did not recur here on 0.24.12112, and 0.24's Metro resolves
+the engine unconfigured. Build the prototype against SDK 0.24.
+
+This says nothing about the WebView application, which remains on 0.23 and whose own
+behaviour on 0.24.12112 has not been retested.
 
 ## Verification still required
 
-- Execute the same fixture on a Vega Virtual Device and report whether KeplerScript loads
-  the bundle. Until then no runtime criterion of #12 is met.
-- Measure launch-to-interactive and input-to-visible-response on a device, with a stated
-  repeatable method. The sizes above are not measurements.
-- Establish whether a native bot can run off the UI thread at all; React Native has no Web
+- Render a board and accept D-pad, OK and Back input. Nothing here does either.
+- Measure launch-to-interactive and input-to-visible-response for a board, with a stated
+  repeatable method. The 404/426 ms above is the device's launch metric for a text probe.
+- Repeat on physical Fire TV hardware; see
+  [#10](https://github.com/fortemate/dicechess-tv/issues/10).
+- Establish whether a native bot can run off the UI thread. React Native has no Web
   Worker, and `src/bot.worker.ts` depends on one today.
 - Confirm a Vega-supported way to draw the pieces. `react-native-svg` needs native code
   and is not assumed to be available.
+- Review the template's 27 audit findings and its redistribution licensing before any
+  shell is adopted into the repository.
