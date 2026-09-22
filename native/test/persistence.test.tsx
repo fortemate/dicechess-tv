@@ -6,6 +6,7 @@ import { press } from './stubs/react-native-kepler.mjs';
 import { reset } from './stubs/react-native-mmkv.mjs';
 import { App } from '../src/App';
 import { MmkvSnapshotStore } from '../src/mmkvStore';
+import type { ScreenOptions } from '../src/screen';
 import {
   newGame,
   rollGame,
@@ -22,12 +23,24 @@ type Instance = renderer.ReactTestInstance;
 
 // Each mount is a fresh process against the same storage, which is what a
 // relaunch is.
-const launch = (): Instance => {
+// A fixed instructional roll: queen, rook, knight. The app itself uses the
+// device's random source; a test must not.
+const options: ScreenOptions = { roll: () => [5, 4, 2], newId: () => 'test' };
+
+type Launched = { root: Instance; state: () => string };
+
+const launch = (): Launched => {
   let tree!: renderer.ReactTestRenderer;
+  const reports: string[] = [];
   act(() => {
-    tree = renderer.create(React.createElement(App));
+    tree = renderer.create(
+      React.createElement(App, {
+        options,
+        onState: (line: string) => reports.push(line),
+      }),
+    );
   });
-  return tree.root;
+  return { root: tree.root, state: () => reports[reports.length - 1] ?? '' };
 };
 
 const send = (...keys: string[]) => {
@@ -64,11 +77,14 @@ test('a turn in progress survives a relaunch exactly as it was left', () => {
     'right',
     'enter',
   );
-  assert.match(text(first), /Remaining: Queen · Rook/);
+  assert.match(first.state(), /dice "QR"/);
 
   const second = launch();
-  assert.match(text(second), /Remaining: Queen · Rook/);
-  assert.match(text(second), /TURN 1/);
+  // A restored game opens on the home screen; OK resumes it.
+  assert.match(second.state(), /overlay home/);
+  send('enter');
+  assert.match(second.state(), /overlay none \| turn 1 \| phase move/);
+  assert.match(second.state(), /dice "QR" \| legal 1/);
   const saved = store().read()!;
   assert.deepEqual(saved.moves, ['b1c3']);
   assert.equal(saved.lastMove, 'b1c3');
@@ -87,15 +103,17 @@ test('the cursor is not part of the saved game', () => {
   reset();
   const first = launch();
   send('enter', 'up', 'up', 'right');
-  assert.match(text(first), /Cursor f4/);
+  assert.match(first.state(), /cursor f4/);
   // A relaunch starts the cursor where a new screen starts it, not where the
   // player left it: where someone is looking is not game state.
-  assert.match(text(launch()), /Cursor e2/);
+  const second = launch();
+  send('enter');
+  assert.match(second.state(), /cursor e2/);
 });
 
 test('a damaged save is surfaced and cleared, not silently played over', () => {
   reset();
-  const first = launch();
+  launch();
   send('enter');
   assert.notEqual(store().read(), null);
 
@@ -109,9 +127,8 @@ test('a damaged save is surfaced and cleared, not silently played over', () => {
 
   const second = launch();
   // The board is usable rather than stuck, and the unreadable save is gone.
-  assert.match(text(second), /OK: roll three dice/);
+  assert.match(second.state(), /overlay none \| turn 1 \| phase roll/);
   assert.equal(store().read(), null);
-  assert.ok(text(first).length > 0);
 });
 
 test('a damaged snapshot never replaces a good one', async () => {

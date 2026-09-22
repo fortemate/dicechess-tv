@@ -173,6 +173,40 @@ effect had read the store. The board then never received remote input at all —
 every key press was lost, silently. Reading the snapshot synchronously during the
 first render fixed it. Do not give this app a loading frame.
 
+## Dice
+
+**The Vega runtime does not provide `crypto.getRandomValues`.** That was measured
+on a device: the app reports which source it got, and on SDK 0.24.12112 it is
+`Math.random`. There is no crypto package to add — `@amazon-devices/react-native-get-random-values`
+does not exist, and the community module of that name is native code that will
+not link here.
+
+So `randomSource()` picks the best source available and **names it**, because a
+game that quietly rolls weaker dice than it claims is worse than one that says
+so. Both paths feed the same rejection sampling in `src/core/game.ts`, so neither
+has the modulo bias of an arbitrary byte `% 6`; what the native board loses
+against the web probe is the cryptographic source, not the uniformity.
+
+For a local hotseat game that is a defensible trade, but it is the owner's to
+make, and it should be stated wherever the web app claims cryptographic dice.
+
+## Menus
+
+Flow lives in `src/screen.ts` as a pure reducer over state and one key, tested
+directly rather than through the component. The board, the home screen, the menu,
+the confirmations and the promotion chooser are all one state machine.
+
+Two behaviours are carried over from the web probe deliberately:
+
+- **Back cancels a selection before it opens the menu.** The board reducer is
+  asked first and only reports `exit` when there is nothing to cancel.
+- **Destructive choices confirm with Cancel selected first**, so a stray OK
+  cannot discard a game in progress.
+
+A restored game opens on the home screen rather than dropping the player into a
+turn they may not remember. Only modes that exist are offered: there is no native
+bot yet, so nothing claims one.
+
 ## Raster alternative
 
 Pieces are vectors and no raster fallback is needed. PNGs remain available if
