@@ -12,6 +12,10 @@ const STUBS = {
     './stubs/react-native-svg.mjs',
     import.meta.url,
   ).href,
+  '@amazon-devices/react-native-kepler': new URL(
+    './stubs/react-native-kepler.mjs',
+    import.meta.url,
+  ).href,
 };
 
 registerHooks({
