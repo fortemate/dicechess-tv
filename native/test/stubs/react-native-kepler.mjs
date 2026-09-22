@@ -1,42 +1,34 @@
 // Stand-in for @amazon-devices/react-native-kepler in Node. The tests drive the
-// input path by invoking the registered listeners directly.
-export const UserInputEventName = {
-  Up: 'UP',
-  Down: 'DOWN',
-  Left: 'LEFT',
-  Right: 'RIGHT',
-  Select: 'SELECT',
-  Back: 'BACK',
-  Menu: 'MENU',
-};
+// input path by delivering HW events to the registered handler, the same shape
+// the device sends: a lower-case eventType and eventKeyAction 0 down, 1 up.
+import { useEffect } from 'react';
 
-const listeners = new Map();
+let handler = null;
 
-export const useAddUserInputListenerCallback = () => addListener;
-
-function addListener(eventName, callback) {
-  listeners.set(eventName, callback);
-  return {
-    remove() {
-      listeners.delete(eventName);
-    },
-  };
+export function useTVEventHandler(callback) {
+  useEffect(() => {
+    handler = callback;
+    return () => {
+      if (handler === callback) handler = null;
+    };
+  }, [callback]);
 }
 
-export const UserInputManager = {
-  addListener,
-  removeListeners() {
-    listeners.clear();
-  },
-};
-
-// Test-only: deliver one press for a Vega event name.
-export function press(eventName) {
-  const callback = listeners.get(eventName);
-  if (!callback) throw new Error('No listener for ' + eventName);
-  callback({ phase: 'PRESSED' });
+// Test-only: one full press, down then up.
+export function press(eventType) {
+  if (!handler) throw new Error('No TV event handler registered');
+  handler({ eventType, eventKeyAction: 0 });
+  handler({ eventType, eventKeyAction: 1 });
 }
 
-export function listenerCount() {
-  return listeners.size;
+// Test-only: hold a button, repeating the down event without releasing it.
+export function hold(eventType, repeats = 2) {
+  if (!handler) throw new Error('No TV event handler registered');
+  for (let i = 0; i < repeats; i++) {
+    handler({ eventType, eventKeyAction: 0 });
+  }
+}
+
+export function isSubscribed() {
+  return handler !== null;
 }

@@ -2,11 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
-import {
-  press,
-  listenerCount,
-  UserInputEventName,
-} from './stubs/react-native-kepler.mjs';
+import { press, hold, isSubscribed } from './stubs/react-native-kepler.mjs';
 import { GameScreen } from '../src/GameScreen';
 import { PIECES } from '../src/pieces';
 import { THEME } from '../src/theme';
@@ -49,11 +45,50 @@ const overlays = (root: Instance, match: (style: Style) => boolean) =>
     { deep: true },
   );
 
-const { Up, Down, Left, Right, Select, Back } = UserInputEventName;
+// Vega's own event names. A keyboard on the Virtual Device sends `enter` for
+// the OK button; a physical remote sends `select`.
+const Up = 'up';
+const Down = 'down';
+const Left = 'left';
+const Right = 'right';
+const Select = 'enter';
+const Back = 'back';
 
-test('the screen subscribes to all six remote keys', () => {
+test('the screen subscribes to the TV event channel', () => {
   mount();
-  assert.equal(listenerCount(), 6);
+  assert.equal(isSubscribed(), true);
+});
+
+test('OK arrives as either enter or select, and acts once per press', () => {
+  const first = mount();
+  send('enter');
+  assert.match(text(first), /Remaining: Queen · Rook · Knight/);
+
+  const second = mount();
+  send('select');
+  assert.match(text(second), /Remaining: Queen · Rook · Knight/);
+});
+
+test('holding a direction walks the cursor; holding OK acts once', () => {
+  const root = mount();
+  send(Select);
+  assert.match(text(root), /Cursor e2/);
+
+  // Three down events without a release move three squares.
+  act(() => hold('right', 3));
+  assert.match(text(root), /Cursor h2/);
+
+  // Holding OK repeats the down event, but nothing happens until release.
+  act(() => hold('enter', 3));
+  assert.match(text(root), /Arrows: move focus/);
+});
+
+test('an unknown key is ignored', () => {
+  const root = mount();
+  send(Select);
+  const before = text(root);
+  send('playpause');
+  assert.equal(text(root), before);
 });
 
 test('it opens waiting for a roll, and OK rolls the instructional dice', () => {

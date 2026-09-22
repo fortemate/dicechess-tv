@@ -42,6 +42,69 @@ const dice = (remaining: string) =>
     .map((letter) => DIE[letter as keyof typeof DIE] ?? letter)
     .join(' · ');
 
+// The screen's whole flow as a pure function of state and one key.
+//
+// It is a reducer rather than a set of handlers because remote repeats can
+// arrive faster than React re-renders: handlers closing over state would read a
+// stale cursor and drop moves while a direction is held.
+export type ScreenState = {
+  game: Game;
+  focus: BoardFocus;
+  promotion: string[] | null;
+  promotionIndex: number;
+};
+
+export const initialState = (): ScreenState => ({
+  game: newGame('hotseat', 'remote'),
+  focus: { cursor: START, selected: null },
+  promotion: null,
+  promotionIndex: 0,
+});
+
+// A played move clears the selection and any promotion choice; the cursor stays
+// where the player left it.
+const played = (state: ScreenState, game: Game): ScreenState => ({
+  game,
+  focus: { ...state.focus, selected: null },
+  promotion: null,
+  promotionIndex: 0,
+});
+
+export function screenReducer(state: ScreenState, key: BoardKey): ScreenState {
+  const { game, promotion } = state;
+  if (promotion) {
+    if (key === 'back') return { ...state, promotion: null, promotionIndex: 0 };
+    if (key === 'select')
+      return played(state, moveGame(game, promotion[state.promotionIndex]));
+    const step = key === 'up' || key === 'left' ? -1 : 1;
+    return {
+      ...state,
+      promotionIndex:
+        (state.promotionIndex + step + promotion.length) % promotion.length,
+    };
+  }
+  if (game.phase === 'roll')
+    return key === 'select' ? played(state, rollGame(game, ROLL)) : state;
+  if (game.phase === 'handoff')
+    return key === 'select' ? played(state, nextTurn(game)) : state;
+  if (game.phase === 'ended') return state;
+
+  const result = boardInput(state.focus, key, viewGame(game).legal);
+  if (result.action.type === 'move')
+    return played(
+      { ...state, focus: result.focus },
+      moveGame(game, result.action.move),
+    );
+  if (result.action.type === 'promote')
+    return {
+      ...state,
+      focus: result.focus,
+      promotion: result.action.moves,
+      promotionIndex: 0,
+    };
+  return { ...state, focus: result.focus };
+}
+
 export type GameScreenProps = {
   // Diagnostic seam for device checks. Vega has no screenshot command and a
   // Release build does not route console output anywhere readable, so the only
@@ -52,61 +115,12 @@ export type GameScreenProps = {
 
 export const GameScreen = ({ onState }: GameScreenProps = {}) => {
   const { width, height } = useWindowDimensions();
-  const [game, setGame] = React.useState<Game>(() =>
-    newGame('hotseat', 'remote'),
+  const [{ game, focus, promotion, promotionIndex }, onKey] = React.useReducer(
+    screenReducer,
+    null,
+    initialState,
   );
-  const [focus, setFocus] = React.useState<BoardFocus>({
-    cursor: START,
-    selected: null,
-  });
-  const [promotion, setPromotion] = React.useState<string[] | null>(null);
-  const [promotionIndex, setPromotionIndex] = React.useState(0);
   const state = React.useMemo(() => viewGame(game), [game]);
-
-  const play = React.useCallback((next: Game) => {
-    setGame(next);
-    setFocus((current) => ({ ...current, selected: null }));
-    setPromotion(null);
-    setPromotionIndex(0);
-  }, []);
-
-  const onKey = React.useCallback(
-    (key: BoardKey) => {
-      if (promotion) {
-        if (key === 'back') {
-          setPromotion(null);
-          setPromotionIndex(0);
-        } else if (key === 'select') {
-          play(moveGame(game, promotion[promotionIndex]));
-        } else {
-          const step = key === 'up' || key === 'left' ? -1 : 1;
-          setPromotionIndex(
-            (index) => (index + step + promotion.length) % promotion.length,
-          );
-        }
-        return;
-      }
-      if (game.phase === 'roll') {
-        if (key === 'select') play(rollGame(game, ROLL));
-        return;
-      }
-      if (game.phase === 'handoff') {
-        if (key === 'select') play(nextTurn(game));
-        return;
-      }
-      if (game.phase === 'ended') return;
-
-      const result = boardInput(focus, key, state.legal);
-      setFocus(result.focus);
-      if (result.action.type === 'move')
-        play(moveGame(game, result.action.move));
-      else if (result.action.type === 'promote') {
-        setPromotion(result.action.moves);
-        setPromotionIndex(0);
-      }
-    },
-    [focus, game, play, promotion, promotionIndex, state.legal],
-  );
 
   useRemoteInput(onKey);
 
