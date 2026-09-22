@@ -5,7 +5,7 @@
   import type { Key } from '@lichess-org/chessground/types';
   import BotWorker from './bot.worker?worker&inline';
   import { SnapshotStore } from './storage';
-  import { shiftSquare } from './model';
+  import { shiftSquare } from './core/model';
   import {
     newGame,
     decodeGame,
@@ -21,9 +21,14 @@
     opposite,
     type Game,
     type Mode,
-  } from './game';
+  } from './core/game';
   import '@lichess-org/chessground/assets/chessground.base.css';
   import '@lichess-org/chessground/assets/chessground.brown.css';
+
+  // Core takes the random source as an argument; this is the browser's.
+  const fillRandom = (bytes: Uint8Array<ArrayBuffer>) => {
+    crypto.getRandomValues(bytes);
+  };
 
   let game = $state<Game | null>(null);
   let current = $derived(game ? viewGame(game) : null);
@@ -180,7 +185,7 @@
     )
       return;
     if (game.phase === 'roll') {
-      void perform(() => rollGame(game!, rollDice()));
+      void perform(() => rollGame(game!, rollDice(fillRandom)));
       return;
     }
     if (game.phase === 'handoff') {
@@ -396,7 +401,8 @@
     }
     if (current.bot) return;
     if (game.phase === 'roll') {
-      if (key === 'Enter') await perform(() => rollGame(game!, rollDice()));
+      if (key === 'Enter')
+        await perform(() => rollGame(game!, rollDice(fillRandom)));
       return;
     }
     if (game.phase === 'handoff') {

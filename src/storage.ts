@@ -1,4 +1,4 @@
-import { decode, STORAGE_KEY, type Snapshot } from './model.ts';
+import { decode, STORAGE_KEY, type Snapshot } from './core/model.ts';
 
 export const DATABASE = 'dicechess-tv.probe';
 const STORE = 'snapshots';

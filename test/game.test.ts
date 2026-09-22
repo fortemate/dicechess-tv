@@ -14,7 +14,7 @@ import {
   agreeDraw,
   rollDice,
   type Game,
-} from '../src/game.ts';
+} from '../src/core/game.ts';
 import { SnapshotStore } from '../src/storage.ts';
 
 const position = (board: string, clock = 0) => `${board} w - - ${clock} 1`;

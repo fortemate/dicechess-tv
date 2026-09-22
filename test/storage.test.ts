@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { IDBFactory } from 'fake-indexeddb';
 import { SaveStore } from '../src/storage.ts';
-import { derive, type Snapshot } from '../src/model.ts';
+import { derive, type Snapshot } from '../src/core/model.ts';
 
 const completed: Snapshot = {
   schema: 1,
