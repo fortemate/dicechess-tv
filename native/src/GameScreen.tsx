@@ -9,6 +9,7 @@ import type { BoardKey } from '../../src/core/boardInput';
 import { Board } from './Board';
 import { useRemoteInput } from './useRemoteInput';
 import { THEME } from './theme';
+import { botToAct } from '../../src/core/bot';
 import {
   screenReducer,
   initialState,
@@ -16,6 +17,7 @@ import {
   menuOptions,
   confirmOptions,
   resumable,
+  type ScreenAction,
   type ScreenOptions,
   type ScreenState,
 } from './screen';
@@ -99,17 +101,36 @@ export const GameScreen = ({
 }: GameScreenProps) => {
   const { width, height } = useWindowDimensions();
   const reduce = React.useCallback(
-    (state: ScreenState, key: BoardKey) => screenReducer(state, key, options),
+    (state: ScreenState, action: ScreenAction) =>
+      screenReducer(state, action, options),
     [options],
   );
-  const [{ game, focus, overlay }, onKey] = React.useReducer(
+  const [{ game, focus, overlay }, dispatch] = React.useReducer(
     reduce,
     initial,
     (restored) => initialState(options, restored),
   );
+  const onKey = React.useCallback(
+    (key: BoardKey) => dispatch({ kind: 'key', key }),
+    [],
+  );
   const state = React.useMemo(() => viewGame(game), [game]);
 
   useRemoteInput(onKey);
+
+  // The opponent takes one step at a time, scheduled rather than looped, so the
+  // player watches it roll and move instead of the board jumping. It is paused
+  // while an overlay is up, which is also how leaving play stops it.
+  React.useEffect(() => {
+    if (overlay.kind !== 'none' || !botToAct(game)) return;
+    let cancelled = false;
+    options.schedule(() => {
+      if (!cancelled) dispatch({ kind: 'bot' });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [game, overlay.kind, options]);
 
   // Seeded with the game the screen opened on, so mounting never re-saves what
   // was just restored.

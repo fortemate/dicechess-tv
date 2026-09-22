@@ -207,6 +207,41 @@ A restored game opens on the home screen rather than dropping the player into a
 turn they may not remember. Only modes that exist are offered: there is no native
 bot yet, so nothing claims one.
 
+## The local opponent
+
+`src/core/bot.ts` asks the engine for a complete legal path
+(`DiceChess.getBestMove(dfen, { algorithm: 'random' })`) rather than choosing
+moves itself: only the engine can be trusted to obey maximal dice use and
+promotion restrictions. It is the same call the web worker makes. The reply goes
+through `applyBotReply`, which revalidates every action and rejects a stale or
+incomplete path.
+
+**No separate thread is involved, and none is needed for this opponent.** A
+random bot makes a handful of engine calls rather than a search, so the JS thread
+carries it without a visible pause. Running a _strong_ bot off the thread is a
+different question and still open: React Native has no Web Worker, Vega's
+headless tasks cannot be started by an app, and
+`@amazon-devices/react-native-worklets` is the untested candidate.
+
+Its steps — roll, play, hand over — are scheduled 600 ms apart rather than
+looped, so the player watches the turn happen. While the opponent owes an action
+the board takes no input but Back, so a player cannot move its pieces for it and
+is never stuck watching.
+
+Verified on a device on 22 September 2026, alternating with a human player: the
+opponent rolled `BRK`, had no legal action and handed back immediately; the
+player took a turn; the opponent then rolled `PNQ` and spent all three dice,
+ending on `d8b6`.
+
+### Two gaps this leaves
+
+- **The opponent's whole path applies in one state.** Its three dice go from
+  `PNQ` to `""` in a single step and only the last move is marked, so a player
+  cannot see what it actually did. Playing the path one move at a time matters
+  more for reading the game than animation does.
+- **Nothing animates.** Pieces are placed, not moved; there is no slide between
+  squares for either side. That is M2 polish.
+
 ## Raster alternative
 
 Pieces are vectors and no raster fallback is needed. PNGs remain available if

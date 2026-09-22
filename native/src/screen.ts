@@ -1,4 +1,4 @@
-// The screen's whole flow as a pure function of state and one key.
+// The screen's whole flow as a pure function of state and one action.
 //
 // It is a reducer rather than a set of handlers because remote repeats can
 // arrive faster than React re-renders: handlers closing over state would read a
@@ -13,17 +13,23 @@ import {
   nextTurn,
   resignGame,
   agreeDraw,
+  applyBotReply,
   viewGame,
   type Game,
+  type Mode,
 } from '../../src/core/game';
 import {
   boardInput,
   type BoardFocus,
   type BoardKey,
 } from '../../src/core/boardInput';
+import { botReply, botToAct } from '../../src/core/bot';
 import type { Square } from '../../src/core/board';
 
 export const START: Square = 'e2';
+
+// The screen advances on a key, or on the local opponent taking its turn.
+export type ScreenAction = { kind: 'key'; key: BoardKey } | { kind: 'bot' };
 
 // `home` is the screen shown before a game is in play; the rest sit over the
 // board. `none` is the board itself.
@@ -31,7 +37,13 @@ export type Overlay =
   | { kind: 'none' }
   | { kind: 'home'; index: number }
   | { kind: 'menu'; index: number }
-  | { kind: 'confirm'; action: 'resign' | 'replace'; index: number }
+  | {
+      kind: 'confirm';
+      action: 'resign' | 'replace';
+      index: number;
+      // Which mode a confirmed replacement starts.
+      mode: Mode;
+    }
   | { kind: 'promotion'; moves: string[]; index: number };
 
 export type ScreenState = {
@@ -47,16 +59,29 @@ export type ScreenOptions = {
   // Identifies the game being saved. Injected so a restart does not collide
   // with the game it just restored.
   newId: () => string;
+  // How the opponent's next step is scheduled. The app spaces them out so the
+  // player can watch; a test runs them immediately.
+  schedule: (step: () => void) => void;
 };
 
-// Only what the player can actually do is offered: a bot opponent does not
-// exist natively yet, so no mode claims one.
-export const homeOptions = (resumable: boolean): string[] =>
-  resumable ? ['Resume game', 'New hotseat game'] : ['New hotseat game'];
+export const homeOptions = (resumable: boolean): string[] => [
+  ...(resumable ? ['Resume game'] : []),
+  'New hotseat game',
+  'Play Random',
+];
+
+// Which mode a home option starts. Resume starts nothing.
+const modeOf = (option: string): Mode | null =>
+  option === 'New hotseat game'
+    ? 'hotseat'
+    : option === 'Play Random'
+      ? 'random'
+      : null;
 
 export const menuOptions = (game: Game): string[] => [
   'Resume',
   'Resign',
+  // A draw needs two players to agree; there is nobody to agree with a bot.
   ...(game.mode === 'hotseat' ? ['Agree a draw'] : []),
   'New game',
 ];
@@ -91,40 +116,59 @@ export const initialState = (
   return {
     game,
     focus: { cursor: START, selected: null },
-    // A restored game opens on the home screen so the player chooses to resume
-    // rather than being dropped mid-turn into a game they may not remember.
-    overlay: restored ? { kind: 'home', index: 0 } : { kind: 'none' },
+    // Always the home screen: a new launch has a mode to choose, and a restored
+    // game should be resumed deliberately rather than dropping the player
+    // mid-turn into a game they may not remember.
+    overlay: { kind: 'home', index: 0 },
   };
 };
 
+// One step of the local opponent's turn: roll, play a complete legal path, or
+// end the turn. Each step is its own state so the player sees it happen rather
+// than the board jumping.
+function botStep(state: ScreenState, options: ScreenOptions): ScreenState {
+  const { game } = state;
+  if (!botToAct(game)) return state;
+  if (game.phase === 'roll')
+    return { ...state, game: rollGame(game, options.roll()) };
+  if (game.phase === 'handoff') return { ...state, game: nextTurn(game) };
+  // applyBotReply revalidates every action and rejects a stale or incomplete
+  // path, so a reply for a position that has moved on cannot be applied.
+  return { ...state, game: applyBotReply(game, botReply(game)) };
+}
+
 export function screenReducer(
   state: ScreenState,
-  key: BoardKey,
+  action: ScreenAction,
   options: ScreenOptions,
 ): ScreenState {
+  if (action.kind === 'bot') return botStep(state, options);
+  const key = action.key;
   const { game, overlay } = state;
 
   if (overlay.kind === 'home') {
-    const options_ = homeOptions(resumable(game));
+    const choices = homeOptions(resumable(game));
     if (key === 'back') return state;
     if (key !== 'select')
       return {
         ...state,
         overlay: {
           ...overlay,
-          index: step(key, overlay.index, options_.length),
+          index: step(key, overlay.index, choices.length),
         },
       };
-    const chosen = options_[overlay.index];
+    const chosen = choices[overlay.index];
     if (chosen === 'Resume game')
       return { ...state, overlay: { kind: 'none' } };
+    const mode = modeOf(chosen);
+    if (!mode) return state;
     // Starting a new game over one still in play is a decision, not a keypress.
     if (resumable(game))
       return {
         ...state,
-        overlay: { kind: 'confirm', action: 'replace', index: 0 },
+        overlay: { kind: 'confirm', action: 'replace', index: 0, mode },
       };
-    return board(newGame('hotseat', options.newId()));
+    return board(newGame(mode, options.newId()));
   }
 
   if (overlay.kind === 'confirm') {
@@ -142,21 +186,21 @@ export function screenReducer(
       return { ...state, overlay: { kind: 'menu', index: 0 } };
     return overlay.action === 'resign'
       ? played(state, resignGame(game))
-      : board(newGame('hotseat', options.newId()));
+      : board(newGame(overlay.mode, options.newId()));
   }
 
   if (overlay.kind === 'menu') {
-    const options_ = menuOptions(game);
+    const choices = menuOptions(game);
     if (key === 'back') return { ...state, overlay: { kind: 'none' } };
     if (key !== 'select')
       return {
         ...state,
         overlay: {
           ...overlay,
-          index: step(key, overlay.index, options_.length),
+          index: step(key, overlay.index, choices.length),
         },
       };
-    const chosen = options_[overlay.index];
+    const chosen = choices[overlay.index];
     if (chosen === 'Resume') return { ...state, overlay: { kind: 'none' } };
     if (chosen === 'Agree a draw') return played(state, agreeDraw(game));
     // Both destructive choices go through a confirmation with Cancel first.
@@ -166,6 +210,7 @@ export function screenReducer(
         kind: 'confirm',
         action: chosen === 'Resign' ? 'resign' : 'replace',
         index: 0,
+        mode: game.mode,
       },
     };
   }
@@ -189,6 +234,12 @@ export function screenReducer(
   if (game.phase === 'ended')
     return key === 'select' || key === 'back'
       ? { ...state, overlay: { kind: 'home', index: 0 } }
+      : state;
+  // While the opponent owes an action the board takes no input but Back, so a
+  // player cannot move its pieces for it.
+  if (botToAct(game))
+    return key === 'back'
+      ? { ...state, overlay: { kind: 'menu', index: 0 } }
       : state;
   if (game.phase === 'roll')
     return key === 'select'
