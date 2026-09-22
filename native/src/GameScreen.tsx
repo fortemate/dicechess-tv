@@ -54,8 +54,11 @@ export type ScreenState = {
   promotionIndex: number;
 };
 
-export const initialState = (): ScreenState => ({
-  game: newGame('hotseat', 'remote'),
+// A restored game resumes exactly where it was left; without one the screen
+// starts a fresh game. The cursor is not saved: it is where the player is
+// looking, not part of the game.
+export const initialState = (restored?: Game | null): ScreenState => ({
+  game: restored ?? newGame('hotseat', 'remote'),
   focus: { cursor: START, selected: null },
   promotion: null,
   promotionIndex: 0,
@@ -106,6 +109,12 @@ export function screenReducer(state: ScreenState, key: BoardKey): ScreenState {
 }
 
 export type GameScreenProps = {
+  // A game to resume, read before the first render so the board never shows a
+  // fresh position that is about to be replaced.
+  initial?: Game | null;
+  // Called with every committed game, and only those: moving the cursor does
+  // not produce a new game, so this does not fire for it.
+  onCommit?: (game: Game) => void;
   // Diagnostic seam for device checks. Vega has no screenshot command and a
   // Release build does not route console output anywhere readable, so the only
   // way to know what the screen shows is to let it say so. The app passes
@@ -113,16 +122,31 @@ export type GameScreenProps = {
   onState?: (report: string) => void;
 };
 
-export const GameScreen = ({ onState }: GameScreenProps = {}) => {
+export const GameScreen = ({
+  initial,
+  onCommit,
+  onState,
+}: GameScreenProps = {}) => {
   const { width, height } = useWindowDimensions();
   const [{ game, focus, promotion, promotionIndex }, onKey] = React.useReducer(
     screenReducer,
-    null,
+    initial,
     initialState,
   );
   const state = React.useMemo(() => viewGame(game), [game]);
 
   useRemoteInput(onKey);
+
+  // Saving is the app's business, not the board's; the board only says when
+  // there is something new worth saving.
+  // Seeded with the game the screen opened on, so mounting never re-saves what
+  // was just restored.
+  const committed = React.useRef(game);
+  React.useEffect(() => {
+    if (game === committed.current) return;
+    committed.current = game;
+    onCommit?.(game);
+  }, [game, onCommit]);
 
   React.useEffect(() => {
     onState?.(
