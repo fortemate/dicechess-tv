@@ -18,3 +18,16 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: npm run build:vega-web
+
+  native-board:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: jdx/mise-action@v4
+      # The native package imports the shared core, which imports the engine from
+      # the root install, so both installs are needed.
+      - run: npm ci
+      - run: npm ci --prefix native
+      - run: npm run check --prefix native
+      - run: npm test --prefix native

@@ -75,6 +75,37 @@ problem is worked around, and the host cannot grab the emulator window. Not yet
 confirmed by anyone: that the focus and destination overlays stay visible, and
 legibility at TV viewing distance.
 
+## Checks
+
+This directory is its own npm package, with its own lockfile, because it needs
+`react`, `react-native` and `@amazon-devices/react-native-svg`, and those must not
+reach the web app's dependencies. CI runs it as the `native-board` job.
+
+```bash
+npm ci                      # the repository root: the shared core needs the engine
+npm ci --prefix native
+npm run check --prefix native
+npm test --prefix native
+```
+
+`npm run check` typechecks `native/src`, `native/test` and the shared `src/core`
+together, so a renderer that misreads a `SquareView` field fails here.
+
+`npm test` renders the board with `react-test-renderer` and asserts the tree:
+64 squares, 32 of each colour, a1 dark, 32 pieces drawn by their own components
+and inset inside their squares, one dashed ring per legal destination, both ends
+of the last move tinted, and the selected ring twice the width of the cursor ring
+so the two are distinguishable. A colour flip, a dropped overlay and pieces
+overflowing their square were each injected and each failed the expected test.
+
+`react-native` and the Vega SVG package cannot be imported outside a React Native
+runtime, so `test/hooks.mjs` redirects them to small stubs in `test/stubs/` and
+compiles TypeScript and JSX with esbuild. The tests therefore check the tree this
+renderer builds, not how Vega paints it — that part is verified on a device.
+
+`react-test-renderer` prints a deprecation warning under React 19. It is what the
+Vega template itself depends on, so it stays until Amazon's template moves.
+
 ## Raster alternative
 
 Pieces are vectors and no raster fallback is needed. PNGs remain available if
@@ -84,12 +115,6 @@ not make it without that measurement.
 
 ## Known gaps
 
-- **Not typechecked or tested in CI.** `tsconfig.json` covers `src/` and `test/`
-  only, and these files import `react`, `react-native` and
-  `@amazon-devices/react-native-svg`, which are deliberately not root
-  dependencies. Giving `native/` its own `package.json` and CI job is the next
-  step; until then only `src/core/boardView.ts` is gated, through
-  `test/boardView.test.ts`.
 - **No input.** Nothing here reads D-pad, OK or Back yet, and nothing emits move
   intent.
 - **No coordinates or panel.** The board draws squares, pieces and the four
