@@ -19,13 +19,40 @@ const isHost = (node: Instance, name: string) =>
 ).IS_REACT_ACT_ENVIRONMENT = true;
 
 // A fixed instructional roll: queen, rook, knight. Not production randomness.
-const options: ScreenOptions = { roll: () => [5, 4, 2], newId: () => 'test' };
+const options: ScreenOptions = {
+  roll: () => [5, 4, 2],
+  newId: () => 'test',
+  // The opponent steps immediately in tests; the app spaces the steps out.
+  schedule: (step) => step(),
+};
 
 // Assertions read the screen's own state report rather than panel wording, so
 // they test behaviour instead of copy.
 type Mounted = { root: Instance; state: () => string };
 
 const mount = (): Mounted => {
+  let tree!: renderer.ReactTestRenderer;
+  const reports: string[] = [];
+  act(() => {
+    tree = renderer.create(
+      React.createElement(GameScreen, {
+        options,
+        onState: (line: string) => reports.push(line),
+      }),
+    );
+  });
+  const mounted = {
+    root: tree.root,
+    state: () => reports[reports.length - 1] ?? '',
+  };
+  // Every launch opens on the home screen; these tests are about the board, so
+  // they start a hotseat game first.
+  act(() => press('enter'));
+  return mounted;
+};
+
+// The same, stopped on the home screen.
+const mountHome = (): Mounted => {
   let tree!: renderer.ReactTestRenderer;
   const reports: string[] = [];
   act(() => {
@@ -98,7 +125,18 @@ test('an unknown key is ignored', () => {
   assert.equal(state(), before);
 });
 
-test('it opens on the board waiting for a roll', () => {
+test('it opens on the home screen and starts the mode that was chosen', () => {
+  const home = mountHome();
+  assert.match(home.state(), /overlay home/);
+  send(Select);
+  assert.match(home.state(), /overlay none \| turn 1 \| phase roll/);
+
+  const random = mountHome();
+  send(Down, Select);
+  assert.match(random.state(), /overlay none/);
+});
+
+test('OK on the board rolls the dice', () => {
   const { state } = mount();
   assert.match(state(), /overlay none \| turn 1 \| phase roll/);
   send(Select);

@@ -25,7 +25,12 @@ type Instance = renderer.ReactTestInstance;
 // relaunch is.
 // A fixed instructional roll: queen, rook, knight. The app itself uses the
 // device's random source; a test must not.
-const options: ScreenOptions = { roll: () => [5, 4, 2], newId: () => 'test' };
+const options: ScreenOptions = {
+  roll: () => [5, 4, 2],
+  newId: () => 'test',
+  // The opponent steps immediately in tests; the app spaces the steps out.
+  schedule: (step) => step(),
+};
 
 type Launched = { root: Instance; state: () => string };
 
@@ -41,6 +46,13 @@ const launch = (): Launched => {
     );
   });
   return { root: tree.root, state: () => reports[reports.length - 1] ?? '' };
+};
+
+// Home is always the entry: OK takes the first option, which is Resume when
+// there is a saved game and a new hotseat game when there is not.
+const enter = (launched: Launched): Launched => {
+  act(() => press('enter'));
+  return launched;
 };
 
 const send = (...keys: string[]) => {
@@ -63,7 +75,7 @@ const store = () =>
 
 test('a turn in progress survives a relaunch exactly as it was left', () => {
   reset();
-  const first = launch();
+  const first = enter(launch());
   // Roll, then play b1c3 with the knight die.
   send(
     'enter',
@@ -101,7 +113,7 @@ test('nothing is saved before the player does anything', () => {
 
 test('the cursor is not part of the saved game', () => {
   reset();
-  const first = launch();
+  const first = enter(launch());
   send('enter', 'up', 'up', 'right');
   assert.match(first.state(), /cursor f4/);
   // A relaunch starts the cursor where a new screen starts it, not where the
@@ -113,7 +125,7 @@ test('the cursor is not part of the saved game', () => {
 
 test('a damaged save is surfaced and cleared, not silently played over', () => {
   reset();
-  launch();
+  enter(launch());
   send('enter');
   assert.notEqual(store().read(), null);
 
@@ -126,9 +138,13 @@ test('a damaged save is surfaced and cleared, not silently played over', () => {
   }).save(raw);
 
   const second = launch();
-  // The board is usable rather than stuck, and the unreadable save is gone.
-  assert.match(second.state(), /overlay none \| turn 1 \| phase roll/);
+  // The unreadable save is gone rather than being played over, and the app
+  // opens normally instead of getting stuck on it.
   assert.equal(store().read(), null);
+  assert.match(second.state(), /overlay home/);
+  // Only a new game is offered, because there is nothing left to resume.
+  act(() => press('enter'));
+  assert.match(second.state(), /overlay none \| turn 1 \| phase roll/);
 });
 
 test('a damaged snapshot never replaces a good one', async () => {

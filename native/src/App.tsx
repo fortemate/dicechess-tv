@@ -34,6 +34,11 @@ export const App = ({ options: injected, onState }: AppProps) => {
     return {
       roll: () => rollDice(source.fill),
       newId: () => 'g' + Date.now().toString(36),
+      // Space the opponent's steps out so the player watches it roll and move
+      // rather than seeing the board jump.
+      schedule: (step) => {
+        setTimeout(step, 600);
+      },
     };
   }, [injected]);
 
