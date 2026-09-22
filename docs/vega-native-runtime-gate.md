@@ -250,14 +250,40 @@ behaviour on 0.24.12112 has not been retested.
 
 ## Verification still required
 
-- Render a board and accept D-pad, OK and Back input. Nothing here does either.
+- Accept D-pad, OK and Back input, and emit move intent. Nothing here does either.
+  A board renderer landed separately in
+  [#15](https://github.com/fortemate/dicechess-tv/pull/15).
 - Measure launch-to-interactive and input-to-visible-response for a board, with a stated
   repeatable method. The 404/426 ms above is the device's launch metric for a text probe.
 - Repeat on physical Fire TV hardware; see
   [#10](https://github.com/fortemate/dicechess-tv/issues/10).
 - Establish whether a native bot can run off the UI thread. React Native has no Web
   Worker, and `src/bot.worker.ts` depends on one today.
-- Confirm a Vega-supported way to draw the pieces. `react-native-svg` needs native code
-  and is not assumed to be available.
+  `@amazon-devices/headless-task-manager` is the lead worth trying first.
 - Review the template's 27 audit findings and its redistribution licensing before any
   shell is adopted into the repository.
+
+## Corrections
+
+Two claims in the first version of this note were wrong, and both were corrected by
+looking rather than reasoning.
+
+**Piece rendering.** It said `react-native-svg` needs native code and should not be
+assumed available, so the pieces would need a raster fallback.
+`@amazon-devices/react-native-svg` is in fact system-deployed on Vega, and the device
+confirms `Svg`, `G`, `Path`, `Rect` and `Circle` all resolve. It accepts inline JSX only —
+no external `.svg` files and no CSS `<style>` blocks — but every element the RhosGFX
+sources use is supported, so the pieces are real vectors and no raster fallback is needed.
+See [#15](https://github.com/fortemate/dicechess-tv/pull/15).
+
+**Reporting from the device.** The loopback bridge above is not the only route:
+`@amazon-devices/kepler-file-system` exists and would let the device write a file to be
+copied off with `vega device copy-from`, without any network path at all. That is the
+better channel for the next diagnostic.
+
+The device does ship `/usr/bin/screenshooter` and `/usr/bin/gwsi-tool-screenshooter`.
+Neither produced an image: with the default runtime directory the capture buffer fails
+with `Permission denied`, and running with `XDG_RUNTIME_DIR` pointed at a writable
+directory clears that but leaves `null value passed for arg 1` from the capture call, with
+a zero-byte PNG as the only output. Visual capture of a Vega device is therefore still
+unsolved.
