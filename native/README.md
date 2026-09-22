@@ -71,8 +71,16 @@ destinations and last move on four distinct sets of squares.
 **The owner confirmed on 22 September 2026 that all twelve pieces display well.**
 That confirmation is by eye, because the screen could not be captured: the
 device's `screenshooter` fails its capture call even once its buffer-permission
-problem is worked around, and the host cannot grab the emulator window. Not yet
-confirmed by anyone: that the focus and destination overlays stay visible, and
+problem is worked around, and the host cannot grab the emulator window.
+
+**A complete turn was driven from the keyboard on the same day**, and the device
+reported every step: the roll produced `dice QRN legal 4`; four presses walked
+the cursor e2 → e1 → d1 → c1 → b1; OK gave `selected b1`; three presses walked it
+b2 → b3 → c3; OK left `dice QR legal 1 last b1c3`. Ten presses, ten reactions, no
+spurious ones.
+
+Not confirmed by anyone yet: Back cancelling a selection on a device, whether the
+focus and destination overlays stay visible on both square colours, and
 legibility at TV viewing distance.
 
 ## Checks
@@ -105,6 +113,32 @@ renderer builds, not how Vega paints it — that part is verified on a device.
 
 `react-test-renderer` prints a deprecation warning under React 19. It is what the
 Vega template itself depends on, so it stays until Amazon's template moves.
+
+## Remote input
+
+Vega offers more than one input channel and only one of them works. All three
+were tried on a device:
+
+| API                                     | Result                                        |
+| --------------------------------------- | --------------------------------------------- |
+| `UserInputManager.addListener` (static) | aborts the JS thread with `SIGABRT` on 0.24   |
+| `useAddUserInputListenerCallback()`     | subscribes with no error and delivers nothing |
+| `useTVEventHandler`                     | works; this is what `useRemoteInput` uses     |
+
+The middle one is the trap: it fails silently, and silence is indistinguishable
+from nobody pressing a key.
+
+`eventType` arrives lower-case. A keyboard on the Virtual Device sends **`enter`**
+for the OK button while a physical remote sends `select`, so both are mapped or
+the board would work in the emulator and be deaf on hardware. `eventKeyAction` is
+`0` when the button goes down and on every repeat while it is held, and `1` once
+on release: directions act on the press so holding walks the cursor, and select
+and back act on the release so one press is one action.
+
+`GameScreen` is a `useReducer`, not a set of handlers, because held repeats can
+arrive faster than React re-renders. Handlers closing over state read a stale
+cursor and silently drop moves; a test that holds a direction for three repeats
+catches it.
 
 ## Raster alternative
 

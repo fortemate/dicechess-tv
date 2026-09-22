@@ -8,6 +8,7 @@
     "test": "node --test --import ./test/hooks.mjs test/*.test.tsx"
   },
   "dependencies": {
+    "@amazon-devices/react-native-kepler": "^4.0.1",
     "@amazon-devices/react-native-svg": "3.0.9000000001",
     "react": "19.2.0",
     "react-native": "0.83.0"
