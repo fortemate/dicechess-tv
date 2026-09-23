@@ -477,14 +477,27 @@ not make it without that measurement.
 Two separate mechanisms, neither of them obvious.
 
 **The icon** is a 512x512 PNG at `assets/image/icon.png`, named from the manifest
-as `icon = "@image/icon.png"`. It is where Settings shows the app under Manage
-Installed Applications. That screen is dark, and Amazon's own advice is that
-light solid icons read best there, so the committed file is the **white** export
-of the Fortemate mark, copied byte for byte from the brand repository. The mark
-is not redrawn here and must not be: regenerating it is that repository's job,
-and `BRAND.md` forbids the tempting variations — no wordmark lockup while the
-typography is provisional, and the mark never goes inside a die, a board or
-another grid.
+as `icon = "@image/icon.png"`. There is only one icon field, and it serves two
+places that want different things.
+
+The documentation describes it as the Settings icon, and that screen is dark, so
+Amazon's advice is that light solid icons read best. But the **launcher** also
+uses it, and the launcher does not draw a square: it draws a wide tile and fits
+the icon into it. A bare mark on transparency was tried first and came out
+visibly distorted on the home screen.
+
+So the file is the brand's **maskable** export, copied byte for byte: an opaque
+black tile with the mark at about 52 % of the canvas, inside an 80 % safe zone.
+That is precisely what maskable icons are for — the launcher may crop it however
+it likes and the mark survives. `BRAND.md` settles the colour too: tiles use
+pure black.
+
+The mark is not redrawn here and must not be. Regenerating it is the brand
+repository's job, and `BRAND.md` forbids the variations that suggest themselves
+— no wordmark lockup while the typography is provisional, the mark never goes
+inside a die, a board or another grid, and game artwork is never used as the
+mark. A game-specific icon is a design decision for the owner, not something to
+improvise. See `brand/README.md`.
 
 **The splash** is `assets/raw/SplashScreenImages.zip`, and the animation service
 reads it directly — nothing in the manifest points at it. Inside, a `desc.txt`
@@ -493,8 +506,11 @@ frames. Ours holds one frame, which the descriptor loops until the app says it
 has drawn. 4K frames are refused; 1920x1080 is the television size.
 
 `scripts/generate-splash.mjs` builds it during `npm run build`, so the archive is
-generated rather than committed. It composites the same icon, unscaled and on
-whole pixels, onto the board's own background colour, so the splash and the
+generated rather than committed — as is the icon, which the same script copies
+into place. Everything under `assets/` is built; the verbatim brand inputs live
+in `brand/`, outside it, so the splash source is not also shipped. The splash
+composites the **transparent** mark, not the icon tile, unscaled and on whole
+pixels, onto the board's own background colour, so the splash and the
 first frame of the application are the same colour and the handover is
 invisible. Two traps are handled there and worth knowing: the archive must be
 built from **inside** the staging directory, because a wrapping folder hides
@@ -502,9 +518,12 @@ built from **inside** the staging directory, because a wrapping folder hides
 including the directory, is stamped with a fixed time so two builds produce
 identical bytes.
 
-`test/splash.test.ts` reads back the file that was written — frame size, the
+`test/splash.test.ts` reads back the files that were written — the icon's bytes
+against the brand file, its ink inside the 80 % safe zone, the frame size, the
 background in five places, the mark's bounding box centred and large enough to
-read from a sofa, the descriptor text, and the archive listing. Each assertion
+read from a sofa, the descriptor text, and the archive listing. The safe-zone
+check exists because the distorted launcher tile is exactly what shipped the
+first time. Each assertion
 was confirmed to fail when its property was broken on purpose. Nothing imports
 the splash and nobody looks at a boot screen in CI, so without those it would
 regress in silence.
