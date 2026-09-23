@@ -48,6 +48,11 @@ As with the earlier SDK work, the generated template is not committed. Installin
 template's dependencies reported **27 npm audit findings (14 moderate, 13 high)**, the
 same count the earlier note recorded; they still need review before a shell is adopted.
 
+> Superseded on 2026-09-23. The application is now built from `native/` in this
+> repository and nothing is scaffolded. Both questions this paragraph left open —
+> redistribution licensing and the audit findings — are answered in the open-items
+> list below and in `native/README.md`.
+
 ### Steps
 
 ```bash
@@ -260,8 +265,18 @@ behaviour on 0.24.12112 has not been retested.
 - Establish whether a native bot can run off the UI thread. React Native has no Web
   Worker, and `src/bot.worker.ts` depends on one today.
   `@amazon-devices/headless-task-manager` is the lead worth trying first.
-- Review the template's 27 audit findings and its redistribution licensing before any
-  shell is adopted into the repository.
+- ~~Review the template's 27 audit findings and its redistribution licensing before any
+  shell is adopted into the repository.~~ **Done 2026-09-23**; the application now
+  builds from `native/` in this repository. Licensing: what is committed is our own
+  configuration, and every dependency — Amazon's included — comes from the public npm
+  registry, so nothing of theirs is redistributed. The SDK itself stays out, licensed
+  to each developer under Amazon's Program Materials License Agreement. Audit: 20
+  findings remain, and none of them ship. The built package holds only our Hermes
+  bundle, `libreact-native-mmkv-kepler.so` and metadata; `minimatch`, `toml`, `braces`
+  and `micromatch` appear in it zero times. The findings are in build tooling, and
+  `npm audit fix --force` would "fix" them by downgrading
+  `@amazon-devices/react-native-kepler` to 2.1.0 — back to the SDK 0.23 line this note
+  exists to leave behind. See `native/README.md`.
 
 ## Corrections
 
