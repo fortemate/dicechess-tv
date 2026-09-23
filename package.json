@@ -15,8 +15,8 @@
   },
   "dependencies": {
     "@fortemate/dicechess-engine": "0.12.2",
-    "@lichess-org/chessground": "10.1.1",
-    "svelte": "5.57.0"
+    "@lichess-org/chessground": "10.2.0",
+    "svelte": "5.57.1"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "7.3.0",
@@ -26,7 +26,7 @@
     "prettier-plugin-svelte": "4.1.1",
     "svelte-check": "4.7.6",
     "typescript": "6.0.3",
-    "vite": "8.2.2"
+    "vite": "8.3.0"
   },
   "engines": {
     "node": ">=26.8.2 <27"
