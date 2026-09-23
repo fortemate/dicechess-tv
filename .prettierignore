@@ -2,3 +2,6 @@
 # native/sounds/sounds.lock.json. Reformatting them would break the digests the
 # build and the tests check them against.
 native/sounds/
+
+# Written by Amazon's Vega ESLint plugin on every lint run; gitignored.
+native/generated/

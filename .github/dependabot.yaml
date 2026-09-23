@@ -1,5 +1,5 @@
-# Two npm projects live here: the repository root holds the shared core's engine (and, for now,
-# the superseded web probe), and `/native` is the React Native for Vega application.
+# Two npm projects live here: the repository root holds the shared core and its engine, and
+# `/native` is the React Native for Vega application.
 version: 2
 updates:
   # ── The Vega application ────────────────────────────────────────────────────────────────────────
@@ -7,8 +7,8 @@ updates:
     directory: '/native'
     schedule:
       # Monthly, not weekly, until the contest submission on 23 October 2026. Every update here
-      # has to be proved on a device, and there is no runner that can do that — CI has no Vega
-      # SDK. Raise it to weekly once the submission is out.
+      # has to be proved on a device, and CI can build the package but not run it. Raise it to
+      # weekly once the submission is out.
       interval: 'monthly'
       day: 'wednesday'
       time: '08:00'
@@ -55,6 +55,12 @@ updates:
           ['version-update:semver-major', 'version-update:semver-minor']
       - dependency-name: 'typescript'
         update-types: ['version-update:semver-major']
+      # Amazon's Vega ESLint plugin (0.1.15) crashes on ESLint 10: it calls
+      # context.getSourceCode(), which 10 removed. Hold the major until the plugin moves.
+      - dependency-name: 'eslint'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@eslint/js'
+        update-types: ['version-update:semver-major']
     groups:
       # React and its renderer must move together or the test runner breaks.
       react:
@@ -71,8 +77,16 @@ updates:
       amazon-devices:
         patterns:
           - '@amazon-devices/*'
+      lint:
+        patterns:
+          - 'eslint'
+          - '@eslint/*'
+          - 'typescript-eslint'
+          - 'eslint-plugin-react-hooks'
+          - 'jsonc-eslint-parser'
+          - 'globals'
 
-  # ── The shared core, and the web probe that is on its way out ───────────────────────────────────
+  # ── The shared core ─────────────────────────────────────────────────────────────────────────────
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
@@ -91,18 +105,19 @@ updates:
     ignore:
       - dependency-name: 'typescript'
         update-types: ['version-update:semver-major']
+      # Kept on the same ESLint major as native/, which Amazon's Vega plugin holds at 9.
+      - dependency-name: 'eslint'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@eslint/js'
+        update-types: ['version-update:semver-major']
     groups:
-      # Svelte, Chessground and Vite belong to the probe. Grouping them means its removal closes
-      # one pull request rather than several.
-      web-probe:
+      # Lint tooling moves together, so one pull request carries a coherent set.
+      lint:
         patterns:
-          - 'svelte'
-          - 'svelte-check'
-          - '@sveltejs/*'
-          - 'prettier-plugin-svelte'
-          - '@lichess-org/chessground'
-          - 'vite'
-          - 'fake-indexeddb'
+          - 'eslint'
+          - '@eslint/*'
+          - 'typescript-eslint'
+          - 'globals'
 
   # ── Workflow actions ────────────────────────────────────────────────────────────────────────────
   - package-ecosystem: 'github-actions'

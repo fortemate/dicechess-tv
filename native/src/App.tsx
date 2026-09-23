@@ -110,7 +110,11 @@ export const App = ({
     [ledgerStore],
   );
 
+  // Launch goes through the same count() as a game finishing in play, so there
+  // is one path that records a result. It sets state from an effect, once, and
+  // only when a finished game was never counted: one extra render at launch.
   React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (opened.game) count(opened.game);
   }, [count, opened.game]);
 

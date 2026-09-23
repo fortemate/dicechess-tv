@@ -13,7 +13,7 @@ Dice Chess TV is a Fire TV game on Vega OS. The application is `native/`, a Reac
 - Verify every required action with D-pad, OK and Back. Mouse interaction alone is not TV validation.
 - Audit licenses before importing code or assets. Do not silently select a license or treat private visibility as a license exemption.
 - Before editing, inspect `git status`. Preserve unrelated changes and stage explicit paths only.
-- Run `npm run check`, `npm run format:check`, `npm test`, `npm run build` and `git diff --check` at the root, and `npm run check --prefix native` and `npm test --prefix native` for the application. Use the Node version in mise.toml.
+- Run `npm run check`, `npm run lint`, `npm run format:check`, `npm test` and `git diff --check` at the root, and `npm run check --prefix native`, `npm run lint --prefix native`, `npm test --prefix native` and `npm run build --prefix native` for the application. Use the Node version in mise.toml.
 - For anything that changes what the television shows or how it responds, build the package and run it on a device: `npm run build --prefix native`, then `vega device install-app` and `launch-app`. A green gate has shipped a broken build before — a first-render fault that swallowed every key press passed every check. The device has no screenshot command, so have the app report what it built rather than trusting what you assume it painted.
 - Work on branches and pull requests. Never merge, release, publish to Appstore or submit a contest entry without the required owner action/authorization.
 

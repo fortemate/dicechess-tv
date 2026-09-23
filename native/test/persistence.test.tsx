@@ -59,14 +59,6 @@ const send = (...keys: string[]) => {
   for (const key of keys) act(() => press(key));
 };
 
-const text = (root: Instance) =>
-  root
-    .findAll((node) => (node.type as unknown as string) === 'Text', {
-      deep: true,
-    })
-    .map((node) => String(node.props.children))
-    .join('\n');
-
 const store = () =>
   new MmkvSnapshotStore<Game>({
     key: 'dicechess-tv.game.v2',

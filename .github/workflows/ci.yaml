@@ -30,6 +30,7 @@ jobs:
       - uses: jdx/mise-action@v4
       - run: npm ci
       - run: npm run check
+      - run: npm run lint
       - run: npm run format:check
       - run: npm test
 
@@ -44,6 +45,8 @@ jobs:
       - run: npm ci
       - run: npm ci --prefix native
       - run: npm run check --prefix native
+      # Includes Amazon's Vega rules; see native/eslint.config.mjs.
+      - run: npm run lint --prefix native
       - run: npm test --prefix native
       # Bundling needs no Vega SDK, so it runs even on a hosted runner, and it
       # catches what tsc cannot: a Metro configuration that no longer reaches the

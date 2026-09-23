@@ -158,9 +158,14 @@ export const GameScreen = ({
   );
   // While the tutorial is up it owns the remote. This screen stays subscribed —
   // a hook cannot be conditional — so it ignores keys instead, or every press
-  // would be handled twice.
+  // would be handled twice. Both refs follow committed renders only, like the
+  // handlers in useRemoteInput.
   const handsOver = React.useRef(false);
-  handsOver.current = handsOff(overlay);
+  const overlayAtRoot = React.useRef(false);
+  React.useLayoutEffect(() => {
+    handsOver.current = handsOff(overlay);
+    overlayAtRoot.current = overlay.kind === 'home';
+  });
   const onKey = React.useCallback((key: BoardKey) => {
     if (handsOver.current) return;
     dispatch({ kind: 'key', key });
@@ -175,8 +180,6 @@ export const GameScreen = ({
     dispatch({ kind: 'key', key: 'back' });
     return true;
   }, []);
-  const overlayAtRoot = React.useRef(false);
-  overlayAtRoot.current = overlay.kind === 'home';
 
   useRemoteInput(onKey, { onBack });
 
