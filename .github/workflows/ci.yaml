@@ -52,15 +52,23 @@ jobs:
         working-directory: native
 
   # Builds the installable package. Only the self-hosted runner has the Vega SDK,
-  # so this job is skipped when `RUNS_ON` is unset or when the run is Dependabot's
-  # — a skipped job is honest, a failing one would train everyone to ignore red.
+  # so this job is skipped when `RUNS_ON` is unset — a skipped job is honest, a
+  # failing one would train everyone to ignore red.
+  #
+  # It is also skipped when Dependabot itself triggers the run, because that would
+  # install versions nobody has reviewed on the machine that holds the SDK. That
+  # skip is exactly how a react-native bump reached main green and unbuildable:
+  # the one job able to catch it never ran. So the condition reads the TRIGGERING
+  # actor, not the original one. After reading a Dependabot diff, the owner can
+  # "Re-run all jobs"; the owner then triggers the run and the real build happens
+  # on the self-hosted runner before the merge, not after it.
   #
   # What it adds over `native-board`: the bundle step proves the JavaScript
   # resolves, and nothing more. Only a real build reads `manifest.toml`, runs ABI
   # validation and links the native libraries, so only this job can fail on a
   # broken manifest or a module the device will not provide.
   package:
-    if: github.actor != 'dependabot[bot]' && vars.RUNS_ON != ''
+    if: github.triggering_actor != 'dependabot[bot]' && vars.RUNS_ON != ''
     runs-on: ${{ fromJSON(vars.RUNS_ON) }}
     timeout-minutes: 20
     steps:
