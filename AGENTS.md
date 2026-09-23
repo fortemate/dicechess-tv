@@ -1,18 +1,21 @@
 # Agent guidance
 
-Dice Chess TV is a bootstrap repository for a Fire TV game. Read README.md for the agreed scope and distinguish proposed architecture from verified runtime behavior.
+Dice Chess TV is a Fire TV game on Vega OS. The application is `native/`, a React Native for Vega package that builds in this repository; `src/core/` is the shared pure controller it runs on. Read README.md for the agreed scope, and keep claims about verified runtime behavior separate from intentions.
 
 ## Repository-specific guidance
 
-- Initial target: Vega Virtual Device on Mac, with a React Native for Vega shell and WebView-based game UI.
+- The product is the native React Native for Vega board in `native/`. The Svelte + Chessground web app is a superseded probe awaiting removal; do not add features to it.
+- Keep `src/core/` pure. It is compiled with `lib: ES2022` and `types: []`, so a DOM or Node global there is a build failure, not a style question. Platform code belongs in `native/src/` or the probe.
+- Evidence from the Vega Virtual Device is not evidence from a Fire TV Stick, and neither is a passing test. Say which one a claim rests on.
 - Keep Dice Chess rules in the canonical engine; render state and emit action intent from the board.
 - Preserve the dice roll and full turn phase across saves and lifecycle events.
 - Keep bot strength determined by algorithm/work budget, not elapsed wall-clock time.
 - Verify every required action with D-pad, OK and Back. Mouse interaction alone is not TV validation.
 - Audit licenses before importing code or assets. Do not silently select a license or treat private visibility as a license exemption.
 - Before editing, inspect `git status`. Preserve unrelated changes and stage explicit paths only.
-- Run `npm run check`, `npm run format:check`, `npm test`, `npm run build` and `git diff --check`. Use the Node version in mise.toml. For UI changes, exercise the built browser probe with keyboard-only input and verify rendering and reload recovery. Browser success is not Vega runtime or offline-package evidence.
-- Use branches and pull requests after bootstrap. Never merge, release, publish to Appstore or submit a contest entry without the required owner action/authorization.
+- Run `npm run check`, `npm run format:check`, `npm test`, `npm run build` and `git diff --check` at the root, and `npm run check --prefix native` and `npm test --prefix native` for the application. Use the Node version in mise.toml.
+- For anything that changes what the television shows or how it responds, build the package and run it on a device: `npm run build --prefix native`, then `vega device install-app` and `launch-app`. A green gate has shipped a broken build before — a first-render fault that swallowed every key press passed every check. The device has no screenshot command, so have the app report what it built rather than trusting what you assume it painted.
+- Work on branches and pull requests. Never merge, release, publish to Appstore or submit a contest entry without the required owner action/authorization.
 
 ## Publication boundary
 
