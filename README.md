@@ -1,12 +1,33 @@
 # Dice Chess TV
 
+[![Checks](https://github.com/fortemate/dicechess-tv/actions/workflows/ci.yaml/badge.svg)](https://github.com/fortemate/dicechess-tv/actions/workflows/ci.yaml)
+
 Dice Chess for Amazon Fire TV: two players sharing one screen and remote, or a game against a choice of on-device bots.
 
 **Status: a React Native for Vega application that builds and runs from this repository.** `npm run build --prefix native` produces an installable package; it launches on the Vega Virtual Device in 227 ms and plays. Hotseat and a local Random opponent, three-die turns, promotion, king capture, resignation, draw agreement, save and resume mid-turn, a completed-game ledger, an interactive tutorial and a rules guide are all implemented on the native board, driven entirely by D-pad, OK and Back.
 
 Not done: sound, onboarding, piece-movement animation, an icon and splash image, and the attribution screen the asset licences require. Everything above is evidence from the **virtual** device; nothing has yet run on physical Fire TV hardware, and the emulator does not measure Stick performance.
 
-The Svelte + Chessground WebView app that came first has been removed. It was a probe, and its WebView crashes on SDK 0.24 — the SDK the native path targets — so it could never have shipped. The [feasibility probe](docs/prototype.md), [SDK experiment](docs/vega-sdk-experiment.md), [durable-save/offline checks](docs/durable-save-and-offline.md) and [full-game behavior](docs/full-game.md) record what it established and remain the evidence for that period.
+## Try it
+
+It needs the Vega SDK 0.24 and either a Vega Virtual Device or a Fire TV Stick in developer mode; [native/README.md](native/README.md#building-and-running) explains the setup.
+
+```bash
+npm ci && npm ci --prefix native
+npm run build --prefix native
+vega device install-app -d VirtualDevice -p native/build/aarch64-release/dicechess-tv-native_aarch64.vpkg
+vega device launch-app -d VirtualDevice -a com.fortemate.dicechesstv.main
+```
+
+The whole game is played with three controls:
+
+| Remote | Virtual device keyboard | What it does                                                                                          |
+| ------ | ----------------------- | ----------------------------------------------------------------------------------------------------- |
+| D-pad  | Arrow keys              | Moves the focus over the board and through the menus                                                  |
+| OK     | Enter                   | Rolls the dice, picks up a piece, puts it on its destination, chooses a menu item                     |
+| Back   | Esc                     | Puts a picked-up piece back, opens the game menu, closes a screen; on the home screen, leaves the app |
+
+The application has no network code, no accounts and no analytics. Games, results and settings stay on the device.
 
 ## Product scope
 
@@ -50,6 +71,8 @@ Fire OS is a possible later target with a separate build. Samsung/Tizen, Raspber
 
 ## Completed feasibility milestone
 
+The Svelte + Chessground WebView app that came first has been removed. It was a probe, and its WebView crashes on SDK 0.24 — the SDK the native path targets — so it could never have shipped. The [feasibility probe](docs/prototype.md), [SDK experiment](docs/vega-sdk-experiment.md), [durable-save/offline checks](docs/durable-save-and-offline.md) and [full-game behavior](docs/full-game.md) record what it established and remain the evidence for that period.
+
 These steps were carried out on the WebView path and are kept as the record of how the target was proved reachable. The application that grew from them is the native one described above.
 
 1. Install and record Vega CLI/SDK and Node versions on the development Mac.
@@ -60,7 +83,7 @@ These steps were carried out on the WebView path and are kept as the record of h
 6. Save, close and restore the exact position, roll and phase.
 7. Repeat without a development server or network, and record actual limitations.
 
-That loop closed on SDK 0.23. The native runtime gate then passed on SDK 0.24 — the WebView crash does not reproduce natively — and the board, remote input, saves, dice, menus, the Random opponent, the result ledger, the tutorial and the rules guide were built on that path instead. What remains is sound, onboarding, the submission build and physical-device testing. See the [delivery roadmap](docs/roadmap.md), the [runtime gate](docs/vega-native-runtime-gate.md) and [GitHub milestones](https://github.com/fortemate/dicechess-tv/milestones).
+That loop closed on SDK 0.23. The native runtime gate then passed on SDK 0.24 — the WebView crash does not reproduce natively — and the board, remote input, saves, dice, menus, the Random opponent, the result ledger, the tutorial and the rules guide were built on that path instead. What remains is onboarding, piece-movement animation, the submission build and physical-device testing. See the [delivery roadmap](docs/roadmap.md), the [runtime gate](docs/vega-native-runtime-gate.md) and [GitHub milestones](https://github.com/fortemate/dicechess-tv/milestones).
 
 ## Hackathon
 
@@ -80,11 +103,11 @@ The repository license has not been selected. See [third-party notices](THIRD_PA
 
 Chessground's GPL-3.0-or-later obligation is gone: it was reached only by the web probe, and the probe has been removed.
 
-What the native application carries is the engine, the 12 CC0 RhosGFX vector pieces, and Amazon's `@amazon-devices/*` packages. Those resolve from the public npm registry and are not redistributed by us; the Vega SDK itself is licensed to each developer under Amazon's Program Materials License Agreement and is deliberately not in this repository. Sounds, when they arrive, carry an attribution requirement that needs a visible screen in the app. Check the licenses of the engine, reused play-client code, piece artwork, fonts, sounds and samples before importing or distributing them. Commercial sale and closed-source distribution are different questions.
+What the native application carries is the engine, the 12 CC0 RhosGFX vector pieces, and Amazon's `@amazon-devices/*` packages. Those resolve from the public npm registry and are not redistributed by us; the Vega SDK itself is licensed to each developer under Amazon's Program Materials License Agreement and is deliberately not in this repository. The sounds carry attribution requirements, which the About screen meets. Check the licenses of the engine, reused play-client code, piece artwork, fonts, sounds and samples before importing or distributing them. Commercial sale and closed-source distribution are different questions.
 
 ## Development guidance
 
-Follow [AGENTS.md](AGENTS.md). Changes go through branches and pull requests; the owner reviews and merges. Keep secrets, private models, opening books and production configuration out of this repository.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, checks and device verification, and follow [AGENTS.md](AGENTS.md). Changes go through branches and pull requests; the owner reviews and merges. Keep secrets, private models, opening books and production configuration out of this repository.
 
 ## References
 

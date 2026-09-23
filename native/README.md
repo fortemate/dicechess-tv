@@ -1,9 +1,12 @@
-# Native board
+# Dice Chess TV on Vega
 
-React Native for Vega renderer for the Dice Chess board. It draws what
-`src/core/boardView.ts` describes and nothing else: it owns no rules, decides no
-legality, and emits no moves. The Svelte/WebView app in `src/` is untouched and
-remains the shipping path.
+The React Native for Vega application: board, screens, remote input, saves and
+sound. The board draws what `src/core/boardView.ts` describes and nothing else:
+the rules live in the canonical engine behind the shared core in `src/core/`, so
+nothing here decides legality or invents a move.
+
+This file is also the record of how Vega actually behaves, each finding measured
+on a device.
 
 See [the runtime gate](../docs/vega-native-runtime-gate.md) for the evidence that
 the canonical engine runs in this runtime, and
@@ -140,8 +143,8 @@ visible on both square colours, and legibility at TV viewing distance.
 ## Checks
 
 This directory is its own npm package, with its own lockfile, because it needs
-`react`, `react-native` and `@amazon-devices/react-native-svg`, and those must not
-reach the web app's dependencies. CI runs it as the `native-board` job.
+`react`, `react-native` and Amazon's `@amazon-devices/*` packages, and those have
+no place in the root package, which holds only the shared core and its engine. CI runs it as the `native-board` job.
 
 ```bash
 npm ci                      # the repository root: the shared core needs the engine
@@ -257,7 +260,7 @@ has the modulo bias of an arbitrary byte `% 6`; what the native board loses
 against the web probe is the cryptographic source, not the uniformity.
 
 For a local hotseat game that is a defensible trade, but it is the owner's to
-make, and it should be stated wherever the web app claims cryptographic dice.
+make, and nothing that describes this game should claim cryptographic dice.
 
 ## Menus
 
