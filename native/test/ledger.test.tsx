@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
-import { press } from './stubs/react-native-kepler.mjs';
+import { press, pressBack } from './stubs/react-native-kepler.mjs';
 import { reset } from './stubs/react-native-mmkv.mjs';
 import { App } from '../src/App';
 import { MmkvSnapshotStore } from '../src/mmkvStore';
@@ -31,8 +31,14 @@ const launch = (): Instance => {
   return tree.root;
 };
 
+// Back arrives on its own channel: Vega routes it through a hook that lets the
+// app claim the press, which is what stops the system closing the app.
 const send = (...keys: string[]) => {
-  for (const key of keys) act(() => press(key));
+  for (const key of keys)
+    act(() => {
+      if (key === 'back') pressBack();
+      else press(key);
+    });
 };
 
 const text = (root: Instance) =>

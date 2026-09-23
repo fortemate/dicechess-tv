@@ -8,6 +8,7 @@ import { viewGame, sideName, type Game } from '../../src/core/game';
 import { summary, type Ledger } from '../../src/core/ledger';
 import type { BoardKey } from '../../src/core/boardInput';
 import { Board } from './Board';
+import { TutorialScreen } from './TutorialScreen';
 import { useRemoteInput } from './useRemoteInput';
 import { THEME } from './theme';
 import { botToAct } from '../../src/core/bot';
@@ -140,13 +141,29 @@ export const GameScreen = ({
     initial,
     (restored) => initialState(options, restored),
   );
-  const onKey = React.useCallback(
-    (key: BoardKey) => dispatch({ kind: 'key', key }),
-    [],
-  );
+  // While the tutorial is up it owns the remote. This screen stays subscribed —
+  // a hook cannot be conditional — so it ignores keys instead, or every press
+  // would be handled twice.
+  const handsOver = React.useRef(false);
+  handsOver.current = overlay.kind === 'tutorial';
+  const onKey = React.useCallback((key: BoardKey) => {
+    if (handsOver.current) return;
+    dispatch({ kind: 'key', key });
+  }, []);
   const state = React.useMemo(() => viewGame(game), [game]);
 
-  useRemoteInput(onKey);
+  // Back at the home screen has nowhere to go, so the app agrees to close —
+  // what a viewer expects at the top of a TV app. Anywhere else it is ours.
+  const onBack = React.useCallback(() => {
+    if (handsOver.current) return true; // the tutorial owns it
+    if (overlayAtRoot.current) return false;
+    dispatch({ kind: 'key', key: 'back' });
+    return true;
+  }, []);
+  const overlayAtRoot = React.useRef(false);
+  overlayAtRoot.current = overlay.kind === 'home';
+
+  useRemoteInput(onKey, { onBack });
 
   // The opponent takes one step at a time, scheduled rather than looped, so the
   // player watches it roll and move instead of the board jumping. It is paused
@@ -174,7 +191,9 @@ export const GameScreen = ({
   React.useEffect(() => {
     onState?.(
       [
-        `overlay ${overlay.kind}`,
+        `overlay ${overlay.kind}${
+          'index' in overlay ? '#' + overlay.index : ''
+        }`,
         `turn ${game.turn}`,
         `phase ${game.phase}`,
         `side ${state.side}`,
@@ -188,6 +207,17 @@ export const GameScreen = ({
     );
   }, [onState, game, state, focus, overlay]);
 
+  // The tutorial is its own screen with its own state, and this one hands over
+  // entirely rather than drawing a board behind it. It is given no store, so a
+  // lesson cannot reach a saved game or the record.
+  if (overlay.kind === 'tutorial')
+    return (
+      <TutorialScreen
+        onExit={() => dispatch({ kind: 'key', key: 'back' })}
+        onState={onState}
+      />
+    );
+
   const size = Math.min(height - 64, width * 0.62);
   const prompt =
     game.phase === 'roll'
@@ -197,7 +227,7 @@ export const GameScreen = ({
         : game.phase === 'ended'
           ? 'OK: back to the menu'
           : focus.selected
-            ? `Choose a destination for ${focus.selected}`
+            ? `Choose a destination for ${focus.selected} · Back: put it down`
             : 'Arrows: move focus · OK: select · Back: menu';
 
   return (

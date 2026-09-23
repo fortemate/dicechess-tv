@@ -119,17 +119,35 @@ Vega template itself depends on, so it stays until Amazon's template moves.
 
 ## Remote input
 
-Vega offers more than one input channel and only one of them works. All three
-were tried on a device:
+Vega splits input across channels, and the board needs two of them.
 
-| API                                     | Result                                        |
-| --------------------------------------- | --------------------------------------------- |
-| `UserInputManager.addListener` (static) | aborts the JS thread with `SIGABRT` on 0.24   |
-| `useAddUserInputListenerCallback()`     | subscribes with no error and delivers nothing |
-| `useTVEventHandler`                     | works; this is what `useRemoteInput` uses     |
+| API                                     | Result                                                    |
+| --------------------------------------- | --------------------------------------------------------- |
+| `UserInputManager.addListener` (static) | aborts the JS thread with `SIGABRT` on 0.24               |
+| `useAddUserInputListenerCallback()`     | delivers **only** when `useTVEventHandler` is not also up |
+| `useTVEventHandler`                     | works, but cannot claim an event — directions and OK      |
+| `useKeplerBackHandler`                  | the only way to claim Back — Back                         |
 
-The middle one is the trap: it fails silently, and silence is indistinguishable
-from nobody pressing a key.
+The second row cost a day. Subscribed alongside `useTVEventHandler` it delivers
+nothing at all, with no error: silence indistinguishable from nobody pressing a
+key. Alone, it works. That is why the diagnostic that told the channels apart had
+to subscribe to one at a time.
+
+**Back needs its own channel because `useTVEventHandler` cannot claim an event.**
+An unclaimed Back closes the app, so a Back seen only there cancels nothing and
+quits instead — which is exactly how it behaved until `useKeplerBackHandler` was
+found. That hook claims Back and calls `exitApp()` itself when no handler returns
+true, so returning false is how the app _agrees_ to close.
+
+The app uses that: **Back at the home screen lets the app close**, which is what
+Back means at the top of a TV app, and claims it everywhere else. Suppressing it
+everywhere would trap a viewer inside.
+
+The Virtual Device hands over the **raw keyboard** rather than a remote
+abstraction — `backspace`, `leftshift`, `tab` and letters all arrive as
+themselves — so keyboard Enter never becomes `SELECT` on the consuming channel.
+Esc does become `back`. A physical remote sends the named events, which is why
+both `enter` and `select` are mapped.
 
 `eventType` arrives lower-case. A keyboard on the Virtual Device sends **`enter`**
 for the OK button while a physical remote sends `select`, so both are mapped or
@@ -283,6 +301,32 @@ Verified on a device across three launches, holding a game that had already ende
 | 1      | no ledger  | `black: 1`, counted |
 | 2      | `black: 1` | `black: 1`          |
 | 3      | `black: 1` | `black: 1`          |
+
+## The tutorial
+
+Five lessons — moving a piece, the dice choosing the pieces, three actions in one
+turn, taking a piece, taking the king. Castling and promotion are deliberately
+absent: the roadmap makes them reference material, and a tutorial long enough to
+cover them is no longer a tutorial.
+
+Each lesson is **data**: a fixed position, a fixed roll, and a goal. The tests
+check every one against the canonical engine — that the position decodes, that
+the roll permits the action being taught, and that the goal is reachable. The
+dice lesson is checked harder still: _every_ legal action in it must start on a
+knight, or it would be teaching something untrue. Swapping in a position the
+engine rejects fails three tests.
+
+It runs the same board, the same input reducer and the same controller as a real
+game, so there is nothing separate to keep in step.
+
+**It cannot touch a saved game or the record.** `TutorialScreen` is given no
+store and no ledger, so that is a property of the wiring rather than a promise. A
+test plays a real game to a result, runs a lesson, and compares the saved game
+and the ledger byte for byte.
+
+While it is up it owns the remote. The game screen stays mounted and stays
+subscribed — a hook cannot be conditional — so it ignores keys instead, or every
+press would be handled twice.
 
 ## Raster alternative
 
