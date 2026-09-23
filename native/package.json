@@ -6,8 +6,9 @@
   "scripts": {
     "check": "tsc --noEmit",
     "test": "node --test --import ./test/hooks.mjs test/*.test.tsx test/*.test.ts",
-    "build": "react-native build-vega --build-type Release",
-    "build:debug": "react-native build-vega --build-type Debug",
+    "splash": "node scripts/generate-splash.mjs",
+    "build": "npm run splash && react-native build-vega --build-type Release",
+    "build:debug": "npm run splash && react-native build-vega --build-type Debug",
     "start": "react-native start"
   },
   "dependencies": {

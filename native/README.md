@@ -101,14 +101,10 @@ config with the template's default was tried, and the build fails with
 `Unable to resolve module ../../src/core/game`. `watchFolders` and
 `nodeModulesPaths` are what make one shared core serve both frontends.
 
-### Two things the build says that are not faults
+### `buildinfo.json`
 
-`Icon is not defined in the manifest. System default will be used.` — no icon has
-been drawn yet. The device also logs a missing `SplashScreenImages.zip` for the
-same reason. Both are cosmetic and belong with the rest of the visual polish.
-
-`buildinfo.json` appears next to the manifest after a build and holds absolute
-paths from the machine that built it, so it is ignored rather than committed.
+It appears next to the manifest after a build and holds absolute paths from the
+machine that built it, so it is ignored rather than committed.
 
 Target **SDK 0.24**. Its Metro reads the engine's package exports unaided, where
 SDK 0.23's needed `unstable_enablePackageExports` — a separate matter from the
@@ -476,12 +472,52 @@ measurement on physical hardware ever shows that redrawing 32 multi-path pieces
 costs too much while the cursor moves; the generator makes that switch cheap. Do
 not make it without that measurement.
 
+## Icon and splash
+
+Two separate mechanisms, neither of them obvious.
+
+**The icon** is a 512x512 PNG at `assets/image/icon.png`, named from the manifest
+as `icon = "@image/icon.png"`. It is where Settings shows the app under Manage
+Installed Applications. That screen is dark, and Amazon's own advice is that
+light solid icons read best there, so the committed file is the **white** export
+of the Fortemate mark, copied byte for byte from the brand repository. The mark
+is not redrawn here and must not be: regenerating it is that repository's job,
+and `BRAND.md` forbids the tempting variations — no wordmark lockup while the
+typography is provisional, and the mark never goes inside a die, a board or
+another grid.
+
+**The splash** is `assets/raw/SplashScreenImages.zip`, and the animation service
+reads it directly — nothing in the manifest points at it. Inside, a `desc.txt`
+of two lines (`1920 1080 30`, then `c 0 0 _loop`) and a `_loop` directory of PNG
+frames. Ours holds one frame, which the descriptor loops until the app says it
+has drawn. 4K frames are refused; 1920x1080 is the television size.
+
+`scripts/generate-splash.mjs` builds it during `npm run build`, so the archive is
+generated rather than committed. It composites the same icon, unscaled and on
+whole pixels, onto the board's own background colour, so the splash and the
+first frame of the application are the same colour and the handover is
+invisible. Two traps are handled there and worth knowing: the archive must be
+built from **inside** the staging directory, because a wrapping folder hides
+`_loop` from the service and it silently shows nothing; and every entry,
+including the directory, is stamped with a fixed time so two builds produce
+identical bytes.
+
+`test/splash.test.ts` reads back the file that was written — frame size, the
+background in five places, the mark's bounding box centred and large enough to
+read from a sofa, the descriptor text, and the archive listing. Each assertion
+was confirmed to fail when its property was broken on purpose. Nothing imports
+the splash and nobody looks at a boot screen in CI, so without those it would
+regress in silence.
+
 ## Known gaps
 
 - **No coordinates.** The board draws squares, pieces and the four overlay
   states; rank and file labels are not drawn.
-- **No sound.** The route is known and written down above, but nothing plays
-  yet, and the sounds we hold are in a container this platform will not play.
+- **No sound.** The route is known and written down above, and the asset
+  repository now carries mp3 exports alongside the ogg ones, so the container
+  no longer blocks it. Five events still have no sound of their own — the three
+  results, promotion and the handoff — and are tracked in
+  `fortemate/dicechess-assets#5`.
 - **No animation.** A piece appears on its new square rather than travelling
   there. The bot's turn is revealed one action at a time so the moves can at
   least be followed.

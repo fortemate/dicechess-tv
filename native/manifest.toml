@@ -4,6 +4,10 @@ schema-version = 1
 title = "Dice Chess TV"
 version = "0.1.0"
 id = "com.fortemate.dicechesstv"
+# 512x512 PNG under assets/image. It appears in Settings under Manage
+# Installed Applications, where the background is dark, which is why the
+# white export of the mark is the one committed.
+icon = "@image/icon.png"
 
 [os.version]
 min = "1.2"
