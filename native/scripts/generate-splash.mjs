@@ -140,9 +140,10 @@ export const SPLASH = { WIDTH, HEIGHT, FPS, BACKGROUND };
 
 export const main = () => {
   // The icon ships exactly as the brand drew it.
+  const iconSource = join(root, 'brand/pwa-maskable-512.png');
   const icon = join(root, 'assets/image/icon.png');
   mkdirSync(dirname(icon), { recursive: true });
-  copyFileSync(join(root, 'brand/pwa-maskable-512.png'), icon);
+  copyFileSync(iconSource, icon);
 
   const mark = decodePng(join(root, 'brand/fortemate-mark-512-white.png'));
   if (mark.width > WIDTH || mark.height > HEIGHT)
@@ -204,7 +205,15 @@ export const main = () => {
     cwd: staging,
   });
 
-  return { framePath, descriptorPath, destination, icon, left, top };
+  return {
+    framePath,
+    descriptorPath,
+    destination,
+    icon,
+    iconSource,
+    left,
+    top,
+  };
 };
 
 // Only when run as a script, so a test can import the pieces above.

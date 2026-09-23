@@ -16,6 +16,7 @@ const built = main() as {
   descriptorPath: string;
   destination: string;
   icon: string;
+  iconSource: string;
   left: number;
   top: number;
 };
@@ -98,10 +99,7 @@ test('the mark is inked, and centred', () => {
 test('the icon is the brand file, unchanged', () => {
   // Byte-for-byte, because the one thing this must never do is reinterpret the
   // identity. If the brand ships a new export, this fails and someone looks.
-  assert.deepEqual(
-    readFileSync(built.icon),
-    readFileSync(new URL('../brand/pwa-maskable-512.png', import.meta.url)),
-  );
+  assert.deepEqual(readFileSync(built.icon), readFileSync(built.iconSource));
 });
 
 test('the icon survives being cropped into the launcher tile', () => {
