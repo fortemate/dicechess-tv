@@ -1,6 +1,5 @@
 // Stand-in for @amazon-devices/react-native-w3cmedia in Node. Records what a
-// player was asked to do, which is all a test can know: nothing here makes sound,
-// and the Vega virtual device cannot make any either.
+// player was asked to do, which is all a test can know: nothing here makes sound.
 export const AudioContentType = { CONTENT_TYPE_SONIFICATION: 4 };
 export const AudioUsageType = { USAGE_GAME: 6 };
 
