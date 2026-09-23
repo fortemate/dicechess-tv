@@ -6,6 +6,8 @@ import {
   press,
   pressBack,
   listenerCount,
+  hasExited,
+  clearExit,
 } from './stubs/react-native-kepler.mjs';
 import { reset } from './stubs/react-native-mmkv.mjs';
 import { App } from '../src/App';
@@ -270,4 +272,32 @@ test('the guide never touches a game or the record', () => {
 
   assert.equal(JSON.stringify(games.read()), savedBefore);
   assert.equal(JSON.stringify(ledgers.read()), ledgerBefore);
+});
+
+test('the About screen shows the credits and returns on Back or OK', () => {
+  reset();
+  clearExit();
+  const root = launch();
+  // Nothing saved, so no Resume: new hotseat, Play Random, How to play, Rules,
+  // About. About is last and stays last, so this path does not move when a
+  // menu item is added above it.
+  send('down', 'down', 'down', 'down', 'enter');
+  assert.match(text(root), /ABOUT/);
+  // The credit a licence requires is only met if it is on the screen.
+  assert.match(text(root), /Vector Chess Pieces by RhosGFX/);
+  assert.match(text(root), /Dice Chess engine by Fortemate/);
+  assert.match(text(root), /CC0 1\.0/);
+
+  // Back returns to the menu, and is claimed — it must not close the app.
+  send('back');
+  assert.equal(hasExited(), false, 'Back on About closed the app');
+  assert.doesNotMatch(text(root), /ABOUT/);
+  assert.match(text(root), /New hotseat game/);
+
+  // OK leaves too: there is nothing on this page to select.
+  send('down', 'down', 'down', 'down', 'enter');
+  assert.match(text(root), /ABOUT/);
+  send('enter');
+  assert.doesNotMatch(text(root), /ABOUT/);
+  assert.match(text(root), /New hotseat game/);
 });

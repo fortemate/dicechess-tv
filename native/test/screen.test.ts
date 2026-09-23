@@ -69,12 +69,14 @@ test('every launch opens on the home screen, and resume is offered only when the
     'Play Random',
     'How to play',
     'Rules',
+    'About',
   ]);
   assert.deepEqual(homeOptions(false), [
     'New hotseat game',
     'Play Random',
     'How to play',
     'Rules',
+    'About',
   ]);
 });
 

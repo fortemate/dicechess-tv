@@ -45,10 +45,19 @@ export type Overlay =
       mode: Mode;
     }
   | { kind: 'promotion'; moves: string[]; index: number }
-  // The tutorial and the rules guide, which the screen hands to their own
-  // components. Nothing about a game is touched while either is up.
+  // The tutorial, the rules guide and the About screen, which the screen hands
+  // to their own components. Nothing about a game is touched while one is up.
   | { kind: 'tutorial' }
-  | { kind: 'rules' };
+  | { kind: 'rules' }
+  | { kind: 'about' };
+
+// The overlays drawn by their own component, which takes the remote while it is
+// up. One definition, used here and by GameScreen, so a new screen cannot be
+// added to one and forgotten in the other.
+export const handsOff = (overlay: Overlay): boolean =>
+  overlay.kind === 'tutorial' ||
+  overlay.kind === 'rules' ||
+  overlay.kind === 'about';
 
 export type ScreenState = {
   game: Game;
@@ -78,6 +87,9 @@ export const homeOptions = (resumable: boolean): string[] => [
   'Play Random',
   'How to play',
   'Rules',
+  // Last, because it is read once: it is where the credits a licence asks for
+  // are shown.
+  'About',
 ];
 
 // Which mode a home option starts. Resume starts nothing.
@@ -195,6 +207,7 @@ export function screenReducer(
     if (chosen === 'How to play')
       return { ...state, overlay: { kind: 'tutorial' } };
     if (chosen === 'Rules') return { ...state, overlay: { kind: 'rules' } };
+    if (chosen === 'About') return { ...state, overlay: { kind: 'about' } };
     const mode = modeOf(chosen);
     if (!mode) return state;
     // Starting a new game over one still in play is a decision, not a keypress.
@@ -250,9 +263,8 @@ export function screenReducer(
     };
   }
 
-  // Leaving either of those comes back here, to the screen they were started
-  // from.
-  if (overlay.kind === 'tutorial' || overlay.kind === 'rules')
+  // Leaving any of those comes back here, to the screen they were started from.
+  if (handsOff(overlay))
     return { ...state, overlay: { kind: 'home', index: 0 } };
 
   if (overlay.kind === 'promotion') {
