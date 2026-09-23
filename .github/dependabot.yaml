@@ -22,19 +22,37 @@ updates:
       - 'rabestro'
     rebase-strategy: 'auto'
     ignore:
-      # These versions are matched to Vega SDK 0.24, not chosen freely, and a major bump is a
-      # deliberate SDK migration rather than an update. The danger is not theoretical: asked to
-      # fix its audit findings, npm's own remedy was to install
-      # @amazon-devices/react-native-kepler 2.1.0 — back to the SDK 0.23 line whose WebView crash
-      # is the reason the native application exists. Minor and patch bumps still arrive.
+      # These versions are matched to Vega SDK 0.24, not chosen freely, so only PATCH updates may
+      # arrive. Ignoring majors alone was tried and failed: react-native is a 0.x package, so to
+      # semver 0.83 -> 0.87 is a minor update, and it came straight through. The Vega CLI then
+      # refused to build ("kepler-cli-platform does not support react native version: 0.87") and
+      # main stayed broken until the versions were put back. React's bundled renderer inside
+      # react-native is pinned to one React version, so react minors are held back too.
+      #
+      # The danger was known before that: asked to fix its audit findings, npm's own remedy was to
+      # install @amazon-devices/react-native-kepler 2.1.0 — back to the SDK 0.23 line. Moving any
+      # of these is an SDK migration, done by hand and proved on a device.
       - dependency-name: '@amazon-devices/*'
-        update-types: ['version-update:semver-major']
+        update-types:
+          ['version-update:semver-major', 'version-update:semver-minor']
       - dependency-name: 'react-native'
-        update-types: ['version-update:semver-major']
+        update-types:
+          ['version-update:semver-major', 'version-update:semver-minor']
+      - dependency-name: '@react-native/*'
+        update-types:
+          ['version-update:semver-major', 'version-update:semver-minor']
+      - dependency-name: '@react-native-community/*'
+        update-types:
+          ['version-update:semver-major', 'version-update:semver-minor']
       - dependency-name: 'react'
-        update-types: ['version-update:semver-major']
+        update-types:
+          ['version-update:semver-major', 'version-update:semver-minor']
       - dependency-name: 'react-test-renderer'
-        update-types: ['version-update:semver-major']
+        update-types:
+          ['version-update:semver-major', 'version-update:semver-minor']
+      - dependency-name: '@types/react'
+        update-types:
+          ['version-update:semver-major', 'version-update:semver-minor']
       - dependency-name: 'typescript'
         update-types: ['version-update:semver-major']
     groups:
