@@ -10,7 +10,6 @@ build/
 dist/
 # Written by `react-native build-vega` next to the manifest.
 buildinfo.json
-.svelte-kit/
 coverage/
 *.vpkg
 *.apk
@@ -20,4 +19,3 @@ coverage/
 .DS_Store
 .idea/
 
-dist-vega/
