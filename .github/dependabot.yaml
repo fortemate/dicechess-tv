@@ -1,0 +1,104 @@
+# Two npm projects live here: the repository root holds the shared core's engine (and, for now,
+# the superseded web probe), and `/native` is the React Native for Vega application.
+version: 2
+updates:
+  # ── The Vega application ────────────────────────────────────────────────────────────────────────
+  - package-ecosystem: 'npm'
+    directory: '/native'
+    schedule:
+      # Monthly, not weekly, until the contest submission on 23 October 2026. Every update here
+      # has to be proved on a device, and there is no runner that can do that — CI has no Vega
+      # SDK. Raise it to weekly once the submission is out.
+      interval: 'monthly'
+      day: 'wednesday'
+      time: '08:00'
+    open-pull-requests-limit: 3
+    labels:
+      - 'dependencies'
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+    assignees:
+      - 'rabestro'
+    rebase-strategy: 'auto'
+    ignore:
+      # These versions are matched to Vega SDK 0.24, not chosen freely, and a major bump is a
+      # deliberate SDK migration rather than an update. The danger is not theoretical: asked to
+      # fix its audit findings, npm's own remedy was to install
+      # @amazon-devices/react-native-kepler 2.1.0 — back to the SDK 0.23 line whose WebView crash
+      # is the reason the native application exists. Minor and patch bumps still arrive.
+      - dependency-name: '@amazon-devices/*'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'react-native'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'react'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'react-test-renderer'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major']
+    groups:
+      # React and its renderer must move together or the test runner breaks.
+      react:
+        patterns:
+          - 'react'
+          - 'react-test-renderer'
+          - '@types/react'
+          - '@types/react-test-renderer'
+      react-native:
+        patterns:
+          - 'react-native'
+          - '@react-native/*'
+          - '@react-native-community/*'
+      amazon-devices:
+        patterns:
+          - '@amazon-devices/*'
+
+  # ── The shared core, and the web probe that is on its way out ───────────────────────────────────
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'monthly'
+      day: 'thursday'
+      time: '08:00'
+    open-pull-requests-limit: 3
+    labels:
+      - 'dependencies'
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+    assignees:
+      - 'rabestro'
+    rebase-strategy: 'auto'
+    ignore:
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major']
+    groups:
+      # Svelte, Chessground and Vite belong to the probe. Grouping them means its removal closes
+      # one pull request rather than several.
+      web-probe:
+        patterns:
+          - 'svelte'
+          - 'svelte-check'
+          - '@sveltejs/*'
+          - 'prettier-plugin-svelte'
+          - '@lichess-org/chessground'
+          - 'vite'
+          - 'fake-indexeddb'
+
+  # ── Workflow actions ────────────────────────────────────────────────────────────────────────────
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      # Weekly: these carry no device risk, and a pinned action going stale is the supply-chain
+      # surface worth watching.
+      interval: 'weekly'
+      day: 'tuesday'
+      time: '08:00'
+    open-pull-requests-limit: 5
+    labels:
+      - 'ci-cd'
+    commit-message:
+      prefix: 'chore'
+    assignees:
+      - 'rabestro'
