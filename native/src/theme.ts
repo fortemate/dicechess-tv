@@ -1,6 +1,6 @@
-// Board palette. The cursor and destination colours are the ones the web probe
-// already uses in src/style.css, so the two renderers read the same way; the
-// square and last-move colours match the Chessground brown theme it ships with.
+// Board palette, inherited from the WebView probe so the board kept the look
+// people had already reviewed. The square and last-move colours are Chessground's
+// brown theme; the probe is gone, and these values are now ours to change.
 export const THEME = {
   background: '#122737',
   light: '#f0d9b5',

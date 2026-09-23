@@ -4,31 +4,21 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host 127.0.0.1",
-    "build": "vite build",
-    "preview": "vite preview --host 127.0.0.1",
-    "check": "svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.core.json",
+    "check": "tsc -p tsconfig.json && tsc -p tsconfig.core.json",
     "test": "node --experimental-strip-types --test test/*.test.ts",
-    "format": "prettier --write src native test scripts *.json *.ts *.js index.html README.md docs/prototype.md docs/vega-sdk-experiment.md docs/durable-save-and-offline.md docs/full-game.md docs/roadmap.md docs/vega-native-runtime-gate.md THIRD_PARTY_NOTICES.md .github/**/*.yml .github/**/*.yaml",
-    "format:check": "prettier --check src native test scripts *.json *.ts *.js index.html README.md docs/prototype.md docs/vega-sdk-experiment.md docs/durable-save-and-offline.md docs/full-game.md docs/roadmap.md docs/vega-native-runtime-gate.md THIRD_PARTY_NOTICES.md .github/**/*.yml .github/**/*.yaml",
-    "build:vega-web": "vite build --outDir dist-vega && node scripts/inline-vega-assets.mjs"
+    "format": "prettier --write src native test *.json *.md docs/*.md .github/**/*.yml .github/**/*.yaml",
+    "format:check": "prettier --check src native test *.json *.md docs/*.md .github/**/*.yml .github/**/*.yaml"
   },
   "dependencies": {
-    "@fortemate/dicechess-engine": "0.12.2",
-    "@lichess-org/chessground": "10.2.0",
-    "svelte": "5.57.1"
+    "@fortemate/dicechess-engine": "0.12.2"
   },
   "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "7.3.0",
     "@types/node": "26.5.1",
-    "fake-indexeddb": "6.2.5",
     "prettier": "3.9.6",
-    "prettier-plugin-svelte": "4.1.1",
-    "svelte-check": "4.7.6",
-    "typescript": "6.0.3",
-    "vite": "8.3.0"
+    "typescript": "6.0.3"
   },
   "engines": {
     "node": ">=26.8.2 <27"
-  }
+  },
+  "description": "Dice Chess for Amazon Fire TV. The application is in native/; this package holds the shared pure core it runs on and the piece artwork."
 }

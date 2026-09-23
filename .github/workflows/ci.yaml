@@ -1,4 +1,4 @@
-name: Prototype checks
+name: Checks
 on:
   pull_request:
   push:
@@ -19,7 +19,10 @@ permissions:
 # `systemctl --user status actions-runner` on the host before assuming CI is
 # merely slow.
 jobs:
-  web-probe:
+  # The shared core, checked on its own. `check` runs tsc twice: once over the
+  # core and its tests, and once over the core alone with no ambient types, so a
+  # DOM or Node global there is a build failure rather than a review comment.
+  core:
     runs-on: ${{ fromJSON(github.actor == 'dependabot[bot]' && '["ubuntu-24.04"]' || vars.RUNS_ON || '["ubuntu-24.04"]') }}
     timeout-minutes: 10
     steps:
@@ -29,8 +32,6 @@ jobs:
       - run: npm run check
       - run: npm run format:check
       - run: npm test
-      - run: npm run build
-      - run: npm run build:vega-web
 
   native-board:
     runs-on: ${{ fromJSON(github.actor == 'dependabot[bot]' && '["ubuntu-24.04"]' || vars.RUNS_ON || '["ubuntu-24.04"]') }}

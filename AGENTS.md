@@ -4,8 +4,8 @@ Dice Chess TV is a Fire TV game on Vega OS. The application is `native/`, a Reac
 
 ## Repository-specific guidance
 
-- The product is the native React Native for Vega board in `native/`. The Svelte + Chessground web app is a superseded probe awaiting removal; do not add features to it.
-- Keep `src/core/` pure. It is compiled with `lib: ES2022` and `types: []`, so a DOM or Node global there is a build failure, not a style question. Platform code belongs in `native/src/` or the probe.
+- The product is the native React Native for Vega application in `native/`. The Svelte + Chessground WebView probe that preceded it has been removed; `docs/` keeps its findings, and nothing should be rebuilt on it.
+- Keep `src/core/` pure. It is compiled with `lib: ES2022` and `types: []`, so a DOM or Node global there is a build failure, not a style question. Platform code belongs in `native/src/`.
 - Evidence from the Vega Virtual Device is not evidence from a Fire TV Stick, and neither is a passing test. Say which one a claim rests on.
 - Keep Dice Chess rules in the canonical engine; render state and emit action intent from the board.
 - Preserve the dice roll and full turn phase across saves and lifecycle events.

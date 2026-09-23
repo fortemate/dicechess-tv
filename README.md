@@ -6,7 +6,7 @@ Dice Chess for Amazon Fire TV: two players sharing one screen and remote, or a g
 
 Not done: sound, onboarding, piece-movement animation, an icon and splash image, and the attribution screen the asset licences require. Everything above is evidence from the **virtual** device; nothing has yet run on physical Fire TV hardware, and the emulator does not measure Stick performance.
 
-The Svelte + Chessground web app is still in the tree. It is a **probe, not the product** — its WebView crashes on SDK 0.24, which is the SDK the native path targets — and it is scheduled for removal. The [feasibility probe](docs/prototype.md), [SDK experiment](docs/vega-sdk-experiment.md), [durable-save/offline checks](docs/durable-save-and-offline.md) and [full-game behavior](docs/full-game.md) record what it established and remain the evidence for that period.
+The Svelte + Chessground WebView app that came first has been removed. It was a probe, and its WebView crashes on SDK 0.24 — the SDK the native path targets — so it could never have shipped. The [feasibility probe](docs/prototype.md), [SDK experiment](docs/vega-sdk-experiment.md), [durable-save/offline checks](docs/durable-save-and-offline.md) and [full-game behavior](docs/full-game.md) record what it established and remain the evidence for that period.
 
 ## Product scope
 
@@ -38,7 +38,7 @@ src/core/ — one shared, pure TypeScript core, no DOM and no React
 └── Versioned game snapshot, ledger, tutorial and rules data
 ```
 
-The core is pure by enforcement, not by convention: `tsconfig.core.json` compiles it with `lib: ES2022` and `types: []`, so a DOM or Node global there fails `npm run check`. That is what lets one verified controller serve both the native board and the web probe, and what will let it outlive the probe.
+The core is pure by enforcement, not by convention: `tsconfig.core.json` compiles it with `lib: ES2022` and `types: []`, so a DOM or Node global there fails `npm run check`. That purity is what let one verified controller serve the WebView probe and the native board at once, and what let the probe be deleted without touching the rules.
 
 The canonical engine determines legal actions and board transitions. A narrow adapter retains dice across the pinned engine API's board-only `applyMove` result; the controller applies the existing game-service terminal policy. See the compatibility note in the full-game guide. The board only renders state and emits intent.
 
@@ -78,9 +78,9 @@ Full decisions and the detailed schedule are maintained in the private Fortemate
 
 The repository license has not been selected. See [third-party notices](THIRD_PARTY_NOTICES.md). Resolve the combined distribution license before shipping a binary.
 
-Chessground is GPL-3.0-or-later, and it is reached only by the web probe. **Removing that probe removes the obligation from anything that ships**, which is one of the reasons to do it. Until then a compatible distribution and source-availability plan is required, and private repository visibility does not remove that.
+Chessground's GPL-3.0-or-later obligation is gone: it was reached only by the web probe, and the probe has been removed.
 
-What the native application carries is different: the engine, the 12 CC0 RhosGFX vector pieces, and Amazon's `@amazon-devices/*` packages. Those resolve from the public npm registry and are not redistributed by us; the Vega SDK itself is licensed to each developer under Amazon's Program Materials License Agreement and is deliberately not in this repository. Sounds, when they arrive, carry an attribution requirement that needs a visible screen in the app. Check the licenses of the engine, reused play-client code, piece artwork, fonts, sounds and samples before importing or distributing them. Commercial sale and closed-source distribution are different questions.
+What the native application carries is the engine, the 12 CC0 RhosGFX vector pieces, and Amazon's `@amazon-devices/*` packages. Those resolve from the public npm registry and are not redistributed by us; the Vega SDK itself is licensed to each developer under Amazon's Program Materials License Agreement and is deliberately not in this repository. Sounds, when they arrive, carry an attribution requirement that needs a visible screen in the app. Check the licenses of the engine, reused play-client code, piece artwork, fonts, sounds and samples before importing or distributing them. Commercial sale and closed-source distribution are different questions.
 
 ## Development guidance
 
@@ -91,5 +91,4 @@ Follow [AGENTS.md](AGENTS.md). Changes go through branches and pull requests; th
 - [Vega developer documentation](https://developer.amazon.com/docs/vega/0.24/vega-get-started)
 - [Vega WebView](https://developer.amazon.com/docs/vega/0.24/develop-your-app-with-webview) — the abandoned path, kept for the record
 - [Vega Virtual Device and device execution](https://developer.amazon.com/docs/vega/0.24/run-apps)
-- [Chessground](https://github.com/lichess-org/chessground)
 - [Hackathon rules](https://amazonappdev2026.devpost.com/rules)

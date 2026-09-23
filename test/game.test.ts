@@ -1,6 +1,5 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { IDBFactory } from 'fake-indexeddb';
 import { DiceChess } from '@fortemate/dicechess-engine';
 import {
   newGame,
@@ -15,7 +14,10 @@ import {
   rollDice,
   type Game,
 } from '../src/core/game.ts';
-import { SnapshotStore } from '../src/storage.ts';
+import {
+  encodeSnapshot,
+  type SnapshotStore,
+} from '../src/core/snapshotStore.ts';
 
 const position = (board: string, clock = 0) => `${board} w - - ${clock} 1`;
 
@@ -119,25 +121,31 @@ test('bot replies are complete and tied to game id, revision and exact position'
     assert.throws(() => applyBotReply(game, invalid));
 });
 
-test('strict storage restores a partial full-game turn without touching the diagnostic database', async () => {
-  const factory = new IDBFactory();
-  let saves = new SnapshotStore<Game>(factory, {
-    database: 'games-test',
-    key: 'active.v2',
-    decode: decodeGame,
-  });
+// The smallest thing that honours the contract: it keeps a string, because
+// that is all a store ever holds, and it validates on the way in. Reading it
+// back through a second instance is what a relaunch does.
+const memoryStore = (): SnapshotStore<Game> & { raw: string | null } => ({
+  raw: null,
+  async load() {
+    return this.raw === null ? null : decodeGame(this.raw);
+  },
+  async save(game: Game) {
+    this.raw = encodeSnapshot(game, decodeGame);
+  },
+});
+
+test('a half-played turn survives being saved and read back', async () => {
+  const saves = memoryStore();
   let game = rollGame(newGame('random', 'partial'), [1, 2, 3]);
   game = moveGame(game, viewGame(game).legal[0]);
   await saves.save(game);
-  await saves.close();
-  saves = new SnapshotStore<Game>(factory, {
-    database: 'games-test',
-    key: 'active.v2',
-    decode: decodeGame,
-  });
-  assert.deepEqual(await saves.load(), game);
-  assert.deepEqual(viewGame((await saves.load())!), viewGame(game));
-  await saves.close();
+
+  // A second store over the same bytes is what a relaunch sees.
+  const reopened = memoryStore();
+  reopened.raw = saves.raw;
+  assert.deepEqual(await reopened.load(), game);
+  // Not just equal as data: the same position, the same dice still in hand.
+  assert.deepEqual(viewGame((await reopened.load())!), viewGame(game));
 });
 
 test('damaged rolls, skipped mandatory moves and forged results are rejected', () => {
