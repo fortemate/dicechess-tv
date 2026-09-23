@@ -328,6 +328,35 @@ While it is up it owns the remote. The game screen stays mounted and stays
 subscribed — a hook cannot be conditional — so it ignores keys instead, or every
 press would be handled twice.
 
+## The rules guide
+
+Nine topics: winning, the turn, the dice, maximal use, no check, castling,
+promotion, en passant, draws. Topics on the left, the chosen one on the right,
+and the arrows move between them so the text changes without anything being
+opened or closed — one level of navigation, because a remote makes every extra
+level expensive.
+
+The **shape** follows what the Chess Hero beta does well, a reference split into
+short named topics rather than one long page, and so does the division of labour
+our own research note points at: their guide is read outside the match with no
+explanation at the piece, so here the tutorial explains in the moment and this is
+for reading and remembering. Castling, promotion and en passant live here
+precisely because the tutorial leaves them out.
+
+The **content** is ours. That note is explicit that their rules are not known to
+match ours, so nothing is transcribed: every factual claim is written against our
+engine and checked against it, and each check names the sentence it verifies.
+Changing a sentence without re-checking it fails a test — three false claims were
+injected and each failed one.
+
+Five of their fourteen topics are absent because this game has no clocks, no
+doubling, no stakes, no matchmaking and no rating. A test fails if those words
+appear.
+
+Writing it corrected a claim: a draw comes when a **turn ends** 100 half-moves
+after the last capture or pawn move, not the moment the counter reaches 100 —
+while dice remain the game continues.
+
 ## Raster alternative
 
 Pieces are vectors and no raster fallback is needed. PNGs remain available if
