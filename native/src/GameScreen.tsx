@@ -9,6 +9,7 @@ import { summary, type Ledger } from '../../src/core/ledger';
 import type { BoardKey } from '../../src/core/boardInput';
 import { Board } from './Board';
 import { TutorialScreen } from './TutorialScreen';
+import { RulesScreen } from './RulesScreen';
 import { useRemoteInput } from './useRemoteInput';
 import { THEME } from './theme';
 import { botToAct } from '../../src/core/bot';
@@ -145,7 +146,7 @@ export const GameScreen = ({
   // a hook cannot be conditional — so it ignores keys instead, or every press
   // would be handled twice.
   const handsOver = React.useRef(false);
-  handsOver.current = overlay.kind === 'tutorial';
+  handsOver.current = overlay.kind === 'tutorial' || overlay.kind === 'rules';
   const onKey = React.useCallback((key: BoardKey) => {
     if (handsOver.current) return;
     dispatch({ kind: 'key', key });
@@ -213,6 +214,14 @@ export const GameScreen = ({
   if (overlay.kind === 'tutorial')
     return (
       <TutorialScreen
+        onExit={() => dispatch({ kind: 'key', key: 'back' })}
+        onState={onState}
+      />
+    );
+
+  if (overlay.kind === 'rules')
+    return (
+      <RulesScreen
         onExit={() => dispatch({ kind: 'key', key: 'back' })}
         onState={onState}
       />

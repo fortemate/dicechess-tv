@@ -45,9 +45,10 @@ export type Overlay =
       mode: Mode;
     }
   | { kind: 'promotion'; moves: string[]; index: number }
-  // The tutorial, which the screen hands to its own component. Nothing about a
-  // game is touched while it is up.
-  | { kind: 'tutorial' };
+  // The tutorial and the rules guide, which the screen hands to their own
+  // components. Nothing about a game is touched while either is up.
+  | { kind: 'tutorial' }
+  | { kind: 'rules' };
 
 export type ScreenState = {
   game: Game;
@@ -76,6 +77,7 @@ export const homeOptions = (resumable: boolean): string[] => [
   'New hotseat game',
   'Play Random',
   'How to play',
+  'Rules',
 ];
 
 // Which mode a home option starts. Resume starts nothing.
@@ -192,6 +194,7 @@ export function screenReducer(
       return { ...state, overlay: { kind: 'none' } };
     if (chosen === 'How to play')
       return { ...state, overlay: { kind: 'tutorial' } };
+    if (chosen === 'Rules') return { ...state, overlay: { kind: 'rules' } };
     const mode = modeOf(chosen);
     if (!mode) return state;
     // Starting a new game over one still in play is a decision, not a keypress.
@@ -247,8 +250,9 @@ export function screenReducer(
     };
   }
 
-  // Leaving the tutorial comes back here, to the screen it was started from.
-  if (overlay.kind === 'tutorial')
+  // Leaving either of those comes back here, to the screen they were started
+  // from.
+  if (overlay.kind === 'tutorial' || overlay.kind === 'rules')
     return { ...state, overlay: { kind: 'home', index: 0 } };
 
   if (overlay.kind === 'promotion') {

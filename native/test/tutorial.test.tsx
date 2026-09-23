@@ -224,3 +224,50 @@ test('Back leaves from a finished lesson too', () => {
   send('back');
   assert.match(text(root), /Dice Chess/);
 });
+
+test('the rules guide opens, moves between topics and returns', () => {
+  reset();
+  const root = launch();
+  // Home: new hotseat, Play Random, How to play, Rules.
+  send('down', 'down', 'down', 'enter');
+  assert.match(text(root), /RULES/);
+  assert.match(text(root), /How a game ends/);
+  assert.match(text(root), /There is no checkmate/);
+
+  // Moving down changes the text without opening anything.
+  send('down');
+  assert.match(text(root), /Your turn/);
+  assert.match(text(root), /Each action spends one die/);
+
+  // Up from the first topic wraps, so a remote never reaches a dead end.
+  send('up', 'up');
+  assert.match(text(root), /Draws/);
+
+  send('back');
+  assert.match(text(root), /Dice Chess/);
+});
+
+test('the guide never touches a game or the record', () => {
+  reset();
+  const root = launch();
+  send('enter', 'enter');
+  send('back', 'down', 'select', 'down', 'select');
+  send('enter');
+  const games = new MmkvSnapshotStore<Game>({
+    key: 'dicechess-tv.game.v2',
+    decode: decodeGame,
+  });
+  const ledgers = new MmkvSnapshotStore<Ledger>({
+    key: 'dicechess-tv.ledger.v1',
+    decode: decodeLedger,
+  });
+  const savedBefore = JSON.stringify(games.read());
+  const ledgerBefore = JSON.stringify(ledgers.read());
+
+  send('down', 'down', 'down', 'enter');
+  assert.match(text(root), /RULES/);
+  send('down', 'down', 'back');
+
+  assert.equal(JSON.stringify(games.read()), savedBefore);
+  assert.equal(JSON.stringify(ledgers.read()), ledgerBefore);
+});
