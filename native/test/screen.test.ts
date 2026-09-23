@@ -67,8 +67,13 @@ test('every launch opens on the home screen, and resume is offered only when the
     'Resume game',
     'New hotseat game',
     'Play Random',
+    'How to play',
   ]);
-  assert.deepEqual(homeOptions(false), ['New hotseat game', 'Play Random']);
+  assert.deepEqual(homeOptions(false), [
+    'New hotseat game',
+    'Play Random',
+    'How to play',
+  ]);
 });
 
 test('a game that has not started is not offered for resuming', () => {

@@ -3,20 +3,32 @@
 // This is the whole platform surface of the input path: everything downstream
 // is the pure reducer in src/core/boardInput.ts.
 //
-// Vega offers two input channels and only one of them works here. The static
-// UserInputManager.addListener registers through the pathway that takes no root
-// tag and aborts the JS thread outright. useAddUserInputListenerCallback
-// subscribes without error but never delivers an event. useTVEventHandler, the
-// documented hook, is the one that fires; it is what this uses.
-import { useCallback, useRef } from 'react';
+// Vega splits input across channels and each has one job here.
+//
+// `useTVEventHandler` observes key events and carries the directions and OK. It
+// cannot claim an event, which is fine for those and fatal for Back: an
+// unclaimed Back closes the app, so a Back seen only here would cancel nothing
+// and quit instead.
+//
+// `useKeplerBackHandler` exists for exactly that. It claims Back through the
+// consuming channel and calls `exitApp()` itself when nothing handles it, so
+// returning false from the handler is how the app agrees to close rather than a
+// failure to react.
+//
+// Two channels that were tried and rejected: `UserInputManager.addListener`
+// aborts the JS thread on 0.24, and subscribing `useAddUserInputListenerCallback`
+// to every key delivers nothing while `useTVEventHandler` is also mounted.
+import { useCallback, useEffect, useRef } from 'react';
 import {
   useTVEventHandler,
+  useKeplerBackHandler,
   type HWEvent,
 } from '@amazon-devices/react-native-kepler';
 import type { BoardKey } from '../../src/core/boardInput';
 
 // A keyboard on the Virtual Device reports the OK button as `enter`; a physical
-// remote reports `select`. Both mean the same thing to the board.
+// remote reports `select`. Both mean the same thing to the board. Back is
+// absent on purpose: it arrives on the other channel.
 const KEYS: Readonly<Record<string, BoardKey>> = {
   up: 'up',
   down: 'down',
@@ -24,12 +36,10 @@ const KEYS: Readonly<Record<string, BoardKey>> = {
   right: 'right',
   select: 'select',
   enter: 'select',
-  back: 'back',
 };
 
 // Directions repeat while the button is held, which is how a cursor should walk
-// a board. Select and back must not, or one press of OK would play several
-// actions.
+// a board. Select must not, or one press of OK would play several actions.
 const REPEATABLE: ReadonlySet<BoardKey> = new Set([
   'up',
   'down',
@@ -42,11 +52,23 @@ const REPEATABLE: ReadonlySet<BoardKey> = new Set([
 const DOWN = 0;
 const UP = 1;
 
-export function useRemoteInput(onKey: (key: BoardKey) => void): void {
-  // Reading the handler through a ref keeps a new callback identity on every
+export type RemoteInputOptions = {
+  // Whether the app handled Back. Returning false lets the system do what Back
+  // means at the top of an app, which is to close it — the behaviour a TV
+  // viewer expects, and not something to suppress.
+  onBack?: () => boolean;
+};
+
+export function useRemoteInput(
+  onKey: (key: BoardKey) => void,
+  options: RemoteInputOptions = {},
+): void {
+  // Reading the handlers through refs keeps a new callback identity on every
   // render from resubscribing mid-press.
   const handler = useRef(onKey);
   handler.current = onKey;
+  const back = useRef(options.onBack);
+  back.current = options.onBack;
 
   useTVEventHandler(
     useCallback((event: HWEvent) => {
@@ -56,4 +78,21 @@ export function useRemoteInput(onKey: (key: BoardKey) => void): void {
       if (event.eventKeyAction === wanted) handler.current(key);
     }, []),
   );
+
+  const backHandler = useKeplerBackHandler();
+  useEffect(() => {
+    const subscription = backHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        // No handler means the screen has nowhere to go back to, and the app
+        // should close.
+        if (!back.current) {
+          handler.current('back');
+          return true;
+        }
+        return back.current();
+      },
+    );
+    return () => subscription.remove();
+  }, [backHandler]);
 }

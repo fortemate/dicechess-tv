@@ -2,7 +2,14 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
-import { press, hold, isSubscribed } from './stubs/react-native-kepler.mjs';
+import {
+  press,
+  pressBack,
+  hold,
+  isSubscribed,
+  hasExited,
+  clearExit,
+} from './stubs/react-native-kepler.mjs';
 import { GameScreen } from '../src/GameScreen';
 import { THEME } from '../src/theme';
 import type { ScreenOptions } from '../src/screen';
@@ -30,44 +37,61 @@ const options: ScreenOptions = {
 // they test behaviour instead of copy.
 type Mounted = { root: Instance; state: () => string };
 
-const mount = (): Mounted => {
+// One screen at a time, as on a device. A tree left mounted from an earlier
+// test would still be listening, and would claim presses meant for this one.
+let mounted: renderer.ReactTestRenderer | null = null;
+const replace = (create: () => renderer.ReactTestRenderer) => {
+  if (mounted) act(() => mounted!.unmount());
   let tree!: renderer.ReactTestRenderer;
-  const reports: string[] = [];
   act(() => {
-    tree = renderer.create(
+    tree = create();
+  });
+  mounted = tree;
+  return tree;
+};
+
+const mount = (): Mounted => {
+  const reports: string[] = [];
+  const tree = replace(() =>
+    renderer.create(
       React.createElement(GameScreen, {
         options,
         onState: (line: string) => reports.push(line),
       }),
-    );
-  });
-  const mounted = {
+    ),
+  );
+  const view = {
     root: tree.root,
     state: () => reports[reports.length - 1] ?? '',
   };
   // Every launch opens on the home screen; these tests are about the board, so
   // they start a hotseat game first.
   act(() => press('enter'));
-  return mounted;
+  return view;
 };
 
 // The same, stopped on the home screen.
 const mountHome = (): Mounted => {
-  let tree!: renderer.ReactTestRenderer;
   const reports: string[] = [];
-  act(() => {
-    tree = renderer.create(
+  const tree = replace(() =>
+    renderer.create(
       React.createElement(GameScreen, {
         options,
         onState: (line: string) => reports.push(line),
       }),
-    );
-  });
+    ),
+  );
   return { root: tree.root, state: () => reports[reports.length - 1] ?? '' };
 };
 
+// Back arrives on its own channel: Vega routes it through a hook that lets the
+// app claim the press, which is what stops the system closing the app.
 const send = (...keys: string[]) => {
-  for (const key of keys) act(() => press(key));
+  for (const key of keys)
+    act(() => {
+      if (key === 'back') pressBack();
+      else press(key);
+    });
 };
 
 const overlays = (root: Instance, match: (style: Style) => boolean) =>
@@ -207,4 +231,32 @@ test('an illegal destination changes nothing but the cursor', () => {
   send(Up, Up, Up, Right, Right, Select);
   assert.match(state(), /cursor d4 \| selected b1/);
   assert.match(state(), /dice "QRN"/);
+});
+
+// pressBack returns whether the app claimed the press, which act() swallows, so
+// it is captured rather than returned.
+const back = (): boolean => {
+  let handled = false;
+  act(() => {
+    handled = pressBack();
+  });
+  return handled;
+};
+
+test('Back at the home screen lets the app close, as it should on a TV', () => {
+  clearExit();
+  mountHome();
+  // Nothing claims it, so the platform does what Back means at the top of an
+  // app. Suppressing that would trap a viewer in the app.
+  assert.equal(back(), false);
+  assert.equal(hasExited(), true);
+});
+
+test('Back anywhere else is claimed, so the app stays open', () => {
+  clearExit();
+  const { state } = mount();
+  send(Select);
+  assert.equal(back(), true);
+  assert.equal(hasExited(), false);
+  assert.match(state(), /overlay menu/);
 });
