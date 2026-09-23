@@ -244,3 +244,81 @@ test('a draw cannot be agreed with the opponent, only with another player', () =
   const hotseat = drive(fresh(), 'select');
   assert.ok(menuOptions(hotseat.game).includes('Agree a draw'));
 });
+
+// Every state the opponent passes through, in order.
+const settleSteps = (
+  state: ScreenState,
+  opts: ScreenOptions = options,
+): ScreenState[] => {
+  const seen: ScreenState[] = [];
+  let current = state;
+  for (let i = 0; i < 12; i++) {
+    const next = screenReducer(current, { kind: 'bot' }, opts);
+    if (next === current) return seen;
+    seen.push(next);
+    current = next;
+  }
+  throw new Error('the opponent did not finish its turn');
+};
+
+// A game in Random mode handed to Black, with a roll the opponent can spend in
+// full: three pawns always have somewhere to go from the opening.
+const handedToBot = (): ScreenState => {
+  let state = drive(fresh(), 'down', 'select', 'select');
+  while (state.game.phase === 'move') {
+    const move = viewGame(state.game).legal[0];
+    state = drive(
+      state,
+      ...(walk(state.focus.cursor, move.slice(0, 2)) as BoardKey[]),
+      'select',
+      ...(walk(move.slice(0, 2), move.slice(2, 4)) as BoardKey[]),
+      'select',
+    );
+  }
+  return drive(state, 'select');
+};
+
+test('a three-dice turn is three visible actions, not one jump', () => {
+  const pawns: ScreenOptions = { ...options, roll: () => [1, 1, 1] };
+  const steps = settleSteps(handedToBot(), pawns);
+
+  // One state per action played, rather than one state for the whole path.
+  const played = steps.filter((s) => s.game.moves.length > 0);
+  assert.deepEqual(
+    played.map((s) => s.game.moves.length),
+    [1, 2, 3],
+    'one state per die spent',
+  );
+
+  // Each state shows a different last move and one die fewer.
+  assert.equal(new Set(played.map((s) => s.game.lastMove)).size, 3);
+  assert.deepEqual(
+    played.map((s) => viewGame(s.game).remaining.length),
+    [2, 1, 0],
+  );
+  assert.equal(steps[steps.length - 1].game.turn, 3);
+});
+
+test('the path is decided as a whole before any of it is shown', () => {
+  const pawns: ScreenOptions = { ...options, roll: () => [1, 1, 1] };
+  const rolled = screenReducer(handedToBot(), { kind: 'bot' }, pawns);
+  const first = screenReducer(rolled, { kind: 'bot' }, pawns);
+  // Two more actions are already committed to, not chosen later.
+  assert.equal(first.pending.length, 2);
+  assert.equal(first.game.moves.length, 1);
+});
+
+test('an interrupted turn is recomputed rather than resumed half-played', () => {
+  const pawns: ScreenOptions = { ...options, roll: () => [1, 1, 1] };
+  const rolled = screenReducer(handedToBot(), { kind: 'bot' }, pawns);
+  const midway = screenReducer(rolled, { kind: 'bot' }, pawns);
+  assert.ok(midway.pending.length > 0);
+
+  // A relaunch keeps the game and drops the pending path, as a restart would.
+  const relaunched = initialState(pawns, midway.game);
+  assert.deepEqual(relaunched.pending, []);
+  const resumed = drive(relaunched, 'select');
+  const finished = settle(resumed, pawns);
+  assert.equal(viewGame(finished.game).side, 'w');
+  assert.equal(finished.game.turn, 3);
+});
