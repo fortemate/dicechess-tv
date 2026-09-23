@@ -5,6 +5,7 @@
 import React from 'react';
 import { View, Text, useWindowDimensions } from 'react-native';
 import { viewGame, sideName, type Game } from '../../src/core/game';
+import { summary, type Ledger } from '../../src/core/ledger';
 import type { BoardKey } from '../../src/core/boardInput';
 import { Board } from './Board';
 import { useRemoteInput } from './useRemoteInput';
@@ -52,6 +53,8 @@ export type GameScreenProps = {
   // Called with every committed game, and only those: moving the cursor does
   // not produce a new game, so this does not fire for it.
   onCommit?: (game: Game) => void;
+  // Completed games so far. The screen shows it and never changes it.
+  ledger?: Ledger;
   // Diagnostic seam for device checks. Vega has no screenshot command and a
   // Release build does not route console output anywhere readable, so the only
   // way to know what the screen shows is to let it say so.
@@ -93,10 +96,37 @@ const Choices = ({
   </View>
 );
 
+// Results so far, shown where a player chooses what to do next. Hotseat is by
+// colour because the seats change hands and nobody here knows who sat where.
+const Record = ({ ledger }: { ledger: Ledger }) => {
+  const view = summary(ledger);
+  const { white, draws, black } = view.hotseat;
+  const played = white + draws + black > 0;
+  if (!played && view.bots.length === 0) return null;
+  return (
+    <View style={{ marginTop: 20 }}>
+      <Text style={{ color: '#8dc9b6', fontSize: 16, letterSpacing: 2 }}>
+        COMPLETED GAMES
+      </Text>
+      {played ? (
+        <Text style={{ color: '#aab8c9', fontSize: 18 }}>
+          {`Hotseat — White ${white} · Drawn ${draws} · Black ${black}`}
+        </Text>
+      ) : null}
+      {view.bots.map(({ opponent, side, record }) => (
+        <Text key={opponent + side} style={{ color: '#aab8c9', fontSize: 18 }}>
+          {`${opponent} as ${sideName(side)} — ${record.wins}W ${record.draws}D ${record.losses}L`}
+        </Text>
+      ))}
+    </View>
+  );
+};
+
 export const GameScreen = ({
   options,
   initial,
   onCommit,
+  ledger,
   onState,
 }: GameScreenProps) => {
   const { width, height } = useWindowDimensions();
@@ -212,11 +242,14 @@ export const GameScreen = ({
         )}
 
         {overlay.kind === 'home' ? (
-          <Choices
-            title="Dice Chess"
-            options={homeOptions(resumable(game))}
-            index={overlay.index}
-          />
+          <>
+            <Choices
+              title="Dice Chess"
+              options={homeOptions(resumable(game))}
+              index={overlay.index}
+            />
+            {ledger ? <Record ledger={ledger} /> : null}
+          </>
         ) : overlay.kind === 'menu' ? (
           <Choices
             title="Menu"

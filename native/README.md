@@ -252,6 +252,38 @@ from the position it actually finds.
 - **Nothing animates.** Pieces are placed, not moved; there is no slide between
   squares for either side. That is M2 polish, and the owner has deferred it.
 
+## The completed-game ledger
+
+M1 asks for each result to be counted **exactly once across reloads**. The marker
+for what has been counted lives _inside_ the ledger rather than beside it, so one
+write both records a result and remembers that it was recorded. Two writes could
+be interrupted between them; one cannot.
+
+Recording runs on every committed game and on every launch, because the case that
+matters is a game that ended while the app was gone. `record()` is a no-op for a
+game already counted, so a caller never has to track what it has done.
+
+A game that never ends is never counted, so an abandoned or replaced game stays
+out of the record without anything having to notice it was abandoned.
+
+Hotseat is reported by colour — White, drawn, Black — never by player: the seats
+change hands and nothing here knows who sat where. Games against an opponent are
+recorded per opponent **and** per side the player held, because one combined
+number would hide how it plays each colour.
+
+A ledger that no longer decodes is refused rather than reset to zero, and left on
+disk rather than overwritten. Losing a record silently is worse than showing
+none.
+
+Verified on a device across three launches, holding a game that had already ended
+— the state a crash between "game saved" and "result counted" leaves behind:
+
+| Launch | Before     | After               |
+| ------ | ---------- | ------------------- |
+| 1      | no ledger  | `black: 1`, counted |
+| 2      | `black: 1` | `black: 1`          |
+| 3      | `black: 1` | `black: 1`          |
+
 ## Raster alternative
 
 Pieces are vectors and no raster fallback is needed. PNGs remain available if
