@@ -1,6 +1,6 @@
 // Sound through the whole app: a step of a real game reaches the players, and
-// turning sound off survives a relaunch. Nothing here can hear anything — the
-// virtual device cannot either — so what is checked is what was asked for.
+// turning sound off survives a relaunch. A test cannot hear, so what is checked
+// is what was asked for; hearing it is checked on the virtual device.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';

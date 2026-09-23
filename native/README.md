@@ -414,8 +414,16 @@ The game plays nine cues: a roll, a move, a capture, castling, a promotion, the
 handoff of the dice, and a win, a loss or a draw. Every one also has a visual
 equivalent already on screen, and a `Sound: on` item in both menus turns them
 all off. What was heard on a real speaker was chosen by the owner, by ear, in
-`fortemate/dicechess-assets#8`; nothing here has yet been heard on a television,
-because the virtual device has no audio output at all (below).
+`fortemate/dicechess-assets#8`, and the game's own sounds have been heard coming
+from the virtual device through the Mac's speakers. What has not been heard yet
+is the game on a television, from a sofa.
+
+**The manifest has to declare the audio services.** Vega's service manager
+refuses any connection a manifest did not declare and says so only in the device
+log: `missing permission for connection attempt`. Undeclared, the player cannot
+reach the audio server and every cue dies at the sink — silently, with `playing`
+still reported. `manifest.toml` declares the four services Amazon's audio sample
+does, plus `com.amazon.audio.control`, which only the log revealed.
 
 ### How it fits together
 
@@ -493,17 +501,20 @@ Two effects started together both reached `playing` within 14 ms, so a die
 landing while a piece is still moving needs no mixing of our own — one player
 per sound. Re-firing one works if it is paused and `currentTime` reset first.
 
-### What the virtual device cannot answer
+### A wrong conclusion, corrected
 
-It has no `/dev/snd`, no audio server process and no `audio.clock.*` library, so
-its audio sink never opens: every attempt, including the ones that reach
-`playing`, ends in the sink's `GST stream error: 11`. So `playing` here proves
-the file was accepted and decoded, not that a sound was audible, and it is why
-`ended` never fires and `duration` and `currentTime` are `NaN` — in GStreamer the
-clock comes from the sink. The `error` property is also sticky: it reads 4 on
-players that are playing. **Audibility, latency on real hardware, and whether
-`ended` works must be re-checked on the Fire TV stick.** Until then, write no
-code that depends on `ended`, `duration`, `currentTime` or `error`.
+The probe's sink failed on every attempt with `GST stream error: 11`, and that was
+read as the virtual device having no audio output: no `/dev/snd`, no audio server
+in `ps`, no `audio.clock.*` library. **It was wrong.** `ps` inside the developer
+shell cannot see the system's processes, and the real cause was in the log all
+along — the audio service refusing an undeclared connection. With the services
+declared, a roll and a move each reach `playback stream successfully created`,
+start on a server handle, and are heard.
+
+What that failure also produced — `ended` never firing, `duration` and
+`currentTime` reading `NaN`, `error` sticking at 4 — came from the broken sink,
+and has not been re-measured since. `src/sound.ts` depends on none of them; check
+again before any code does.
 
 ## Raster alternative
 
@@ -572,9 +583,10 @@ regress in silence.
 
 - **No coordinates.** The board draws squares, pieces and the four overlay
   states; rank and file labels are not drawn.
-- **Sound unheard on a television.** Every cue plays, but only on hardware can
-  anyone hear whether it is loud enough, distinct enough and quick enough from a
-  sofa. That check is the open half of `fortemate/dicechess-assets#8`.
+- **Sound unheard on a television.** Every cue is heard on the virtual device,
+  but only on a television can anyone judge whether it is loud enough, distinct
+  enough and quick enough from a sofa. That check is the open half of
+  `fortemate/dicechess-assets#8`.
 - **No animation.** A piece appears on its new square rather than travelling
   there. The bot's turn is revealed one action at a time so the moves can at
   least be followed.

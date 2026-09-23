@@ -42,6 +42,40 @@ id = "/com.amazon.kepler.keplermediadescriptor_1@IKeplermediadescriptor_1"
 
 
 
+# System services the app connects to. Vega's service manager refuses any
+# connection a manifest did not declare, and says so only in the device log:
+# "missing permission for connection attempt".
+[wants]
+
+# Sound. Without these the media player cannot reach the audio server, and every
+# cue fails silently at the sink. This was measured: undeclared, 13 connections
+# to com.amazon.audio.stream were refused during one probe run; declared, none
+# were and the audio server opened a playback stream. The set is the one Amazon's
+# own audio sample declares.
+[[wants.service]]
+id = "com.amazon.audio.stream"
+
+[[wants.service]]
+id = "com.amazon.media.server"
+
+[[wants.service]]
+id = "com.amazon.media.playersession.service"
+
+[[wants.service]]
+id = "com.amazon.mediametrics.service"
+
+# Not in Amazon's audio sample, but refused to this app at start-up until it was
+# declared: the player's audio-focus client connects to it.
+[[wants.service]]
+id = "com.amazon.audio.control"
+
+# Deliberately NOT declared: com.amazon.inputd.service. Amazon's React Native TV
+# guidance (written for SDK 0.22) says useTVEventHandler receives nothing without
+# it. On SDK 0.24 the opposite holds for this app: the remote works without it,
+# and declaring it makes the process exit with code 255 at start-up, right after
+# "Inputd-client: requestPriority ... WRITE_TO_UDEV". Measured by adding and
+# removing that one entry on the virtual device. Check again on the Stick.
+
 [components]
 [[components.interactive]]
 id = "com.fortemate.dicechesstv.main"
