@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   labeler:
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(github.actor == 'dependabot[bot]' && '["ubuntu-latest"]' || vars.RUNS_ON || '["ubuntu-latest"]') }}
     steps:
       - uses: actions/labeler@v7
         with:
