@@ -78,10 +78,18 @@ jobs:
       - run: npm ci
       - run: npm ci --prefix native
       - run: npm run build --prefix native
-      - name: Upload the package
-        uses: actions/upload-artifact@v5
-        with:
-          name: dicechess-tv-aarch64
-          path: native/build/aarch64-release/*.vpkg
-          if-no-files-found: error
-          retention-days: 14
+      # The package is NOT uploaded as an artifact. It was, and the job failed
+      # with "Artifact storage quota has been hit" — on this plan the Actions
+      # and Packages stores are shared, and the container images in ghcr have
+      # filled it. Live artifacts across the organization come to about 19 MB,
+      # so deleting those would not help.
+      #
+      # Nothing is lost: a build that produced the package is what this job is
+      # for, and the release workflow attaches the real thing where it belongs.
+      # Restore the upload if that storage is ever freed.
+      - name: Confirm the package exists
+        run: |
+          set -euo pipefail
+          package=native/build/aarch64-release/dicechess-tv-native_aarch64.vpkg
+          test -s "$package"
+          echo "Built $(basename "$package"), $(stat -c %s "$package") bytes"
