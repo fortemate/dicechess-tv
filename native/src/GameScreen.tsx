@@ -10,6 +10,7 @@ import type { BoardKey } from '../../src/core/boardInput';
 import { Board } from './Board';
 import { TutorialScreen } from './TutorialScreen';
 import { RulesScreen } from './RulesScreen';
+import { AboutScreen } from './AboutScreen';
 import { useRemoteInput } from './useRemoteInput';
 import { THEME } from './theme';
 import { botToAct } from '../../src/core/bot';
@@ -20,6 +21,7 @@ import {
   menuOptions,
   confirmOptions,
   resumable,
+  handsOff,
   type ScreenAction,
   type ScreenOptions,
   type ScreenState,
@@ -146,7 +148,7 @@ export const GameScreen = ({
   // a hook cannot be conditional — so it ignores keys instead, or every press
   // would be handled twice.
   const handsOver = React.useRef(false);
-  handsOver.current = overlay.kind === 'tutorial' || overlay.kind === 'rules';
+  handsOver.current = handsOff(overlay);
   const onKey = React.useCallback((key: BoardKey) => {
     if (handsOver.current) return;
     dispatch({ kind: 'key', key });
@@ -222,6 +224,14 @@ export const GameScreen = ({
   if (overlay.kind === 'rules')
     return (
       <RulesScreen
+        onExit={() => dispatch({ kind: 'key', key: 'back' })}
+        onState={onState}
+      />
+    );
+
+  if (overlay.kind === 'about')
+    return (
+      <AboutScreen
         onExit={() => dispatch({ kind: 'key', key: 'back' })}
         onState={onState}
       />

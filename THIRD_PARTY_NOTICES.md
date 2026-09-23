@@ -5,7 +5,7 @@ The application imports the following dependencies. These notices do not select 
 | Component                         | Pinned version | License       | Source                                        |
 | --------------------------------- | -------------- | ------------- | --------------------------------------------- |
 | Dice Chess engine                 | 0.12.2         | AGPL-3.0-only | https://github.com/fortemate/dicechess-engine |
-| Vector Chess Pieces Pack, RhosGFX | —              | CC0-1.0       | https://twitter.com/RhosGFX                   |
+| Vector Chess Pieces Pack, RhosGFX | 1.0.0          | CC0-1.0       | https://rhosgfx.itch.io/vector-chess-pieces   |
 
 The engine and RhosGFX license texts are in [AGPL-3.0](licenses/AGPL-3.0.txt) and [CC0-1.0](licenses/RhosGFX-CC0.txt). Full installed-package notices are retained in node_modules, and build-generated license comments must not be removed. The package locks record the exact dependency graph. Before any external binary distribution, resolve the combined license, required notices and complete corresponding-source delivery, including applicable transitive dependencies.
 
