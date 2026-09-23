@@ -4,7 +4,7 @@ Dice Chess for Amazon Fire TV: two players sharing one screen and remote, or a g
 
 **Status: a React Native for Vega application that builds and runs from this repository.** `npm run build --prefix native` produces an installable package; it launches on the Vega Virtual Device in 227 ms and plays. Hotseat and a local Random opponent, three-die turns, promotion, king capture, resignation, draw agreement, save and resume mid-turn, a completed-game ledger, an interactive tutorial and a rules guide are all implemented on the native board, driven entirely by D-pad, OK and Back.
 
-Not done: sound, onboarding, piece-movement animation, an icon and splash image, and the attribution screen the asset licences require. Everything above is evidence from the **virtual** device; nothing has yet run on physical Fire TV hardware, and the emulator does not measure Stick performance.
+Also done: sound for every step of the game — chosen by ear, heard on the virtual device, with a switch in both menus — an icon and splash screen, and an About screen carrying the credits the asset licences require. Not done: onboarding and piece-movement animation. Everything above is evidence from the **virtual** device; nothing has yet run on physical Fire TV hardware, and the emulator does not measure Stick performance.
 
 The Svelte + Chessground WebView app that came first has been removed. It was a probe, and its WebView crashes on SDK 0.24 — the SDK the native path targets — so it could never have shipped. The [feasibility probe](docs/prototype.md), [SDK experiment](docs/vega-sdk-experiment.md), [durable-save/offline checks](docs/durable-save-and-offline.md) and [full-game behavior](docs/full-game.md) record what it established and remain the evidence for that period.
 
