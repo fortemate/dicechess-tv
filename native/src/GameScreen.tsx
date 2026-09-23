@@ -11,6 +11,8 @@ import { Board } from './Board';
 import { TutorialScreen } from './TutorialScreen';
 import { RulesScreen } from './RulesScreen';
 import { AboutScreen } from './AboutScreen';
+import type { Sounds } from './sound';
+import { cues } from '../../src/core/cues';
 import { useRemoteInput } from './useRemoteInput';
 import { THEME } from './theme';
 import { botToAct } from '../../src/core/bot';
@@ -63,6 +65,13 @@ export type GameScreenProps = {
   // Release build does not route console output anywhere readable, so the only
   // way to know what the screen shows is to let it say so.
   onState?: (report: string) => void;
+  // What each step of the game sounds like is decided here; whether it is heard
+  // and on what is the player's business.
+  sounds?: Sounds;
+  // Whether sound starts on, read before the first render like the saved game.
+  initialSound?: boolean;
+  // Called when a menu toggles sound, so the app can save the choice.
+  onSound?: (on: boolean) => void;
 };
 
 const Choices = ({
@@ -132,6 +141,9 @@ export const GameScreen = ({
   onCommit,
   ledger,
   onState,
+  sounds,
+  initialSound = true,
+  onSound,
 }: GameScreenProps) => {
   const { width, height } = useWindowDimensions();
   const reduce = React.useCallback(
@@ -139,10 +151,10 @@ export const GameScreen = ({
       screenReducer(state, action, options),
     [options],
   );
-  const [{ game, focus, overlay }, dispatch] = React.useReducer(
+  const [{ game, focus, overlay, sound }, dispatch] = React.useReducer(
     reduce,
     initial,
-    (restored) => initialState(options, restored),
+    (restored) => initialState(options, restored, initialSound),
   );
   // While the tutorial is up it owns the remote. This screen stays subscribed —
   // a hook cannot be conditional — so it ignores keys instead, or every press
@@ -187,9 +199,21 @@ export const GameScreen = ({
   const committed = React.useRef(game);
   React.useEffect(() => {
     if (game === committed.current) return;
+    const before = committed.current;
     committed.current = game;
     onCommit?.(game);
-  }, [game, onCommit]);
+    // The person plays White against the bot today; see cues() for why this is
+    // a parameter rather than an assumption.
+    sounds?.play(cues(before, game, 'w'));
+  }, [game, onCommit, sounds]);
+
+  // Seeded like the game, so opening the screen is not reported as a change.
+  const heard = React.useRef(sound);
+  React.useEffect(() => {
+    if (sound === heard.current) return;
+    heard.current = sound;
+    onSound?.(sound);
+  }, [sound, onSound]);
 
   React.useEffect(() => {
     onState?.(
@@ -294,7 +318,7 @@ export const GameScreen = ({
           <>
             <Choices
               title="Dice Chess"
-              options={homeOptions(resumable(game))}
+              options={homeOptions(resumable(game), sound)}
               index={overlay.index}
             />
             {ledger ? <Record ledger={ledger} /> : null}
@@ -302,7 +326,7 @@ export const GameScreen = ({
         ) : overlay.kind === 'menu' ? (
           <Choices
             title="Menu"
-            options={menuOptions(game)}
+            options={menuOptions(game, sound)}
             index={overlay.index}
           />
         ) : overlay.kind === 'confirm' ? (

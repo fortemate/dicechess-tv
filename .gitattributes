@@ -1,0 +1,5 @@
+# Vendored sounds and their licences keep their upstream bytes on every platform.
+# Kenney's licence files use CRLF; without this, `core.autocrlf` rewrites them on
+# commit and the digests in native/sounds/sounds.lock.json stop matching a fresh
+# clone. That happened once in dicechess-assets before it had the same rule.
+native/sounds/** -text

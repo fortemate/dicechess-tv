@@ -35,6 +35,20 @@ export const CREDITS: readonly Credit[] = [
     source: 'rhosgfx.itch.io/vector-chess-pieces',
   },
   {
+    subject: 'Piece sounds',
+    // The credit this pack's licence requires, word for word from its manifest.
+    line: 'Sounds by JDSherbert – https://jdsherbert.itch.io',
+    licence: 'Free with attribution',
+    source: 'jdsherbert.itch.io/tabletop-games-sfx-pack',
+  },
+  {
+    subject: 'Dice and result sounds',
+    // CC0: no credit is required. It is given anyway, as the pack invites.
+    line: 'Sounds by Kenney – https://kenney.nl',
+    licence: 'CC0 1.0',
+    source: 'kenney.nl',
+  },
+  {
     subject: 'Rules engine',
     line: 'Dice Chess engine by Fortemate',
     licence: 'AGPL-3.0-only',

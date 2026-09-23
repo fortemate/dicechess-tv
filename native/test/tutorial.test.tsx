@@ -278,10 +278,9 @@ test('the About screen shows the credits and returns on Back or OK', () => {
   reset();
   clearExit();
   const root = launch();
-  // Nothing saved, so no Resume: new hotseat, Play Random, How to play, Rules,
-  // About. About is last and stays last, so this path does not move when a
-  // menu item is added above it.
-  send('down', 'down', 'down', 'down', 'enter');
+  // About is the last item and the menu wraps, so Up from the top reaches it
+  // however many items are added above.
+  send('up', 'enter');
   assert.match(text(root), /ABOUT/);
   // The credit a licence requires is only met if it is on the screen.
   assert.match(text(root), /Vector Chess Pieces by RhosGFX/);
@@ -294,8 +293,9 @@ test('the About screen shows the credits and returns on Back or OK', () => {
   assert.doesNotMatch(text(root), /ABOUT/);
   assert.match(text(root), /New hotseat game/);
 
-  // OK leaves too: there is nothing on this page to select.
-  send('down', 'down', 'down', 'down', 'enter');
+  // OK leaves too: there is nothing on this page to select. The cursor came back
+  // to the top of the menu, so Up reaches About again.
+  send('up', 'enter');
   assert.match(text(root), /ABOUT/);
   send('enter');
   assert.doesNotMatch(text(root), /ABOUT/);

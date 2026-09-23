@@ -6,15 +6,16 @@
   "scripts": {
     "check": "tsc --noEmit",
     "test": "node --test --import ./test/hooks.mjs test/*.test.tsx test/*.test.ts",
-    "splash": "node scripts/generate-splash.mjs",
-    "build": "npm run splash && react-native build-vega --build-type Release",
-    "build:debug": "npm run splash && react-native build-vega --build-type Debug",
+    "assets": "node scripts/generate-assets.mjs",
+    "build": "npm run assets && react-native build-vega --build-type Release",
+    "build:debug": "npm run assets && react-native build-vega --build-type Debug",
     "start": "react-native start"
   },
   "dependencies": {
     "@amazon-devices/react-native-kepler": "^4.0.1",
     "@amazon-devices/react-native-mmkv": "^1.0.11",
     "@amazon-devices/react-native-svg": "3.0.9000000001",
+    "@amazon-devices/react-native-w3cmedia": "2.3.2",
     "react": "19.2.0",
     "react-native": "0.83.0"
   },
