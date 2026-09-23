@@ -9,8 +9,8 @@
     "preview": "vite preview --host 127.0.0.1",
     "check": "svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.core.json",
     "test": "node --experimental-strip-types --test test/*.test.ts",
-    "format": "prettier --write src native test scripts *.json *.ts *.js index.html README.md docs/prototype.md docs/vega-sdk-experiment.md docs/durable-save-and-offline.md docs/full-game.md docs/roadmap.md docs/vega-native-runtime-gate.md THIRD_PARTY_NOTICES.md .github/workflows/ci.yaml",
-    "format:check": "prettier --check src native test scripts *.json *.ts *.js index.html README.md docs/prototype.md docs/vega-sdk-experiment.md docs/durable-save-and-offline.md docs/full-game.md docs/roadmap.md docs/vega-native-runtime-gate.md THIRD_PARTY_NOTICES.md .github/workflows/ci.yaml",
+    "format": "prettier --write src native test scripts *.json *.ts *.js index.html README.md docs/prototype.md docs/vega-sdk-experiment.md docs/durable-save-and-offline.md docs/full-game.md docs/roadmap.md docs/vega-native-runtime-gate.md THIRD_PARTY_NOTICES.md .github/**/*.yml .github/**/*.yaml",
+    "format:check": "prettier --check src native test scripts *.json *.ts *.js index.html README.md docs/prototype.md docs/vega-sdk-experiment.md docs/durable-save-and-offline.md docs/full-game.md docs/roadmap.md docs/vega-native-runtime-gate.md THIRD_PARTY_NOTICES.md .github/**/*.yml .github/**/*.yaml",
     "build:vega-web": "vite build --outDir dist-vega && node scripts/inline-vega-assets.mjs"
   },
   "dependencies": {
