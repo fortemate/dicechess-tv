@@ -5,6 +5,7 @@
   "description": "Dice Chess for Fire TV: the React Native for Vega application. Typechecked and tested with the repository's own runner; packaged with the Vega SDK, see README.md.",
   "scripts": {
     "check": "tsc --noEmit",
+    "lint": "eslint .",
     "test": "node --test --import ./test/hooks.mjs test/*.test.tsx test/*.test.ts",
     "assets": "node scripts/generate-assets.mjs",
     "build": "npm run assets && react-native build-vega --build-type Release",
@@ -12,23 +13,30 @@
     "start": "react-native start"
   },
   "dependencies": {
-    "@amazon-devices/react-native-kepler": "^4.0.1",
+    "@amazon-devices/react-native-kepler": "~4.0.1",
     "@amazon-devices/react-native-mmkv": "^1.0.11",
-    "@amazon-devices/react-native-svg": "3.0.9000000001",
-    "@amazon-devices/react-native-w3cmedia": "2.3.2",
+    "@amazon-devices/react-native-svg": "~3.0.9000000001",
+    "@amazon-devices/react-native-w3cmedia": "~2.3.2",
     "react": "19.2.0",
     "react-native": "0.83.0"
   },
   "devDependencies": {
+    "@amazon-devices/eslint-plugin-kepler": "0.1.15",
     "@amazon-devices/kepler-cli-platform": "^0",
+    "@eslint/js": "9.39.5",
     "@react-native-community/cli": "20.0.0",
     "@react-native/babel-preset": "0.83.0",
     "@react-native/metro-config": "0.83.0",
     "@types/react": "19.2.2",
     "@types/react-test-renderer": "^19.3.0",
     "esbuild": "0.28.2",
+    "eslint": "9.39.5",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "17.12.0",
+    "jsonc-eslint-parser": "3.3.0",
     "react-test-renderer": "19.2.0",
-    "typescript": "5.8.3"
+    "typescript": "5.8.3",
+    "typescript-eslint": "8.70.1"
   },
   "engines": {
     "node": ">=20"

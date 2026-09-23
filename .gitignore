@@ -14,6 +14,8 @@ buildinfo.json
 # native/brand/. Everything the package ships as artwork is built, not committed.
 native/assets/
 coverage/
+# Written by Amazon's Vega ESLint plugin on every lint run.
+native/generated/
 *.vpkg
 *.apk
 *.log

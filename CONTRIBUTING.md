@@ -24,13 +24,15 @@ CI runs these on every pull request. Run them before pushing:
 | Where  | Command                         | What it proves                                                     |
 | ------ | ------------------------------- | ------------------------------------------------------------------ |
 | root   | `npm run check`                 | Types, and that `src/core/` uses no DOM or Node global             |
+| root   | `npm run lint`                  | ESLint with typescript-eslint's recommended rules                  |
 | root   | `npm run format:check`          | Prettier formatting                                                |
 | root   | `npm test`                      | The shared core against the real engine                            |
 | native | `npm run check --prefix native` | Types of the application, its tests and the core together          |
+| native | `npm run lint --prefix native`  | ESLint with React's hooks rules and Amazon's Vega rules            |
 | native | `npm test --prefix native`      | Screens, input and sound, rendered with `react-test-renderer`      |
 | native | `npm run build --prefix native` | The installable package; it needs the SDK, which one CI runner has |
 
-`mise run check` runs the three root checks in one go.
+`mise run check` runs the four root checks in one go.
 
 ## Check it on a device
 
