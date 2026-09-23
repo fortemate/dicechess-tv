@@ -66,17 +66,26 @@ export const AboutScreen = ({ onExit, onState }: AboutScreenProps) => {
         {APP.maker}
       </Text>
 
-      {CREDITS.map((credit) => (
-        <View key={credit.subject} style={{ marginBottom: 20 }}>
-          <Text style={{ color: '#8dc9b6', fontSize: 18, letterSpacing: 1 }}>
-            {credit.subject}
-          </Text>
-          <Text style={{ color: '#f0f4f8', fontSize: 24 }}>{credit.line}</Text>
-          <Text style={{ color: '#aab8c9', fontSize: 18 }}>
-            {`${credit.licence} · ${credit.source}`}
-          </Text>
-        </View>
-      ))}
+      {/* Two columns: four credits in one column would not fit a television
+          screen, and a TV page has no scrolling a remote can be trusted with. */}
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+        {CREDITS.map((credit) => (
+          <View
+            key={credit.subject}
+            style={{ width: '50%', paddingRight: 32, marginBottom: 22 }}
+          >
+            <Text style={{ color: '#8dc9b6', fontSize: 18, letterSpacing: 1 }}>
+              {credit.subject}
+            </Text>
+            <Text style={{ color: '#f0f4f8', fontSize: 22 }}>
+              {credit.line}
+            </Text>
+            <Text style={{ color: '#aab8c9', fontSize: 16 }}>
+              {`${credit.licence} · ${credit.source}`}
+            </Text>
+          </View>
+        ))}
+      </View>
 
       <Text style={{ color: '#98a9ba', fontSize: 20, marginTop: 'auto' }}>
         OK or Back: return

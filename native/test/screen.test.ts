@@ -69,6 +69,7 @@ test('every launch opens on the home screen, and resume is offered only when the
     'Play Random',
     'How to play',
     'Rules',
+    'Sound: on',
     'About',
   ]);
   assert.deepEqual(homeOptions(false), [
@@ -76,6 +77,7 @@ test('every launch opens on the home screen, and resume is offered only when the
     'Play Random',
     'How to play',
     'Rules',
+    'Sound: on',
     'About',
   ]);
 });
@@ -121,6 +123,7 @@ test('the menu opens from the board and closes back to it', () => {
     'Resign',
     'Agree a draw',
     'New game',
+    'Sound: on',
   ]);
 
   assert.equal(drive(menu, 'select').overlay.kind, 'none');
@@ -249,7 +252,12 @@ test('the board ignores play input while the opponent owes an action', () => {
 
 test('a draw cannot be agreed with the opponent, only with another player', () => {
   const random = drive(fresh(), 'down', 'select');
-  assert.deepEqual(menuOptions(random.game), ['Resume', 'Resign', 'New game']);
+  assert.deepEqual(menuOptions(random.game), [
+    'Resume',
+    'Resign',
+    'New game',
+    'Sound: on',
+  ]);
   const hotseat = drive(fresh(), 'select');
   assert.ok(menuOptions(hotseat.game).includes('Agree a draw'));
 });
@@ -330,4 +338,43 @@ test('an interrupted turn is recomputed rather than resumed half-played', () => 
   const finished = settle(resumed, pawns);
   assert.equal(viewGame(finished.game).side, 'w');
   assert.equal(finished.game.turn, 3);
+});
+
+test('the sound toggle flips in the home menu and the cursor stays on it', () => {
+  const start = fresh();
+  const at = homeOptions(false).indexOf('Sound: on');
+  const onIt = drive(start, ...(Array(at).fill('down') as BoardKey[]));
+  const off = drive(onIt, 'select');
+  assert.equal(off.sound, false);
+  assert.equal(off.overlay.kind, 'home');
+  assert.equal(off.overlay.kind === 'home' ? off.overlay.index : -1, at);
+  assert.equal(homeOptions(false, off.sound)[at], 'Sound: off');
+  assert.equal(drive(off, 'select').sound, true);
+});
+
+test('the sound toggle in the game menu never asks to replace the game', () => {
+  // Everything in that menu that is not handled explicitly falls through to a
+  // confirmation, so an unhandled toggle would offer to throw the game away.
+  const menu = drive(fresh(), 'select', 'select', 'back');
+  // Up from Resume wraps to the last item, which is the toggle.
+  const onIt = drive(menu, 'up');
+  const off = drive(onIt, 'select');
+  assert.equal(off.overlay.kind, 'menu');
+  assert.equal(off.sound, false);
+  assert.deepEqual(off.game, menu.game);
+});
+
+test('a new game keeps the sound setting', () => {
+  const at = homeOptions(false).indexOf('Sound: on');
+  const muted = drive(
+    fresh(),
+    ...(Array(at).fill('down') as BoardKey[]),
+    'select',
+  );
+  assert.equal(muted.sound, false);
+  // Back to the top and start a hotseat game.
+  const top = drive(muted, ...(Array(at).fill('up') as BoardKey[]));
+  const started = drive(top, 'select');
+  assert.equal(started.overlay.kind, 'none');
+  assert.equal(started.sound, false);
 });

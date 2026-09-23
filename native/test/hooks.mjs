@@ -1,4 +1,4 @@
-// Node module hooks for the native tests: redirect the two packages that need a
+// Node module hooks for the native tests: redirect the packages that need a
 // React Native runtime to local stubs, and compile TypeScript and JSX on the fly.
 // Loaded with `node --import ./test/hooks.mjs`.
 import { readFileSync } from 'node:fs';
@@ -18,6 +18,10 @@ const STUBS = {
   ).href,
   '@amazon-devices/react-native-mmkv': new URL(
     './stubs/react-native-mmkv.mjs',
+    import.meta.url,
+  ).href,
+  '@amazon-devices/react-native-w3cmedia': new URL(
+    './stubs/react-native-w3cmedia.mjs',
     import.meta.url,
   ).href,
 };

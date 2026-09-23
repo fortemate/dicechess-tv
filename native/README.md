@@ -410,8 +410,48 @@ while dice remain the game continues.
 
 ## Sound
 
-No sound ships yet. What follows is what a probe on the virtual device
-established, so that the work does not start from guesses. All of it comes from
+The game plays nine cues: a roll, a move, a capture, castling, a promotion, the
+handoff of the dice, and a win, a loss or a draw. Every one also has a visual
+equivalent already on screen, and a `Sound: on` item in both menus turns them
+all off. What was heard on a real speaker was chosen by the owner, by ear, in
+`fortemate/dicechess-assets#8`; nothing here has yet been heard on a television,
+because the virtual device has no audio output at all (below).
+
+### How it fits together
+
+- **What a step sounds like** is `cues(before, after)` in `src/core/cues.ts`,
+  pure and checked against the engine in `test/cues.test.ts`. Against the bot a
+  result is a win or a loss for the person; in hotseat somebody in the room won,
+  so a decisive game ends on the winning jingle and only a draw sounds different.
+- **Which file plays** is decided once, in `scripts/vendor-sounds.mjs`, which
+  copies the chosen MP3s from `dicechess-assets` at one pinned commit into
+  `sounds/`, checks each against the digest that repository published, and writes
+  `sounds/sounds.lock.json` and the generated `src/cueFiles.ts`. To re-pin:
+  `node scripts/vendor-sounds.mjs <dicechess-assets checkout> <commit>`.
+  `test/vendoredSounds.test.ts` fails if a vendored file, the lock and the cue
+  table ever disagree.
+- **Playing it** is `src/sound.ts`: three players — board, dice and result — so a
+  capture and the win it causes sound together, while a new move cuts the last
+  one short. Every failure is reported and swallowed; a game must never stop
+  because a sound did.
+- **The build** copies the vendored files to `assets/sfx/<pack>/`, which is
+  `/pkg/assets/sfx/<pack>/` on the device, and refuses to if a file no longer
+  matches the lock.
+
+The manifest declares the media module, but the build would have added it
+anyway: `react-native build-vega` reads each dependency's `SystemModules` list
+and writes the modules it needs into the packaged manifest itself — the media
+controls and media descriptor modules included, which nothing in the source
+mentions.
+
+JDSherbert's licence forbids sharing the raw files. They can ship in the
+package, but **if this repository is ever made public, `sounds/jdsherbert-tabletop/`
+must be removed first.** Kenney's packs are CC0 and carry no such limit.
+
+### What the probe established
+
+What follows is what a probe on the virtual device established before any of
+the above was written. All of it comes from
 `@amazon-devices/react-native-w3cmedia` 2.3.2 on SDK 0.24.12112.
 
 **The player must be an `AudioPlayer`, not the `Audio` component**, and it must
@@ -505,7 +545,7 @@ of two lines (`1920 1080 30`, then `c 0 0 _loop`) and a `_loop` directory of PNG
 frames. Ours holds one frame, which the descriptor loops until the app says it
 has drawn. 4K frames are refused; 1920x1080 is the television size.
 
-`scripts/generate-splash.mjs` builds it during `npm run build`, so the archive is
+`scripts/generate-assets.mjs` builds it during `npm run build`, so the archive is
 generated rather than committed — as is the icon, which the same script copies
 into place. Everything under `assets/` is built; the verbatim brand inputs live
 in `brand/`, outside it, so the splash source is not also shipped. The splash
@@ -532,11 +572,9 @@ regress in silence.
 
 - **No coordinates.** The board draws squares, pieces and the four overlay
   states; rank and file labels are not drawn.
-- **No sound.** The route is known and written down above, and the asset
-  repository now carries mp3 exports alongside the ogg ones, so the container
-  no longer blocks it. Five events still have no sound of their own — the three
-  results, promotion and the handoff — and are tracked in
-  `fortemate/dicechess-assets#5`.
+- **Sound unheard on a television.** Every cue plays, but only on hardware can
+  anyone hear whether it is loud enough, distinct enough and quick enough from a
+  sofa. That check is the open half of `fortemate/dicechess-assets#8`.
 - **No animation.** A piece appears on its new square rather than travelling
   there. The bot's turn is revealed one action at a time so the moves can at
   least be followed.

@@ -1,0 +1,4 @@
+# Vendored from fortemate/dicechess-assets and pinned byte for byte by
+# native/sounds/sounds.lock.json. Reformatting them would break the digests the
+# build and the tests check them against.
+native/sounds/

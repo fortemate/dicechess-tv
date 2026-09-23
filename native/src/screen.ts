@@ -67,7 +67,15 @@ export type ScreenState = {
   // complete path before the first is played, so this is a reveal and not a
   // decision taken in instalments.
   pending: string[];
+  // Whether the game's sounds are heard. Toggled from either menu; the screen
+  // reports each change so the app can save it and mute the players.
+  sound: boolean;
 };
+
+// The toggle's label says what the sound is now, which is what a viewer checks.
+export const soundOption = (on: boolean): string =>
+  on ? 'Sound: on' : 'Sound: off';
+const isSoundOption = (option: string): boolean => option.startsWith('Sound:');
 
 export type ScreenOptions = {
   // Three dice. Injected so the screen never reaches for a global, and so a
@@ -81,12 +89,13 @@ export type ScreenOptions = {
   schedule: (step: () => void) => void;
 };
 
-export const homeOptions = (resumable: boolean): string[] => [
+export const homeOptions = (resumable: boolean, sound = true): string[] => [
   ...(resumable ? ['Resume game'] : []),
   'New hotseat game',
   'Play Random',
   'How to play',
   'Rules',
+  soundOption(sound),
   // Last, because it is read once: it is where the credits a licence asks for
   // are shown.
   'About',
@@ -100,21 +109,30 @@ const modeOf = (option: string): Mode | null =>
       ? 'random'
       : null;
 
-export const menuOptions = (game: Game): string[] => [
+export const menuOptions = (game: Game, sound = true): string[] => [
   'Resume',
   'Resign',
   // A draw needs two players to agree; there is nobody to agree with a bot.
   ...(game.mode === 'hotseat' ? ['Agree a draw'] : []),
   'New game',
+  // Last: the order above is unchanged, and because the menu wraps, Up from
+  // Resume reaches this in one press — the quickest way to silence a game.
+  soundOption(sound),
 ];
 
 export const confirmOptions = ['Cancel', 'Yes'];
 
-const board = (game: Game, cursor: Square = START): ScreenState => ({
+// A new game keeps the one setting that is not about the game: sound.
+const board = (
+  game: Game,
+  sound: boolean,
+  cursor: Square = START,
+): ScreenState => ({
   game,
   focus: { cursor, selected: null },
   overlay: { kind: 'none' },
   pending: [],
+  sound,
 });
 
 // A played move clears the selection; the cursor stays where the player left it.
@@ -123,6 +141,7 @@ const played = (state: ScreenState, game: Game): ScreenState => ({
   focus: { ...state.focus, selected: null },
   overlay: { kind: 'none' },
   pending: [],
+  sound: state.sound,
 });
 
 const step = (key: BoardKey, index: number, length: number): number =>
@@ -135,6 +154,7 @@ export const resumable = (game: Game): boolean =>
 export const initialState = (
   options: ScreenOptions,
   restored?: Game | null,
+  sound = true,
 ): ScreenState => {
   const game = restored ?? newGame('hotseat', options.newId());
   return {
@@ -145,6 +165,7 @@ export const initialState = (
     // mid-turn into a game they may not remember.
     overlay: { kind: 'home', index: 0 },
     pending: [],
+    sound,
   };
 };
 
@@ -191,7 +212,7 @@ export function screenReducer(
   const { game, overlay } = state;
 
   if (overlay.kind === 'home') {
-    const choices = homeOptions(resumable(game));
+    const choices = homeOptions(resumable(game), state.sound);
     if (key === 'back') return state;
     if (key !== 'select')
       return {
@@ -202,6 +223,8 @@ export function screenReducer(
         },
       };
     const chosen = choices[overlay.index];
+    // The label under the cursor flips; the cursor stays on it.
+    if (isSoundOption(chosen)) return { ...state, sound: !state.sound };
     if (chosen === 'Resume game')
       return { ...state, overlay: { kind: 'none' } };
     if (chosen === 'How to play')
@@ -216,7 +239,7 @@ export function screenReducer(
         ...state,
         overlay: { kind: 'confirm', action: 'replace', index: 0, mode },
       };
-    return board(newGame(mode, options.newId()));
+    return board(newGame(mode, options.newId()), state.sound);
   }
 
   if (overlay.kind === 'confirm') {
@@ -234,11 +257,11 @@ export function screenReducer(
       return { ...state, overlay: { kind: 'menu', index: 0 } };
     return overlay.action === 'resign'
       ? played(state, resignGame(game))
-      : board(newGame(overlay.mode, options.newId()));
+      : board(newGame(overlay.mode, options.newId()), state.sound);
   }
 
   if (overlay.kind === 'menu') {
-    const choices = menuOptions(game);
+    const choices = menuOptions(game, state.sound);
     if (key === 'back') return { ...state, overlay: { kind: 'none' } };
     if (key !== 'select')
       return {
@@ -250,6 +273,9 @@ export function screenReducer(
       };
     const chosen = choices[overlay.index];
     if (chosen === 'Resume') return { ...state, overlay: { kind: 'none' } };
+    // Handled before the fall-through below, which treats anything else as a
+    // destructive choice and asks to confirm replacing the game.
+    if (isSoundOption(chosen)) return { ...state, sound: !state.sound };
     if (chosen === 'Agree a draw') return played(state, agreeDraw(game));
     // Both destructive choices go through a confirmation with Cancel first.
     return {

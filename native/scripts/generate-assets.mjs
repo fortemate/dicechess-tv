@@ -1,5 +1,5 @@
-// Builds the two pieces of artwork the package ships: the application icon and
-// the native splash screen.
+// Builds what the package ships under assets/: the application icon, the native
+// splash screen, and the game's sounds.
 //
 // Vega wants `assets/raw/SplashScreenImages.zip`, and inside it a `desc.txt`
 // naming the frame size and rate, plus a `_loop` directory of PNG frames. Ours
@@ -30,6 +30,7 @@ import {
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { crc32, deflateSync, inflateSync } from 'node:zlib';
+import { createHash } from 'node:crypto';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..');
@@ -213,7 +214,36 @@ export const main = () => {
     iconSource,
     left,
     top,
+    sounds: copySounds(),
   };
+};
+
+// The vendored sounds go where the player looks for them: assets/sfx/<pack>/,
+// which is /pkg/assets/sfx/<pack>/ on the device. Only the files the lock lists,
+// and only if their bytes are still the bytes the lock pinned — a vendored file
+// edited by hand stops the build rather than shipping.
+export const copySounds = () => {
+  const lock = JSON.parse(
+    readFileSync(join(root, 'sounds/sounds.lock.json'), 'utf8'),
+  );
+  const target = join(root, 'assets/sfx');
+  rmSync(target, { recursive: true, force: true });
+  const copied = [];
+  for (const [pack, { files }] of Object.entries(lock.packs)) {
+    for (const [name, { sha256 }] of Object.entries(files)) {
+      if (!name.endsWith('.mp3')) continue;
+      const bytes = readFileSync(join(root, 'sounds', pack, name));
+      const digest = createHash('sha256').update(bytes).digest('hex');
+      if (digest !== sha256)
+        throw new Error(
+          `sounds/${pack}/${name} no longer matches sounds.lock.json`,
+        );
+      mkdirSync(join(target, pack), { recursive: true });
+      writeFileSync(join(target, pack, name), bytes);
+      copied.push(`${pack}/${name}`);
+    }
+  }
+  return copied;
 };
 
 // Only when run as a script, so a test can import the pieces above.
@@ -221,9 +251,10 @@ if (
   process.argv[1] &&
   resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
-  const { destination, icon, left, top } = main();
+  const { destination, icon, left, top, sounds } = main();
   const shown = (path) => path.replace(`${root}/`, '');
   console.log(`icon:   ${shown(icon)}`);
+  console.log(`sounds: ${sounds.length} files -> assets/sfx/`);
   console.log(
     `splash: ${WIDTH}x${HEIGHT}, mark at ${left},${top} -> ${shown(destination)}`,
   );

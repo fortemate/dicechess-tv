@@ -9,7 +9,7 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 // @ts-expect-error — a build script, deliberately plain JavaScript.
-import { decodePng, main, SPLASH } from '../scripts/generate-splash.mjs';
+import { decodePng, main, SPLASH } from '../scripts/generate-assets.mjs';
 
 const built = main() as {
   framePath: string;

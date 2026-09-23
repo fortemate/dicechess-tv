@@ -13,8 +13,11 @@ import {
   record,
   type Ledger,
 } from '../../src/core/ledger';
+import { MMKV } from '@amazon-devices/react-native-mmkv';
 import { GameScreen } from './GameScreen';
 import { MmkvSnapshotStore } from './mmkvStore';
+import { createSounds, type Sounds } from './sound';
+import { readSound, saveSound } from './soundSetting';
 import { randomSource } from './randomSource';
 import type { ScreenOptions } from './screen';
 
@@ -28,9 +31,15 @@ export type AppProps = {
   // random source the device offers.
   options?: ScreenOptions;
   onState?: (line: string) => void;
+  // Injected by tests, which cannot hear; the app makes the real players.
+  sounds?: Sounds;
 };
 
-export const App = ({ options: injected, onState }: AppProps) => {
+export const App = ({
+  options: injected,
+  onState,
+  sounds: injectedSounds,
+}: AppProps) => {
   const store = React.useMemo(
     () => new MmkvSnapshotStore<Game>({ key: KEY, decode: decodeGame }),
     [],
@@ -105,6 +114,28 @@ export const App = ({ options: injected, onState }: AppProps) => {
     if (opened.game) count(opened.game);
   }, [count, opened.game]);
 
+  // Read before the first render, like the saved game, so the menu never shows
+  // one state and then flips to another.
+  const settings = React.useMemo(() => new MMKV(), []);
+  const [initialSound] = React.useState(() => readSound(settings));
+  const sounds = React.useMemo(
+    () =>
+      injectedSounds ?? createSounds({ muted: !initialSound, report: onState }),
+    // Made once: the players are created and initialised up front.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [injectedSounds],
+  );
+  React.useEffect(() => {
+    if (injectedSounds) injectedSounds.setMuted(!initialSound);
+  }, [injectedSounds, initialSound]);
+  const onSound = React.useCallback(
+    (on: boolean) => {
+      saveSound(settings, on);
+      sounds.setMuted(!on);
+    },
+    [settings, sounds],
+  );
+
   const onCommit = React.useCallback(
     (game: Game) => {
       void store.save(game).catch(() => undefined);
@@ -120,6 +151,9 @@ export const App = ({ options: injected, onState }: AppProps) => {
       onCommit={onCommit}
       ledger={ledger}
       onState={onState}
+      sounds={sounds}
+      initialSound={initialSound}
+      onSound={onSound}
     />
   );
 };

@@ -46,3 +46,30 @@ test('the pieces are credited to their author even though CC0 asks for nothing',
   assert.ok(pieces, 'the pieces must be credited');
   assert.match(pieces.line, /RhosGFX/);
 });
+
+test('every vendored sound pack is credited as its manifest asks', () => {
+  // The lock repeats each pack's attribution terms from the asset repository.
+  // A pack that requires credit must be credited in exactly its wording; the
+  // others are credited too, as a courtesy their licences invite.
+  const lock = JSON.parse(
+    readFileSync(
+      new URL('../native/sounds/sounds.lock.json', import.meta.url),
+      'utf8',
+    ),
+  ) as {
+    packs: Record<
+      string,
+      { attribution: string; attributionRequired: boolean }
+    >;
+  };
+  const lines = new Set(CREDITS.map((credit) => credit.line));
+  for (const [pack, { attribution, attributionRequired }] of Object.entries(
+    lock.packs,
+  )) {
+    assert.ok(
+      lines.has(attribution),
+      `${pack}: "${attribution}" is not on the About screen` +
+        (attributionRequired ? ' — and its licence requires it' : ''),
+    );
+  }
+});
