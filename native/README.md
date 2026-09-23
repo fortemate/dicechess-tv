@@ -50,15 +50,70 @@ Artwork is RhosGFX vector chess pieces, CC0; see `licenses/RhosGFX-CC0.txt` and
 
 ## Building and running
 
-There is no Vega project in this repository. The generated SDK template is not
-committed, for the same reason it was not committed for the earlier experiments:
-its dependencies and redistribution licensing have not been reviewed. Scaffold a
-project and overlay these files instead, as
-[the runtime gate](../docs/vega-native-runtime-gate.md) describes, then point the
-template's `src/App.tsx` at `BoardScreen`.
+This directory is the Vega application. It builds here; nothing needs to be
+scaffolded or copied any more.
 
-Target **SDK 0.24**. Its Metro resolves the engine without configuration, and the
-native path does not use the WebView whose crash pinned the web app to SDK 0.23.
+Install the **Vega SDK 0.24** first and put its `bin` on your `PATH`. It is not
+in this repository and cannot be: it is licensed to you under Amazon's Program
+Materials License Agreement, so each developer installs their own copy. What is
+committed is our configuration only — `manifest.toml`, `app.json`, `index.js`,
+`babel.config.js`, `metro.config.js`, `package.json` and the lock file. Every
+dependency, Amazon's included, comes from the public npm registry, so `npm ci`
+needs no token.
+
+```sh
+npm ci                 # at the repository root: the shared core's engine
+npm ci --prefix native # this application
+npm run build --prefix native
+```
+
+The package lands at `native/build/aarch64-release/dicechess-tv-native_aarch64.vpkg`.
+`armv7` and `x86_64` are built alongside it; the virtual device and the Stick
+both want `aarch64`.
+
+```sh
+vega device install-app -d VirtualDevice -p native/build/aarch64-release/dicechess-tv-native_aarch64.vpkg
+vega device launch-app -d VirtualDevice -a com.fortemate.dicechesstv.main
+```
+
+Verified end to end on 2026-09-23: builds from a clean checkout, installs, and
+launches in 227 ms with no crash record.
+
+### What `npm audit` reports, and why it is not shipped
+
+`npm audit` reports 20 findings here, 17 of them outside `devDependencies`. None
+of them reach the device. The built package holds our Hermes bundle,
+`libreact-native-mmkv-kepler.so` and metadata, and nothing else: `minimatch`,
+`toml`, `braces` and `micromatch` each appear in it zero times. They are pulled
+in by the manifest builder and the React Native CLI, which run on the developer's
+machine.
+
+Do not run `npm audit fix --force` here. Its proposed remedy is to install
+`@amazon-devices/react-native-kepler@2.1.0` — the SDK 0.23 line, whose WebView
+crash is the reason this application exists.
+
+### Why `metro.config.js` is not the default one
+
+The screens here import the shared core from `../src/core`, and the core imports
+the engine from the repository root's `node_modules`. Both are outside this
+directory, and Metro will not follow a path it is not watching. Replacing the
+config with the template's default was tried, and the build fails with
+`Unable to resolve module ../../src/core/game`. `watchFolders` and
+`nodeModulesPaths` are what make one shared core serve both frontends.
+
+### Two things the build says that are not faults
+
+`Icon is not defined in the manifest. System default will be used.` — no icon has
+been drawn yet. The device also logs a missing `SplashScreenImages.zip` for the
+same reason. Both are cosmetic and belong with the rest of the visual polish.
+
+`buildinfo.json` appears next to the manifest after a build and holds absolute
+paths from the machine that built it, so it is ignored rather than committed.
+
+Target **SDK 0.24**. Its Metro reads the engine's package exports unaided, where
+SDK 0.23's needed `unstable_enablePackageExports` — a separate matter from the
+`watchFolders` above, which is about where our own files live. And the native
+path does not use the WebView whose crash pinned the web app to SDK 0.23.
 
 ## Verification
 

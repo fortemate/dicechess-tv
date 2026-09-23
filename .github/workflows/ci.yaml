@@ -31,3 +31,8 @@ jobs:
       - run: npm ci --prefix native
       - run: npm run check --prefix native
       - run: npm test --prefix native
+      # Bundling needs no Vega SDK, so it runs here, and it catches what tsc
+      # cannot: a Metro configuration that no longer reaches the shared core
+      # outside this directory. Removing `watchFolders` fails exactly here.
+      - run: npx react-native bundle --entry-file index.js --platform kepler --dev false --bundle-output "${RUNNER_TEMP}/bundle.js"
+        working-directory: native
