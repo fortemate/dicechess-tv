@@ -26,9 +26,12 @@ import {
 } from '@amazon-devices/react-native-kepler';
 import type { BoardKey } from '../../src/core/boardInput';
 
-// A keyboard on the Virtual Device reports the OK button as `enter`; a physical
-// remote reports `select`. Both mean the same thing to the board. Back is
-// absent on purpose: it arrives on the other channel.
+// OK arrives under three names, and all of them mean the same to the board:
+// `select` from a physical remote, as Amazon documents it; `enter` from the
+// Virtual Device's keyboard; and `kpenter` from the Virtual Device's on-screen
+// remote, whose skin binds OK to the keypad Enter key (KEY_KPENTER). The last
+// one was missed until the owner pressed OK on that remote and nothing happened.
+// Back is absent on purpose: it arrives on the other channel.
 const KEYS: Readonly<Record<string, BoardKey>> = {
   up: 'up',
   down: 'down',
@@ -36,6 +39,7 @@ const KEYS: Readonly<Record<string, BoardKey>> = {
   right: 'right',
   select: 'select',
   enter: 'select',
+  kpenter: 'select',
 };
 
 // Directions repeat while the button is held, which is how a cursor should walk

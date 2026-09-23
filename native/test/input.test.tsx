@@ -103,8 +103,8 @@ const overlays = (root: Instance, match: (style: Style) => boolean) =>
     { deep: true },
   );
 
-// Vega's own event names. The Virtual Device keyboard sends `enter` for OK; a
-// physical remote sends `select`.
+// Vega's own event names. OK is `enter` from the Virtual Device keyboard,
+// `kpenter` from its on-screen remote and `select` from a physical remote.
 const Up = 'up';
 const Down = 'down';
 const Left = 'left';
@@ -117,14 +117,12 @@ test('the screen subscribes to the TV event channel', () => {
   assert.equal(isSubscribed(), true);
 });
 
-test('OK arrives as either enter or select', () => {
-  const first = mount();
-  send('enter');
-  assert.match(first.state(), /dice "QRN"/);
-
-  const second = mount();
-  send('select');
-  assert.match(second.state(), /dice "QRN"/);
+test('OK arrives as enter, kpenter or select', () => {
+  for (const ok of ['enter', 'kpenter', 'select']) {
+    const { state } = mount();
+    send(ok);
+    assert.match(state(), /dice "QRN"/, ok);
+  }
 });
 
 test('holding a direction walks the cursor; holding OK acts once', () => {

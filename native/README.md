@@ -197,15 +197,35 @@ The app uses that: **Back at the home screen lets the app close**, which is what
 Back means at the top of a TV app, and claims it everywhere else. Suppressing it
 everywhere would trap a viewer inside.
 
-The Virtual Device hands over the **raw keyboard** rather than a remote
+The Virtual Device hands over **raw key names** rather than a remote
 abstraction — `backspace`, `leftshift`, `tab` and letters all arrive as
-themselves — so keyboard Enter never becomes `SELECT` on the consuming channel.
-Esc does become `back`. A physical remote sends the named events, which is why
-both `enter` and `select` are mapped.
+themselves, lower-case Linux key names — so keyboard Enter never becomes
+`select`. Esc does become `back`, because the emulator is launched with a
+keyboard mapping: `KEY_ESC` to `KEY_BACK`, and F1 to F5 to Home, Menu, Rewind,
+Play/Pause and Fast-forward.
 
-`eventType` arrives lower-case. A keyboard on the Virtual Device sends **`enter`**
-for the OK button while a physical remote sends `select`, so both are mapped or
-the board would work in the emulator and be deaf on hardware. `eventKeyAction` is
+**OK arrives under three names, and all three are mapped.** `enter` comes from
+the Mac keyboard; **`kpenter`** comes from the virtual device's on-screen remote,
+whose skin binds OK to `KEY_KPENTER`, the keypad Enter (see
+`vvd/images/tv/vmtools/agent/skins/tv-remote/layout` in the SDK — all three
+remote skins do the same); and `select` comes from a physical remote, as Amazon's
+`HWEvent` documentation describes it. `kpenter` was missed until 24 September,
+when the owner pressed OK on the on-screen remote and nothing happened. A
+diagnostic build that printed raw events confirmed the name on the device:
+`kpenter/0 kpenter/1`. `KEY_SELECT` and `KEY_OK` injected into the emulator never
+reach the app at all — its virtual keyboard does not declare them — so `select`
+cannot be checked on the virtual device. That one is for the Stick.
+
+The fix was verified the way the on-screen remote works, without a person at the
+emulator: keys went in through the emulator's own gRPC `sendKey` (evdev codes;
+the port and token are in the running emulator's discovery file), and each step
+was checked on a screenshot taken with `screenrecord screenshot` on the emulator
+console. OK resumed the saved game, rolled, and picked up a knight; Back put it
+down, opened the menu and closed it; Back on the home screen closed the app. Two
+injection routes do **not** reach a Vega app, although both report success: the
+console's `event send` and QEMU's `send-key`.
+
+`eventType` arrives lower-case. `eventKeyAction` is
 `0` when the button goes down and on every repeat while it is held, and `1` once
 on release: directions act on the press so holding walks the cursor, and select
 and back act on the release so one press is one action.
