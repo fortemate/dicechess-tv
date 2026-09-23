@@ -5,9 +5,22 @@ on:
     branches: [main]
 permissions:
   contents: read
+
+# This is a private repository, so GitHub-hosted minutes are billed. The checks
+# therefore run on the organization's self-hosted runner through `vars.RUNS_ON`,
+# falling back to a hosted runner when that variable is unset so a fork or a
+# fresh clone still works.
+#
+# Dependabot is deliberately kept on a hosted runner: its pull requests propose
+# code we have not reviewed, and the self-hosted machine holds the Vega SDK and
+# the owner's environment.
+#
+# If aurora is offline a job queues rather than failing, which is quiet — check
+# `systemctl --user status actions-runner` on the host before assuming CI is
+# merely slow.
 jobs:
   web-probe:
-    runs-on: ubuntu-24.04
+    runs-on: ${{ fromJSON(github.actor == 'dependabot[bot]' && '["ubuntu-24.04"]' || vars.RUNS_ON || '["ubuntu-24.04"]') }}
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
@@ -20,7 +33,7 @@ jobs:
       - run: npm run build:vega-web
 
   native-board:
-    runs-on: ubuntu-24.04
+    runs-on: ${{ fromJSON(github.actor == 'dependabot[bot]' && '["ubuntu-24.04"]' || vars.RUNS_ON || '["ubuntu-24.04"]') }}
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
@@ -31,8 +44,44 @@ jobs:
       - run: npm ci --prefix native
       - run: npm run check --prefix native
       - run: npm test --prefix native
-      # Bundling needs no Vega SDK, so it runs here, and it catches what tsc
-      # cannot: a Metro configuration that no longer reaches the shared core
-      # outside this directory. Removing `watchFolders` fails exactly here.
+      # Bundling needs no Vega SDK, so it runs even on a hosted runner, and it
+      # catches what tsc cannot: a Metro configuration that no longer reaches the
+      # shared core outside this directory. Removing `watchFolders` fails here.
       - run: npx react-native bundle --entry-file index.js --platform kepler --dev false --bundle-output "${RUNNER_TEMP}/bundle.js"
         working-directory: native
+
+  # Builds the installable package. Only the self-hosted runner has the Vega SDK,
+  # so this job is skipped when `RUNS_ON` is unset or when the run is Dependabot's
+  # — a skipped job is honest, a failing one would train everyone to ignore red.
+  #
+  # What it adds over `native-board`: the bundle step proves the JavaScript
+  # resolves, and nothing more. Only a real build reads `manifest.toml`, runs ABI
+  # validation and links the native libraries, so only this job can fail on a
+  # broken manifest or a module the device will not provide.
+  package:
+    if: github.actor != 'dependabot[bot]' && vars.RUNS_ON != ''
+    runs-on: ${{ fromJSON(vars.RUNS_ON) }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: jdx/mise-action@v4
+      # The SDK puts itself on the PATH through the shell profile, which a
+      # workflow step does not read.
+      - name: Put the Vega SDK on the PATH
+        run: |
+          echo "$HOME/vega/bin" >> "$GITHUB_PATH"
+      - name: Record the toolchain
+        run: |
+          vega --version
+          node --version
+          npm --version
+      - run: npm ci
+      - run: npm ci --prefix native
+      - run: npm run build --prefix native
+      - name: Upload the package
+        uses: actions/upload-artifact@v5
+        with:
+          name: dicechess-tv-aarch64
+          path: native/build/aarch64-release/*.vpkg
+          if-no-files-found: error
+          retention-days: 14
