@@ -1,22 +1,26 @@
-// Builds the native splash screen the animation service expects.
+// Builds the two pieces of artwork the package ships: the application icon and
+// the native splash screen.
 //
 // Vega wants `assets/raw/SplashScreenImages.zip`, and inside it a `desc.txt`
 // naming the frame size and rate, plus a `_loop` directory of PNG frames. Ours
 // is one frame: a still image, which the descriptor loops forever until the app
 // says it has drawn.
 //
-// The picture is the Fortemate mark on the board's own background, so the
-// splash and the first frame of the application are the same colour and the
-// handover is invisible. The mark is not redrawn here — the brand's own 512 px
-// export is composited pixel for pixel, unscaled, so nothing about the identity
-// is reinterpreted by this file. Regenerating the mark is the brand repository's
-// job; see the note beside assets/image/icon.png.
+// The splash is the Fortemate mark on the board's own background, so it and the
+// first frame of the application are the same colour and the handover is
+// invisible. The icon is the brand's maskable export, copied unchanged: the
+// launcher fits a square icon into a wide tile, and a maskable icon is the one
+// built to survive that.
 //
-// No dependencies: the source is 8-bit RGBA and not interlaced, which is the
-// one PNG case worth decoding by hand, and `zip` is on every machine that can
-// build this package.
+// Neither is redrawn here. Both sources are verbatim brand exports; see
+// ../brand/README.md.
+//
+// No dependencies: the sources are 8-bit PNG without interlacing, which is the
+// one case worth decoding by hand, and `zip` is on every machine that can build
+// this package.
 import { execFileSync } from 'node:child_process';
 import {
+  copyFileSync,
   mkdirSync,
   readFileSync,
   rmSync,
@@ -135,7 +139,13 @@ const encodePng = (width, height, rgb) => {
 export const SPLASH = { WIDTH, HEIGHT, FPS, BACKGROUND };
 
 export const main = () => {
-  const mark = decodePng(join(root, 'assets/image/icon.png'));
+  // The icon ships exactly as the brand drew it.
+  const iconSource = join(root, 'brand/pwa-maskable-512.png');
+  const icon = join(root, 'assets/image/icon.png');
+  mkdirSync(dirname(icon), { recursive: true });
+  copyFileSync(iconSource, icon);
+
+  const mark = decodePng(join(root, 'brand/fortemate-mark-512-white.png'));
   if (mark.width > WIDTH || mark.height > HEIGHT)
     throw new Error('the mark does not fit the frame');
 
@@ -195,7 +205,15 @@ export const main = () => {
     cwd: staging,
   });
 
-  return { framePath, descriptorPath, destination, left, top };
+  return {
+    framePath,
+    descriptorPath,
+    destination,
+    icon,
+    iconSource,
+    left,
+    top,
+  };
 };
 
 // Only when run as a script, so a test can import the pieces above.
@@ -203,8 +221,10 @@ if (
   process.argv[1] &&
   resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
-  const { destination, left, top } = main();
+  const { destination, icon, left, top } = main();
+  const shown = (path) => path.replace(`${root}/`, '');
+  console.log(`icon:   ${shown(icon)}`);
   console.log(
-    `splash: ${WIDTH}x${HEIGHT}, mark at ${left},${top} -> ${destination.replace(`${root}/`, '')}`,
+    `splash: ${WIDTH}x${HEIGHT}, mark at ${left},${top} -> ${shown(destination)}`,
   );
 }

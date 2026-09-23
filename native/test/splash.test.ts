@@ -15,6 +15,8 @@ const built = main() as {
   framePath: string;
   descriptorPath: string;
   destination: string;
+  icon: string;
+  iconSource: string;
   left: number;
   top: number;
 };
@@ -92,6 +94,50 @@ test('the mark is inked, and centred', () => {
     maxY - minY >= frame.height / 5,
     'the mark is too small to read on a television',
   );
+});
+
+test('the icon is the brand file, unchanged', () => {
+  // Byte-for-byte, because the one thing this must never do is reinterpret the
+  // identity. If the brand ships a new export, this fails and someone looks.
+  assert.deepEqual(readFileSync(built.icon), readFileSync(built.iconSource));
+});
+
+test('the icon survives being cropped into the launcher tile', () => {
+  const icon = decodePng(built.icon) as {
+    width: number;
+    height: number;
+    channels: number;
+    pixels: Buffer;
+  };
+  assert.equal(icon.width, 512);
+  assert.equal(icon.height, 512);
+  assert.equal(
+    icon.channels,
+    3,
+    'a transparent icon came out distorted in the launcher',
+  );
+
+  // The maskable safe zone is the middle 80 %. The launcher fits a square into
+  // a wide tile, so anything outside that may be cut; the ink must not be.
+  const ink = (x: number, y: number) => {
+    const base = (y * icon.width + x) * icon.channels;
+    return (
+      icon.pixels[base] > 40 ||
+      icon.pixels[base + 1] > 40 ||
+      icon.pixels[base + 2] > 40
+    );
+  };
+  const margin = Math.round(icon.width * 0.1);
+  for (let y = 0; y < icon.height; y++)
+    for (let x = 0; x < icon.width; x++)
+      if (ink(x, y))
+        assert.ok(
+          x >= margin &&
+            x < icon.width - margin &&
+            y >= margin &&
+            y < icon.height - margin,
+          `ink at ${x},${y} sits outside the 80% safe zone and can be cropped away`,
+        );
 });
 
 test('the descriptor says what the animation service expects', () => {
