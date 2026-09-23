@@ -7,12 +7,19 @@
 // receive remote input at all.
 import React from 'react';
 import { decodeGame, rollDice, type Game } from '../../src/core/game';
+import {
+  decodeLedger,
+  emptyLedger,
+  record,
+  type Ledger,
+} from '../../src/core/ledger';
 import { GameScreen } from './GameScreen';
 import { MmkvSnapshotStore } from './mmkvStore';
 import { randomSource } from './randomSource';
 import type { ScreenOptions } from './screen';
 
 const KEY = 'dicechess-tv.game.v2';
+const LEDGER_KEY = 'dicechess-tv.ledger.v1';
 
 type Opened = { game: Game | null; damaged: string | null };
 
@@ -26,6 +33,14 @@ export type AppProps = {
 export const App = ({ options: injected, onState }: AppProps) => {
   const store = React.useMemo(
     () => new MmkvSnapshotStore<Game>({ key: KEY, decode: decodeGame }),
+    [],
+  );
+  const ledgerStore = React.useMemo(
+    () =>
+      new MmkvSnapshotStore<Ledger>({
+        key: LEDGER_KEY,
+        decode: decodeLedger,
+      }),
     [],
   );
   const options = React.useMemo<ScreenOptions>(() => {
@@ -59,11 +74,43 @@ export const App = ({ options: injected, onState }: AppProps) => {
     if (opened.damaged) store.clear();
   }, [opened.damaged, store]);
 
+  // The ledger is read once and kept here, so recording a result is one write
+  // that both counts it and remembers it was counted.
+  const [ledger, setLedger] = React.useState<Ledger>(() => {
+    try {
+      return ledgerStore.read() ?? emptyLedger();
+    } catch {
+      // A ledger that no longer decodes is left on disk rather than
+      // overwritten: losing a record silently is worse than showing none.
+      return emptyLedger();
+    }
+  });
+
+  // A result is recorded whenever one is seen, including on the launch after a
+  // game ended while the app was gone. record() is a no-op for a game already
+  // counted, so running it every time is safe.
+  const count = React.useCallback(
+    (game: Game) => {
+      setLedger((current) => {
+        const next = record(current, game, 'w');
+        if (next !== current)
+          void ledgerStore.save(next).catch(() => undefined);
+        return next;
+      });
+    },
+    [ledgerStore],
+  );
+
+  React.useEffect(() => {
+    if (opened.game) count(opened.game);
+  }, [count, opened.game]);
+
   const onCommit = React.useCallback(
     (game: Game) => {
       void store.save(game).catch(() => undefined);
+      count(game);
     },
-    [store],
+    [count, store],
   );
 
   return (
@@ -71,6 +118,7 @@ export const App = ({ options: injected, onState }: AppProps) => {
       options={options}
       initial={opened.game}
       onCommit={onCommit}
+      ledger={ledger}
       onState={onState}
     />
   );
