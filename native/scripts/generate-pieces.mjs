@@ -117,6 +117,11 @@ for (const file of names) {
   if (!viewBox) throw new Error('No viewBox in ' + file);
   const css = svg.match(/<style>([\s\S]*?)<\/style>/)?.[1] ?? '';
   const children = convert(svg, parseStyle(css));
+  // Import only the elements this piece draws; the lint gate rejects unused
+  // imports, and not every piece has a rect or a circle.
+  const used = Object.values(TAGS).filter((component) =>
+    new RegExp(`<${component}[\\s/>]`).test(children),
+  );
   writeFileSync(
     join(TARGET, name + '.tsx'),
     `// Generated from src/assets/pieces/rhosgfx/${file}.
@@ -124,7 +129,7 @@ for (const file of names) {
 // RhosGFX vector chess pieces, CC0. See licenses/RhosGFX-CC0.txt and
 // THIRD_PARTY_NOTICES.md for provenance and credit.
 import React from 'react';
-import { Svg, G, Path, Rect, Circle } from '@amazon-devices/react-native-svg';
+import { ${['Svg', ...used].join(', ')} } from '@amazon-devices/react-native-svg';
 import type { PieceProps } from './types';
 
 export const ${name} = ({ size }: PieceProps) => (

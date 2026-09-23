@@ -3,7 +3,7 @@
 // RhosGFX vector chess pieces, CC0. See licenses/RhosGFX-CC0.txt and
 // THIRD_PARTY_NOTICES.md for provenance and credit.
 import React from 'react';
-import { Svg, G, Path, Rect, Circle } from '@amazon-devices/react-native-svg';
+import { Svg, G, Path } from '@amazon-devices/react-native-svg';
 import type { PieceProps } from './types';
 
 export const wN = ({ size }: PieceProps) => (

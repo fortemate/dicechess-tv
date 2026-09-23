@@ -18,7 +18,7 @@
 // Two channels that were tried and rejected: `UserInputManager.addListener`
 // aborts the JS thread on 0.24, and subscribing `useAddUserInputListenerCallback`
 // to every key delivers nothing while `useTVEventHandler` is also mounted.
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import {
   useTVEventHandler,
   useKeplerBackHandler,
@@ -64,11 +64,16 @@ export function useRemoteInput(
   options: RemoteInputOptions = {},
 ): void {
   // Reading the handlers through refs keeps a new callback identity on every
-  // render from resubscribing mid-press.
+  // render from resubscribing mid-press. The refs are updated once a render has
+  // been committed, not while it runs: a render can be thrown away, and a key
+  // must never reach a handler from one that was. Layout effects run before any
+  // subscription below is made, so no key can arrive before they are set.
   const handler = useRef(onKey);
-  handler.current = onKey;
   const back = useRef(options.onBack);
-  back.current = options.onBack;
+  useLayoutEffect(() => {
+    handler.current = onKey;
+    back.current = options.onBack;
+  });
 
   useTVEventHandler(
     useCallback((event: HWEvent) => {
