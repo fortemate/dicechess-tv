@@ -2,16 +2,16 @@
 
 Dice Chess for Amazon Fire TV: two players sharing one screen and remote, or a game against a choice of on-device bots.
 
-**Status: full offline gameplay prototype.** The web app now supports hotseat and a local Random opponent, three-die turns, promotion, king capture, resignation, draw agreement and save/resume during a turn. Browser checks cover keyboard-only play and result recovery. The external SDK 0.23 / RN 0.72 shell runs the bundled app on Vega Virtual Device on the development MacBook Air. See [full-game behavior and evidence](docs/full-game.md) for the exact verification boundary.
+**Status: a React Native for Vega application that builds and runs from this repository.** `npm run build --prefix native` produces an installable package; it launches on the Vega Virtual Device in 227 ms and plays. Hotseat and a local Random opponent, three-die turns, promotion, king capture, resignation, draw agreement, save and resume mid-turn, a completed-game ledger, an interactive tutorial and a rules guide are all implemented on the native board, driven entirely by D-pad, OK and Back.
 
-Aggressive, W/D/L statistics, physical Fire TV testing and production native packaging remain future work. SDK 0.24 WebView compatibility is still unresolved. The native shell remains outside this repository.
+Not done: sound, onboarding, piece-movement animation, an icon and splash image, and the attribution screen the asset licences require. Everything above is evidence from the **virtual** device; nothing has yet run on physical Fire TV hardware, and the emulator does not measure Stick performance.
 
-The earlier [feasibility probe](docs/prototype.md), [SDK experiment](docs/vega-sdk-experiment.md) and [durable-save/offline checks](docs/durable-save-and-offline.md) document the diagnostic that preceded this game.
+The Svelte + Chessground web app is still in the tree. It is a **probe, not the product** — its WebView crashes on SDK 0.24, which is the SDK the native path targets — and it is scheduled for removal. The [feasibility probe](docs/prototype.md), [SDK experiment](docs/vega-sdk-experiment.md), [durable-save/offline checks](docs/durable-save-and-offline.md) and [full-game behavior](docs/full-game.md) record what it established and remain the evidence for that period.
 
 ## Product scope
 
 - Hotseat: two people take turns using one remote after each complete Dice Chess turn.
-- Several entirely local bots, starting with Random and Aggressive; computation stays off the UI thread.
+- Several entirely local bots, starting with Random and Aggressive. The interface must never stall: Random turned out to need no thread of its own, and a stronger bot's strength comes from a bounded work budget rather than from wall-clock time.
 - No stake doubling, coins, wallets or betting in the initial game.
 - Local win/draw/loss (W/D/L) statistics, separated by opponent and hotseat mode.
 - D-pad, OK and Back navigation through the board, dice, promotion, menus and results.
@@ -22,24 +22,35 @@ Online matchmaking, accounts, rankings, cloud bots and subscriptions are outside
 
 See [offline game scope](docs/offline-game-scope.md) for the accepted requirements, proposed statistics behavior and delivery order. This scope update supersedes the earlier single-bot MVP description in the hackathon research notes.
 
-## Proposed architecture
+## Architecture
 
 ```text
-React Native for Vega shell
-└── Vega WebView
-    └── TV interface: Svelte + Chessground
-        ├── Game controller → Dice Chess engine
-        ├── Web Worker → local bot
-        └── Versioned local game snapshot
+native/ — the React Native for Vega application
+├── Board and screens, drawn with @amazon-devices/react-native-svg
+├── Remote input: useTVEventHandler for the D-pad and OK,
+│                 useKeplerBackHandler for Back
+└── Snapshot store on MMKV
+        │
+        ▼
+src/core/ — one shared, pure TypeScript core, no DOM and no React
+├── Turn controller → Dice Chess engine
+├── Local bot, which needs no thread of its own
+└── Versioned game snapshot, ledger, tutorial and rules data
 ```
 
-The shell handles platform integration. The web layer renders the game and handles remote navigation. The canonical engine determines legal actions and board transitions. A narrow adapter retains dice across the pinned engine API’s board-only `applyMove` result; the controller applies the existing game-service terminal policy. See the compatibility note in the full-game guide. The board only renders state and emits intent.
+The core is pure by enforcement, not by convention: `tsconfig.core.json` compiles it with `lib: ES2022` and `types: []`, so a DOM or Node global there fails `npm run check`. That is what lets one verified controller serve both the native board and the web probe, and what will let it outlive the probe.
+
+The canonical engine determines legal actions and board transitions. A narrow adapter retains dice across the pinned engine API's board-only `applyMove` result; the controller applies the existing game-service terminal policy. See the compatibility note in the full-game guide. The board only renders state and emits intent.
+
+[native/README.md](native/README.md) is the running record of what this platform actually does — input channels, persistence, randomness, sound — and has the build and install commands.
 
 This repository owns TV-specific packaging, input and application integration. Reuse appropriate public components from [dicechess-play](https://github.com/fortemate/dicechess-play) and [dicechess-engine](https://github.com/fortemate/dicechess-engine) after checking their licenses. Shared fixes should return to their source repositories.
 
 Fire OS is a possible later target with a separate build. Samsung/Tizen, Raspberry Pi and hardware purchases are deferred.
 
 ## Completed feasibility milestone
+
+These steps were carried out on the WebView path and are kept as the record of how the target was proved reachable. The application that grew from them is the native one described above.
 
 1. Install and record Vega CLI/SDK and Node versions on the development Mac.
 2. Run the official Hello World in Vega Virtual Device.
@@ -49,7 +60,7 @@ Fire OS is a possible later target with a separate build. Samsung/Tizen, Raspber
 6. Save, close and restore the exact position, roll and phase.
 7. Repeat without a development server or network, and record actual limitations.
 
-The narrow feasibility loop is complete on SDK 0.23. The next delivery step is the local result ledger and W/D/L view, followed by polished TV interaction, rules and onboarding. Aggressive is a stretch goal. See the [delivery roadmap](docs/roadmap.md) and [GitHub milestones](https://github.com/fortemate/dicechess-tv/milestones). Full-game code and tests are now available; production packaging and physical-device testing remain separate work.
+That loop closed on SDK 0.23. The native runtime gate then passed on SDK 0.24 — the WebView crash does not reproduce natively — and the board, remote input, saves, dice, menus, the Random opponent, the result ledger, the tutorial and the rules guide were built on that path instead. What remains is sound, onboarding, the submission build and physical-device testing. See the [delivery roadmap](docs/roadmap.md), the [runtime gate](docs/vega-native-runtime-gate.md) and [GitHub milestones](https://github.com/fortemate/dicechess-tv/milestones).
 
 ## Hackathon
 
@@ -65,9 +76,11 @@ Full decisions and the detailed schedule are maintained in the private Fortemate
 
 ## Licensing
 
-The repository license has not been selected. The private prototype imports pinned engine, Chessground and Svelte packages, and bundles 12 CC0 RhosGFX vector SVG pieces; see [third-party notices](THIRD_PARTY_NOTICES.md). Resolve the combined distribution license before shipping a binary.
+The repository license has not been selected. See [third-party notices](THIRD_PARTY_NOTICES.md). Resolve the combined distribution license before shipping a binary.
 
-Chessground is GPL-3.0-or-later. Reusing it requires a compatible distribution and source-availability plan; private repository visibility does not remove those obligations. Check the licenses of the engine, reused play-client code, piece artwork, fonts and samples before importing or distributing them. Commercial sale and closed-source distribution are different questions.
+Chessground is GPL-3.0-or-later, and it is reached only by the web probe. **Removing that probe removes the obligation from anything that ships**, which is one of the reasons to do it. Until then a compatible distribution and source-availability plan is required, and private repository visibility does not remove that.
+
+What the native application carries is different: the engine, the 12 CC0 RhosGFX vector pieces, and Amazon's `@amazon-devices/*` packages. Those resolve from the public npm registry and are not redistributed by us; the Vega SDK itself is licensed to each developer under Amazon's Program Materials License Agreement and is deliberately not in this repository. Sounds, when they arrive, carry an attribution requirement that needs a visible screen in the app. Check the licenses of the engine, reused play-client code, piece artwork, fonts, sounds and samples before importing or distributing them. Commercial sale and closed-source distribution are different questions.
 
 ## Development guidance
 
@@ -76,7 +89,7 @@ Follow [AGENTS.md](AGENTS.md). Changes go through branches and pull requests; th
 ## References
 
 - [Vega developer documentation](https://developer.amazon.com/docs/vega/0.24/vega-get-started)
-- [Vega WebView](https://developer.amazon.com/docs/vega/0.24/develop-your-app-with-webview)
+- [Vega WebView](https://developer.amazon.com/docs/vega/0.24/develop-your-app-with-webview) — the abandoned path, kept for the record
 - [Vega Virtual Device and device execution](https://developer.amazon.com/docs/vega/0.24/run-apps)
 - [Chessground](https://github.com/lichess-org/chessground)
 - [Hackathon rules](https://amazonappdev2026.devpost.com/rules)
