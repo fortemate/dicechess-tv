@@ -357,6 +357,63 @@ Writing it corrected a claim: a draw comes when a **turn ends** 100 half-moves
 after the last capture or pawn move, not the moment the counter reaches 100 —
 while dice remain the game continues.
 
+## Sound
+
+No sound ships yet. What follows is what a probe on the virtual device
+established, so that the work does not start from guesses. All of it comes from
+`@amazon-devices/react-native-w3cmedia` 2.3.2 on SDK 0.24.12112.
+
+**The player must be an `AudioPlayer`, not the `Audio` component**, and it must
+be constructed as `CONTENT_TYPE_SONIFICATION` / `USAGE_GAME`. Those are what
+these sounds are, and they decide whether an effect ducks whatever else the
+television is playing. The `Audio` component on its music/media defaults filled
+the log with `could not connect to audioserver`.
+
+**A source is a plain path, not a URL.** `/pkg/assets/sfx/move.mp3` reaches
+`playing` in about 15 ms; `file:///pkg/assets/sfx/move.mp3` fails with error 4,
+and `http://` never even fetches — the player refuses the scheme outright
+(`isUriSchemeSecure Got an insecure protocol/scheme http`). `fetch` wants the
+exact opposite: it reads the `file://` form and refuses the bare path. The two
+conventions are not interchangeable, which cost a run to discover.
+
+**Containers: mp3 and wav play, ogg and m4a do not.** Each was tried three
+times and the split was identical every time, so it is a property of the
+containers and not a race:
+
+| container | outcome           |
+| --------- | ----------------- |
+| mp3       | `playing`, 3-7 ms |
+| wav       | `playing`, 3 ms   |
+| ogg       | error 4           |
+| m4a       | error 4           |
+
+This matters beyond the client: the only pack in `dicechess-assets` is ogg, and
+it cannot be played here as it stands.
+
+**Do not trust `canPlayType`.** It is listed among the unsupported members in
+the package's own README — "indicates it supports any type" — and it answered
+"probably" for ogg and "" for wav, which is exactly backwards from what happens.
+
+**Events arrive only through `addEventListener`.** The EventHandler attributes
+(`audio.onplaying = ...`) are documented as unsupported and are silently
+ignored; a whole probe run reported "no event" because of it.
+
+Two effects started together both reached `playing` within 14 ms, so a die
+landing while a piece is still moving needs no mixing of our own — one player
+per sound. Re-firing one works if it is paused and `currentTime` reset first.
+
+### What the virtual device cannot answer
+
+It has no `/dev/snd`, no audio server process and no `audio.clock.*` library, so
+its audio sink never opens: every attempt, including the ones that reach
+`playing`, ends in the sink's `GST stream error: 11`. So `playing` here proves
+the file was accepted and decoded, not that a sound was audible, and it is why
+`ended` never fires and `duration` and `currentTime` are `NaN` — in GStreamer the
+clock comes from the sink. The `error` property is also sticky: it reads 4 on
+players that are playing. **Audibility, latency on real hardware, and whether
+`ended` works must be re-checked on the Fire TV stick.** Until then, write no
+code that depends on `ended`, `duration`, `currentTime` or `error`.
+
 ## Raster alternative
 
 Pieces are vectors and no raster fallback is needed. PNGs remain available if
@@ -366,7 +423,12 @@ not make it without that measurement.
 
 ## Known gaps
 
-- **No input.** Nothing here reads D-pad, OK or Back yet, and nothing emits move
-  intent.
-- **No coordinates or panel.** The board draws squares, pieces and the four
-  overlay states; rank and file labels and the side panel are not implemented.
+- **No coordinates.** The board draws squares, pieces and the four overlay
+  states; rank and file labels are not drawn.
+- **No sound.** The route is known and written down above, but nothing plays
+  yet, and the sounds we hold are in a container this platform will not play.
+- **No animation.** A piece appears on its new square rather than travelling
+  there. The bot's turn is revealed one action at a time so the moves can at
+  least be followed.
+- **No attribution screen.** Both asset licences require visible credit and
+  there is nowhere yet that shows it.
