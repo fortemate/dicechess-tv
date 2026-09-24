@@ -478,3 +478,45 @@ test('a game resumed as Black starts the cursor on Black’s side', () => {
     'e2',
   );
 });
+
+test('a pawn reaching the last rank asks which piece it becomes', () => {
+  // One step from promotion, with pawns rolled.
+  const game = rollGame(
+    newGame('hotseat', 'promotion', '4k3/P7/8/8/8/8/8/4K3 w - - 0 1'),
+    [1, 1, 1],
+  );
+  const resumed = drive(initialState(options, game), 'select');
+  assert.equal(resumed.overlay.kind, 'none');
+
+  const asked = drive(
+    resumed,
+    ...(walk('e2', 'a7') as BoardKey[]),
+    'select',
+    'up',
+    'select',
+  );
+  assert.equal(asked.overlay.kind, 'promotion');
+  assert.deepEqual(
+    asked.overlay.kind === 'promotion' ? asked.overlay.moves : [],
+    ['a7a8q', 'a7a8r', 'a7a8b', 'a7a8n'],
+  );
+
+  // The arrows walk the choices and wrap at the ends.
+  const wrapped = drive(asked, 'up');
+  assert.equal(
+    wrapped.overlay.kind === 'promotion' ? wrapped.overlay.index : -1,
+    3,
+  );
+
+  // Back puts the choice away without playing, and the pawn stays picked up.
+  const putAway = drive(wrapped, 'back');
+  assert.equal(putAway.overlay.kind, 'none');
+  assert.deepEqual(putAway.game.moves, []);
+  assert.deepEqual(putAway.focus, { cursor: 'a8', selected: 'a7' });
+
+  // OK plays the piece under the cursor: one down from the queen is the rook.
+  const promoted = drive(asked, 'down', 'select');
+  assert.equal(promoted.overlay.kind, 'none');
+  assert.deepEqual(promoted.game.moves, ['a7a8r']);
+  assert.deepEqual(promoted.focus, { cursor: 'a8', selected: null });
+});
