@@ -117,6 +117,21 @@ test('starting over an unfinished game asks first, and Cancel keeps it', () => {
   assert.equal(replaced.overlay.kind, 'none');
 });
 
+test('Back on the home screen stays there', () => {
+  const home = initialState(options, started());
+  assert.equal(drive(home, 'back'), home);
+});
+
+test('Back on a confirmation does what Cancel does', () => {
+  const board = drive(initialState(options, started()), 'select');
+  const asking = drive(board, 'back', 'down', 'select');
+  assert.equal(asking.overlay.kind, 'confirm');
+  const back = drive(asking, 'back');
+  assert.deepEqual(back.overlay, { kind: 'menu', index: 0 });
+  assert.equal(back.game.phase, 'move');
+  assert.deepEqual(back, drive(asking, 'select'));
+});
+
 test('the menu opens from the board and closes back to it', () => {
   const board = drive(fresh(), 'select', 'select');
   const menu = drive(board, 'back');
