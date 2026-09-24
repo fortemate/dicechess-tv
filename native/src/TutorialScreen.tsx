@@ -10,12 +10,27 @@ import type { BoardKey } from '../../src/core/boardInput';
 import { Board } from './Board';
 import { useRemoteInput } from './useRemoteInput';
 import { THEME } from './theme';
-import { initialTutorial, tutorialReducer, step } from './tutorial';
+import {
+  initialTutorial,
+  tutorialReducer,
+  step,
+  type TutorialState,
+} from './tutorial';
 
 export type TutorialScreenProps = {
   onExit: () => void;
   // Diagnostic seam for device checks, as on the game screen.
   onState?: (report: string) => void;
+};
+
+// What OK and Back do now. Back cancels a selection before it leaves, as in a
+// game, so the hint says which of the two it will do.
+const hint = (state: TutorialState): string => {
+  if (state.finished) return 'OK: back to the menu';
+  if (state.complete) return 'Done. OK: next lesson · Back: leave';
+  return state.focus.selected
+    ? 'Back: put the piece down'
+    : 'Back: leave the tutorial';
 };
 
 export const TutorialScreen = ({ onExit, onState }: TutorialScreenProps) => {
@@ -110,15 +125,7 @@ export const TutorialScreen = ({ onExit, onState }: TutorialScreenProps) => {
             fontSize: 22,
           }}
         >
-          {state.finished
-            ? 'OK: back to the menu'
-            : state.complete
-              ? 'Done. OK: next lesson · Back: leave'
-              : // Back cancels a selection before it leaves, as in a game, so
-                // say which one it will do rather than promising the wrong one.
-                state.focus.selected
-                ? 'Back: put the piece down'
-                : 'Back: leave the tutorial'}
+          {hint(state)}
         </Text>
       </View>
     </View>
