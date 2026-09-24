@@ -1,6 +1,6 @@
 import { DiceChess } from '@fortemate/dicechess-engine/rules';
 import { applyLegal } from './model.ts';
-import { pieceAt } from './board.ts';
+import { fileOf, pieceAt } from './board.ts';
 import { hasExactKeys } from './keys.ts';
 
 export const INITIAL_POSITION =
@@ -84,10 +84,7 @@ export function viewGame(game: Game) {
     };
     const next = applyLegal(dfen, move);
     consume(letter);
-    if (
-      letter === 'K' &&
-      Math.abs(move.charCodeAt(0) - move.charCodeAt(2)) === 2
-    )
+    if (letter === 'K' && Math.abs(fileOf(move) - fileOf(move.slice(2))) === 2)
       consume('R');
     dfen =
       next.split(' ').slice(0, 6).join(' ') +
@@ -123,13 +120,18 @@ function automaticResult(
     return { winner: null, reason: 'turn-limit' };
   return null;
 }
+// A turn in play: actions left to choose from, or none and the turn to hand
+// over.
+const livePhase = (legal: readonly string[]): Phase =>
+  legal.length ? 'move' : 'handoff';
+
 function normalize(game: Game): Game {
   const state = viewGame(game);
   const result = automaticResult(game, state.dfen, state.legal.length === 0);
   return {
     ...game,
     result,
-    phase: result ? 'ended' : state.legal.length ? 'move' : 'handoff',
+    phase: result ? 'ended' : livePhase(state.legal),
   };
 }
 export function newGame(
@@ -282,9 +284,17 @@ function upgrade(value: unknown): unknown {
   };
 }
 
-export function decodeGame(raw: string): Game {
-  const game = upgrade(JSON.parse(raw)) as Game;
-  if (
+// Hotseat has no person set against a bot; a game against the bot has one,
+// on either side.
+const sidesMatchMode = (game: Game): boolean =>
+  game.mode === 'hotseat'
+    ? game.human === null
+    : game.human === 'w' || game.human === 'b';
+
+// Whether a decoded save is missing a field or has one of the wrong shape,
+// judged before anything is computed from it.
+function isDamaged(game: Game): boolean {
+  return (
     !game ||
     typeof game !== 'object' ||
     !hasExactKeys(game, FIELDS) ||
@@ -292,9 +302,7 @@ export function decodeGame(raw: string): Game {
     typeof game.id !== 'string' ||
     !/^[a-zA-Z0-9-]{1,80}$/.test(game.id) ||
     !['hotseat', 'random'].includes(game.mode) ||
-    (game.mode === 'hotseat'
-      ? game.human !== null
-      : game.human !== 'w' && game.human !== 'b') ||
+    !sidesMatchMode(game) ||
     !Number.isSafeInteger(game.revision) ||
     game.revision < 0 ||
     !Number.isInteger(game.turn) ||
@@ -316,44 +324,57 @@ export function decodeGame(raw: string): Game {
       game.lastMove === null ||
       (typeof game.lastMove === 'string' && UCI.test(game.lastMove))
     )
-  ) {
-    throw new Error('Unsupported or damaged game save');
+  );
+}
+
+// A saved result must be the one the position explains: a resignation by the
+// person, a draw agreed in hotseat, or exactly the automatic result. A game the
+// position has ended must carry that result.
+function checkResult(game: Game, side: Side, automatic: Result | null): void {
+  const { result } = game;
+  if (result === null) {
+    if (game.phase === 'ended' || automatic) throw new Error('Missing result');
+    return;
   }
+  if (
+    typeof result !== 'object' ||
+    !hasExactKeys(result, ['winner', 'reason']) ||
+    game.phase !== 'ended'
+  )
+    throw new Error('Invalid result');
+  if (result.reason === 'resigned') {
+    if (automatic || result.winner !== opposite(game.human ?? side))
+      throw new Error('Invalid resignation');
+  } else if (result.reason === 'agreed-draw') {
+    if (automatic || game.mode !== 'hotseat' || result.winner !== null)
+      throw new Error('Invalid draw agreement');
+  } else if (
+    result.winner !== automatic?.winner ||
+    result.reason !== automatic?.reason
+  ) {
+    throw new Error('Invalid automatic result');
+  }
+}
+
+// Before the roll nothing has been played; after it, the phase must be the one
+// the remaining legal actions give.
+function checkPhase(game: Game, legal: readonly string[]): void {
+  if (game.roll.length === 0) {
+    if (game.moves.length || !['roll', 'ended'].includes(game.phase))
+      throw new Error('Invalid pre-roll state');
+  } else if (!game.result && game.phase !== livePhase(legal)) {
+    throw new Error('Phase does not match remaining legal actions');
+  }
+}
+
+export function decodeGame(raw: string): Game {
+  const game = upgrade(JSON.parse(raw)) as Game;
+  if (isDamaged(game)) throw new Error('Unsupported or damaged game save');
   const state = viewGame(game);
   const automatic = game.roll.length
     ? automaticResult(game, state.dfen, state.legal.length === 0)
     : null;
-  if (game.result !== null) {
-    if (
-      typeof game.result !== 'object' ||
-      !hasExactKeys(game.result, ['winner', 'reason']) ||
-      game.phase !== 'ended'
-    )
-      throw new Error('Invalid result');
-    if (game.result.reason === 'resigned') {
-      const loser = game.human ?? state.side;
-      if (automatic || game.result.winner !== opposite(loser))
-        throw new Error('Invalid resignation');
-    } else if (game.result.reason === 'agreed-draw') {
-      if (automatic || game.mode !== 'hotseat' || game.result.winner !== null)
-        throw new Error('Invalid draw agreement');
-    } else if (
-      !automatic ||
-      game.result.winner !== automatic.winner ||
-      game.result.reason !== automatic.reason
-    ) {
-      throw new Error('Invalid automatic result');
-    }
-  } else if (game.phase === 'ended' || automatic)
-    throw new Error('Missing result');
-  if (game.roll.length === 0) {
-    if (game.moves.length || !['roll', 'ended'].includes(game.phase))
-      throw new Error('Invalid pre-roll state');
-  } else if (
-    !game.result &&
-    game.phase !== (state.legal.length ? 'move' : 'handoff')
-  ) {
-    throw new Error('Phase does not match remaining legal actions');
-  }
+  checkResult(game, state.side, automatic);
+  checkPhase(game, state.legal);
   return game;
 }

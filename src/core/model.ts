@@ -1,4 +1,5 @@
 import { DiceChess } from '@fortemate/dicechess-engine/rules';
+import { fileOf, rankOf, squareAt } from './board.ts';
 
 // A diagnostic position with one remaining knight die, not a full-game dice roll.
 export const INITIAL =
@@ -69,19 +70,20 @@ export function decode(raw: string): Snapshot {
   derive(value);
   return value;
 }
+// How far each arrow moves the focus, in files and ranks. Any other key leaves
+// it where it is.
+const STEPS = new Map<string, readonly [number, number]>([
+  ['ArrowRight', [1, 0]],
+  ['ArrowLeft', [-1, 0]],
+  ['ArrowUp', [0, 1]],
+  ['ArrowDown', [0, -1]],
+]);
+const onBoard = (n: number): number => Math.max(0, Math.min(7, n));
+
 export function shiftSquare(square: string, key: string): string {
-  const file = square.charCodeAt(0) - 97;
-  const rank = Number(square[1]) - 1;
-  const x = Math.max(
-    0,
-    Math.min(
-      7,
-      file + (key === 'ArrowRight' ? 1 : key === 'ArrowLeft' ? -1 : 0),
-    ),
+  const [files, ranks] = STEPS.get(key) ?? [0, 0];
+  return squareAt(
+    onBoard(fileOf(square) + files),
+    onBoard(rankOf(square) + ranks),
   );
-  const y = Math.max(
-    0,
-    Math.min(7, rank + (key === 'ArrowUp' ? 1 : key === 'ArrowDown' ? -1 : 0)),
-  );
-  return String.fromCharCode(97 + x) + (y + 1);
 }
