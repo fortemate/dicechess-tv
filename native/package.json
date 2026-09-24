@@ -18,7 +18,7 @@
     "@amazon-devices/react-native-mmkv": "^1.0.11",
     "@amazon-devices/react-native-svg": "~3.0.9000000001",
     "@amazon-devices/react-native-w3cmedia": "~2.3.2",
-    "react": "19.2.0",
+    "react": "19.2.8",
     "react-native": "0.83.10"
   },
   "devDependencies": {
@@ -35,7 +35,7 @@
     "eslint-plugin-react-hooks": "7.1.1",
     "globals": "17.12.0",
     "jsonc-eslint-parser": "3.3.0",
-    "react-test-renderer": "19.2.0",
+    "react-test-renderer": "19.2.8",
     "typescript": "5.8.3",
     "typescript-eslint": "8.70.1"
   },
