@@ -98,12 +98,9 @@ test('each overlay state draws its own distinct mark', () => {
   });
 
   assert.equal(
-    overlays(
-      root,
-      (s) => s.borderColor === THEME.destination && s.borderStyle === 'dashed',
-    ).length,
+    overlays(root, (s) => s.backgroundColor === THEME.destination).length,
     2,
-    'one dashed ring per legal destination',
+    'one dot per legal destination',
   );
   assert.equal(
     overlays(root, (s) => s.backgroundColor === THEME.lastMove).length,
@@ -117,15 +114,50 @@ test('each overlay state draws its own distinct mark', () => {
 
   // The cursor square and the selected square each get a ring, and the selected
   // one is twice as thick so the two are told apart.
-  const rings = overlays(
-    root,
-    (s) => s.borderColor === THEME.cursor && s.borderStyle !== 'dashed',
-  );
+  const rings = overlays(root, (s) => s.borderColor === THEME.cursor);
   assert.equal(rings.length, 2);
   const widths = rings
     .map((ring) => styleOf(ring).borderWidth as number)
     .sort((a, b) => a - b);
   assert.equal(widths[1], widths[0] * 2, `ring widths ${widths}`);
+});
+
+test('an empty destination gets a dot, and a piece that would be taken a ring', () => {
+  // The tutorial's capture lesson: the rook on d1 can stop on an empty square or
+  // take the pawn on d5.
+  const root = mount({
+    size: SIZE,
+    board: '4k3/8/8/3p4/8/8/8/3RK3',
+    selected: 'd1',
+    legal: ['d1d2', 'd1d3', 'd1d4', 'd1d5', 'd1c1'],
+  });
+  const dot = (s: Style) => s.backgroundColor === THEME.destination;
+  const ring = (s: Style) => s.borderColor === THEME.destination;
+  assert.equal(overlays(root, dot).length, 4);
+  assert.equal(overlays(root, ring).length, 1);
+
+  // The ring is on the pawn's square, and nothing on it hides the pawn.
+  const [d5] = squares(root).filter(
+    (square) => overlays(square, ring).length === 1,
+  );
+  assert.equal(d5.findAllByType(PIECES.p as never).length, 1);
+  assert.equal(overlays(d5, dot).length, 0);
+
+  for (const mark of overlays(root, (s) => dot(s) || ring(s))) {
+    const s = styleOf(mark);
+    const size = s.width as number;
+    assert.equal(s.height, size);
+    assert.equal(s.borderRadius, size / 2, 'round');
+    for (const offset of [s.left, s.top] as number[])
+      assert.ok(Math.abs(offset * 2 + size - EDGE) <= 1, 'centred');
+    if (dot(s)) assert.ok(size < EDGE / 2, `dot ${size} vs square ${EDGE}`);
+    else {
+      // Wide enough to go around the piece, and hollow.
+      assert.ok(size > EDGE * 0.8, `ring ${size} vs square ${EDGE}`);
+      assert.ok((s.borderWidth as number) > 0);
+      assert.equal(s.backgroundColor, undefined, 'hollow');
+    }
+  }
 });
 
 test('nothing is marked when no cursor, selection or last move is given', () => {

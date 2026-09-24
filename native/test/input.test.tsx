@@ -182,11 +182,9 @@ test('arrows move the focus, OK picks a piece up and marks its destinations', ()
     overlays(root, (s) => s.backgroundColor === THEME.selected).length,
     1,
   );
+  // A dot on each of the knight's two empty destinations.
   assert.equal(
-    overlays(
-      root,
-      (s) => s.borderColor === THEME.destination && s.borderStyle === 'dashed',
-    ).length,
+    overlays(root, (s) => s.backgroundColor === THEME.destination).length,
     2,
   );
 });
