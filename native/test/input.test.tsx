@@ -297,3 +297,19 @@ test('the promotion choice names the pieces, with the queen first', () => {
   send(Down);
   assert.equal(choices(tree.root)[1], '> Rook');
 });
+
+test('a finished game says how it ended and who won', () => {
+  // From the menu of a hotseat game: Resume, Resign, Agree a draw, New game.
+  const drawn = mount();
+  send(Back, Down, Down, Select);
+  assert.match(drawn.state(), /result agreed-draw/);
+  assert.ok(lines(drawn.root).includes('Draw agreed'));
+  assert.ok(lines(drawn.root).includes('Drawn'));
+
+  // White is to move, so White resigns.
+  const resigned = mount();
+  send(Back, Down, Select, Down, Select);
+  assert.match(resigned.state(), /result resigned/);
+  assert.ok(lines(resigned.root).includes('Resigned'));
+  assert.ok(lines(resigned.root).includes('Black wins'));
+});
