@@ -81,7 +81,9 @@ export type Overlay =
 // The overlays drawn by their own component, which takes the remote while it is
 // up. One definition, used here and by GameScreen, so a new screen cannot be
 // added to one and forgotten in the other.
-export const handsOff = (overlay: Overlay): boolean =>
+export const handsOff = (
+  overlay: Overlay,
+): overlay is Extract<Overlay, { kind: 'tutorial' | 'rules' | 'about' }> =>
   overlay.kind === 'tutorial' ||
   overlay.kind === 'rules' ||
   overlay.kind === 'about';
@@ -151,12 +153,18 @@ const chosen = (colour: ColourChoice, options: ScreenOptions): Side =>
   colour === 'random' ? options.side() : colour;
 
 // Which mode a home option starts. Resume starts nothing.
-const modeOf = (option: string): Mode | null =>
-  option === 'New hotseat game'
-    ? 'hotseat'
-    : option === 'Play Random'
-      ? 'random'
-      : null;
+const MODES = new Map<string, Mode>([
+  ['New hotseat game', 'hotseat'],
+  ['Play Random', 'random'],
+]);
+
+// Home options that open another screen and change nothing else.
+const OPENS = new Map<string, Overlay>([
+  ['Resume game', { kind: 'none' }],
+  ['How to play', { kind: 'tutorial' }],
+  ['Rules', { kind: 'rules' }],
+  ['About', { kind: 'about' }],
+]);
 
 export const menuOptions = (game: Game, sound = true): string[] => [
   'Resume',
@@ -251,207 +259,205 @@ function botStep(state: ScreenState, options: ScreenOptions): ScreenState {
   };
 }
 
+// The overlays every key handler below returns to.
+const BOARD: Overlay = { kind: 'none' };
+const HOME: Overlay = { kind: 'home', index: 0 };
+const MENU: Overlay = { kind: 'menu', index: 0 };
+
+// Puts up another overlay, or the board itself, and changes nothing else.
+const show = (state: ScreenState, overlay: Overlay): ScreenState => ({
+  ...state,
+  overlay,
+});
+
+const toggleSound = (state: ScreenState): ScreenState => ({
+  ...state,
+  sound: !state.sound,
+});
+
+// The arrows walk a list of options, wrapping at both ends.
+const moved = (
+  state: ScreenState,
+  overlay: Extract<Overlay, { index: number }>,
+  key: BoardKey,
+  length: number,
+): ScreenState =>
+  show(state, { ...overlay, index: step(key, overlay.index, length) });
+
+// One handler per overlay, each given its own overlay already narrowed.
+type Handler<K extends Overlay['kind']> = (
+  state: ScreenState,
+  overlay: Extract<Overlay, { kind: K }>,
+  key: BoardKey,
+  options: ScreenOptions,
+) => ScreenState;
+
+const onHome: Handler<'home'> = (state, overlay, key, options) => {
+  const choices = homeOptions(resumable(state.game), state.sound);
+  if (key === 'back') return state;
+  if (key !== 'select') return moved(state, overlay, key, choices.length);
+  const chosen = choices[overlay.index];
+  // The label under the cursor flips; the cursor stays on it.
+  if (isSoundOption(chosen)) return toggleSound(state);
+  const opens = OPENS.get(chosen);
+  if (opens) return show(state, opens);
+  const mode = MODES.get(chosen);
+  if (!mode) return state;
+  // A game against the bot starts with the choice of colour.
+  if (mode !== 'hotseat')
+    return show(state, { kind: 'colour', index: 0, mode, from: 'home' });
+  // Starting a new game over one still in play is a decision, not a keypress.
+  if (resumable(state.game))
+    return show(state, { kind: 'confirm', action: 'replace', index: 0, mode });
+  return start(state, mode, 'random', options);
+};
+
+// The option the colour choice was opened from, which Back returns to.
+const openerOf = (state: ScreenState, from: 'home' | 'menu'): Overlay =>
+  from === 'home'
+    ? {
+        kind: 'home',
+        index: homeOptions(resumable(state.game), state.sound).indexOf(
+          'Play Random',
+        ),
+      }
+    : {
+        kind: 'menu',
+        index: menuOptions(state.game, state.sound).indexOf('New game'),
+      };
+
+const onColour: Handler<'colour'> = (state, overlay, key, options) => {
+  if (key === 'back') return show(state, openerOf(state, overlay.from));
+  if (key !== 'select') return moved(state, overlay, key, colourOptions.length);
+  const colour = COLOURS[overlay.index];
+  // The confirmation comes last, right before the game in play is replaced.
+  if (resumable(state.game))
+    return show(state, {
+      kind: 'confirm',
+      action: 'replace',
+      index: 0,
+      mode: overlay.mode,
+      colour,
+    });
+  return start(state, overlay.mode, colour, options);
+};
+
+const onConfirm: Handler<'confirm'> = (state, overlay, key, options) => {
+  if (key === 'back') return show(state, MENU);
+  if (key !== 'select')
+    return moved(state, overlay, key, confirmOptions.length);
+  if (confirmOptions[overlay.index] === 'Cancel') return show(state, MENU);
+  return overlay.action === 'resign'
+    ? played(state, resignGame(state.game))
+    : start(state, overlay.mode, overlay.colour ?? 'random', options);
+};
+
+const onMenu: Handler<'menu'> = (state, overlay, key) => {
+  const { game } = state;
+  const choices = menuOptions(game, state.sound);
+  if (key === 'back') return show(state, BOARD);
+  if (key !== 'select') return moved(state, overlay, key, choices.length);
+  const chosen = choices[overlay.index];
+  if (chosen === 'Resume') return show(state, BOARD);
+  // Handled before the fall-through below, which treats anything else as a
+  // destructive choice and asks to confirm replacing the game.
+  if (isSoundOption(chosen)) return toggleSound(state);
+  if (chosen === 'Agree a draw') return played(state, agreeDraw(game));
+  // A new game against the bot starts, like one from home, with the colour.
+  if (chosen === 'New game' && game.mode !== 'hotseat')
+    return show(state, {
+      kind: 'colour',
+      index: 0,
+      mode: game.mode,
+      from: 'menu',
+    });
+  // Both destructive choices go through a confirmation with Cancel first.
+  return show(state, {
+    kind: 'confirm',
+    action: chosen === 'Resign' ? 'resign' : 'replace',
+    index: 0,
+    mode: game.mode,
+  });
+};
+
+const onPromotion: Handler<'promotion'> = (state, overlay, key) => {
+  if (key === 'back') return show(state, BOARD);
+  if (key === 'select')
+    return played(state, moveGame(state.game, overlay.moves[overlay.index]));
+  return moved(state, overlay, key, overlay.moves.length);
+};
+
+// Choosing a piece and a square. Back is not intercepted here: boardInput
+// cancels a selection first and only asks to leave when there is nothing to
+// cancel, which is the behaviour the web probe already ships.
+const onMove = (state: ScreenState, key: BoardKey): ScreenState => {
+  const { game } = state;
+  const result = boardInput(
+    state.focus,
+    flipped(game) ? (TURNED[key] ?? key) : key,
+    viewGame(game).legal,
+  );
+  const focused = { ...state, focus: result.focus };
+  switch (result.action.type) {
+    case 'exit':
+      return show(state, MENU);
+    case 'move':
+      return played(focused, moveGame(game, result.action.move));
+    case 'promote':
+      return show(focused, {
+        kind: 'promotion',
+        moves: result.action.moves,
+        index: 0,
+      });
+    case 'none':
+      return focused;
+  }
+};
+
+// The board itself.
+const onBoard = (
+  state: ScreenState,
+  key: BoardKey,
+  options: ScreenOptions,
+): ScreenState => {
+  const { game } = state;
+  if (game.phase === 'ended')
+    return key === 'select' || key === 'back' ? show(state, HOME) : state;
+  const bot = botToAct(game);
+  if (game.phase === 'move' && !bot) return onMove(state, key);
+  // Otherwise Back opens the menu, and OK rolls the dice or passes the turn.
+  // While the opponent owes an action the board takes no input but Back, so a
+  // player cannot move its pieces for it.
+  if (key === 'back') return show(state, MENU);
+  if (key !== 'select' || bot) return state;
+  return played(
+    state,
+    game.phase === 'roll' ? rollGame(game, options.roll()) : nextTurn(game),
+  );
+};
+
 export function screenReducer(
   state: ScreenState,
   action: ScreenAction,
   options: ScreenOptions,
 ): ScreenState {
   if (action.kind === 'bot') return botStep(state, options);
-  const key = action.key;
-  const { game, overlay } = state;
-
-  if (overlay.kind === 'home') {
-    const choices = homeOptions(resumable(game), state.sound);
-    if (key === 'back') return state;
-    if (key !== 'select')
-      return {
-        ...state,
-        overlay: {
-          ...overlay,
-          index: step(key, overlay.index, choices.length),
-        },
-      };
-    const chosen = choices[overlay.index];
-    // The label under the cursor flips; the cursor stays on it.
-    if (isSoundOption(chosen)) return { ...state, sound: !state.sound };
-    if (chosen === 'Resume game')
-      return { ...state, overlay: { kind: 'none' } };
-    if (chosen === 'How to play')
-      return { ...state, overlay: { kind: 'tutorial' } };
-    if (chosen === 'Rules') return { ...state, overlay: { kind: 'rules' } };
-    if (chosen === 'About') return { ...state, overlay: { kind: 'about' } };
-    const mode = modeOf(chosen);
-    if (!mode) return state;
-    // A game against the bot starts with the choice of colour.
-    if (mode !== 'hotseat')
-      return {
-        ...state,
-        overlay: { kind: 'colour', index: 0, mode, from: 'home' },
-      };
-    // Starting a new game over one still in play is a decision, not a keypress.
-    if (resumable(game))
-      return {
-        ...state,
-        overlay: { kind: 'confirm', action: 'replace', index: 0, mode },
-      };
-    return start(state, mode, 'random', options);
-  }
-
-  if (overlay.kind === 'colour') {
-    // Back returns to the option the choice was opened from.
-    if (key === 'back')
-      return {
-        ...state,
-        overlay:
-          overlay.from === 'home'
-            ? {
-                kind: 'home',
-                index: homeOptions(resumable(game), state.sound).indexOf(
-                  'Play Random',
-                ),
-              }
-            : {
-                kind: 'menu',
-                index: menuOptions(game, state.sound).indexOf('New game'),
-              },
-      };
-    if (key !== 'select')
-      return {
-        ...state,
-        overlay: {
-          ...overlay,
-          index: step(key, overlay.index, colourOptions.length),
-        },
-      };
-    const colour = COLOURS[overlay.index];
-    // The confirmation comes last, right before the game in play is replaced.
-    if (resumable(game))
-      return {
-        ...state,
-        overlay: {
-          kind: 'confirm',
-          action: 'replace',
-          index: 0,
-          mode: overlay.mode,
-          colour,
-        },
-      };
-    return start(state, overlay.mode, colour, options);
-  }
-
-  if (overlay.kind === 'confirm') {
-    if (key === 'back')
-      return { ...state, overlay: { kind: 'menu', index: 0 } };
-    if (key !== 'select')
-      return {
-        ...state,
-        overlay: {
-          ...overlay,
-          index: step(key, overlay.index, confirmOptions.length),
-        },
-      };
-    if (confirmOptions[overlay.index] === 'Cancel')
-      return { ...state, overlay: { kind: 'menu', index: 0 } };
-    return overlay.action === 'resign'
-      ? played(state, resignGame(game))
-      : start(state, overlay.mode, overlay.colour ?? 'random', options);
-  }
-
-  if (overlay.kind === 'menu') {
-    const choices = menuOptions(game, state.sound);
-    if (key === 'back') return { ...state, overlay: { kind: 'none' } };
-    if (key !== 'select')
-      return {
-        ...state,
-        overlay: {
-          ...overlay,
-          index: step(key, overlay.index, choices.length),
-        },
-      };
-    const chosen = choices[overlay.index];
-    if (chosen === 'Resume') return { ...state, overlay: { kind: 'none' } };
-    // Handled before the fall-through below, which treats anything else as a
-    // destructive choice and asks to confirm replacing the game.
-    if (isSoundOption(chosen)) return { ...state, sound: !state.sound };
-    if (chosen === 'Agree a draw') return played(state, agreeDraw(game));
-    // A new game against the bot starts, like one from home, with the colour.
-    if (chosen === 'New game' && game.mode !== 'hotseat')
-      return {
-        ...state,
-        overlay: { kind: 'colour', index: 0, mode: game.mode, from: 'menu' },
-      };
-    // Both destructive choices go through a confirmation with Cancel first.
-    return {
-      ...state,
-      overlay: {
-        kind: 'confirm',
-        action: chosen === 'Resign' ? 'resign' : 'replace',
-        index: 0,
-        mode: game.mode,
-      },
-    };
-  }
-
+  const { key } = action;
+  const { overlay } = state;
   // Leaving any of those comes back here, to the screen they were started from.
-  if (handsOff(overlay))
-    return { ...state, overlay: { kind: 'home', index: 0 } };
-
-  if (overlay.kind === 'promotion') {
-    if (key === 'back') return { ...state, overlay: { kind: 'none' } };
-    if (key === 'select')
-      return played(state, moveGame(game, overlay.moves[overlay.index]));
-    return {
-      ...state,
-      overlay: {
-        ...overlay,
-        index: step(key, overlay.index, overlay.moves.length),
-      },
-    };
+  if (handsOff(overlay)) return show(state, HOME);
+  switch (overlay.kind) {
+    case 'home':
+      return onHome(state, overlay, key, options);
+    case 'colour':
+      return onColour(state, overlay, key, options);
+    case 'confirm':
+      return onConfirm(state, overlay, key, options);
+    case 'menu':
+      return onMenu(state, overlay, key, options);
+    case 'promotion':
+      return onPromotion(state, overlay, key, options);
+    case 'none':
+      return onBoard(state, key, options);
   }
-
-  // The board itself. Back is not intercepted here: boardInput cancels a
-  // selection first and only asks to leave when there is nothing to cancel,
-  // which is the behaviour the web probe already ships.
-  if (game.phase === 'ended')
-    return key === 'select' || key === 'back'
-      ? { ...state, overlay: { kind: 'home', index: 0 } }
-      : state;
-  // While the opponent owes an action the board takes no input but Back, so a
-  // player cannot move its pieces for it.
-  if (botToAct(game))
-    return key === 'back'
-      ? { ...state, overlay: { kind: 'menu', index: 0 } }
-      : state;
-  if (game.phase === 'roll')
-    return key === 'select'
-      ? played(state, rollGame(game, options.roll()))
-      : key === 'back'
-        ? { ...state, overlay: { kind: 'menu', index: 0 } }
-        : state;
-  if (game.phase === 'handoff')
-    return key === 'select'
-      ? played(state, nextTurn(game))
-      : key === 'back'
-        ? { ...state, overlay: { kind: 'menu', index: 0 } }
-        : state;
-
-  const result = boardInput(
-    state.focus,
-    flipped(game) ? (TURNED[key] ?? key) : key,
-    viewGame(game).legal,
-  );
-  if (result.action.type === 'exit')
-    return { ...state, overlay: { kind: 'menu', index: 0 } };
-  if (result.action.type === 'move')
-    return played(
-      { ...state, focus: result.focus },
-      moveGame(game, result.action.move),
-    );
-  if (result.action.type === 'promote')
-    return {
-      ...state,
-      focus: result.focus,
-      overlay: { kind: 'promotion', moves: result.action.moves, index: 0 },
-    };
-  return { ...state, focus: result.focus };
 }
