@@ -107,7 +107,7 @@ function convert(svg, classes) {
 const names = readdirSync(SOURCE)
   .filter((f) => f.endsWith('.svg'))
   // Code-unit order, the same on every machine; localeCompare is not.
-  .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  .sort((a, b) => Number(a > b) - Number(a < b));
 if (names.length !== 12)
   throw new Error('Expected 12 pieces, found ' + names.length);
 
