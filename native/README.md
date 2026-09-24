@@ -299,6 +299,12 @@ Two behaviours are carried over from the web probe deliberately:
 - **Destructive choices confirm with Cancel selected first**, so a stray OK
   cannot discard a game in progress.
 
+**Cancel calls the whole action off.** Cancel, or Back, on a confirmation
+returns to where the action began: the in-game menu, or the home screen with the
+cursor on the option that started it (a new hotseat game, or Play Random after
+its colour choice). Before 24 September it always opened the in-game menu, which
+from the home screen dropped the player into the old game unasked.
+
 A restored game opens on the home screen rather than dropping the player into a
 turn they may not remember. Only modes that exist are offered: there is no native
 bot yet, so nothing claims one.

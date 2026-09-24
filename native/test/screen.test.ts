@@ -109,12 +109,46 @@ test('starting over an unfinished game asks first, and Cancel keeps it', () => {
     0,
   );
 
+  // Cancel calls the whole action off: back to the home screen, on the option
+  // that started it. Back does the same.
   const kept = drive(asking, 'select');
   assert.deepEqual(kept.game.moves, ['b1c3']);
+  assert.deepEqual(kept.overlay, {
+    kind: 'home',
+    index: homeOptions(true).indexOf('New hotseat game'),
+  });
+  assert.deepEqual(drive(asking, 'back'), kept);
 
   const replaced = drive(asking, 'down', 'select');
   assert.deepEqual(replaced.game.moves, []);
   assert.equal(replaced.overlay.kind, 'none');
+});
+
+test('cancelling a new bot game from the home screen returns there, on Play Random', () => {
+  const home = initialState(options, started());
+  // Play Random, then Random as the colour, then the confirmation.
+  const asking = drive(home, 'down', 'down', 'select', 'select');
+  assert.equal(asking.overlay.kind, 'confirm');
+  const cancelled = drive(asking, 'select');
+  assert.deepEqual(cancelled.overlay, {
+    kind: 'home',
+    index: homeOptions(true).indexOf('Play Random'),
+  });
+  assert.deepEqual(cancelled.game.moves, ['b1c3']);
+});
+
+test('cancelling a new game from the menu returns to the menu', () => {
+  const board = drive(initialState(options, started()), 'select');
+  const at = menuOptions(board.game).indexOf('New game');
+  const asking = drive(
+    board,
+    'back',
+    ...(Array(at).fill('down') as BoardKey[]),
+    'select',
+  );
+  assert.equal(asking.overlay.kind, 'confirm');
+  assert.deepEqual(drive(asking, 'select').overlay, { kind: 'menu', index: 0 });
+  assert.deepEqual(drive(asking, 'back').overlay, { kind: 'menu', index: 0 });
 });
 
 test('Back on the home screen stays there', () => {

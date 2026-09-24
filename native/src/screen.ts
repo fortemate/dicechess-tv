@@ -67,6 +67,8 @@ export type Overlay =
       // it when it is a game against the bot.
       mode: Mode;
       colour?: ColourChoice;
+      // Where the action began, which Cancel and Back return to.
+      from: 'home' | 'menu';
     }
   // The colour a person plays against the bot, chosen before the game starts.
   // `from` is where Back returns.
@@ -120,10 +122,16 @@ export type ScreenOptions = {
   side: () => Side;
 };
 
+// The home option that starts each mode.
+const START_OPTION: Readonly<Record<Mode, string>> = {
+  hotseat: 'New hotseat game',
+  random: 'Play Random',
+};
+
 export const homeOptions = (resumable: boolean, sound = true): string[] => [
   ...(resumable ? ['Resume game'] : []),
-  'New hotseat game',
-  'Play Random',
+  START_OPTION.hotseat,
+  START_OPTION.random,
   'How to play',
   'Rules',
   soundOption(sound),
@@ -153,10 +161,12 @@ const chosen = (colour: ColourChoice, options: ScreenOptions): Side =>
   colour === 'random' ? options.side() : colour;
 
 // Which mode a home option starts. Resume starts nothing.
-const MODES = new Map<string, Mode>([
-  ['New hotseat game', 'hotseat'],
-  ['Play Random', 'random'],
-]);
+const MODES = new Map<string, Mode>(
+  (Object.keys(START_OPTION) as Mode[]).map((mode) => [
+    START_OPTION[mode],
+    mode,
+  ]),
+);
 
 // Home options that open another screen and change nothing else.
 const OPENS = new Map<string, Overlay>([
@@ -308,7 +318,13 @@ const onHome: Handler<'home'> = (state, overlay, key, options) => {
     return show(state, { kind: 'colour', index: 0, mode, from: 'home' });
   // Starting a new game over one still in play is a decision, not a keypress.
   if (resumable(state.game))
-    return show(state, { kind: 'confirm', action: 'replace', index: 0, mode });
+    return show(state, {
+      kind: 'confirm',
+      action: 'replace',
+      index: 0,
+      mode,
+      from: 'home',
+    });
   return start(state, mode, 'random', options);
 };
 
@@ -318,7 +334,7 @@ const openerOf = (state: ScreenState, from: 'home' | 'menu'): Overlay =>
     ? {
         kind: 'home',
         index: homeOptions(resumable(state.game), state.sound).indexOf(
-          'Play Random',
+          START_OPTION.random,
         ),
       }
     : {
@@ -338,15 +354,32 @@ const onColour: Handler<'colour'> = (state, overlay, key, options) => {
       index: 0,
       mode: overlay.mode,
       colour,
+      from: overlay.from,
     });
   return start(state, overlay.mode, colour, options);
 };
 
+// Cancel, or Back, calls the whole action off and returns to where it began:
+// the menu, or the home screen with the cursor on the option that started it.
+const cancelled = (
+  state: ScreenState,
+  overlay: Extract<Overlay, { kind: 'confirm' }>,
+): Overlay =>
+  overlay.from === 'menu'
+    ? MENU
+    : {
+        kind: 'home',
+        index: homeOptions(resumable(state.game), state.sound).indexOf(
+          START_OPTION[overlay.mode],
+        ),
+      };
+
 const onConfirm: Handler<'confirm'> = (state, overlay, key, options) => {
-  if (key === 'back') return show(state, MENU);
+  if (key === 'back') return show(state, cancelled(state, overlay));
   if (key !== 'select')
     return moved(state, overlay, key, confirmOptions.length);
-  if (confirmOptions[overlay.index] === 'Cancel') return show(state, MENU);
+  if (confirmOptions[overlay.index] === 'Cancel')
+    return show(state, cancelled(state, overlay));
   return overlay.action === 'resign'
     ? played(state, resignGame(state.game))
     : start(state, overlay.mode, overlay.colour ?? 'random', options);
@@ -377,6 +410,7 @@ const onMenu: Handler<'menu'> = (state, overlay, key) => {
     action: chosen === 'Resign' ? 'resign' : 'replace',
     index: 0,
     mode: game.mode,
+    from: 'menu',
   });
 };
 
