@@ -339,6 +339,20 @@ An interrupted turn is **recomputed, not resumed half-played**. The pending path
 is state, not save data, so a relaunch mid-turn has the opponent decide afresh
 from the position it actually finds.
 
+**The person chooses a colour** — Random, White or Black — before a game against
+the bot starts, and again for every new game; Random draws one byte from the
+same source as the dice (a test: `test/side.test.ts`). Playing Black, the board is drawn from Black's
+side and the arrows turn with it, so each still moves the focus the way it
+points on the screen. The cursor starts on e7, and the bot, playing White, opens
+by itself. The side is part of the save (schema 3); a schema-2 save resumes with
+the person as White (a test: `test/side.test.ts`).
+
+Verified on the virtual device on 24 September 2026 with scripted key presses
+and a screenshot after each step: Play Random opened the choice on Random;
+choosing Black turned the board and the bot played White's first turn; after the
+roll, Up moved the cursor from e7 to e6; and a relaunch resumed the game from
+Black's side with its dice.
+
 ### What this still leaves
 
 - **Nothing animates.** Pieces are placed, not moved; there is no slide between

@@ -29,6 +29,8 @@ const options: ScreenOptions = {
   roll: () => [5, 4, 2],
   newId: () => 'tut',
   schedule: (fn) => fn(),
+  // Random draws White unless a test says otherwise.
+  side: () => 'w',
 };
 
 const launch = (): Instance => {

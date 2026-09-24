@@ -6,6 +6,7 @@ import {
   homeOptions,
   menuOptions,
   confirmOptions,
+  colourOptions,
   resumable,
   type ScreenOptions,
   type ScreenState,
@@ -30,6 +31,8 @@ const options: ScreenOptions = {
   roll: () => [5, 4, 2],
   newId: () => 'g' + ++ids,
   schedule: (step) => step(),
+  // Random draws White unless a test says otherwise.
+  side: () => 'w',
 };
 
 const drive = (state: ScreenState, ...keys: BoardKey[]): ScreenState =>
@@ -194,7 +197,7 @@ test('menu navigation wraps in both directions', () => {
 });
 
 test('Play Random starts a game the local opponent plays as Black', () => {
-  const started = drive(fresh(), 'down', 'select');
+  const started = drive(fresh(), 'down', 'select', 'select');
   assert.equal(started.game.mode, 'random');
   assert.equal(started.overlay.kind, 'none');
   // White is the player, so the opponent owes nothing yet.
@@ -203,7 +206,7 @@ test('Play Random starts a game the local opponent plays as Black', () => {
 
 test('the opponent takes its whole turn and hands back to the player', () => {
   // Start Random, then play White's turn out to the handoff.
-  let state = drive(fresh(), 'down', 'select', 'select');
+  let state = drive(fresh(), 'down', 'select', 'select', 'select');
   while (state.game.phase === 'move') {
     const legal = viewGame(state.game).legal;
     const move = legal[0];
@@ -229,7 +232,7 @@ test('the opponent takes its whole turn and hands back to the player', () => {
 });
 
 test('the board ignores play input while the opponent owes an action', () => {
-  let state = drive(fresh(), 'down', 'select', 'select');
+  let state = drive(fresh(), 'down', 'select', 'select', 'select');
   while (state.game.phase === 'move') {
     const move = viewGame(state.game).legal[0];
     state = drive(
@@ -251,7 +254,7 @@ test('the board ignores play input while the opponent owes an action', () => {
 });
 
 test('a draw cannot be agreed with the opponent, only with another player', () => {
-  const random = drive(fresh(), 'down', 'select');
+  const random = drive(fresh(), 'down', 'select', 'select');
   assert.deepEqual(menuOptions(random.game), [
     'Resume',
     'Resign',
@@ -281,7 +284,7 @@ const settleSteps = (
 // A game in Random mode handed to Black, with a roll the opponent can spend in
 // full: three pawns always have somewhere to go from the opening.
 const handedToBot = (): ScreenState => {
-  let state = drive(fresh(), 'down', 'select', 'select');
+  let state = drive(fresh(), 'down', 'select', 'select', 'select');
   while (state.game.phase === 'move') {
     const move = viewGame(state.game).legal[0];
     state = drive(
@@ -377,4 +380,101 @@ test('a new game keeps the sound setting', () => {
   const started = drive(top, 'select');
   assert.equal(started.overlay.kind, 'none');
   assert.equal(started.sound, false);
+});
+
+// ── The colour against the bot (#53) ───────────────────────────────────────────
+
+test('Play Random opens the choice of colour, on Random', () => {
+  const choosing = drive(fresh(), 'down', 'select');
+  assert.equal(choosing.overlay.kind, 'colour');
+  assert.equal('index' in choosing.overlay && choosing.overlay.index, 0);
+  assert.deepEqual(colourOptions, ['Random', 'White', 'Black']);
+  // Nothing has started yet.
+  assert.equal(choosing.game.mode, 'hotseat');
+});
+
+test('Random takes the drawn colour; White and Black are taken as chosen', () => {
+  const drawsBlack: ScreenOptions = { ...options, side: () => 'b' };
+  const choose = (...keys: BoardKey[]) =>
+    keys.reduce(
+      (state, key) => screenReducer(state, { kind: 'key', key }, drawsBlack),
+      initialState(drawsBlack),
+    );
+  assert.equal(choose('down', 'select', 'select').game.human, 'b');
+  assert.equal(choose('down', 'select', 'down', 'select').game.human, 'w');
+  assert.equal(
+    choose('down', 'select', 'down', 'down', 'select').game.human,
+    'b',
+  );
+});
+
+test('Back from the choice returns to Play Random on the home screen', () => {
+  const back = drive(fresh(), 'down', 'select', 'back');
+  assert.deepEqual(back.overlay, {
+    kind: 'home',
+    index: homeOptions(false).indexOf('Play Random'),
+  });
+});
+
+test('playing Black: the bot opens, the cursor starts on e7, and the arrows follow the turned board', () => {
+  const black = drive(fresh(), 'down', 'select', 'down', 'down', 'select');
+  assert.equal(black.game.human, 'b');
+  assert.equal(black.focus.cursor, 'e7');
+  assert.equal(
+    botToAct(black.game),
+    true,
+    'White moves first, and White is the bot',
+  );
+
+  const mine = settle(black);
+  assert.equal(viewGame(mine.game).side, 'b');
+  assert.equal(botToAct(mine.game), false);
+
+  // Seen from Black's side, up on the screen is towards rank 1 and left is
+  // towards the h-file.
+  const rolled = drive(mine, 'select');
+  assert.equal(drive(rolled, 'up').focus.cursor, 'e6');
+  assert.equal(drive(rolled, 'left').focus.cursor, 'f7');
+});
+
+test('replacing a game in play asks after the colour, and keeps the choice', () => {
+  const inPlay = initialState(options, started());
+  const choosing = drive(inPlay, 'down', 'down', 'select');
+  assert.equal(choosing.overlay.kind, 'colour');
+  const confirming = drive(choosing, 'down', 'down', 'select');
+  assert.equal(confirming.overlay.kind, 'confirm');
+  const replaced = drive(confirming, 'down', 'select');
+  assert.equal(replaced.game.mode, 'random');
+  assert.equal(replaced.game.human, 'b');
+});
+
+test('New game from the menu of a bot game asks for the colour again', () => {
+  const white = drive(fresh(), 'down', 'select', 'select');
+  const menu = drive(white, 'back');
+  const at = menuOptions(white.game).indexOf('New game');
+  const choosing = drive(
+    menu,
+    ...(Array(at).fill('down') as BoardKey[]),
+    'select',
+  );
+  assert.deepEqual(choosing.overlay, {
+    kind: 'colour',
+    index: 0,
+    mode: 'random',
+    from: 'menu',
+  });
+  // Back returns to the menu, on New game.
+  assert.deepEqual(drive(choosing, 'back').overlay, {
+    kind: 'menu',
+    index: at,
+  });
+});
+
+test('a game resumed as Black starts the cursor on Black’s side', () => {
+  const black = newGame('random', 'resumed', undefined, 'b');
+  assert.equal(initialState(options, black).focus.cursor, 'e7');
+  assert.equal(
+    initialState(options, newGame('random', 'w')).focus.cursor,
+    'e2',
+  );
 });

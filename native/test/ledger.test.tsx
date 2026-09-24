@@ -19,14 +19,16 @@ const options: ScreenOptions = {
   roll: () => [5, 4, 2],
   newId: () => 'ledgertest',
   schedule: (step) => step(),
+  // Random draws White unless a test says otherwise.
+  side: () => 'w',
 };
 
 // Each mount is a fresh process against the same storage, which is what a
 // relaunch is.
-const launch = (): Instance => {
+const launch = (opts: ScreenOptions = options): Instance => {
   let tree!: renderer.ReactTestRenderer;
   act(() => {
-    tree = renderer.create(React.createElement(App, { options }));
+    tree = renderer.create(React.createElement(App, { options: opts }));
   });
   return tree.root;
 };
@@ -119,4 +121,16 @@ test('nothing is shown before a game has been completed', () => {
   reset();
   const root = launch();
   assert.doesNotMatch(text(root), /COMPLETED GAMES/);
+});
+
+test('a game played as Black is counted under Black', () => {
+  reset();
+  launch({ ...options, side: () => 'b' });
+  // Play Random, Random on the colour choice (drawn Black); the bot, White,
+  // takes its turn. Then resign.
+  send('down', 'enter', 'enter');
+  send('back', 'down', 'select', 'down', 'select');
+  assert.deepEqual(ledger()?.bots.random, {
+    b: { wins: 0, draws: 0, losses: 1 },
+  });
 });

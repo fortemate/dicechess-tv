@@ -22,6 +22,8 @@ import {
   homeOptions,
   menuOptions,
   confirmOptions,
+  colourOptions,
+  flipped,
   resumable,
   handsOff,
   type ScreenAction,
@@ -108,6 +110,12 @@ const Choices = ({
     ))}
   </View>
 );
+
+// Whose move it is, when one side belongs to the person.
+const mover = (game: Game, bot: boolean): string => {
+  if (game.human === null) return '';
+  return bot ? ' · Random' : ' · you';
+};
 
 // Results so far, shown where a player chooses what to do next. Hotseat is by
 // colour because the seats change hands and nobody here knows who sat where.
@@ -205,9 +213,8 @@ export const GameScreen = ({
     const before = committed.current;
     committed.current = game;
     onCommit?.(game);
-    // The person plays White against the bot today; see cues() for why this is
-    // a parameter rather than an assumption.
-    sounds?.play(cues(before, game, 'w'));
+    // Win or loss is heard from the side the person plays against the bot.
+    sounds?.play(cues(before, game, game.human ?? 'w'));
   }, [game, onCommit, sounds]);
 
   // Seeded like the game, so opening the screen is not reported as a change.
@@ -233,6 +240,7 @@ export const GameScreen = ({
         `selected ${focus.selected ?? '-'}`,
         `last ${game.lastMove ?? '-'}`,
         `result ${game.result?.reason ?? '-'}`,
+        `human ${game.human ?? '-'}`,
       ].join(' | '),
     );
   }, [onState, game, state, focus, overlay]);
@@ -276,6 +284,61 @@ export const GameScreen = ({
             ? `Choose a destination for ${focus.selected} · Back: put it down`
             : 'Arrows: move focus · OK: select · Back: menu';
 
+  // What sits under the status: an open menu or choice, or the prompt.
+  let panel: React.ReactNode;
+  if (overlay.kind === 'home')
+    panel = (
+      <>
+        <Choices
+          title="Dice Chess"
+          options={homeOptions(resumable(game), sound)}
+          index={overlay.index}
+        />
+        {ledger ? <Record ledger={ledger} /> : null}
+      </>
+    );
+  else if (overlay.kind === 'menu')
+    panel = (
+      <Choices
+        title="Menu"
+        options={menuOptions(game, sound)}
+        index={overlay.index}
+      />
+    );
+  else if (overlay.kind === 'colour')
+    panel = (
+      <Choices
+        title="Play as"
+        note="Random picks a colour for you."
+        options={colourOptions}
+        index={overlay.index}
+      />
+    );
+  else if (overlay.kind === 'confirm')
+    panel = (
+      <Choices
+        title={overlay.action === 'resign' ? 'Resign?' : 'Replace this game?'}
+        note={
+          overlay.action === 'resign'
+            ? 'The other player wins.'
+            : 'The game in progress is lost.'
+        }
+        options={confirmOptions}
+        index={overlay.index}
+      />
+    );
+  else if (overlay.kind === 'promotion')
+    panel = (
+      <Choices
+        title="Promote to"
+        options={overlay.moves.map(
+          (move) => DIE[move.slice(4).toUpperCase() as keyof typeof DIE],
+        )}
+        index={overlay.index}
+      />
+    );
+  else panel = <Text style={{ color: '#f0f4f8', fontSize: 24 }}>{prompt}</Text>;
+
   return (
     <View
       style={{
@@ -293,15 +356,16 @@ export const GameScreen = ({
         lastMove={game.lastMove}
         selected={focus.selected}
         cursor={focus.cursor}
+        flipped={flipped(game)}
       />
       <View style={{ flex: 1, paddingLeft: 40 }}>
         <Text style={{ color: '#8dc9b6', fontSize: 20, letterSpacing: 2 }}>
-          {`HOTSEAT · TURN ${game.turn}`}
+          {`${game.mode === 'hotseat' ? 'HOTSEAT' : 'VS RANDOM'} · TURN ${game.turn}`}
         </Text>
         <Text style={{ color: '#f0f4f8', fontSize: 38, marginBottom: 16 }}>
           {game.result
             ? RESULT[game.result.reason]
-            : `${sideName(state.side)} to play`}
+            : `${sideName(state.side)} to play${mover(game, state.bot)}`}
         </Text>
         {game.result ? (
           <Text style={{ color: '#aab8c9', fontSize: 24, marginBottom: 12 }}>
@@ -317,45 +381,7 @@ export const GameScreen = ({
           </Text>
         )}
 
-        {overlay.kind === 'home' ? (
-          <>
-            <Choices
-              title="Dice Chess"
-              options={homeOptions(resumable(game), sound)}
-              index={overlay.index}
-            />
-            {ledger ? <Record ledger={ledger} /> : null}
-          </>
-        ) : overlay.kind === 'menu' ? (
-          <Choices
-            title="Menu"
-            options={menuOptions(game, sound)}
-            index={overlay.index}
-          />
-        ) : overlay.kind === 'confirm' ? (
-          <Choices
-            title={
-              overlay.action === 'resign' ? 'Resign?' : 'Replace this game?'
-            }
-            note={
-              overlay.action === 'resign'
-                ? 'The other player wins.'
-                : 'The game in progress is lost.'
-            }
-            options={confirmOptions}
-            index={overlay.index}
-          />
-        ) : overlay.kind === 'promotion' ? (
-          <Choices
-            title="Promote to"
-            options={overlay.moves.map(
-              (move) => DIE[move.slice(4).toUpperCase() as keyof typeof DIE],
-            )}
-            index={overlay.index}
-          />
-        ) : (
-          <Text style={{ color: '#f0f4f8', fontSize: 24 }}>{prompt}</Text>
-        )}
+        {panel}
       </View>
     </View>
   );

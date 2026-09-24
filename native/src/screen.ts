@@ -15,8 +15,10 @@ import {
   agreeDraw,
   applyBotReply,
   viewGame,
+  INITIAL_POSITION,
   type Game,
   type Mode,
+  type Side,
 } from '../../src/core/game';
 import {
   boardInput,
@@ -27,6 +29,26 @@ import { botReply, botToAct } from '../../src/core/bot';
 import type { Square } from '../../src/core/board';
 
 export const START: Square = 'e2';
+
+// Where the cursor starts: on the person's own side of the board.
+const startFor = (human: Side | null): Square => (human === 'b' ? 'e7' : START);
+
+// Against the bot a person plays the colour they chose, or one drawn for them.
+export type ColourChoice = 'random' | Side;
+export const colourOptions = ['Random', 'White', 'Black'];
+const COLOURS: readonly ColourChoice[] = ['random', 'w', 'b'];
+
+// A person playing Black sees the board from Black's side.
+export const flipped = (game: Game): boolean => game.human === 'b';
+
+// On the turned board the arrows turn with it, so each still moves the focus
+// the way it points on the screen.
+const TURNED: Partial<Record<BoardKey, BoardKey>> = {
+  up: 'down',
+  down: 'up',
+  left: 'right',
+  right: 'left',
+};
 
 // The screen advances on a key, or on the local opponent taking its turn.
 export type ScreenAction = { kind: 'key'; key: BoardKey } | { kind: 'bot' };
@@ -41,9 +63,14 @@ export type Overlay =
       kind: 'confirm';
       action: 'resign' | 'replace';
       index: number;
-      // Which mode a confirmed replacement starts.
+      // Which mode a confirmed replacement starts, and the colour chosen for
+      // it when it is a game against the bot.
       mode: Mode;
+      colour?: ColourChoice;
     }
+  // The colour a person plays against the bot, chosen before the game starts.
+  // `from` is where Back returns.
+  | { kind: 'colour'; index: number; mode: Mode; from: 'home' | 'menu' }
   | { kind: 'promotion'; moves: string[]; index: number }
   // The tutorial, the rules guide and the About screen, which the screen hands
   // to their own components. Nothing about a game is touched while one is up.
@@ -87,6 +114,8 @@ export type ScreenOptions = {
   // How the opponent's next step is scheduled. The app spaces them out so the
   // player can watch; a test runs them immediately.
   schedule: (step: () => void) => void;
+  // The colour a person gets on choosing Random. Injected like the dice.
+  side: () => Side;
 };
 
 export const homeOptions = (resumable: boolean, sound = true): string[] => [
@@ -100,6 +129,26 @@ export const homeOptions = (resumable: boolean, sound = true): string[] => [
   // are shown.
   'About',
 ];
+
+// A new game. Against the bot the person plays the chosen colour, or the one
+// drawn for them when they chose Random.
+const start = (
+  state: ScreenState,
+  mode: Mode,
+  colour: ColourChoice,
+  options: ScreenOptions,
+): ScreenState => {
+  const human = mode === 'hotseat' ? null : chosen(colour, options);
+  return board(
+    newGame(mode, options.newId(), INITIAL_POSITION, human),
+    state.sound,
+    startFor(human),
+  );
+};
+
+// The colour a choice gives: the one named, or one drawn for Random.
+const chosen = (colour: ColourChoice, options: ScreenOptions): Side =>
+  colour === 'random' ? options.side() : colour;
 
 // Which mode a home option starts. Resume starts nothing.
 const modeOf = (option: string): Mode | null =>
@@ -159,7 +208,7 @@ export const initialState = (
   const game = restored ?? newGame('hotseat', options.newId());
   return {
     game,
-    focus: { cursor: START, selected: null },
+    focus: { cursor: startFor(game.human), selected: null },
     // Always the home screen: a new launch has a mode to choose, and a restored
     // game should be resumed deliberately rather than dropping the player
     // mid-turn into a game they may not remember.
@@ -233,13 +282,61 @@ export function screenReducer(
     if (chosen === 'About') return { ...state, overlay: { kind: 'about' } };
     const mode = modeOf(chosen);
     if (!mode) return state;
+    // A game against the bot starts with the choice of colour.
+    if (mode !== 'hotseat')
+      return {
+        ...state,
+        overlay: { kind: 'colour', index: 0, mode, from: 'home' },
+      };
     // Starting a new game over one still in play is a decision, not a keypress.
     if (resumable(game))
       return {
         ...state,
         overlay: { kind: 'confirm', action: 'replace', index: 0, mode },
       };
-    return board(newGame(mode, options.newId()), state.sound);
+    return start(state, mode, 'random', options);
+  }
+
+  if (overlay.kind === 'colour') {
+    // Back returns to the option the choice was opened from.
+    if (key === 'back')
+      return {
+        ...state,
+        overlay:
+          overlay.from === 'home'
+            ? {
+                kind: 'home',
+                index: homeOptions(resumable(game), state.sound).indexOf(
+                  'Play Random',
+                ),
+              }
+            : {
+                kind: 'menu',
+                index: menuOptions(game, state.sound).indexOf('New game'),
+              },
+      };
+    if (key !== 'select')
+      return {
+        ...state,
+        overlay: {
+          ...overlay,
+          index: step(key, overlay.index, colourOptions.length),
+        },
+      };
+    const colour = COLOURS[overlay.index];
+    // The confirmation comes last, right before the game in play is replaced.
+    if (resumable(game))
+      return {
+        ...state,
+        overlay: {
+          kind: 'confirm',
+          action: 'replace',
+          index: 0,
+          mode: overlay.mode,
+          colour,
+        },
+      };
+    return start(state, overlay.mode, colour, options);
   }
 
   if (overlay.kind === 'confirm') {
@@ -257,7 +354,7 @@ export function screenReducer(
       return { ...state, overlay: { kind: 'menu', index: 0 } };
     return overlay.action === 'resign'
       ? played(state, resignGame(game))
-      : board(newGame(overlay.mode, options.newId()), state.sound);
+      : start(state, overlay.mode, overlay.colour ?? 'random', options);
   }
 
   if (overlay.kind === 'menu') {
@@ -277,6 +374,12 @@ export function screenReducer(
     // destructive choice and asks to confirm replacing the game.
     if (isSoundOption(chosen)) return { ...state, sound: !state.sound };
     if (chosen === 'Agree a draw') return played(state, agreeDraw(game));
+    // A new game against the bot starts, like one from home, with the colour.
+    if (chosen === 'New game' && game.mode !== 'hotseat')
+      return {
+        ...state,
+        overlay: { kind: 'colour', index: 0, mode: game.mode, from: 'menu' },
+      };
     // Both destructive choices go through a confirmation with Cancel first.
     return {
       ...state,
@@ -332,7 +435,11 @@ export function screenReducer(
         ? { ...state, overlay: { kind: 'menu', index: 0 } }
         : state;
 
-  const result = boardInput(state.focus, key, viewGame(game).legal);
+  const result = boardInput(
+    state.focus,
+    flipped(game) ? (TURNED[key] ?? key) : key,
+    viewGame(game).legal,
+  );
   if (result.action.type === 'exit')
     return { ...state, overlay: { kind: 'menu', index: 0 } };
   if (result.action.type === 'move')

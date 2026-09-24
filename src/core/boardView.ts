@@ -28,12 +28,25 @@ export type BoardInput = {
   // Legal actions in UCI, as the engine reports them.
   legal?: readonly string[];
   lastMove?: string | null;
+  // Drawn from Black's side: rank 1 at the top and file h on the left, for a
+  // person playing Black against the bot. Hotseat never flips the board.
+  flipped?: boolean;
 };
 
 const FILES = 'abcdefgh';
 
-// Rank 8 first and file a first, so the result reads in render order with
-// White at the bottom. Hotseat never flips the board.
+// Render order, top to bottom and left to right, from each side of the board.
+const FROM_WHITE = {
+  ranks: [8, 7, 6, 5, 4, 3, 2, 1],
+  files: [0, 1, 2, 3, 4, 5, 6, 7],
+};
+const FROM_BLACK = {
+  ranks: [1, 2, 3, 4, 5, 6, 7, 8],
+  files: [7, 6, 5, 4, 3, 2, 1, 0],
+};
+
+// In render order: rank 8 first and file a first with White at the bottom, or
+// the reverse of both when the board is flipped.
 export function boardView(input: BoardInput): SquareView[][] {
   const { board, cursor = null, selected = null, lastMove = null } = input;
   const destinations = new Set(
@@ -44,10 +57,11 @@ export function boardView(input: BoardInput): SquareView[][] {
       : [],
   );
   const touched = lastMove ? [lastMove.slice(0, 2), lastMove.slice(2, 4)] : [];
+  const view = input.flipped ? FROM_BLACK : FROM_WHITE;
   const rows: SquareView[][] = [];
-  for (let rank = 8; rank >= 1; rank--) {
+  for (const rank of view.ranks) {
     const row: SquareView[] = [];
-    for (let file = 0; file < 8; file++) {
+    for (const file of view.files) {
       const square = (FILES[file] + rank) as Square;
       row.push({
         square,

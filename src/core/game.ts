@@ -18,9 +18,12 @@ export type Result = {
     | 'turn-limit';
 };
 export type Game = {
-  schema: 2;
+  schema: 3;
   id: string;
   mode: Mode;
+  // The side a person plays against the bot. Null in hotseat, where both sides
+  // are people.
+  human: Side | null;
   revision: number;
   turn: number;
   start: string;
@@ -31,10 +34,11 @@ export type Game = {
   lastMove: string | null;
 };
 const UCI = /^[a-h][1-8][a-h][1-8][qrbn]?$/;
-const fields = [
+const FIELDS = [
   'schema',
   'id',
   'mode',
+  'human',
   'revision',
   'turn',
   'start',
@@ -44,6 +48,9 @@ const fields = [
   'result',
   'lastMove',
 ];
+// Saves written before a person could choose a colour, when the person always
+// played White against the bot.
+const SCHEMA_2_FIELDS = FIELDS.filter((field) => field !== 'human');
 export const opposite = (side: Side): Side => (side === 'w' ? 'b' : 'w');
 export const sideName = (side: Side) => (side === 'w' ? 'White' : 'Black');
 
@@ -97,7 +104,8 @@ export function viewGame(game: Game) {
     side,
     legal,
     remaining: parts[6] ?? '',
-    bot: game.mode === 'random' && side === 'b',
+    // Whether the side to move belongs to the bot.
+    bot: game.human !== null && side !== game.human,
   };
 }
 
@@ -128,12 +136,14 @@ export function newGame(
   mode: Mode,
   id: string,
   start = INITIAL_POSITION,
+  human: Side | null = mode === 'hotseat' ? null : 'w',
 ): Game {
   return decodeGame(
     JSON.stringify({
-      schema: 2,
+      schema: 3,
       id,
       mode,
+      human,
       revision: 0,
       turn: 1,
       start,
@@ -208,7 +218,8 @@ export function nextTurn(game: Game): Game {
 }
 export function resignGame(game: Game): Game {
   if (game.phase === 'ended') throw new Error('Game already ended');
-  const loser = game.mode === 'random' ? 'w' : viewGame(game).side;
+  // Against the bot only the person resigns; in hotseat, the side to move.
+  const loser = game.human ?? viewGame(game).side;
   return {
     ...game,
     revision: game.revision + 1,
@@ -243,17 +254,47 @@ export function rollDice(
   return dice;
 }
 
+// The colour a person gets on choosing Random. One byte decides, and 256 is
+// even, so both sides are equally likely.
+export function randomSide(
+  fill: (bytes: Uint8Array<ArrayBuffer>) => void,
+): Side {
+  const bytes = new Uint8Array(1);
+  fill(bytes);
+  return bytes[0] % 2 === 0 ? 'w' : 'b';
+}
+
+// A schema-2 save becomes schema 3 by adding the person's side, which was
+// White whenever there was a bot. Anything else passes through for the checks.
+function upgrade(value: unknown): unknown {
+  if (
+    !value ||
+    typeof value !== 'object' ||
+    (value as { schema?: unknown }).schema !== 2 ||
+    !hasExactKeys(value, SCHEMA_2_FIELDS)
+  )
+    return value;
+  const legacy = value as Omit<Game, 'schema' | 'human'>;
+  return {
+    ...legacy,
+    schema: 3,
+    human: legacy.mode === 'hotseat' ? null : 'w',
+  };
+}
+
 export function decodeGame(raw: string): Game {
-  const game = JSON.parse(raw) as Game;
+  const game = upgrade(JSON.parse(raw)) as Game;
   if (
     !game ||
     typeof game !== 'object' ||
-    Object.keys(game).length !== fields.length ||
-    Object.keys(game).some((k) => !fields.includes(k)) ||
-    game.schema !== 2 ||
+    !hasExactKeys(game, FIELDS) ||
+    game.schema !== 3 ||
     typeof game.id !== 'string' ||
     !/^[a-zA-Z0-9-]{1,80}$/.test(game.id) ||
     !['hotseat', 'random'].includes(game.mode) ||
+    (game.mode === 'hotseat'
+      ? game.human !== null
+      : game.human !== 'w' && game.human !== 'b') ||
     !Number.isSafeInteger(game.revision) ||
     game.revision < 0 ||
     !Number.isInteger(game.turn) ||
@@ -290,7 +331,7 @@ export function decodeGame(raw: string): Game {
     )
       throw new Error('Invalid result');
     if (game.result.reason === 'resigned') {
-      const loser = game.mode === 'random' ? 'w' : state.side;
+      const loser = game.human ?? state.side;
       if (automatic || game.result.winner !== opposite(loser))
         throw new Error('Invalid resignation');
     } else if (game.result.reason === 'agreed-draw') {

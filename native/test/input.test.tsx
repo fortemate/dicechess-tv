@@ -31,6 +31,8 @@ const options: ScreenOptions = {
   newId: () => 'test',
   // The opponent steps immediately in tests; the app spaces the steps out.
   schedule: (step) => step(),
+  // Random draws White unless a test says otherwise.
+  side: () => 'w',
 };
 
 // Assertions read the screen's own state report rather than panel wording, so
@@ -154,7 +156,8 @@ test('it opens on the home screen and starts the mode that was chosen', () => {
   assert.match(home.state(), /overlay none \| turn 1 \| phase roll/);
 
   const random = mountHome();
-  send(Down, Select);
+  // Play Random, then Random on the colour choice.
+  send(Down, Select, Select);
   assert.match(random.state(), /overlay none/);
 });
 
