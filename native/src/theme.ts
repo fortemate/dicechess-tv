@@ -6,7 +6,9 @@ export const THEME = {
   light: '#f0d9b5',
   dark: '#b58863',
   cursor: '#00eaff',
-  destination: '#ffd166',
+  // Chessground's move-destination green. Translucent and dark, so a dot reads
+  // on both square colours.
+  destination: 'rgba(20, 85, 30, 0.5)',
   lastMove: 'rgba(155, 199, 0, 0.41)',
   selected: 'rgba(0, 234, 255, 0.28)',
 } as const;

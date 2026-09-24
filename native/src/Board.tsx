@@ -22,6 +22,39 @@ export type BoardProps = BoardInput & {
 // legible whether it is sized for a 1080p panel or a smaller window.
 const ring = (size: number) => Math.max(2, Math.round(size / 240));
 
+// A legal destination, marked the way most chess programs mark one: a dot on an
+// empty square, and a ring around a piece that would be taken, since a dot would
+// hide behind it. The ring is drawn under the piece: the piece is wider than the
+// ring's opening, so a ring on top would cover its edges.
+const Destination = ({
+  edge,
+  occupied,
+}: {
+  edge: number;
+  occupied: boolean;
+}) => {
+  const size = Math.round(edge * (occupied ? 0.94 : 0.32));
+  const offset = Math.round((edge - size) / 2);
+  return (
+    <View
+      style={{
+        position: 'absolute',
+        left: offset,
+        top: offset,
+        width: size,
+        height: size,
+        borderRadius: size / 2,
+        ...(occupied
+          ? {
+              borderWidth: Math.max(2, Math.round(edge * 0.08)),
+              borderColor: THEME.destination,
+            }
+          : { backgroundColor: THEME.destination }),
+      }}
+    />
+  );
+};
+
 const Square = ({ view, edge }: { view: SquareView; edge: number }) => {
   const Piece = view.piece ? PIECES[view.piece as keyof typeof PIECES] : null;
   const width = ring(edge * 8);
@@ -56,19 +89,10 @@ const Square = ({ view, edge }: { view: SquareView; edge: number }) => {
           }}
         />
       ) : null}
-      {Piece ? <Piece size={Math.round(edge * 0.92)} /> : null}
       {view.destination ? (
-        <View
-          style={{
-            position: 'absolute',
-            width: edge,
-            height: edge,
-            borderWidth: width,
-            borderStyle: 'dashed',
-            borderColor: THEME.destination,
-          }}
-        />
+        <Destination edge={edge} occupied={view.piece !== null} />
       ) : null}
+      {Piece ? <Piece size={Math.round(edge * 0.92)} /> : null}
       {focus ? (
         <View
           style={{

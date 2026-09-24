@@ -137,8 +137,11 @@ The Back key reaches the app: the owner saw `HW type=back` on a diagnostic scree
 that printed raw events. That its cancel behaviour works inside `GameScreen` is
 still covered only by tests.
 
-Not confirmed by anyone yet: whether the focus and destination overlays stay
-visible on both square colours, and legibility at TV viewing distance.
+The destination marks were checked on 24 September on screenshots from the
+virtual device: in the tutorial, dots on both of a pawn's squares, one light and
+one dark, and in the capture lesson a ring around the pawn the rook can take.
+Not confirmed by anyone yet: whether the focus overlays stay visible on both
+square colours, and legibility at TV viewing distance.
 
 ## Checks
 
@@ -158,9 +161,10 @@ together, so a renderer that misreads a `SquareView` field fails here.
 
 `npm test` renders the board with `react-test-renderer` and asserts the tree:
 64 squares, 32 of each colour, a1 dark, 32 pieces drawn by their own components
-and inset inside their squares, one dashed ring per legal destination, both ends
-of the last move tinted, and the selected ring twice the width of the cursor ring
-so the two are distinguishable. A colour flip, a dropped overlay and pieces
+and inset inside their squares, a dot on each empty legal destination and a ring
+around each piece that would be taken, both ends of the last move tinted, and
+the selected ring twice the width of the cursor ring so the two are
+distinguishable. A colour flip, a dropped overlay and pieces
 overflowing their square were each injected and each failed the expected test.
 
 `react-native` and the Vega SVG package cannot be imported outside a React Native
