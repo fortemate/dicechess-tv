@@ -48,3 +48,28 @@ jobs:
       # shared core outside this directory. Removing `watchFolders` fails here.
       - run: npx react-native bundle --entry-file index.js --platform kepler --dev false --bundle-output "${RUNNER_TEMP}/bundle.js"
         working-directory: native
+
+  # SonarQube Cloud, analysed here rather than by Automatic Analysis so that it
+  # receives coverage from both packages. Informational, as in the engine: a
+  # failed scan or quality gate does not fail the run. Runs without the token —
+  # Dependabot's, and pull requests from forks — skip the scan.
+  sonar:
+    if: github.actor != 'dependabot[bot]'
+    runs-on: ${{ fromJSON(vars.RUNS_ON || '["ubuntu-24.04"]') }}
+    timeout-minutes: 15
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Full history, for new-code detection and blame.
+          fetch-depth: 0
+      - uses: jdx/mise-action@v4
+      - run: npm ci
+      - run: npm ci --prefix native
+      - run: npm run coverage
+      - name: SonarQube Scan
+        if: env.SONAR_TOKEN != ''
+        continue-on-error: true
+        uses: SonarSource/sonarqube-scan-action@ba9859eae8dd6bd29e412f25ddbbef3d032000f4 # v8.2.2
+
