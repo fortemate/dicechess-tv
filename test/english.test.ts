@@ -12,13 +12,20 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const CYRILLIC = /[Ѐ-ԯ]/;
 
-test('no tracked text file contains Cyrillic', () => {
-  const files = execFileSync('git', ['ls-files', '-z'], {
-    cwd: ROOT,
-    encoding: 'utf8',
-  })
+// Built from code points, so this file does not contain what it looks for.
+const CYRILLIC = new RegExp(
+  `[${String.fromCodePoint(0x0400)}-${String.fromCodePoint(0x052f)}]`,
+);
+
+test('no text file in the repository contains Cyrillic', () => {
+  // Tracked files, and new files that are not ignored, so a mistake is caught
+  // before it is committed as well as in CI.
+  const files = execFileSync(
+    'git',
+    ['ls-files', '-z', '--cached', '--others', '--exclude-standard'],
+    { cwd: ROOT, encoding: 'utf8' },
+  )
     .split('\0')
     .filter(Boolean);
   const found: string[] = [];
