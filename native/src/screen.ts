@@ -138,14 +138,17 @@ const start = (
   colour: ColourChoice,
   options: ScreenOptions,
 ): ScreenState => {
-  const human =
-    mode === 'hotseat' ? null : colour === 'random' ? options.side() : colour;
+  const human = mode === 'hotseat' ? null : chosen(colour, options);
   return board(
     newGame(mode, options.newId(), INITIAL_POSITION, human),
     state.sound,
     startFor(human),
   );
 };
+
+// The colour a choice gives: the one named, or one drawn for Random.
+const chosen = (colour: ColourChoice, options: ScreenOptions): Side =>
+  colour === 'random' ? options.side() : colour;
 
 // Which mode a home option starts. Resume starts nothing.
 const modeOf = (option: string): Mode | null =>

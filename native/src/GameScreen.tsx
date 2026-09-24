@@ -111,6 +111,12 @@ const Choices = ({
   </View>
 );
 
+// Whose move it is, when one side belongs to the person.
+const mover = (game: Game, bot: boolean): string => {
+  if (game.human === null) return '';
+  return bot ? ' · Random' : ' · you';
+};
+
 // Results so far, shown where a player chooses what to do next. Hotseat is by
 // colour because the seats change hands and nobody here knows who sat where.
 const Record = ({ ledger }: { ledger: Ledger }) => {
@@ -278,6 +284,61 @@ export const GameScreen = ({
             ? `Choose a destination for ${focus.selected} · Back: put it down`
             : 'Arrows: move focus · OK: select · Back: menu';
 
+  // What sits under the status: an open menu or choice, or the prompt.
+  let panel: React.ReactNode;
+  if (overlay.kind === 'home')
+    panel = (
+      <>
+        <Choices
+          title="Dice Chess"
+          options={homeOptions(resumable(game), sound)}
+          index={overlay.index}
+        />
+        {ledger ? <Record ledger={ledger} /> : null}
+      </>
+    );
+  else if (overlay.kind === 'menu')
+    panel = (
+      <Choices
+        title="Menu"
+        options={menuOptions(game, sound)}
+        index={overlay.index}
+      />
+    );
+  else if (overlay.kind === 'colour')
+    panel = (
+      <Choices
+        title="Play as"
+        note="Random picks a colour for you."
+        options={colourOptions}
+        index={overlay.index}
+      />
+    );
+  else if (overlay.kind === 'confirm')
+    panel = (
+      <Choices
+        title={overlay.action === 'resign' ? 'Resign?' : 'Replace this game?'}
+        note={
+          overlay.action === 'resign'
+            ? 'The other player wins.'
+            : 'The game in progress is lost.'
+        }
+        options={confirmOptions}
+        index={overlay.index}
+      />
+    );
+  else if (overlay.kind === 'promotion')
+    panel = (
+      <Choices
+        title="Promote to"
+        options={overlay.moves.map(
+          (move) => DIE[move.slice(4).toUpperCase() as keyof typeof DIE],
+        )}
+        index={overlay.index}
+      />
+    );
+  else panel = <Text style={{ color: '#f0f4f8', fontSize: 24 }}>{prompt}</Text>;
+
   return (
     <View
       style={{
@@ -304,9 +365,7 @@ export const GameScreen = ({
         <Text style={{ color: '#f0f4f8', fontSize: 38, marginBottom: 16 }}>
           {game.result
             ? RESULT[game.result.reason]
-            : `${sideName(state.side)} to play${
-                game.human === null ? '' : state.bot ? ' · Random' : ' · you'
-              }`}
+            : `${sideName(state.side)} to play${mover(game, state.bot)}`}
         </Text>
         {game.result ? (
           <Text style={{ color: '#aab8c9', fontSize: 24, marginBottom: 12 }}>
@@ -322,52 +381,7 @@ export const GameScreen = ({
           </Text>
         )}
 
-        {overlay.kind === 'home' ? (
-          <>
-            <Choices
-              title="Dice Chess"
-              options={homeOptions(resumable(game), sound)}
-              index={overlay.index}
-            />
-            {ledger ? <Record ledger={ledger} /> : null}
-          </>
-        ) : overlay.kind === 'menu' ? (
-          <Choices
-            title="Menu"
-            options={menuOptions(game, sound)}
-            index={overlay.index}
-          />
-        ) : overlay.kind === 'colour' ? (
-          <Choices
-            title="Play as"
-            note="Random picks a colour for you."
-            options={colourOptions}
-            index={overlay.index}
-          />
-        ) : overlay.kind === 'confirm' ? (
-          <Choices
-            title={
-              overlay.action === 'resign' ? 'Resign?' : 'Replace this game?'
-            }
-            note={
-              overlay.action === 'resign'
-                ? 'The other player wins.'
-                : 'The game in progress is lost.'
-            }
-            options={confirmOptions}
-            index={overlay.index}
-          />
-        ) : overlay.kind === 'promotion' ? (
-          <Choices
-            title="Promote to"
-            options={overlay.moves.map(
-              (move) => DIE[move.slice(4).toUpperCase() as keyof typeof DIE],
-            )}
-            index={overlay.index}
-          />
-        ) : (
-          <Text style={{ color: '#f0f4f8', fontSize: 24 }}>{prompt}</Text>
-        )}
+        {panel}
       </View>
     </View>
   );
