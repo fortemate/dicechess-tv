@@ -28,12 +28,15 @@ export type BoardInput = {
   // Legal actions in UCI, as the engine reports them.
   legal?: readonly string[];
   lastMove?: string | null;
+  // Drawn from Black's side: rank 1 at the top and file h on the left, for a
+  // person playing Black against the bot. Hotseat never flips the board.
+  flipped?: boolean;
 };
 
 const FILES = 'abcdefgh';
 
-// Rank 8 first and file a first, so the result reads in render order with
-// White at the bottom. Hotseat never flips the board.
+// In render order: rank 8 first and file a first with White at the bottom, or
+// the reverse of both when the board is flipped.
 export function boardView(input: BoardInput): SquareView[][] {
   const { board, cursor = null, selected = null, lastMove = null } = input;
   const destinations = new Set(
@@ -61,5 +64,5 @@ export function boardView(input: BoardInput): SquareView[][] {
     }
     rows.push(row);
   }
-  return rows;
+  return input.flipped ? rows.reverse().map((row) => row.reverse()) : rows;
 }

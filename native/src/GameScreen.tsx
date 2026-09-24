@@ -22,6 +22,8 @@ import {
   homeOptions,
   menuOptions,
   confirmOptions,
+  colourOptions,
+  flipped,
   resumable,
   handsOff,
   type ScreenAction,
@@ -205,9 +207,8 @@ export const GameScreen = ({
     const before = committed.current;
     committed.current = game;
     onCommit?.(game);
-    // The person plays White against the bot today; see cues() for why this is
-    // a parameter rather than an assumption.
-    sounds?.play(cues(before, game, 'w'));
+    // Win or loss is heard from the side the person plays against the bot.
+    sounds?.play(cues(before, game, game.human ?? 'w'));
   }, [game, onCommit, sounds]);
 
   // Seeded like the game, so opening the screen is not reported as a change.
@@ -233,6 +234,7 @@ export const GameScreen = ({
         `selected ${focus.selected ?? '-'}`,
         `last ${game.lastMove ?? '-'}`,
         `result ${game.result?.reason ?? '-'}`,
+        `human ${game.human ?? '-'}`,
       ].join(' | '),
     );
   }, [onState, game, state, focus, overlay]);
@@ -293,15 +295,18 @@ export const GameScreen = ({
         lastMove={game.lastMove}
         selected={focus.selected}
         cursor={focus.cursor}
+        flipped={flipped(game)}
       />
       <View style={{ flex: 1, paddingLeft: 40 }}>
         <Text style={{ color: '#8dc9b6', fontSize: 20, letterSpacing: 2 }}>
-          {`HOTSEAT · TURN ${game.turn}`}
+          {`${game.mode === 'hotseat' ? 'HOTSEAT' : 'VS RANDOM'} · TURN ${game.turn}`}
         </Text>
         <Text style={{ color: '#f0f4f8', fontSize: 38, marginBottom: 16 }}>
           {game.result
             ? RESULT[game.result.reason]
-            : `${sideName(state.side)} to play`}
+            : `${sideName(state.side)} to play${
+                game.human === null ? '' : state.bot ? ' · Random' : ' · you'
+              }`}
         </Text>
         {game.result ? (
           <Text style={{ color: '#aab8c9', fontSize: 24, marginBottom: 12 }}>
@@ -330,6 +335,13 @@ export const GameScreen = ({
           <Choices
             title="Menu"
             options={menuOptions(game, sound)}
+            index={overlay.index}
+          />
+        ) : overlay.kind === 'colour' ? (
+          <Choices
+            title="Play as"
+            note="Random picks a colour for you."
+            options={colourOptions}
             index={overlay.index}
           />
         ) : overlay.kind === 'confirm' ? (

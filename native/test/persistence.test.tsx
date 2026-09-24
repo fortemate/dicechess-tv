@@ -30,6 +30,8 @@ const options: ScreenOptions = {
   newId: () => 'test',
   // The opponent steps immediately in tests; the app spaces the steps out.
   schedule: (step) => step(),
+  // Random draws White unless a test says otherwise.
+  side: () => 'w',
 };
 
 type Launched = { root: Instance; state: () => string };

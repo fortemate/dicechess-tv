@@ -20,11 +20,7 @@ export type BotReply = {
 
 // True while the local opponent, not a player, owes the next action.
 export function botToAct(game: Game): boolean {
-  return (
-    game.mode === 'random' &&
-    game.phase !== 'ended' &&
-    viewGame(game).side === 'b'
-  );
+  return game.phase !== 'ended' && viewGame(game).bot;
 }
 
 export function botReply(game: Game): BotReply {

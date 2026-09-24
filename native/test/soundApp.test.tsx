@@ -11,6 +11,8 @@ import { App } from '../src/App';
 import type { ScreenOptions } from '../src/screen';
 import type { Sounds } from '../src/sound';
 import type { Cue } from '../../src/core/cues';
+import { MmkvSnapshotStore } from '../src/mmkvStore';
+import { decodeGame, newGame, rollGame, type Game } from '../../src/core/game';
 
 type Instance = renderer.ReactTestInstance;
 
@@ -22,6 +24,8 @@ const options: ScreenOptions = {
   roll: () => [2, 2, 2],
   newId: () => 'soundtest',
   schedule: (step) => step(),
+  // Random draws White unless a test says otherwise.
+  side: () => 'w',
 };
 
 type Recorder = Sounds & { played: Cue[][]; muted: boolean | null };
@@ -93,5 +97,30 @@ test('turning sound off is remembered at the next launch', () => {
   tree = launch(second);
   assert.match(text(tree.root), /Sound: off/);
   assert.equal(second.muted, true, 'a relaunch starts muted');
+  act(() => tree.unmount());
+});
+
+test('a win as Black is heard as a win', () => {
+  reset();
+  // Saved mid-turn: the person plays Black, rolled three rooks, and the rook on
+  // a1 can take the White king on a8.
+  const saved = rollGame(
+    newGame('random', 'asblack', 'K7/8/8/8/8/8/8/r3k3 b - - 0 1', 'b'),
+    [4, 4, 4],
+  );
+  new MmkvSnapshotStore<Game>({
+    key: 'dicechess-tv.game.v2',
+    decode: decodeGame,
+  }).save(saved);
+  const sounds = recorder();
+  const tree = launch(sounds);
+  // Resume, then walk from e7 to a1 and on to a8 on the board seen from
+  // Black's side, where up on the screen is towards rank 1.
+  send('enter');
+  send('up', 'up', 'up', 'up', 'up', 'up', 'right', 'right', 'right', 'right');
+  send('enter');
+  send('down', 'down', 'down', 'down', 'down', 'down', 'down');
+  send('enter');
+  assert.deepEqual(sounds.played.at(-1), ['piece_capture', 'game_win']);
   act(() => tree.unmount());
 });

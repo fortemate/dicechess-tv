@@ -6,7 +6,12 @@
 // and there is no loading frame. A Vega app with a loading frame does not
 // receive remote input at all.
 import React from 'react';
-import { decodeGame, rollDice, type Game } from '../../src/core/game';
+import {
+  decodeGame,
+  rollDice,
+  randomSide,
+  type Game,
+} from '../../src/core/game';
 import {
   decodeLedger,
   emptyLedger,
@@ -57,6 +62,7 @@ export const App = ({
     const source = randomSource();
     return {
       roll: () => rollDice(source.fill),
+      side: () => randomSide(source.fill),
       newId: () => 'g' + Date.now().toString(36),
       // Space the opponent's steps out so the player watches it roll and move
       // rather than seeing the board jump.
@@ -101,7 +107,7 @@ export const App = ({
   const count = React.useCallback(
     (game: Game) => {
       setLedger((current) => {
-        const next = record(current, game, 'w');
+        const next = record(current, game, game.human ?? 'w');
         if (next !== current)
           void ledgerStore.save(next).catch(() => undefined);
         return next;
