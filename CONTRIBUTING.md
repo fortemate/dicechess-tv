@@ -2,9 +2,14 @@
 
 Branches, pull requests and issues follow the organization's
 [contributing guide](https://github.com/fortemate/.github/blob/main/CONTRIBUTING.md).
-This file adds what is specific to a Fire TV application. The repository licence
-has not been selected yet (see [Licensing](README.md#licensing)), so there is no
-CLA here, and changes come from the Fortemate team.
+This file adds what is specific to a Fire TV application.
+
+The code is licensed under AGPL-3.0-only (see [Licensing](README.md#licensing)).
+Before a first pull request can be accepted, sign the
+[Contributor License Agreement](CLA.md): add yourself to
+[`.github/cla-signatures.json`](.github/cla-signatures.json) in that pull request,
+and the `CI: CLA` check verifies it. Owners, organization members, collaborators
+and bots are exempt.
 
 ## Setup
 
@@ -21,16 +26,16 @@ CLA here, and changes come from the Fortemate team.
 
 CI runs these on every pull request. Run them before pushing:
 
-| Where  | Command                         | What it proves                                                     |
-| ------ | ------------------------------- | ------------------------------------------------------------------ |
-| root   | `npm run check`                 | Types, and that `src/core/` uses no DOM or Node global             |
-| root   | `npm run lint`                  | ESLint with typescript-eslint's recommended rules                  |
-| root   | `npm run format:check`          | Prettier formatting                                                |
-| root   | `npm test`                      | The shared core against the real engine                            |
-| native | `npm run check --prefix native` | Types of the application, its tests and the core together          |
-| native | `npm run lint --prefix native`  | ESLint with React's hooks rules and Amazon's Vega rules            |
-| native | `npm test --prefix native`      | Screens, input and sound, rendered with `react-test-renderer`      |
-| native | `npm run build --prefix native` | The installable package; it needs the SDK, which one CI runner has |
+| Where  | Command                         | What it proves                                                        |
+| ------ | ------------------------------- | --------------------------------------------------------------------- |
+| root   | `npm run check`                 | Types, and that `src/core/` uses no DOM or Node global                |
+| root   | `npm run lint`                  | ESLint with typescript-eslint's recommended rules                     |
+| root   | `npm run format:check`          | Prettier formatting                                                   |
+| root   | `npm test`                      | The shared core against the real engine                               |
+| native | `npm run check --prefix native` | Types of the application, its tests and the core together             |
+| native | `npm run lint --prefix native`  | ESLint with React's hooks rules and Amazon's Vega rules               |
+| native | `npm test --prefix native`      | Screens, input and sound, rendered with `react-test-renderer`         |
+| native | `npm run build --prefix native` | The installable package. It needs the Vega SDK, so CI does not run it |
 
 `mise run check` runs the four root checks in one go.
 
@@ -60,6 +65,28 @@ vendored sounds and the licence texts in `licenses/` — are kept byte for byte,
 `.gitattributes` stops Git from rewriting their line endings. A new asset needs its
 licence recorded in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and, when the
 licence asks for credit, a line on the About screen (`src/core/credits.ts`).
+
+## Releases
+
+A release is cut by the owner, on a machine with the Vega SDK; CI cannot build the
+package. The version lives in `native/manifest.toml`, because that is what the
+device installs and what the store sees, so a release starts with a pull request
+that bumps it. After that merges:
+
+```bash
+git switch main && git pull --ff-only
+npm ci && npm ci --prefix native && npm run build --prefix native
+version=$(grep -m1 '^version = ' native/manifest.toml | sed 's/.*"\(.*\)".*/\1/')
+if git ls-remote --exit-code --tags origin "refs/tags/v$version" >/dev/null; then
+  echo "v$version already exists: bump the version in native/manifest.toml first"
+else
+  gh release create "v$version" native/build/aarch64-release/dicechess-tv-native_aarch64.vpkg --target main --generate-notes
+fi
+```
+
+The tag check matters: `gh release create` would attach a new package to an
+existing tag that points at older code. The notes are grouped by the labels in
+`.github/release.yml`.
 
 ## What the platform does
 

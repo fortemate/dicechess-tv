@@ -7,7 +7,7 @@ updates:
     directory: '/native'
     schedule:
       # Monthly, not weekly, until the contest submission on 23 October 2026. Every update here
-      # has to be proved on a device, and CI can build the package but not run it. Raise it to
+      # has to be proved on a device, and CI neither builds the package nor runs it. Raise it to
       # weekly once the submission is out.
       interval: 'monthly'
       day: 'wednesday'
