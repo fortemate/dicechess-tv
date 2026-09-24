@@ -78,7 +78,8 @@ for (const [packId, { manifest, exports }] of Object.entries(packs)) {
   for (const path of [
     'manifest.json',
     manifest.licenseFile,
-    ...[...exports].sort(),
+    // Code-unit order, the same on every machine; localeCompare is not.
+    ...[...exports].sort((a, b) => Number(a > b) - Number(a < b)),
   ]) {
     const bytes = show(`sounds/${packId}/${path}`);
     const digest = sha256(bytes);

@@ -1,6 +1,7 @@
 import { DiceChess } from '@fortemate/dicechess-engine/rules';
 import { applyLegal } from './model.ts';
 import { pieceAt } from './board.ts';
+import { hasExactKeys } from './keys.ts';
 
 export const INITIAL_POSITION =
   'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
@@ -284,7 +285,7 @@ export function decodeGame(raw: string): Game {
   if (game.result !== null) {
     if (
       typeof game.result !== 'object' ||
-      Object.keys(game.result).sort().join(',') !== 'reason,winner' ||
+      !hasExactKeys(game.result, ['winner', 'reason']) ||
       game.phase !== 'ended'
     )
       throw new Error('Invalid result');
