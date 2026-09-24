@@ -99,11 +99,13 @@ Full decisions and the detailed schedule are maintained in the private Fortemate
 
 ## Licensing
 
-The repository license has not been selected. See [third-party notices](THIRD_PARTY_NOTICES.md). Resolve the combined distribution license before shipping a binary.
+Fortemate's code in this repository is licensed under the [GNU Affero General Public License v3.0 only](LICENSE) (AGPL-3.0-only), the licence of the Dice Chess engine it runs on. Contributions are accepted under the [Contributor License Agreement](CLA.md); see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+The Fortemate name and logo, including the brand images in `native/brand/`, are not licensed under the AGPL.
+
+Third-party material keeps its own licence, listed in the [third-party notices](THIRD_PARTY_NOTICES.md): the RhosGFX pieces and Kenney's sounds are CC0, and JDSherbert's sounds are here with the author's written permission. Amazon's `@amazon-devices/*` packages install from the public npm registry under Amazon's Program Materials License Agreement, and the Vega SDK is installed by each developer; neither is part of this repository. Check the licence of any code or asset before importing it.
 
 Chessground's GPL-3.0-or-later obligation is gone: it was reached only by the web probe, and the probe has been removed.
-
-What the native application carries is the engine, the 12 CC0 RhosGFX vector pieces, and Amazon's `@amazon-devices/*` packages. Those resolve from the public npm registry and are not redistributed by us; the Vega SDK itself is licensed to each developer under Amazon's Program Materials License Agreement and is deliberately not in this repository. The sounds carry attribution requirements, which the About screen meets. Check the licenses of the engine, reused play-client code, piece artwork, fonts, sounds and samples before importing or distributing them. Commercial sale and closed-source distribution are different questions.
 
 ## Development guidance
 
