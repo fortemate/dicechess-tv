@@ -1,19 +1,86 @@
 [tools]
-node = "26.8.2"
-lefthook = "2.1.14" # Git hooks (lefthook.yml)
+# --- Runtime ---
+node = "26.8.2" # both packages build and test with the version CI uses
+
+# --- Git hooks (lefthook.yml) ---
+lefthook = "2.1.14" # Git hooks manager (pre-commit / pre-push)
 betterleaks = "1.8.1" # secret scanning in the pre-commit hook
 actionlint = "1.7.12" # workflow linting in the pre-commit hook
 
-# After a clone: both packages' dependencies, then the Git hooks.
+# The Vega SDK is not a mise tool: Amazon licenses it to each developer, who
+# installs it with Amazon's installer. The `build` and `device:*` tasks need its
+# `vega` CLI on the PATH.
+
+# --- Setup ---
+
 [tasks.setup]
+description = "📦 Install both packages' dependencies and register the Git hooks"
 run = ["npm ci", "npm ci --prefix native", "lefthook install"]
 
+[tasks."hook:install"]
+description = "🪝 Register the Git hooks (lefthook)"
+run = "lefthook install"
+
+[tasks."hook:run"]
+description = "🏃 Run every pre-commit job over the whole repository, not only staged files"
+run = "lefthook run pre-commit --all-files"
+
+# --- Checks: the same as CI ---
+
 [tasks.check]
-run = "npm run check && npm run lint && npm run format:check && npm test"
+description = "✅ Run every check CI runs, in both packages: types, lint, format and tests"
+run = [
+  "npm run check",
+  "npm run lint",
+  "npm run format:check",
+  "npm test",
+  "npm run check --prefix native",
+  "npm run lint --prefix native",
+  "npm test --prefix native",
+]
+
+[tasks.test]
+description = "🧪 Run both packages' tests"
+run = ["npm test", "npm test --prefix native"]
+
+[tasks.lint]
+description = "🔍 Lint both packages (the application with Amazon's Vega rules)"
+run = ["npm run lint", "npm run lint --prefix native"]
+
+[tasks.format]
+description = "🎨 Format the repository with Prettier"
+run = "npm run format"
+
+[tasks.coverage]
+description = "📊 Run both packages' tests with coverage, written as LCOV to coverage/"
+run = "npm run coverage"
+
+# --- The application on a Vega Virtual Device (needs the Vega SDK) ---
 
 [tasks.build]
-run = "npm run build"
+description = "🔨 Build the installable package (native/build/aarch64-release/)"
+run = "npm run build --prefix native"
 
-# Every pre-commit job over the whole repository, not only staged files.
-[tasks."hook:run"]
-run = "lefthook run pre-commit --all-files"
+[tasks."device:start"]
+description = "📺 Start the Vega Virtual Device"
+run = "vega virtual-device start"
+
+[tasks."device:stop"]
+description = "⏹️  Stop the Vega Virtual Device"
+run = "vega virtual-device stop"
+
+[tasks."device:install"]
+description = "📥 Install the built package on the virtual device"
+run = "vega device install-app -d VirtualDevice -p native/build/aarch64-release/dicechess-tv-native_aarch64.vpkg"
+
+[tasks."device:launch"]
+description = "▶️  Launch the application on the virtual device"
+run = "vega device launch-app -d VirtualDevice -a com.fortemate.dicechesstv.main"
+
+[tasks."device:run"]
+description = "🚀 Build, install and launch on the virtual device"
+depends = ["build"]
+run = [
+  "vega device install-app -d VirtualDevice -p native/build/aarch64-release/dicechess-tv-native_aarch64.vpkg",
+  "vega device launch-app -d VirtualDevice -a com.fortemate.dicechesstv.main",
+]

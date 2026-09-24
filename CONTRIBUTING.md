@@ -43,7 +43,8 @@ CI runs these on every pull request. Run them before pushing:
 | root   | `npm run coverage`              | Both packages' tests with coverage, which CI sends to SonarQube Cloud |
 | native | `npm run build --prefix native` | The installable package. It needs the Vega SDK, so CI does not run it |
 
-`mise run check` runs the four root checks in one go. The SonarQube Cloud analysis
+`mise run check` runs all of them except the build, and `mise tasks` lists every
+task with what it does. The SonarQube Cloud analysis
 that CI runs with that coverage is informational: it does not fail the build.
 
 ## Check it on a device
@@ -51,8 +52,16 @@ that CI runs with that coverage is informational: it does not fail the build.
 A green gate is not evidence that the television shows the right thing: a
 first-render fault that swallowed every key press once passed every check. For
 anything that changes what the screen shows or how the remote works, build the
-package, install it and use it. On the virtual device the Mac keyboard stands in
-for the remote: arrow keys for the D-pad, Enter for OK, Esc for Back, F1 for Home.
+package, install it and use it:
+
+```bash
+mise run device:start   # the Vega Virtual Device, if it is not running
+mise run device:run     # build, install and launch
+```
+
+On the virtual device the Mac keyboard stands in for the remote: arrow keys for
+the D-pad, Enter for OK, Esc for Back, F1 for Home. The on-screen remote's OK
+button works too.
 
 Say in the pull request which kind of evidence a claim rests on — the virtual
 device, a Fire TV Stick, or a test — because they are not interchangeable.
