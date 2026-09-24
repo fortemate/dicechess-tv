@@ -24,7 +24,8 @@ const ring = (size: number) => Math.max(2, Math.round(size / 240));
 
 // A legal destination, marked the way most chess programs mark one: a dot on an
 // empty square, and a ring around a piece that would be taken, since a dot would
-// hide behind it.
+// hide behind it. The ring is drawn under the piece: the piece is wider than the
+// ring's opening, so a ring on top would cover its edges.
 const Destination = ({
   edge,
   occupied,
@@ -88,10 +89,10 @@ const Square = ({ view, edge }: { view: SquareView; edge: number }) => {
           }}
         />
       ) : null}
-      {Piece ? <Piece size={Math.round(edge * 0.92)} /> : null}
       {view.destination ? (
         <Destination edge={edge} occupied={view.piece !== null} />
       ) : null}
+      {Piece ? <Piece size={Math.round(edge * 0.92)} /> : null}
       {focus ? (
         <View
           style={{

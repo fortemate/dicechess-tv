@@ -142,6 +142,13 @@ test('an empty destination gets a dot, and a piece that would be taken a ring', 
   );
   assert.equal(d5.findAllByType(PIECES.p as never).length, 1);
   assert.equal(overlays(d5, dot).length, 0);
+  // Drawn before the pawn, so the pawn stays whole on top of it.
+  const layers = d5.children.filter(
+    (child): child is Instance => typeof child !== 'string',
+  );
+  const ringAt = layers.findIndex((layer) => overlays(layer, ring).length);
+  const pawnAt = layers.findIndex((layer) => layer.type === PIECES.p);
+  assert.ok(ringAt >= 0 && pawnAt > ringAt, `ring ${ringAt}, pawn ${pawnAt}`);
 
   for (const mark of overlays(root, (s) => dot(s) || ring(s))) {
     const s = styleOf(mark);
