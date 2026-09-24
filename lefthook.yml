@@ -1,0 +1,41 @@
+# Lefthook — Git hooks. `mise run setup` installs them after a clone.
+# Docs: https://github.com/evilmartians/lefthook
+#
+# The same pattern as dicechess-play, plus two jobs this repository needs. It is
+# public, and the history of a public repository is never rewritten, so a secret
+# or Russian text has to be stopped before the commit: CI only sees it after the
+# push, when it is already in the history for good.
+
+pre-commit:
+  parallel: true
+  jobs:
+    # Secret scanning of the staged diff. betterleaks is the successor to
+    # gitleaks by the same author. Detection only: nothing leaves the machine.
+    - name: betterleaks
+      run: betterleaks git --pre-commit --redact --staged
+
+    # The repository is English-only (test/english.test.ts). The check reads
+    # every text file, new ones included, in about a tenth of a second.
+    - name: english-only
+      run: node --experimental-strip-types --test test/english.test.ts
+
+    # Format staged files and put the result into the commit. `.prettierignore`
+    # keeps Prettier off the vendored sounds; the two flags stop a commit that
+    # holds only ignored or unknown files from failing.
+    - name: prettier
+      glob: '**.{ts,tsx,js,mjs,mts,json,md,yaml,yml}'
+      run: npx prettier --write --ignore-unknown --no-error-on-unmatched-pattern {staged_files}
+      stage_fixed: true
+
+    # A broken workflow does not turn red: it silently stops running, and its
+    # checks disappear from pull requests.
+    - name: workflow-yaml
+      glob: '.github/workflows/*.y*ml'
+      run: actionlint -shellcheck= {staged_files}
+
+# Before a push, the whole repository's formatting: it catches rebase fallout,
+# and commits made where the hooks were not installed.
+pre-push:
+  jobs:
+    - name: prettier-all
+      run: npm run -s format:check
