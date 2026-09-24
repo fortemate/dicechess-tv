@@ -19,15 +19,15 @@
     "@amazon-devices/react-native-svg": "~3.0.9000000001",
     "@amazon-devices/react-native-w3cmedia": "~2.3.2",
     "react": "19.2.0",
-    "react-native": "0.83.0"
+    "react-native": "0.83.10"
   },
   "devDependencies": {
     "@amazon-devices/eslint-plugin-kepler": "0.1.15",
     "@amazon-devices/kepler-cli-platform": "^0",
     "@eslint/js": "9.39.5",
-    "@react-native-community/cli": "20.0.0",
-    "@react-native/babel-preset": "0.83.0",
-    "@react-native/metro-config": "0.83.0",
+    "@react-native-community/cli": "20.0.2",
+    "@react-native/babel-preset": "0.83.10",
+    "@react-native/metro-config": "0.83.10",
     "@types/react": "19.2.2",
     "@types/react-test-renderer": "^19.3.0",
     "esbuild": "0.28.2",
