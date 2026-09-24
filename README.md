@@ -95,7 +95,7 @@ Prepared for [Build, Ship, Shape: Amazon Developer Hackathon 2026](https://amazo
 - Demonstrate the actual Vega/Fire TV environment and clearly distinguish reused components from work completed during the contest window.
 - Keep a reproducible SDK friction log and record tool versions from the first experiment.
 
-Full decisions and the detailed schedule are maintained in the private Fortemate knowledge base under **Build, Ship, Shape — Amazon Developer Hackathon 2026**, **Dice Chess для Fire TV — разработка на Mac**, and **Amazon Developer Hackathon — регистрация и подача Dice Chess**.
+Full decisions and the detailed schedule are maintained in the private Fortemate knowledge base, starting from the page **Build, Ship, Shape — Amazon Developer Hackathon 2026**.
 
 ## Licensing
 
