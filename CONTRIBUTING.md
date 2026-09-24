@@ -13,10 +13,15 @@ and bots are exempt.
 
 ## Setup
 
-- Node from [`mise.toml`](mise.toml): `mise install`.
-- `npm ci` at the root, then `npm ci --prefix native`. Every dependency, Amazon's
-  `@amazon-devices/*` packages and the Dice Chess engine included, comes from the
-  public npm registry, so no token is needed.
+- Tools from [`mise.toml`](mise.toml): `mise install`, then `mise run setup`. That
+  runs `npm ci` at the root and in `native/`, and registers the Git hooks. Every
+  dependency, Amazon's `@amazon-devices/*` packages and the Dice Chess engine
+  included, comes from the public npm registry, so no token is needed.
+- The hooks ([`lefthook.yml`](lefthook.yml)) scan each commit for secrets and for
+  Cyrillic text, format the staged files with Prettier and lint changed workflows;
+  a push first checks the formatting of the whole repository. This repository is
+  public and its history is never rewritten, so these run before the commit rather
+  than only in CI. Do not bypass them with `--no-verify`.
 - Building and running the application also needs the **Vega SDK 0.24** and a Vega
   Virtual Device or a Fire TV Stick in developer mode. The SDK is licensed to each
   developer by Amazon and is deliberately not in this repository;

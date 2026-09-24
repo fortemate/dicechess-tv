@@ -1,8 +1,19 @@
 [tools]
 node = "26.8.2"
+lefthook = "2.1.14" # Git hooks (lefthook.yml)
+betterleaks = "1.8.1" # secret scanning in the pre-commit hook
+actionlint = "1.7.12" # workflow linting in the pre-commit hook
+
+# After a clone: both packages' dependencies, then the Git hooks.
+[tasks.setup]
+run = ["npm ci", "npm ci --prefix native", "lefthook install"]
 
 [tasks.check]
 run = "npm run check && npm run lint && npm run format:check && npm test"
 
 [tasks.build]
 run = "npm run build"
+
+# Every pre-commit job over the whole repository, not only staged files.
+[tasks."hook:run"]
+run = "lefthook run pre-commit --all-files"
