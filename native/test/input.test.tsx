@@ -13,6 +13,7 @@ import {
 import { GameScreen } from '../src/GameScreen';
 import { THEME } from '../src/theme';
 import type { ScreenOptions } from '../src/screen';
+import { newGame, rollGame } from '../../src/core/game';
 
 type Instance = renderer.ReactTestInstance;
 type Style = Record<string, string | number | undefined>;
@@ -258,4 +259,57 @@ test('Back anywhere else is claimed, so the app stays open', () => {
   assert.equal(back(), true);
   assert.equal(hasExited(), false);
   assert.match(state(), /overlay menu/);
+});
+
+// Every line of text on the screen, as a viewer reads it.
+const lines = (root: Instance): string[] =>
+  root
+    .findAll((node) => isHost(node, 'Text'), { deep: true })
+    .map((node) => String(node.props.children));
+
+test('the promotion choice names the pieces, with the queen first', () => {
+  const reports: string[] = [];
+  const tree = replace(() =>
+    renderer.create(
+      React.createElement(GameScreen, {
+        options,
+        // One step from promotion, with pawns rolled.
+        initial: rollGame(
+          newGame('hotseat', 'promotion', '4k3/P7/8/8/8/8/8/4K3 w - - 0 1'),
+          [1, 1, 1],
+        ),
+        onState: (line: string) => reports.push(line),
+      }),
+    ),
+  );
+  // Resume, walk from e2 to a7, pick the pawn up and put it on a8.
+  send(Select, Left, Left, Left, Left, Up, Up, Up, Up, Up, Select, Up, Select);
+  assert.match(reports[reports.length - 1], /overlay promotion#0/);
+  const choices = (root: Instance) =>
+    lines(root).filter((line) => /^(> | {2})\S/.test(line));
+  assert.ok(lines(tree.root).includes('Promote to'));
+  assert.deepEqual(choices(tree.root), [
+    '> Queen',
+    '  Rook',
+    '  Bishop',
+    '  Knight',
+  ]);
+  send(Down);
+  assert.equal(choices(tree.root)[1], '> Rook');
+});
+
+test('a finished game says how it ended and who won', () => {
+  // From the menu of a hotseat game: Resume, Resign, Agree a draw, New game.
+  const drawn = mount();
+  send(Back, Down, Down, Select);
+  assert.match(drawn.state(), /result agreed-draw/);
+  assert.ok(lines(drawn.root).includes('Draw agreed'));
+  assert.ok(lines(drawn.root).includes('Drawn'));
+
+  // White is to move, so White resigns.
+  const resigned = mount();
+  send(Back, Down, Select, Down, Select);
+  assert.match(resigned.state(), /result resigned/);
+  assert.ok(lines(resigned.root).includes('Resigned'));
+  assert.ok(lines(resigned.root).includes('Black wins'));
 });
