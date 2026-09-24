@@ -55,6 +55,9 @@ registerHooks({
       format: 'esm',
       target: 'es2022',
       sourcefile: url,
+      // Lets coverage (`npm run coverage`) report lines of the TypeScript
+      // source rather than of esbuild's output.
+      sourcemap: 'inline',
     });
     return { format: 'module', source: code, shortCircuit: true };
   },

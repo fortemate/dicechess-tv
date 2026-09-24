@@ -8,6 +8,9 @@
     "check": "tsc -p tsconfig.json && tsc -p tsconfig.core.json",
     "lint": "eslint .",
     "test": "node --experimental-strip-types --test test/*.test.ts",
+    "coverage": "npm run coverage:core && npm run coverage:native",
+    "coverage:core": "node -e \"require('node:fs').mkdirSync('coverage', { recursive: true })\" && node --experimental-strip-types --test --experimental-test-coverage --test-coverage-exclude='test/**' --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/core.lcov test/*.test.ts",
+    "coverage:native": "node -e \"require('node:fs').mkdirSync('coverage', { recursive: true })\" && node --test --import ./native/test/hooks.mjs --enable-source-maps --experimental-test-coverage --test-coverage-exclude='native/test/**' --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/native.lcov native/test/*.test.tsx native/test/*.test.ts",
     "format": "prettier --write src native test *.json *.md docs/*.md .github/**/*.yml .github/**/*.yaml",
     "format:check": "prettier --check src native test *.json *.md docs/*.md .github/**/*.yml .github/**/*.yaml"
   },

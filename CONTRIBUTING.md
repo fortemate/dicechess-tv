@@ -40,9 +40,11 @@ CI runs these on every pull request. Run them before pushing:
 | native | `npm run check --prefix native` | Types of the application, its tests and the core together             |
 | native | `npm run lint --prefix native`  | ESLint with React's hooks rules and Amazon's Vega rules               |
 | native | `npm test --prefix native`      | Screens, input and sound, rendered with `react-test-renderer`         |
+| root   | `npm run coverage`              | Both packages' tests with coverage, which CI sends to SonarQube Cloud |
 | native | `npm run build --prefix native` | The installable package. It needs the Vega SDK, so CI does not run it |
 
-`mise run check` runs the four root checks in one go.
+`mise run check` runs the four root checks in one go. The SonarQube Cloud analysis
+that CI runs with that coverage is informational: it does not fail the build.
 
 ## Check it on a device
 
