@@ -13,10 +13,9 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
-// Built from code points, so this file does not contain what it looks for.
-const CYRILLIC = new RegExp(
-  `[${String.fromCodePoint(0x0400)}-${String.fromCodePoint(0x052f)}]`,
-);
+// The Unicode script property covers every Cyrillic block, the extended ones
+// included, and keeps this file free of what it looks for.
+const CYRILLIC = /\p{Script=Cyrillic}/u;
 
 test('no text file in the repository contains Cyrillic', () => {
   // Tracked files, and new files that are not ignored, so a mistake is caught
