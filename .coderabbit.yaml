@@ -1,0 +1,146 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+# =============================================================================
+# CodeRabbit configuration — Dice Chess TV (React Native for Vega, Fire TV)
+# =============================================================================
+# The application is native/, a React Native for Vega package; src/core/ is the
+# shared pure TypeScript core it runs on, with the rules in the canonical engine.
+#
+# Reviews are requested by hand with an "@coderabbitai review" comment, on pull
+# requests that change code. The plan allows about one review an hour, and a
+# change to documentation or CI alone does not need one.
+# =============================================================================
+
+language: en-US
+tone_instructions: >-
+  Be concise and specific. No praise and no summary of the diff. Skip style
+  and formatting, which Prettier and ESLint enforce. Say what breaks and how.
+
+reviews:
+  profile: assertive
+
+  high_level_summary: false
+  poem: false
+  collapse_walkthrough: true
+  # With auto review off, a status message would say "Review skipped" on every
+  # pull request.
+  review_status: false
+  sequence_diagrams: false
+  suggested_labels: false # labels come from .github/labeler.yml
+  suggested_reviewers: false
+  estimate_code_review_effort: false
+  in_progress_fortune: false
+
+  auto_review:
+    enabled: false
+    drafts: false
+    base_branches:
+      - main
+
+  path_filters:
+    # Vendored byte for byte and pinned by digests. JDSherbert's licence also
+    # forbids using his files to train AI models.
+    - '!native/sounds/**'
+    # Generated: change the script and regenerate instead.
+    - '!native/src/pieces/**'
+    - '!native/src/cueFiles.ts'
+    # Third-party and brand files, kept verbatim.
+    - '!src/assets/pieces/**'
+    - '!native/brand/**'
+    - '!licenses/**'
+    - '!LICENSE'
+    - '!docs/images/**'
+    - '!**/package-lock.json'
+
+  tools:
+    actionlint:
+      enabled: true
+    zizmor:
+      enabled: true # security of the GitHub Actions workflows
+    gitleaks:
+      enabled: true
+    trufflehog:
+      enabled: true
+    shellcheck:
+      enabled: true
+    # Off: CI already runs ESLint with Amazon's Vega plugin, which CodeRabbit's
+    # sandbox would not have, and Prettier owns formatting. These would repeat
+    # that work under different rules.
+    eslint:
+      enabled: false
+    biome:
+      enabled: false
+    oxc:
+      enabled: false
+    # Off: Prettier formats Markdown and YAML here, and these would flag the
+    # long lines the repository uses throughout.
+    markdownlint:
+      enabled: false
+    yamllint:
+      enabled: false
+    languagetool:
+      enabled: false
+
+  path_instructions:
+    - path: 'native/src/**'
+      instructions: |
+        React Native for Vega on SDK 0.24, React Native 0.83. These facts were measured on
+        the virtual device and are recorded in native/README.md:
+        - Remote input uses two channels. useTVEventHandler observes directions and OK but
+          cannot claim an event; useKeplerBackHandler claims Back, and returning false lets
+          the app close, which is right only on the home screen. OK arrives as `select`,
+          `enter` or `kpenter`, and all three must map.
+        - The first render must be complete. An app that rendered a loading frame while an
+          effect read storage received no key presses at all; MMKV is synchronous for this.
+        - Key handling goes through a reducer, because held-key repeats arrive in one batch.
+        - Sound must never break the game: every failure is reported and swallowed.
+        - No DOM APIs and no crypto.getRandomValues; random sources are injected.
+        - New or changed layout keeps text and focus out of the outer 5% of every edge and
+          shows focus by more than colour.
+        Flag code that contradicts these, and comments that claim behaviour without evidence.
+
+    - path: 'src/core/**'
+      instructions: |
+        The shared pure core, compiled with lib ES2022 and no ambient types: no DOM, Node or
+        React. The canonical engine decides legality; the core never re-implements rules.
+        Saved-game snapshots are versioned, and a change must still decode games saved
+        before it. Random sources are injected so tests can fix them.
+
+    - path: 'native/manifest.toml'
+      instructions: |
+        Vega's service manager refuses any service connection the manifest does not declare
+        under [wants], and reports it only in the device log. On the virtual device with SDK
+        0.24, declaring com.amazon.inputd.service made the app exit at start-up, and the
+        remote works without it. The build adds needs.module entries for system libraries.
+
+    - path: 'native/package.json'
+      instructions: |
+        Versions are matched to Vega SDK 0.24: react-native 0.83.0, react 19.2.0 and
+        @react-native/* 0.83.0. Never suggest a minor or major upgrade of those; the Vega CLI
+        refuses other React Native versions. System-distributed @amazon-devices libraries
+        take `~` patch ranges, as Amazon's lint rule requires.
+
+    - path: '**/test/**'
+      instructions: |
+        node:test, with small stubs for the Vega packages in native/test/stubs. A test should
+        fail when the behaviour it names breaks. In type-checked tests, pass string paths to
+        fs, never URL objects.
+
+    - path: 'native/scripts/**'
+      instructions: |
+        Generators and the vendoring script. Their output is committed: vendored files are
+        checked against the digests the asset repository published, and generated files
+        carry a "do not edit" header.
+
+    - path: '.github/workflows/**'
+      instructions: |
+        This is a public repository: jobs run on GitHub-hosted runners only, never on a
+        self-hosted runner. A workflow triggered by pull_request_target must never check out
+        or run code from the pull request.
+
+    - path: '**/*.md'
+      instructions: |
+        English only. A claim about runtime behaviour must say what it rests on: the Vega
+        Virtual Device, a Fire TV Stick, or a test. No private infrastructure details
+        (hostnames, IP addresses, credentials) and no trained weights, opening books or
+        production parameter values.
