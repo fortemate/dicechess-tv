@@ -94,6 +94,15 @@ test('automatic draws are turn-boundary checks; resignation and agreed draws can
   const resign = resignGame(newGame('random', 'resign'));
   assert.deepEqual(resign.result, { winner: 'b', reason: 'resigned' });
   assert.throws(() => rollGame(resign, [1, 1, 1]));
+  // A saved result must hold exactly its two fields.
+  for (const result of [
+    { winner: 'b' },
+    { winner: 'b', reason: 'resigned', extra: true },
+  ])
+    assert.throws(
+      () => decodeGame(JSON.stringify({ ...resign, result })),
+      /Invalid result/,
+    );
   assert.equal(
     agreeDraw(newGame('hotseat', 'draw')).result?.reason,
     'agreed-draw',

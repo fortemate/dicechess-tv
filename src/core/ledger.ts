@@ -14,6 +14,7 @@
 // the ledger has no way to know who sat where.
 
 import type { Game, Side } from './game.ts';
+import { hasExactKeys } from './keys.ts';
 
 export type BotRecord = { wins: number; draws: number; losses: number };
 export type HotseatRecord = { white: number; draws: number; black: number };
@@ -44,7 +45,7 @@ const isBotRecord = (value: unknown): value is BotRecord => {
   return (
     !!record &&
     typeof record === 'object' &&
-    Object.keys(record).sort().join(',') === 'draws,losses,wins' &&
+    hasExactKeys(record, ['wins', 'draws', 'losses']) &&
     isCount(record.wins) &&
     isCount(record.draws) &&
     isCount(record.losses)
@@ -62,7 +63,7 @@ export function decodeLedger(raw: string): Ledger {
     value.schema === 1 &&
     (value.lastCountedId === null || typeof value.lastCountedId === 'string') &&
     !!value.hotseat &&
-    Object.keys(value.hotseat).sort().join(',') === 'black,draws,white' &&
+    hasExactKeys(value.hotseat, ['white', 'draws', 'black']) &&
     [value.hotseat.white, value.hotseat.draws, value.hotseat.black].every(
       isCount,
     ) &&

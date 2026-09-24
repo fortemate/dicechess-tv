@@ -100,6 +100,11 @@ test('a ledger that no longer decodes is refused rather than reset to zero', () 
     { ...good, hotseat: { ...good.hotseat, white: -1 } },
     { ...good, bots: { random: { x: { wins: 0, draws: 0, losses: 0 } } } },
     { ...good, bots: { random: { w: { wins: 0 } } } },
+    { ...good, hotseat: { ...good.hotseat, extra: 0 } },
+    {
+      ...good,
+      bots: { random: { w: { wins: 0, draws: 0, losses: 0, extra: 0 } } },
+    },
     { ...good, lastCountedId: 7 },
   ]) {
     assert.throws(
