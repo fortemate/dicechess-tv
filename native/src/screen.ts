@@ -266,8 +266,12 @@ function botStep(state: ScreenState, options: ScreenOptions): ScreenState {
     };
   }
 
-  if (game.phase === 'roll')
-    return { ...state, game: rollGame(game, options.roll()) };
+  // A roll can end the game too: with nothing to play once the half-move clock
+  // or the turn count has run out, the result is a draw.
+  if (game.phase === 'roll') {
+    const next = rollGame(game, options.roll());
+    return { ...state, game: next, overlay: after(next) };
+  }
   if (game.phase === 'handoff') return { ...state, game: nextTurn(game) };
 
   // Decide the whole turn at once and check it as a whole: applyBotReply

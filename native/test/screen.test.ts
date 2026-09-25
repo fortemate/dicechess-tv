@@ -663,3 +663,22 @@ test('the bot taking the king ends on the offer of a rematch too', () => {
   assert.deepEqual(over.game.result, { winner: 'b', reason: 'king-captured' });
   assert.deepEqual(over.overlay, { kind: 'result', index: 0 });
 });
+
+test('a bot roll that ends the game offers a rematch as well', () => {
+  // The bot, Black, rolls three rooks it does not have, with the half-move
+  // clock already at 100: nothing to play, so the game is drawn on the roll.
+  const game = newGame(
+    'random',
+    'drawn',
+    '4k3/8/8/8/8/8/8/4K3 b - - 100 60',
+    'w',
+  );
+  const opts: ScreenOptions = { ...options, roll: () => [4, 4, 4] };
+  const waiting: ScreenState = {
+    ...initialState(opts, game),
+    overlay: { kind: 'none' },
+  };
+  const over = screenReducer(waiting, { kind: 'bot' }, opts);
+  assert.deepEqual(over.game.result, { winner: null, reason: '100-halfmoves' });
+  assert.deepEqual(over.overlay, { kind: 'result', index: 0 });
+});
