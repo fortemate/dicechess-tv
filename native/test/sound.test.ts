@@ -127,6 +127,34 @@ test('the empty roll is heard after the dice land, and does not cut them short',
   );
 });
 
+test('an empty roll still waiting is dropped when the game moves on', async () => {
+  resetAudio();
+  const time = clock();
+  const sounds = createSounds({ pick: () => 0, later: time.later });
+  // The player resigns from the menu before the empty roll is heard: the loss
+  // plays on the result player, and the empty roll must not cut it short.
+  sounds.play(['dice_roll', 'no_move']);
+  sounds.play(['game_loss']);
+  time.elapse();
+  await settle();
+  assert.deepEqual(
+    plays().map((entry) => entry.src),
+    [
+      '/pkg/assets/sfx/kenney-casino-audio/dice_throw_1.mp3',
+      '/pkg/assets/sfx/kenney-music-jingles/pizzicato_01.mp3',
+    ],
+  );
+  // A silent step, such as a new game, drops it as well.
+  sounds.play(['dice_roll', 'no_move']);
+  sounds.play([]);
+  time.elapse();
+  await settle();
+  assert.equal(
+    plays().filter((entry) => entry.src?.endsWith('/glass_004.mp3')).length,
+    0,
+  );
+});
+
 test('an empty roll muted while it waits is not heard', async () => {
   resetAudio();
   const time = clock();
