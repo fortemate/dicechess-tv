@@ -368,7 +368,13 @@ stay, and Random draws a side again. It is a new game, saved and counted like
 any other, and the finished one is counted once. Hotseat results keep their
 flow: OK goes back to the main menu, since the app cannot know who sat where.
 The bot's turn shows "Random is playing…" in the prompt instead of an OK that
-does nothing, which also keeps the headline to one line.
+does nothing, which also keeps the headline to one line. Tests:
+`native/test/screen.test.ts` (the rematch, Random drawing again, Main menu and
+Back, hotseat, the bot taking the king) and `native/test/ledger.test.tsx` (the
+single count and the saved rematch). Checked on the virtual device on 25
+September: playing Black, the bot's turn read "White to play" and "Random is
+playing…"; resigning offered Rematch and Main menu; Rematch started a new game
+as Black; and a schema-3 save from the day before resumed.
 
 Verified on the virtual device on 24 September 2026 with scripted key presses
 and a screenshot after each step: Play Random opened the choice on Random;
