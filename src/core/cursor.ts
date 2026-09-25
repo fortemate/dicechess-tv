@@ -92,8 +92,8 @@ export function pressesFrom(
 ): Map<string, number> {
   const presses = new Map<string, number>([[start, 0]]);
   const queue: [string, number][] = [[start, 0]];
-  for (let i = 0; i < queue.length; i++) {
-    const [at, count] = queue[i];
+  // An array iterator also visits what is pushed during the loop.
+  for (const [at, count] of queue) {
     for (const direction of DIRECTIONS) {
       const to = jump(at, options, direction, layout);
       if (to === null || presses.has(to)) continue;

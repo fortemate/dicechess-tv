@@ -3,10 +3,11 @@
 //   node --experimental-strip-types scripts/cursor-presses.ts [games] [seed]
 //
 // Plays seeded random games through the app's own core, so every run with the
-// same arguments sees the same positions and the same moves. Random moves are
-// not a person's moves, but every strategy is scored on the same ones. The
-// arrows, the OKs and a promotion's extra OK are counted; the OK that rolls the
-// dice and the one that passes the turn cost the same everywhere and are not.
+// same arguments sees the same positions and the same moves. Both sides choose
+// random legal actions. Random moves are not a person's moves, but every
+// strategy is scored on the same ones. The arrows, the OKs and a promotion's
+// extra OK are counted; the OK that rolls the dice and the one that passes the
+// turn cost the same everywhere and are not.
 import {
   moveGame,
   newGame,
@@ -19,8 +20,18 @@ import {
 import { highlights } from '../src/core/highlights.ts';
 import { actionCost, CURRENT, type Strategy } from '../src/core/presses.ts';
 
-const GAMES = Number(process.argv[2] ?? 200);
-const SEED = Number(process.argv[3] ?? 68);
+// A whole number of at least `least`, or the usage and exit code 2.
+function argument(index: number, fallback: number, least: number): number {
+  const raw = process.argv[index];
+  const value = raw === undefined ? fallback : Number(raw);
+  if (Number.isSafeInteger(value) && value >= least) return value;
+  console.error(
+    'usage: node --experimental-strip-types scripts/cursor-presses.ts [games >= 1] [seed >= 0]',
+  );
+  process.exit(2);
+}
+const GAMES = argument(2, 200, 1);
+const SEED = argument(3, 68, 0);
 
 // mulberry32: small, seeded and good enough to pick dice and moves.
 function seeded(seed: number): () => number {
@@ -78,9 +89,10 @@ const STRATEGIES: [string, Strategy][] = [
   ],
 ];
 
-// Who holds the remote. In hotseat both sides share one cursor on a board that
-// never turns; against the bot only the person's actions count, and the board
-// turns for a person playing Black.
+// Whose turns are scored. In hotseat both sides share one cursor on a board
+// that never turns. The one-colour modes score a single side of the same games
+// and leave its cursor where it was during the other side's turns, as when a
+// person plays the bot; the board turns for a person playing Black.
 type Mode = {
   name: string;
   scores: (side: Side) => boolean;
@@ -95,13 +107,13 @@ const MODES: Mode[] = [
     start: 'e2',
   },
   {
-    name: 'Against the bot, as White',
+    name: 'White only, cursor kept across the other turns',
     scores: (side) => side === 'w',
     flipped: false,
     start: 'e2',
   },
   {
-    name: 'Against the bot, as Black',
+    name: 'Black only, board turned, cursor kept across the other turns',
     scores: (side) => side === 'b',
     flipped: true,
     start: 'e7',
@@ -171,6 +183,7 @@ for (let g = 0; g < GAMES; g++) {
 }
 
 const quantile = (values: number[], q: number) => {
+  if (values.length === 0) return Number.NaN;
   const sorted = [...values].sort((a, b) => a - b);
   return sorted[Math.min(sorted.length - 1, Math.floor(q * sorted.length))];
 };

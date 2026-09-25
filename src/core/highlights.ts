@@ -8,9 +8,11 @@
 import { pieceAt } from './board.ts';
 import { legalAfter, viewGame, type Game } from './game.ts';
 
+const bySquare = (a: string, b: string) => a.localeCompare(b);
+
 // The squares legal actions start from, sorted so that equal sets compare equal.
 export function movableSquares(legal: readonly string[]): string[] {
-  return [...new Set(legal.map((move) => move.slice(0, 2)))].sort();
+  return [...new Set(legal.map((move) => move.slice(0, 2)))].sort(bySquare);
 }
 
 export type Highlights = {
@@ -36,5 +38,5 @@ export function highlights(game: Game): Highlights {
   for (const move of legal)
     for (const square of movableSquares(legalAfter(dfen, move)))
       if (own(square) && !now.includes(square)) later.add(square);
-  return { now, later: [...later].sort() };
+  return { now, later: [...later].sort(bySquare) };
 }
