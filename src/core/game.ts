@@ -1,5 +1,5 @@
 import { DiceChess } from '@fortemate/dicechess-engine/rules';
-import { applyLegal } from './model.ts';
+import { applyLegal, applyTrusted } from './model.ts';
 import { fileOf, pieceAt } from './board.ts';
 import { hasExactKeys } from './keys.ts';
 
@@ -62,6 +62,42 @@ const SCHEMA_2_FIELDS = SCHEMA_3_FIELDS.filter((field) => field !== 'human');
 export const opposite = (side: Side): Side => (side === 'w' ? 'b' : 'w');
 export const sideName = (side: Side) => (side === 'w' ? 'White' : 'Black');
 
+// The DFEN after one action, with the dice it leaves. Engine 0.12.2 applyMove
+// returns the board fields but clears the dice field, so the surviving dice are
+// reattached here, as the play client does. `apply` plays the action.
+function afterAction(
+  dfen: string,
+  move: string,
+  apply: (dfen: string, move: string) => string,
+): string {
+  const piece = pieceAt(dfen.split(' ')[0], move.slice(0, 2));
+  if (!piece) throw new Error('Missing moving piece');
+  const letter = piece.toUpperCase();
+  let remaining = (dfen.split(' ')[6] ?? '').toUpperCase();
+  const consume = (die: string) => {
+    if (!remaining.includes(die)) throw new Error('Missing required die');
+    remaining = remaining.replace(die, '');
+  };
+  const next = apply(dfen, move);
+  consume(letter);
+  if (letter === 'K' && Math.abs(fileOf(move) - fileOf(move.slice(2))) === 2)
+    consume('R');
+  return (
+    next.split(' ').slice(0, 6).join(' ') + (remaining ? ' ' + remaining : '')
+  );
+}
+
+// The legal actions after one of the position's own legal actions, which needs
+// no second check: none once a king is taken, as in viewGame. Mid-turn a game
+// ends only by a king taken, so these are exactly the next actions on offer.
+export function legalAfter(dfen: string, move: string): string[] {
+  const next = afterAction(dfen, move, applyTrusted);
+  const board = next.split(' ')[0];
+  return board.includes('K') && board.includes('k')
+    ? DiceChess.getLegalUciMoves(next)
+    : [];
+}
+
 export function viewGame(game: Game) {
   let dfen = game.start;
   if (game.roll.length) {
@@ -79,24 +115,9 @@ export function viewGame(game: Game) {
     const board = dfen.split(' ')[0];
     if (!board.includes('K') || !board.includes('k'))
       throw new Error('Move after king capture');
-    // Engine 0.12.2 applyMove returns board fields but clears the dice field.
-    // Reattach the surviving dice, as the play client does. Legality, including
-    // maximal use and promotion restrictions, is checked by applyLegal first.
-    const piece = pieceAt(board, move.slice(0, 2));
-    if (!piece) throw new Error('Missing moving piece');
-    const letter = piece.toUpperCase();
-    let remaining = (dfen.split(' ')[6] ?? '').toUpperCase();
-    const consume = (die: string) => {
-      if (!remaining.includes(die)) throw new Error('Missing required die');
-      remaining = remaining.replace(die, '');
-    };
-    const next = applyLegal(dfen, move);
-    consume(letter);
-    if (letter === 'K' && Math.abs(fileOf(move) - fileOf(move.slice(2))) === 2)
-      consume('R');
-    dfen =
-      next.split(' ').slice(0, 6).join(' ') +
-      (remaining ? ' ' + remaining : '');
+    // Legality, including maximal use and promotion restrictions, is checked
+    // by applyLegal first.
+    dfen = afterAction(dfen, move, applyLegal);
   }
   const parts = dfen.split(' ');
   const side = parts[1] as Side;
