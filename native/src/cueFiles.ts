@@ -24,6 +24,7 @@ export const CUE_FILES: Readonly<Record<Cue, readonly string[]>> = {
     'jdsherbert-tabletop/piece_impact_2.mp3',
   ],
   promotion: ['kenney-interface-sounds/maximize_006.mp3'],
+  no_move: ['kenney-interface-sounds/glass_004.mp3'],
   game_win: ['kenney-music-jingles/pizzicato_02.mp3'],
   game_loss: ['kenney-music-jingles/pizzicato_01.mp3'],
   game_draw: ['kenney-music-jingles/pizzicato_03.mp3'],

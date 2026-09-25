@@ -83,6 +83,93 @@ test('a capture and the win it causes play together, on different players', asyn
   assert.notEqual(capture.player, win.player);
 });
 
+// Delayed cues are handed to `later` instead of a timer, and run when the test
+// says the time has come.
+const clock = () => {
+  const waiting: { run: () => void; wait: number }[] = [];
+  return {
+    later: (run: () => void, wait: number) => {
+      waiting.push({ run, wait });
+    },
+    waits: () => waiting.map(({ wait }) => wait),
+    elapse: () => {
+      for (const { run } of waiting.splice(0)) run();
+    },
+  };
+};
+
+test('the empty roll is heard after the dice land, and does not cut them short', async () => {
+  resetAudio();
+  const time = clock();
+  const sounds = createSounds({ pick: () => 0, later: time.later });
+  sounds.play(['dice_roll', 'no_move']);
+  await settle();
+  // The dice play at once; the empty roll waits half a second.
+  assert.deepEqual(
+    plays().map((entry) => entry.src),
+    ['/pkg/assets/sfx/kenney-casino-audio/dice_throw_1.mp3'],
+  );
+  assert.deepEqual(time.waits(), [500]);
+  time.elapse();
+  await settle();
+  const [dice, empty] = plays();
+  assert.equal(
+    empty.src,
+    '/pkg/assets/sfx/kenney-interface-sounds/glass_004.mp3',
+  );
+  // Another player, so the clatter is not paused to make way for it.
+  assert.notEqual(dice.player, empty.player);
+  assert.equal(
+    log().filter(
+      (entry) => entry.player === dice.player && entry.event === 'pause',
+    ).length,
+    0,
+  );
+});
+
+test('an empty roll still waiting is dropped when the game moves on', async () => {
+  resetAudio();
+  const time = clock();
+  const sounds = createSounds({ pick: () => 0, later: time.later });
+  // The player resigns from the menu before the empty roll is heard: the loss
+  // plays on the result player, and the empty roll must not cut it short.
+  sounds.play(['dice_roll', 'no_move']);
+  sounds.play(['game_loss']);
+  time.elapse();
+  await settle();
+  assert.deepEqual(
+    plays().map((entry) => entry.src),
+    [
+      '/pkg/assets/sfx/kenney-casino-audio/dice_throw_1.mp3',
+      '/pkg/assets/sfx/kenney-music-jingles/pizzicato_01.mp3',
+    ],
+  );
+  // A silent step, such as a new game, drops it as well.
+  sounds.play(['dice_roll', 'no_move']);
+  sounds.play([]);
+  time.elapse();
+  await settle();
+  assert.equal(
+    plays().filter((entry) => entry.src?.endsWith('/glass_004.mp3')).length,
+    0,
+  );
+});
+
+test('an empty roll muted while it waits is not heard', async () => {
+  resetAudio();
+  const time = clock();
+  const sounds = createSounds({ pick: () => 0, later: time.later });
+  sounds.play(['dice_roll', 'no_move']);
+  await settle();
+  sounds.setMuted(true);
+  time.elapse();
+  await settle();
+  assert.deepEqual(
+    plays().map((entry) => entry.src),
+    ['/pkg/assets/sfx/kenney-casino-audio/dice_throw_1.mp3'],
+  );
+});
+
 test('muted, nothing plays, and what was playing stops', async () => {
   resetAudio();
   const sounds = createSounds({ pick: () => 0 });

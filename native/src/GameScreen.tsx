@@ -7,6 +7,7 @@ import { View, Text, useWindowDimensions } from 'react-native';
 import {
   viewGame,
   sideName,
+  emptyRoll,
   type Game,
   type Result,
 } from '../../src/core/game';
@@ -34,6 +35,8 @@ import {
   flipped,
   resumable,
   handsOff,
+  botWait,
+  OK_GUARD_MS,
   type Overlay,
   type ScreenAction,
   type ScreenOptions,
@@ -121,6 +124,14 @@ const Choices = ({
 const mover = (game: Game, bot: boolean): string =>
   game.human !== null && !bot ? ' · you' : '';
 
+// Whose move it is, or that the roll left nothing to play (#85). Whose roll it
+// was shows in the dice, drawn in that side's colour, and against the bot in
+// the prompt too; leaving the side out keeps the notice to one line. Nobody did
+// anything wrong, so it says so plainly rather than "forfeited".
+const headline = (game: Game, view: GameView): string =>
+  (emptyRoll(game) ? 'No legal moves' : `${sideName(view.side)} to play`) +
+  mover(game, view.bot);
+
 // Results so far, shown where a player chooses what to do next. Hotseat is by
 // colour because the seats change hands and nobody here knows who sat where.
 const Record = ({ ledger }: { ledger: Ledger }) => {
@@ -152,11 +163,15 @@ type GameView = ReturnType<typeof viewGame>;
 // The line under the headline: who won, or the dice still to use.
 const winnerLine = (result: Result): string =>
   result.winner ? `${sideName(result.winner)} wins` : 'Drawn';
-const RESULT_LINE = { color: '#aab8c9', fontSize: 24, marginBottom: 12 };
+const STATUS_LINE = { color: '#aab8c9', fontSize: 24, marginBottom: 12 };
+
+// Under the dice after a roll with nothing to play, in the rules guide's words.
+export const NO_MOVE_LINE = 'No die can be used — the turn passes';
 
 // The mode and the turn; then how the game ended or whose move it is; then the
-// winner or the dice. The home screen leaves the dice out: it is a menu, and its
-// list needs the height.
+// winner or the dice, and why the turn passes when a roll left nothing to play.
+// The home screen leaves the dice out: it is a menu, and its list needs the
+// height.
 const Status = ({
   game,
   view,
@@ -173,13 +188,17 @@ const Status = ({
         {`${game.mode === 'hotseat' ? 'HOTSEAT' : 'VS RANDOM'} · TURN ${game.turn}`}
       </Text>
       <Text style={{ color: '#f0f4f8', fontSize: 38, marginBottom: 16 }}>
-        {result
-          ? RESULT[result.reason]
-          : `${sideName(view.side)} to play${mover(game, view.bot)}`}
+        {result ? RESULT[result.reason] : headline(game, view)}
       </Text>
-      {result ? <Text style={RESULT_LINE}>{winnerLine(result)}</Text> : null}
+      {result ? <Text style={STATUS_LINE}>{winnerLine(result)}</Text> : null}
       {!result && dice ? (
-        <Dice dice={diceOf(game.roll, view.remaining)} side={view.side} />
+        <Dice
+          dice={diceOf(game.roll, view.remaining, game.phase === 'handoff')}
+          side={view.side}
+        />
+      ) : null}
+      {!result && dice && emptyRoll(game) ? (
+        <Text style={STATUS_LINE}>{NO_MOVE_LINE}</Text>
       ) : null}
     </>
   );
@@ -335,7 +354,7 @@ export const GameScreen = ({
       screenReducer(state, action, options),
     [options],
   );
-  const [{ game, focus, overlay, sound }, dispatch] = React.useReducer(
+  const [{ game, focus, overlay, sound, guarded }, dispatch] = React.useReducer(
     reduce,
     initial,
     (restored) => initialState(options, restored, initialSound),
@@ -384,11 +403,24 @@ export const GameScreen = ({
     let cancelled = false;
     options.schedule(() => {
       if (!cancelled) dispatch({ kind: 'bot' });
-    });
+    }, botWait(game));
     return () => {
       cancelled = true;
     };
   }, [game, overlay.kind, options]);
+
+  // After a person's roll with nothing to play, OK comes back once the guard
+  // has run out (#85). A menu opened meanwhile does not stop the clock.
+  React.useEffect(() => {
+    if (!guarded) return;
+    let cancelled = false;
+    options.schedule(() => {
+      if (!cancelled) dispatch({ kind: 'unguard' });
+    }, OK_GUARD_MS);
+    return () => {
+      cancelled = true;
+    };
+  }, [guarded, options]);
 
   // Seeded with the game the screen opened on, so mounting never re-saves what
   // was just restored.

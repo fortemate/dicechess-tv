@@ -338,6 +338,39 @@ the panel. Checked on the virtual device on 25 September: empty slots before the
 roll, bishop, rook and bishop after it, and in the tutorial three pawn dice going
 dim one by one.
 
+### A roll with nothing to play
+
+About one roll in twelve leaves nothing to play, and close to a third of first
+rolls do, because at the start only pawns and knights can move (#85, measured
+over 300 random games). The turn passes; the screen says why, without a
+remote press being added and without a word about the far more frequent turn
+that ends with dice left over.
+
+- **The headline** reads "No legal moves" instead of "White to play", with
+  " · you" on a person's own roll against the bot, and a line under the dice
+  gives the rules guide's reason: "No die can be used — the turn passes". Whose
+  roll it was shows in the dice, drawn in that side's colour, and against the
+  bot in the prompt; leaving the side out keeps the headline to one line.
+  Nobody did anything wrong, so nothing says "forfeited".
+- **The dice** all lose their ring and dim to 45 % at full size: they were never
+  played, and nothing is left to play. When a turn ends with dice left over after
+  an action, those dice dim the same way, but there is no notice and no cue.
+- **OK is ignored for 700 ms** after a person's own empty roll, so a double press
+  on the remote cannot pass the turn before the notice is seen. Back works
+  throughout.
+- **The bot holds its empty roll for 1,500 ms** before handing over, the hold the
+  web client uses, instead of its usual 600 ms.
+- **The cue**, `no_move`, waits 500 ms, so it follows the dice clatter instead of
+  covering it.
+
+The empty roll is `emptyRoll()` in `src/core/game.ts`: a handoff with no action
+played. The waits are `OK_GUARD_MS`, `BOT_STEP_MS` and `PASS_HOLD_MS` in
+`src/screen.ts`, and the app's scheduler runs them, so a test sees every wait
+asked for. Tests: `test/game.test.ts`, `test/cues.test.ts` and
+`test/dice.test.ts` against the engine, `native/test/screen.test.ts` for the
+guard and the hold, `native/test/sound.test.ts` for the cue's delay, and
+`native/test/noMove.test.tsx` through the whole app, sound off included.
+
 ## Menus
 
 Flow lives in `src/screen.ts` as a pure reducer over state and one key, tested
@@ -381,7 +414,9 @@ headless tasks cannot be started by an app, and
 `@amazon-devices/react-native-worklets` is the untested candidate.
 
 Its steps — roll, play, hand over — are scheduled 600 ms apart rather than
-looped, so the player watches the turn happen. While the opponent owes an action
+looped, so the player watches the turn happen. After a roll with nothing to play
+it holds 1,500 ms before handing over, so the notice can be read (see "A roll
+with nothing to play" above). While the opponent owes an action
 the board takes no input but Back, so a player cannot move its pieces for it and
 is never stuck watching.
 
@@ -528,13 +563,14 @@ while dice remain the game continues.
 
 ## Sound
 
-The game plays nine cues: a roll, a move, a capture, castling, a promotion, the
-handoff of the dice, and a win, a loss or a draw. Every one also has a visual
-equivalent already on screen, and a `Sound: on` item in both menus turns them
-all off. What was heard on a real speaker was chosen by the owner, by ear, in
-`fortemate/dicechess-assets#8`, and the game's own sounds have been heard coming
-from the virtual device through the Mac's speakers. What has not been heard yet
-is the game on a television, from a sofa.
+The game plays ten cues: a roll, a roll with nothing to play, a move, a capture,
+castling, a promotion, the handoff of the dice, and a win, a loss or a draw.
+Every one also has a visual equivalent already on screen, and a `Sound: on` item
+in both menus turns them all off. What was heard on a real speaker was chosen by
+the owner, by ear, in `fortemate/dicechess-assets#8`; the empty roll's cue was
+chosen by ear too, in #85. The game's own sounds have been heard coming from the
+virtual device through the Mac's speakers. What has not been heard yet is the
+game on a television, from a sofa.
 
 **The manifest has to declare the audio services.** Vega's service manager
 refuses any connection a manifest did not declare and says so only in the device
@@ -569,7 +605,9 @@ virtual device or the Stick (#10).
   table ever disagree.
 - **Playing it** is `src/sound.ts`: three players — board, dice and result — so a
   capture and the win it causes sound together, while a new move cuts the last
-  one short. Every failure is reported and swallowed; a game must never stop
+  one short. The empty roll's cue waits 500 ms for the dice to land and plays on
+  the result player, which is free then; on the dice player it would cut the
+  clatter short. Every failure is reported and swallowed; a game must never stop
   because a sound did.
 - **The build** copies the vendored files to `assets/sfx/<pack>/`, which is
   `/pkg/assets/sfx/<pack>/` on the device, and refuses to if a file no longer

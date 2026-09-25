@@ -67,9 +67,9 @@ export const App = ({
       side: () => randomSide(source.fill),
       newId: () => 'g' + Date.now().toString(36),
       // Space the opponent's steps out so the player watches it roll and move
-      // rather than seeing the board jump.
-      schedule: (step) => {
-        setTimeout(step, 600);
+      // rather than seeing the board jump; the screen says how long each waits.
+      schedule: (step, wait) => {
+        setTimeout(step, wait);
       },
     };
   }, [injected]);

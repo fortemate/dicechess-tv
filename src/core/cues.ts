@@ -7,9 +7,10 @@
 //
 // Every cue has a visual equivalent already on screen, which the roadmap asks
 // for alongside a mute: the dice appear, the piece moves, the promotion chooser
-// opens, the handoff prompt shows, the result is written out.
+// opens, the handoff prompt shows, a roll with nothing to play is announced, the
+// result is written out.
 
-import { viewGame, type Game, type Side } from './game.ts';
+import { emptyRoll, viewGame, type Game, type Side } from './game.ts';
 import { fileOf, pieceAt } from './board.ts';
 
 export type Cue =
@@ -18,6 +19,7 @@ export type Cue =
   | 'piece_capture'
   | 'castle'
   | 'promotion'
+  | 'no_move'
   | 'turn_handoff'
   | 'game_win'
   | 'game_loss'
@@ -34,8 +36,12 @@ export function cues(before: Game, after: Game, humanSide: Side = 'w'): Cue[] {
   const heard: Cue[] = [];
   if (after.turn === before.turn + 1) heard.push('turn_handoff');
   else if (after.turn === before.turn) {
-    if (before.roll.length === 0 && after.roll.length > 0)
+    if (before.roll.length === 0 && after.roll.length > 0) {
       heard.push('dice_roll');
+      // Named after the roll it follows; the native layer lets the dice land
+      // before it plays. A roll that ends the game is heard as the result.
+      if (emptyRoll(after)) heard.push('no_move');
+    }
     const played = after.moves.at(-1);
     if (after.moves.length === before.moves.length + 1 && played)
       heard.push(moveCue(before, played));

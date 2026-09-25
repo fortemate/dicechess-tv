@@ -32,15 +32,24 @@
     "promotion": [
       "exports/ogg/maximize_006.ogg",
       "exports/mp3/maximize_006.mp3"
+    ],
+    "no_move": [
+      "exports/ogg/glass_004.ogg",
+      "exports/mp3/glass_004.mp3"
     ]
   },
   "exportSources": {
-    "exports/ogg/maximize_006.ogg": "ogg/maximize_006.ogg"
+    "exports/ogg/maximize_006.ogg": "ogg/maximize_006.ogg",
+    "exports/ogg/glass_004.ogg": "ogg/glass_004.ogg"
   },
   "derivedExports": {
     "exports/mp3/maximize_006.mp3": {
       "source": "ogg/maximize_006.ogg",
       "sha256": "5370809cd3e1a29aacc79024a8ba8b72a12202464f9c514f88ff19124874ecc1"
+    },
+    "exports/mp3/glass_004.mp3": {
+      "source": "ogg/glass_004.ogg",
+      "sha256": "0bbc0cf70bc0992364f2e969055c88195744975a651ff75b89a5f190c6ee48f7"
     }
   },
   "derivation": {

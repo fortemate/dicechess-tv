@@ -32,14 +32,25 @@ const CHANNEL: Readonly<Record<Cue, Channel>> = {
   promotion: 'board',
   dice_roll: 'dice',
   turn_handoff: 'dice',
+  // Not on the dice channel, where it would cut short the clatter it follows.
+  // Nothing else plays on the result channel then: a roll that ends the game
+  // is heard as the result instead.
+  no_move: 'result',
   game_win: 'result',
   game_loss: 'result',
   game_draw: 'result',
 };
 
+// Cues that wait before they start, in milliseconds. A roll with nothing to
+// play is heard after the dice land, not over them: the throws last 0.4 to
+// 0.6 s (#85).
+const DELAY: Partial<Record<Cue, number>> = { no_move: 500 };
+
 const CHANNELS: readonly Channel[] = ['board', 'dice', 'result'];
 
 export type Sounds = {
+  // Called on every step of the game, even a silent one: a cue still waiting
+  // to start is dropped once the game has moved on.
   play(cues: readonly Cue[]): void;
   setMuted(muted: boolean): void;
   // While the app is away from the foreground nothing plays, and anything
@@ -54,6 +65,9 @@ export type SoundOptions = {
   report?: (line: string) => void;
   // Start muted, when the viewer turned sound off in an earlier session.
   muted?: boolean;
+  // Runs a delayed cue after `wait` milliseconds. Injected so a test need not
+  // wait.
+  later?: (run: () => void, wait: number) => void;
 };
 
 type Player = Pick<
@@ -65,9 +79,16 @@ export function createSounds({
   pick = (count) => Math.floor(Math.random() * count),
   report = () => undefined,
   muted: startMuted = false,
+  later = (run, wait) => {
+    setTimeout(run, wait);
+  },
 }: SoundOptions = {}): Sounds {
   let muted = startMuted;
   let suspended = false;
+  // Counts the steps play() has been told about. A delayed cue starts only if
+  // no step came after its own, so a resignation's jingle on the result player
+  // is not cut short by the empty roll just before it.
+  let steps = 0;
   const loaded = new Map<Channel, string>();
 
   // Players are created and initialised up front, so the first cue of a game is
@@ -139,8 +160,20 @@ export function createSounds({
 
   return {
     play(cues) {
+      const step = ++steps;
       if (muted || suspended) return;
-      for (const cue of cues) void start(cue);
+      for (const cue of cues) {
+        const wait = DELAY[cue];
+        if (!wait) {
+          void start(cue);
+          continue;
+        }
+        // Dropped if another step comes first. start() checks muting again, so
+        // a cue muted while it waits is not heard either.
+        later(() => {
+          if (step === steps) void start(cue);
+        }, wait);
+      }
     },
     setMuted(value) {
       muted = value;

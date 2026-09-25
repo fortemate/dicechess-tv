@@ -43,9 +43,9 @@ test('before the roll there are three empty slots', () => {
 
 test('each face shows its piece in the colour of the side to move', () => {
   const dice = [
-    { piece: 'Q', spent: false },
-    { piece: 'R', spent: false },
-    { piece: 'N', spent: false },
+    { piece: 'Q', spent: false, leftover: false },
+    { piece: 'R', spent: false, leftover: false },
+    { piece: 'N', spent: false, leftover: false },
   ];
   const white = mount(dice, 'w');
   assert.equal(faces(white).length, 3);
@@ -59,9 +59,9 @@ test('each face shows its piece in the colour of the side to move', () => {
 test('a spent die dims and shrinks, and only an unspent one carries a ring', () => {
   const root = mount(
     [
-      { piece: 'P', spent: true },
-      { piece: 'P', spent: false },
-      { piece: 'B', spent: false },
+      { piece: 'P', spent: true, leftover: false },
+      { piece: 'P', spent: false, leftover: false },
+      { piece: 'B', spent: false, leftover: false },
     ],
     'w',
     72,
@@ -84,4 +84,23 @@ test('a spent die dims and shrinks, and only an unspent one carries a ring', () 
     ).length >= 3,
     true,
   );
+});
+
+test('a die the turn could not use dims and loses its ring, but keeps its size', () => {
+  // A knight was played, and nothing could use the two kings left.
+  const root = mount(
+    [
+      { piece: 'N', spent: true, leftover: false },
+      { piece: 'K', spent: false, leftover: true },
+      { piece: 'K', spent: false, leftover: true },
+    ],
+    'w',
+    72,
+  );
+  const [spent, leftover] = faces(root).map(styleOf);
+  assert.equal(leftover.borderWidth, 0);
+  assert.equal(leftover.width, 72);
+  // Dimmed, and still told apart from a spent die by more than colour: size.
+  assert.ok((leftover.opacity as number) < 1, `opacity ${leftover.opacity}`);
+  assert.ok((spent.width as number) < (leftover.width as number));
 });
