@@ -18,15 +18,36 @@ import { boardView } from '../src/core/boardView.ts';
 const schema2 = (mode: 'hotseat' | 'random') => {
   const game: Record<string, unknown> = { ...newGame(mode, 'old'), schema: 2 };
   delete game.human;
+  delete game.colour;
+  return JSON.stringify(game);
+};
+
+// A save from when the side was recorded but not the option behind it.
+const schema3 = (mode: 'hotseat' | 'random', human: 'w' | 'b' | null) => {
+  const game: Record<string, unknown> = {
+    ...newGame(mode, 'old', INITIAL_POSITION, human),
+    schema: 3,
+  };
+  delete game.colour;
   return JSON.stringify(game);
 };
 
 test('a save from before colours existed resumes with the person as White', () => {
   const bot = decodeGame(schema2('random'));
-  assert.equal(bot.schema, 3);
+  assert.equal(bot.schema, 4);
   assert.equal(bot.human, 'w');
+  assert.equal(bot.colour, 'w');
   const hotseat = decodeGame(schema2('hotseat'));
   assert.equal(hotseat.human, null);
+  assert.equal(hotseat.colour, null);
+});
+
+test('a save that recorded only the side keeps that side as its colour option', () => {
+  const black = decodeGame(schema3('random', 'b'));
+  assert.equal(black.schema, 4);
+  assert.equal(black.human, 'b');
+  assert.equal(black.colour, 'b');
+  assert.equal(decodeGame(schema3('hotseat', null)).colour, null);
 });
 
 test('a person playing Black meets the bot on the first move', () => {
@@ -53,10 +74,18 @@ test('resigning against the bot is the person’s loss, whatever their colour', 
 test('a save must pair its mode with a side', () => {
   const bot = newGame('random', 'pair');
   const hotseat = newGame('hotseat', 'pair');
+  // The option is Random or the side itself; hotseat has neither.
+  assert.equal(
+    decodeGame(JSON.stringify({ ...bot, colour: 'random' })).colour,
+    'random',
+  );
   for (const damaged of [
     { ...hotseat, human: 'w' },
     { ...bot, human: null },
     { ...bot, human: 'x' },
+    { ...hotseat, colour: 'random' },
+    { ...bot, colour: null },
+    { ...bot, colour: 'b' },
   ])
     assert.throws(
       () => decodeGame(JSON.stringify(damaged)),

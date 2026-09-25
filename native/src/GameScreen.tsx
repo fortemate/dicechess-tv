@@ -28,6 +28,7 @@ import {
   menuOptions,
   confirmOptions,
   colourOptions,
+  resultOptions,
   flipped,
   resumable,
   handsOff,
@@ -118,10 +119,10 @@ const Choices = ({
 );
 
 // Whose move it is, when one side belongs to the person.
-const mover = (game: Game, bot: boolean): string => {
-  if (game.human === null) return '';
-  return bot ? ' · Random' : ' · you';
-};
+// Only the person's own turn is marked: the bot's turn says so in the prompt,
+// which keeps the headline to one line on a television.
+const mover = (game: Game, bot: boolean): string =>
+  game.human !== null && !bot ? ' · you' : '';
 
 // Results so far, shown where a player chooses what to do next. Hotseat is by
 // colour because the seats change hands and nobody here knows who sat where.
@@ -182,6 +183,8 @@ const Status = ({ game, view }: { game: Game; view: GameView }) => {
 
 // What OK and the arrows do now, when no menu or choice is open.
 const promptFor = (game: Game, selected: string | null): string => {
+  // The board takes no keys while the opponent owes an action.
+  if (botToAct(game)) return 'Random is playing…';
   if (game.phase === 'roll') return 'OK: roll three dice';
   if (game.phase === 'handoff') return 'OK: continue';
   if (game.phase === 'ended') return 'OK: back to the menu';
@@ -246,6 +249,14 @@ const Panel = ({
         <Choices
           {...CONFIRM[overlay.action]}
           options={confirmOptions}
+          index={overlay.index}
+        />
+      );
+    case 'result':
+      return (
+        <Choices
+          title="What next?"
+          options={resultOptions}
           index={overlay.index}
         />
       );

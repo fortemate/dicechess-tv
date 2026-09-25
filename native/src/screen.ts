@@ -16,6 +16,7 @@ import {
   applyBotReply,
   viewGame,
   INITIAL_POSITION,
+  type ColourChoice,
   type Game,
   type Mode,
   type Side,
@@ -34,7 +35,6 @@ export const START: Square = 'e2';
 const startFor = (human: Side | null): Square => (human === 'b' ? 'e7' : START);
 
 // Against the bot a person plays the colour they chose, or one drawn for them.
-export type ColourChoice = 'random' | Side;
 export const colourOptions = ['Random', 'White', 'Black'];
 const COLOURS: readonly ColourChoice[] = ['random', 'w', 'b'];
 
@@ -74,6 +74,8 @@ export type Overlay =
   // `from` is where Back returns.
   | { kind: 'colour'; index: number; mode: Mode; from: 'home' | 'menu' }
   | { kind: 'promotion'; moves: string[]; index: number }
+  // After a game against the bot: a rematch, or back to the main menu.
+  | { kind: 'result'; index: number }
   // The tutorial, the rules guide and the About screen, which the screen hands
   // to their own components. Nothing about a game is touched while one is up.
   | { kind: 'tutorial' }
@@ -150,7 +152,13 @@ const start = (
 ): ScreenState => {
   const human = mode === 'hotseat' ? null : chosen(colour, options);
   return board(
-    newGame(mode, options.newId(), INITIAL_POSITION, human),
+    newGame(
+      mode,
+      options.newId(),
+      INITIAL_POSITION,
+      human,
+      mode === 'hotseat' ? null : colour,
+    ),
     state.sound,
     startFor(human),
   );
@@ -189,6 +197,8 @@ export const menuOptions = (game: Game, sound = true): string[] => [
 
 export const confirmOptions = ['Cancel', 'Yes'];
 
+export const resultOptions = ['Rematch', 'Main menu'];
+
 // A new game keeps the one setting that is not about the game: sound.
 const board = (
   game: Game,
@@ -206,7 +216,7 @@ const board = (
 const played = (state: ScreenState, game: Game): ScreenState => ({
   game,
   focus: { ...state.focus, selected: null },
-  overlay: { kind: 'none' },
+  overlay: after(game),
   pending: [],
   sound: state.sound,
 });
@@ -246,15 +256,22 @@ function botStep(state: ScreenState, options: ScreenOptions): ScreenState {
 
   // Mid-path: reveal the next action. moveGame revalidates it against the
   // position it is actually applied to.
-  if (pending.length)
+  if (pending.length) {
+    const next = moveGame(game, pending[0]);
     return {
       ...state,
-      game: moveGame(game, pending[0]),
+      game: next,
+      overlay: after(next),
       pending: pending.slice(1),
     };
+  }
 
-  if (game.phase === 'roll')
-    return { ...state, game: rollGame(game, options.roll()) };
+  // A roll can end the game too: with nothing to play once the half-move clock
+  // or the turn count has run out, the result is a draw.
+  if (game.phase === 'roll') {
+    const next = rollGame(game, options.roll());
+    return { ...state, game: next, overlay: after(next) };
+  }
   if (game.phase === 'handoff') return { ...state, game: nextTurn(game) };
 
   // Decide the whole turn at once and check it as a whole: applyBotReply
@@ -262,9 +279,11 @@ function botStep(state: ScreenState, options: ScreenOptions): ScreenState {
   // replayed a move at a time, so the check covers what is about to be shown.
   const reply = botReply(game);
   applyBotReply(game, reply);
+  const next = moveGame(game, reply.moves[0]);
   return {
     ...state,
-    game: moveGame(game, reply.moves[0]),
+    game: next,
+    overlay: after(next),
     pending: reply.moves.slice(1),
   };
 }
@@ -273,6 +292,13 @@ function botStep(state: ScreenState, options: ScreenOptions): ScreenState {
 const BOARD: Overlay = { kind: 'none' };
 const HOME: Overlay = { kind: 'home', index: 0 };
 const MENU: Overlay = { kind: 'menu', index: 0 };
+const RESULT: Overlay = { kind: 'result', index: 0 };
+
+// What follows a step of play: the board, or, when a game against the bot has
+// just ended, the offer of a rematch. A hotseat result keeps the board, where OK
+// goes back to the main menu.
+const after = (game: Game): Overlay =>
+  game.phase === 'ended' && game.mode !== 'hotseat' ? RESULT : BOARD;
 
 // Puts up another overlay, or the board itself, and changes nothing else.
 const show = (state: ScreenState, overlay: Overlay): ScreenState => ({
@@ -421,6 +447,16 @@ const onPromotion: Handler<'promotion'> = (state, overlay, key) => {
   return moved(state, overlay, key, overlay.moves.length);
 };
 
+// Rematch starts again against the same opponent, with the same colour option:
+// Random draws a side again. Back, like Main menu, leaves for the main menu.
+const onResult: Handler<'result'> = (state, overlay, key, options) => {
+  if (key === 'back') return show(state, HOME);
+  if (key !== 'select') return moved(state, overlay, key, resultOptions.length);
+  if (resultOptions[overlay.index] === 'Main menu') return show(state, HOME);
+  const { mode, colour } = state.game;
+  return start(state, mode, colour ?? 'random', options);
+};
+
 // Choosing a piece and a square. Back is not intercepted here: boardInput
 // cancels a selection first and only asks to leave when there is nothing to
 // cancel, which is the behaviour the web probe already ships.
@@ -491,6 +527,8 @@ export function screenReducer(
       return onMenu(state, overlay, key, options);
     case 'promotion':
       return onPromotion(state, overlay, key, options);
+    case 'result':
+      return onResult(state, overlay, key, options);
     case 'none':
       return onBoard(state, key, options);
   }
