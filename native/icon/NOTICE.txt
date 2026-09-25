@@ -1,0 +1,12 @@
+Dice Chess TV app icon
+Copyright (c) 2026 Fortemate. All rights reserved.
+
+No licence is granted beyond use in Fortemate's own Dice Chess clients.
+
+The icon was composed on 2026-09-25 by Claude Code (Anthropic) at the direction
+of Jegors Čemisovs, who chose the design for Dice Chess TV.
+
+It contains two pieces from the RhosGFX Vector Chess Pieces Pack, Outline set
+(Knight Black Outline and Rook Black Outline), unchanged. RhosGFX dedicated them
+to the public domain under CC0 1.0; see LICENSE-RhosGFX.txt. The dice, their
+arrangement and the background are original to this icon.

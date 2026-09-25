@@ -96,9 +96,9 @@ test('the mark is inked, and centred', () => {
   );
 });
 
-test('the icon is the brand file, unchanged', () => {
-  // Byte-for-byte, because the one thing this must never do is reinterpret the
-  // identity. If the brand ships a new export, this fails and someone looks.
+test('the icon is the game icon from the asset repository, unchanged', () => {
+  // Byte for byte, because the icon is drawn there and only copied here. If a
+  // new export arrives, this fails until the copy is replaced on purpose.
   assert.deepEqual(readFileSync(built.icon), readFileSync(built.iconSource));
 });
 
@@ -111,33 +111,41 @@ test('the icon survives being cropped into the launcher tile', () => {
   };
   assert.equal(icon.width, 512);
   assert.equal(icon.height, 512);
-  assert.equal(
-    icon.channels,
-    3,
-    'a transparent icon came out distorted in the launcher',
-  );
 
-  // The maskable safe zone is the middle 80 %. The launcher fits a square into
-  // a wide tile, so anything outside that may be cut; the ink must not be.
-  const ink = (x: number, y: number) => {
+  // Opaque everywhere: a transparent icon came out distorted in the launcher.
+  if (icon.channels === 4)
+    for (let i = 3; i < icon.pixels.length; i += 4)
+      assert.equal(icon.pixels[i], 255, 'the icon has a transparent pixel');
+
+  // The launcher scales the square to fill a 3:2 tile and crops the top and
+  // bottom (measured on the virtual device, #83), so the dice must stay inside
+  // the middle band, with even margins left and right. The background is a
+  // saturated orange; the dice, their outlines and the pieces are not.
+  const artwork = (x: number, y: number) => {
     const base = (y * icon.width + x) * icon.channels;
-    return (
-      icon.pixels[base] > 40 ||
-      icon.pixels[base + 1] > 40 ||
-      icon.pixels[base + 2] > 40
-    );
+    const [r, g, b] = [
+      icon.pixels[base],
+      icon.pixels[base + 1],
+      icon.pixels[base + 2],
+    ];
+    const high = Math.max(r, g, b);
+    return high < 60 || (high - Math.min(r, g, b)) / high < 0.5;
   };
-  const margin = Math.round(icon.width * 0.1);
+  const band = { top: 100, bottom: 412, side: 51 };
+  let found = 0;
   for (let y = 0; y < icon.height; y++)
     for (let x = 0; x < icon.width; x++)
-      if (ink(x, y))
+      if (artwork(x, y)) {
+        found += 1;
         assert.ok(
-          x >= margin &&
-            x < icon.width - margin &&
-            y >= margin &&
-            y < icon.height - margin,
-          `ink at ${x},${y} sits outside the 80% safe zone and can be cropped away`,
+          y >= band.top &&
+            y < band.bottom &&
+            x >= band.side &&
+            x < icon.width - band.side,
+          `artwork at ${x},${y} sits outside the launcher's band and can be cropped away`,
         );
+      }
+  assert.ok(found > 10000, `only ${found} artwork pixels: is this the icon?`);
 });
 
 test('the descriptor says what the animation service expects', () => {
