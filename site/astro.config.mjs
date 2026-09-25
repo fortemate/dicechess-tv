@@ -54,7 +54,10 @@ export default defineConfig({
       // Points the favicon at the same icon; see the file.
       routeMiddleware: './src/routeData.ts',
       sidebar: SITE_MAP.filter(({ directory }) => hasPages(directory)).map(
-        ({ label, directory }) => ({ label, autogenerate: { directory } }),
+        ({ label, directory }) => ({
+          label,
+          items: [{ autogenerate: { directory } }],
+        }),
       ),
     }),
   ],
