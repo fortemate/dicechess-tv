@@ -6,13 +6,20 @@ import {
   homeOptions,
   menuOptions,
   confirmOptions,
+  resultOptions,
   colourOptions,
   resumable,
   type ScreenOptions,
   type ScreenState,
 } from '../src/screen';
 import type { BoardKey } from '../../src/core/boardInput';
-import { newGame, rollGame, moveGame, viewGame } from '../../src/core/game';
+import {
+  newGame,
+  rollGame,
+  moveGame,
+  viewGame,
+  type Side,
+} from '../../src/core/game';
 import { botToAct } from '../../src/core/bot';
 
 // Arrow presses that walk the cursor from one square to another.
@@ -568,4 +575,91 @@ test('a pawn reaching the last rank asks which piece it becomes', () => {
   assert.equal(promoted.overlay.kind, 'none');
   assert.deepEqual(promoted.game.moves, ['a7a8r']);
   assert.deepEqual(promoted.focus, { cursor: 'a8', selected: null });
+});
+
+// Keys, with options of the test's own, such as a colour draw that changes.
+const driveWith = (
+  opts: ScreenOptions,
+  state: ScreenState,
+  ...keys: BoardKey[]
+): ScreenState =>
+  keys.reduce(
+    (current, key) => screenReducer(current, { kind: 'key', key }, opts),
+    state,
+  );
+
+// From the person's turn in a game against the bot: menu, Resign, Yes.
+const resign = (opts: ScreenOptions, state: ScreenState): ScreenState =>
+  driveWith(opts, state, 'back', 'down', 'select', 'down', 'select');
+
+test('a game against the bot ends on the offer of a rematch, with Rematch first', () => {
+  // Play Random as Black; the bot, White, opens.
+  const black = settle(
+    drive(fresh(), 'down', 'select', 'down', 'down', 'select'),
+  );
+  assert.equal(black.game.human, 'b');
+  assert.equal(black.game.colour, 'b');
+
+  const over = resign(options, black);
+  assert.equal(over.game.phase, 'ended');
+  assert.deepEqual(over.overlay, { kind: 'result', index: 0 });
+  assert.deepEqual(resultOptions, ['Rematch', 'Main menu']);
+
+  // Rematch: a new game against the same opponent, and Black again.
+  const again = drive(over, 'select');
+  assert.notEqual(again.game.id, over.game.id);
+  assert.equal(again.game.mode, 'random');
+  assert.equal(again.game.human, 'b');
+  assert.equal(again.game.colour, 'b');
+  assert.equal(again.game.phase, 'roll');
+  assert.deepEqual(again.overlay, { kind: 'none' });
+  assert.equal(again.focus.cursor, 'e7');
+});
+
+test('a rematch after Random draws the colour again', () => {
+  const draws: Side[] = ['w', 'b'];
+  const opts: ScreenOptions = { ...options, side: () => draws.shift() ?? 'w' };
+  const white = driveWith(opts, initialState(opts), 'down', 'select', 'select');
+  assert.equal(white.game.human, 'w');
+  assert.equal(white.game.colour, 'random');
+
+  const again = driveWith(opts, resign(opts, white), 'select');
+  assert.equal(again.game.human, 'b');
+  assert.equal(again.game.colour, 'random');
+});
+
+test('Main menu and Back leave a result for the main menu', () => {
+  const over = resign(options, drive(fresh(), 'down', 'select', 'select'));
+  assert.deepEqual(drive(over, 'down', 'select').overlay, {
+    kind: 'home',
+    index: 0,
+  });
+  assert.deepEqual(drive(over, 'back').overlay, { kind: 'home', index: 0 });
+  // The two choices wrap.
+  assert.deepEqual(drive(over, 'up').overlay, { kind: 'result', index: 1 });
+});
+
+test('a hotseat result keeps the board, and OK goes back to the main menu', () => {
+  const board = drive(initialState(options, started()), 'select');
+  // Menu, Resign, Yes: the side to move resigns.
+  const over = drive(board, 'back', 'down', 'select', 'down', 'select');
+  assert.equal(over.game.phase, 'ended');
+  assert.deepEqual(over.overlay, { kind: 'none' });
+  assert.deepEqual(drive(over, 'select').overlay, { kind: 'home', index: 0 });
+});
+
+test('the bot taking the king ends on the offer of a rematch too', () => {
+  // The bot, Black, has rooks rolled and a rook next to White's king.
+  const game = rollGame(
+    newGame('random', 'taken', 'k7/8/8/8/8/8/4r3/4K3 b - - 0 1', 'w'),
+    [4, 4, 4],
+  );
+  const taking: ScreenState = {
+    ...initialState(options, game),
+    overlay: { kind: 'none' },
+    pending: ['e2e1'],
+  };
+  const over = screenReducer(taking, { kind: 'bot' }, options);
+  assert.deepEqual(over.game.result, { winner: 'b', reason: 'king-captured' });
+  assert.deepEqual(over.overlay, { kind: 'result', index: 0 });
 });

@@ -7,6 +7,7 @@ import { reset } from './stubs/react-native-mmkv.mjs';
 import { App } from '../src/App';
 import { MmkvSnapshotStore } from '../src/mmkvStore';
 import { decodeLedger, type Ledger } from '../../src/core/ledger';
+import { decodeGame, type Game } from '../../src/core/game';
 import type { ScreenOptions } from '../src/screen';
 
 type Instance = renderer.ReactTestInstance;
@@ -133,4 +134,31 @@ test('a game played as Black is counted under Black', () => {
   assert.deepEqual(ledger()?.bots.random, {
     b: { wins: 0, draws: 0, losses: 1 },
   });
+});
+
+test('a rematch counts the finished game once, and its own result after it', () => {
+  reset();
+  let ids = 0;
+  launch({ ...options, newId: () => 'rematch' + ++ids });
+  // Play Random, Random on the colour choice (drawn White), then resign.
+  send('down', 'enter', 'enter');
+  send('back', 'down', 'select', 'down', 'select');
+  const lost = (losses: number) => ({ w: { wins: 0, draws: 0, losses } });
+  assert.deepEqual(ledger()?.bots.random, lost(1));
+  const finished = ledger()?.lastCountedId;
+
+  // OK on Rematch, which has the focus: a new game is saved, and the finished
+  // one is not counted again.
+  send('enter');
+  assert.deepEqual(ledger()?.bots.random, lost(1));
+  const saved = new MmkvSnapshotStore<Game>({
+    key: 'dicechess-tv.game.v2',
+    decode: decodeGame,
+  }).read();
+  assert.notEqual(saved?.id, finished);
+  assert.equal(saved?.phase, 'roll');
+  assert.equal(saved?.colour, 'random');
+
+  send('back', 'down', 'select', 'down', 'select');
+  assert.deepEqual(ledger()?.bots.random, lost(2));
 });

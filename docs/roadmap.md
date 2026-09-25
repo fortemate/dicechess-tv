@@ -10,7 +10,7 @@ Minimum success is **M1 + M2 + M3**: a reliable, polished, understandable offlin
 
 Target: 2026-10-04.
 
-Required minimum. Finish hotseat and offline Random games with exact save/resume, clear results, rematch and a local completed-game ledger. Count each result exactly once across reloads; abandoned games and tutorials do not count. Separate bot W/D/L by opponent and human side; report hotseat White wins/draws/Black wins without implying player identities. Done: complete keyboard/remote games, partial-turn and terminal-state restart checks, and focused ledger regressions pass.
+Required minimum. Finish hotseat and offline Random games with exact save/resume, clear results, a rematch against the bot and a local completed-game ledger. Count each result exactly once across reloads; abandoned games and tutorials do not count. Separate bot W/D/L by opponent and human side; report hotseat White wins/draws/Black wins without implying player identities. Done: complete keyboard/remote games, partial-turn and terminal-state restart checks, and focused ledger regressions pass.
 
 ## M2 — TV experience and onboarding
 
