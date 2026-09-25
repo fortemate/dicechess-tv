@@ -109,7 +109,8 @@ test('a hotseat roll with nothing to play is announced and heard, and OK waits o
   // A new hotseat game, then queen, rook and king: nothing can move.
   send('enter', 'enter');
   const shown = text(tree.root);
-  assert.match(shown, /White has no legal moves/);
+  assert.match(shown, /No legal moves/);
+  assert.doesNotMatch(shown, /to play/);
   assert.ok(shown.includes(NO_MOVE_LINE));
   assert.deepEqual(sounds.played, [['dice_roll', 'no_move']]);
   const dice = faces(tree.root);
@@ -133,7 +134,7 @@ test('against the bot both sides’ empty rolls are announced, and the bot holds
   const tree = launch(optionsFor([5, 4, 6], clock), recorder());
   // Play Random, on Random, which draws White; then roll.
   send('down', 'enter', 'enter', 'enter');
-  assert.match(text(tree.root), /White has no legal moves · you/);
+  assert.match(text(tree.root), /No legal moves · you/);
   assert.deepEqual(clock.waits(), [OK_GUARD_MS]);
   clock.next();
   send('enter');
@@ -142,8 +143,9 @@ test('against the bot both sides’ empty rolls are announced, and the bot holds
   assert.deepEqual(clock.waits(), [BOT_STEP_MS]);
   clock.next();
   const shown = text(tree.root);
-  assert.match(shown, /Black has no legal moves/);
-  assert.doesNotMatch(shown, /Black has no legal moves · you/);
+  assert.match(shown, /No legal moves/);
+  assert.doesNotMatch(shown, /No legal moves · you/);
+  assert.match(shown, /Random is playing/);
   assert.ok(shown.includes(NO_MOVE_LINE));
   // Its pass waits longer, so the notice can be read first.
   assert.deepEqual(clock.waits(), [PASS_HOLD_MS]);
@@ -190,7 +192,7 @@ test('with sound off, the empty roll still shows: the notice and the dimmed dice
   assert.equal(sounds.muted, true);
   send('up', 'up', 'up', 'up', 'enter', 'enter');
   const shown = text(tree.root);
-  assert.match(shown, /White has no legal moves/);
+  assert.match(shown, /No legal moves/);
   assert.ok(shown.includes(NO_MOVE_LINE));
   assert.ok(faces(tree.root).every(dimmedWithoutRing));
   act(() => tree.unmount());

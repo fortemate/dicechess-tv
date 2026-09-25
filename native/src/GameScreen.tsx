@@ -124,10 +124,13 @@ const Choices = ({
 const mover = (game: Game, bot: boolean): string =>
   game.human !== null && !bot ? ' · you' : '';
 
-// Whose move it is, or that the side to move rolled nothing it can play (#85).
-// Nobody did anything wrong, so it says so plainly rather than "forfeited".
+// Whose move it is, or that the roll left nothing to play (#85). Whose roll it
+// was shows in the dice, drawn in that side's colour, and against the bot in
+// the prompt too; leaving the side out keeps the notice to one line. Nobody did
+// anything wrong, so it says so plainly rather than "forfeited".
 const headline = (game: Game, view: GameView): string =>
-  `${sideName(view.side)} ${emptyRoll(game) ? 'has no legal moves' : 'to play'}${mover(game, view.bot)}`;
+  (emptyRoll(game) ? 'No legal moves' : `${sideName(view.side)} to play`) +
+  mover(game, view.bot);
 
 // Results so far, shown where a player chooses what to do next. Hotseat is by
 // colour because the seats change hands and nobody here knows who sat where.

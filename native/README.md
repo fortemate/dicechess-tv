@@ -346,9 +346,12 @@ over 300 random games). The turn passes; the screen says why, without a
 remote press being added and without a word about the far more frequent turn
 that ends with dice left over.
 
-- **The headline** reads "White has no legal moves" instead of "White to play",
-  and a line under the dice gives the rules guide's reason: "No die can be used —
-  the turn passes". Nobody did anything wrong, so nothing says "forfeited".
+- **The headline** reads "No legal moves" instead of "White to play", with
+  " · you" on a person's own roll against the bot, and a line under the dice
+  gives the rules guide's reason: "No die can be used — the turn passes". Whose
+  roll it was shows in the dice, drawn in that side's colour, and against the
+  bot in the prompt; leaving the side out keeps the headline to one line.
+  Nobody did anything wrong, so nothing says "forfeited".
 - **The dice** all lose their ring and dim to 45 % at full size: they were never
   played, and nothing is left to play. When a turn ends with dice left over after
   an action, those dice dim the same way, but there is no notice and no cue.
