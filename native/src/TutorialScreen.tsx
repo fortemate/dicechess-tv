@@ -8,6 +8,8 @@ import { viewGame } from '../../src/core/game';
 import { TUTORIAL } from '../../src/core/tutorial';
 import type { BoardKey } from '../../src/core/boardInput';
 import { Board } from './Board';
+import { Dice } from './Dice';
+import { diceOf } from '../../src/core/dice';
 import { useRemoteInput } from './useRemoteInput';
 import { THEME } from './theme';
 import {
@@ -115,9 +117,11 @@ export const TutorialScreen = ({ onExit, onState }: TutorialScreenProps) => {
           </>
         )}
 
-        <Text style={{ color: '#aab8c9', fontSize: 20, marginBottom: 12 }}>
-          {board.remaining ? `Dice: ${board.remaining}` : 'No dice left'}
-        </Text>
+        <Dice
+          dice={diceOf(state.game.roll, board.remaining)}
+          side={board.side}
+          size={56}
+        />
 
         <Text
           style={{
