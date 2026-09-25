@@ -623,24 +623,26 @@ Two separate mechanisms, neither of them obvious.
 as `icon = "@image/icon.png"`. There is only one icon field, and it serves two
 places that want different things.
 
-The documentation describes it as the Settings icon, and that screen is dark, so
-Amazon's advice is that light solid icons read best. But the **launcher** also
-uses it, and the launcher does not draw a square: it draws a wide tile and fits
-the icon into it. A bare mark on transparency was tried first and came out
-visibly distorted on the home screen.
+The documentation describes it as the Settings icon. But the **launcher** also
+uses it, and the launcher does not show a square. It scales the icon to fill a
+3:2 tile, about 304x200 on a 1080p screen, and crops the top and bottom, so only
+the middle two thirds of the height are seen. That was measured on the virtual
+device on 25 September: a first round of concepts with larger dice lost their
+tops and bottoms. Earlier still, a bare mark on transparency came out distorted.
+Settings shows the whole square.
 
-So the file is the brand's **maskable** export, copied byte for byte: an opaque
-black tile with the mark at about 52 % of the canvas, inside an 80 % safe zone.
-That is precisely what maskable icons are for — the launcher may crop it however
-it likes and the mark survives. `BRAND.md` settles the colour too: tiles use
-pure black.
+Since #83 the icon is the **game's own**: two dice mid-roll, a knight in front of
+a rook, on warm orange, drawn like the dice in the game. The owner chose it from
+three concepts, each of which was installed and checked on the launcher. It is
+copied byte for byte from `fortemate/dicechess-assets` (`icon/README.md` records
+the commit and digest). Everything that matters stays within y 100–412 of 512
+with even side margins, and `test/splash.test.ts` fails if any of the artwork
+leaves that band. That was checked by enlarging the dice until the test failed.
+The icon is opaque, since a transparent one came out distorted.
 
-The mark is not redrawn here and must not be. Regenerating it is the brand
-repository's job, and `BRAND.md` forbids the variations that suggest themselves
-— no wordmark lockup while the typography is provisional, the mark never goes
-inside a die, a board or another grid, and game artwork is never used as the
-mark. A game-specific icon is a design decision for the owner, not something to
-improvise. See `brand/README.md`.
+The Fortemate mark is no longer the icon. `BRAND.md` keeps it for the
+organization and says that game artwork is not the mark, so the mark stays on
+the splash and the About screen and is never redrawn here. See `brand/README.md`.
 
 **The splash** is `assets/raw/SplashScreenImages.zip`, and the animation service
 reads it directly — nothing in the manifest points at it. Inside, a `desc.txt`

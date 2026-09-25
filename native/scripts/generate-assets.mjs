@@ -167,8 +167,8 @@ const encodePng = (width, height, rgb) => {
 export const SPLASH = { WIDTH, HEIGHT, FPS, BACKGROUND };
 
 export const main = () => {
-  // The icon ships exactly as the brand drew it.
-  const iconSource = join(root, 'brand/pwa-maskable-512.png');
+  // The game icon ships exactly as the asset repository exported it.
+  const iconSource = join(root, 'icon/icon-512.png');
   const icon = join(root, 'assets/image/icon.png');
   mkdirSync(dirname(icon), { recursive: true });
   copyFileSync(iconSource, icon);

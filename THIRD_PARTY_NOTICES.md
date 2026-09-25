@@ -31,4 +31,6 @@ Chessground (GPL-3.0-or-later) and Svelte (MIT) were dependencies of the WebView
 
 ## Brand
 
-`native/brand/` holds Fortemate brand images, copied verbatim from the brand repository for the icon and the splash screen. The Fortemate name and logo are not licensed under the AGPL.
+`native/brand/` holds Fortemate brand images, copied verbatim from the brand repository for the splash screen. The Fortemate name and logo are not licensed under the AGPL.
+
+`native/icon/` holds the game icon, copied verbatim from Fortemate's asset repository with its `NOTICE.txt`. The icon is Fortemate's artwork and is not licensed under the AGPL. It contains two pieces from the RhosGFX Vector Chess Pieces Pack (Outline set), which are CC0 and credited above.

@@ -96,48 +96,112 @@ test('the mark is inked, and centred', () => {
   );
 });
 
-test('the icon is the brand file, unchanged', () => {
-  // Byte-for-byte, because the one thing this must never do is reinterpret the
-  // identity. If the brand ships a new export, this fails and someone looks.
+test('the icon is the game icon from the asset repository, unchanged', () => {
+  // Byte for byte, because the icon is drawn there and only copied here. If a
+  // new export arrives, this fails until the copy is replaced on purpose.
   assert.deepEqual(readFileSync(built.icon), readFileSync(built.iconSource));
 });
 
-test('the icon survives being cropped into the launcher tile', () => {
-  const icon = decodePng(built.icon) as {
-    width: number;
-    height: number;
-    channels: number;
-    pixels: Buffer;
+type Picture = {
+  width: number;
+  height: number;
+  channels: number;
+  pixels: Buffer;
+};
+
+// The launcher scales the square to fill a 3:2 tile and crops the top and
+// bottom (measured on the virtual device, #83), so everything but the
+// background must stay inside the middle band, with even margins left and
+// right.
+const BAND = { top: 100, bottom: 412, side: 51 };
+
+// The background is taken to be what the four corners show, blended across the
+// square, which reproduces a flat fill or a straight gradient exactly. A pixel
+// more than a tenth of the range away from it is artwork, whatever its colour:
+// a bright red die counts as much as a black outline.
+function artworkOutsideBand({ width, height, channels, pixels }: Picture) {
+  const rgb = (x: number, y: number) => {
+    const base = (y * width + x) * channels;
+    return [pixels[base], pixels[base + 1], pixels[base + 2]];
   };
+  const [c00, c10, c01, c11] = [
+    rgb(0, 0),
+    rgb(width - 1, 0),
+    rgb(0, height - 1),
+    rgb(width - 1, height - 1),
+  ];
+  let artwork = 0;
+  const strays: string[] = [];
+  for (let y = 0; y < height; y++) {
+    const v = y / (height - 1);
+    for (let x = 0; x < width; x++) {
+      const u = x / (width - 1);
+      const off = rgb(x, y).map((value, i) =>
+        Math.abs(
+          value -
+            (c00[i] * (1 - u) * (1 - v) +
+              c10[i] * u * (1 - v) +
+              c01[i] * (1 - u) * v +
+              c11[i] * u * v),
+        ),
+      );
+      if (Math.max(...off) <= 24) continue;
+      artwork += 1;
+      const inBand =
+        y >= BAND.top &&
+        y < BAND.bottom &&
+        x >= BAND.side &&
+        x < width - BAND.side;
+      if (!inBand) strays.push(`${x},${y}`);
+    }
+  }
+  return { artwork, strays };
+}
+
+test('the icon survives being cropped into the launcher tile', () => {
+  const icon = decodePng(built.icon) as Picture;
   assert.equal(icon.width, 512);
   assert.equal(icon.height, 512);
-  assert.equal(
-    icon.channels,
-    3,
-    'a transparent icon came out distorted in the launcher',
-  );
 
-  // The maskable safe zone is the middle 80 %. The launcher fits a square into
-  // a wide tile, so anything outside that may be cut; the ink must not be.
-  const ink = (x: number, y: number) => {
-    const base = (y * icon.width + x) * icon.channels;
-    return (
-      icon.pixels[base] > 40 ||
-      icon.pixels[base + 1] > 40 ||
-      icon.pixels[base + 2] > 40
-    );
-  };
-  const margin = Math.round(icon.width * 0.1);
-  for (let y = 0; y < icon.height; y++)
-    for (let x = 0; x < icon.width; x++)
-      if (ink(x, y))
-        assert.ok(
-          x >= margin &&
-            x < icon.width - margin &&
-            y >= margin &&
-            y < icon.height - margin,
-          `ink at ${x},${y} sits outside the 80% safe zone and can be cropped away`,
-        );
+  // Opaque everywhere: a transparent icon came out distorted in the launcher.
+  if (icon.channels === 4)
+    for (let i = 3; i < icon.pixels.length; i += 4)
+      assert.equal(icon.pixels[i], 255, 'the icon has a transparent pixel');
+
+  const { artwork, strays } = artworkOutsideBand(icon);
+  assert.equal(
+    strays.length,
+    0,
+    `${strays.length} artwork pixels sit outside the launcher's band and can be cropped away, the first at ${strays[0]}`,
+  );
+  assert.ok(
+    artwork > 10000,
+    `only ${artwork} artwork pixels: is this the icon?`,
+  );
+});
+
+test('the crop check sees artwork of any colour outside the band', () => {
+  // The icon's own gradient, with a dark block inside the band.
+  const width = 512;
+  const height = 512;
+  const pixels = Buffer.alloc(width * height * 3);
+  const paint = (x: number, y: number, colour: number[]) =>
+    pixels.set(colour, (y * width + x) * 3);
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++) {
+      const t = (x + y) / (width + height - 2);
+      paint(x, y, [255 - 38 * t, 138 - 73 * t, 61 - 18 * t].map(Math.round));
+    }
+  for (let y = 200; y < 300; y++)
+    for (let x = 200; x < 300; x++) paint(x, y, [26, 26, 26]);
+  const picture = { width, height, channels: 3, pixels };
+  assert.deepEqual(artworkOutsideBand(picture), { artwork: 10000, strays: [] });
+
+  // Bright and saturated like the background, so only its difference from the
+  // background gives it away: once above the band, once in the side margin.
+  paint(256, 40, [255, 220, 0]);
+  paint(20, 256, [255, 220, 0]);
+  assert.deepEqual(artworkOutsideBand(picture).strays, ['256,40', '20,256']);
 });
 
 test('the descriptor says what the animation service expects', () => {
