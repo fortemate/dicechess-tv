@@ -14,6 +14,7 @@ import { GameScreen } from '../src/GameScreen';
 import { THEME } from '../src/theme';
 import type { ScreenOptions } from '../src/screen';
 import { newGame, rollGame } from '../../src/core/game';
+import { Dice } from '../src/Dice';
 
 type Instance = renderer.ReactTestInstance;
 type Style = Record<string, string | number | undefined>;
@@ -312,4 +313,16 @@ test('a finished game says how it ended and who won', () => {
   assert.match(resigned.state(), /result resigned/);
   assert.ok(lines(resigned.root).includes('Resigned'));
   assert.ok(lines(resigned.root).includes('Black wins'));
+});
+
+test('the panel shows the roll as dice, not words', () => {
+  // The home screen is a menu and leaves the dice out.
+  assert.equal(mountHome().root.findAllByType(Dice as never).length, 0);
+  const { root } = mount();
+  const dice = () => root.findByType(Dice as never).props.dice as unknown[];
+  // Before the roll: three empty slots.
+  assert.equal(dice().length, 0);
+  send(Select);
+  assert.equal(dice().length, 3);
+  assert.ok(!lines(root).some((line) => line.startsWith('Remaining')));
 });

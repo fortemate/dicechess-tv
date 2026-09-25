@@ -286,6 +286,21 @@ against the web probe is the cryptographic source, not the uniformity.
 For a local hotseat game that is a defensible trade, but it is the owner's to
 make, and nothing that describes this game should claim cryptographic dice.
 
+**The roll is drawn as three dice**, as the other Dice Chess clients draw it
+(dicechess-play's `DicePanel.svelte` is the reference). Each face shows the
+piece it permits, drawn with the board's own piece components in the colour of
+the side to move. An unspent die carries a cyan ring; a spent one dims to 30 %
+and shrinks, so it differs by more than colour. Before the roll the three slots
+are empty, and the home screen, being a menu, leaves the dice out. Which dice
+are spent is read off the engine's record of the dice left (`src/core/dice.ts`),
+so castling spends the king and a rook die with no rule of its own. A repeated
+piece is spent from the left. There is no roll animation yet. Tests:
+`test/dice.test.ts` against engine positions (castling included),
+`native/test/dice.test.tsx` for the faces, and `native/test/input.test.tsx` for
+the panel. Checked on the virtual device on 25 September: empty slots before the
+roll, bishop, rook and bishop after it, and in the tutorial three pawn dice going
+dim one by one.
+
 ## Menus
 
 Flow lives in `src/screen.ts` as a pure reducer over state and one key, tested
@@ -683,6 +698,34 @@ Fire TV launcher; the virtual device's launcher is
 `com.amazon.keplerlauncherapp.main`, so every iteration fails its preparation.
 The warm-start report is covered by `native/test/soundApp.test.tsx` and waits
 for the Stick (#10).
+
+## Network
+
+The game makes no network calls. Online play is an idea for after the contest,
+so #80 checked whether a Vega app can reach play-api at all. It used a throwaway
+build that is never merged: the branch `probe/80-network` replaces the game with
+a screen that makes the calls and writes each result on the screen.
+
+Measured on the virtual device on 25 September, against the public
+`https://api.fortemate.com`:
+
+- **HTTPS works as it is.** `GET /health` answered 200 (`{"status":"ok",...}`)
+  about 120 ms after launch, and `GET /showcase` answered 200. The manifest needed
+  no entry for this: unlike the audio services (see Sound), no connection was
+  refused, and the device log had no `missing permission` line.
+- **A WebSocket works as it is.** A spectator socket to the live showcase game
+  (`wss://api.fortemate.com/games/<id>/ws`) opened about 140 ms after the request
+  and delivered the game as it was played: a `Snapshot` first, then
+  `TurnPlayed` and `DiceRolled` frames as the moves came.
+- **Vega's WebSocket runs on curl.** A socket to a game that does not exist
+  closed with code 1006 and the reason `Could not fetch url - CURL error code:
+22 HTTP code: 404 response body: Refused WebSockets upgrade: 404`. So a refused
+  upgrade is reported with the server's status and body in the close reason,
+  which helps diagnosis.
+
+Not checked yet: the same on a Fire TV Stick (#10), and what happens to an open
+socket when the app goes to the background and comes back. That second question
+matters for online play, where switching the TV's input must not forfeit a game.
 
 ## Known gaps
 

@@ -35,10 +35,14 @@ const PROP = {
 // `.cls-1, .cls-2 { fill: #fff; opacity: 0; }` -> { 'cls-1': {fill, opacity}, ... }
 function parseStyle(css) {
   const classes = {};
-  for (const [, selector, body] of css.matchAll(/([^{}]+)\{([^}]*)\}/g)) {
+  // Split on the braces rather than matching rules with a regular expression,
+  // which would backtrack over a long run without one.
+  for (const rule of css.split('}')) {
+    const [selector, body] = rule.split('{');
+    if (body === undefined) continue;
     const declarations = {};
     for (const part of body.split(';')) {
-      const [name, value] = part.split(':').map((s) => s && s.trim());
+      const [name, value] = part.split(':').map((s) => s.trim());
       if (name && value) declarations[name] = value;
     }
     for (const name of selector.split(',')) {
@@ -51,7 +55,9 @@ function parseStyle(css) {
 
 function attributes(raw) {
   const out = {};
-  for (const [, name, value] of raw.matchAll(/([\w:-]+)\s*=\s*"([^"]*)"/g)) {
+  // Each attribute follows a space, so a match can only start at one: a long
+  // word without an = is scanned once, not once per character.
+  for (const [, name, value] of raw.matchAll(/\s([\w:-]+)\s*=\s*"([^"]*)"/g)) {
     out[name] = value;
   }
   return out;
@@ -67,7 +73,7 @@ function renderProps(attrs, classes) {
   return Object.entries(props)
     .map(([name, value]) => {
       const key = PROP[name] ?? name;
-      const numeric = /^-?\d*\.?\d+$/.test(value);
+      const numeric = /^-?(?:\d+(?:\.\d+)?|\.\d+)$/.test(value);
       return numeric ? `${key}={${value}}` : `${key}="${value}"`;
     })
     .join(' ');
@@ -79,7 +85,9 @@ function convert(svg, classes) {
   const body = svg.slice(svg.indexOf('>', svg.indexOf('<svg')) + 1);
   const lines = [];
   let depth = 2;
-  for (const [tag] of body.matchAll(/<[^>]+>/g)) {
+  // A tag cannot contain another <, which XML forbids inside one, so a < with
+  // no > stops at the next < instead of scanning to the end.
+  for (const [tag] of body.matchAll(/<[^<>]+>/g)) {
     if (/^<\/?(svg|defs|style)/.test(tag)) continue;
     const name = tag.match(/^<\/?([\w-]+)/)?.[1];
     if (!name || !TAGS[name]) throw new Error('Unsupported element: ' + tag);
@@ -114,14 +122,14 @@ if (names.length !== 12)
 for (const file of names) {
   const name = file.replace('.svg', '');
   const svg = readFileSync(join(SOURCE, file), 'utf8');
-  const viewBox = svg.match(/viewBox="([^"]+)"/)?.[1];
+  const viewBox = /viewBox="([^"]+)"/.exec(svg)?.[1];
   if (!viewBox) throw new Error('No viewBox in ' + file);
-  const css = svg.match(/<style>([\s\S]*?)<\/style>/)?.[1] ?? '';
+  const css = /<style>([\s\S]*?)<\/style>/.exec(svg)?.[1] ?? '';
   const children = convert(svg, parseStyle(css));
   // Import only the elements this piece draws; the lint gate rejects unused
   // imports, and not every piece has a rect or a circle.
   const used = Object.values(TAGS).filter((component) =>
-    new RegExp(`<${component}[\\s/>]`).test(children),
+    new RegExp(String.raw`<${component}[\s/>]`).test(children),
   );
   writeFileSync(
     join(TARGET, name + '.tsx'),
@@ -153,7 +161,7 @@ export type { PieceProps } from './types';
 // Keyed by FEN piece letter: uppercase is White, lowercase is Black.
 export const PIECES = {
 ${letters
-  .map((n) => `  ${n[0] === 'w' ? n[1] : n[1].toLowerCase()}: ${n},`)
+  .map((n) => `  ${n.startsWith('w') ? n[1] : n[1].toLowerCase()}: ${n},`)
   .join('\n')}
 } as const;
 `,
