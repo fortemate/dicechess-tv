@@ -12,3 +12,9 @@
   --sl-color-accent: #a8410d;
   --sl-color-accent-high: #5c2308;
 }
+
+/* An entry number such as FL-01, linked from a table's first column: on a
+   narrow screen the hyphen would otherwise break it in two. */
+.sl-markdown-content td:first-child > a[href^='#'] {
+  white-space: nowrap;
+}

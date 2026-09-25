@@ -13,6 +13,6 @@ hero:
       icon: github
 ---
 
-The TV app was built during [Build, Ship, Shape: Amazon Developer Hackathon 2026](https://amazonappdev2026.devpost.com/), in a repository started on 21 September 2026. It plays by the rules of Fortemate's open-source engine, [`@fortemate/dicechess-engine`](https://github.com/fortemate/dicechess-engine), which existed before.
+The TV app was built during [Build, Ship, Shape: Amazon Developer Hackathon 2026](https://amazonappdev2026.devpost.com/), in a repository started on 21 September 2026. It plays by the rules of Fortemate's open-source engine, [`@fortemate/dicechess-engine`](https://github.com/fortemate/dicechess-engine), which existed before. The [friction log](/dicechess-tv/friction-log/) records the obstacles we met in Amazon's Vega SDK along the way.
 
 The code is licensed under AGPL-3.0-only. The app icon and the Fortemate name and logo are not; see [Licensing](https://github.com/fortemate/dicechess-tv#licensing).
