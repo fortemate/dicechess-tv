@@ -18,3 +18,28 @@
 .sl-markdown-content td:first-child > a[href^='#'] {
   white-space: nowrap;
 }
+
+/* The screenshot strip on the home page: one column on a phone, up to three
+   side by side on a wider screen. */
+.screens {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.screens figure {
+  margin: 0;
+}
+
+.screens img {
+  width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+}
+
+.screens figcaption,
+.screens-note {
+  color: var(--sl-color-gray-3);
+  font-size: var(--sl-text-sm);
+}
