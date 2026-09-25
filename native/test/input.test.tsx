@@ -129,15 +129,15 @@ test('OK arrives as enter, kpenter or select', () => {
   }
 });
 
-test('holding a direction walks the cursor; holding OK acts once', () => {
+test('holding a direction repeats it; holding OK acts once', () => {
+  // Three down events without a release are three presses: the home menu has
+  // room for them.
+  const home = mountHome();
+  act(() => hold('down', 3));
+  assert.match(home.state(), /overlay home#3/);
+
   const { state } = mount();
   send(Select);
-  assert.match(state(), /cursor e2/);
-
-  // Three down events without a release move three squares.
-  act(() => hold('right', 3));
-  assert.match(state(), /cursor h2/);
-
   // Holding OK repeats the down event, but nothing happens until release.
   act(() => hold('enter', 3));
   assert.match(state(), /selected -/);
@@ -174,12 +174,14 @@ test('arrows move the focus, OK picks a piece up and marks its destinations', ()
   const { root, state } = mount();
   send(Select);
 
-  // e2 holds a pawn with no die for it, so OK there selects nothing.
-  send(Select);
-  assert.match(state(), /selected -/);
+  // e2 holds a pawn with no die for it, so after the roll the cursor waits on
+  // a knight: g1, the nearer of the two.
+  assert.match(state(), /cursor g1 \| selected -/);
 
-  send(Down, Left, Left, Left, Select);
-  assert.match(state(), /cursor b1 \| selected b1/);
+  // Left jumps to the b1 knight; OK picks it up and lands on a3, the left of
+  // its two destinations.
+  send(Left, Select);
+  assert.match(state(), /cursor a3 \| selected b1/);
   assert.equal(
     overlays(root, (s) => s.backgroundColor === THEME.selected).length,
     1,
@@ -225,13 +227,20 @@ test('a complete turn plays out on the remote and hands over', () => {
   assert.match(state(), /turn 2 \| phase roll \| side b/);
 });
 
-test('an illegal destination changes nothing but the cursor', () => {
+test('with a piece in hand the cursor lands only on its destinations', () => {
   const { state } = mount();
-  send(Select, Down, Left, Left, Left, Select);
+  send(Select, Left, Select);
+  assert.match(state(), /cursor a3 \| selected b1/);
 
-  send(Up, Up, Up, Right, Right, Select);
-  assert.match(state(), /cursor d4 \| selected b1/);
+  // Nothing but c3 lies ahead of a3 among the knight's destinations, so no
+  // press can reach a square the knight cannot go to.
+  send(Up, Up, Right, Right, Down);
+  assert.match(state(), /cursor c3 \| selected b1/);
   assert.match(state(), /dice "QRN"/);
+
+  // Back puts the knight down and the cursor goes back to it.
+  send(Back);
+  assert.match(state(), /cursor b1 \| selected -/);
 });
 
 // pressBack returns whether the app claimed the press, which act() swallows, so
@@ -325,4 +334,23 @@ test('the panel shows the roll as dice, not words', () => {
   send(Select);
   assert.equal(dice().length, 3);
   assert.ok(!lines(root).some((line) => line.startsWith('Remaining')));
+});
+
+test('the pieces that can move are marked until one is picked up', () => {
+  const { root } = mount();
+  const marked = () =>
+    overlays(root, (s) => s.backgroundColor === THEME.movable).length;
+  assert.equal(marked(), 0, 'nothing is marked before the roll');
+
+  // Only the two knights can move on queen, rook and knight.
+  send(Select);
+  assert.equal(marked(), 2);
+
+  // With a knight in hand only its destinations are shown.
+  send(Select);
+  assert.equal(marked(), 0);
+  assert.equal(
+    overlays(root, (s) => s.backgroundColor === THEME.destination).length,
+    2,
+  );
 });

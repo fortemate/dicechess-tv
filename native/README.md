@@ -231,13 +231,50 @@ console's `event send` and QEMU's `send-key`.
 
 `eventType` arrives lower-case. `eventKeyAction` is
 `0` when the button goes down and on every repeat while it is held, and `1` once
-on release: directions act on the press so holding walks the cursor, and select
+on release: directions act on the press so holding one repeats it, and select
 and back act on the release so one press is one action.
 
 `GameScreen` is a `useReducer`, not a set of handlers, because held repeats can
 arrive faster than React re-renders. Handlers closing over state read a stale
 cursor and silently drop moves; a test that holds a direction for three repeats
-catches it.
+in the home menu catches it.
+
+## Choosing a move
+
+After every roll, and after every action within a turn, a green fill marks the
+pieces the person can move (#68). The squares are the starts of the engine's
+legal actions, so they follow the rule that a turn uses as many dice as it can:
+a pawn whose only use is to free another die is marked, and a piece the dice
+name that no complete turn can use is not. Nothing is marked on the opponent's
+turn, or while a piece is in hand: then its destinations are the choice.
+
+The arrows do not move the cursor square by square. They jump between the
+squares the current choice can go to, the way focus moves between the items of a
+TV menu (`src/core/boardInput.ts`, `src/core/cursor.ts`):
+
+- A press lands on the nearest option within 45 degrees of the arrow, or failing
+  that on the option least far ahead, counting sideways distance twice. With
+  nothing ahead the cursor stays. On the board turned for Black the arrows follow
+  the screen.
+- The cursor waits on its square while that piece can still move, and otherwise
+  on the central movable piece, the one fewest presses from all the others.
+- OK picks a piece up and lands the cursor on its central destination; with a
+  single destination, OK and OK play the move. Back puts the piece down, with the
+  cursor back on it.
+
+These rules were measured before they were built. `npm run presses`
+(`scripts/cursor-presses.ts`) replays 200 seeded random games through the core: a
+hotseat turn took 22.6 presses moving square by square, and takes 8.7 with jumps
+between pieces and between destinations. No piece or destination was ever out of
+reach. In 20,000 random sets of squares the chosen jump rule reached every
+square; two simpler rules each left some square unreachable.
+
+A second mark was tried and dropped: amber brackets on pieces that could move
+only after one more action. The cursor could not land on them, so they offered
+nothing to press; green and amber are the pair colour-blind viewers confuse
+most; and they cost one legal-move generation per legal action, up to 43 ms per
+step on the virtual device. The green squares come from the legal list the
+screen already has, at no extra cost.
 
 ## Saving
 

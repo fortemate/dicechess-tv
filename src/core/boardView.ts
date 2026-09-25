@@ -18,6 +18,9 @@ export type SquareView = {
   destination: boolean;
   // Either end of the last action played.
   lastMove: boolean;
+  // A piece that can move now (#68). Nothing is marked while a piece is picked
+  // up: its destinations are the choice then.
+  movable: boolean;
 };
 
 export type BoardInput = {
@@ -31,6 +34,8 @@ export type BoardInput = {
   // Drawn from Black's side: rank 1 at the top and file h on the left, for a
   // person playing Black against the bot. Hotseat never flips the board.
   flipped?: boolean;
+  // The squares of the pieces the person can move now, while they choose one.
+  movable?: readonly string[] | null;
 };
 
 const FILES = 'abcdefgh';
@@ -49,6 +54,7 @@ const FROM_BLACK = {
 // the reverse of both when the board is flipped.
 export function boardView(input: BoardInput): SquareView[][] {
   const { board, cursor = null, selected = null, lastMove = null } = input;
+  const movable = selected ? null : input.movable;
   const destinations = new Set(
     selected
       ? (input.legal ?? [])
@@ -71,6 +77,7 @@ export function boardView(input: BoardInput): SquareView[][] {
         selected: square === selected,
         destination: destinations.has(square),
         lastMove: touched.includes(square),
+        movable: movable?.includes(square) ?? false,
       });
     }
     rows.push(row);

@@ -12,7 +12,12 @@ import {
   type ScreenOptions,
   type ScreenState,
 } from '../src/screen';
-import type { BoardKey } from '../../src/core/boardInput';
+import {
+  movableSquares,
+  movesFrom,
+  type BoardKey,
+} from '../../src/core/boardInput';
+import { route, RULE } from '../../src/core/cursor';
 import {
   newGame,
   rollGame,
@@ -21,17 +26,6 @@ import {
   type Side,
 } from '../../src/core/game';
 import { botToAct } from '../../src/core/bot';
-
-// Arrow presses that walk the cursor from one square to another.
-const walk = (from: string, to: string): string[] => {
-  const keys: string[] = [];
-  const file = to.charCodeAt(0) - from.charCodeAt(0);
-  const rank = Number(to[1]) - Number(from[1]);
-  for (let i = 0; i < Math.abs(file); i++)
-    keys.push(file > 0 ? 'right' : 'left');
-  for (let i = 0; i < Math.abs(rank); i++) keys.push(rank > 0 ? 'up' : 'down');
-  return keys;
-};
 
 let ids = 0;
 const options: ScreenOptions = {
@@ -47,6 +41,26 @@ const drive = (state: ScreenState, ...keys: BoardKey[]): ScreenState =>
     (current, key) => screenReducer(current, { kind: 'key', key }, options),
     state,
   );
+
+// Play `move` on the remote from wherever the cursor waits: jumps to the piece,
+// OK, jumps to the destination, OK.
+const play = (state: ScreenState, move: string): ScreenState => {
+  const [from, to] = [move.slice(0, 2), move.slice(2, 4)];
+  const layout = { rule: RULE, flipped: state.game.human === 'b' };
+  const legal = viewGame(state.game).legal;
+  const toPiece = route(
+    state.focus.cursor,
+    from,
+    movableSquares(legal),
+    layout,
+  );
+  assert.ok(toPiece, `${from} is out of reach`);
+  const holding = drive(state, ...toPiece, 'select');
+  const targets = movesFrom(legal, from).map((action) => action.slice(2, 4));
+  const toSquare = route(holding.focus.cursor, to, targets, layout);
+  assert.ok(toSquare, `${to} is out of reach`);
+  return drive(holding, ...toSquare, 'select');
+};
 
 // Let the opponent take steps until it is the player's turn again.
 const settle = (
@@ -266,13 +280,7 @@ test('the opponent takes its whole turn and hands back to the player', () => {
   while (state.game.phase === 'move') {
     const legal = viewGame(state.game).legal;
     const move = legal[0];
-    state = drive(
-      state,
-      ...(walk(state.focus.cursor, move.slice(0, 2)) as BoardKey[]),
-      'select',
-      ...(walk(move.slice(0, 2), move.slice(2, 4)) as BoardKey[]),
-      'select',
-    );
+    state = play(state, move);
   }
   assert.equal(state.game.phase, 'handoff');
   state = drive(state, 'select');
@@ -291,13 +299,7 @@ test('the board ignores play input while the opponent owes an action', () => {
   let state = drive(fresh(), 'down', 'select', 'select', 'select');
   while (state.game.phase === 'move') {
     const move = viewGame(state.game).legal[0];
-    state = drive(
-      state,
-      ...(walk(state.focus.cursor, move.slice(0, 2)) as BoardKey[]),
-      'select',
-      ...(walk(move.slice(0, 2), move.slice(2, 4)) as BoardKey[]),
-      'select',
-    );
+    state = play(state, move);
   }
   const handed = drive(state, 'select');
   assert.equal(botToAct(handed.game), true);
@@ -343,13 +345,7 @@ const handedToBot = (): ScreenState => {
   let state = drive(fresh(), 'down', 'select', 'select', 'select');
   while (state.game.phase === 'move') {
     const move = viewGame(state.game).legal[0];
-    state = drive(
-      state,
-      ...(walk(state.focus.cursor, move.slice(0, 2)) as BoardKey[]),
-      'select',
-      ...(walk(move.slice(0, 2), move.slice(2, 4)) as BoardKey[]),
-      'select',
-    );
+    state = play(state, move);
   }
   return drive(state, 'select');
 };
@@ -486,11 +482,15 @@ test('playing Black: the bot opens, the cursor starts on e7, and the arrows foll
   assert.equal(viewGame(mine.game).side, 'b');
   assert.equal(botToAct(mine.game), false);
 
-  // Seen from Black's side, up on the screen is towards rank 1 and left is
-  // towards the h-file.
+  // Only the knights can move on queen, rook and knight. e7 holds none, so
+  // the cursor waits on g8, the nearer knight.
   const rolled = drive(mine, 'select');
-  assert.equal(drive(rolled, 'up').focus.cursor, 'e6');
-  assert.equal(drive(rolled, 'left').focus.cursor, 'f7');
+  assert.equal(rolled.focus.cursor, 'g8');
+  // Seen from Black's side, the h-file is on the left and rank 1 at the top:
+  // b8 lies to the right of g8, and nothing lies above or below it.
+  assert.equal(drive(rolled, 'right').focus.cursor, 'b8');
+  assert.equal(drive(rolled, 'left').focus.cursor, 'g8');
+  assert.equal(drive(rolled, 'up').focus.cursor, 'g8');
 });
 
 test('replacing a game in play asks after the colour, and keeps the choice', () => {
@@ -544,13 +544,10 @@ test('a pawn reaching the last rank asks which piece it becomes', () => {
   const resumed = drive(initialState(options, game), 'select');
   assert.equal(resumed.overlay.kind, 'none');
 
-  const asked = drive(
-    resumed,
-    ...(walk('e2', 'a7') as BoardKey[]),
-    'select',
-    'up',
-    'select',
-  );
+  // The a7 pawn is the only piece that can move, so the cursor waits on it; OK
+  // picks it up and lands on a8, its only square, and OK there asks.
+  assert.equal(resumed.focus.cursor, 'a7');
+  const asked = drive(resumed, 'select', 'select');
   assert.equal(asked.overlay.kind, 'promotion');
   assert.deepEqual(
     asked.overlay.kind === 'promotion' ? asked.overlay.moves : [],
@@ -681,4 +678,26 @@ test('a bot roll that ends the game offers a rematch as well', () => {
   const over = screenReducer(waiting, { kind: 'bot' }, opts);
   assert.deepEqual(over.game.result, { winner: null, reason: '100-halfmoves' });
   assert.deepEqual(over.overlay, { kind: 'result', index: 0 });
+});
+
+test('after every roll and action the cursor waits on a piece that can move', () => {
+  // A new hotseat game: e2 holds no knight, so after queen, rook and knight
+  // the cursor waits on g1, the nearer knight.
+  let state = drive(fresh(), 'select', 'select');
+  assert.equal(state.focus.cursor, 'g1');
+  // After g1f3 only the h1 rook can move (to g1): the cursor goes to it.
+  state = play(state, 'g1f3');
+  assert.deepEqual(state.focus, { cursor: 'h1', selected: null });
+});
+
+test('the cursor stays on its piece while that piece can move again', () => {
+  const pawns: ScreenOptions = { ...options, roll: () => [1, 1, 1] };
+  let state = initialState(pawns);
+  state = screenReducer(state, { kind: 'key', key: 'select' }, pawns);
+  state = screenReducer(state, { kind: 'key', key: 'select' }, pawns);
+  // e2 holds a pawn that can move, so the cursor stays there.
+  assert.equal(state.focus.cursor, 'e2');
+  // After e2e4 the same pawn can go on to e5, and the cursor stays with it.
+  state = play(state, 'e2e4');
+  assert.equal(state.focus.cursor, 'e4');
 });

@@ -17,7 +17,6 @@ import {
   viewGame,
   type Side,
 } from '../src/core/game.ts';
-import { highlights } from '../src/core/highlights.ts';
 import { actionCost, CURRENT, type Strategy } from '../src/core/presses.ts';
 
 // A whole number of at least `least`, or the usage and exit code 2.
@@ -134,7 +133,6 @@ const tallies = MODES.map(() =>
     turns: [],
   })),
 );
-const timings: number[] = [];
 
 for (let g = 0; g < GAMES; g++) {
   let game = newGame('hotseat', `presses-${g}`);
@@ -145,11 +143,6 @@ for (let g = 0; g < GAMES; g++) {
     const turn = MODES.map(() => STRATEGIES.map(() => 0));
     let acted = false;
     while (game.phase === 'move') {
-      if (timings.length < 3000) {
-        const started = performance.now();
-        highlights(game);
-        timings.push(performance.now() - started);
-      }
       const { legal } = viewGame(game);
       const move = legal[Math.floor(random() * legal.length)];
       MODES.forEach((mode, m) => {
@@ -211,6 +204,3 @@ MODES.forEach((mode, m) => {
   });
   console.log('');
 });
-console.log(
-  `Highlights on this machine: ${timings.length} positions, mean ${fixed(timings.reduce((a, b) => a + b, 0) / timings.length)} ms, 95th percentile ${fixed(quantile(timings, 0.95))} ms.`,
-);

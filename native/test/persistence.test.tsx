@@ -36,7 +36,11 @@ const options: ScreenOptions = {
 
 type Launched = { root: Instance; state: () => string };
 
+// A launch replaces the app a previous launch left mounted, as a relaunch does.
+// A tree left mounted would still hear every key and write the same storage.
+let mounted: renderer.ReactTestRenderer | null = null;
 const launch = (): Launched => {
+  if (mounted) act(() => mounted!.unmount());
   let tree!: renderer.ReactTestRenderer;
   const reports: string[] = [];
   act(() => {
@@ -47,6 +51,7 @@ const launch = (): Launched => {
       }),
     );
   });
+  mounted = tree;
   return { root: tree.root, state: () => reports[reports.length - 1] ?? '' };
 };
 
@@ -108,13 +113,14 @@ test('nothing is saved before the player does anything', () => {
 test('the cursor is not part of the saved game', () => {
   reset();
   const first = enter(launch());
-  send('enter', 'up', 'up', 'right');
-  assert.match(first.state(), /cursor f4/);
-  // A relaunch starts the cursor where a new screen starts it, not where the
+  // After the roll the cursor waits on the g1 knight; Left takes it to b1.
+  send('enter', 'left');
+  assert.match(first.state(), /cursor b1/);
+  // A relaunch waits on a piece as a new screen does, from e2, not where the
   // player left it: where someone is looking is not game state.
   const second = launch();
   send('enter');
-  assert.match(second.state(), /cursor e2/);
+  assert.match(second.state(), /cursor g1/);
 });
 
 test('a damaged save is surfaced and cleared, not silently played over', () => {

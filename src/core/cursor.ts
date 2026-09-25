@@ -83,6 +83,33 @@ export function jump(
   return best;
 }
 
+// The rule the board jumps by, chosen with the owner in #68: in play it scores
+// as well as the others, and no set of squares has left one out of reach.
+export const RULE: JumpRule = 'cone';
+
+type Reached = { presses: number; from: string; direction: Direction };
+
+// Breadth-first over the jumps from `start`: for every option reached, how many
+// presses reach it and the press that arrives there first.
+function explore(
+  start: string,
+  options: readonly string[],
+  layout: Layout,
+): Map<string, Reached> {
+  const reached = new Map<string, Reached>();
+  const queue: [string, number][] = [[start, 0]];
+  // An array iterator also visits what is pushed during the loop.
+  for (const [at, count] of queue) {
+    for (const direction of DIRECTIONS) {
+      const to = jump(at, options, direction, layout);
+      if (to === null || to === start || reached.has(to)) continue;
+      reached.set(to, { presses: count + 1, from: at, direction });
+      queue.push([to, count + 1]);
+    }
+  }
+  return reached;
+}
+
 // Presses from `start` to every option that jumps can reach. `start` need not
 // be an option: after a move the cursor may stand where no choice is left.
 export function pressesFrom(
@@ -91,15 +118,27 @@ export function pressesFrom(
   layout: Layout = {},
 ): Map<string, number> {
   const presses = new Map<string, number>([[start, 0]]);
-  const queue: [string, number][] = [[start, 0]];
-  // An array iterator also visits what is pushed during the loop.
-  for (const [at, count] of queue) {
-    for (const direction of DIRECTIONS) {
-      const to = jump(at, options, direction, layout);
-      if (to === null || presses.has(to)) continue;
-      presses.set(to, count + 1);
-      queue.push([to, count + 1]);
-    }
+  for (const [square, { presses: count }] of explore(start, options, layout))
+    presses.set(square, count);
+  return presses;
+}
+
+// The presses that take the cursor from `from` to `to` by jumps, in order: none
+// when it is already there, and null when jumps cannot reach it.
+export function route(
+  from: string,
+  to: string,
+  options: readonly string[],
+  layout: Layout = {},
+): Direction[] | null {
+  if (from === to) return [];
+  const reached = explore(from, options, layout);
+  if (!reached.has(to)) return null;
+  const presses: Direction[] = [];
+  for (let at = to; at !== from;) {
+    const step = reached.get(at) as Reached;
+    presses.unshift(step.direction);
+    at = step.from;
   }
   return presses;
 }

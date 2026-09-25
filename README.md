@@ -24,11 +24,11 @@ vega device launch-app -d VirtualDevice -a com.fortemate.dicechesstv.main
 
 The whole game is played with three controls:
 
-| Remote | Virtual device keyboard | What it does                                                                                          |
-| ------ | ----------------------- | ----------------------------------------------------------------------------------------------------- |
-| D-pad  | Arrow keys              | Moves the focus over the board and through the menus                                                  |
-| OK     | Enter                   | Rolls the dice, picks up a piece, puts it on its destination, chooses a menu item                     |
-| Back   | Esc                     | Puts a picked-up piece back, opens the game menu, closes a screen; on the home screen, leaves the app |
+| Remote | Virtual device keyboard | What it does                                                                                            |
+| ------ | ----------------------- | ------------------------------------------------------------------------------------------------------- |
+| D-pad  | Arrow keys              | Jumps between the pieces that can move, or the destinations of the one in hand; moves through the menus |
+| OK     | Enter                   | Rolls the dice, picks up a piece, puts it on its destination, chooses a menu item                       |
+| Back   | Esc                     | Puts a picked-up piece back, opens the game menu, closes a screen; on the home screen, leaves the app   |
 
 The application has no network code, no accounts and no analytics. Games, results and settings stay on the device.
 

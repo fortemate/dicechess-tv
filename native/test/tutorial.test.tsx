@@ -16,7 +16,12 @@ import { decodeGame, viewGame, type Game } from '../../src/core/game';
 import { decodeLedger, type Ledger } from '../../src/core/ledger';
 import { TUTORIAL, isComplete, stepGame } from '../../src/core/tutorial';
 import { initialTutorial, tutorialReducer, step } from '../src/tutorial';
-import type { BoardKey } from '../../src/core/boardInput';
+import {
+  movableSquares,
+  movesFrom,
+  type BoardKey,
+} from '../../src/core/boardInput';
+import { route, RULE } from '../../src/core/cursor';
 import type { ScreenOptions } from '../src/screen';
 
 type Instance = renderer.ReactTestInstance;
@@ -33,11 +38,16 @@ const options: ScreenOptions = {
   side: () => 'w',
 };
 
+// A launch replaces the app a previous launch left mounted, as a relaunch does.
+// A tree left mounted would still hear every key and write the same storage.
+let mounted: renderer.ReactTestRenderer | null = null;
 const launch = (): Instance => {
+  if (mounted) act(() => mounted!.unmount());
   let tree!: renderer.ReactTestRenderer;
   act(() => {
     tree = renderer.create(React.createElement(App, { options }));
   });
+  mounted = tree;
   return tree.root;
 };
 
@@ -73,24 +83,25 @@ const solve = (state: ReturnType<typeof initialTutorial>) => {
         : goal.kind === 'kingCapture'
           ? (legal.find((m) => m.slice(2, 4) === 'a8') ?? legal[0])
           : legal[0];
-    // Walk the cursor to the piece, select it, walk to the target, select.
+    // Jump to the piece and pick it up, then jump to the target and play it.
+    const [from, to] = [move.slice(0, 2), move.slice(2, 4)];
+    const holding = [
+      ...jumps(played.focus.cursor, from, movableSquares(legal)),
+      'select' as const,
+    ].reduce((s, key) => tutorialReducer(s, key), played);
+    const targets = movesFrom(legal, from).map((action) => action.slice(2, 4));
     played = [
-      ...walk(played.focus.cursor, move.slice(0, 2)),
+      ...jumps(holding.focus.cursor, to, targets),
       'select' as const,
-      ...walk(move.slice(0, 2), move.slice(2, 4)),
-      'select' as const,
-    ].reduce((s, key) => tutorialReducer(s, key as BoardKey), played);
+    ].reduce((s, key) => tutorialReducer(s, key), holding);
   }
   return played;
 };
 
-const walk = (from: string, to: string): BoardKey[] => {
-  const keys: BoardKey[] = [];
-  const file = to.charCodeAt(0) - from.charCodeAt(0);
-  const rank = Number(to[1]) - Number(from[1]);
-  for (let i = 0; i < Math.abs(file); i++)
-    keys.push(file > 0 ? 'right' : 'left');
-  for (let i = 0; i < Math.abs(rank); i++) keys.push(rank > 0 ? 'up' : 'down');
+// The jumps from `from` to `to` among `options`, as the reducer makes them.
+const jumps = (from: string, to: string, options: string[]): BoardKey[] => {
+  const keys = route(from, to, options, { rule: RULE });
+  assert.ok(keys, `${to} is out of reach`);
   return keys;
 };
 

@@ -5,7 +5,7 @@
 // arrow presses that reach it plus one OK, and a promotion adds one OK more.
 
 import { central, pressesFrom, steps, type JumpRule } from './cursor.ts';
-import { movableSquares } from './highlights.ts';
+import { movableSquares } from './boardInput.ts';
 
 export type Strategy = {
   // While choosing a piece, a press moves one square, or jumps to the next

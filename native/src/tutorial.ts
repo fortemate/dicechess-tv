@@ -10,6 +10,7 @@
 import { moveGame, viewGame, type Game } from '../../src/core/game';
 import {
   boardInput,
+  waitingFocus,
   type BoardFocus,
   type BoardKey,
 } from '../../src/core/boardInput';
@@ -36,14 +37,18 @@ export type TutorialState = {
 export const step = (state: TutorialState): TutorialStep =>
   TUTORIAL[state.index];
 
-const atStep = (index: number): TutorialState => ({
-  index,
-  game: stepGame(TUTORIAL[index]),
-  focus: { cursor: START, selected: null },
-  complete: false,
-  finished: false,
-  exit: false,
-});
+// As in a game, the cursor waits on a piece that can move.
+const atStep = (index: number): TutorialState => {
+  const game = stepGame(TUTORIAL[index]);
+  return {
+    index,
+    game,
+    focus: waitingFocus(START, viewGame(game).legal),
+    complete: false,
+    finished: false,
+    exit: false,
+  };
+};
 
 export const initialTutorial = (): TutorialState => atStep(0);
 
@@ -77,7 +82,7 @@ export function tutorialReducer(
     return {
       ...state,
       game,
-      focus: { ...result.focus, selected: null },
+      focus: waitingFocus(result.focus.cursor, viewGame(game).legal),
       complete: isComplete(current, game),
     };
   }
