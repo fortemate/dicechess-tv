@@ -660,6 +660,34 @@ was confirmed to fail when its property was broken on purpose. Nothing imports
 the splash and nobody looks at a boot screen in CI, so without those it would
 regress in silence.
 
+## Network
+
+The game makes no network calls. Online play is an idea for after the contest,
+so #80 checked whether a Vega app can reach play-api at all. It used a throwaway
+build that is never merged: the branch `probe/80-network` replaces the game with
+a screen that makes the calls and writes each result on the screen.
+
+Measured on the virtual device on 25 September, against the public
+`https://api.fortemate.com`:
+
+- **HTTPS works as it is.** `GET /health` answered 200 (`{"status":"ok",...}`)
+  about 120 ms after launch, and `GET /showcase` answered 200. The manifest needed
+  no entry for this: unlike the audio services (see Sound), no connection was
+  refused, and the device log had no `missing permission` line.
+- **A WebSocket works as it is.** A spectator socket to the live showcase game
+  (`wss://api.fortemate.com/games/<id>/ws`) opened about 140 ms after the request
+  and delivered the game as it was played: a `Snapshot` first, then
+  `TurnPlayed` and `DiceRolled` frames as the moves came.
+- **Vega's WebSocket runs on curl.** A socket to a game that does not exist
+  closed with code 1006 and the reason `Could not fetch url - CURL error code:
+22 HTTP code: 404 response body: Refused WebSockets upgrade: 404`. So a refused
+  upgrade is reported with the server's status and body in the close reason,
+  which helps diagnosis.
+
+Not checked yet: the same on a Fire TV Stick (#10), and what happens to an open
+socket when the app goes to the background and comes back. That second question
+matters for online play, where switching the TV's input must not forfeit a game.
+
 ## Known gaps
 
 - **No coordinates.** The board draws squares, pieces and the four overlay
