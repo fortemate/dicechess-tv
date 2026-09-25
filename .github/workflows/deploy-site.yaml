@@ -1,0 +1,88 @@
+name: 'CD: Deploy Site'
+
+# The project site in site/. It is built on every pull request that touches it,
+# so a broken page fails before the merge, and built and deployed to GitHub
+# Pages on a push to main. Its logo and favicon are the app icon, read from
+# native/icon/, so a new icon rebuilds it too.
+on:
+  pull_request:
+    paths:
+      - 'site/**'
+      - 'native/icon/icon-512.png'
+      - '.github/workflows/deploy-site.yaml'
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - 'native/icon/icon-512.png'
+      - '.github/workflows/deploy-site.yaml'
+  workflow_dispatch:
+
+permissions: {}
+
+# One run per branch at a time. A newer pull-request run replaces an older one.
+# On main a deployment is never cancelled halfway; the newest waiting run
+# follows it.
+concurrency:
+  group: site-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    name: Build the site
+    # A GitHub-hosted runner, named here rather than taken from vars.RUNS_ON:
+    # the repository is public.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          # The whole history, so that each page's "Last updated" date is the
+          # date of its own last commit, not of the commit being built.
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          # engines.node in site/package.json: the root's range, which the
+          # version in mise.toml satisfies.
+          node-version-file: site/package.json
+          # No dependency cache. The install takes seconds, and a run that
+          # deploys should not restore files an earlier run left behind.
+          package-manager-cache: false
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: site
+
+      - name: Build
+        run: npm run build
+        working-directory: site
+
+      - name: Upload the site
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: site/dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-24.04
+    # deploy-pages waits up to ten minutes for the deployment itself.
+    timeout-minutes: 15
+    permissions:
+      pages: write # to deploy to GitHub Pages
+      id-token: write # to prove to Pages that the deployment comes from this workflow
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

@@ -1,0 +1,14 @@
+/* The accent is the orange of the app icon, in shades that keep links and
+   buttons at WCAG AA contrast (4.5:1 or more) in both themes. */
+
+:root {
+  --sl-color-accent-low: #4a1e08;
+  --sl-color-accent: #ec6634;
+  --sl-color-accent-high: #ffb58a;
+}
+
+:root[data-theme='light'] {
+  --sl-color-accent-low: #fde2d1;
+  --sl-color-accent: #a8410d;
+  --sl-color-accent-high: #5c2308;
+}

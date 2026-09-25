@@ -16,6 +16,8 @@ native/assets/
 coverage/
 # Written by Amazon's Vega ESLint plugin on every lint run.
 native/generated/
+# Types and caches Astro writes for the site in site/.
+.astro/
 *.vpkg
 *.apk
 *.log
