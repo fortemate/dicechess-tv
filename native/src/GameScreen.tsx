@@ -13,6 +13,8 @@ import {
 import { summary, type Ledger } from '../../src/core/ledger';
 import type { BoardKey } from '../../src/core/boardInput';
 import { Board } from './Board';
+import { Dice } from './Dice';
+import { diceOf } from '../../src/core/dice';
 import { TutorialScreen } from './TutorialScreen';
 import { RulesScreen } from './RulesScreen';
 import { AboutScreen } from './AboutScreen';
@@ -45,11 +47,6 @@ const DIE = {
   Q: 'Queen',
   K: 'King',
 } as const;
-
-const dice = (remaining: string) =>
-  [...remaining]
-    .map((letter) => DIE[letter as keyof typeof DIE] ?? letter)
-    .join(' · ');
 
 const RESULT = {
   'king-captured': 'King captured',
@@ -154,14 +151,20 @@ type GameView = ReturnType<typeof viewGame>;
 // The line under the headline: who won, or the dice still to use.
 const winnerLine = (result: Result): string =>
   result.winner ? `${sideName(result.winner)} wins` : 'Drawn';
-const diceLine = (remaining: string): string =>
-  remaining ? `Remaining: ${dice(remaining)}` : 'No dice';
 const RESULT_LINE = { color: '#aab8c9', fontSize: 24, marginBottom: 12 };
-const DICE_LINE = { color: '#aab8c9', fontSize: 22, marginBottom: 6 };
 
 // The mode and the turn; then how the game ended or whose move it is; then the
-// winner or the dice still to use.
-const Status = ({ game, view }: { game: Game; view: GameView }) => {
+// winner or the dice. The home screen leaves the dice out: it is a menu, and its
+// list needs the height.
+const Status = ({
+  game,
+  view,
+  dice,
+}: {
+  game: Game;
+  view: GameView;
+  dice: boolean;
+}) => {
   const { result } = game;
   return (
     <>
@@ -173,9 +176,8 @@ const Status = ({ game, view }: { game: Game; view: GameView }) => {
           ? RESULT[result.reason]
           : `${sideName(view.side)} to play${mover(game, view.bot)}`}
       </Text>
-      <Text style={result ? RESULT_LINE : DICE_LINE}>
-        {result ? winnerLine(result) : diceLine(view.remaining)}
-      </Text>
+      {result ? <Text style={RESULT_LINE}>{winnerLine(result)}</Text> : null}
+      {!result && dice ? <Dice dice={diceOf(game)} side={view.side} /> : null}
     </>
   );
 };
@@ -423,7 +425,7 @@ export const GameScreen = ({
         flipped={flipped(game)}
       />
       <View style={{ flex: 1, paddingLeft: 40 }}>
-        <Status game={game} view={state} />
+        <Status game={game} view={state} dice={overlay.kind !== 'home'} />
         <Panel
           overlay={overlay}
           game={game}

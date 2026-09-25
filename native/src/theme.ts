@@ -11,4 +11,9 @@ export const THEME = {
   destination: 'rgba(20, 85, 30, 0.5)',
   lastMove: 'rgba(155, 199, 0, 0.41)',
   selected: 'rgba(0, 234, 255, 0.28)',
+  // Dice: ivory faces like the light squares, an unspent die ringed in the
+  // cursor's cyan at half strength, and the outline of an empty slot.
+  die: '#f4ead8',
+  dieRing: 'rgba(0, 234, 255, 0.55)',
+  dieSlot: '#aab8c9',
 } as const;

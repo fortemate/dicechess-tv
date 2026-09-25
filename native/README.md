@@ -286,6 +286,21 @@ against the web probe is the cryptographic source, not the uniformity.
 For a local hotseat game that is a defensible trade, but it is the owner's to
 make, and nothing that describes this game should claim cryptographic dice.
 
+**The roll is drawn as three dice**, as the other Dice Chess clients draw it
+(dicechess-play's `DicePanel.svelte` is the reference). Each face shows the
+piece it permits, drawn with the board's own piece components in the colour of
+the side to move. An unspent die carries a cyan ring; a spent one dims to 30 %
+and shrinks, so it differs by more than colour. Before the roll the three slots
+are empty, and the home screen, being a menu, leaves the dice out. Which dice
+are spent is read off the engine's record of the dice left (`src/core/dice.ts`),
+so castling spends the king and a rook die with no rule of its own. A repeated
+piece is spent from the left. There is no roll animation yet. Tests:
+`test/dice.test.ts` against engine positions (castling included),
+`native/test/dice.test.tsx` for the faces, and `native/test/input.test.tsx` for
+the panel. Checked on the virtual device on 25 September: empty slots before the
+roll, bishop, rook and bishop after it, and in the tutorial three pawn dice going
+dim one by one.
+
 ## Menus
 
 Flow lives in `src/screen.ts` as a pure reducer over state and one key, tested
