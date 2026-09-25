@@ -32,10 +32,19 @@ const CHANNEL: Readonly<Record<Cue, Channel>> = {
   promotion: 'board',
   dice_roll: 'dice',
   turn_handoff: 'dice',
+  // Not on the dice channel, where it would cut short the clatter it follows.
+  // Nothing else plays on the result channel then: a roll that ends the game
+  // is heard as the result instead.
+  no_move: 'result',
   game_win: 'result',
   game_loss: 'result',
   game_draw: 'result',
 };
+
+// Cues that wait before they start, in milliseconds. A roll with nothing to
+// play is heard after the dice land, not over them: the throws last 0.4 to
+// 0.6 s (#85).
+const DELAY: Partial<Record<Cue, number>> = { no_move: 500 };
 
 const CHANNELS: readonly Channel[] = ['board', 'dice', 'result'];
 
@@ -54,6 +63,9 @@ export type SoundOptions = {
   report?: (line: string) => void;
   // Start muted, when the viewer turned sound off in an earlier session.
   muted?: boolean;
+  // Runs a delayed cue after `wait` milliseconds. Injected so a test need not
+  // wait.
+  later?: (run: () => void, wait: number) => void;
 };
 
 type Player = Pick<
@@ -65,6 +77,9 @@ export function createSounds({
   pick = (count) => Math.floor(Math.random() * count),
   report = () => undefined,
   muted: startMuted = false,
+  later = (run, wait) => {
+    setTimeout(run, wait);
+  },
 }: SoundOptions = {}): Sounds {
   let muted = startMuted;
   let suspended = false;
@@ -140,7 +155,12 @@ export function createSounds({
   return {
     play(cues) {
       if (muted || suspended) return;
-      for (const cue of cues) void start(cue);
+      for (const cue of cues) {
+        const wait = DELAY[cue];
+        // start() checks muting again: a cue muted while it waits is not heard.
+        if (wait) later(() => void start(cue), wait);
+        else void start(cue);
+      }
     },
     setMuted(value) {
       muted = value;

@@ -12,6 +12,7 @@ import {
   resignGame,
   agreeDraw,
   rollDice,
+  emptyRoll,
   type Game,
 } from '../src/core/game.ts';
 import {
@@ -54,6 +55,33 @@ test('an unusable roll passes; king capture ends immediately without switching s
   assert.deepEqual(decodeGame(JSON.stringify(capture)), capture);
   assert.throws(() => nextTurn(capture));
   assert.throws(() => moveGame(capture, 'e8e7'));
+});
+
+test('only a roll with nothing to play is an empty roll, not a turn that ran out of actions', () => {
+  const fresh = newGame('hotseat', 'empty');
+  assert.equal(emptyRoll(fresh), false);
+  // Rook, rook, rook from the start: nothing can move.
+  const stuck = rollGame(fresh, [4, 4, 4]);
+  assert.equal(emptyRoll(stuck), true);
+  assert.equal(emptyRoll(nextTurn(stuck)), false);
+  // Knight, king, king: the knight moves, then nothing can use the kings. The
+  // turn passes with dice left over, which is not an empty roll.
+  const rolled = rollGame(fresh, [2, 6, 6]);
+  assert.equal(emptyRoll(rolled), false);
+  const partial = moveGame(rolled, 'b1c3');
+  assert.equal(partial.phase, 'handoff');
+  assert.equal(emptyRoll(partial), false);
+  // A roll with nothing to play that ends the game is the result, not a pass.
+  const drawn = rollGame(
+    newGame(
+      'hotseat',
+      'drawn',
+      'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 100 1',
+    ),
+    [4, 4, 4],
+  );
+  assert.equal(drawn.result?.reason, '100-halfmoves');
+  assert.equal(emptyRoll(drawn), false);
 });
 
 test('promotion is selected only from canonical legal suffixes; castling and en passant stay engine-owned', () => {

@@ -138,6 +138,12 @@ function automaticResult(
 const livePhase = (legal: readonly string[]): Phase =>
   legal.length ? 'move' : 'handoff';
 
+// A roll that left nothing to play: the turn passes without a single action
+// (#85). A turn that ends with dice left over after an action is not one; that
+// happens in about a third of all turns and passes without a notice.
+export const emptyRoll = (game: Game): boolean =>
+  game.phase === 'handoff' && game.roll.length > 0 && game.moves.length === 0;
+
 function normalize(game: Game): Game {
   const state = viewGame(game);
   const result = automaticResult(game, state.dfen, state.legal.length === 0);

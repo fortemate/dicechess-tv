@@ -117,7 +117,7 @@ test('passing the dice to the other player is heard as a handoff', () => {
   assert.deepEqual(cues(game, nextTurn(game)), ['turn_handoff']);
 });
 
-test('a roll with nothing to play is only a roll; the handoff comes after', () => {
+test('a roll with nothing to play is a roll, then the empty roll; the handoff comes after', () => {
   // Three king dice, the king walled in by its own pieces.
   const before = newGame(
     'hotseat',
@@ -126,7 +126,34 @@ test('a roll with nothing to play is only a roll; the handoff comes after', () =
   );
   const after = rollGame(before, [KING, KING, KING]);
   assert.equal(after.phase, 'handoff');
-  assert.deepEqual(cues(before, after), ['dice_roll']);
+  assert.deepEqual(cues(before, after), ['dice_roll', 'no_move']);
+  assert.deepEqual(cues(after, nextTurn(after)), ['turn_handoff']);
+});
+
+test('the empty roll is heard against the bot too, on either side’s roll', () => {
+  // Queen, rook, king at the start: only pawns and knights could move.
+  const mine = newGame('random', 'cues');
+  assert.deepEqual(cues(mine, rollGame(mine, [QUEEN, ROOK, KING])), [
+    'dice_roll',
+    'no_move',
+  ]);
+  const theirs = nextTurn(rollGame(mine, [QUEEN, ROOK, KING]));
+  assert.equal(viewGame(theirs).bot, true);
+  assert.deepEqual(cues(theirs, rollGame(theirs, [QUEEN, ROOK, KING])), [
+    'dice_roll',
+    'no_move',
+  ]);
+});
+
+test('a roll that leaves something to play is a plain roll, and so is a turn that ends with dice left', () => {
+  const before = newGame('hotseat', 'cues');
+  // Knight, king, king: the knight can move, so this is only a roll.
+  const rolled = rollGame(before, [KNIGHT, KING, KING]);
+  assert.deepEqual(cues(before, rolled), ['dice_roll']);
+  // After the knight nothing can use the kings: the turn is over, silently.
+  const partial = moveGame(rolled, 'b1c3');
+  assert.equal(partial.phase, 'handoff');
+  assert.deepEqual(cues(rolled, partial), ['piece_move']);
 });
 
 test('resigning against the bot is a loss; resigning in hotseat is a win', () => {

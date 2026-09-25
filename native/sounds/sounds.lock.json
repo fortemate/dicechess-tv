@@ -1,6 +1,6 @@
 {
   "upstream": "fortemate/dicechess-assets",
-  "commit": "4a15250a29af74cf13ba9474463f26cdcef3df76",
+  "commit": "74ff23f67ede28ab1945f5c4637d8faf6740eecc",
   "packs": {
     "kenney-casino-audio": {
       "version": "1.0.0",
@@ -74,11 +74,15 @@
       "files": {
         "manifest.json": {
           "from": "sounds/kenney-interface-sounds/manifest.json",
-          "sha256": "16ff572dd96ae599dfd3da5758cc8b258495d32c2697560a3c050c7f8ba80280"
+          "sha256": "fe3c954727856ae831171f49e9fd26b32fa438cbe2c940d9a96b52ddf00f164a"
         },
         "LICENSE.txt": {
           "from": "sounds/kenney-interface-sounds/LICENSE.txt",
           "sha256": "f7966c773bbed0eca6a9c75081c44a178b38eae112724dbb5fdfbd4192d118a9"
+        },
+        "glass_004.mp3": {
+          "from": "sounds/kenney-interface-sounds/exports/mp3/glass_004.mp3",
+          "sha256": "0bbc0cf70bc0992364f2e969055c88195744975a651ff75b89a5f190c6ee48f7"
         },
         "maximize_006.mp3": {
           "from": "sounds/kenney-interface-sounds/exports/mp3/maximize_006.mp3",
@@ -138,6 +142,9 @@
     ],
     "promotion": [
       "kenney-interface-sounds/maximize_006.mp3"
+    ],
+    "no_move": [
+      "kenney-interface-sounds/glass_004.mp3"
     ],
     "game_win": [
       "kenney-music-jingles/pizzicato_02.mp3"

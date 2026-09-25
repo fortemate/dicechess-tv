@@ -12,7 +12,8 @@
 // CUES below is the one place this application decides which sound means what.
 // Each cue names a pack and one of that pack's events; the MP3 files the event
 // lists are what the cue may play, one picked at random when there are several.
-// The choices were made by ear by the owner (dicechess-assets#8).
+// The choices were made by ear by the owner (dicechess-assets#8, and #85 for
+// no_move).
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
@@ -27,6 +28,8 @@ const CUES = {
   castle: ['jdsherbert-tabletop', 'piece_move'],
   piece_capture: ['jdsherbert-tabletop', 'piece_capture'],
   promotion: ['kenney-interface-sounds', 'promotion'],
+  // A roll with nothing to play (#85).
+  no_move: ['kenney-interface-sounds', 'no_move'],
   game_win: ['kenney-music-jingles', 'game_win'],
   game_loss: ['kenney-music-jingles', 'game_loss'],
   game_draw: ['kenney-music-jingles', 'game_draw'],

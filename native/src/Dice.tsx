@@ -1,7 +1,9 @@
 // The roll as three dice, as the other Dice Chess clients draw it: each face
 // shows the piece it permits, in the colour of the side to move. An unspent die
 // carries a ring; a spent one dims and shrinks, so it is told apart by more than
-// colour. Before the roll the three slots are empty.
+// colour. Once the turn is over, a die it could not use loses its ring and dims
+// but keeps its size: it was never played, and nothing is left to play (#85).
+// Before the roll the three slots are empty.
 import React from 'react';
 import { View } from 'react-native';
 import type { Die } from '../../src/core/dice';
@@ -20,6 +22,7 @@ const Face = ({ die, side, size }: { die: Die; side: Side; size: number }) => {
   const letter = side === 'w' ? die.piece : die.piece.toLowerCase();
   const Piece = PIECES[letter as keyof typeof PIECES];
   const edge = die.spent ? Math.round(size * 0.86) : size;
+  const ringed = !die.spent && !die.leftover;
   return (
     <View
       style={{
@@ -27,9 +30,9 @@ const Face = ({ die, side, size }: { die: Die; side: Side; size: number }) => {
         height: edge,
         borderRadius: Math.round(edge / 6),
         backgroundColor: THEME.die,
-        borderWidth: die.spent ? 0 : Math.max(2, Math.round(size / 24)),
+        borderWidth: ringed ? Math.max(2, Math.round(size / 24)) : 0,
         borderColor: THEME.dieRing,
-        opacity: die.spent ? 0.3 : 1,
+        opacity: die.spent ? 0.3 : die.leftover ? 0.45 : 1,
         alignItems: 'center',
         justifyContent: 'center',
       }}

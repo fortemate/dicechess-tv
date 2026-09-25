@@ -9,6 +9,9 @@ import {
   resultOptions,
   colourOptions,
   resumable,
+  botWait,
+  BOT_STEP_MS,
+  PASS_HOLD_MS,
   type ScreenOptions,
   type ScreenState,
 } from '../src/screen';
@@ -700,4 +703,60 @@ test('the cursor stays on its piece while that piece can move again', () => {
   // After e2e4 the same pawn can go on to e5, and the cursor stays with it.
   state = play(state, 'e2e4');
   assert.equal(state.focus.cursor, 'e4');
+});
+
+// Queen, rook, king: from the opening nothing can move, for either side.
+const nothing: ScreenOptions = { ...options, roll: () => [5, 4, 6] };
+
+test('after a roll with nothing to play, OK passes the turn only once the guard is over', () => {
+  const rolled = driveWith(nothing, drive(fresh(), 'select'), 'select');
+  assert.equal(rolled.game.phase, 'handoff');
+  assert.equal(rolled.guarded, true);
+  // A second press, as from a double press on the remote, changes nothing.
+  assert.equal(driveWith(nothing, rolled, 'select'), rolled);
+  // Back still reaches the menu.
+  assert.equal(driveWith(nothing, rolled, 'back').overlay.kind, 'menu');
+  const ready = screenReducer(rolled, { kind: 'unguard' }, nothing);
+  assert.equal(ready.guarded, false);
+  const passed = driveWith(nothing, ready, 'select');
+  assert.equal(passed.game.turn, 2);
+  assert.equal(passed.guarded, false);
+  // Unguarding what is not guarded is no change at all.
+  assert.equal(screenReducer(passed, { kind: 'unguard' }, nothing), passed);
+});
+
+test('only an empty roll is guarded: a roll with moves and a turn with dice left are not', () => {
+  assert.equal(drive(drive(fresh(), 'select'), 'select').guarded, false);
+  // Knight, king, king: the knight moves, and the kings are left over.
+  const leftover: ScreenOptions = { ...options, roll: () => [2, 6, 6] };
+  const partial = play(
+    driveWith(leftover, drive(fresh(), 'select'), 'select'),
+    'g1f3',
+  );
+  assert.equal(partial.game.phase, 'handoff');
+  assert.equal(partial.guarded, false);
+  assert.equal(drive(partial, 'select').game.turn, 2);
+});
+
+test('the opponent holds a roll with nothing to play longer; its other steps keep their pace', () => {
+  const handed = handedToBot();
+  assert.equal(botWait(handed.game), BOT_STEP_MS);
+  const stuck = screenReducer(handed, { kind: 'bot' }, nothing);
+  assert.equal(stuck.game.phase, 'handoff');
+  assert.equal(botToAct(stuck.game), true);
+  assert.equal(botWait(stuck.game), PASS_HOLD_MS);
+  // The board takes no OK for the bot anyway, so there is nothing to guard.
+  assert.equal(stuck.guarded, false);
+  assert.equal(
+    botToAct(screenReducer(stuck, { kind: 'bot' }, nothing).game),
+    false,
+  );
+
+  // A roll with moves, and a turn that ends with dice left, keep the step pace.
+  const leftover: ScreenOptions = { ...options, roll: () => [2, 6, 6] };
+  const steps = settleSteps(handed, leftover);
+  const partial = steps.find((s) => s.game.phase === 'handoff');
+  assert.ok(partial && partial.game.moves.length > 0);
+  for (const state of steps.filter((s) => botToAct(s.game)))
+    assert.equal(botWait(state.game), BOT_STEP_MS);
 });

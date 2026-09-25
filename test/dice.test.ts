@@ -55,3 +55,46 @@ test('a turn handed over clears the dice', () => {
   assert.equal(faces(diceFor(stuck)), 'RRR');
   assert.deepEqual(diceFor(nextTurn(stuck)), []);
 });
+
+// As the game screen calls it once a turn can be over.
+const diceAtEnd = (game: Game) =>
+  diceOf(game.roll, viewGame(game).remaining, game.phase === 'handoff');
+
+test('once the turn is over, the dice it could not use are leftovers', () => {
+  // Rook, rook, rook from the start: all three are left over, none spent.
+  const stuck = diceAtEnd(rollGame(newGame('hotseat', 'stuck'), [4, 4, 4]));
+  assert.deepEqual(
+    stuck.map(({ spent, leftover }) => [spent, leftover]),
+    [
+      [false, true],
+      [false, true],
+      [false, true],
+    ],
+  );
+  // Knight, king, king: the knight is spent, and nothing can use the kings.
+  const partial = moveGame(
+    rollGame(newGame('hotseat', 'partial'), [2, 6, 6]),
+    'b1c3',
+  );
+  assert.equal(partial.phase, 'handoff');
+  assert.deepEqual(
+    diceAtEnd(partial).map(({ piece, spent, leftover }) => [
+      piece,
+      spent,
+      leftover,
+    ]),
+    [
+      ['N', true, false],
+      ['K', false, true],
+      ['K', false, true],
+    ],
+  );
+});
+
+test('while an action remains, no die is a leftover', () => {
+  const rolled = rollGame(newGame('hotseat', 'live'), [5, 4, 2]);
+  assert.ok(diceAtEnd(rolled).every(({ leftover }) => !leftover));
+  assert.ok(
+    diceAtEnd(moveGame(rolled, 'b1c3')).every(({ leftover }) => !leftover),
+  );
+});

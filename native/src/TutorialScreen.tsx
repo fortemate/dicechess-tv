@@ -122,7 +122,11 @@ export const TutorialScreen = ({ onExit, onState }: TutorialScreenProps) => {
         )}
 
         <Dice
-          dice={diceOf(state.game.roll, board.remaining)}
+          dice={diceOf(
+            state.game.roll,
+            board.remaining,
+            state.game.phase === 'handoff',
+          )}
           side={board.side}
           size={56}
         />

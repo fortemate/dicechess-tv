@@ -15,6 +15,7 @@ import {
   agreeDraw,
   applyBotReply,
   viewGame,
+  emptyRoll,
   INITIAL_POSITION,
   type ColourChoice,
   type Game,
@@ -50,8 +51,23 @@ const settled = (focus: BoardFocus, game: Game): BoardFocus =>
     ? waitingFocus(focus.cursor, viewGame(game).legal, flipped(game))
     : { ...focus, selected: null };
 
-// The screen advances on a key, or on the local opponent taking its turn.
-export type ScreenAction = { kind: 'key'; key: BoardKey } | { kind: 'bot' };
+// The screen advances on a key, on the local opponent taking its turn, or on
+// the guard after a roll with nothing to play running out.
+export type ScreenAction =
+  { kind: 'key'; key: BoardKey } | { kind: 'bot' } | { kind: 'unguard' };
+
+// How long the opponent's next step waits, in milliseconds: long enough to watch
+// each roll and move land. After a roll with nothing to play it holds longer, so
+// the notice can be read before the turn passes; the web client holds it for
+// 1500 ms as well (#85).
+export const BOT_STEP_MS = 600;
+export const PASS_HOLD_MS = 1500;
+export const botWait = (game: Game): number =>
+  emptyRoll(game) ? PASS_HOLD_MS : BOT_STEP_MS;
+
+// How long OK is ignored after a person's roll with nothing to play, so that a
+// double press on the remote cannot pass the turn before the notice is seen.
+export const OK_GUARD_MS = 700;
 
 // `home` is the screen shown before a game is in play; the rest sit over the
 // board. `none` is the board itself.
@@ -103,6 +119,9 @@ export type ScreenState = {
   // Whether the game's sounds are heard. Toggled from either menu; the screen
   // reports each change so the app can save it and mute the players.
   sound: boolean;
+  // OK is ignored: a person has just rolled nothing to play. The app clears it
+  // after OK_GUARD_MS; the other keys work throughout.
+  guarded: boolean;
 };
 
 // The toggle's label says what the sound is now, which is what a viewer checks.
@@ -117,9 +136,10 @@ export type ScreenOptions = {
   // Identifies the game being saved. Injected so a restart does not collide
   // with the game it just restored.
   newId: () => string;
-  // How the opponent's next step is scheduled. The app spaces them out so the
-  // player can watch; a test runs them immediately.
-  schedule: (step: () => void) => void;
+  // Runs a step after about `wait` milliseconds: the opponent's next step, or the
+  // end of a guard. The app spaces them out so the player can watch; a test
+  // runs them immediately.
+  schedule: (step: () => void, wait: number) => void;
   // The colour a person gets on choosing Random. Injected like the dice.
   side: () => Side;
 };
@@ -210,16 +230,18 @@ const board = (
   overlay: { kind: 'none' },
   pending: [],
   sound,
+  guarded: false,
 });
 
 // A played move clears the selection, and the cursor settles for the next
-// choice.
+// choice. A person who has just rolled nothing to play is guarded.
 const played = (state: ScreenState, game: Game): ScreenState => ({
   game,
   focus: settled(state.focus, game),
   overlay: after(game),
   pending: [],
   sound: state.sound,
+  guarded: emptyRoll(game) && !botToAct(game),
 });
 
 const step = (key: BoardKey, index: number, length: number): number =>
@@ -245,6 +267,7 @@ export const initialState = (
     overlay: { kind: 'home', index: 0 },
     pending: [],
     sound,
+    guarded: false,
   };
 };
 
@@ -500,9 +523,9 @@ const onBoard = (
   if (game.phase === 'move' && !bot) return onMove(state, key);
   // Otherwise Back opens the menu, and OK rolls the dice or passes the turn.
   // While the opponent owes an action the board takes no input but Back, so a
-  // player cannot move its pieces for it.
+  // player cannot move its pieces for it; while a guard is up, no OK either.
   if (key === 'back') return show(state, MENU);
-  if (key !== 'select' || bot) return state;
+  if (key !== 'select' || bot || state.guarded) return state;
   return played(
     state,
     game.phase === 'roll' ? rollGame(game, options.roll()) : nextTurn(game),
@@ -515,6 +538,8 @@ export function screenReducer(
   options: ScreenOptions,
 ): ScreenState {
   if (action.kind === 'bot') return botStep(state, options);
+  if (action.kind === 'unguard')
+    return state.guarded ? { ...state, guarded: false } : state;
   const { key } = action;
   const { overlay } = state;
   // Leaving any of those comes back here, to the screen they were started from.
