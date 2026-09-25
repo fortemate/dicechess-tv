@@ -24,6 +24,10 @@ const STUBS = {
     './stubs/react-native-w3cmedia.mjs',
     import.meta.url,
   ).href,
+  '@amazon-devices/kepler-performance-api': new URL(
+    './stubs/kepler-performance-api.mjs',
+    import.meta.url,
+  ).href,
 };
 
 registerHooks({

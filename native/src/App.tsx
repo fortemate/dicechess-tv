@@ -19,6 +19,8 @@ import {
   type Ledger,
 } from '../../src/core/ledger';
 import { MMKV } from '@amazon-devices/react-native-mmkv';
+import { useKeplerAppStateManager } from '@amazon-devices/react-native-kepler';
+import { useReportFullyDrawn } from '@amazon-devices/kepler-performance-api';
 import { GameScreen } from './GameScreen';
 import { MmkvSnapshotStore } from './mmkvStore';
 import { createSounds, type Sounds } from './sound';
@@ -145,6 +147,33 @@ export const App = ({
     },
     [settings, sounds],
   );
+
+  // Time To Fully Drawn, one of the KPIs Amazon measures. A cool start is fully
+  // drawn by the first render, since the saved game and the settings are read
+  // synchronously and there is no loading frame.
+  const reportFullyDrawn = useReportFullyDrawn();
+  React.useEffect(() => {
+    reportFullyDrawn();
+  }, [reportFullyDrawn]);
+
+  // Leaving the foreground (Home, another app, the screensaver) stops every
+  // sound, which Amazon's pre-submission checks require. Coming back is a warm
+  // start, reported like the cool one, and sound resumes as the setting says.
+  const appState = useKeplerAppStateManager();
+  React.useEffect(() => {
+    let away = false;
+    const subscription = appState.addEventListener('change', (state) => {
+      if (state === 'active') {
+        sounds.setSuspended(false);
+        if (away) reportFullyDrawn();
+        away = false;
+      } else if (state === 'background' || state === 'inactive') {
+        sounds.setSuspended(true);
+        away = true;
+      }
+    });
+    return () => subscription.remove();
+  }, [appState, sounds, reportFullyDrawn]);
 
   const onCommit = React.useCallback(
     (game: Game) => {

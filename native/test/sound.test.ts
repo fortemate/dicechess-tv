@@ -4,6 +4,8 @@ import {
   audioLog,
   resetAudio,
   failAudio,
+  holdAudio,
+  releaseAudio,
 } from './stubs/react-native-w3cmedia.mjs';
 import { createSounds } from '../src/sound';
 
@@ -95,6 +97,46 @@ test('muted, nothing plays, and what was playing stops', async () => {
   assert.equal(plays().length, 1);
 });
 
+test('away from the foreground, nothing plays, and the setting is kept', async () => {
+  resetAudio();
+  const sounds = createSounds({ pick: () => 0 });
+  sounds.setSuspended(true);
+  sounds.play(['dice_roll', 'piece_move', 'game_draw']);
+  await settle();
+  assert.equal(plays().length, 0);
+  assert.equal(log().filter((entry) => entry.event === 'pause').length, 3);
+  // Back in the foreground, sound plays again: it was never muted.
+  sounds.setSuspended(false);
+  sounds.play(['game_draw']);
+  await settle();
+  assert.equal(plays().length, 1);
+  // And muting still wins over coming back.
+  sounds.setMuted(true);
+  sounds.setSuspended(false);
+  sounds.play(['game_draw']);
+  await settle();
+  assert.equal(plays().length, 1);
+});
+
+test('back before the players are ready, a waiting cue plays to the end', async () => {
+  resetAudio();
+  holdAudio();
+  const sounds = createSounds({ pick: () => 0 });
+  sounds.play(['dice_roll']);
+  // Away and back while the players are still initialising: the stop asked for
+  // on leaving no longer applies once they are ready.
+  sounds.setSuspended(true);
+  sounds.setSuspended(false);
+  releaseAudio();
+  await settle();
+  const [roll] = plays();
+  assert.ok(roll, 'the waiting cue plays');
+  const afterwards = log()
+    .slice(log().indexOf(roll) + 1)
+    .filter((entry) => entry.player === roll.player);
+  assert.deepEqual(afterwards, [], 'nothing pauses it');
+});
+
 test('a take is chosen among several, and a bad pick cannot fall off the list', async () => {
   resetAudio();
   const picks = [2, 7, -3];
@@ -131,4 +173,18 @@ test('a clip that refuses to play is reported, and nothing is thrown', async () 
   await settle();
   assert.deepEqual(reported.length, 1);
   assert.match(reported[0], /promotion did not play/);
+});
+
+test('a player that refuses to stop is reported, and nothing is thrown', async () => {
+  resetAudio();
+  failAudio('pause');
+  const reported: string[] = [];
+  const sounds = createSounds({ report: (line) => reported.push(line) });
+  sounds.setSuspended(true);
+  await settle();
+  assert.deepEqual(reported, [
+    'sound: board did not stop: Error: not supported',
+    'sound: dice did not stop: Error: not supported',
+    'sound: result did not stop: Error: not supported',
+  ]);
 });

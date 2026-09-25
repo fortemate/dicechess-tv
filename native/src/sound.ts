@@ -42,6 +42,9 @@ const CHANNELS: readonly Channel[] = ['board', 'dice', 'result'];
 export type Sounds = {
   play(cues: readonly Cue[]): void;
   setMuted(muted: boolean): void;
+  // While the app is away from the foreground nothing plays, and anything
+  // playing stops. The player's own sound setting is left alone.
+  setSuspended(suspended: boolean): void;
 };
 
 export type SoundOptions = {
@@ -64,6 +67,7 @@ export function createSounds({
   muted: startMuted = false,
 }: SoundOptions = {}): Sounds {
   let muted = startMuted;
+  let suspended = false;
   const loaded = new Map<Channel, string>();
 
   // Players are created and initialised up front, so the first cue of a game is
@@ -102,7 +106,7 @@ export function createSounds({
     const channel = CHANNEL[cue];
     const player = await players.get(channel);
     // Muting can happen while a player is still initialising.
-    if (!player || muted) return;
+    if (!player || muted || suspended) return;
     try {
       const src = `${ROOT}/${file}`;
       if (loaded.get(channel) === src) {
@@ -118,22 +122,33 @@ export function createSounds({
     }
   };
 
+  const stopAll = () => {
+    for (const [channel, ready] of players)
+      void ready.then((player) => {
+        // A player still initialising when the stop was asked for had nothing
+        // playing. If sound is back on by the time it is ready, a cue started
+        // since then is left to play.
+        if (!player || (!muted && !suspended)) return;
+        try {
+          player.pause();
+        } catch (error) {
+          report(`sound: ${channel} did not stop: ${String(error)}`);
+        }
+      });
+  };
+
   return {
     play(cues) {
-      if (muted) return;
+      if (muted || suspended) return;
       for (const cue of cues) void start(cue);
     },
     setMuted(value) {
       muted = value;
-      if (!value) return;
-      for (const ready of players.values())
-        void ready.then((player) => {
-          try {
-            player?.pause();
-          } catch {
-            // Silence is what was asked for either way.
-          }
-        });
+      if (value) stopAll();
+    },
+    setSuspended(value) {
+      suspended = value;
+      if (value) stopAll();
     },
   };
 }

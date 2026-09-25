@@ -6,9 +6,21 @@ export const AudioUsageType = { USAGE_GAME: 6 };
 export const audioLog = [];
 
 // Test-only: make the next players fail where a device's media stack might.
-const failing = { initialize: false, play: false };
+const failing = { initialize: false, play: false, pause: false };
 export function failAudio(stage) {
   failing[stage] = true;
+}
+
+// Test-only: keep the next players initialising until releaseAudio(), as a slow
+// media pipeline would.
+let held = null;
+export function holdAudio() {
+  held = [];
+}
+export function releaseAudio() {
+  const waiting = held ?? [];
+  held = null;
+  for (const release of waiting) release();
 }
 
 export class AudioPlayer {
@@ -22,9 +34,9 @@ export class AudioPlayer {
   }
   initialize() {
     audioLog.push({ event: 'initialize', player: this.id });
-    return failing.initialize
-      ? Promise.reject(new Error('media pipeline unavailable'))
-      : Promise.resolve();
+    if (failing.initialize)
+      return Promise.reject(new Error('media pipeline unavailable'));
+    return held ? new Promise((done) => held.push(done)) : Promise.resolve();
   }
   get src() {
     return this._src;
@@ -45,6 +57,7 @@ export class AudioPlayer {
       : Promise.resolve();
   }
   pause() {
+    if (failing.pause) throw new Error('not supported');
     audioLog.push({ event: 'pause', player: this.id });
   }
 }
@@ -54,4 +67,6 @@ export function resetAudio() {
   audioLog.length = 0;
   failing.initialize = false;
   failing.play = false;
+  failing.pause = false;
+  held = null;
 }

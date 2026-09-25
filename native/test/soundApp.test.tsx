@@ -5,7 +5,11 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
-import { press, pressBack } from './stubs/react-native-kepler.mjs';
+import { press, pressBack, setAppState } from './stubs/react-native-kepler.mjs';
+import {
+  fullyDrawnReports,
+  resetFullyDrawnReports,
+} from './stubs/kepler-performance-api.mjs';
 import { reset } from './stubs/react-native-mmkv.mjs';
 import { App } from '../src/App';
 import type { ScreenOptions } from '../src/screen';
@@ -28,17 +32,25 @@ const options: ScreenOptions = {
   side: () => 'w',
 };
 
-type Recorder = Sounds & { played: Cue[][]; muted: boolean | null };
+type Recorder = Sounds & {
+  played: Cue[][];
+  muted: boolean | null;
+  suspended: boolean | null;
+};
 
 const recorder = (): Recorder => {
   const self: Recorder = {
     played: [],
     muted: null,
+    suspended: null,
     play(cues) {
       if (cues.length) self.played.push([...cues]);
     },
     setMuted(value) {
       self.muted = value;
+    },
+    setSuspended(value) {
+      self.suspended = value;
     },
   };
   return self;
@@ -122,5 +134,31 @@ test('a win as Black is heard as a win', () => {
   send('down', 'down', 'down', 'down', 'down', 'down', 'down');
   send('enter');
   assert.deepEqual(sounds.played.at(-1), ['piece_capture', 'game_win']);
+  act(() => tree.unmount());
+});
+
+test('leaving the foreground stops the sound, and coming back is a warm start', () => {
+  reset();
+  resetFullyDrawnReports();
+  const sounds = recorder();
+  const tree = launch(sounds);
+  // The cool start is fully drawn by the first render.
+  assert.equal(fullyDrawnReports(), 1);
+
+  act(() => setAppState('background'));
+  assert.equal(sounds.suspended, true);
+  act(() => setAppState('active'));
+  assert.equal(sounds.suspended, false);
+  assert.equal(fullyDrawnReports(), 2);
+
+  // The screensaver or a system dialog leaves the app inactive: silent too.
+  act(() => setAppState('inactive'));
+  assert.equal(sounds.suspended, true);
+  act(() => setAppState('active'));
+  assert.equal(fullyDrawnReports(), 3);
+
+  // Active again without having been away is not another start.
+  act(() => setAppState('active'));
+  assert.equal(fullyDrawnReports(), 3);
   act(() => tree.unmount());
 });
