@@ -1,0 +1,81 @@
+---
+title: Dice Chess for Fire TV
+description: Chess with a roll of the dice, built for the living room. Share one remote, or take on an on-device bot.
+template: splash
+hero:
+  tagline: 'Chess with a roll of the dice, built for the living room: luck gives newcomers a real chance, so the whole family can play. Share one remote, or take on an on-device bot.'
+  image:
+    file: ../../../../native/icon/icon-512.png
+    alt: The app icon, two dice mid-roll in front of a knight and a rook
+  actions:
+    - text: What it does
+      link: /dicechess-tv/project/features/
+      icon: right-arrow
+    - text: Get the code
+      link: https://github.com/fortemate/dicechess-tv
+      icon: github
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+import { Image } from 'astro:assets';
+import hotseat from '../../assets/screenshots/hotseat.png';
+import playBlack from '../../assets/screenshots/play-black.png';
+import tutorial from '../../assets/screenshots/tutorial.png';
+
+<CardGrid>
+  <Card title="Family chess with a roll of the dice" icon="random">
+    Three dice choose which pieces may move each turn. Luck gives a newcomer a
+    real chance against a stronger player, so a family can play one game
+    together.
+  </Card>
+  <Card title="Made for the remote" icon="rocket">
+    The arrows jump between the pieces that can move, then between the chosen
+    piece's destinations. Over [200 simulated
+    games](https://github.com/fortemate/dicechess-tv/blob/main/scripts/cursor-presses.ts),
+    a turn takes 8.7 presses instead of 22.6 square by square.
+  </Card>
+  <Card title="Offline and private" icon="seti:lock">
+    The rules, the bot and the saved games all stay on the TV. There is no
+    account, and the app's source contains no network calls.
+  </Card>
+  <Card title="Open source" icon="open-book">
+    The app is AGPL-3.0-only, and it plays by Fortemate's open-source rules
+    engine, so anyone can read how a move is judged.
+  </Card>
+</CardGrid>
+
+<div class="screens">
+  <figure>
+    <Image
+      src={hotseat}
+      alt="A hotseat game: Black's knight is picked up, its destinations are dotted, and three dice sit beside the board"
+    />
+    <figcaption>Hotseat on one remote</figcaption>
+  </figure>
+  <figure>
+    <Image
+      src={playBlack}
+      alt="Playing Black against the bot, with the board turned so that Black is at the bottom"
+    />
+    <figcaption>Against the bot, as either colour</figcaption>
+  </figure>
+  <figure>
+    <Image
+      src={tutorial}
+      alt="The first tutorial lesson, Moving a piece, with the pawns that can move marked"
+    />
+    <figcaption>A tutorial in five lessons</figcaption>
+  </figure>
+</div>
+
+<p class="screens-note">
+  Screenshots from the Vega Virtual Device, where each feature was played.
+  Testing on a physical Fire TV Stick is still to come.
+</p>
+
+[Why Dice Chess on TV](/dicechess-tv/project/why/) tells the story, and [What it does](/dicechess-tv/project/features/) tours every feature.
+
+The TV app was built during [Build, Ship, Shape: Amazon Developer Hackathon 2026](https://amazonappdev2026.devpost.com/), in a repository started on 21 September 2026. It plays by the rules of Fortemate's open-source engine, [`@fortemate/dicechess-engine`](https://github.com/fortemate/dicechess-engine), which existed before. The [friction log](/dicechess-tv/friction-log/) records the obstacles we met in Amazon's Vega SDK along the way.
+
+The code is licensed under AGPL-3.0-only. The app icon and the Fortemate name and logo are not; see [Licensing](https://github.com/fortemate/dicechess-tv#licensing).

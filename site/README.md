@@ -28,6 +28,18 @@ directory holds a page, so a new page needs no change to the configuration;
 `sidebar.order` in its frontmatter sets its place within the group. A page is
 added when it has its content: nothing is published as a placeholder.
 
+## The home page and screenshots
+
+The home page is MDX, `src/content/docs/index.mdx`, because its cards and its
+screenshot strip use Starlight's components and `astro:assets`; every other page
+is plain Markdown.
+
+Screenshots live in `src/assets/screenshots/` as 1280 x 720 PNGs, and Astro
+converts them to WebP when it builds. They are captured on the Vega Virtual
+Device with scripted presses of the remote, from the interface as it ships, and
+the pages say so: nothing is claimed for a physical Fire TV device before it has
+been tested on one (#10). Retake a screenshot when the screen it shows changes.
+
 ## The friction log
 
 The submission cites the friction log's entries by number, so each keeps its
