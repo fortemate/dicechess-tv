@@ -14,6 +14,8 @@ import { RULES } from '../../src/core/rules';
 import type { BoardKey } from '../../src/core/boardInput';
 import { useRemoteInput } from './useRemoteInput';
 import { THEME } from './theme';
+import { Option } from './Option';
+import { safeInsets } from './layout';
 
 export type RulesScreenProps = {
   onExit: () => void;
@@ -34,14 +36,17 @@ const reducer = (state: State, key: BoardKey): State => {
 };
 
 export const RulesScreen = ({ onExit, onState }: RulesScreenProps) => {
-  const { height } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const [state, onKey] = React.useReducer(reducer, { index: 0, exit: false });
+  // OK held down, shown on the focused topic (#51).
+  const [pressed, setPressed] = React.useState(false);
 
   useRemoteInput(onKey as (key: BoardKey) => void, {
     onBack: () => {
       (onKey as (key: BoardKey) => void)('back');
       return true;
     },
+    onPress: setPressed,
   });
 
   React.useEffect(() => {
@@ -60,14 +65,15 @@ export const RulesScreen = ({ onExit, onState }: RulesScreenProps) => {
         flex: 1,
         flexDirection: 'row',
         backgroundColor: THEME.background,
-        padding: 40,
+        paddingHorizontal: safeInsets(width, height).x,
+        paddingVertical: 40,
       }}
     >
       <View style={{ width: '38%', paddingRight: 32 }}>
         <Text
           style={{
             color: '#8dc9b6',
-            fontSize: 18,
+            fontSize: 20,
             letterSpacing: 2,
             marginBottom: 14,
           }}
@@ -75,16 +81,13 @@ export const RulesScreen = ({ onExit, onState }: RulesScreenProps) => {
           RULES
         </Text>
         {RULES.map((entry, i) => (
-          <Text
+          <Option
             key={entry.id}
-            style={{
-              color: i === state.index ? THEME.cursor : '#aab8c9',
-              fontSize: 24,
-              marginBottom: 6,
-            }}
-          >
-            {(i === state.index ? '> ' : '  ') + entry.title}
-          </Text>
+            label={entry.title}
+            focused={i === state.index}
+            pressed={pressed}
+            fontSize={24}
+          />
         ))}
       </View>
 

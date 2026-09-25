@@ -23,6 +23,8 @@ import {
 } from '../../src/core/boardInput';
 import { route, RULE } from '../../src/core/cursor';
 import type { ScreenOptions } from '../src/screen';
+import { RULES } from '../../src/core/rules';
+import { focusedLabel, optionViews } from './options';
 
 type Instance = renderer.ReactTestInstance;
 
@@ -248,6 +250,13 @@ test('the rules guide opens, moves between topics and returns', () => {
   assert.match(text(root), /RULES/);
   assert.match(text(root), /How a game ends/);
   assert.match(text(root), /There is no checkmate/);
+  // The topics are framed options, not text behind a caret, so a title that
+  // wraps keeps its second line under its first.
+  assert.deepEqual(
+    optionViews(root).map(({ label }) => label),
+    RULES.map(({ title }) => title),
+  );
+  assert.equal(focusedLabel(root), RULES[0].title);
 
   // Moving down changes the text without opening anything.
   send('down');

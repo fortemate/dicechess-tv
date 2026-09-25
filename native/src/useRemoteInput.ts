@@ -61,6 +61,10 @@ export type RemoteInputOptions = {
   // means at the top of an app, which is to close it — the behaviour a TV
   // viewer expects, and not something to suppress.
   onBack?: () => boolean;
+  // Whether OK is held down: true when it goes down, false when it comes up,
+  // just before the press is delivered. A screen shows its focused item pressed
+  // meanwhile, so the press is seen before its choice takes effect (#51).
+  onPress?: (pressed: boolean) => void;
 };
 
 export function useRemoteInput(
@@ -74,15 +78,24 @@ export function useRemoteInput(
   // subscription below is made, so no key can arrive before they are set.
   const handler = useRef(onKey);
   const back = useRef(options.onBack);
+  const press = useRef(options.onPress);
   useLayoutEffect(() => {
     handler.current = onKey;
     back.current = options.onBack;
+    press.current = options.onPress;
   });
 
   useTVEventHandler(
     useCallback((event: HWEvent) => {
       const key = KEYS[String(event.eventType)];
       if (!key) return;
+      if (key === 'select') {
+        // Down, and every repeat while held, only shows the press; the release
+        // is the press itself, delivered once.
+        if (event.eventKeyAction === DOWN) press.current?.(true);
+        if (event.eventKeyAction !== UP) return;
+        press.current?.(false);
+      }
       const wanted = REPEATABLE.has(key) ? DOWN : UP;
       if (event.eventKeyAction === wanted) handler.current(key);
     }, []),

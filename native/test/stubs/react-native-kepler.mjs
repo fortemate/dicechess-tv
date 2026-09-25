@@ -37,6 +37,11 @@ export function hold(eventType, repeats = 2) {
   }
 }
 
+// Test-only: let go of a held button.
+export function release(eventType) {
+  deliver({ eventType, eventKeyAction: 1 });
+}
+
 // Back does not arrive on the TV event channel: Vega routes it through a hook
 // of its own, which claims the press so the system does not close the app.
 const backSubscriptions = [];

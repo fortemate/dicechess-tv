@@ -23,6 +23,8 @@ import type { Sounds } from './sound';
 import { cues } from '../../src/core/cues';
 import { useRemoteInput } from './useRemoteInput';
 import { THEME } from './theme';
+import { Option } from './Option';
+import { BOARD_GAP, boardSide, safeInsets } from './layout';
 import { botToAct } from '../../src/core/bot';
 import {
   screenReducer,
@@ -88,11 +90,14 @@ const Choices = ({
   note,
   options,
   index,
+  pressed = false,
 }: {
   title: string;
   note?: string;
   options: string[];
   index: number;
+  // OK is held on the focused option.
+  pressed?: boolean;
 }) => (
   <View style={{ marginTop: 12 }}>
     <Text style={{ color: '#f0f4f8', fontSize: 30, marginBottom: 8 }}>
@@ -104,16 +109,12 @@ const Choices = ({
       </Text>
     ) : null}
     {options.map((option, i) => (
-      <Text
+      <Option
         key={option}
-        style={{
-          color: i === index ? THEME.cursor : '#aab8c9',
-          fontSize: 26,
-          marginBottom: 4,
-        }}
-      >
-        {(i === index ? '> ' : '  ') + option}
-      </Text>
+        label={option}
+        focused={i === index}
+        pressed={pressed}
+      />
     ))}
   </View>
 );
@@ -141,16 +142,16 @@ const Record = ({ ledger }: { ledger: Ledger }) => {
   if (!played && view.bots.length === 0) return null;
   return (
     <View style={{ marginTop: 20 }}>
-      <Text style={{ color: '#8dc9b6', fontSize: 16, letterSpacing: 2 }}>
+      <Text style={{ color: '#8dc9b6', fontSize: 20, letterSpacing: 2 }}>
         COMPLETED GAMES
       </Text>
       {played ? (
-        <Text style={{ color: '#aab8c9', fontSize: 18 }}>
+        <Text style={{ color: '#aab8c9', fontSize: 20 }}>
           {`Hotseat — White ${white} · Drawn ${draws} · Black ${black}`}
         </Text>
       ) : null}
       {view.bots.map(({ opponent, side, record }) => (
-        <Text key={opponent + side} style={{ color: '#aab8c9', fontSize: 18 }}>
+        <Text key={opponent + side} style={{ color: '#aab8c9', fontSize: 20 }}>
           {`${opponent} as ${sideName(side)} — ${record.wins}W ${record.draws}D ${record.losses}L`}
         </Text>
       ))}
@@ -170,34 +171,43 @@ export const NO_MOVE_LINE = 'No die can be used — the turn passes';
 
 // The mode and the turn; then how the game ended or whose move it is; then the
 // winner or the dice, and why the turn passes when a roll left nothing to play.
-// The home screen leaves the dice out: it is a menu, and its list needs the
-// height.
+// The home screen keeps only the first line: it is a menu, its list and the
+// record need the height to stay inside the safe area (#51), and the board
+// behind it already shows the game.
 const Status = ({
   game,
   view,
-  dice,
+  home,
 }: {
   game: Game;
   view: GameView;
-  dice: boolean;
+  home: boolean;
 }) => {
   const { result } = game;
+  const mode = `${game.mode === 'hotseat' ? 'HOTSEAT' : 'VS RANDOM'} · TURN ${game.turn}`;
+  if (home)
+    return (
+      <Text style={{ color: '#8dc9b6', fontSize: 20, letterSpacing: 2 }}>
+        {mode}
+      </Text>
+    );
   return (
     <>
       <Text style={{ color: '#8dc9b6', fontSize: 20, letterSpacing: 2 }}>
-        {`${game.mode === 'hotseat' ? 'HOTSEAT' : 'VS RANDOM'} · TURN ${game.turn}`}
+        {mode}
       </Text>
       <Text style={{ color: '#f0f4f8', fontSize: 38, marginBottom: 16 }}>
         {result ? RESULT[result.reason] : headline(game, view)}
       </Text>
-      {result ? <Text style={STATUS_LINE}>{winnerLine(result)}</Text> : null}
-      {!result && dice ? (
+      {result ? (
+        <Text style={STATUS_LINE}>{winnerLine(result)}</Text>
+      ) : (
         <Dice
           dice={diceOf(game.roll, view.remaining, game.phase === 'handoff')}
           side={view.side}
         />
-      ) : null}
-      {!result && dice && emptyRoll(game) ? (
+      )}
+      {!result && emptyRoll(game) ? (
         <Text style={STATUS_LINE}>{NO_MOVE_LINE}</Text>
       ) : null}
     </>
@@ -231,12 +241,15 @@ const Panel = ({
   sound,
   selected,
   ledger,
+  pressed,
 }: {
   overlay: Overlay;
   game: Game;
   sound: boolean;
   selected: string | null;
   ledger?: Ledger;
+  // OK is held: the focused option of an open menu shows it.
+  pressed: boolean;
 }) => {
   switch (overlay.kind) {
     case 'home':
@@ -246,6 +259,7 @@ const Panel = ({
             title="Dice Chess"
             options={homeOptions(resumable(game), sound)}
             index={overlay.index}
+            pressed={pressed}
           />
           {ledger ? <Record ledger={ledger} /> : null}
         </>
@@ -256,6 +270,7 @@ const Panel = ({
           title="Menu"
           options={menuOptions(game, sound)}
           index={overlay.index}
+          pressed={pressed}
         />
       );
     case 'colour':
@@ -265,6 +280,7 @@ const Panel = ({
           note="Random picks a colour for you."
           options={colourOptions}
           index={overlay.index}
+          pressed={pressed}
         />
       );
     case 'confirm':
@@ -273,6 +289,7 @@ const Panel = ({
           {...CONFIRM[overlay.action]}
           options={confirmOptions}
           index={overlay.index}
+          pressed={pressed}
         />
       );
     case 'result':
@@ -281,6 +298,7 @@ const Panel = ({
           title="What next?"
           options={resultOptions}
           index={overlay.index}
+          pressed={pressed}
         />
       );
     case 'promotion':
@@ -291,6 +309,7 @@ const Panel = ({
             (move) => DIE[move.slice(4).toUpperCase() as keyof typeof DIE],
           )}
           index={overlay.index}
+          pressed={pressed}
         />
       );
     default:
@@ -359,6 +378,8 @@ export const GameScreen = ({
     initial,
     (restored) => initialState(options, restored, initialSound),
   );
+  // OK held down, shown on the focused option of an open menu (#51).
+  const [pressed, setPressed] = React.useState(false);
   // While the tutorial is up it owns the remote. This screen stays subscribed —
   // a hook cannot be conditional — so it ignores keys instead, or every press
   // would be handled twice. Both refs follow committed renders only, like the
@@ -372,6 +393,9 @@ export const GameScreen = ({
   const onKey = React.useCallback((key: BoardKey) => {
     if (handsOver.current) return;
     dispatch({ kind: 'key', key });
+  }, []);
+  const onPress = React.useCallback((down: boolean) => {
+    if (!handsOver.current) setPressed(down);
   }, []);
   const state = React.useMemo(() => viewGame(game), [game]);
   // The pieces the person can move, while it is their choice (#68): straight
@@ -393,7 +417,7 @@ export const GameScreen = ({
     return true;
   }, []);
 
-  useRemoteInput(onKey, { onBack });
+  useRemoteInput(onKey, { onBack, onPress });
 
   // The opponent takes one step at a time, scheduled rather than looped, so the
   // player watches it roll and move instead of the board jumping. It is paused
@@ -458,7 +482,8 @@ export const GameScreen = ({
     );
   }
 
-  const size = Math.min(height - 64, width * 0.62);
+  const size = boardSide(width, height);
+  const insets = safeInsets(width, height);
   return (
     <View
       style={{
@@ -466,7 +491,8 @@ export const GameScreen = ({
         flexDirection: 'row',
         backgroundColor: THEME.background,
         alignItems: 'center',
-        padding: 32,
+        paddingHorizontal: insets.x,
+        paddingVertical: insets.y,
       }}
     >
       <Board
@@ -479,14 +505,15 @@ export const GameScreen = ({
         flipped={flipped(game)}
         movable={movable}
       />
-      <View style={{ flex: 1, paddingLeft: 40 }}>
-        <Status game={game} view={state} dice={overlay.kind !== 'home'} />
+      <View style={{ flex: 1, paddingLeft: BOARD_GAP }}>
+        <Status game={game} view={state} home={overlay.kind === 'home'} />
         <Panel
           overlay={overlay}
           game={game}
           sound={sound}
           selected={focus.selected}
           ledger={ledger}
+          pressed={pressed}
         />
       </View>
     </View>
