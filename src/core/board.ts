@@ -8,6 +8,13 @@ export type Rank = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8';
 export type Square = `${File}${Rank}`;
 
 const SQUARE = /^[a-h][1-8]$/;
+const FILES = 'abcdefgh';
+
+// A square's file and rank, both counted from 0: a1 is (0, 0) and h8 is (7, 7).
+export const fileOf = (square: string): number => FILES.indexOf(square[0]);
+export const rankOf = (square: string): number => Number(square[1]) - 1;
+export const squareAt = (file: number, rank: number): string =>
+  FILES[file] + (rank + 1);
 
 // Returns the FEN piece letter on a square, uppercase for White and lowercase
 // for Black, or null when the square is empty or either argument is malformed.
@@ -15,7 +22,7 @@ export function pieceAt(board: string, square: string): string | null {
   if (!SQUARE.test(square)) return null;
   const ranks = board.split('/');
   if (ranks.length !== 8) return null;
-  const file = square.charCodeAt(0) - 97;
+  const file = fileOf(square);
   let index = 0;
   for (const char of ranks[8 - Number(square[1])]) {
     if (index > file) return null;
