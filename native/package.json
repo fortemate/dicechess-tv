@@ -14,6 +14,7 @@
     "start": "react-native start"
   },
   "dependencies": {
+    "@amazon-devices/kepler-performance-api": "^0.1.4",
     "@amazon-devices/react-native-kepler": "~4.0.1",
     "@amazon-devices/react-native-mmkv": "^1.0.11",
     "@amazon-devices/react-native-svg": "~3.0.9000000001",

@@ -93,3 +93,32 @@ export function isSubscribed() {
 export function listenerCount() {
   return handlers.size;
 }
+
+// The app-state manager: one shared instance, so an app and a test see the same
+// listeners. Test code moves the app between foreground and background.
+const appStateListeners = new Set();
+let appState = 'active';
+const appStateManager = {
+  getCurrentState() {
+    return appState;
+  },
+  addEventListener(name, callback) {
+    if (name !== 'change') return { remove() {} };
+    appStateListeners.add(callback);
+    return {
+      remove() {
+        appStateListeners.delete(callback);
+      },
+    };
+  },
+};
+
+export function useKeplerAppStateManager() {
+  return appStateManager;
+}
+
+// Test-only: the app moves to another state, as Home or the launcher makes it.
+export function setAppState(state) {
+  appState = state;
+  for (const listener of [...appStateListeners]) listener(state);
+}

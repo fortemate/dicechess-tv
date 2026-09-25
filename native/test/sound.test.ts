@@ -95,6 +95,27 @@ test('muted, nothing plays, and what was playing stops', async () => {
   assert.equal(plays().length, 1);
 });
 
+test('away from the foreground, nothing plays, and the setting is kept', async () => {
+  resetAudio();
+  const sounds = createSounds({ pick: () => 0 });
+  sounds.setSuspended(true);
+  sounds.play(['dice_roll', 'piece_move', 'game_draw']);
+  await settle();
+  assert.equal(plays().length, 0);
+  assert.equal(log().filter((entry) => entry.event === 'pause').length, 3);
+  // Back in the foreground, sound plays again: it was never muted.
+  sounds.setSuspended(false);
+  sounds.play(['game_draw']);
+  await settle();
+  assert.equal(plays().length, 1);
+  // And muting still wins over coming back.
+  sounds.setMuted(true);
+  sounds.setSuspended(false);
+  sounds.play(['game_draw']);
+  await settle();
+  assert.equal(plays().length, 1);
+});
+
 test('a take is chosen among several, and a bad pick cannot fall off the list', async () => {
   resetAudio();
   const picks = [2, 7, -3];

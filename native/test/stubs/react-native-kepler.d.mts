@@ -22,3 +22,15 @@ export declare function pressBack(): boolean;
 /** Test-only: did an unclaimed Back close the app? */
 export declare function hasExited(): boolean;
 export declare function clearExit(): void;
+
+export type KeplerAppStateStatus =
+  'active' | 'background' | 'inactive' | 'unknown';
+export declare function useKeplerAppStateManager(): {
+  getCurrentState(): KeplerAppStateStatus;
+  addEventListener(
+    name: string,
+    callback: (state: KeplerAppStateStatus) => void,
+  ): { remove(): void };
+};
+/** Test-only: move the app to another state, as Home or the launcher does. */
+export declare function setAppState(state: KeplerAppStateStatus): void;

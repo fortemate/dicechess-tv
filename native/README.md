@@ -491,6 +491,17 @@ reach the audio server and every cue dies at the sink — silently, with `playin
 still reported. `manifest.toml` declares the four services Amazon's audio sample
 does, plus `com.amazon.audio.control`, which only the log revealed.
 
+**Leaving the foreground stops every sound.** Amazon's pre-submission checks
+forbid audio carrying on over the launcher, the screensaver or another app. The
+app listens to `useKeplerAppStateManager` and, on `background` or `inactive`,
+suspends the players: anything playing is paused and nothing new starts. The
+sound setting is left alone, so coming back to `active` plays again unless the
+player turned sound off. Tests: `native/test/sound.test.ts` for the players and
+`native/test/soundApp.test.tsx` for the app. Checked on the virtual device on 25
+September: the app went behind the launcher and came back in the state it left.
+That no sound is heard over the launcher is still to be confirmed by ear, on the
+virtual device or the Stick (#10).
+
 ### How it fits together
 
 - **What a step sounds like** is `cues(before, after)` in `src/core/cues.ts`,
@@ -644,6 +655,34 @@ first time. Each assertion
 was confirmed to fail when its property was broken on purpose. Nothing imports
 the splash and nobody looks at a boot screen in CI, so without those it would
 regress in silence.
+
+**The splash hooks are not needed.** `usePreventHideSplashScreen` keeps the
+splash up until the app says it is ready, for apps that load before they can
+draw. This one draws its first frame from synchronous reads (the saved game and
+the settings come from MMKV, and there is no loading frame, see Saving). The
+splash's automatic hide is therefore already the right moment, and holding it
+would only delay the home screen.
+
+## Launch time
+
+Amazon measures Time To Fully Drawn (under 8 s for a cool start, under 1.5 s for
+a warm one). The app reports it with `useReportFullyDrawn` from
+`@amazon-devices/kepler-performance-api`: once after the first render, which
+already shows the home screen, and again whenever it comes back to `active`
+after `background` or `inactive`, which is a warm start.
+
+Measured on the virtual device on 25 September with `vega exec perf
+kpi-visualizer --kpi cool-start-latency` (3 iterations, a Release build): first
+frame after 309 ms and fully drawn after 748 ms on average. Before the marker,
+the tool reported fully drawn as null. Its validator still marks the run failed,
+because "Network calls time" is -1 for an app that makes no network calls.
+
+The warm start could not be measured there. The tool sends the device's launcher
+to the front as `pkg://com.amazon.smplighthouse.launcher.main`, which is the
+Fire TV launcher; the virtual device's launcher is
+`com.amazon.keplerlauncherapp.main`, so every iteration fails its preparation.
+The warm-start report is covered by `native/test/soundApp.test.tsx` and waits
+for the Stick (#10).
 
 ## Known gaps
 
