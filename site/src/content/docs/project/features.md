@@ -5,7 +5,7 @@ sidebar:
   order: 2
 ---
 
-Every screenshot here comes from the Vega Virtual Device, captured with scripted presses of the remote. Testing on a physical Fire TV Stick is still to come.
+Every screenshot here comes from the Vega Virtual Device, captured with scripted presses of the remote. Each feature was also played there, and the app's automated tests cover it; where a check is still open, the section says so. Nothing has run on a physical Fire TV Stick yet.
 
 ## Hotseat on one remote
 
@@ -23,7 +23,7 @@ A person alone plays the on-device bot, Random. It plays random legal turns, whi
 
 ## A roll with nothing to play
 
-About one roll in twelve leaves nothing to play, and so do nearly a third of first rolls. The screen says so instead of passing the turn silently: the headline reads "No legal moves", the dice dim, and a line under them gives the reason.
+About one roll in twelve leaves nothing to play, and so do nearly a third of first rolls, measured over 300 simulated games. The screen says so instead of passing the turn silently: the headline reads "No legal moves", the dice dim, and a line under them gives the reason.
 
 ![A roll with nothing to play: the headline reads No legal moves, the three dice are dimmed, and the reason is written under them](../../../assets/screenshots/empty-roll.png)
 
@@ -49,7 +49,7 @@ Nine topics, from how a game ends to castling, promotion, en passant and draws. 
 
 ## Saving, resuming and the record
 
-The game is saved after every action. The app opens on the home screen, where "Resume game" continues where the game stopped. The home screen also keeps a record of completed games:
+The game is saved after every action. The app opens on the home screen, where "Resume game" continues where the game stopped: on the virtual device, a game force-stopped mid-turn and relaunched came back as it was. The home screen also keeps a record of completed games:
 
 - hotseat games, by colour;
 - games against the bot, as wins, draws and losses for each side you played.
@@ -65,7 +65,9 @@ Short cues mark each step:
 - the handoff of the dice;
 - a win, a loss or a draw.
 
-Each was chosen by ear. Every cue also has something to see on the screen, and a "Sound" item in both menus turns them all off. Sound stops when the app leaves the screen.
+Each was chosen by ear, and they have been heard from the virtual device through a computer's speakers, not yet from a television. Every cue also has something to see on the screen, and a "Sound" item in both menus turns them all off.
+
+Sound stops when the app leaves the screen. The tests check that the players pause, and on the virtual device the app came back from the launcher as it left; that nothing plays over the launcher is still to be confirmed by ear.
 
 ![The game menu with the Sound item focused](../../../assets/screenshots/menu-sound.png)
 
