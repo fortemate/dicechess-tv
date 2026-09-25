@@ -23,6 +23,7 @@ import {
 } from '../../src/core/game';
 import {
   boardInput,
+  waitingFocus,
   type BoardFocus,
   type BoardKey,
 } from '../../src/core/boardInput';
@@ -41,14 +42,13 @@ const COLOURS: readonly ColourChoice[] = ['random', 'w', 'b'];
 // A person playing Black sees the board from Black's side.
 export const flipped = (game: Game): boolean => game.human === 'b';
 
-// On the turned board the arrows turn with it, so each still moves the focus
-// the way it points on the screen.
-const TURNED: Partial<Record<BoardKey, BoardKey>> = {
-  up: 'down',
-  down: 'up',
-  left: 'right',
-  right: 'left',
-};
+// Where the cursor waits once the person has a piece to choose, after a roll or
+// an action (#68): on its square while that piece can still move, otherwise on
+// the central movable piece. On the opponent's turn it stays where it was.
+const settled = (focus: BoardFocus, game: Game): BoardFocus =>
+  game.phase === 'move' && !botToAct(game)
+    ? waitingFocus(focus.cursor, viewGame(game).legal, flipped(game))
+    : { ...focus, selected: null };
 
 // The screen advances on a key, or on the local opponent taking its turn.
 export type ScreenAction = { kind: 'key'; key: BoardKey } | { kind: 'bot' };
@@ -212,10 +212,11 @@ const board = (
   sound,
 });
 
-// A played move clears the selection; the cursor stays where the player left it.
+// A played move clears the selection, and the cursor settles for the next
+// choice.
 const played = (state: ScreenState, game: Game): ScreenState => ({
   game,
-  focus: { ...state.focus, selected: null },
+  focus: settled(state.focus, game),
   overlay: after(game),
   pending: [],
   sound: state.sound,
@@ -236,7 +237,8 @@ export const initialState = (
   const game = restored ?? newGame('hotseat', options.newId());
   return {
     game,
-    focus: { cursor: startFor(game.human), selected: null },
+    // A game restored mid-turn waits on a piece that can move.
+    focus: settled({ cursor: startFor(game.human), selected: null }, game),
     // Always the home screen: a new launch has a mode to choose, and a restored
     // game should be resumed deliberately rather than dropping the player
     // mid-turn into a game they may not remember.
@@ -464,8 +466,9 @@ const onMove = (state: ScreenState, key: BoardKey): ScreenState => {
   const { game } = state;
   const result = boardInput(
     state.focus,
-    flipped(game) ? (TURNED[key] ?? key) : key,
+    key,
     viewGame(game).legal,
+    flipped(game),
   );
   const focused = { ...state, focus: result.focus };
   switch (result.action.type) {

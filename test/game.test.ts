@@ -12,8 +12,6 @@ import {
   resignGame,
   agreeDraw,
   rollDice,
-  legalAfter,
-  INITIAL_POSITION,
   type Game,
 } from '../src/core/game.ts';
 import {
@@ -277,21 +275,4 @@ test('turn cap finishes a forced pass and cannot produce a turn beyond the save 
   assert.deepEqual(game.result, { winner: null, reason: 'turn-limit' });
   assert.deepEqual(decodeGame(JSON.stringify(game)), game);
   assert.throws(() => nextTurn(game));
-});
-
-test('the actions after one action: the next die, or none once a king is taken', () => {
-  // White has three rook dice, and the rook sees the black king along the file.
-  const dfen = `${position('4k3/8/8/8/8/8/8/K3R3')} RRR`;
-  assert.deepEqual(legalAfter(dfen, 'e1e8'), []);
-  // After a quiet rook move, the two rook dice left are the next choice.
-  const next = legalAfter(dfen, 'e1e2');
-  assert.ok(next.includes('e2e8'));
-  assert.ok(next.every((move) => move.startsWith('e2')));
-});
-
-test('an action from an empty square, or before any roll, is refused', () => {
-  assert.throws(() => legalAfter(`${INITIAL_POSITION} P`, 'e4e5'), {
-    message: 'Missing moving piece',
-  });
-  assert.throws(() => legalAfter(INITIAL_POSITION, 'e2e4'));
 });

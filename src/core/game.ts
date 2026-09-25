@@ -1,5 +1,5 @@
 import { DiceChess } from '@fortemate/dicechess-engine/rules';
-import { applyLegal, applyTrusted } from './model.ts';
+import { applyLegal } from './model.ts';
 import { fileOf, pieceAt } from './board.ts';
 import { hasExactKeys } from './keys.ts';
 
@@ -64,12 +64,9 @@ export const sideName = (side: Side) => (side === 'w' ? 'White' : 'Black');
 
 // The DFEN after one action, with the dice it leaves. Engine 0.12.2 applyMove
 // returns the board fields but clears the dice field, so the surviving dice are
-// reattached here, as the play client does. `apply` plays the action.
-function afterAction(
-  dfen: string,
-  move: string,
-  apply: (dfen: string, move: string) => string,
-): string {
+// reattached here, as the play client does. Legality, including maximal use and
+// promotion restrictions, is checked by applyLegal first.
+function afterAction(dfen: string, move: string): string {
   const piece = pieceAt(dfen.split(' ')[0], move.slice(0, 2));
   if (!piece) throw new Error('Missing moving piece');
   const letter = piece.toUpperCase();
@@ -78,24 +75,13 @@ function afterAction(
     if (!remaining.includes(die)) throw new Error('Missing required die');
     remaining = remaining.replace(die, '');
   };
-  const next = apply(dfen, move);
+  const next = applyLegal(dfen, move);
   consume(letter);
   if (letter === 'K' && Math.abs(fileOf(move) - fileOf(move.slice(2))) === 2)
     consume('R');
   return (
     next.split(' ').slice(0, 6).join(' ') + (remaining ? ' ' + remaining : '')
   );
-}
-
-// The legal actions after one of the position's own legal actions, which needs
-// no second check: none once a king is taken, as in viewGame. Mid-turn a game
-// ends only by a king taken, so these are exactly the next actions on offer.
-export function legalAfter(dfen: string, move: string): string[] {
-  const next = afterAction(dfen, move, applyTrusted);
-  const board = next.split(' ')[0];
-  return board.includes('K') && board.includes('k')
-    ? DiceChess.getLegalUciMoves(next)
-    : [];
 }
 
 export function viewGame(game: Game) {
@@ -115,9 +101,7 @@ export function viewGame(game: Game) {
     const board = dfen.split(' ')[0];
     if (!board.includes('K') || !board.includes('k'))
       throw new Error('Move after king capture');
-    // Legality, including maximal use and promotion restrictions, is checked
-    // by applyLegal first.
-    dfen = afterAction(dfen, move, applyLegal);
+    dfen = afterAction(dfen, move);
   }
   const parts = dfen.split(' ');
   const side = parts[1] as Side;

@@ -1,13 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { DiceChess } from '@fortemate/dicechess-engine';
-import {
-  INITIAL,
-  applyLegal,
-  decode,
-  derive,
-  shiftSquare,
-} from '../src/core/model.ts';
+import { INITIAL, applyLegal, decode, derive } from '../src/core/model.ts';
 
 test('one human action hands the fixed knight fixture to a local random bot', () => {
   const after = { schema: 1 as const, humanMove: 'b1c3' };
@@ -38,13 +32,4 @@ test('damaged, incompatible and illegal saved actions are rejected', () => {
     assert.throws(() => decode(JSON.stringify(value)));
   }
   assert.throws(() => applyLegal(INITIAL, 'e2e4'));
-});
-test('D-pad cursor respects edges and board orientation', () => {
-  assert.equal(shiftSquare('a1', 'ArrowLeft'), 'a1');
-  assert.equal(shiftSquare('a1', 'ArrowDown'), 'a1');
-  assert.equal(shiftSquare('h8', 'ArrowUp'), 'h8');
-  assert.equal(shiftSquare('h8', 'ArrowRight'), 'h8');
-  assert.equal(shiftSquare('b1', 'ArrowUp'), 'b2');
-  // Any other key leaves the cursor where it is.
-  assert.equal(shiftSquare('e4', 'Enter'), 'e4');
 });

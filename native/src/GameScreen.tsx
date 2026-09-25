@@ -11,7 +11,7 @@ import {
   type Result,
 } from '../../src/core/game';
 import { summary, type Ledger } from '../../src/core/ledger';
-import type { BoardKey } from '../../src/core/boardInput';
+import { movableSquares, type BoardKey } from '../../src/core/boardInput';
 import { Board } from './Board';
 import { Dice } from './Dice';
 import { diceOf } from '../../src/core/dice';
@@ -355,6 +355,15 @@ export const GameScreen = ({
     dispatch({ kind: 'key', key });
   }, []);
   const state = React.useMemo(() => viewGame(game), [game]);
+  // The pieces the person can move, while it is their choice (#68): straight
+  // from the legal list the view already has.
+  const movable = React.useMemo(
+    () =>
+      game.phase === 'move' && !botToAct(game)
+        ? movableSquares(state.legal)
+        : null,
+    [game, state],
+  );
 
   // Back at the home screen has nowhere to go, so the app agrees to close —
   // what a viewer expects at the top of a TV app. Anywhere else it is ours.
@@ -436,6 +445,7 @@ export const GameScreen = ({
         selected={focus.selected}
         cursor={focus.cursor}
         flipped={flipped(game)}
+        movable={movable}
       />
       <View style={{ flex: 1, paddingLeft: 40 }}>
         <Status game={game} view={state} dice={overlay.kind !== 'home'} />

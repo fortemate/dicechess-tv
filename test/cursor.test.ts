@@ -1,6 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { central, jump, pressesFrom, steps } from '../src/core/cursor.ts';
+import {
+  central,
+  jump,
+  pressesFrom,
+  route,
+  steps,
+} from '../src/core/cursor.ts';
 
 // The pawns that can move in the worked example of #68.
 const PAWNS = ['b2', 'd2', 'e2'];
@@ -74,4 +80,15 @@ test('between equally central options, the one nearer the cursor wins', () => {
   assert.equal(central(['c3', 'f3'], 'g1'), 'f3');
   assert.equal(central(['c3', 'f3'], 'b1'), 'c3');
   assert.equal(central(['c3', 'f3']), 'c3');
+});
+
+test('a route lists the presses that reach an option, in order', () => {
+  assert.deepEqual(route('d2', 'b2', PAWNS), ['left']);
+  assert.deepEqual(route('d2', 'd2', PAWNS), []);
+  // From a square with no choice on it: up lands on b2 as well as right does,
+  // and the search tries up first.
+  assert.deepEqual(route('a1', 'e2', PAWNS), ['up', 'right', 'right']);
+  const box = ['d5', 'd7', 'e6', 'g5', 'g7', 'h7'];
+  assert.equal(route('d5', 'e6', box, { rule: 'axis' }), null);
+  assert.equal(route('d5', 'e6', box, { rule: 'cone' })?.length, 1);
 });

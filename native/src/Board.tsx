@@ -79,6 +79,18 @@ const Square = ({ view, edge }: { view: SquareView; edge: number }) => {
           }}
         />
       ) : null}
+      {view.movable ? (
+        // A piece that can move now (#68): a fill under the piece, a shape the
+        // cursor's ring and the destination dots do not share.
+        <View
+          style={{
+            position: 'absolute',
+            width: edge,
+            height: edge,
+            backgroundColor: THEME.movable,
+          }}
+        />
+      ) : null}
       {view.selected ? (
         <View
           style={{

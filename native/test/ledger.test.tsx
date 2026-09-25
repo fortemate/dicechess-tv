@@ -26,11 +26,16 @@ const options: ScreenOptions = {
 
 // Each mount is a fresh process against the same storage, which is what a
 // relaunch is.
+// A launch replaces the app a previous launch left mounted, as a relaunch does.
+// A tree left mounted would still hear every key and write the same storage.
+let mounted: renderer.ReactTestRenderer | null = null;
 const launch = (opts: ScreenOptions = options): Instance => {
+  if (mounted) act(() => mounted!.unmount());
   let tree!: renderer.ReactTestRenderer;
   act(() => {
     tree = renderer.create(React.createElement(App, { options: opts }));
   });
+  mounted = tree;
   return tree.root;
 };
 

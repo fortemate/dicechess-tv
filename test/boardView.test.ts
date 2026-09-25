@@ -84,3 +84,21 @@ test('the grid tracks a real engine position and its legal actions', () => {
     32,
   );
 });
+
+test('the pieces that can move are marked, until one is picked up', () => {
+  const board = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
+  const movable = ['b2', 'd2', 'e2'];
+  const marked = (selected: string | null) =>
+    boardView({ board, movable, selected })
+      .flat()
+      .filter((view) => view.movable)
+      .map((view) => view.square);
+  assert.deepEqual(marked(null), ['b2', 'd2', 'e2']);
+  assert.deepEqual(marked('d2'), []);
+  // Without the list nothing is marked.
+  assert.ok(
+    boardView({ board })
+      .flat()
+      .every((view) => !view.movable),
+  );
+});

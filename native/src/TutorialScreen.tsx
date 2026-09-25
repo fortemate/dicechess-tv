@@ -6,7 +6,7 @@ import React from 'react';
 import { View, Text, useWindowDimensions } from 'react-native';
 import { viewGame } from '../../src/core/game';
 import { TUTORIAL } from '../../src/core/tutorial';
-import type { BoardKey } from '../../src/core/boardInput';
+import { movableSquares, type BoardKey } from '../../src/core/boardInput';
 import { Board } from './Board';
 import { Dice } from './Dice';
 import { diceOf } from '../../src/core/dice';
@@ -73,6 +73,9 @@ export const TutorialScreen = ({ onExit, onState }: TutorialScreenProps) => {
 
   const current = step(state);
   const board = viewGame(state.game);
+  // Marked as in a game, except between steps, when the board takes no input.
+  const movable =
+    state.complete || state.finished ? null : movableSquares(board.legal);
   const size = Math.min(height - 64, width * 0.62);
 
   return (
@@ -92,6 +95,7 @@ export const TutorialScreen = ({ onExit, onState }: TutorialScreenProps) => {
         lastMove={state.game.lastMove}
         selected={state.focus.selected}
         cursor={state.focus.cursor}
+        movable={movable}
       />
       <View style={{ flex: 1, paddingLeft: 40 }}>
         <Text style={{ color: '#8dc9b6', fontSize: 18, letterSpacing: 2 }}>
