@@ -123,12 +123,16 @@ export function createSounds({
   };
 
   const stopAll = () => {
-    for (const ready of players.values())
+    for (const [channel, ready] of players)
       void ready.then((player) => {
+        // A player still initialising when the stop was asked for had nothing
+        // playing. If sound is back on by the time it is ready, a cue started
+        // since then is left to play.
+        if (!player || (!muted && !suspended)) return;
         try {
-          player?.pause();
-        } catch {
-          // Silence is what was asked for either way.
+          player.pause();
+        } catch (error) {
+          report(`sound: ${channel} did not stop: ${String(error)}`);
         }
       });
   };

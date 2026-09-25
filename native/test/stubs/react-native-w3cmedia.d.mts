@@ -13,7 +13,11 @@ export declare const audioLog: Array<{
 /** Test-only: forget every player, as a fresh launch would. */
 export declare function resetAudio(): void;
 /** Test-only: make the next players fail where a device's media stack might. */
-export declare function failAudio(stage: 'initialize' | 'play'): void;
+export declare function failAudio(stage: 'initialize' | 'play' | 'pause'): void;
+/** Test-only: keep the next players initialising until releaseAudio(). */
+export declare function holdAudio(): void;
+/** Test-only: finish initialising every held player. */
+export declare function releaseAudio(): void;
 
 export declare class AudioPlayer {
   constructor(contentType?: number, usage?: number);
