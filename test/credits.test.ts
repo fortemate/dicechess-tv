@@ -31,12 +31,15 @@ test('every credit is complete and readable from a sofa', () => {
       assert.ok(value.trim().length > 0, `${credit.subject}: empty ${field}`);
     // A source is read off a television, not followed, so no scheme.
     assert.doesNotMatch(credit.source, /^https?:\/\//, credit.subject);
-    // One line each at television size.
-    assert.ok(credit.line.length <= 60, `${credit.subject}: line too long`);
+    // One line each in half the width of a television screen: the line at
+    // 22dp, and the licence and the source at 16dp, each on a line of its own.
+    // A longer one wraps, and a link wraps at a hyphen.
+    assert.ok(credit.line.length <= 36, `${credit.subject}: line too long`);
     assert.ok(
-      `${credit.licence} · ${credit.source}`.length <= 70,
-      `${credit.subject}: licence and source too long`,
+      credit.licence.length <= 48,
+      `${credit.subject}: licence too long`,
     );
+    assert.ok(credit.source.length <= 48, `${credit.subject}: source too long`);
   }
   assert.ok(APP.title.length > 0 && APP.maker.length > 0);
 });
@@ -48,9 +51,11 @@ test('the pieces are credited to their author even though CC0 asks for nothing',
 });
 
 test('every vendored sound pack is credited as its manifest asks', () => {
-  // The lock repeats each pack's attribution terms from the asset repository.
-  // A pack that requires credit must be credited in exactly its wording; the
-  // others are credited too, as a courtesy their licences invite.
+  // The lock repeats each pack's attribution terms from the asset repository,
+  // worded as "<who> – <link>". A pack that requires credit must be credited in
+  // exactly its words, and with its link; the others are credited too, as a
+  // courtesy their licences invite. The screen shows the words as the line and
+  // the link, without its scheme, at the start of the source.
   const lock = JSON.parse(
     readFileSync(
       new URL('../native/sounds/sounds.lock.json', import.meta.url),
@@ -62,14 +67,19 @@ test('every vendored sound pack is credited as its manifest asks', () => {
       { attribution: string; attributionRequired: boolean }
     >;
   };
-  const lines = new Set(CREDITS.map((credit) => credit.line));
   for (const [pack, { attribution, attributionRequired }] of Object.entries(
     lock.packs,
   )) {
+    const [words, link = ''] = attribution.split(' – ');
+    const credit = CREDITS.find((candidate) => candidate.line === words);
     assert.ok(
-      lines.has(attribution),
-      `${pack}: "${attribution}" is not on the About screen` +
+      credit,
+      `${pack}: "${words}" is not on the About screen` +
         (attributionRequired ? ' — and its licence requires it' : ''),
+    );
+    assert.ok(
+      credit.source.startsWith(link.replace(/^https?:\/\//, '')),
+      `${pack}: ${link} is not the start of the source ${credit.source}`,
     );
   }
 });

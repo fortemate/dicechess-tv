@@ -1,10 +1,12 @@
 // Who made what the player sees, as the About screen shows it.
 //
-// This is where a licence's credit requirement is met, so the lines are the
-// authors' own wording rather than ours: a pack's manifest in dicechess-assets
-// carries the exact attribution its licence asks for, and a credit copies it.
-// test/credits.test.ts holds this list to THIRD_PARTY_NOTICES.md, so the screen
-// and the notices cannot drift apart.
+// This is where a licence's credit requirement is met, so the words are the
+// authors' own rather than ours. A pack's manifest in dicechess-assets words its
+// credit as "<who> – <link>", and the screen splits it the way every card is
+// laid out: who made it on the line, and the link, without its scheme, as the
+// start of the source. test/credits.test.ts holds this list to the manifests
+// and to THIRD_PARTY_NOTICES.md, so the screen and the notices cannot drift
+// apart.
 //
 // It names components and their licences. It does not settle how the combined
 // application may be distributed — that question is open, and recorded as open
@@ -36,15 +38,17 @@ export const CREDITS: readonly Credit[] = [
   },
   {
     subject: 'Piece sounds',
-    // The credit this pack's licence requires, word for word from its manifest.
-    line: 'Sounds by JDSherbert – https://jdsherbert.itch.io',
+    // The licence requires visible credit and gives this wording as its
+    // example; a link is optional. The author's permission for this repository
+    // asks for a link to his page, which the source is.
+    line: 'Sounds by JDSherbert',
     licence: 'Free with attribution',
     source: 'jdsherbert.itch.io/tabletop-games-sfx-pack',
   },
   {
     subject: 'Dice and result sounds',
     // CC0: no credit is required. It is given anyway, as the pack invites.
-    line: 'Sounds by Kenney – https://kenney.nl',
+    line: 'Sounds by Kenney',
     licence: 'CC0 1.0',
     source: 'kenney.nl',
   },

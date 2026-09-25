@@ -80,8 +80,12 @@ export const AboutScreen = ({ onExit, onState }: AboutScreenProps) => {
             <Text style={{ color: '#f0f4f8', fontSize: 22 }}>
               {credit.line}
             </Text>
+            {/* On lines of their own, so that no link breaks at a hyphen. */}
             <Text style={{ color: '#aab8c9', fontSize: 16 }}>
-              {`${credit.licence} · ${credit.source}`}
+              {credit.licence}
+            </Text>
+            <Text style={{ color: '#aab8c9', fontSize: 16 }}>
+              {credit.source}
             </Text>
           </View>
         ))}
