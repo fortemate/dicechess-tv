@@ -10,7 +10,7 @@
 // opens, the handoff prompt shows, the result is written out.
 
 import { viewGame, type Game, type Side } from './game.ts';
-import { pieceAt } from './board.ts';
+import { fileOf, pieceAt } from './board.ts';
 
 export type Cue =
   | 'dice_roll'
@@ -36,8 +36,9 @@ export function cues(before: Game, after: Game, humanSide: Side = 'w'): Cue[] {
   else if (after.turn === before.turn) {
     if (before.roll.length === 0 && after.roll.length > 0)
       heard.push('dice_roll');
-    if (after.moves.length === before.moves.length + 1)
-      heard.push(moveCue(before, after.moves[after.moves.length - 1]));
+    const played = after.moves.at(-1);
+    if (after.moves.length === before.moves.length + 1 && played)
+      heard.push(moveCue(before, played));
   }
   // A step can both move and end the game — a king taken, or the move that
   // completes the hundredth quiet half-move — and then both are heard.
@@ -54,13 +55,13 @@ function moveCue(before: Game, move: string): Cue {
   const to = move.slice(2, 4);
   const piece = pieceAt(board, from)?.toLowerCase();
   // A king only ever moves two files when it castles.
-  if (piece === 'k' && Math.abs(from.charCodeAt(0) - to.charCodeAt(0)) === 2)
+  if (piece === 'k' && Math.abs(fileOf(from) - fileOf(to)) === 2)
     return 'castle';
   // The engine never offers a move onto a friendly piece, so anything on the
   // target square is an enemy one.
   if (pieceAt(board, to)) return 'piece_capture';
   // En passant: a pawn changing file onto an empty square takes the pawn beside it.
-  if (piece === 'p' && from[0] !== to[0]) return 'piece_capture';
+  if (piece === 'p' && fileOf(from) !== fileOf(to)) return 'piece_capture';
   return 'piece_move';
 }
 

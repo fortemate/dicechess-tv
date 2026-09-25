@@ -4,7 +4,12 @@
 // reducer says and hands key presses to it.
 import React from 'react';
 import { View, Text, useWindowDimensions } from 'react-native';
-import { viewGame, sideName, type Game } from '../../src/core/game';
+import {
+  viewGame,
+  sideName,
+  type Game,
+  type Result,
+} from '../../src/core/game';
 import { summary, type Ledger } from '../../src/core/ledger';
 import type { BoardKey } from '../../src/core/boardInput';
 import { Board } from './Board';
@@ -26,6 +31,7 @@ import {
   flipped,
   resumable,
   handsOff,
+  type Overlay,
   type ScreenAction,
   type ScreenOptions,
   type ScreenState,
@@ -143,6 +149,161 @@ const Record = ({ ledger }: { ledger: Ledger }) => {
   );
 };
 
+type GameView = ReturnType<typeof viewGame>;
+
+// The line under the headline: who won, or the dice still to use.
+const winnerLine = (result: Result): string =>
+  result.winner ? `${sideName(result.winner)} wins` : 'Drawn';
+const diceLine = (remaining: string): string =>
+  remaining ? `Remaining: ${dice(remaining)}` : 'No dice';
+const RESULT_LINE = { color: '#aab8c9', fontSize: 24, marginBottom: 12 };
+const DICE_LINE = { color: '#aab8c9', fontSize: 22, marginBottom: 6 };
+
+// The mode and the turn; then how the game ended or whose move it is; then the
+// winner or the dice still to use.
+const Status = ({ game, view }: { game: Game; view: GameView }) => {
+  const { result } = game;
+  return (
+    <>
+      <Text style={{ color: '#8dc9b6', fontSize: 20, letterSpacing: 2 }}>
+        {`${game.mode === 'hotseat' ? 'HOTSEAT' : 'VS RANDOM'} · TURN ${game.turn}`}
+      </Text>
+      <Text style={{ color: '#f0f4f8', fontSize: 38, marginBottom: 16 }}>
+        {result
+          ? RESULT[result.reason]
+          : `${sideName(view.side)} to play${mover(game, view.bot)}`}
+      </Text>
+      <Text style={result ? RESULT_LINE : DICE_LINE}>
+        {result ? winnerLine(result) : diceLine(view.remaining)}
+      </Text>
+    </>
+  );
+};
+
+// What OK and the arrows do now, when no menu or choice is open.
+const promptFor = (game: Game, selected: string | null): string => {
+  if (game.phase === 'roll') return 'OK: roll three dice';
+  if (game.phase === 'handoff') return 'OK: continue';
+  if (game.phase === 'ended') return 'OK: back to the menu';
+  return selected
+    ? `Choose a destination for ${selected} · Back: put it down`
+    : 'Arrows: move focus · OK: select · Back: menu';
+};
+
+const CONFIRM = {
+  resign: { title: 'Resign?', note: 'The other player wins.' },
+  replace: {
+    title: 'Replace this game?',
+    note: 'The game in progress is lost.',
+  },
+} as const;
+
+// What sits under the status: an open menu or choice, or the prompt.
+const Panel = ({
+  overlay,
+  game,
+  sound,
+  selected,
+  ledger,
+}: {
+  overlay: Overlay;
+  game: Game;
+  sound: boolean;
+  selected: string | null;
+  ledger?: Ledger;
+}) => {
+  switch (overlay.kind) {
+    case 'home':
+      return (
+        <>
+          <Choices
+            title="Dice Chess"
+            options={homeOptions(resumable(game), sound)}
+            index={overlay.index}
+          />
+          {ledger ? <Record ledger={ledger} /> : null}
+        </>
+      );
+    case 'menu':
+      return (
+        <Choices
+          title="Menu"
+          options={menuOptions(game, sound)}
+          index={overlay.index}
+        />
+      );
+    case 'colour':
+      return (
+        <Choices
+          title="Play as"
+          note="Random picks a colour for you."
+          options={colourOptions}
+          index={overlay.index}
+        />
+      );
+    case 'confirm':
+      return (
+        <Choices
+          {...CONFIRM[overlay.action]}
+          options={confirmOptions}
+          index={overlay.index}
+        />
+      );
+    case 'promotion':
+      return (
+        <Choices
+          title="Promote to"
+          options={overlay.moves.map(
+            (move) => DIE[move.slice(4).toUpperCase() as keyof typeof DIE],
+          )}
+          index={overlay.index}
+        />
+      );
+    default:
+      return (
+        <Text style={{ color: '#f0f4f8', fontSize: 24 }}>
+          {promptFor(game, selected)}
+        </Text>
+      );
+  }
+};
+
+// One line saying what the screen shows, for device checks.
+const report = (
+  game: Game,
+  view: GameView,
+  focus: ScreenState['focus'],
+  overlay: Overlay,
+): string =>
+  [
+    `overlay ${overlay.kind}${'index' in overlay ? '#' + overlay.index : ''}`,
+    `turn ${game.turn}`,
+    `phase ${game.phase}`,
+    `side ${view.side}`,
+    `dice "${view.remaining}"`,
+    `legal ${view.legal.length}`,
+    `cursor ${focus.cursor}`,
+    `selected ${focus.selected ?? '-'}`,
+    `last ${game.lastMove ?? '-'}`,
+    `result ${game.result?.reason ?? '-'}`,
+    `human ${game.human ?? '-'}`,
+  ].join(' | ');
+
+type OwnScreenProps = {
+  onExit: () => void;
+  onState?: (report: string) => void;
+};
+
+// The screens that take over entirely, each given only a way back. They get no
+// store, so a lesson cannot reach a saved game or the record.
+const OWN_SCREENS: {
+  [K in 'tutorial' | 'rules' | 'about']: React.ComponentType<OwnScreenProps>;
+} = {
+  tutorial: TutorialScreen,
+  rules: RulesScreen,
+  about: AboutScreen,
+};
+
 export const GameScreen = ({
   options,
   initial,
@@ -226,119 +387,22 @@ export const GameScreen = ({
   }, [sound, onSound]);
 
   React.useEffect(() => {
-    onState?.(
-      [
-        `overlay ${overlay.kind}${
-          'index' in overlay ? '#' + overlay.index : ''
-        }`,
-        `turn ${game.turn}`,
-        `phase ${game.phase}`,
-        `side ${state.side}`,
-        `dice "${state.remaining}"`,
-        `legal ${state.legal.length}`,
-        `cursor ${focus.cursor}`,
-        `selected ${focus.selected ?? '-'}`,
-        `last ${game.lastMove ?? '-'}`,
-        `result ${game.result?.reason ?? '-'}`,
-        `human ${game.human ?? '-'}`,
-      ].join(' | '),
-    );
+    onState?.(report(game, state, focus, overlay));
   }, [onState, game, state, focus, overlay]);
 
-  // The tutorial is its own screen with its own state, and this one hands over
-  // entirely rather than drawing a board behind it. It is given no store, so a
-  // lesson cannot reach a saved game or the record.
-  if (overlay.kind === 'tutorial')
+  // The tutorial, the rules and About are screens of their own, with their own
+  // state, and this one hands over entirely rather than drawing a board behind.
+  if (handsOff(overlay)) {
+    const Screen = OWN_SCREENS[overlay.kind];
     return (
-      <TutorialScreen
+      <Screen
         onExit={() => dispatch({ kind: 'key', key: 'back' })}
         onState={onState}
       />
     );
-
-  if (overlay.kind === 'rules')
-    return (
-      <RulesScreen
-        onExit={() => dispatch({ kind: 'key', key: 'back' })}
-        onState={onState}
-      />
-    );
-
-  if (overlay.kind === 'about')
-    return (
-      <AboutScreen
-        onExit={() => dispatch({ kind: 'key', key: 'back' })}
-        onState={onState}
-      />
-    );
+  }
 
   const size = Math.min(height - 64, width * 0.62);
-  const prompt =
-    game.phase === 'roll'
-      ? 'OK: roll three dice'
-      : game.phase === 'handoff'
-        ? 'OK: continue'
-        : game.phase === 'ended'
-          ? 'OK: back to the menu'
-          : focus.selected
-            ? `Choose a destination for ${focus.selected} · Back: put it down`
-            : 'Arrows: move focus · OK: select · Back: menu';
-
-  // What sits under the status: an open menu or choice, or the prompt.
-  let panel: React.ReactNode;
-  if (overlay.kind === 'home')
-    panel = (
-      <>
-        <Choices
-          title="Dice Chess"
-          options={homeOptions(resumable(game), sound)}
-          index={overlay.index}
-        />
-        {ledger ? <Record ledger={ledger} /> : null}
-      </>
-    );
-  else if (overlay.kind === 'menu')
-    panel = (
-      <Choices
-        title="Menu"
-        options={menuOptions(game, sound)}
-        index={overlay.index}
-      />
-    );
-  else if (overlay.kind === 'colour')
-    panel = (
-      <Choices
-        title="Play as"
-        note="Random picks a colour for you."
-        options={colourOptions}
-        index={overlay.index}
-      />
-    );
-  else if (overlay.kind === 'confirm')
-    panel = (
-      <Choices
-        title={overlay.action === 'resign' ? 'Resign?' : 'Replace this game?'}
-        note={
-          overlay.action === 'resign'
-            ? 'The other player wins.'
-            : 'The game in progress is lost.'
-        }
-        options={confirmOptions}
-        index={overlay.index}
-      />
-    );
-  else if (overlay.kind === 'promotion')
-    panel = (
-      <Choices
-        title="Promote to"
-        options={overlay.moves.map(
-          (move) => DIE[move.slice(4).toUpperCase() as keyof typeof DIE],
-        )}
-        index={overlay.index}
-      />
-    );
-  else panel = <Text style={{ color: '#f0f4f8', fontSize: 24 }}>{prompt}</Text>;
-
   return (
     <View
       style={{
@@ -359,29 +423,14 @@ export const GameScreen = ({
         flipped={flipped(game)}
       />
       <View style={{ flex: 1, paddingLeft: 40 }}>
-        <Text style={{ color: '#8dc9b6', fontSize: 20, letterSpacing: 2 }}>
-          {`${game.mode === 'hotseat' ? 'HOTSEAT' : 'VS RANDOM'} · TURN ${game.turn}`}
-        </Text>
-        <Text style={{ color: '#f0f4f8', fontSize: 38, marginBottom: 16 }}>
-          {game.result
-            ? RESULT[game.result.reason]
-            : `${sideName(state.side)} to play${mover(game, state.bot)}`}
-        </Text>
-        {game.result ? (
-          <Text style={{ color: '#aab8c9', fontSize: 24, marginBottom: 12 }}>
-            {game.result.winner
-              ? `${sideName(game.result.winner)} wins`
-              : 'Drawn'}
-          </Text>
-        ) : (
-          <Text style={{ color: '#aab8c9', fontSize: 22, marginBottom: 6 }}>
-            {state.remaining
-              ? `Remaining: ${dice(state.remaining)}`
-              : 'No dice'}
-          </Text>
-        )}
-
-        {panel}
+        <Status game={game} view={state} />
+        <Panel
+          overlay={overlay}
+          game={game}
+          sound={sound}
+          selected={focus.selected}
+          ledger={ledger}
+        />
       </View>
     </View>
   );

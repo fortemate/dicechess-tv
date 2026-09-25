@@ -110,6 +110,38 @@ test('automatic draws are turn-boundary checks; resignation and agreed draws can
   assert.throws(() => agreeDraw(newGame('random', 'no-draw')));
 });
 
+test('a saved result must be the one the position explains', () => {
+  // In hotseat the side to move resigns: White here, so Black wins.
+  const resigned = resignGame(newGame('hotseat', 'resign-hotseat'));
+  assert.deepEqual(resigned.result, { winner: 'b', reason: 'resigned' });
+  assert.deepEqual(decodeGame(JSON.stringify(resigned)), resigned);
+  assert.throws(
+    () =>
+      decodeGame(
+        JSON.stringify({
+          ...resigned,
+          result: { winner: 'w', reason: 'resigned' },
+        }),
+      ),
+    /Invalid resignation/,
+  );
+
+  // A position that has ended must carry its result, whatever the phase says.
+  const captured = moveGame(
+    rollGame(
+      newGame('hotseat', 'capture', position('k7/8/8/8/8/8/8/R3K3')),
+      [4, 4, 4],
+    ),
+    'a1a8',
+  );
+  assert.deepEqual(captured.result, { winner: 'w', reason: 'king-captured' });
+  for (const phase of ['ended', 'move'])
+    assert.throws(
+      () => decodeGame(JSON.stringify({ ...captured, result: null, phase })),
+      /Missing result/,
+    );
+});
+
 test('bot replies are complete and tied to game id, revision and exact position', () => {
   let game = newGame('random', 'bot');
   game = nextTurn(rollGame(game, [4, 4, 4]));

@@ -80,6 +80,17 @@ export function decodeLedger(raw: string): Ledger {
   return value;
 }
 
+// Which count a finished game adds to: by colour in hotseat, and from the
+// person's side against a bot.
+function hotseatField(winner: Side | null): keyof HotseatRecord {
+  if (winner === null) return 'draws';
+  return winner === 'w' ? 'white' : 'black';
+}
+function botField(winner: Side | null, humanSide: Side): keyof BotRecord {
+  if (winner === null) return 'draws';
+  return winner === humanSide ? 'wins' : 'losses';
+}
+
 const bump = (record: BotRecord | undefined, field: keyof BotRecord) => {
   const base = record ?? { wins: 0, draws: 0, losses: 0 };
   return { ...base, [field]: base[field] + 1 };
@@ -101,8 +112,7 @@ export function record(
   const { winner } = game.result;
 
   if (game.mode === 'hotseat') {
-    const field =
-      winner === null ? 'draws' : winner === 'w' ? 'white' : 'black';
+    const field = hotseatField(winner);
     return {
       ...counted,
       hotseat: { ...ledger.hotseat, [field]: ledger.hotseat[field] + 1 },
@@ -111,8 +121,7 @@ export function record(
 
   const opponent = game.mode;
   const sides = ledger.bots[opponent] ?? {};
-  const field =
-    winner === null ? 'draws' : winner === humanSide ? 'wins' : 'losses';
+  const field = botField(winner, humanSide);
   return {
     ...counted,
     bots: {

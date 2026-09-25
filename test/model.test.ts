@@ -45,4 +45,6 @@ test('D-pad cursor respects edges and board orientation', () => {
   assert.equal(shiftSquare('h8', 'ArrowUp'), 'h8');
   assert.equal(shiftSquare('h8', 'ArrowRight'), 'h8');
   assert.equal(shiftSquare('b1', 'ArrowUp'), 'b2');
+  // Any other key leaves the cursor where it is.
+  assert.equal(shiftSquare('e4', 'Enter'), 'e4');
 });
