@@ -14,6 +14,10 @@ export const THEME = {
   // A piece that can move now (#68): translucent, so it reads on both square
   // colours and under the last-move tint.
   movable: 'rgba(34, 197, 94, 0.5)',
+  // A focused menu item (#51): framed in the cursor's cyan over a faint fill of
+  // it, and filled more strongly while OK is held.
+  focusFill: 'rgba(0, 234, 255, 0.14)',
+  pressedFill: 'rgba(0, 234, 255, 0.34)',
   // Dice: ivory faces like the light squares, an unspent die ringed in the
   // cursor's cyan at half strength, and the outline of an empty slot.
   die: '#f4ead8',

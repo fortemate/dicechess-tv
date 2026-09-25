@@ -12,6 +12,7 @@ import { Dice } from './Dice';
 import { diceOf } from '../../src/core/dice';
 import { useRemoteInput } from './useRemoteInput';
 import { THEME } from './theme';
+import { BOARD_GAP, boardSide, safeInsets } from './layout';
 import {
   initialTutorial,
   tutorialReducer,
@@ -76,7 +77,8 @@ export const TutorialScreen = ({ onExit, onState }: TutorialScreenProps) => {
   // Marked as in a game, except between steps, when the board takes no input.
   const movable =
     state.complete || state.finished ? null : movableSquares(board.legal);
-  const size = Math.min(height - 64, width * 0.62);
+  const size = boardSide(width, height);
+  const insets = safeInsets(width, height);
 
   return (
     <View
@@ -85,7 +87,8 @@ export const TutorialScreen = ({ onExit, onState }: TutorialScreenProps) => {
         flexDirection: 'row',
         backgroundColor: THEME.background,
         alignItems: 'center',
-        padding: 32,
+        paddingHorizontal: insets.x,
+        paddingVertical: insets.y,
       }}
     >
       <Board
@@ -97,8 +100,8 @@ export const TutorialScreen = ({ onExit, onState }: TutorialScreenProps) => {
         cursor={state.focus.cursor}
         movable={movable}
       />
-      <View style={{ flex: 1, paddingLeft: 40 }}>
-        <Text style={{ color: '#8dc9b6', fontSize: 18, letterSpacing: 2 }}>
+      <View style={{ flex: 1, paddingLeft: BOARD_GAP }}>
+        <Text style={{ color: '#8dc9b6', fontSize: 20, letterSpacing: 2 }}>
           {`HOW TO PLAY · ${state.index + 1} OF ${TUTORIAL.length}`}
         </Text>
         <Text style={{ color: '#f0f4f8', fontSize: 34, marginBottom: 14 }}>

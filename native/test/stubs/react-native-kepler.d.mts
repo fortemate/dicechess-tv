@@ -6,6 +6,8 @@ export declare function useTVEventHandler(
 export declare function press(eventType: string): void;
 /** Test-only: hold a button, repeating the down event without releasing it. */
 export declare function hold(eventType: string, repeats?: number): void;
+/** Test-only: let go of a held button. */
+export declare function release(eventType: string): void;
 export declare function isSubscribed(): boolean;
 /** Test-only: how many screens are listening. */
 export declare function listenerCount(): number;

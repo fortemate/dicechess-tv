@@ -6,10 +6,12 @@ import {
   press,
   pressBack,
   hold,
+  release,
   isSubscribed,
   hasExited,
   clearExit,
 } from './stubs/react-native-kepler.mjs';
+import { focusedLabel, optionViews } from './options';
 import { GameScreen } from '../src/GameScreen';
 import { THEME } from '../src/theme';
 import type { ScreenOptions } from '../src/screen';
@@ -295,17 +297,47 @@ test('the promotion choice names the pieces, with the queen first', () => {
   // Resume, walk from e2 to a7, pick the pawn up and put it on a8.
   send(Select, Left, Left, Left, Left, Up, Up, Up, Up, Up, Select, Up, Select);
   assert.match(reports[reports.length - 1], /overlay promotion#0/);
-  const choices = (root: Instance) =>
-    lines(root).filter((line) => /^(> | {2})\S/.test(line));
   assert.ok(lines(tree.root).includes('Promote to'));
-  assert.deepEqual(choices(tree.root), [
-    '> Queen',
-    '  Rook',
-    '  Bishop',
-    '  Knight',
-  ]);
+  assert.deepEqual(
+    optionViews(tree.root).map(({ label, focused }) => [label, focused]),
+    [
+      ['Queen', true],
+      ['Rook', false],
+      ['Bishop', false],
+      ['Knight', false],
+    ],
+  );
   send(Down);
-  assert.equal(choices(tree.root)[1], '> Rook');
+  assert.equal(focusedLabel(tree.root), 'Rook');
+});
+
+test('a focused option is framed, and holding OK shows it pressed until the release acts', () => {
+  const reports: string[] = [];
+  const tree = replace(() =>
+    renderer.create(
+      React.createElement(GameScreen, {
+        options,
+        onState: (line: string) => reports.push(line),
+      }),
+    ),
+  );
+  // Home, nothing saved: the first option has focus, and nothing is held.
+  assert.deepEqual(optionViews(tree.root)[0], {
+    label: 'New hotseat game',
+    focused: true,
+    pressed: false,
+  });
+  // OK goes down: the option shows the press, and nothing happens yet.
+  act(() => hold(Select, 1));
+  assert.equal(optionViews(tree.root)[0].pressed, true);
+  assert.match(reports[reports.length - 1], /overlay home#0/);
+  // OK comes up: the choice takes effect, and the press is gone with it.
+  act(() => release(Select));
+  assert.match(reports[reports.length - 1], /overlay none/);
+  assert.equal(
+    optionViews(tree.root).some((option) => option.pressed),
+    false,
+  );
 });
 
 test('a finished game says how it ended and who won', () => {

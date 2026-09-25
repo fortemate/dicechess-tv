@@ -397,6 +397,42 @@ A restored game opens on the home screen rather than dropping the player into a
 turn they may not remember. Only modes that exist are offered: there is no native
 bot yet, so nothing claims one.
 
+## Television guidance
+
+Amazon's Fire TV guidelines, checked against the app in #51, and what it does
+about each:
+
+- **Safe area.** Nothing sits in the outer 5 % of any edge, which a television
+  may crop: 48 dp across and 27 dp down on the 960 x 540 dp screen Vega reports
+  (`src/layout.ts`). The game and the tutorial keep a 460 dp board 32 dp from a
+  372 dp panel, wide enough for the longest headline, "No legal moves · you", on
+  one line. The rules screen pads 48 dp; About already padded 56. The home screen
+  shows only the mode and the turn above its menu, so a third line of completed
+  games still fits.
+- **Focus.** A focused menu item or rules topic is framed in the cursor's cyan
+  over a faint fill of it (`src/Option.tsx`), so it is marked by more than
+  colour. The text sits inside the frame, so a title that wraps keeps its second
+  line under its first: "Use as many dice as you can" on the rules screen.
+- **Press.** OK still acts on release. While it is held, the focused item fills
+  more strongly and shrinks to 97 %, so the press shows before its choice takes
+  effect. `useRemoteInput` reports OK going down and coming up through
+  `onPress`.
+- **Captions** are 20 dp or larger everywhere, the guide's minimum; Amazon's own
+  minimum is 14sp.
+- **Sound** stops when the app leaves the foreground, and the **fully drawn**
+  marker reports cool and warm starts: see "Sound" and "Launch time".
+
+Checked on the virtual device on 25 September by scanning the outer 5 % of each
+screenshot for anything but the background: the home screen, a game and its
+menu, the hotseat menu over a roll with nothing to play (the tallest panel, about
+8 dp clear of the bottom band), the tutorial, the rules and About. A held OK was
+captured on the home menu. Tests: `native/test/layout.test.ts` for the insets
+and the panel width, and `native/test/input.test.tsx` for the framed focus and
+the press.
+
+Still for a Fire TV Stick (#10): how the safe area looks on a real television
+with overscan, and whether a real remote's press is long enough to see.
+
 ## The local opponent
 
 `src/core/bot.ts` asks the engine for a complete legal path

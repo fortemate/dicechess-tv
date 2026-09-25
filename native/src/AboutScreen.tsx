@@ -54,7 +54,7 @@ export const AboutScreen = ({ onExit, onState }: AboutScreenProps) => {
       <Text
         style={{
           color: '#8dc9b6',
-          fontSize: 18,
+          fontSize: 20,
           letterSpacing: 2,
           marginBottom: 14,
         }}
@@ -74,17 +74,17 @@ export const AboutScreen = ({ onExit, onState }: AboutScreenProps) => {
             key={credit.subject}
             style={{ width: '50%', paddingRight: 32, marginBottom: 22 }}
           >
-            <Text style={{ color: '#8dc9b6', fontSize: 18, letterSpacing: 1 }}>
+            <Text style={{ color: '#8dc9b6', fontSize: 20, letterSpacing: 1 }}>
               {credit.subject}
             </Text>
             <Text style={{ color: '#f0f4f8', fontSize: 22 }}>
               {credit.line}
             </Text>
             {/* On lines of their own, so that no link breaks at a hyphen. */}
-            <Text style={{ color: '#aab8c9', fontSize: 16 }}>
+            <Text style={{ color: '#aab8c9', fontSize: 20 }}>
               {credit.licence}
             </Text>
-            <Text style={{ color: '#aab8c9', fontSize: 16 }}>
+            <Text style={{ color: '#aab8c9', fontSize: 20 }}>
               {credit.source}
             </Text>
           </View>
