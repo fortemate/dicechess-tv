@@ -299,6 +299,15 @@ Two behaviours are carried over from the web probe deliberately:
 - **Destructive choices confirm with Cancel selected first**, so a stray OK
   cannot discard a game in progress.
 
+**Cancel calls the whole action off.** Cancel, or Back, on a confirmation
+returns to where the action began: the in-game menu, or the home screen with the
+cursor on the option that started it (a new hotseat game, or Play Random after
+its colour choice). `native/test/screen.test.ts` covers all three paths. The two
+that start on the home screen fail against the earlier reducer, which always
+opened the in-game menu, over a game the player had not chosen to resume.
+Checked on the virtual device on 24 September: New hotseat game, then Cancel,
+returned to the home screen with the cursor on New hotseat game.
+
 A restored game opens on the home screen rather than dropping the player into a
 turn they may not remember. Only modes that exist are offered: there is no native
 bot yet, so nothing claims one.
