@@ -7,11 +7,12 @@
   "description": "The project site of Dice Chess TV: an Astro Starlight site, deployed to GitHub Pages by .github/workflows/deploy-site.yaml.",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node scripts/check-friction-log.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/markdown-satteri": "0.4.2",
     "@astrojs/starlight": "0.42.4",
     "astro": "7.3.5"
   },

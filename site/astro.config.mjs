@@ -1,6 +1,7 @@
 // @ts-check
 import { existsSync, readdirSync } from 'node:fs';
 import { defineConfig } from 'astro/config';
+import { satteri } from '@astrojs/markdown-satteri';
 import starlight from '@astrojs/starlight';
 
 const REPOSITORY = 'https://github.com/fortemate/dicechess-tv';
@@ -37,6 +38,12 @@ export default defineConfig({
   // that actually serves the pages.
   site: 'https://fortemate.github.io',
   base: '/dicechess-tv',
+  markdown: {
+    // Heading attributes, `### Title {#id}`, give a heading an anchor of its
+    // own choosing. The friction log's entries are cited from outside by
+    // number, #fl-01 to #fl-21, so their anchors must not follow their titles.
+    processor: satteri({ features: { headingAttributes: true } }),
+  },
   integrations: [
     starlight({
       title: 'Dice Chess TV',

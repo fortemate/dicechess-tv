@@ -12,8 +12,8 @@ export default tseslint.config(
   js.configs.recommended,
   tseslint.configs.recommended,
   {
-    // The site's configuration runs in Node, when Astro loads it.
-    files: ['test/**', 'scripts/**', 'site/*.mjs'],
+    // The site's configuration and its build checks run in Node.
+    files: ['test/**', 'scripts/**', 'site/*.mjs', 'site/scripts/**'],
     languageOptions: { globals: globals.node },
   },
 );

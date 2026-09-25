@@ -98,7 +98,7 @@ Prepared for [Build, Ship, Shape: Amazon Developer Hackathon 2026](https://amazo
 - Internal submission target: **21 October 2026**.
 - Owner confirmed registration on 21 September 2026. Final submission and Appstore publication remain separate, unconfirmed actions.
 - Demonstrate the actual Vega/Fire TV environment and clearly distinguish reused components from work completed during the contest window.
-- Keep a reproducible SDK friction log and record tool versions from the first experiment.
+- Keep a reproducible SDK friction log and record tool versions from the first experiment. The log is published on the site: [Friction log](https://fortemate.github.io/dicechess-tv/friction-log/).
 
 Full decisions and the detailed schedule are maintained in the private Fortemate knowledge base, starting from the page **Build, Ship, Shape — Amazon Developer Hackathon 2026**.
 

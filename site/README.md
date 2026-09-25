@@ -28,6 +28,15 @@ directory holds a page, so a new page needs no change to the configuration;
 `sidebar.order` in its frontmatter sets its place within the group. A page is
 added when it has its content: nothing is published as a placeholder.
 
+## The friction log
+
+The submission cites the friction log's entries by number, so each keeps its
+own anchor, written as a heading attribute: `### FL-08 · Title {#fl-08}`. Titles
+may change; numbers and anchors may not, and a new entry takes the next number.
+After every build, `scripts/check-friction-log.mjs` fails `npm run build` if an
+anchor is lost, the numbering has a gap, or the summary table stops linking to
+an entry.
+
 ## The icon
 
 The logo, the favicon and the picture on the home page are the app icon,
