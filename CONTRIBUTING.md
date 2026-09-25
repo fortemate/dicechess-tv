@@ -27,6 +27,35 @@ and bots are exempt.
   developer by Amazon and is deliberately not in this repository;
   [native/README.md](native/README.md#building-and-running) has the commands.
 
+## Amazon's tools for coding agents
+
+[`.mcp.json`](.mcp.json) registers Amazon Devices Builder Tools, Amazon's MCP
+server for Vega, for every Claude Code session opened in this repository or one of
+its worktrees; Claude Code asks once before starting it. It gives an agent Amazon's
+Vega documentation, and tools that read performance traces
+(`analyze_perfetto_traces`, `get_app_hot_functions`) and crash reports
+(`symbolicate_acr`).
+
+- The version is pinned. Amazon's installer writes `@latest`, which would fetch
+  and run new, unreviewed code at every start. Bump the pin on purpose, after
+  reading what changed.
+- It has no telemetry switch of its own. It follows `optIn` in
+  `~/vega/telemetry/config.json`, the Vega SDK setting the Vega CLI reads too;
+  `false` opts both out.
+- Its documentation search sends the query to Amazon, so keep private values out
+  of it (see the publication boundary in [AGENTS.md](AGENTS.md)).
+- Amazon's agent skills are not committed: the package is `UNLICENSED`, Amazon's
+  own content. Its installer puts them in `~/.claude/skills`:
+
+  ```bash
+  npx -y @amazon-devices/amazon-devices-buildertools-mcp@1.0.13 init-context --agent claude-code-cli --skip-context-document
+  ```
+
+  It cannot install the skills alone: it also registers the server, at `@latest`,
+  for every project in `~/.claude.json`. Remove that entry afterwards, so the pin
+  here is the only registration:
+  `claude mcp remove -s user amazon-devices-buildertools-mcp`.
+
 ## Checks
 
 CI runs these on every pull request. Run them before pushing:
