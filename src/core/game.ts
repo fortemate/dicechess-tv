@@ -6,6 +6,9 @@ import { hasExactKeys } from './keys.ts';
 export const INITIAL_POSITION =
   'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 export type Side = 'w' | 'b';
+// The colour option a person picks against the bot: a side, or Random, which
+// draws one.
+export type ColourChoice = 'random' | Side;
 export type Mode = 'hotseat' | 'random';
 export type Phase = 'roll' | 'move' | 'handoff' | 'ended';
 export type Result = {
@@ -18,12 +21,15 @@ export type Result = {
     | 'turn-limit';
 };
 export type Game = {
-  schema: 3;
+  schema: 4;
   id: string;
   mode: Mode;
   // The side a person plays against the bot. Null in hotseat, where both sides
   // are people.
   human: Side | null;
+  // The colour option behind that side, which a rematch keeps: Random draws a
+  // side again. Null in hotseat.
+  colour: ColourChoice | null;
   revision: number;
   turn: number;
   start: string;
@@ -39,6 +45,7 @@ const FIELDS = [
   'id',
   'mode',
   'human',
+  'colour',
   'revision',
   'turn',
   'start',
@@ -48,9 +55,10 @@ const FIELDS = [
   'result',
   'lastMove',
 ];
-// Saves written before a person could choose a colour, when the person always
-// played White against the bot.
-const SCHEMA_2_FIELDS = FIELDS.filter((field) => field !== 'human');
+// Saves written before the colour option was kept, which recorded only the
+// side; and before that, saves from when the person always played White.
+const SCHEMA_3_FIELDS = FIELDS.filter((field) => field !== 'colour');
+const SCHEMA_2_FIELDS = SCHEMA_3_FIELDS.filter((field) => field !== 'human');
 export const opposite = (side: Side): Side => (side === 'w' ? 'b' : 'w');
 export const sideName = (side: Side) => (side === 'w' ? 'White' : 'Black');
 
@@ -139,13 +147,15 @@ export function newGame(
   id: string,
   start = INITIAL_POSITION,
   human: Side | null = mode === 'hotseat' ? null : 'w',
+  colour: ColourChoice | null = human,
 ): Game {
   return decodeGame(
     JSON.stringify({
-      schema: 3,
+      schema: 4,
       id,
       mode,
       human,
+      colour,
       revision: 0,
       turn: 1,
       start,
@@ -266,30 +276,44 @@ export function randomSide(
   return bytes[0] % 2 === 0 ? 'w' : 'b';
 }
 
-// A schema-2 save becomes schema 3 by adding the person's side, which was
-// White whenever there was a bot. Anything else passes through for the checks.
+const isSave = (
+  value: unknown,
+  schema: number,
+  fields: readonly string[],
+): value is object =>
+  !!value &&
+  typeof value === 'object' &&
+  (value as { schema?: unknown }).schema === schema &&
+  hasExactKeys(value, fields);
+
+// Older saves are brought up to schema 4 one step at a time. A schema-2 save
+// gains the person's side, which was White whenever there was a bot; a schema-3
+// save gains its colour option, taken to be the side it recorded. Anything else
+// passes through for the checks.
 function upgrade(value: unknown): unknown {
-  if (
-    !value ||
-    typeof value !== 'object' ||
-    (value as { schema?: unknown }).schema !== 2 ||
-    !hasExactKeys(value, SCHEMA_2_FIELDS)
-  )
-    return value;
-  const legacy = value as Omit<Game, 'schema' | 'human'>;
-  return {
-    ...legacy,
-    schema: 3,
-    human: legacy.mode === 'hotseat' ? null : 'w',
-  };
+  let save = value;
+  if (isSave(save, 2, SCHEMA_2_FIELDS)) {
+    const legacy = save as Omit<Game, 'schema' | 'human' | 'colour'>;
+    save = {
+      ...legacy,
+      schema: 3,
+      human: legacy.mode === 'hotseat' ? null : 'w',
+    };
+  }
+  if (isSave(save, 3, SCHEMA_3_FIELDS)) {
+    const legacy = save as Omit<Game, 'schema' | 'colour'>;
+    save = { ...legacy, schema: 4, colour: legacy.human };
+  }
+  return save;
 }
 
-// Hotseat has no person set against a bot; a game against the bot has one,
-// on either side.
+// Hotseat has no person set against a bot. A game against the bot has one, on
+// either side, and a colour option that is Random or that side.
 const sidesMatchMode = (game: Game): boolean =>
   game.mode === 'hotseat'
-    ? game.human === null
-    : game.human === 'w' || game.human === 'b';
+    ? game.human === null && game.colour === null
+    : (game.human === 'w' || game.human === 'b') &&
+      (game.colour === 'random' || game.colour === game.human);
 
 // Whether a decoded save is missing a field or has one of the wrong shape,
 // judged before anything is computed from it.
@@ -298,7 +322,7 @@ function isDamaged(game: Game): boolean {
     !game ||
     typeof game !== 'object' ||
     !hasExactKeys(game, FIELDS) ||
-    game.schema !== 3 ||
+    game.schema !== 4 ||
     typeof game.id !== 'string' ||
     !/^[a-zA-Z0-9-]{1,80}$/.test(game.id) ||
     !['hotseat', 'random'].includes(game.mode) ||
