@@ -1,6 +1,6 @@
 {
   "upstream": "fortemate/dicechess-assets",
-  "commit": "74ff23f67ede28ab1945f5c4637d8faf6740eecc",
+  "commit": "25e7ad0fd638d6294c66644a4f086fd2f7726034",
   "packs": {
     "kenney-casino-audio": {
       "version": "1.0.0",
