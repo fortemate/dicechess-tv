@@ -106,8 +106,9 @@ writeFileSync(
 
 // The app reads this at run time. It is generated, rather than importing the
 // lock, so neither Metro nor the test runner has to be taught JSON modules.
+const quote = (file) => `'${file}'`;
 const body = Object.entries(cues)
-  .map(([cue, list]) => `  ${cue}: [${list.map((f) => `'${f}'`).join(', ')}],`)
+  .map(([cue, list]) => `  ${cue}: [${list.map(quote).join(', ')}],`)
   .join('\n');
 writeFileSync(
   join(native, 'src/cueFiles.ts'),

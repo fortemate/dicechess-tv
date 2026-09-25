@@ -52,59 +52,86 @@ const paeth = (a, b, c) => {
   return pb <= pc ? b : c;
 };
 
-// Returns { width, height, channels, pixels }. Handles the two colour types
-// involved here: the mark is RGBA, the frame this script writes is RGB.
-// Exported so a test can read back what was written rather than trusting it.
-export const decodePng = (file) => {
-  const png = readFileSync(file);
-  if (png.subarray(0, 8).toString('hex') !== '89504e470d0a1a0a')
-    throw new Error(`${file} is not a PNG`);
+// The value each PNG filter predicted from a byte's neighbours, which the
+// stored byte is relative to: None, Sub, Up, Average and Paeth.
+const PREDICTORS = [
+  () => 0,
+  (left) => left,
+  (left, up) => up,
+  (left, up) => (left + up) >> 1,
+  paeth,
+];
 
-  let width = 0;
-  let height = 0;
-  let channels = 4;
-  const parts = [];
+// The image header. Only the two colour types involved here are accepted: the
+// mark is RGBA, the frame this script writes is RGB.
+const readHeader = (body, file) => {
+  const [depth, colour, interlace] = [body[8], body[9], body[12]];
+  if (depth !== 8 || (colour !== 6 && colour !== 2) || interlace !== 0)
+    throw new Error(
+      `${file}: expected 8-bit RGB or RGBA without interlacing, got depth ${depth} colour ${colour} interlace ${interlace}`,
+    );
+  return {
+    width: body.readUInt32BE(0),
+    height: body.readUInt32BE(4),
+    channels: colour === 6 ? 4 : 3,
+  };
+};
+
+// The header's fields and the image data, walking the chunks up to IEND.
+const readChunks = (png, file) => {
+  const image = { width: 0, height: 0, channels: 4, parts: [] };
   for (let at = 8; at < png.length;) {
     const length = png.readUInt32BE(at);
     const type = png.toString('ascii', at + 4, at + 8);
     const body = png.subarray(at + 8, at + 8 + length);
-    if (type === 'IHDR') {
-      width = body.readUInt32BE(0);
-      height = body.readUInt32BE(4);
-      const [depth, colour, interlace] = [body[8], body[9], body[12]];
-      if (depth !== 8 || (colour !== 6 && colour !== 2) || interlace !== 0)
-        throw new Error(
-          `${file}: expected 8-bit RGB or RGBA without interlacing, got depth ${depth} colour ${colour} interlace ${interlace}`,
-        );
-      channels = colour === 6 ? 4 : 3;
-    }
-    if (type === 'IDAT') parts.push(body);
+    if (type === 'IHDR') Object.assign(image, readHeader(body, file));
+    if (type === 'IDAT') image.parts.push(body);
     if (type === 'IEND') break;
     at += 12 + length;
   }
+  return image;
+};
 
-  const raw = inflateSync(Buffer.concat(parts));
+// The bytes to the left of, above and above-left of the one at `at`, with 0
+// for any that fall off the image.
+const neighbours = (pixels, at, x, y, stride, channels) => {
+  const hasLeft = x >= channels;
+  const hasUp = y > 0;
+  return [
+    hasLeft ? pixels[at - channels] : 0,
+    hasUp ? pixels[at - stride] : 0,
+    hasLeft && hasUp ? pixels[at - stride - channels] : 0,
+  ];
+};
+
+// Undoes each line's filter, returning the pixel bytes.
+const unfilter = (raw, { width, height, channels }, file) => {
   const stride = width * channels;
   const pixels = Buffer.alloc(height * stride);
   for (let y = 0; y < height; y++) {
     const filter = raw[y * (stride + 1)];
+    const predict = PREDICTORS[filter];
+    if (stride > 0 && !predict)
+      throw new Error(`${file}: unknown filter ${filter}`);
     const line = raw.subarray(y * (stride + 1) + 1, (y + 1) * (stride + 1));
     for (let x = 0; x < stride; x++) {
-      const left = x >= channels ? pixels[y * stride + x - channels] : 0;
-      const up = y > 0 ? pixels[(y - 1) * stride + x] : 0;
-      const upLeft =
-        x >= channels && y > 0 ? pixels[(y - 1) * stride + x - channels] : 0;
-      let value = line[x];
-      if (filter === 1) value += left;
-      else if (filter === 2) value += up;
-      else if (filter === 3) value += (left + up) >> 1;
-      else if (filter === 4) value += paeth(left, up, upLeft);
-      else if (filter !== 0)
-        throw new Error(`${file}: unknown filter ${filter}`);
-      pixels[y * stride + x] = value & 0xff;
+      const at = y * stride + x;
+      const [left, up, upLeft] = neighbours(pixels, at, x, y, stride, channels);
+      pixels[at] = (line[x] + predict(left, up, upLeft)) & 0xff;
     }
   }
-  return { width, height, channels, pixels };
+  return pixels;
+};
+
+// Returns { width, height, channels, pixels }. Exported so a test can read back
+// what was written rather than trusting it.
+export const decodePng = (file) => {
+  const png = readFileSync(file);
+  if (png.subarray(0, 8).toString('hex') !== '89504e470d0a1a0a')
+    throw new Error(`${file} is not a PNG`);
+  const { parts, ...image } = readChunks(png, file);
+  const pixels = unfilter(inflateSync(Buffer.concat(parts)), image, file);
+  return { ...image, pixels };
 };
 
 const chunk = (type, body) => {
