@@ -177,7 +177,9 @@ const Status = ({
           : `${sideName(view.side)} to play${mover(game, view.bot)}`}
       </Text>
       {result ? <Text style={RESULT_LINE}>{winnerLine(result)}</Text> : null}
-      {!result && dice ? <Dice dice={diceOf(game)} side={view.side} /> : null}
+      {!result && dice ? (
+        <Dice dice={diceOf(game.roll, view.remaining)} side={view.side} />
+      ) : null}
     </>
   );
 };
