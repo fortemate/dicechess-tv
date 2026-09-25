@@ -10,7 +10,7 @@ export default tseslint.config(
   js.configs.recommended,
   tseslint.configs.recommended,
   {
-    files: ['test/**'],
+    files: ['test/**', 'scripts/**'],
     languageOptions: { globals: globals.node },
   },
 );

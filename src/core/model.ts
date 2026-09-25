@@ -11,6 +11,11 @@ export type Phase = 'human' | 'bot' | 'done';
 export function applyLegal(dfen: string, uci: string): string {
   if (!DiceChess.getLegalUciMoves(dfen).includes(uci))
     throw new Error('Illegal engine action: ' + uci);
+  return applyTrusted(dfen, uci);
+}
+// As applyLegal, for an action taken from the engine's own legal list for this
+// very position, which needs no second generation of that list.
+export function applyTrusted(dfen: string, uci: string): string {
   const next = DiceChess.applyMove(
     dfen,
     uci.slice(0, 2),
