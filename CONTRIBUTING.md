@@ -42,6 +42,7 @@ CI runs these on every pull request. Run them before pushing:
 | native | `npm test --prefix native`      | Screens, input and sound, rendered with `react-test-renderer`         |
 | root   | `npm run coverage`              | Both packages' tests with coverage, which CI sends to SonarQube Cloud |
 | native | `npm run build --prefix native` | The installable package. It needs the Vega SDK, so CI does not run it |
+| site   | `npm run build --prefix site`   | The project site, after `npm ci --prefix site`; see below             |
 
 `mise run check` runs all of them except the build, and `mise tasks` lists every
 task with what it does. The SonarQube Cloud analysis
@@ -103,6 +104,13 @@ fi
 The tag check matters: `gh release create` would attach a new package to an
 existing tag that points at older code. The notes are grouped by the labels in
 `.github/release.yml`.
+
+## The project site
+
+`site/` is the public site, <https://fortemate.github.io/dicechess-tv/>, built
+with Astro Starlight. Its workflow builds every pull request that touches it and
+deploys it from `main`. [site/README.md](site/README.md) explains how to run it
+and add a page.
 
 ## What the platform does
 

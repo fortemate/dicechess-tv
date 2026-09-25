@@ -37,6 +37,7 @@ documentation:
           - 'README.md'
           - 'THIRD_PARTY_NOTICES.md'
           - 'docs/**'
+          - 'site/**'
 ci-cd:
   - head-branch: ['^ci/']
   - changed-files:
@@ -51,9 +52,12 @@ testing:
           - '**/*.test.tsx'
 dependencies:
   - changed-files:
-      # Both projects: the root holds the shared core's engine, `native/` the application.
+      # All three projects: the root holds the shared core's engine, `native/` the application,
+      # `site/` the project site.
       - any-glob-to-any-file:
           - 'package.json'
           - 'package-lock.json'
           - 'native/package.json'
           - 'native/package-lock.json'
+          - 'site/package.json'
+          - 'site/package-lock.json'

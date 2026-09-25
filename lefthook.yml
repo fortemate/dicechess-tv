@@ -21,9 +21,11 @@ pre-commit:
 
     # Format staged files and put the result into the commit. `.prettierignore`
     # keeps Prettier off the vendored sounds; the two flags stop a commit that
-    # holds only ignored or unknown files from failing.
+    # holds only ignored or unknown files from failing. MDX and CSS are the
+    # site's. Astro components are not listed: Prettier cannot parse them
+    # without prettier-plugin-astro, and the site has none (#88).
     - name: prettier
-      glob: '**.{ts,tsx,js,mjs,mts,json,md,yaml,yml}'
+      glob: '**.{ts,tsx,js,mjs,mts,json,md,mdx,css,yaml,yml}'
       run: npx prettier --write --ignore-unknown --no-error-on-unmatched-pattern {staged_files}
       stage_fixed: true
 

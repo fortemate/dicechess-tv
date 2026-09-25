@@ -1,5 +1,5 @@
-# Two npm projects live here: the repository root holds the shared core and its engine, and
-# `/native` is the React Native for Vega application.
+# Three npm projects live here: the repository root holds the shared core and its engine,
+# `/native` is the React Native for Vega application, and `/site` is the project site.
 version: 2
 updates:
   # ── The Vega application ────────────────────────────────────────────────────────────────────────
@@ -118,6 +118,30 @@ updates:
           - '@eslint/*'
           - 'typescript-eslint'
           - 'globals'
+
+  # ── The project site ────────────────────────────────────────────────────────────────────────────
+  - package-ecosystem: 'npm'
+    directory: '/site'
+    schedule:
+      interval: 'monthly'
+      day: 'friday'
+      time: '08:00'
+    open-pull-requests-limit: 3
+    labels:
+      - 'dependencies'
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+    assignees:
+      - 'rabestro'
+    rebase-strategy: 'auto'
+    groups:
+      # One pull request a month for the whole site. Nothing here reaches the device, and the
+      # site's workflow builds every pull request that touches site/, so a breaking update fails
+      # there.
+      site:
+        patterns:
+          - '*'
 
   # ── Workflow actions ────────────────────────────────────────────────────────────────────────────
   - package-ecosystem: 'github-actions'

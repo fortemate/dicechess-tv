@@ -1,0 +1,21 @@
+{
+  "name": "@fortemate/dicechess-tv-site",
+  "version": "0.0.0",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "description": "The project site of Dice Chess TV: an Astro Starlight site, deployed to GitHub Pages by .github/workflows/deploy-site.yaml.",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "0.42.4",
+    "astro": "7.3.5"
+  },
+  "engines": {
+    "node": ">=26.8.2 <27"
+  }
+}

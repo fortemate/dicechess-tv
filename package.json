@@ -12,8 +12,8 @@
     "coverage": "npm run coverage:core && npm run coverage:native",
     "coverage:core": "node -e \"require('node:fs').mkdirSync('coverage', { recursive: true })\" && node --experimental-strip-types --test --experimental-test-coverage --test-coverage-exclude='test/**' --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/core.lcov test/*.test.ts",
     "coverage:native": "node -e \"require('node:fs').mkdirSync('coverage', { recursive: true })\" && node --test --import ./native/test/hooks.mjs --enable-source-maps --experimental-test-coverage --test-coverage-exclude='native/test/**' --test-coverage-exclude='native/src/pieces/**' --test-coverage-exclude='native/src/cueFiles.ts' --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/native.lcov native/test/*.test.tsx native/test/*.test.ts",
-    "format": "prettier --write src native test scripts *.json *.md docs/*.md .github/**/*.yml .github/**/*.yaml",
-    "format:check": "prettier --check src native test scripts *.json *.md docs/*.md .github/**/*.yml .github/**/*.yaml"
+    "format": "prettier --write src native test scripts site *.json *.md docs/*.md .github/**/*.yml .github/**/*.yaml",
+    "format:check": "prettier --check src native test scripts site *.json *.md docs/*.md .github/**/*.yml .github/**/*.yaml"
   },
   "dependencies": {
     "@fortemate/dicechess-engine": "0.12.2"
