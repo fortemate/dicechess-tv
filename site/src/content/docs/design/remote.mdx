@@ -1,0 +1,88 @@
+---
+title: Designing for the remote
+description: 'How a chessboard works with four arrows and OK: the arrows jump between the pieces that can move, then between their destinations. Measured over 200 simulated games before it was built.'
+sidebar:
+  order: 1
+---
+
+A TV remote has four arrows, OK and Back. On a chessboard that is a long way from a mouse. With a cursor that moved one square per press, a turn of Dice Chess took 22.6 presses on average. The board now takes 8.7.
+
+## The problem
+
+- A turn is up to three actions, and each action is two choices: a piece, then a square.
+- The dice decide which pieces may move, so most of the board is never a choice at all.
+- A cursor that moves square by square spends its presses crossing squares that cannot be chosen.
+
+## Measured before it was built
+
+`npm run presses`, the evaluator in [`scripts/cursor-presses.ts`](https://github.com/fortemate/dicechess-tv/blob/main/scripts/cursor-presses.ts), replays 200 seeded random games through the app's own core. For every action it counts the presses each candidate design needs. No design left a piece or a destination out of reach.
+
+<figure class="bars">
+  <figcaption>
+    Remote presses per turn, hotseat, 200 simulated games (lower is better)
+  </figcaption>
+  <div class="bar-row">
+    <span class="bar-label">Square by square, as before</span>
+    <span class="bar" style={{ width: '100%' }} />
+    <span class="bar-value">22.6</span>
+  </div>
+  <div class="bar-row">
+    <span class="bar-label">
+      Square by square, starting on the central piece
+    </span>
+    <span class="bar" style={{ width: '67.1%' }} />
+    <span class="bar-value">15.2</span>
+  </div>
+  <div class="bar-row">
+    <span class="bar-label">Jump between the pieces that can move</span>
+    <span class="bar" style={{ width: '60.4%' }} />
+    <span class="bar-value">13.7</span>
+  </div>
+  <div class="bar-row">
+    <span class="bar-label">…and wait on a piece that can move</span>
+    <span class="bar" style={{ width: '53.4%' }} />
+    <span class="bar-value">12.1</span>
+  </div>
+  <div class="bar-row shipped">
+    <span class="bar-label">…and jump between destinations too (shipped)</span>
+    <span class="bar" style={{ width: '38.7%' }} />
+    <span class="bar-value">8.7</span>
+  </div>
+</figure>
+
+| Design                                                  | Per action | Per turn | Median turn | 90th percentile |
+| ------------------------------------------------------- | ---------: | -------: | ----------: | --------------: |
+| Square by square, the cursor stays                      |       8.89 |    22.60 |          23 |              32 |
+| Square by square, starting on the central piece         |       5.97 |    15.17 |          15 |              23 |
+| Jump between the pieces that can move, the cursor stays |       5.37 |    13.65 |          15 |              19 |
+| Jump, and the cursor waits on a piece that can move     |       4.75 |    12.07 |          13 |              17 |
+| **Jump between pieces, then between destinations**      |   **3.44** | **8.74** |       **9** |          **12** |
+
+Both sides of 200 hotseat games, 9,102 turns, seed 68. The shipped row uses the cone rule described below. The same design with a plain axis rule scored 8.69, so the rule was chosen on another ground: in 20,000 random sets of squares, the cone rule reached every square, while two simpler rules each left some square out of reach.
+
+## The rules the board follows
+
+![A hotseat game: Black's knight is picked up, its destinations are dotted, a capture is ringed, and the cursor frames the destination it landed on](../../../assets/screenshots/hotseat.png)
+
+- **What can move is marked.** After every roll and every action, a green fill marks the pieces that can move. They are the starts of the engine's legal actions, so they already follow the rule that a turn uses as many dice as it can.
+- **Arrows jump.** A press lands on the nearest choice within 45 degrees of the arrow. Failing that, it lands on the choice least far ahead, counting sideways distance twice. With nothing ahead the cursor stays. On the board turned for Black, the arrows follow the screen.
+- **The cursor waits where it helps.** It stays on its square while that piece can still move, and otherwise moves to the central piece, the one fewest presses from all the others.
+- **OK lands on a destination.** Picking a piece up puts the cursor on its central destination, so a piece with a single destination plays with OK, then OK. Back puts the piece down, with the cursor back on it.
+
+The rules live in the app's core ([`src/core/cursor.ts`](https://github.com/fortemate/dicechess-tv/blob/main/src/core/cursor.ts), [`src/core/boardInput.ts`](https://github.com/fortemate/dicechess-tv/blob/main/src/core/boardInput.ts)), are covered by its tests, and were played on the Vega Virtual Device. Nothing here has run on a Fire TV Stick yet.
+
+## A mark that was dropped
+
+A second mark was tried: amber brackets on the pieces that could move only after one more action. It was dropped for three reasons.
+
+1. The cursor could not land on those pieces, so the mark offered nothing to press.
+2. Green and amber are the pair that colour-blind viewers confuse most.
+3. It cost one legal-move generation per legal action, up to 43 ms per step on the Virtual Device.
+
+The green fill comes from the legal list the screen already has, at no extra cost.
+
+## Sources
+
+- [#68](https://github.com/fortemate/dicechess-tv/issues/68): the design discussion and the owner's decisions.
+- [`native/README.md`, "Choosing a move"](https://github.com/fortemate/dicechess-tv/blob/main/native/README.md#choosing-a-move): the rules and the measurements.
+- [`scripts/cursor-presses.ts`](https://github.com/fortemate/dicechess-tv/blob/main/scripts/cursor-presses.ts): the evaluator. `npm run presses` prints the table above.
