@@ -9,7 +9,13 @@ export type Side = 'w' | 'b';
 // The colour option a person picks against the bot: a side, or Random, which
 // draws one.
 export type ColourChoice = 'random' | Side;
-export type Mode = 'hotseat' | 'random';
+// The local opponents, each named after the engine algorithm it plays (#115).
+// A game saved before there was more than one is a game against `random`.
+export const BOT_MODES = ['random', 'greedy', 'aggressive'] as const;
+export type BotMode = (typeof BOT_MODES)[number];
+export type Mode = 'hotseat' | BotMode;
+export const isBotMode = (mode: string): mode is BotMode =>
+  (BOT_MODES as readonly string[]).includes(mode);
 export type Phase = 'roll' | 'move' | 'handoff' | 'ended';
 export type Result = {
   winner: Side | null;
@@ -361,7 +367,7 @@ function isDamaged(game: Game): boolean {
     game.schema !== 4 ||
     typeof game.id !== 'string' ||
     !/^[a-zA-Z0-9-]{1,80}$/.test(game.id) ||
-    !['hotseat', 'random'].includes(game.mode) ||
+    !(game.mode === 'hotseat' || isBotMode(game.mode)) ||
     !sidesMatchMode(game) ||
     !Number.isSafeInteger(game.revision) ||
     game.revision < 0 ||

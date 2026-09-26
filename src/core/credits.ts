@@ -30,11 +30,14 @@ export const APP = {
 
 export const CREDITS: readonly Credit[] = [
   {
-    subject: 'Chess pieces',
-    line: 'Vector Chess Pieces by RhosGFX',
-    // Public domain: no credit is required. It is given anyway.
+    // Two packs by one artist, the chess pieces and the opponents' faces, on
+    // one card: the About screen has room for four, in two columns.
+    subject: 'Pieces and opponent faces',
+    line: 'Pieces and faces by RhosGFX',
+    // Public domain: no credit is required. It is given anyway, with a link to
+    // the artist's page, which both packs ask for.
     licence: 'CC0 1.0',
-    source: 'rhosgfx.itch.io/vector-chess-pieces',
+    source: 'rhosgfx.itch.io',
   },
   {
     subject: 'Piece sounds',

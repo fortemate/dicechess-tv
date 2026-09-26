@@ -17,11 +17,14 @@ import {
   viewGame,
   emptyRoll,
   INITIAL_POSITION,
+  isBotMode,
+  type BotMode,
   type ColourChoice,
   type Game,
   type Mode,
   type Side,
 } from '../../src/core/game';
+import { OPPONENTS } from '../../src/core/opponents';
 import {
   boardInput,
   waitingFocus,
@@ -86,9 +89,12 @@ export type Overlay =
       // Where the action began, which Cancel and Back return to.
       from: 'home' | 'menu';
     }
-  // The colour a person plays against the bot, chosen before the game starts.
-  // `from` is where Back returns.
-  | { kind: 'colour'; index: number; mode: Mode; from: 'home' | 'menu' }
+  // The local opponent to play, one card each (#115). `from` is where Back
+  // returns.
+  | { kind: 'opponent'; index: number; from: 'home' | 'menu' }
+  // The colour a person plays against the chosen opponent, before the game
+  // starts. Back returns to the cards; `from` is where the cards return.
+  | { kind: 'colour'; index: number; mode: BotMode; from: 'home' | 'menu' }
   | { kind: 'promotion'; moves: string[]; index: number }
   // After a game against the bot: a rematch, or back to the main menu.
   | { kind: 'result'; index: number }
@@ -144,16 +150,15 @@ export type ScreenOptions = {
   side: () => Side;
 };
 
-// The home option that starts each mode.
-const START_OPTION: Readonly<Record<Mode, string>> = {
-  hotseat: 'New hotseat game',
-  random: 'Play Random',
-};
+// The home options that start a game: a hotseat game at once, a game against
+// the computer through the choice of opponent and colour.
+export const HOTSEAT_OPTION = 'New hotseat game';
+export const COMPUTER_OPTION = 'Play the computer';
 
 export const homeOptions = (resumable: boolean, sound = true): string[] => [
   ...(resumable ? ['Resume game'] : []),
-  START_OPTION.hotseat,
-  START_OPTION.random,
+  HOTSEAT_OPTION,
+  COMPUTER_OPTION,
   'How to play',
   'Rules',
   soundOption(sound),
@@ -188,13 +193,13 @@ const start = (
 const chosen = (colour: ColourChoice, options: ScreenOptions): Side =>
   colour === 'random' ? options.side() : colour;
 
-// Which mode a home option starts. Resume starts nothing.
-const MODES = new Map<string, Mode>(
-  (Object.keys(START_OPTION) as Mode[]).map((mode) => [
-    START_OPTION[mode],
-    mode,
-  ]),
-);
+// The card the choice of opponent opens on: the opponent of the game in play,
+// so a new game against the same one is OK away, or the first card.
+const cardOf = (mode: Mode): number =>
+  Math.max(
+    0,
+    OPPONENTS.findIndex((opponent) => opponent.mode === mode),
+  );
 
 // Home options that open another screen and change nothing else.
 const OPENS = new Map<string, Overlay>([
@@ -362,30 +367,33 @@ const onHome: Handler<'home'> = (state, overlay, key, options) => {
   if (isSoundOption(chosen)) return toggleSound(state);
   const opens = OPENS.get(chosen);
   if (opens) return show(state, opens);
-  const mode = MODES.get(chosen);
-  if (!mode) return state;
-  // A game against the bot starts with the choice of colour.
-  if (mode !== 'hotseat')
-    return show(state, { kind: 'colour', index: 0, mode, from: 'home' });
+  // A game against the computer starts with the choice of opponent.
+  if (chosen === COMPUTER_OPTION)
+    return show(state, {
+      kind: 'opponent',
+      index: cardOf(state.game.mode),
+      from: 'home',
+    });
+  if (chosen !== HOTSEAT_OPTION) return state;
   // Starting a new game over one still in play is a decision, not a keypress.
   if (resumable(state.game))
     return show(state, {
       kind: 'confirm',
       action: 'replace',
       index: 0,
-      mode,
+      mode: 'hotseat',
       from: 'home',
     });
-  return start(state, mode, 'random', options);
+  return start(state, 'hotseat', 'random', options);
 };
 
-// The option the colour choice was opened from, which Back returns to.
+// The option the choice of opponent was opened from, which Back returns to.
 const openerOf = (state: ScreenState, from: 'home' | 'menu'): Overlay =>
   from === 'home'
     ? {
         kind: 'home',
         index: homeOptions(resumable(state.game), state.sound).indexOf(
-          START_OPTION.random,
+          COMPUTER_OPTION,
         ),
       }
     : {
@@ -393,8 +401,25 @@ const openerOf = (state: ScreenState, from: 'home' | 'menu'): Overlay =>
         index: menuOptions(state.game, state.sound).indexOf('New game'),
       };
 
-const onColour: Handler<'colour'> = (state, overlay, key, options) => {
+// The cards: the arrows walk them, OK takes one to the choice of colour.
+const onOpponent: Handler<'opponent'> = (state, overlay, key) => {
   if (key === 'back') return show(state, openerOf(state, overlay.from));
+  if (key !== 'select') return moved(state, overlay, key, OPPONENTS.length);
+  return show(state, {
+    kind: 'colour',
+    index: 0,
+    mode: OPPONENTS[overlay.index].mode,
+    from: overlay.from,
+  });
+};
+
+const onColour: Handler<'colour'> = (state, overlay, key, options) => {
+  if (key === 'back')
+    return show(state, {
+      kind: 'opponent',
+      index: cardOf(overlay.mode),
+      from: overlay.from,
+    });
   if (key !== 'select') return moved(state, overlay, key, colourOptions.length);
   const colour = COLOURS[overlay.index];
   // The confirmation comes last, right before the game in play is replaced.
@@ -421,7 +446,7 @@ const cancelled = (
     : {
         kind: 'home',
         index: homeOptions(resumable(state.game), state.sound).indexOf(
-          START_OPTION[overlay.mode],
+          overlay.mode === 'hotseat' ? HOTSEAT_OPTION : COMPUTER_OPTION,
         ),
       };
 
@@ -447,12 +472,12 @@ const onMenu: Handler<'menu'> = (state, overlay, key) => {
   // destructive choice and asks to confirm replacing the game.
   if (isSoundOption(chosen)) return toggleSound(state);
   if (chosen === 'Agree a draw') return played(state, agreeDraw(game));
-  // A new game against the bot starts, like one from home, with the colour.
-  if (chosen === 'New game' && game.mode !== 'hotseat')
+  // A new game against the computer starts, like one from home, with the
+  // cards, on the opponent of this game.
+  if (chosen === 'New game' && isBotMode(game.mode))
     return show(state, {
-      kind: 'colour',
-      index: 0,
-      mode: game.mode,
+      kind: 'opponent',
+      index: cardOf(game.mode),
       from: 'menu',
     });
   // Both destructive choices go through a confirmation with Cancel first.
@@ -547,6 +572,8 @@ export function screenReducer(
   switch (overlay.kind) {
     case 'home':
       return onHome(state, overlay, key, options);
+    case 'opponent':
+      return onOpponent(state, overlay, key, options);
     case 'colour':
       return onColour(state, overlay, key, options);
     case 'confirm':

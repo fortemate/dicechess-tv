@@ -46,7 +46,7 @@ Removing the app deletes its saved game, results and settings. They never leave 
 ## What to try
 
 1. Start with **How to play**, the five-lesson tutorial, before reading anything else about the game.
-2. Play a game against the bot with **Play Random**.
+2. Play a game against the computer: **Play the computer**, then pick Rolly (easy), Grabby (medium) or Rampage (hard). In 0.1.0 beta 1 there is one opponent, under **Play Random**.
 3. If someone is with you, start a **New hotseat game** and pass the remote.
 4. Look something up in **Rules**.
 
@@ -64,4 +64,4 @@ Say whether you played on a Fire TV Stick or on the Virtual Device. What confuse
 - **Version.** 0.1.0, a beta for the tester round ([#107](https://github.com/fortemate/dicechess-tv/issues/107)).
 - **Tested on.** So far, the app's tests and the Vega Virtual Device. It has not yet run on a Fire TV Stick ([#10](https://github.com/fortemate/dicechess-tv/issues/10)).
 - **Privacy.** It has no network code, no accounts and no analytics: games, results and settings stay on the device.
-- **The bot.** The opponent is the Random bot: it plays one of its legal turns, chosen at random.
+- **The opponents.** Rolly plays one of its legal turns at random, Grabby takes the most valuable piece it can, and Rampage hunts your pieces and goes for your king. Each is an algorithm of the rules engine, running on the device.

@@ -29,6 +29,7 @@ import {
   type Side,
 } from '../../src/core/game';
 import { botToAct } from '../../src/core/bot';
+import { OPPONENTS } from '../../src/core/opponents';
 
 let ids = 0;
 const options: ScreenOptions = {
@@ -93,7 +94,7 @@ test('every launch opens on the home screen, and resume is offered only when the
   assert.deepEqual(homeOptions(resumable(started())), [
     'Resume game',
     'New hotseat game',
-    'Play Random',
+    'Play the computer',
     'How to play',
     'Rules',
     'Sound: on',
@@ -101,7 +102,7 @@ test('every launch opens on the home screen, and resume is offered only when the
   ]);
   assert.deepEqual(homeOptions(false), [
     'New hotseat game',
-    'Play Random',
+    'Play the computer',
     'How to play',
     'Rules',
     'Sound: on',
@@ -148,15 +149,15 @@ test('starting over an unfinished game asks first, and Cancel keeps it', () => {
   assert.equal(replaced.overlay.kind, 'none');
 });
 
-test('cancelling a new bot game from the home screen returns there, on Play Random', () => {
+test('cancelling a new bot game from the home screen returns there, on Play the computer', () => {
   const home = initialState(options, started());
-  // Play Random, then Random as the colour, then the confirmation.
-  const asking = drive(home, 'down', 'down', 'select', 'select');
+  // Play the computer, Rolly, Random as the colour, then the confirmation.
+  const asking = drive(home, 'down', 'down', 'select', 'select', 'select');
   assert.equal(asking.overlay.kind, 'confirm');
   const cancelled = drive(asking, 'select');
   assert.deepEqual(cancelled.overlay, {
     kind: 'home',
-    index: homeOptions(true).indexOf('Play Random'),
+    index: homeOptions(true).indexOf('Play the computer'),
   });
   assert.deepEqual(cancelled.game.moves, ['b1c3']);
 });
@@ -269,8 +270,8 @@ test('menu navigation wraps in both directions', () => {
   assert.equal(forward.overlay.kind === 'menu' ? forward.overlay.index : -1, 0);
 });
 
-test('Play Random starts a game the local opponent plays as Black', () => {
-  const started = drive(fresh(), 'down', 'select', 'select');
+test('Play the computer, then Rolly, starts a game the local opponent plays as Black', () => {
+  const started = drive(fresh(), 'down', 'select', 'select', 'select');
   assert.equal(started.game.mode, 'random');
   assert.equal(started.overlay.kind, 'none');
   // White is the player, so the opponent owes nothing yet.
@@ -279,7 +280,7 @@ test('Play Random starts a game the local opponent plays as Black', () => {
 
 test('the opponent takes its whole turn and hands back to the player', () => {
   // Start Random, then play White's turn out to the handoff.
-  let state = drive(fresh(), 'down', 'select', 'select', 'select');
+  let state = drive(fresh(), 'down', 'select', 'select', 'select', 'select');
   while (state.game.phase === 'move') {
     const legal = viewGame(state.game).legal;
     const move = legal[0];
@@ -299,7 +300,7 @@ test('the opponent takes its whole turn and hands back to the player', () => {
 });
 
 test('the board ignores play input while the opponent owes an action', () => {
-  let state = drive(fresh(), 'down', 'select', 'select', 'select');
+  let state = drive(fresh(), 'down', 'select', 'select', 'select', 'select');
   while (state.game.phase === 'move') {
     const move = viewGame(state.game).legal[0];
     state = play(state, move);
@@ -315,7 +316,7 @@ test('the board ignores play input while the opponent owes an action', () => {
 });
 
 test('a draw cannot be agreed with the opponent, only with another player', () => {
-  const random = drive(fresh(), 'down', 'select', 'select');
+  const random = drive(fresh(), 'down', 'select', 'select', 'select');
   assert.deepEqual(menuOptions(random.game), [
     'Resume',
     'Resign',
@@ -345,7 +346,7 @@ const settleSteps = (
 // A game in Random mode handed to Black, with a roll the opponent can spend in
 // full: three pawns always have somewhere to go from the opening.
 const handedToBot = (): ScreenState => {
-  let state = drive(fresh(), 'down', 'select', 'select', 'select');
+  let state = drive(fresh(), 'down', 'select', 'select', 'select', 'select');
   while (state.game.phase === 'move') {
     const move = viewGame(state.game).legal[0];
     state = play(state, move);
@@ -439,8 +440,8 @@ test('a new game keeps the sound setting', () => {
 
 // ── The colour against the bot (#53) ───────────────────────────────────────────
 
-test('Play Random opens the choice of colour, on Random', () => {
-  const choosing = drive(fresh(), 'down', 'select');
+test('choosing an opponent opens the choice of colour, on Random', () => {
+  const choosing = drive(fresh(), 'down', 'select', 'select');
   assert.equal(choosing.overlay.kind, 'colour');
   assert.equal('index' in choosing.overlay && choosing.overlay.index, 0);
   assert.deepEqual(colourOptions, ['Random', 'White', 'Black']);
@@ -455,24 +456,36 @@ test('Random takes the drawn colour; White and Black are taken as chosen', () =>
       (state, key) => screenReducer(state, { kind: 'key', key }, drawsBlack),
       initialState(drawsBlack),
     );
-  assert.equal(choose('down', 'select', 'select').game.human, 'b');
-  assert.equal(choose('down', 'select', 'down', 'select').game.human, 'w');
+  assert.equal(choose('down', 'select', 'select', 'select').game.human, 'b');
   assert.equal(
-    choose('down', 'select', 'down', 'down', 'select').game.human,
+    choose('down', 'select', 'select', 'down', 'select').game.human,
+    'w',
+  );
+  assert.equal(
+    choose('down', 'select', 'select', 'down', 'down', 'select').game.human,
     'b',
   );
 });
 
-test('Back from the choice returns to Play Random on the home screen', () => {
-  const back = drive(fresh(), 'down', 'select', 'back');
-  assert.deepEqual(back.overlay, {
+test('Back from the colour returns to the cards, and from the cards to Play the computer', () => {
+  const cards = drive(fresh(), 'down', 'select', 'right', 'select', 'back');
+  assert.deepEqual(cards.overlay, { kind: 'opponent', index: 1, from: 'home' });
+  assert.deepEqual(drive(cards, 'back').overlay, {
     kind: 'home',
-    index: homeOptions(false).indexOf('Play Random'),
+    index: homeOptions(false).indexOf('Play the computer'),
   });
 });
 
 test('playing Black: the bot opens, the cursor starts on e7, and the arrows follow the turned board', () => {
-  const black = drive(fresh(), 'down', 'select', 'down', 'down', 'select');
+  const black = drive(
+    fresh(),
+    'down',
+    'select',
+    'select',
+    'down',
+    'down',
+    'select',
+  );
   assert.equal(black.game.human, 'b');
   assert.equal(black.focus.cursor, 'e7');
   assert.equal(
@@ -498,7 +511,7 @@ test('playing Black: the bot opens, the cursor starts on e7, and the arrows foll
 
 test('replacing a game in play asks after the colour, and keeps the choice', () => {
   const inPlay = initialState(options, started());
-  const choosing = drive(inPlay, 'down', 'down', 'select');
+  const choosing = drive(inPlay, 'down', 'down', 'select', 'select');
   assert.equal(choosing.overlay.kind, 'colour');
   const confirming = drive(choosing, 'down', 'down', 'select');
   assert.equal(confirming.overlay.kind, 'confirm');
@@ -507,8 +520,18 @@ test('replacing a game in play asks after the colour, and keeps the choice', () 
   assert.equal(replaced.game.human, 'b');
 });
 
-test('New game from the menu of a bot game asks for the colour again', () => {
-  const white = drive(fresh(), 'down', 'select', 'select');
+test('New game from the menu of a bot game opens the cards on that opponent', () => {
+  // Grabby, the second card, as White.
+  const white = drive(
+    fresh(),
+    'down',
+    'select',
+    'right',
+    'select',
+    'down',
+    'select',
+  );
+  assert.equal(white.game.mode, 'greedy');
   const menu = drive(white, 'back');
   const at = menuOptions(white.game).indexOf('New game');
   const choosing = drive(
@@ -517,9 +540,8 @@ test('New game from the menu of a bot game asks for the colour again', () => {
     'select',
   );
   assert.deepEqual(choosing.overlay, {
-    kind: 'colour',
-    index: 0,
-    mode: 'random',
+    kind: 'opponent',
+    index: 1,
     from: 'menu',
   });
   // Back returns to the menu, on New game.
@@ -593,9 +615,9 @@ const resign = (opts: ScreenOptions, state: ScreenState): ScreenState =>
   driveWith(opts, state, 'back', 'down', 'select', 'down', 'select');
 
 test('a game against the bot ends on the offer of a rematch, with Rematch first', () => {
-  // Play Random as Black; the bot, White, opens.
+  // Rolly, as Black; the bot, White, opens.
   const black = settle(
-    drive(fresh(), 'down', 'select', 'down', 'down', 'select'),
+    drive(fresh(), 'down', 'select', 'select', 'down', 'down', 'select'),
   );
   assert.equal(black.game.human, 'b');
   assert.equal(black.game.colour, 'b');
@@ -619,7 +641,14 @@ test('a game against the bot ends on the offer of a rematch, with Rematch first'
 test('a rematch after Random draws the colour again', () => {
   const draws: Side[] = ['w', 'b'];
   const opts: ScreenOptions = { ...options, side: () => draws.shift() ?? 'w' };
-  const white = driveWith(opts, initialState(opts), 'down', 'select', 'select');
+  const white = driveWith(
+    opts,
+    initialState(opts),
+    'down',
+    'select',
+    'select',
+    'select',
+  );
   assert.equal(white.game.human, 'w');
   assert.equal(white.game.colour, 'random');
 
@@ -629,7 +658,10 @@ test('a rematch after Random draws the colour again', () => {
 });
 
 test('Main menu and Back leave a result for the main menu', () => {
-  const over = resign(options, drive(fresh(), 'down', 'select', 'select'));
+  const over = resign(
+    options,
+    drive(fresh(), 'down', 'select', 'select', 'select'),
+  );
   assert.deepEqual(drive(over, 'down', 'select').overlay, {
     kind: 'home',
     index: 0,
@@ -759,4 +791,57 @@ test('the opponent holds a roll with nothing to play longer; its other steps kee
   assert.ok(partial && partial.game.moves.length > 0);
   for (const state of steps.filter((s) => botToAct(s.game)))
     assert.equal(botWait(state.game), BOT_STEP_MS);
+});
+
+// ── The choice of opponent (#115) ─────────────────────────────────────────────
+
+test('Play the computer opens the cards on the first, and the arrows walk them, wrapping', () => {
+  const cards = drive(fresh(), 'down', 'select');
+  assert.deepEqual(cards.overlay, { kind: 'opponent', index: 0, from: 'home' });
+  const at = (...keys: BoardKey[]) => {
+    const { overlay } = drive(cards, ...keys);
+    return overlay.kind === 'opponent' ? overlay.index : -1;
+  };
+  assert.equal(at('right'), 1);
+  assert.equal(at('right', 'right'), 2);
+  assert.equal(at('right', 'right', 'right'), 0);
+  assert.equal(at('left'), 2);
+  // Nothing has started yet.
+  assert.equal(cards.game.mode, 'hotseat');
+});
+
+test('each card starts a game against its own opponent', () => {
+  OPPONENTS.forEach((opponent, i) => {
+    const moves = Array(i).fill('right') as BoardKey[];
+    const { game } = drive(
+      fresh(),
+      'down',
+      'select',
+      ...moves,
+      'select',
+      'select',
+    );
+    assert.equal(game.mode, opponent.mode, opponent.name);
+    assert.equal(game.human, 'w');
+  });
+});
+
+test('a rematch keeps the opponent, and the cards open on it next time', () => {
+  // Rampage, the last card, reached by wrapping left; White; then resign.
+  const rampage = drive(
+    fresh(),
+    'down',
+    'select',
+    'left',
+    'select',
+    'down',
+    'select',
+  );
+  assert.equal(rampage.game.mode, 'aggressive');
+  const over = resign(options, rampage);
+  assert.equal(drive(over, 'select').game.mode, 'aggressive');
+
+  // Main menu, then Play the computer: the cards open on Rampage.
+  const cards = drive(over, 'down', 'select', 'down', 'select');
+  assert.deepEqual(cards.overlay, { kind: 'opponent', index: 2, from: 'home' });
 });

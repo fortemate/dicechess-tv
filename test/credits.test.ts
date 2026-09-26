@@ -44,10 +44,15 @@ test('every credit is complete and readable from a sofa', () => {
   assert.ok(APP.title.length > 0 && APP.maker.length > 0);
 });
 
-test('the pieces are credited to their author even though CC0 asks for nothing', () => {
-  const pieces = CREDITS.find((credit) => credit.subject === 'Chess pieces');
-  assert.ok(pieces, 'the pieces must be credited');
-  assert.match(pieces.line, /RhosGFX/);
+test('the pieces and the faces are credited to their author even though CC0 asks for nothing', () => {
+  const rhosgfx = CREDITS.find(
+    (credit) => credit.subject === 'Pieces and opponent faces',
+  );
+  assert.ok(rhosgfx, 'the pieces and the faces must be credited');
+  assert.match(rhosgfx.line, /RhosGFX/);
+  // Four cards fill the About screen's two columns without leaving the
+  // television's safe area.
+  assert.equal(CREDITS.length, 4);
 });
 
 test('every vendored sound pack is credited as its manifest asks', () => {

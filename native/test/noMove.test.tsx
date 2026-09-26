@@ -132,8 +132,8 @@ test('against the bot both sides’ empty rolls are announced, and the bot holds
   reset();
   const clock = scheduler();
   const tree = launch(optionsFor([5, 4, 6], clock), recorder());
-  // Play Random, on Random, which draws White; then roll.
-  send('down', 'enter', 'enter', 'enter');
+  // Play the computer, Rolly, on Random, which draws White; then roll.
+  send('down', 'enter', 'enter', 'enter', 'enter');
   assert.match(text(tree.root), /No legal moves · you/);
   assert.deepEqual(clock.waits(), [OK_GUARD_MS]);
   clock.next();
@@ -145,7 +145,7 @@ test('against the bot both sides’ empty rolls are announced, and the bot holds
   const shown = text(tree.root);
   assert.match(shown, /No legal moves/);
   assert.doesNotMatch(shown, /No legal moves · you/);
-  assert.match(shown, /Random is playing/);
+  assert.match(shown, /Rolly is playing/);
   assert.ok(shown.includes(NO_MOVE_LINE));
   // Its pass waits longer, so the notice can be read first.
   assert.deepEqual(clock.waits(), [PASS_HOLD_MS]);
