@@ -24,6 +24,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 | App stack        | React Native 0.83 through `@amazon-devices/react-native-kepler` 4.0.x, React 19.2, Hermes |
 | Vega packages    | `react-native-svg` 3.0.x, `react-native-mmkv` 1.0.x, `react-native-w3cmedia` 2.3.2        |
 | Lint             | `@amazon-devices/eslint-plugin-kepler` 0.1.15                                             |
+| Agent tools      | `@amazon-devices/amazon-devices-buildertools-mcp` 1.0.13                                  |
 
 ## Summary
 
@@ -50,6 +51,9 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 | [FL-19](#fl-19) | Declaring `inputd.service`, as the TV guidance says, crashes the app on 0.24 | Manifest, docs                    | High     | Worked around |
 | [FL-20](#fl-20) | The KPI Visualizer fails an offline app on network calls                     | Performance tools                 | Low      | Open          |
 | [FL-21](#fl-21) | Warm-start KPIs cannot be measured on the Virtual Device                     | Performance tools, Virtual Device | Medium   | Open          |
+| [FL-22](#fl-22) | The Builder Tools telemetry switch is undocumented and shared with the SDK   | Agent tools, docs                 | Medium   | Worked around |
+| [FL-23](#fl-23) | The Builder Tools installer registers its server at `@latest`                | Agent tools                       | Medium   | Worked around |
+| [FL-24](#fl-24) | The Builder Tools page lists an agent option and tools the package lacks     | Agent tools, docs                 | Low      | Worked around |
 
 ## Entries
 
@@ -330,13 +334,15 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   rules by hand. Its project-level advisories (for example a missing `useReportFullyDrawn`) print only
   through its own formatter, whose HTML report crashes under a flat config. It writes a `generated/`
   directory on every run, and `sdl-package-version-check-imports` reports every import of a
-  system-distributed library ("This is not an error"). Evidence:
+  system-distributed library ("This is not an error"). The
+  [plugin page](https://developer.amazon.com/docs/vega/0.24/eslint-plugin.html) documents 7 of its
+  17 rules and 2 of its 6 presets, and only eslintrc configuration (checked on 2026-09-26). Evidence:
   [native/eslint.config.mjs](https://github.com/fortemate/dicechess-tv/blob/5bc2357dd9489380a1f46f0e48b9d3be9ed1d498/native/eslint.config.mjs),
   [PR #47](https://github.com/fortemate/dicechess-tv/pull/47).
 - **Severity and user impact:** Medium. ESLint is held at 9, and the advisories are easy to miss.
 - **Workaround:** ESLint 9, the rules spread into the flat config by hand, the informational rule off.
-- **Suggested improvement:** use `context.sourceCode`, publish a flat-config preset, and report
-  advisories as ordinary lint messages.
+- **Suggested improvement:** use `context.sourceCode`, publish a flat-config preset, report
+  advisories as ordinary lint messages, and document every rule and preset the package ships.
 - **Current status:** worked around.
 
 ### FL-15 · Routine dependency updates break the build or downgrade the SDK {#fl-15}
@@ -496,6 +502,72 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 - **Suggested improvement:** detect the launcher on the target device, or accept it as a parameter.
 - **Current status:** open.
 
+### FL-22 · The Builder Tools telemetry switch is undocumented and shared with the SDK {#fl-22}
+
+- **Date and environment:** 2026-09-26 · MacBook Air · Node 26.8.
+- **Tool / SDK / component version:** `@amazon-devices/amazon-devices-buildertools-mcp` 1.0.13; Vega SDK
+  0.24.12112.
+- **User task:** install Amazon's MCP server for a coding agent with telemetry turned off.
+- **Minimal reproduction steps:** read the
+  [MCP server page](https://developer.amazon.com/docs/vega/0.24/mcp-server.html) and the package README
+  for a way to turn telemetry off.
+- **Expected result:** a documented switch: a flag, an environment variable or a setting.
+- **Actual result and evidence:** the page says "You can disable telemetry collection in the
+  settings" but names no setting, and the README does not mention telemetry. The package's code reads
+  `optIn` from `~/vega/telemetry/config.json`, the Vega SDK's own telemetry file, which the Vega CLI
+  reads too and has no command for. On our development machine it said `"optIn": true`. Evidence: the
+  telemetry note in [CONTRIBUTING.md](https://github.com/fortemate/dicechess-tv/blob/6b67670fe2e2544bb6ead686d38856b66c27a733/CONTRIBUTING.md#amazons-tools-for-coding-agents).
+- **Severity and user impact:** Medium. A developer who wants telemetry off cannot find the switch, and
+  turning it off for the server also turns it off for the SDK, which no page says.
+- **Workaround:** set `"optIn": false` in `~/vega/telemetry/config.json`.
+- **Suggested improvement:** name the file and key on both pages, give the Vega CLI a command for it,
+  and ask about telemetry when the SDK or the server is installed.
+- **Current status:** worked around.
+
+### FL-23 · The Builder Tools installer registers its server at `@latest` {#fl-23}
+
+- **Date and environment:** 2026-09-26 · MacBook Air · Node 26.8 · Claude Code.
+- **Tool / SDK / component version:** `@amazon-devices/amazon-devices-buildertools-mcp` 1.0.13.
+- **User task:** add Amazon's MCP server and its agent skills to a project, at a version we reviewed.
+- **Minimal reproduction steps:** run
+  `npx -y @amazon-devices/amazon-devices-buildertools-mcp@1.0.13 init-context --agent claude-code-cli --skip-context-document`,
+  then read the server entry it writes to `~/.claude.json`.
+- **Expected result:** the server registered at the version that was installed, and a way to install
+  the skills alone.
+- **Actual result and evidence:** the entry runs
+  `npx -y @amazon-devices/amazon-devices-buildertools-mcp@latest`, whatever version the command itself
+  named. Every start of the agent therefore fetches and runs the newest release, code nobody on the
+  project has reviewed, with the agent's permissions. The entry is also user-wide, for every project.
+  There is no skills-only mode: skipping both the context document and the server entry stops with
+  "Nothing to do", so the skills always come with one of them. Evidence: the pinned
+  [.mcp.json](https://github.com/fortemate/dicechess-tv/blob/6b67670fe2e2544bb6ead686d38856b66c27a733/.mcp.json) and the setup steps in [CONTRIBUTING.md](https://github.com/fortemate/dicechess-tv/blob/6b67670fe2e2544bb6ead686d38856b66c27a733/CONTRIBUTING.md#amazons-tools-for-coding-agents).
+- **Severity and user impact:** Medium. Unreviewed updates run silently in a tool with wide access.
+- **Workaround:** register the server again at a fixed version (`claude mcp add … @1.0.13`), or remove
+  the user-wide entry and pin the version in the project's `.mcp.json`.
+- **Suggested improvement:** write the version that was installed, offer a `--skills-only` option,
+  and say in the page that the entry applies to every project.
+- **Current status:** worked around.
+
+### FL-24 · The Builder Tools page lists an agent option and tools the package lacks {#fl-24}
+
+- **Date and environment:** 2026-09-26 · MacBook Air · Node 26.8.
+- **Tool / SDK / component version:** `@amazon-devices/amazon-devices-buildertools-mcp` 1.0.13; the
+  [MCP server page](https://developer.amazon.com/docs/vega/0.24/mcp-server.html) for SDK 0.24.
+- **User task:** set the server up for Claude Code in its desktop app, as the page describes.
+- **Minimal reproduction steps:** look for the `claude-code-desktop` agent the page lists in the
+  package's own list of agents; compare the page's list of tools with the server's answer to
+  `tools/list`.
+- **Expected result:** the option exists, and the tools match.
+- **Actual result and evidence:** 1.0.13 has no `claude-code-desktop` agent. Its `claude-code-cli`
+  agent writes `~/.claude.json`, which the desktop app's Code tab reads too. The page lists seven
+  tools; the server answers with nine, adding `report_workflow_status` and `set_project_context`.
+- **Severity and user impact:** Low. An agent option from the page fails, and two tools go
+  undocumented.
+- **Workaround:** `--agent claude-code-cli` for either kind of Claude Code.
+- **Suggested improvement:** keep the page in step with each release, or generate its lists from the
+  package.
+- **Current status:** worked around.
+
 ## What worked well
 
 Amazon asks for the whole experience, so the good parts belong here too:
@@ -511,3 +583,5 @@ Amazon asks for the whole experience, so the good parts belong here too:
 - HTTPS requests and a WebSocket worked without any manifest entry: unlike the audio services in
   [FL-18](#fl-18), no connection was refused
   ([#80](https://github.com/fortemate/dicechess-tv/issues/80)).
+- Amazon's Builder Tools MCP installed with one command and started under Node 26, offering a coding
+  agent documentation search, trace analysis and crash symbolication.
