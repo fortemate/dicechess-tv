@@ -1,0 +1,293 @@
+---
+// The colour-vision check (#108): six board pictures, three marks for the
+// pieces that can move (#105), and two questions. It is unlisted: nothing on
+// the site links to it, it is left out of the sitemap and the search, and it
+// asks search engines not to index it. The owner hands its address to people
+// directly. The pictures and how an answer is scored are in ../check/items.ts.
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+import icon from '../../../native/icon/icon-512.png';
+import { ITEMS, SCREEN, VISION, squareName } from '../check/items';
+import '../check/tester.css';
+
+const files = import.meta.glob<{ default: ImageMetadata }>(
+  '../assets/check/*.png',
+  { eager: true },
+);
+function picture(name: string) {
+  const file = files[`../assets/check/${name}.png`];
+  if (!file) throw new Error(`No picture ${name} in src/assets/check/`);
+  return file.default;
+}
+
+const cells = Array.from({ length: 64 }, (_, cell) => cell);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Can you spot the marks? · Dice Chess TV</title>
+    <link rel="icon" href={icon.src} type="image/png" />
+  </head>
+  <body>
+    <main class="tester">
+      <p class="kicker">Dice Chess TV</p>
+      <h1>Can you spot the marks?</h1>
+
+      <section data-step="intro">
+        <p>
+          Dice Chess for Fire TV marks the pieces a player can move. We are
+          checking that everyone can see the mark, including people who are
+          colour-blind. It takes about three minutes.
+        </p>
+        <ol>
+          <li>Turn off night mode and any blue-light filter on your screen.</li>
+          <li>
+            On each of six boards, tap every piece that is marked as able to
+            move.
+          </li>
+          <li>Two squares are tinted to show the last move. Leave those.</li>
+        </ol>
+        <p class="note">
+          The blue frame is the cursor of the TV remote. It always sits on one
+          of the pieces that can move.
+        </p>
+        <button type="button" class="primary" data-action="start">
+          Start
+        </button>
+      </section>
+
+      {ITEMS.map((item) => {
+        const legend = item.variant.toLowerCase();
+        return (
+          <section data-step="picture" data-item={item.id} hidden>
+            <p class="progress">
+              Board <span data-slot="number" /> of {ITEMS.length}
+            </p>
+            <div class="board">
+              <Image
+                src={picture(item.id)}
+                alt=""
+                widths={[456, 912]}
+                sizes="(max-width: 624px) calc(100vw - 32px), 560px"
+                loading="eager"
+              />
+              <div class="squares">
+                {cells.map((cell) => (
+                  <button
+                    type="button"
+                    aria-pressed="false"
+                    aria-label={squareName(cell)}
+                    data-cell={cell}
+                  />
+                ))}
+              </div>
+            </div>
+            <div class="legend">
+              <div>
+                Can move:
+                <Image
+                  src={picture(`${legend}-legend-move-light`)}
+                  alt="on a light square"
+                  loading="eager"
+                />
+                <Image
+                  src={picture(`${legend}-legend-move-dark`)}
+                  alt="on a dark square"
+                  loading="eager"
+                />
+              </div>
+              <div>
+                Last move:
+                <Image
+                  src={picture(`${legend}-legend-last-light`)}
+                  alt="on a light square"
+                  loading="eager"
+                />
+                <Image
+                  src={picture(`${legend}-legend-last-dark`)}
+                  alt="on a dark square"
+                  loading="eager"
+                />
+              </div>
+            </div>
+            <p class="note">
+              Tap the marked pieces, then press Next. Tap again to undo. If you
+              see no marks, just press Next.
+            </p>
+            <button type="button" class="primary" data-action="next">
+              Next
+            </button>
+          </section>
+        );
+      })}
+
+      <section data-step="questions" hidden>
+        <h2>Two last questions</h2>
+        <form data-form="questions">
+          <fieldset>
+            <legend>Are you colour-blind?</legend>
+            {VISION.map(([value, label]) => (
+              <label>
+                <input type="radio" name="vision" value={value} required />
+                {label}
+              </label>
+            ))}
+          </fieldset>
+          <fieldset>
+            <legend>Which screen are you using?</legend>
+            {SCREEN.map(([value, label]) => (
+              <label>
+                <input type="radio" name="screen" value={value} required />
+                {label}
+              </label>
+            ))}
+          </fieldset>
+          <input
+            class="trap"
+            name="website"
+            tabindex="-1"
+            autocomplete="off"
+            aria-hidden="true"
+          />
+          <p class="note">
+            Send stores your answers in the project's private spreadsheet: the
+            squares you tapped and these two answers. There is no name, email or
+            IP address in them, and nothing is sent before you press Send.
+          </p>
+          <button type="submit" class="primary">
+            Send
+          </button>
+        </form>
+      </section>
+
+      <section data-step="done" hidden>
+        <h2>Thank you!</h2>
+        <p>Your answers have arrived. You can close this page.</p>
+      </section>
+
+      <section data-step="fallback" hidden>
+        <h2>One more step</h2>
+        <p>
+          This page could not send your answers. Please copy this code and send
+          it to the person who gave you the link.
+        </p>
+        <textarea class="code" readonly data-slot="code"></textarea>
+        <p>
+          <button type="button" class="secondary" data-action="copy">
+            Copy the code
+          </button>
+        </p>
+      </section>
+    </main>
+
+    <script>
+      import {
+        ITEMS,
+        encodeAnswers,
+        scoreAnswers,
+        type CheckAnswers,
+      } from '../check/items';
+      import { send } from '../check/send';
+
+      const $ = <T extends Element>(
+        selector: string,
+        root: ParentNode = document,
+      ) => {
+        const found = root.querySelector<T>(selector);
+        if (!found) throw new Error(`Missing ${selector}`);
+        return found;
+      };
+      const steps = [...document.querySelectorAll<HTMLElement>('[data-step]')];
+      function show(step: HTMLElement) {
+        for (const each of steps) each.hidden = each !== step;
+        window.scrollTo(0, 0);
+      }
+
+      // A new order for every visit, so that no picture is always seen first.
+      const order = ITEMS.map((item) => item.id);
+      for (let i = order.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [order[i], order[j]] = [order[j], order[i]];
+      }
+      const pictures = order.map((id) =>
+        $<HTMLElement>(`[data-step="picture"][data-item="${id}"]`),
+      );
+
+      let shown = -1;
+      function next() {
+        shown++;
+        show(
+          shown < pictures.length
+            ? pictures[shown]
+            : $<HTMLElement>('[data-step="questions"]'),
+        );
+      }
+
+      $('[data-action="start"]').addEventListener('click', next);
+      pictures.forEach((section, index) => {
+        $('[data-slot="number"]', section).textContent = String(index + 1);
+        $('[data-action="next"]', section).addEventListener('click', next);
+        for (const square of section.querySelectorAll('[data-cell]')) {
+          square.addEventListener('click', () =>
+            square.setAttribute(
+              'aria-pressed',
+              String(square.getAttribute('aria-pressed') !== 'true'),
+            ),
+          );
+        }
+      });
+
+      const tapped = (id: string) =>
+        [
+          ...document.querySelectorAll<HTMLElement>(
+            `[data-item="${id}"] [data-cell][aria-pressed="true"]`,
+          ),
+        ].map((square) => Number(square.dataset.cell));
+
+      const form = $<HTMLFormElement>('[data-form="questions"]');
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const fields = new FormData(form);
+        const answers: CheckAnswers = {
+          v: 1,
+          vision: String(fields.get('vision')),
+          screen: String(fields.get('screen')),
+          order,
+          taps: Object.fromEntries(order.map((id) => [id, tapped(id)])),
+        };
+        const button = $<HTMLButtonElement>('button[type="submit"]', form);
+        button.disabled = true;
+        button.textContent = 'Sending…';
+        const sent = await send({
+          kind: 'check',
+          ...answers,
+          score: scoreAnswers(answers.taps),
+          website: String(fields.get('website') ?? ''),
+        });
+        if (sent) {
+          show($<HTMLElement>('[data-step="done"]'));
+          return;
+        }
+        $<HTMLTextAreaElement>('[data-slot="code"]').value =
+          encodeAnswers(answers);
+        show($<HTMLElement>('[data-step="fallback"]'));
+      });
+
+      $('[data-action="copy"]').addEventListener('click', async (event) => {
+        const code = $<HTMLTextAreaElement>('[data-slot="code"]');
+        const button = event.currentTarget as HTMLButtonElement;
+        try {
+          await navigator.clipboard.writeText(code.value);
+          button.textContent = 'Copied';
+        } catch {
+          code.select();
+          button.textContent = 'Select the code and copy it';
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -16,4 +16,24 @@ export default tseslint.config(
     files: ['test/**', 'scripts/**', 'site/*.mjs', 'site/scripts/**'],
     languageOptions: { globals: globals.node },
   },
+  {
+    // The answers sheet's Apps Script (site/answers-sheet/README.md). Google
+    // runs it as a classic script, provides these services as globals, and
+    // calls doGet and doPost by name.
+    files: ['site/answers-sheet/**'],
+    languageOptions: {
+      sourceType: 'script',
+      globals: {
+        ContentService: 'readonly',
+        LockService: 'readonly',
+        SpreadsheetApp: 'readonly',
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { varsIgnorePattern: '^do(Get|Post)$' },
+      ],
+    },
+  },
 );

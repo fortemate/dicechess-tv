@@ -2,6 +2,7 @@
 import { existsSync, readdirSync } from 'node:fs';
 import { defineConfig } from 'astro/config';
 import { satteri } from '@astrojs/markdown-satteri';
+import sitemap from '@astrojs/sitemap';
 import starlight from '@astrojs/starlight';
 
 const REPOSITORY = 'https://github.com/fortemate/dicechess-tv';
@@ -20,6 +21,11 @@ const SITE_MAP = [
   { label: 'Build & contribute', directory: 'contribute' },
   { label: 'Roadmap', directory: 'roadmap' },
 ];
+
+// The tester pages of #108 and #109. They are unlisted: nothing links to them,
+// the owner hands their addresses to people, and they are kept out of the
+// sitemap here (and ask search engines not to index them).
+const UNLISTED = ['/check/', '/feedback/'];
 
 /** @param {string} directory */
 function hasPages(directory) {
@@ -66,6 +72,11 @@ export default defineConfig({
           items: [{ autogenerate: { directory } }],
         }),
       ),
+    }),
+    // Starlight adds this integration itself unless the configuration already
+    // has it; it is added here only to leave the tester pages out.
+    sitemap({
+      filter: (page) => !UNLISTED.some((path) => page.endsWith(path)),
     }),
   ],
 });

@@ -62,6 +62,12 @@ jobs:
       - name: Build
         run: npm run build
         working-directory: site
+        env:
+          # Where the tester pages send their answers: the owner's answers
+          # sheet (site/answers-sheet/README.md). A web-app URL, not a secret:
+          # every visitor's browser reads it from the page. Without it the
+          # pages send nothing.
+          PUBLIC_FEEDBACK_URL: ${{ vars.FEEDBACK_URL }}
 
       - name: Upload the site
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
