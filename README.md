@@ -15,7 +15,7 @@ Also done: sound for every step of the game — chosen by ear, heard on the virt
 
 ## Try it
 
-It needs the Vega SDK 0.24 and either a Vega Virtual Device or a Fire TV Stick in developer mode; [native/README.md](native/README.md#building-and-running) explains the setup.
+It needs the Vega SDK 0.24 and either a Vega Virtual Device or a Fire TV Stick in developer mode; [native/README.md](native/README.md#building-and-running) explains the setup. To play a pre-release package without building it, follow [docs/playtest.md](docs/playtest.md).
 
 ```bash
 npm ci && npm ci --prefix native
