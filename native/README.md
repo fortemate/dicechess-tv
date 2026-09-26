@@ -84,12 +84,55 @@ launches in 227 ms with no crash record.
 
 ### What `npm audit` reports, and why it is not shipped
 
-`npm audit` reports 20 findings here, 17 of them outside `devDependencies`. None
-of them reach the device. The built package holds our Hermes bundle,
-`libreact-native-mmkv-kepler.so` and metadata, and nothing else: `minimatch`,
-`toml`, `braces` and `micromatch` each appear in it zero times. They are pulled
-in by the manifest builder and the React Native CLI, which run on the developer's
-machine.
+`npm audit` reports 22 findings here, 17 of them outside `devDependencies`: six
+packages with eleven advisories between them — `lodash`, `minimatch`, `toml`,
+`ajv`, `fast-xml-parser` and `uuid` — and the sixteen packages that depend on
+them. None of them reaches the device. The built package holds our bundle (as
+JavaScript and as Hermes bytecode), the icon, splash and sounds,
+`libreact-native-mmkv-kepler.so` and metadata, and nothing else. The build's
+source map for that bundle lists 141 modules, because React Native and the
+other system-deployed libraries are left to the device, and not one comes from
+these six packages or from the packages that pull them in.
+
+They are Vega and React Native tooling, and on the developer's machine none of
+them runs the vulnerable code on input from outside this repository. Checked on
+2026-09-26 with SDK 0.24.12112, by reading each call site and by logging every
+copy that `check`, `lint`, `test`, the bundle, the build and the Metro dev
+server load:
+
+- `lodash` 4.17.21 and 4.17.23 come from `kepler-cli-platform`, the manifest
+  builder and `@microsoft/api-extractor`. The build calls `merge`, `isEmpty`
+  and `isNil`; the advisories are about `template`, `unset` and `omit`.
+- `minimatch` 3.0.8 comes from `@microsoft/api-extractor`, `test-exclude` and
+  `node-dir`, and never loads. The copies ESLint and `glob` load, 3.1.5 and
+  10.2.6, are fixed versions.
+- `toml` 3.0.0 parses our own `manifest.toml`: in the manifest builder during a
+  build, and in Amazon's ESLint plugin during lint. The advisories need a
+  crafted TOML document. The plugin carries its own compiled copy of the
+  parser, so no change to the installed package reaches it.
+- `ajv` 8.12.0 and 8.13.0 come from `@microsoft/api-extractor` and never load.
+  The advisory also needs the `$data` option, which neither caller enables.
+- `fast-xml-parser` 4.5.7 comes from the React Native CLI, which constructs an
+  `XMLParser` when it starts and never uses `XMLBuilder`, the part the advisory
+  is about.
+- `uuid` 11.0.5 belongs to the formatter of Amazon's ESLint plugin, which
+  `npm run lint` does not use and which calls only `v4()`. The advisory is
+  about `v3`, `v5` and `v6` writing into a caller's buffer.
+
+Dependabot files some of these alerts as runtime ones because
+`@amazon-devices/react-native-kepler` lists `@microsoft/api-extractor`, a tool
+that documents TypeScript APIs, among its production dependencies. Nothing here
+runs it.
+
+No fixed version fits what the pulling packages accept. Amazon's packages pin
+`lodash`, `toml`, `uuid` and `@microsoft/api-extractor` (which holds `minimatch`,
+`ajv` and `lodash` back) to exact versions, and none of those Amazon packages
+has a newer release. `fast-xml-parser` 5 arrives only with React Native CLI
+20.1.2, a minor update, which `.github/dependabot.yaml` holds back for every
+SDK-matched package. Only npm `overrides` could apply the fixes. That works:
+with all six forced to fixed versions, every check passed and the built package
+was byte-identical apart from its signature. But it adds six packages to the
+install and changes nothing that untrusted input reaches, so none is applied.
 
 Do not run `npm audit fix --force` here. Its proposed remedy is to install
 `@amazon-devices/react-native-kepler@2.1.0` — the SDK 0.23 line, whose WebView
