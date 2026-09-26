@@ -9,3 +9,5 @@ export const G = host('G');
 export const Path = host('Path');
 export const Rect = host('Rect');
 export const Circle = host('Circle');
+export const Ellipse = host('Ellipse');
+export const Polygon = host('Polygon');

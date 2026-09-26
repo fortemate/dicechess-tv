@@ -31,4 +31,5 @@ native/sounds/** -text linguist-vendored
 # Written by scripts rather than by hand: collapsed in pull-request diffs and left
 # out of the language statistics. Change the script and regenerate instead.
 native/src/pieces/*.tsx linguist-generated
+native/src/faces/*.tsx  linguist-generated
 native/src/cueFiles.ts  linguist-generated

@@ -431,7 +431,7 @@ Two behaviours are carried over from the web probe deliberately:
 
 **Cancel calls the whole action off.** Cancel, or Back, on a confirmation
 returns to where the action began: the in-game menu, or the home screen with the
-cursor on the option that started it (a new hotseat game, or Play Random after
+cursor on the option that started it (a new hotseat game, or Play the computer after
 its colour choice). `native/test/screen.test.ts` covers all three paths. The two
 that start on the home screen fail against the earlier reducer, which always
 opened the in-game menu, over a game the player had not chosen to resume.
@@ -478,21 +478,75 @@ the press.
 Still for a Fire TV Stick (#10): how the safe area looks on a real television
 with overscan, and whether a real remote's press is long enough to see.
 
-## The local opponent
+## The local opponents
+
+**Three opponents** (#115), each an algorithm of the engine that the game's mode
+names:
+
+| Card    | Level  | Mode and engine algorithm | How it plays                             |
+| ------- | ------ | ------------------------- | ---------------------------------------- |
+| Rolly   | Easy   | `random`                  | Any legal turn, at random                |
+| Grabby  | Medium | `greedy`                  | Takes the most valuable piece it can     |
+| Rampage | Hard   | `aggressive`              | Hunts your pieces and goes for your king |
+
+The levels follow the engine's own difficulty rating for each algorithm
+(`DiceChess.getAvailableBots()`), and `test/opponents.test.ts` fails if a card
+ever promises more than the engine rates. A game saved before there were three
+has the mode `random` and resumes against Rolly. The words on the cards are in
+`src/core/opponents.ts`.
 
 `src/core/bot.ts` asks the engine for a complete legal path
-(`DiceChess.getBestMove(dfen, { algorithm: 'random' })`) rather than choosing
+(`DiceChess.getBestMove(dfen, { algorithm: game.mode })`) rather than choosing
 moves itself: only the engine can be trusted to obey maximal dice use and
-promotion restrictions. It is the same call the web worker makes. The reply goes
-through `applyBotReply`, which revalidates every action and rejects a stale or
-incomplete path.
+promotion restrictions. The reply goes through `applyBotReply`, which
+revalidates every action and rejects a stale or incomplete path.
 
-**No separate thread is involved, and none is needed for this opponent.** A
-random bot makes a handful of engine calls rather than a search, so the JS thread
-carries it without a visible pause. Running a _strong_ bot off the thread is a
-different question and still open: React Native has no Web Worker, Vega's
-headless tasks cannot be started by an app, and
-`@amazon-devices/react-native-worklets` is the untested candidate.
+**Choosing one.** Play the computer opens a screen of three cards
+(`src/OpponentScreen.tsx`), which takes the whole screen because the cards need
+the board's width. Each card shows:
+
+- the opponent's face;
+- its name and level, the level as filled and empty rings as well as a word;
+- one line on how it plays;
+- the person's record against it, one line per side played.
+
+The arrows walk the cards, OK goes on to the colour, and Back returns. New game in
+the menu of a game against the computer opens the cards on that opponent, and a
+rematch keeps it. The record of each opponent moved from the home screen to its
+card, which keeps the home screen short.
+
+Tests: `native/test/screen.test.ts` (the walk, which wraps; each card's own
+opponent; Back from the colour to the cards and on to Play the computer; New game
+and a rematch keeping the opponent) and `native/test/opponents.test.tsx` (what
+each card shows, and the focus). Checked on the virtual device on 26 September
+2026 with scripted key presses and a screenshot after each step: the cards opened
+on Rolly; OK on Grabby asked "Play Grabby as"; Back returned to the cards on
+Grabby, and Back again to Play the computer; and after a resigned game against
+Rampage, Main menu and Play the computer opened the cards on Rampage, whose card
+read "As Black: 0W 0D 1L".
+
+**The faces** are three RhosGFX Vector Emojis (CC0), the pieces' artist:
+Zany face for Rolly, Money mouth face for Grabby, Smiling face with horns for
+Rampage. `scripts/generate-faces.mjs` converts them into components in
+`src/faces/`, with the conversion the pieces use, now shared in
+`scripts/rhosgfx-svg.mjs`. The faces need `Ellipse` and `Polygon`, which the
+pieces do not. Both render on the virtual device.
+
+**No separate thread is involved, and none is needed for these opponents.** A
+probe build on the virtual device on 26 September 2026 timed each decision:
+
+| Opponent | Slowest decision | Over                             |
+| -------- | ---------------: | -------------------------------- |
+| Grabby   |           155 ms | 14 turns                         |
+| Rampage  |           339 ms | about two games, on a first roll |
+
+In Node, over 100 games each, the slowest were 48 ms and 38 ms. A decision
+runs as the opponent's step begins, so the slowest observed added about a third
+of a second to the 600 ms step. That is the most these runs saw, not a bound.
+The pacing is unchanged, and nothing has been measured on a Fire TV Stick yet. Running a _strong_ bot off the thread is a different question
+and still open: React Native has no Web Worker, Vega's headless tasks cannot be
+started by an app, and `@amazon-devices/react-native-worklets` is the untested
+candidate.
 
 Its steps — roll, play, hand over — are scheduled 600 ms apart rather than
 looped, so the player watches the turn happen. After a roll with nothing to play
@@ -535,20 +589,23 @@ against the same opponent. A rematch keeps the colour option: White and Black
 stay, and Random draws a side again. It is a new game, saved and counted like
 any other, and the finished one is counted once. Hotseat results keep their
 flow: OK goes back to the main menu, since the app cannot know who sat where.
-The bot's turn shows "Random is playing…" in the prompt instead of an OK that
-does nothing, which also keeps the headline to one line. Tests:
+The opponent's turn shows its name in the prompt, "Rolly is playing…", instead
+of an OK that does nothing, which also keeps the headline to one line. Tests:
 `native/test/screen.test.ts` (the rematch, Random drawing again, Main menu and
-Back, hotseat, the bot taking the king) and `native/test/ledger.test.tsx` (the
-single count and the saved rematch). Checked on the virtual device on 25
-September: playing Black, the bot's turn read "White to play" and "Random is
-playing…"; resigning offered Rematch and Main menu; Rematch started a new game
-as Black; and a schema-3 save from the day before resumed.
+Back, hotseat, the bot taking the king), `native/test/ledger.test.tsx` (the
+single count and the saved rematch) and `native/test/noMove.test.tsx` (the
+prompt names Rolly). Checked on the virtual device on 25 September, before the
+opponents had names: playing Black, the bot's turn read "White to play" and
+"Random is playing…"; resigning offered Rematch and Main menu; Rematch started a
+new game as Black; and a schema-3 save from the day before resumed. On 26
+September, playing Black against Rampage, its turn read "VS RAMPAGE · TURN 1"
+and "Rampage is playing…".
 
-Verified on the virtual device on 24 September 2026 with scripted key presses
-and a screenshot after each step: Play Random opened the choice on Random;
-choosing Black turned the board and the bot played White's first turn; after the
-roll, Up moved the cursor from e7 to e6; and a relaunch resumed the game from
-Black's side with its dice.
+Verified on the virtual device on 24 September 2026, before the opponent cards,
+with scripted key presses and a screenshot after each step: Play Random, the home
+option then, opened the colour choice on Random; choosing Black turned the board
+and the bot played White's first turn; after the roll, Up moved the cursor from
+e7 to e6; and a relaunch resumed the game from Black's side with its dice.
 
 ### What this still leaves
 

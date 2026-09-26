@@ -1,6 +1,6 @@
 ---
 title: What it does
-description: 'A tour of Dice Chess for Fire TV: hotseat on one remote, the bot as either colour, the tutorial and the rules guide, saving, the record of completed games, sound and rematch.'
+description: 'A tour of Dice Chess for Fire TV: hotseat on one remote, three computer opponents as either colour, the tutorial and the rules guide, saving, the record of completed games, sound and rematch.'
 sidebar:
   order: 2
 ---
@@ -13,9 +13,19 @@ Two players share the remote and take turns. OK rolls three dice; the pieces the
 
 ![A hotseat game: Black's knight is picked up, its destinations are dotted, a capture is ringed, and three dice sit beside the board](../../../assets/screenshots/hotseat.png)
 
-## Against the bot, as either colour
+## Three opponents, as either colour
 
-A person alone plays the on-device bot, Random. It plays random legal turns, which makes it an easy opponent for learning, and it shows each turn one action at a time. Before the game you choose White or Black, or let Random pick a colour. Playing Black turns the board so that your pieces are at the bottom.
+![The choice of opponent: three cards, Rolly, Grabby and Rampage, each with a face, a level, a line on how it plays and your record against it](../../../assets/screenshots/opponents.png)
+
+A person alone plays one of three opponents that run on the TV. They are chosen on cards:
+
+- **Rolly** (Easy) plays random legal turns, an opponent for learning;
+- **Grabby** (Medium) takes the most valuable piece it can;
+- **Rampage** (Hard) hunts your pieces and goes for your king.
+
+Each is an algorithm of the Dice Chess rules engine, and each card shows your record against it. The faces are RhosGFX's Vector Emojis, by the artist of the pieces. Every opponent shows its turn one action at a time.
+
+Before the game you choose White or Black, or let the app pick a colour. Playing Black turns the board so that your pieces are at the bottom.
 
 ![The colour choice before a game against the bot: Random, White or Black](../../../assets/screenshots/play-as.png)
 

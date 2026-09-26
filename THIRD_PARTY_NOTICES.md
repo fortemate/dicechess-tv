@@ -6,12 +6,15 @@ Fortemate's code in this repository is licensed under AGPL-3.0-only (see [LICENS
 | -------------------------------------------------------- | ------------------------ | --------------------- | -------------------------------------------------- |
 | Dice Chess engine                                        | 0.13.0                   | AGPL-3.0-only         | https://github.com/fortemate/dicechess-engine      |
 | Vector Chess Pieces Pack, RhosGFX                        | 1.0.0                    | CC0-1.0               | https://rhosgfx.itch.io/vector-chess-pieces        |
+| Vector Emojis, RhosGFX                                   | downloaded 2026-09-26    | CC0-1.0               | https://rhosgfx.itch.io/vector-emojis              |
 | Tabletop Games SFX Pack, JDSherbert                      | 1.1.0                    | Free with attribution | https://jdsherbert.itch.io/tabletop-games-sfx-pack |
 | Casino Audio, Interface Sounds and Music Jingles, Kenney | 1.1, 1.0 and unversioned | CC0-1.0               | https://kenney.nl                                  |
 
-The engine and RhosGFX license texts are in [AGPL-3.0](licenses/AGPL-3.0.txt) and [CC0-1.0](licenses/RhosGFX-CC0.txt). Full installed-package notices are retained in node_modules, and build-generated license comments must not be removed. The package locks record the exact dependency graph.
+The engine and RhosGFX license texts are in [AGPL-3.0](licenses/AGPL-3.0.txt), [CC0-1.0](licenses/RhosGFX-CC0.txt) and, for the emojis, [CC0-1.0](licenses/RhosGFX-Emojis-CC0.txt). Full installed-package notices are retained in node_modules, and build-generated license comments must not be removed. The package locks record the exact dependency graph.
 
 Chess pieces use 12 vector SVG pieces (White and Black Outline variants) from the RhosGFX Vector Chess Pieces Pack, dedicated to the public domain under Creative Commons CC0 1.0 Universal and bundled locally. No cburnett artwork, opening book, private model or server implementation is bundled.
+
+The faces of the three local opponents are three SVGs from the RhosGFX Vector Emojis pack, Outline set: `Zany face.svg`, `Money mouth face.svg` and `Smiling face with horns.svg`. They are bundled unchanged, under shorter names, in `src/assets/faces/rhosgfx/`, and drawn by the components `native/scripts/generate-faces.mjs` writes to `native/src/faces/`. The pack is dedicated to the public domain under CC0 1.0. Its notice, in `licenses/RhosGFX-Emojis-CC0.txt` with LF line endings, is the one RhosGFX ships with the pack: it names the Vector Ranks Pack, whose notice it copies, and the pack's own page states the same terms. The whole pack is kept, with the download's SHA-256, in the private asset repository.
 
 ## Sounds
 

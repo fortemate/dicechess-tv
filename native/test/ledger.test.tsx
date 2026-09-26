@@ -132,9 +132,9 @@ test('nothing is shown before a game has been completed', () => {
 test('a game played as Black is counted under Black', () => {
   reset();
   launch({ ...options, side: () => 'b' });
-  // Play Random, Random on the colour choice (drawn Black); the bot, White,
-  // takes its turn. Then resign.
-  send('down', 'enter', 'enter');
+  // Play the computer, Rolly, Random on the colour choice (drawn Black); the
+  // bot, White, takes its turn. Then resign.
+  send('down', 'enter', 'enter', 'enter');
   send('back', 'down', 'select', 'down', 'select');
   assert.deepEqual(ledger()?.bots.random, {
     b: { wins: 0, draws: 0, losses: 1 },
@@ -145,8 +145,9 @@ test('a rematch counts the finished game once, and its own result after it', () 
   reset();
   let ids = 0;
   launch({ ...options, newId: () => 'rematch' + ++ids });
-  // Play Random, Random on the colour choice (drawn White), then resign.
-  send('down', 'enter', 'enter');
+  // Play the computer, Rolly, Random on the colour choice (drawn White), then
+  // resign.
+  send('down', 'enter', 'enter', 'enter');
   send('back', 'down', 'select', 'down', 'select');
   const lost = (losses: number) => ({ w: { wins: 0, draws: 0, losses } });
   assert.deepEqual(ledger()?.bots.random, lost(1));

@@ -99,7 +99,8 @@ test('turning sound off is remembered at the next launch', () => {
   assert.equal(first.muted, false, 'sound starts on');
   assert.match(text(tree.root), /Sound: on/);
 
-  // Home, nothing saved: new hotseat, Play Random, How to play, Rules, Sound.
+  // Home, nothing saved: new hotseat, Play the computer, How to play, Rules,
+  // Sound.
   send('down', 'down', 'down', 'down', 'enter');
   assert.match(text(tree.root), /Sound: off/);
   assert.equal(first.muted, true);

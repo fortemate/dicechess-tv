@@ -9,7 +9,7 @@ Dice Chess for Amazon Fire TV: two players sharing one screen and remote, or a g
 
 **Project site:** <https://fortemate.github.io/dicechess-tv/>, built from [`site/`](site/README.md).
 
-**Status: a React Native for Vega application that builds and runs from this repository.** `npm run build --prefix native` produces an installable package; it launches on the Vega Virtual Device in 227 ms and plays. Hotseat and a local Random opponent, three-die turns, promotion, king capture, resignation, draw agreement, save and resume mid-turn, a completed-game ledger, an interactive tutorial and a rules guide are all implemented on the native board, driven entirely by D-pad, OK and Back.
+**Status: a React Native for Vega application that builds and runs from this repository.** `npm run build --prefix native` produces an installable package; it launches on the Vega Virtual Device in 227 ms and plays. Hotseat and three local opponents, from easy to hard, three-die turns, promotion, king capture, resignation, draw agreement, save and resume mid-turn, a completed-game ledger, an interactive tutorial and a rules guide are all implemented on the native board, driven entirely by D-pad, OK and Back.
 
 Also done: sound for every step of the game — chosen by ear, heard on the virtual device, with a switch in both menus — an icon and splash screen, and an About screen carrying the credits the asset licences require. Not done: onboarding and piece-movement animation. Everything above is evidence from the **virtual** device; nothing has yet run on physical Fire TV hardware, and the emulator does not measure Stick performance.
 

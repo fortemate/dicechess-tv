@@ -8,9 +8,11 @@ import {
   viewGame,
   sideName,
   emptyRoll,
+  isBotMode,
   type Game,
   type Result,
 } from '../../src/core/game';
+import { opponentOf } from '../../src/core/opponents';
 import { summary, type Ledger } from '../../src/core/ledger';
 import { movableSquares, type BoardKey } from '../../src/core/boardInput';
 import { Board } from './Board';
@@ -19,6 +21,7 @@ import { diceOf } from '../../src/core/dice';
 import { TutorialScreen } from './TutorialScreen';
 import { RulesScreen } from './RulesScreen';
 import { AboutScreen } from './AboutScreen';
+import { OpponentScreen } from './OpponentScreen';
 import type { Sounds } from './sound';
 import { cues } from '../../src/core/cues';
 import { useRemoteInput } from './useRemoteInput';
@@ -133,31 +136,27 @@ const headline = (game: Game, view: GameView): string =>
   (emptyRoll(game) ? 'No legal moves' : `${sideName(view.side)} to play`) +
   mover(game, view.bot);
 
-// Results so far, shown where a player chooses what to do next. Hotseat is by
-// colour because the seats change hands and nobody here knows who sat where.
+// Hotseat results so far, by colour, because the seats change hands and nobody
+// here knows who sat where. The record against each local opponent is on its
+// card (#115), which keeps the home screen inside the safe area.
 const Record = ({ ledger }: { ledger: Ledger }) => {
-  const view = summary(ledger);
-  const { white, draws, black } = view.hotseat;
-  const played = white + draws + black > 0;
-  if (!played && view.bots.length === 0) return null;
+  const { white, draws, black } = summary(ledger).hotseat;
+  if (white + draws + black === 0) return null;
   return (
     <View style={{ marginTop: 20 }}>
       <Text style={{ color: '#8dc9b6', fontSize: 20, letterSpacing: 2 }}>
         COMPLETED GAMES
       </Text>
-      {played ? (
-        <Text style={{ color: '#aab8c9', fontSize: 20 }}>
-          {`Hotseat — White ${white} · Drawn ${draws} · Black ${black}`}
-        </Text>
-      ) : null}
-      {view.bots.map(({ opponent, side, record }) => (
-        <Text key={opponent + side} style={{ color: '#aab8c9', fontSize: 20 }}>
-          {`${opponent} as ${sideName(side)} — ${record.wins}W ${record.draws}D ${record.losses}L`}
-        </Text>
-      ))}
+      <Text style={{ color: '#aab8c9', fontSize: 20 }}>
+        {`Hotseat — White ${white} · Drawn ${draws} · Black ${black}`}
+      </Text>
     </View>
   );
 };
+
+// Who the person plays: nobody in hotseat, else the opponent's name.
+const opponentName = (game: Game): string | null =>
+  isBotMode(game.mode) ? opponentOf(game.mode).name : null;
 
 type GameView = ReturnType<typeof viewGame>;
 
@@ -184,7 +183,8 @@ const Status = ({
   home: boolean;
 }) => {
   const { result } = game;
-  const mode = `${game.mode === 'hotseat' ? 'HOTSEAT' : 'VS RANDOM'} · TURN ${game.turn}`;
+  const name = opponentName(game);
+  const mode = `${name ? `VS ${name.toUpperCase()}` : 'HOTSEAT'} · TURN ${game.turn}`;
   if (home)
     return (
       <Text style={{ color: '#8dc9b6', fontSize: 20, letterSpacing: 2 }}>
@@ -217,7 +217,8 @@ const Status = ({
 // What OK and the arrows do now, when no menu or choice is open.
 const promptFor = (game: Game, selected: string | null): string => {
   // The board takes no keys while the opponent owes an action.
-  if (botToAct(game)) return 'Random is playing…';
+  if (botToAct(game))
+    return `${opponentName(game) ?? 'The computer'} is playing…`;
   if (game.phase === 'roll') return 'OK: roll three dice';
   if (game.phase === 'handoff') return 'OK: continue';
   if (game.phase === 'ended') return 'OK: back to the menu';
@@ -276,7 +277,7 @@ const Panel = ({
     case 'colour':
       return (
         <Choices
-          title="Play as"
+          title={`Play ${opponentOf(overlay.mode).name} as`}
           note="Random picks a colour for you."
           options={colourOptions}
           index={overlay.index}
@@ -481,6 +482,13 @@ export const GameScreen = ({
       />
     );
   }
+
+  // The choice of opponent takes the whole screen: three cards need the width
+  // the board would take. The remote stays with this screen and its reducer.
+  if (overlay.kind === 'opponent')
+    return (
+      <OpponentScreen index={overlay.index} pressed={pressed} ledger={ledger} />
+    );
 
   const size = boardSide(width, height);
   const insets = safeInsets(width, height);

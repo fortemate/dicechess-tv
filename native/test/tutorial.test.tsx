@@ -245,7 +245,7 @@ test('Back leaves from a finished lesson too', () => {
 test('the rules guide opens, moves between topics and returns', () => {
   reset();
   const root = launch();
-  // Home: new hotseat, Play Random, How to play, Rules.
+  // Home: new hotseat, Play the computer, How to play, Rules.
   send('down', 'down', 'down', 'enter');
   assert.match(text(root), /RULES/);
   assert.match(text(root), /How a game ends/);
@@ -305,7 +305,7 @@ test('the About screen shows the credits and returns on Back or OK', () => {
   send('up', 'enter');
   assert.match(text(root), /ABOUT/);
   // The credit a licence requires is only met if it is on the screen.
-  assert.match(text(root), /Vector Chess Pieces by RhosGFX/);
+  assert.match(text(root), /Pieces and faces by RhosGFX/);
   assert.match(text(root), /Dice Chess engine by Fortemate/);
   assert.match(text(root), /CC0 1\.0/);
 
