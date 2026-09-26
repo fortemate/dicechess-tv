@@ -15,11 +15,11 @@ Status: requirements agreed on 21 September 2026. Hotseat and Random now have a 
 
 ## Bot roster and integration
 
-| Bot        | Intended role                                                            | Delivery status                                                                         |
-| ---------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
-| Random     | Easy opponent choosing among engine-approved legal actions or turns      | Implemented with engine 0.13.0 `random`, choosing complete legal paths on the JS thread |
-| Aggressive | More challenging opponent using a compatible local search implementation | Initial roster target; validate runtime cost and actual strength                        |
-| Hunter     | Optional advanced opponent                                               | Conditional extension after compatibility, performance and licensing review             |
+| Bot        | Intended role                                                            | Delivery status                                                                                                                                             |
+| ---------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Random     | Easy opponent choosing among engine-approved legal actions or turns      | Implemented with engine 0.13.0 `random`, choosing complete legal paths on the JS thread; tested (`test/game.test.ts`) and played on the Vega Virtual Device |
+| Aggressive | More challenging opponent using a compatible local search implementation | Initial roster target; validate runtime cost and actual strength                                                                                            |
+| Hunter     | Optional advanced opponent                                               | Conditional extension after compatibility, performance and licensing review                                                                                 |
 
 Random and Aggressive are product labels, not a measured strength ranking. Choose a concrete algorithm/version for each and evaluate them before claiming skill levels. An intermediate bot can be considered later; it is not required for the first roster.
 
