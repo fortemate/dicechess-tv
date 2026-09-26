@@ -155,8 +155,9 @@ const cells = Array.from({ length: 64 }, (_, cell) => cell);
           />
           <p class="note">
             Send stores your answers in the project's private spreadsheet: the
-            squares you tapped and these two answers. There is no name, email or
-            IP address in them, and nothing is sent before you press Send.
+            squares you tapped, these two answers, and a random code that only
+            stops the same answers being stored twice. There is no name, email
+            or IP address in them, and nothing is sent before you press Send.
           </p>
           <button type="submit" class="primary">
             Send
@@ -191,7 +192,7 @@ const cells = Array.from({ length: 64 }, (_, cell) => cell);
         scoreAnswers,
         type CheckAnswers,
       } from '../check/items';
-      import { send } from '../check/send';
+      import { newId, send } from '../check/send';
 
       const $ = <T extends Element>(
         selector: string,
@@ -207,6 +208,7 @@ const cells = Array.from({ length: 64 }, (_, cell) => cell);
         window.scrollTo(0, 0);
       }
 
+      const id = newId();
       // A new order for every visit, so that no picture is always seen first.
       const order = ITEMS.map((item) => item.id);
       for (let i = order.length - 1; i > 0; i--) {
@@ -254,6 +256,7 @@ const cells = Array.from({ length: 64 }, (_, cell) => cell);
         const fields = new FormData(form);
         const answers: CheckAnswers = {
           v: 1,
+          id,
           vision: String(fields.get('vision')),
           screen: String(fields.get('screen')),
           order,

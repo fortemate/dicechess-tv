@@ -91,6 +91,7 @@ test('totals add up per variant, over the pictures answered', () => {
 test('an answer code reads back as the answers', () => {
   const answers = {
     v: 1 as const,
+    id: '3f1c2b9e-8d4a-4c1e-9b7f-0a2d6e5c4b3a',
     vision: 'not-sure',
     screen: 'tv',
     order: ITEMS.map((each) => each.id),

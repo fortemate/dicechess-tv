@@ -67,10 +67,14 @@ Nothing links to them, `astro.config.mjs` keeps them out of the sitemap, they ar
 not in the search index, and they ask search engines not to index them. The
 repository is public, so they are not secret either.
 
-**Answers.** Press Send and the answers go to the owner's Google Sheet, through
-the Apps Script in [`answers-sheet/`](answers-sheet/README.md), whose README
-says how to set it up. The build reads the script's address from the
-repository variable `FEEDBACK_URL`; without it, nothing is sent.
+**Answers.** Send posts the answers to the Apps Script in
+[`answers-sheet/`](answers-sheet/README.md), which appends them to the owner's
+Google Sheet; its README says how to set it up. The build reads the script's
+address from the repository variable `FEEDBACK_URL`; without it, nothing is
+sent. So far both pages have been checked in a browser against a local stand-in
+for the script, at phone and desktop widths, and the script by its tests
+outside Google. Delivery to a real sheet is checked once the owner has deployed
+the script.
 
 **The pictures** in `src/assets/check/` are Release builds on the Vega Virtual
 Device, one hotseat game played on through three builds that differ only in the

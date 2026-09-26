@@ -3,10 +3,12 @@
 // Sheet this script is bound to, one row per submission. Setup: README.md next
 // to this file.
 //
-// Only what the pages send is stored: no name, email or IP address reaches this
-// script. Every value is checked against its allowed set or length, and a
-// submission with anything else is refused, so the sheet can hold nothing the
-// pages could not have sent.
+// Only what the pages send is stored. They ask for no name or email, and no IP
+// address reaches this script; the feedback form's free text holds whatever a
+// visitor types, and the page asks them to leave personal details out. Every
+// value is checked against its allowed set or length, and a submission with
+// anything else is refused, so the sheet can hold nothing the pages could not
+// have sent.
 
 const MAX_ROWS = 5000;
 const MAX_TEXT = 1000;
@@ -18,6 +20,13 @@ const PLAYED_ON = ['', 'stick', 'vvd', 'other'];
 const VARIANTS = ['A', 'B', 'C'];
 const COUNTS = ['found', 'missed', 'lastMove', 'other'];
 const PICTURE = /^[abc]-(many|few)$/;
+// A random id the page draws once per visit (site/src/check/send.ts), so that a
+// submission sent twice, a retry after a lost reply, is stored once. It says
+// nothing about who sent it.
+const SUBMISSION =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+// How far back, in rows, a repeated submission is looked for.
+const RECENT = 500;
 
 const HEADERS = {
   check: [
@@ -28,6 +37,7 @@ const HEADERS = {
       COUNTS.map((count) => `${variant} ${count}`),
     ),
     'Details',
+    'Submission',
   ],
   feedback: [
     'Received',
@@ -35,6 +45,7 @@ const HEADERS = {
     'Confusing or hard',
     'Liked',
     'Went wrong',
+    'Submission',
   ],
 };
 
@@ -49,6 +60,9 @@ function doPost(e) {
   // A field the pages hide from people. Bots that fill in every field fill in
   // this one too, and are told they succeeded.
   if (data.website) return reply(true);
+  if (typeof data.id !== 'string' || !SUBMISSION.test(data.id)) {
+    return reply(false);
+  }
   let row = null;
   if (data.kind === 'check') row = checkRow(data);
   else if (data.kind === 'feedback') row = feedbackRow(data);
@@ -57,12 +71,24 @@ function doPost(e) {
   lock.waitLock(10000);
   try {
     const sheet = sheetFor(data.kind);
+    if (storedBefore(sheet, data.kind, data.id)) return reply(true);
     if (sheet.getLastRow() > MAX_ROWS) return reply(false);
-    sheet.appendRow([new Date(), ...row.map(asText)]);
+    sheet.appendRow([new Date(), ...row.map(asText), data.id]);
   } finally {
     lock.releaseLock();
   }
   return reply(true);
+}
+
+// Whether a submission with this id is among the recent rows of the tab.
+function storedBefore(sheet, kind, id) {
+  const last = sheet.getLastRow();
+  if (last < 2) return false;
+  const first = Math.max(2, last - RECENT + 1);
+  return sheet
+    .getRange(first, HEADERS[kind].length, last - first + 1, 1)
+    .getValues()
+    .some(([value]) => value === id);
 }
 
 // Opening the web app's address in a browser shows that it is deployed.
@@ -77,16 +103,19 @@ function checkRow(data) {
   if (!VISION.includes(data.vision) || !SCREEN.includes(data.screen)) {
     return null;
   }
+  if (!validDetails(data.order, data.taps)) return null;
+  // A count adds up over the pictures of one variant, at most 64 squares each,
+  // and a variant has no more pictures than were shown.
+  const most = 64 * data.order.length;
   const counts = [];
   for (const variant of VARIANTS) {
     const score = data.score && data.score[variant];
     for (const count of COUNTS) {
       const value = score && score[count];
-      if (!Number.isInteger(value) || value < 0 || value > 64) return null;
+      if (!Number.isInteger(value) || value < 0 || value > most) return null;
       counts.push(value);
     }
   }
-  if (!validDetails(data.order, data.taps)) return null;
   const details = JSON.stringify({ order: data.order, taps: data.taps });
   return [data.vision, data.screen, ...counts, details];
 }

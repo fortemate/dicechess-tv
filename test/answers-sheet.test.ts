@@ -3,6 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { runInNewContext } from 'node:vm';
 
 type Tab = { rows: unknown[][]; frozen: number };
@@ -17,6 +18,13 @@ function load(existing = 0) {
       // Copied into an array of this realm, so that deepEqual compares values.
       appendRow: (row: unknown[]) => void tab.rows.push([...row]),
       getLastRow: () => existing + tab.rows.length,
+      // Rows that exist only in `existing` read as empty.
+      getRange: (row: number, column: number, rows: number) => ({
+        getValues: () =>
+          Array.from({ length: rows }, (_, i) => [
+            tab.rows[row - 1 + i]?.[column - 1] ?? '',
+          ]),
+      }),
       setFrozenRows: (rows: number) => void (tab.frozen = rows),
     };
   };
@@ -44,7 +52,7 @@ function load(existing = 0) {
     },
   };
   const code = readFileSync(
-    new URL('../site/answers-sheet/Code.js', import.meta.url),
+    fileURLToPath(new URL('../site/answers-sheet/Code.js', import.meta.url)),
     'utf8',
   );
   runInNewContext(code, context);
@@ -64,6 +72,7 @@ const zero = { found: 0, missed: 0, lastMove: 0, other: 0 };
 const check = {
   kind: 'check',
   v: 1,
+  id: '3f1c2b9e-8d4a-4c1e-9b7f-0a2d6e5c4b3a',
   vision: 'red-green',
   screen: 'phone',
   order: ['a-many', 'b-few'],
@@ -96,6 +105,34 @@ test('a check is appended to the check tab, under a header row', () => {
     order: check.order,
     taps: check.taps,
   });
+  assert.equal(row[15], check.id);
+});
+
+test('the same submission sent twice is stored once', () => {
+  const { post, tabs } = load();
+  assert.equal(post(check), true);
+  assert.equal(post(check), true);
+  assert.equal(
+    post({ ...check, id: '9e8d7c6b-5a4f-4e3d-8c2b-1a0f9e8d7c6b' }),
+    true,
+  );
+  assert.equal((tabs.get('check') as Tab).rows.length, 3);
+});
+
+test('a count may reach 64 squares on every picture shown', () => {
+  const { post, tabs } = load();
+  const most = { ...zero, other: 128 };
+  assert.equal(post({ ...check, score: { A: most, B: most, C: most } }), true);
+  assert.equal((tabs.get('check') as Tab).rows.length, 2);
+  const over = { ...zero, other: 129 };
+  assert.equal(
+    post({
+      ...check,
+      id: '0b1c2d3e-4f5a-4b6c-8d7e-9f0a1b2c3d4e',
+      score: { ...check.score, B: over },
+    }),
+    false,
+  );
 });
 
 test('feedback is trimmed, and text that starts like a formula stays text', () => {
@@ -103,6 +140,7 @@ test('feedback is trimmed, and text that starts like a formula stays text', () =
   const feedback = {
     kind: 'feedback',
     v: 1,
+    id: 'c0ffee00-1234-4abc-9def-0123456789ab',
     playedOn: 'stick',
     confusing: ' =IMPORTXML("https://example.com", "//a") ',
     liked: 'The dice.',
@@ -115,6 +153,7 @@ test('feedback is trimmed, and text that starts like a formula stays text', () =
     `'=IMPORTXML("https://example.com", "//a")`,
     'The dice.',
     '',
+    feedback.id,
   ]);
 });
 
@@ -126,11 +165,14 @@ test('a filled-in honeypot is thanked and dropped', () => {
 
 test('anything the pages could not have sent is refused', () => {
   const { post, tabs } = load();
-  const feedback = { kind: 'feedback', v: 1 };
+  const feedback = { kind: 'feedback', v: 1, id: check.id };
   const refused = [
     '{',
     'null',
-    { kind: 'survey', v: 1 },
+    { kind: 'survey', v: 1, id: check.id },
+    { ...check, id: undefined },
+    { ...check, id: 'not-a-random-id' },
+    { ...check, id: check.id.toUpperCase() },
     { ...check, v: 2 },
     { ...check, vision: 'purple' },
     { ...check, screen: 'watch' },

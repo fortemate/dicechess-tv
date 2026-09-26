@@ -8,10 +8,18 @@ the project's owner:
 
 [`Code.js`](Code.js) is the Google Apps Script bound to that sheet. It appends
 one row per submission, to a tab named `check` or `feedback`, and creates each
-tab with its header row on the first submission. No name, email or IP address
-reaches it. It refuses any value outside the lists the pages offer, and any text
-longer than 1,000 characters. It stops at 5,000 rows a tab, and it stores text
-so that the sheet never runs it as a formula.
+tab with its header row on the first submission.
+
+- **Privacy.** The pages ask for no name or email, and no IP address reaches the
+  script. The feedback form's free text holds whatever a visitor types; the page
+  asks them to leave personal details out.
+- **Checks.** It refuses any value outside the lists the pages offer, and any
+  text longer than 1,000 characters.
+- **Limits.** It stops at 5,000 rows a tab, and it stores text so that the sheet
+  never runs it as a formula.
+- **Duplicates.** Each visit carries a random id, in the `Submission` column.
+  A submission that arrives twice, as a retry after a lost reply may, is stored
+  once.
 
 Neither page sends anything until the visitor presses Send.
 
@@ -57,5 +65,6 @@ four counts for each variant:
 
 The `Details` column keeps the order the pictures were shown in and the squares
 tapped on each. [`../scripts/check-results.mjs`](../scripts/check-results.mjs)
-summarises either those details or the codes of the fallback, per variant and
-per answer to the colour-vision question.
+summarises those details, or the codes of the fallback, per variant and per
+answer to the colour-vision question. It counts a visit once even when it arrives
+both as a row and as a code sent by hand, recognising it by its `Submission` id.

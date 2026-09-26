@@ -143,6 +143,9 @@ export const SCREEN = [
 
 export type CheckAnswers = {
   v: 1;
+  // The visit's random id (../check/send.ts), which lets a summary drop the
+  // same answers sent twice.
+  id: string;
   vision: string;
   screen: string;
   // Picture ids in the order they were shown.

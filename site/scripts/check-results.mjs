@@ -5,8 +5,11 @@
 //
 // It reads the check tab of the answers sheet, downloaded as CSV, and answer
 // codes, the page's fallback, one per line; with no file, it reads standard
-// input. Marks are counted as the page counts them (src/check/items.ts), with
-// the misses on dark squares, where #105 expects them, shown apart.
+// input. Each file is read on its own, as CSV if it starts with the tab's
+// header and as codes otherwise. The same visit, recognised by its random id,
+// is counted once, so a code sent by hand after a row already arrived does not
+// count twice. Marks are counted as the page counts them (src/check/items.ts),
+// with the misses on dark squares, where #105 expects them, shown apart.
 import { readFileSync } from 'node:fs';
 import {
   ITEMS,
@@ -17,9 +20,9 @@ import {
 } from '../src/check/items.ts';
 
 const inputs = process.argv.slice(2);
-const text = inputs.length
-  ? inputs.map((file) => readFileSync(file, 'utf8')).join('\n')
-  : readFileSync(0, 'utf8');
+const sources = inputs.length
+  ? inputs.map((file) => ({ name: file, text: readFileSync(file, 'utf8') }))
+  : [{ name: 'standard input', text: readFileSync(0, 'utf8') }];
 
 // RFC 4180 fields: quoted fields may hold commas, quotes and line breaks.
 function csvRows(source) {
@@ -51,30 +54,60 @@ function csvRows(source) {
   return rows;
 }
 
-// Each visit as { vision, taps }.
-function visits(source) {
-  const trimmed = source.trim();
+// Each visit in one file as { id, vision, taps }. A row or code that cannot be
+// read stops the summary with its place, rather than being left out of it.
+function visits({ name, text }) {
+  const trimmed = text.trim();
   if (trimmed.startsWith('Received,')) {
     const [header, ...rows] = csvRows(trimmed);
-    const vision = header.indexOf('Colour vision');
-    const details = header.indexOf('Details');
-    return rows
-      .filter((row) => row.length > details)
-      .map((row) => ({
-        vision: row[vision],
-        taps: JSON.parse(row[details]).taps,
-      }));
+    const column = (title) => {
+      const index = header.indexOf(title);
+      if (index < 0) throw new Error(`${name}: no "${title}" column`);
+      return index;
+    };
+    const vision = column('Colour vision');
+    const details = column('Details');
+    const id = header.indexOf('Submission');
+    return rows.flatMap((row, index) => {
+      if (row.every((field) => field === '')) return [];
+      const place = `${name}, CSV row ${index + 2}`;
+      if (!row[details]) throw new Error(`${place}: no Details field`);
+      let parsed;
+      try {
+        parsed = JSON.parse(row[details]);
+      } catch {
+        throw new Error(`${place}: Details is not JSON`);
+      }
+      if (!parsed?.taps || typeof parsed.taps !== 'object') {
+        throw new Error(`${place}: Details holds no taps`);
+      }
+      return [{ id: row[id], vision: row[vision], taps: parsed.taps }];
+    });
   }
   return trimmed
     .split(/\s+/)
     .filter(Boolean)
-    .map((code) => {
-      const answers = decodeAnswers(code);
-      return { vision: answers.vision, taps: answers.taps };
+    .map((code, index) => {
+      try {
+        const answers = decodeAnswers(code);
+        return { id: answers.id, vision: answers.vision, taps: answers.taps };
+      } catch (error) {
+        throw new Error(`${name}, code ${index + 1}: ${error.message}`);
+      }
     });
 }
 
-const all = visits(text);
+const seen = new Set();
+let repeated = 0;
+const all = sources.flatMap(visits).filter((visit) => {
+  if (!visit.id) return true;
+  if (seen.has(visit.id)) {
+    repeated++;
+    return false;
+  }
+  seen.add(visit.id);
+  return true;
+});
 const groups = new Map();
 for (const visit of all) {
   const group = groups.get(visit.vision) ?? [];
@@ -83,7 +116,11 @@ for (const visit of all) {
 }
 
 const pad = (value, width) => String(value).padStart(width);
-console.log(`${all.length} visit${all.length === 1 ? '' : 's'}\n`);
+console.log(
+  `${all.length} visit${all.length === 1 ? '' : 's'}` +
+    (repeated ? `, ${repeated} repeated submission(s) left out` : '') +
+    '\n',
+);
 for (const [vision, group] of [...groups].sort()) {
   console.log(`Colour vision: ${vision} (${group.length})`);
   console.log(
