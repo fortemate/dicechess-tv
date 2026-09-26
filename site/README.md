@@ -71,15 +71,18 @@ repository is public, so they are not secret either.
 [`answers-sheet/`](answers-sheet/README.md), which appends them to the owner's
 Google Sheet; its README says how to set it up. The build reads the script's
 address from the repository variable `FEEDBACK_URL`; without it, nothing is
-sent. So far both pages have been checked in a browser against a local stand-in
-for the script, at phone and desktop widths, and the script by its tests
-outside Google. Delivery to a real sheet is checked once the owner has deployed
-the script.
+sent. Both pages were checked in a browser against a local stand-in for the
+script, at phone and desktop widths, and the script by its tests outside Google.
+On 2026-09-26 one submission from the published check page reached the deployed
+script and the owner's sheet, and the page read the script's reply
+([#109](https://github.com/fortemate/dicechess-tv/issues/109)).
 
 **The pictures** in `src/assets/check/` are Release builds on the Vega Virtual
 Device, one hotseat game played on through three builds that differ only in the
-mark. [`src/check/items.ts`](src/check/items.ts) lists what each picture shows
-and scores an answer; the marked squares were read from the pictures' pixels and
+mark. A worked example, `example.png`, comes first: it is the position the
+legends are cut from, not a scored picture.
+[`src/check/items.ts`](src/check/items.ts) lists what each picture shows and
+scores an answer; the marked squares were read from the pictures' pixels and
 checked by eye. [`scripts/check-results.mjs`](scripts/check-results.mjs)
 summarises the answers.
 

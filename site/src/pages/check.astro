@@ -21,6 +21,10 @@ function picture(name: string) {
 }
 
 const cells = Array.from({ length: 64 }, (_, cell) => cell);
+// The worked example shows the position the legends are cut from, with the
+// B mark: the king on d8 and the rook on g8 can move; a1 and b1 are the last
+// move. It is not one of the scored pictures, so it gives no answer away.
+const EXAMPLE_TICKS = [3, 6];
 ---
 
 <!doctype html>
@@ -40,20 +44,51 @@ const cells = Array.from({ length: 64 }, (_, cell) => cell);
       <section data-step="intro">
         <p>
           Dice Chess for Fire TV marks the pieces a player can move. We are
-          checking that everyone can see the mark, including people who are
+          checking that everyone can see that mark, including people who are
           colour-blind. It takes about three minutes.
         </p>
-        <ol>
+        <p class="rule">
+          Your task: on six boards, tap every piece that can move. Nothing else.
+        </p>
+        <ul>
           <li>Turn off night mode and any blue-light filter on your screen.</li>
           <li>
-            On each of six boards, tap every piece that is marked as able to
-            move.
+            Each board also tints two squares to show the last move played. They
+            are not the answer: leave them.
           </li>
-          <li>Two squares are tinted to show the last move. Leave those.</li>
-        </ol>
+        </ul>
+        <button type="button" class="primary" data-action="example">
+          See an example
+        </button>
+      </section>
+
+      <section data-step="example" hidden>
+        <h2>An example</h2>
+        <div class="board">
+          <Image
+            src={picture('example')}
+            alt="A board with two pieces marked as able to move and ticked."
+            widths={[456, 912]}
+            sizes="(max-width: 624px) calc(100vw - 32px), 560px"
+            loading="eager"
+          />
+          <div class="squares" aria-hidden="true">
+            {cells.map((cell) => (
+              <span
+                class={EXAMPLE_TICKS.includes(cell) ? 'ticked' : undefined}
+              />
+            ))}
+          </div>
+        </div>
+        <p>
+          The king and the right-hand rook in the top row are marked, so both
+          are ticked. The two tinted squares in the bottom-left corner show the
+          last move: they stay unticked.
+        </p>
         <p class="note">
           The blue frame is the cursor of the TV remote. It always sits on one
-          of the pieces that can move.
+          of the pieces that can move. The mark looks different from board to
+          board; the key under each board shows how.
         </p>
         <button type="button" class="primary" data-action="start">
           Start
@@ -88,7 +123,7 @@ const cells = Array.from({ length: 64 }, (_, cell) => cell);
             </div>
             <div class="legend">
               <div>
-                Can move:
+                <strong>Tap</strong> pieces marked like this:
                 <Image
                   src={picture(`${legend}-legend-move-light`)}
                   alt="on a light square"
@@ -101,7 +136,7 @@ const cells = Array.from({ length: 64 }, (_, cell) => cell);
                 />
               </div>
               <div>
-                Last move:
+                <strong>Don't tap</strong> the last move:
                 <Image
                   src={picture(`${legend}-legend-last-light`)}
                   alt="on a light square"
@@ -115,8 +150,8 @@ const cells = Array.from({ length: 64 }, (_, cell) => cell);
               </div>
             </div>
             <p class="note">
-              Tap the marked pieces, then press Next. Tap again to undo. If you
-              see no marks, just press Next.
+              Tap every piece that can move, then press Next. Tap again to undo.
+              If you see none, just press Next.
             </p>
             <button type="button" class="primary" data-action="next">
               Next
@@ -229,6 +264,9 @@ const cells = Array.from({ length: 64 }, (_, cell) => cell);
         );
       }
 
+      $('[data-action="example"]').addEventListener('click', () =>
+        show($<HTMLElement>('[data-step="example"]')),
+      );
       $('[data-action="start"]').addEventListener('click', next);
       pictures.forEach((section, index) => {
         $('[data-slot="number"]', section).textContent = String(index + 1);
