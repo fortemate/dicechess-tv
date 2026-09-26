@@ -153,3 +153,22 @@ test('blur stops the music at once, and focus or a return to active brings it ba
   assert.equal(music.suspended, false);
   act(() => tree.unmount());
 });
+
+test('music resumes only when the app is both active and focused, whatever the order', () => {
+  reset();
+  const music = recorder();
+  const tree = launch(music);
+  // blur, then back to active without focus: still silent until focus returns.
+  act(() => appEvent('blur'));
+  act(() => setAppState('active'));
+  assert.equal(music.suspended, true);
+  act(() => appEvent('focus'));
+  assert.equal(music.suspended, false);
+  // inactive, then focus while still inactive: silent until active again.
+  act(() => setAppState('inactive'));
+  act(() => appEvent('focus'));
+  assert.equal(music.suspended, true);
+  act(() => setAppState('active'));
+  assert.equal(music.suspended, false);
+  act(() => tree.unmount());
+});

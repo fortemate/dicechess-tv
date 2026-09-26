@@ -116,24 +116,28 @@ const VolumeRings = ({
   focused: boolean;
 }) => (
   <View style={{ flexDirection: 'row', marginLeft: 10 }}>
-    {Array.from({ length: MUSIC_STEPS }, (_, i) => (
-      <View
-        key={i}
-        testID={i < volume ? 'ring-filled' : 'ring-empty'}
-        style={{
-          width: RING,
-          height: RING,
-          borderRadius: RING / 2,
-          borderWidth: 2,
-          borderColor: focused ? '#f0f4f8' : '#aab8c9',
-          backgroundColor:
-            i < volume ? (focused ? '#f0f4f8' : '#aab8c9') : 'transparent',
-          marginRight: 4,
-        }}
-      />
-    ))}
+    {Array.from({ length: MUSIC_STEPS }, (_, i) => ringOf(i, volume, focused))}
   </View>
 );
+
+const ringOf = (i: number, volume: number, focused: boolean) => {
+  const ink = focused ? '#f0f4f8' : '#aab8c9';
+  return (
+    <View
+      key={i}
+      testID={i < volume ? 'ring-filled' : 'ring-empty'}
+      style={{
+        width: RING,
+        height: RING,
+        borderRadius: RING / 2,
+        borderWidth: 2,
+        borderColor: ink,
+        backgroundColor: i < volume ? ink : 'transparent',
+        marginRight: 4,
+      }}
+    />
+  );
+};
 
 const Choices = ({
   title,
@@ -582,7 +586,8 @@ export const GameScreen = ({
       lastRole.current !== 'menu';
     lastRole.current = role;
     music.setRole(role, ended ? RESULT_SILENCE_MS : 0);
-    onState?.(`music ${role}${ended ? ` after ${RESULT_SILENCE_MS} ms` : ''}`);
+    const pause = ended ? ` after ${RESULT_SILENCE_MS} ms` : '';
+    onState?.(`music ${role}${pause}`);
   }, [music, role, game.phase, onState]);
 
   React.useEffect(() => {

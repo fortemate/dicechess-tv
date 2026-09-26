@@ -34,8 +34,15 @@ export const TENSE_WEIGHT = 22;
 
 const LETTER = ['', 'P', 'N', 'B', 'R', 'Q', 'K'];
 
-// The 56 distinct rolls, each weighted by how many of the 216 ordered rolls it
-// stands for.
+// How many of the 216 ordered rolls a sorted roll stands for: one when all
+// three dice agree, three when two do, six when none do.
+const weightOf = (a: number, b: number, c: number): number => {
+  if (a === b && b === c) return 1;
+  if (a === b || b === c) return 3;
+  return 6;
+};
+
+// The 56 distinct rolls, each with its weight.
 export const ROLLS: readonly { dice: string; weight: number }[] = (() => {
   const rolls: { dice: string; weight: number }[] = [];
   for (let a = 1; a <= 6; a++)
@@ -43,7 +50,7 @@ export const ROLLS: readonly { dice: string; weight: number }[] = (() => {
       for (let c = b; c <= 6; c++)
         rolls.push({
           dice: LETTER[a] + LETTER[b] + LETTER[c],
-          weight: a === b && b === c ? 1 : a === b || b === c ? 3 : 6,
+          weight: weightOf(a, b, c),
         });
   return rolls;
 })();
@@ -118,7 +125,7 @@ function reaches(dfen: string, target: string, depth: number): boolean {
       move.slice(4) || undefined,
     );
     // No dice left: the turn is over.
-    if (!next || !next.split(' ')[6]) continue;
+    if (!next?.split(' ')[6]) continue;
     if (reaches(next, target, depth - 1)) return true;
   }
   return false;

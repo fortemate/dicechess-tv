@@ -186,6 +186,8 @@ export const App = ({
     });
     return () => {
       live = false;
+      // The player is the app's own: nothing may go on playing without it.
+      music.setSuspended(true);
     };
   }, [music, injectedMusic, initialMusic]);
   const onMusic = React.useCallback(
@@ -211,27 +213,35 @@ export const App = ({
   const appState = useKeplerAppStateManager();
   React.useEffect(() => {
     let away = false;
+    // Music plays only while the app is both active and focused (#76). Vega
+    // sends blur before the change to background and focus after the return
+    // to active, so music stops on the first sign of leaving; and whatever
+    // the order, it stays stopped until both are back.
+    let active = appState.getCurrentState() === 'active';
+    let focused = true;
+    const sync = () => music.setSuspended(!(active && focused));
     const subscription = appState.addEventListener('change', (state) => {
       if (state === 'active') {
         sounds.setSuspended(false);
-        music.setSuspended(false);
+        active = true;
+        sync();
         if (away) reportFullyDrawn();
         away = false;
       } else if (state === 'background' || state === 'inactive') {
         sounds.setSuspended(true);
-        music.setSuspended(true);
+        active = false;
+        sync();
         away = true;
       }
     });
-    // blur arrives before the change to background, and focus with the return
-    // (#76): music, which would otherwise carry on over the launcher, stops on
-    // the first sign of leaving.
-    const blur = appState.addEventListener('blur', () =>
-      music.setSuspended(true),
-    );
-    const focus = appState.addEventListener('focus', () =>
-      music.setSuspended(false),
-    );
+    const blur = appState.addEventListener('blur', () => {
+      focused = false;
+      sync();
+    });
+    const focus = appState.addEventListener('focus', () => {
+      focused = true;
+      sync();
+    });
     return () => {
       subscription.remove();
       blur.remove();

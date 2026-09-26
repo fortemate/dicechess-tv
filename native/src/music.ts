@@ -212,91 +212,101 @@ export function createMusic({
     ticking();
   };
 
+  // One tick of a voice's fade. A voice faded out to nothing stops.
+  const fadeStep = (voice: Voice) => {
+    if (voice.fade === voice.target) return;
+    voice.fade =
+      voice.fade < voice.target
+        ? Math.min(voice.target, voice.fade + voice.step)
+        : Math.max(voice.target, voice.fade - voice.step);
+    apply(voice);
+    if (voice.fade === 0 && voice.target === 0) stop(voice);
+  };
+
+  // A pass about to end hands over to a fresh pass on the other voice. Only a
+  // voice fully faded in may: one just started can still report the position of
+  // the file it played before.
+  const handOver = (voice: Voice, other: Voice): boolean => {
+    const { role: theme, track } = voice;
+    if (!voice.playing || voice.target !== 1 || voice.fade < 1) return false;
+    if (voice.seamed || !theme || !track || other.playing) return false;
+    if (voice.player.currentTime < track.loopEnd - SEAM_MS / 1000) return false;
+    voice.seamed = true;
+    report(`music: ${theme} loops`);
+    positions.delete(theme);
+    begin(other, theme, track, SEAM_MS, track.loopStart);
+    fadeTo(voice, 0, SEAM_MS);
+    return true;
+  };
+
   const tick = () => {
     if (!voices) return;
-    let busy = false;
-    for (const voice of voices) {
-      if (!voice.playing) continue;
-      busy = true;
-      if (voice.fade !== voice.target) {
-        voice.fade =
-          voice.fade < voice.target
-            ? Math.min(voice.target, voice.fade + voice.step)
-            : Math.max(voice.target, voice.fade - voice.step);
-        apply(voice);
-        if (voice.fade === 0 && voice.target === 0) stop(voice);
-      }
-    }
-    // A pass about to end hands over to a fresh pass on the other voice.
+    for (const voice of voices) if (voice.playing) fadeStep(voice);
     const [a, b] = voices;
-    for (const [voice, other] of [
-      [a, b],
-      [b, a],
-    ] as const) {
-      // Only a voice fully faded in: one just started may still report the
-      // position of the file it played before.
-      if (!voice.playing || voice.target !== 1 || voice.fade < 1) continue;
-      if (voice.seamed) continue;
-      if (!voice.track || !voice.role || other.playing) continue;
-      if (voice.player.currentTime >= voice.track.loopEnd - SEAM_MS / 1000) {
-        voice.seamed = true;
-        report(`music: ${voice.role} loops`);
-        positions.delete(voice.role);
-        begin(other, voice.role, voice.track, SEAM_MS, voice.track.loopStart);
-        fadeTo(voice, 0, SEAM_MS);
-      }
-    }
-    if (!busy) {
-      stopTicker?.();
-      stopTicker = null;
-    }
+    if (!handOver(a, b)) handOver(b, a);
+    if (voices.some((voice) => voice.playing)) return;
+    stopTicker?.();
+    stopTicker = null;
   };
 
   const ticking = () => {
     stopTicker ??= clock.every(TICK_MS, tick);
   };
 
+  // How long the music takes to fade away: a result's silence starts a little
+  // sooner, and turning music off is quicker than a change of theme.
+  const fadeOutMs = (held: boolean): number => {
+    if (held) return END_FADE_MS;
+    return enabled ? CROSSFADE_MS : STOP_MS;
+  };
+
+  // The theme that should be heard now, or null for silence.
+  const wanted = (held: boolean): MusicRole | null => {
+    if (suspended || !enabled || held || !role) return null;
+    return catalogue?.tracks[role] ? role : null;
+  };
+
+  const fadeOutAllBut = (keep: Voice | null, ms: number) => {
+    for (const voice of voices ?? [])
+      if (voice !== keep && voice.playing && voice.target > 0)
+        fadeTo(voice, 0, ms);
+  };
+
+  // Starts a theme on a voice: a silent one, or the quieter of two playing.
+  const startTheme = (want: MusicRole, audible: Voice | undefined) => {
+    if (!voices || !catalogue) return;
+    const track = catalogue.tracks[want];
+    if (!track) return;
+    const spare =
+      voices.find((voice) => !voice.playing) ??
+      voices.reduce(
+        (low, voice) => (voice.fade < low.fade ? voice : low),
+        voices[0],
+      );
+    fadeOutAllBut(spare, CROSSFADE_MS);
+    begin(spare, want, track, audible ? CROSSFADE_MS : CROSSFADE_MS / 2);
+  };
+
   // Makes what plays agree with what was asked for.
   const reconcile = () => {
     if (!voices || !ready) return;
     const held = clock.now() < holdUntil;
-    const want =
-      suspended || !enabled || held || !role || !catalogue?.tracks[role]
-        ? null
-        : role;
-    const audible = voices.find((voice) => voice.playing && voice.target > 0);
+    const want = wanted(held);
     if (want === null) {
-      for (const voice of voices)
-        if (voice.playing && voice.target > 0)
-          fadeTo(
-            voice,
-            0,
-            held ? END_FADE_MS : enabled ? CROSSFADE_MS : STOP_MS,
-          );
+      fadeOutAllBut(null, fadeOutMs(held));
       ticking();
       return;
     }
+    const audible = voices.find((voice) => voice.playing && voice.target > 0);
     if (audible?.role === want) return;
     // A theme still fading out comes back from where it is, not from the top.
     const returning = voices.find(
       (voice) => voice.playing && voice.role === want,
     );
-    if (returning) {
-      for (const voice of voices)
-        if (voice !== returning && voice.playing)
-          fadeTo(voice, 0, CROSSFADE_MS);
-      fadeTo(returning, 1, CROSSFADE_MS);
-      ticking();
-      return;
-    }
-    const track = catalogue!.tracks[want]!;
-    // The voice to start is a silent one, or the one fading out.
-    const spare =
-      voices.find((voice) => !voice.playing) ??
-      voices.reduce((low, voice) => (voice.fade < low.fade ? voice : low));
-    for (const voice of voices)
-      if (voice !== spare && voice.playing) fadeTo(voice, 0, CROSSFADE_MS);
-    begin(spare, want, track, audible ? CROSSFADE_MS : CROSSFADE_MS / 2);
+    if (!returning) return startTheme(want, audible);
+    fadeOutAllBut(returning, CROSSFADE_MS);
+    fadeTo(returning, 1, CROSSFADE_MS);
+    ticking();
   };
 
   const prepare = () => {
@@ -372,7 +382,7 @@ export function createMusic({
         suspended = false;
         if (!voices || !ready) return reconcile();
         const want = role && catalogue?.tracks[role] ? role : null;
-        report(`music: resumed${want ? ` on ${want}` : ''}`);
+        report(want ? `music: resumed on ${want}` : 'music: resumed');
         if (want && enabled && clock.now() >= holdUntil) {
           const spare = voices[0];
           begin(spare, want, catalogue!.tracks[want]!, RESUME_FADE_MS);
@@ -380,8 +390,11 @@ export function createMusic({
       });
     },
     setCatalogue(next) {
+      const roles = next ? Object.keys(next.tracks).join(', ') : '';
       report(
-        `music: ${next ? `catalogue with ${Object.keys(next.tracks).join(', ')}` : 'no catalogue, so no music'}`,
+        next
+          ? `music: catalogue with ${roles}`
+          : 'music: no catalogue, so no music',
       );
       catalogue = next;
       prepare();

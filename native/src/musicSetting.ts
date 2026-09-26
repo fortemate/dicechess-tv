@@ -21,7 +21,8 @@ export const DEFAULT_MUSIC: MusicSetting = {
 
 export const readMusic = (store: KeyValueStore): MusicSetting => {
   const raw = store.getString(VOLUME);
-  const step = raw !== undefined && /^\d+$/.test(raw) ? Number(raw) : NaN;
+  const step =
+    raw !== undefined && /^\d+$/.test(raw) ? Number(raw) : Number.NaN;
   return {
     on: store.getString(ON) !== 'off',
     volume: step <= MUSIC_STEPS ? step : DEFAULT_MUSIC_VOLUME,
