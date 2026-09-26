@@ -37,6 +37,8 @@ W/D/L is not implemented in this step. Only the active game's result is stored. 
 
 ## Engine API compatibility
 
+> **Superseded on 26 September 2026 by engine 0.13.0 (#101).** `applyMove` now keeps the unspent dice, and the controller follows each roll through the engine's `getLegalTurnTree`, which also checks a turn as a whole rather than one action at a time. Both rest on `test/game.test.ts` and `test/dice.test.ts`, and on hotseat, bot and promotion turns played on the Vega Virtual Device (PR #103). The adapter described below is gone; this record is kept as it was.
+
 Engine 0.12.2 `DiceChess.applyMove` applies board placement, castling rights, en passant and halfmove updates, but clears its output dice field. For example, applying `a2a3` to the initial `PPN` position returns six fields. Assuming it consumed only one die prematurely ended the TV turn; the new multi-action regression caught this.
 
 The controller therefore reads the moving piece, validates the UCI action through `getLegalUciMoves`, calls `applyMove`, and reattaches the remaining dice. A normal move removes its piece die; castling removes king and rook dice. Promotion removes the pawn die. This follows the existing play-client integration and the canonical engine's `GameState.diceAfter` / `GameFlags.consumeDiceFor` contract. Board mutation, promotion eligibility and maximal-path filtering remain engine-owned. The compatibility code is confined to `viewGame`; it should be replaced by a canonical atomic turn-step export when that API becomes available. No engine package or source was modified or published here.

@@ -148,6 +148,10 @@ The board needs only `/rules`, which is what `src/core/game.ts` imports. The ful
 point is what `src/bot.worker.ts` imports today, so a native bot would carry the larger
 payload.
 
+> **Since engine 0.13.0 (#101)**, `src/core/game.ts` imports the full entry for the legal
+> turn tree, and `src/core/bot.ts` imported it already, so every build carries the full
+> entry. The sizes above are the record of the gate.
+
 ### The Metro resolution obstacle
 
 The engine is published as ES modules only, with a `./rules` subpath in `exports` and no

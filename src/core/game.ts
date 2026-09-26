@@ -1,6 +1,6 @@
-import { DiceChess } from '@fortemate/dicechess-engine/rules';
-import { applyLegal } from './model.ts';
-import { fileOf, pieceAt } from './board.ts';
+// The full entry, not /rules: only it has the legal turn tree, and every build
+// bundles it anyway for the bot (src/core/bot.ts).
+import { DiceChess, type MoveTree } from '@fortemate/dicechess-engine';
 import { hasExactKeys } from './keys.ts';
 
 export const INITIAL_POSITION =
@@ -62,58 +62,83 @@ const SCHEMA_2_FIELDS = SCHEMA_3_FIELDS.filter((field) => field !== 'human');
 export const opposite = (side: Side): Side => (side === 'w' ? 'b' : 'w');
 export const sideName = (side: Side) => (side === 'w' ? 'White' : 'Black');
 
-// The DFEN after one action, with the dice it leaves. Engine 0.12.2 applyMove
-// returns the board fields but clears the dice field, so the surviving dice are
-// reattached here, as the play client does. Legality, including maximal use and
-// promotion restrictions, is checked by applyLegal first.
+// The dice as the DFEN at the start of a turn writes them: upper case, in the
+// order they were rolled.
+const diceField = (roll: readonly number[]): string =>
+  roll
+    .map((die) => {
+      const piece = DiceChess.getPieceFromDice(die);
+      if (!piece) throw new Error('Invalid die');
+      return piece.toUpperCase();
+    })
+    .join('');
+
+// The DFEN after one action, with the dice it leaves. Since engine 0.13.0,
+// applyMove keeps the unspent dice and castling spends the king's and a rook's
+// (fortemate/dicechess-engine#279). It is not a legality check, so every action
+// reaching it has been checked against the turn tree first.
 function afterAction(dfen: string, move: string): string {
-  const piece = pieceAt(dfen.split(' ')[0], move.slice(0, 2));
-  if (!piece) throw new Error('Missing moving piece');
-  const letter = piece.toUpperCase();
-  let remaining = (dfen.split(' ')[6] ?? '').toUpperCase();
-  const consume = (die: string) => {
-    if (!remaining.includes(die)) throw new Error('Missing required die');
-    remaining = remaining.replace(die, '');
-  };
-  const next = applyLegal(dfen, move);
-  consume(letter);
-  if (letter === 'K' && Math.abs(fileOf(move) - fileOf(move.slice(2))) === 2)
-    consume('R');
-  return (
-    next.split(' ').slice(0, 6).join(' ') + (remaining ? ' ' + remaining : '')
+  const next = DiceChess.applyMove(
+    dfen,
+    move.slice(0, 2),
+    move.slice(2, 4),
+    move.slice(4) || undefined,
   );
+  if (!next) throw new Error('Engine rejected action');
+  return next;
+}
+
+// Every legal turn of a roll, as the engine's prefix tree of actions: a node's
+// keys are the actions that may come next, and a node with none ends the turn.
+// Following the tree closes the gap that a legal list asked for after each
+// action leaves open: an action legal on its own that no full turn continues
+// (#101). Built once per roll and kept for that roll only, because the largest
+// trees run to a quarter of a megabyte and every view of the game walks them.
+let turn: { dfen: string; tree: MoveTree } | null = null;
+function turnTree(dfen: string): MoveTree {
+  if (turn?.dfen !== dfen)
+    turn = { dfen, tree: DiceChess.getLegalTurnTree(dfen) };
+  return turn.tree;
+}
+
+// The dice left, in upper case and in the order they were rolled. The engine
+// decides which dice are left, and writes them sorted and in the mover's case;
+// the roll decides the order they are listed in, the order the screen shows.
+function inRollOrder(roll: readonly number[], left: string): string {
+  const pool = [...left.toUpperCase()];
+  let listed = '';
+  for (const letter of diceField(roll)) {
+    const at = pool.indexOf(letter);
+    if (at === -1) continue;
+    listed += letter;
+    pool.splice(at, 1);
+  }
+  return listed;
 }
 
 export function viewGame(game: Game) {
   let dfen = game.start;
+  let node: MoveTree | null = null;
   if (game.roll.length) {
-    dfen +=
-      ' ' +
-      game.roll
-        .map((die) => {
-          const piece = DiceChess.getPieceFromDice(die);
-          if (!piece) throw new Error('Invalid die');
-          return piece.toUpperCase();
-        })
-        .join('');
+    dfen += ' ' + diceField(game.roll);
+    node = turnTree(dfen);
   }
+  // The actions played so far must be a path through the tree.
   for (const move of game.moves) {
-    const board = dfen.split(' ')[0];
-    if (!board.includes('K') || !board.includes('k'))
-      throw new Error('Move after king capture');
+    if (!node || !Object.hasOwn(node, move))
+      throw new Error('Illegal action: ' + move);
+    node = node[move];
     dfen = afterAction(dfen, move);
   }
   const parts = dfen.split(' ');
   const side = parts[1] as Side;
-  const legal =
-    game.roll.length && parts[0].includes('K') && parts[0].includes('k')
-      ? DiceChess.getLegalUciMoves(dfen)
-      : [];
   return {
     dfen,
     side,
-    legal,
-    remaining: parts[6] ?? '',
+    // What may come next in this turn: nothing before the roll or once the turn
+    // is complete, a king taken included, which always ends a turn.
+    legal: node ? Object.keys(node) : [],
+    remaining: game.roll.length ? inRollOrder(game.roll, parts[6] ?? '') : '',
     // Whether the side to move belongs to the bot.
     bot: game.human !== null && side !== game.human,
   };
