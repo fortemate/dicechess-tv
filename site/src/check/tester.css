@@ -58,6 +58,10 @@ h2 {
   font-size: 24px;
 }
 
+.rule {
+  font-weight: 600;
+}
+
 .note,
 .progress {
   color: var(--muted);
@@ -125,12 +129,15 @@ button {
   grid-template-rows: repeat(8, 1fr);
 }
 
-.squares button {
+.squares > * {
   position: relative;
   margin: 0;
   padding: 0;
   border: 0;
   background: transparent;
+}
+
+.squares button {
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
@@ -141,7 +148,8 @@ button {
 
 /* A tapped square: a white disc with a black ring and tick, which reads the
    same whatever the viewer's colour vision and whatever the square under it. */
-.squares button[aria-pressed='true']::after {
+.squares [aria-pressed='true']::after,
+.squares .ticked::after {
   content: '';
   position: absolute;
   inset: 27%;
