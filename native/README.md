@@ -515,6 +515,16 @@ the menu of a game against the computer opens the cards on that opponent, and a
 rematch keeps it. The record of each opponent moved from the home screen to its
 card, which keeps the home screen short.
 
+Tests: `native/test/screen.test.ts` (the walk, which wraps; each card's own
+opponent; Back from the colour to the cards and on to Play the computer; New game
+and a rematch keeping the opponent) and `native/test/opponents.test.tsx` (what
+each card shows, and the focus). Checked on the virtual device on 26 September
+2026 with scripted key presses and a screenshot after each step: the cards opened
+on Rolly; OK on Grabby asked "Play Grabby as"; Back returned to the cards on
+Grabby, and Back again to Play the computer; and after a resigned game against
+Rampage, Main menu and Play the computer opened the cards on Rampage, whose card
+read "As Black: 0W 0D 1L".
+
 **The faces** are three RhosGFX Vector Emojis (CC0), the pieces' artist:
 Zany face for Rolly, Money mouth face for Grabby, Smiling face with horns for
 Rampage. `scripts/generate-faces.mjs` converts them into components in
@@ -531,9 +541,9 @@ probe build on the virtual device on 26 September 2026 timed each decision:
 | Rampage  |           339 ms | about two games, on a first roll |
 
 In Node, over 100 games each, the slowest were 48 ms and 38 ms. A decision
-runs as the opponent's step begins, so it adds at most about a third of a second
-to the 600 ms step. The pacing is unchanged, and nothing has been measured on a
-Fire TV Stick yet. Running a _strong_ bot off the thread is a different question
+runs as the opponent's step begins, so the slowest observed added about a third
+of a second to the 600 ms step. That is the most these runs saw, not a bound.
+The pacing is unchanged, and nothing has been measured on a Fire TV Stick yet. Running a _strong_ bot off the thread is a different question
 and still open: React Native has no Web Worker, Vega's headless tasks cannot be
 started by an app, and `@amazon-devices/react-native-worklets` is the untested
 candidate.
@@ -579,20 +589,23 @@ against the same opponent. A rematch keeps the colour option: White and Black
 stay, and Random draws a side again. It is a new game, saved and counted like
 any other, and the finished one is counted once. Hotseat results keep their
 flow: OK goes back to the main menu, since the app cannot know who sat where.
-The bot's turn shows "Random is playing…" in the prompt instead of an OK that
-does nothing, which also keeps the headline to one line. Tests:
+The opponent's turn shows its name in the prompt, "Rolly is playing…", instead
+of an OK that does nothing, which also keeps the headline to one line. Tests:
 `native/test/screen.test.ts` (the rematch, Random drawing again, Main menu and
-Back, hotseat, the bot taking the king) and `native/test/ledger.test.tsx` (the
-single count and the saved rematch). Checked on the virtual device on 25
-September: playing Black, the bot's turn read "White to play" and "Random is
-playing…"; resigning offered Rematch and Main menu; Rematch started a new game
-as Black; and a schema-3 save from the day before resumed.
+Back, hotseat, the bot taking the king), `native/test/ledger.test.tsx` (the
+single count and the saved rematch) and `native/test/noMove.test.tsx` (the
+prompt names Rolly). Checked on the virtual device on 25 September, before the
+opponents had names: playing Black, the bot's turn read "White to play" and
+"Random is playing…"; resigning offered Rematch and Main menu; Rematch started a
+new game as Black; and a schema-3 save from the day before resumed. On 26
+September, playing Black against Rampage, its turn read "VS RAMPAGE · TURN 1"
+and "Rampage is playing…".
 
-Verified on the virtual device on 24 September 2026 with scripted key presses
-and a screenshot after each step: Play Random opened the choice on Random;
-choosing Black turned the board and the bot played White's first turn; after the
-roll, Up moved the cursor from e7 to e6; and a relaunch resumed the game from
-Black's side with its dice.
+Verified on the virtual device on 24 September 2026, before the opponent cards,
+with scripted key presses and a screenshot after each step: Play Random, the home
+option then, opened the colour choice on Random; choosing Black turned the board
+and the bot played White's first turn; after the roll, Up moved the cursor from
+e7 to e6; and a relaunch resumed the game from Black's side with its dice.
 
 ### What this still leaves
 
