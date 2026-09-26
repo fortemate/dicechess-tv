@@ -7,7 +7,14 @@
 import type { ImageMetadata } from 'astro';
 import { Image } from 'astro:assets';
 import icon from '../../../native/icon/icon-512.png';
-import { ITEMS, SCREEN, VISION, squareName } from '../check/items';
+import {
+  ITEMS,
+  MARK_NAMES,
+  SCREEN,
+  VARIANTS,
+  VISION,
+  squareName,
+} from '../check/items';
 import '../check/tester.css';
 
 const files = import.meta.glob<{ default: ImageMetadata }>(
@@ -50,20 +57,10 @@ const EXAMPLE_TICKS = [3, 6];
         <p class="rule">
           Your task: on six boards, tap every piece that can move. Nothing else.
         </p>
-        <ul>
-          <li>Turn off night mode and any blue-light filter on your screen.</li>
-          <li>
-            Each board also tints two squares to show the last move played. They
-            are not the answer: leave them.
-          </li>
-        </ul>
-        <button type="button" class="primary" data-action="example">
-          See an example
-        </button>
-      </section>
-
-      <section data-step="example" hidden>
-        <h2>An example</h2>
+        <p class="note">
+          Turn off night mode and any blue-light filter on your screen first.
+        </p>
+        <h2>For example</h2>
         <div class="board">
           <Image
             src={picture('example')}
@@ -81,9 +78,9 @@ const EXAMPLE_TICKS = [3, 6];
           </div>
         </div>
         <p>
-          The king and the right-hand rook in the top row are marked, so both
-          are ticked. The two tinted squares in the bottom-left corner show the
-          last move: they stay unticked.
+          Here the king and the right-hand rook in the top row are marked, so
+          both are ticked. The two tinted squares in the bottom-left corner show
+          the last move played. They are not the answer, so they stay unticked.
         </p>
         <p class="note">
           The blue frame is the cursor of the TV remote. It always sits on one
@@ -202,7 +199,7 @@ const EXAMPLE_TICKS = [3, 6];
 
       <section data-step="done" hidden>
         <h2>Thank you!</h2>
-        <p>Your answers have arrived. You can close this page.</p>
+        <p>Your answers have arrived.</p>
       </section>
 
       <section data-step="fallback" hidden>
@@ -218,14 +215,36 @@ const EXAMPLE_TICKS = [3, 6];
           </button>
         </p>
       </section>
+
+      <div class="result" data-slot="result" hidden>
+        <p class="score">
+          You found <strong data-slot="found"></strong> of{' '}
+          <strong data-slot="total"></strong> marked pieces.
+        </p>
+        <p data-slot="extra" hidden></p>
+        <ul>
+          {VARIANTS.map((variant) => (
+            <li>
+              {MARK_NAMES[variant]}: <span data-variant={variant} />
+            </li>
+          ))}
+        </ul>
+        <p class="note">
+          The piece under the blue frame is not counted: the frame, not the
+          mark, shows that it can move. You can close this page.
+        </p>
+      </div>
     </main>
 
     <script>
       import {
         ITEMS,
+        VARIANTS,
         encodeAnswers,
         scoreAnswers,
         type CheckAnswers,
+        type Counts,
+        type Variant,
       } from '../check/items';
       import { newId, send } from '../check/send';
 
@@ -264,9 +283,6 @@ const EXAMPLE_TICKS = [3, 6];
         );
       }
 
-      $('[data-action="example"]').addEventListener('click', () =>
-        show($<HTMLElement>('[data-step="example"]')),
-      );
       $('[data-action="start"]').addEventListener('click', next);
       pictures.forEach((section, index) => {
         $('[data-slot="number"]', section).textContent = String(index + 1);
@@ -303,20 +319,49 @@ const EXAMPLE_TICKS = [3, 6];
         const button = $<HTMLButtonElement>('button[type="submit"]', form);
         button.disabled = true;
         button.textContent = 'Sending…';
+        const score = scoreAnswers(answers.taps);
         const sent = await send({
           kind: 'check',
           ...answers,
-          score: scoreAnswers(answers.taps),
+          score,
           website: String(fields.get('website') ?? ''),
         });
         if (sent) {
           show($<HTMLElement>('[data-step="done"]'));
-          return;
+        } else {
+          $<HTMLTextAreaElement>('[data-slot="code"]').value =
+            encodeAnswers(answers);
+          show($<HTMLElement>('[data-step="fallback"]'));
         }
-        $<HTMLTextAreaElement>('[data-slot="code"]').value =
-          encodeAnswers(answers);
-        show($<HTMLElement>('[data-step="fallback"]'));
+        showResult(score);
       });
+
+      // The visitor's own result, shown only once the answers are sent, so
+      // that it cannot change them.
+      function showResult(score: Record<Variant, Counts>) {
+        const sum = (count: (counts: Counts) => number) =>
+          VARIANTS.reduce((total, variant) => total + count(score[variant]), 0);
+        const result = $<HTMLElement>('[data-slot="result"]');
+        $('[data-slot="found"]', result).textContent = String(
+          sum((counts) => counts.found),
+        );
+        $('[data-slot="total"]', result).textContent = String(
+          sum((counts) => counts.found + counts.missed),
+        );
+        const extra = sum((counts) => counts.lastMove + counts.other);
+        const line = $<HTMLElement>('[data-slot="extra"]', result);
+        line.textContent =
+          extra === 1
+            ? 'You also tapped one square without a mark.'
+            : `You also tapped ${extra} squares without a mark.`;
+        line.hidden = extra === 0;
+        for (const variant of VARIANTS) {
+          const { found, missed } = score[variant];
+          $(`[data-variant="${variant}"]`, result).textContent =
+            `${found} of ${found + missed}`;
+        }
+        result.hidden = false;
+      }
 
       $('[data-action="copy"]').addEventListener('click', async (event) => {
         const code = $<HTMLTextAreaElement>('[data-slot="code"]');

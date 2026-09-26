@@ -80,7 +80,7 @@ test('totals add up per variant, over the pictures answered', () => {
   const totals = scoreAnswers({
     'a-many': [10, 12, 14, 15, 19],
     'a-few': [27],
-    'c-few': [7],
+    'c-few': [58],
     unknown: [1, 2, 3],
   });
   assert.deepEqual(totals.A, { found: 5, missed: 1, lastMove: 1, other: 0 });
