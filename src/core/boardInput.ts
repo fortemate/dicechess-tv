@@ -116,10 +116,8 @@ export function boardInput(
       )
     : [];
   if (matches.length > 1) {
-    return {
-      focus,
-      action: { type: 'promote', moves: matches.sort(byPromotion) },
-    };
+    matches.sort(byPromotion);
+    return { focus, action: { type: 'promote', moves: matches } };
   }
   if (matches.length === 1) {
     return { focus, action: { type: 'move', move: matches[0] } };
