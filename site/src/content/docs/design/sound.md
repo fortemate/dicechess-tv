@@ -34,8 +34,22 @@ The app plays on three players: board, dice and result. A capture and the win it
 
 ## Silence
 
-- **Mute.** A "Sound" item in both menus turns every cue off, and the choice is remembered. In the game menu it is one press of Up away, because the menu wraps.
+- **Mute.** The Settings screen, opened from both menus, turns every cue off, and the choice is remembered. In the game menu Settings is one press of Up away, because the menu wraps.
 - **In the background.** Sound stops when the app leaves the screen, for the launcher, the screensaver or another app, as Amazon's submission checks require.
+
+## Music that follows the danger
+
+The game has adaptive music ([#76](https://github.com/fortemate/dicechess-tv/issues/76)). The menus have their own theme. Over a game the theme follows the danger to a king, and changes at the start of each turn:
+
+- **Calm** while neither king can be taken soon.
+- **Tense** when at least a tenth of the rolls would let the side about to roll take the king within its turn.
+- **Critical** when the king is attacked directly, and only the right die is missing.
+
+Against the computer the music follows the danger to your own king. In hotseat, where both players are in the room, it follows the danger to either king. It rises at once and falls one step per turn, so one quiet turn does not drop a tense game to calm. Themes crossfade over two seconds, and after a result the music waits, so the jingle is heard on its own.
+
+The Settings screen switches music on or off and sets its volume, apart from the sound effects. Music stops at once when the app leaves the screen.
+
+The tracks join the app once their licence is recorded. Until then a build has no music, and its Settings offer only the sound effects.
 
 ## What has been heard, and where
 

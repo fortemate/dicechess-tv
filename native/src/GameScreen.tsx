@@ -96,13 +96,18 @@ export type GameScreenProps = {
   music?: Music;
   initialMusic?: MusicSetting;
   onMusic?: (music: MusicSetting) => void;
+  // Whether the build has music, which the app learns after launch.
+  musicAvailable?: boolean;
 };
 
 // How long the music stays silent after a game ends, so the result's jingle is
 // heard on its own before the menu theme returns.
 export const RESULT_SILENCE_MS = 2500;
 
-// The volume as rings, like an opponent's level: filled up to the setting.
+// The volume as rings, like an opponent's level: filled up to the setting. Small
+// enough that the label and ten rings fit the panel, which measured about
+// 380 dp wide on the virtual device.
+const RING = 10;
 const VolumeRings = ({
   volume,
   focused,
@@ -110,20 +115,20 @@ const VolumeRings = ({
   volume: number;
   focused: boolean;
 }) => (
-  <View style={{ flexDirection: 'row', marginLeft: 14 }}>
+  <View style={{ flexDirection: 'row', marginLeft: 10 }}>
     {Array.from({ length: MUSIC_STEPS }, (_, i) => (
       <View
         key={i}
         testID={i < volume ? 'ring-filled' : 'ring-empty'}
         style={{
-          width: 14,
-          height: 14,
-          borderRadius: 7,
+          width: RING,
+          height: RING,
+          borderRadius: RING / 2,
           borderWidth: 2,
           borderColor: focused ? '#f0f4f8' : '#aab8c9',
           backgroundColor:
             i < volume ? (focused ? '#f0f4f8' : '#aab8c9') : 'transparent',
-          marginRight: 5,
+          marginRight: 4,
         }}
       />
     ))}
@@ -287,6 +292,7 @@ const Panel = ({
   game,
   sound,
   music,
+  hasMusic,
   selected,
   ledger,
   pressed,
@@ -295,6 +301,7 @@ const Panel = ({
   game: Game;
   sound: boolean;
   music: MusicSetting;
+  hasMusic: boolean;
   selected: string | null;
   ledger?: Ledger;
   // OK is held: the focused option of an open menu shows it.
@@ -326,18 +333,22 @@ const Panel = ({
       return (
         <Choices
           title="Settings"
-          note="Left and Right change the volume."
-          options={settingsOptions(sound, music)}
+          note={hasMusic ? 'Left and Right change the volume.' : undefined}
+          options={settingsOptions(sound, music, hasMusic)}
           index={overlay.index}
           pressed={pressed}
-          afters={[
-            undefined,
-            <VolumeRings
-              key="rings"
-              volume={music.volume}
-              focused={overlay.index === 1}
-            />,
-          ]}
+          afters={
+            hasMusic
+              ? [
+                  undefined,
+                  <VolumeRings
+                    key="rings"
+                    volume={music.volume}
+                    focused={overlay.index === 1}
+                  />,
+                ]
+              : []
+          }
         />
       );
     case 'colour':
@@ -436,6 +447,7 @@ export const GameScreen = ({
   music,
   initialMusic,
   onMusic,
+  musicAvailable = false,
 }: GameScreenProps) => {
   const { width, height } = useWindowDimensions();
   const reduce = React.useCallback(
@@ -444,11 +456,22 @@ export const GameScreen = ({
     [options],
   );
   const [
-    { game, focus, overlay, sound, music: musicSetting, guarded },
+    {
+      game,
+      focus,
+      overlay,
+      sound,
+      music: musicSetting,
+      musicAvailable: hasMusic,
+      guarded,
+    },
     dispatch,
   ] = React.useReducer(reduce, initial, (restored) =>
-    initialState(options, restored, initialSound, initialMusic),
+    initialState(options, restored, initialSound, initialMusic, musicAvailable),
   );
+  React.useEffect(() => {
+    dispatch({ kind: 'musicAvailable', available: musicAvailable });
+  }, [musicAvailable]);
   // OK held down, shown on the focused option of an open menu (#51).
   const [pressed, setPressed] = React.useState(false);
   // While the tutorial is up it owns the remote. This screen stays subscribed —
@@ -615,6 +638,7 @@ export const GameScreen = ({
           game={game}
           sound={sound}
           music={musicSetting}
+          hasMusic={hasMusic}
           selected={focus.selected}
           ledger={ledger}
           pressed={pressed}

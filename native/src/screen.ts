@@ -58,8 +58,13 @@ const settled = (focus: BoardFocus, game: Game): BoardFocus =>
 
 // The screen advances on a key, on the local opponent taking its turn, or on
 // the guard after a roll with nothing to play running out.
+// It also learns whether the build has music at all, which the app finds out
+// after launch.
 export type ScreenAction =
-  { kind: 'key'; key: BoardKey } | { kind: 'bot' } | { kind: 'unguard' };
+  | { kind: 'key'; key: BoardKey }
+  | { kind: 'bot' }
+  | { kind: 'unguard' }
+  | { kind: 'musicAvailable'; available: boolean };
 
 // How long the opponent's next step waits, in milliseconds: long enough to watch
 // each roll and move land. After a roll with nothing to play it holds longer, so
@@ -131,6 +136,9 @@ export type ScreenState = {
   // app can save it and apply it to the players.
   sound: boolean;
   music: MusicSetting;
+  // Whether this build has music. Without it the settings offer only the sound
+  // effects, rather than switches that do nothing (#76).
+  musicAvailable: boolean;
   // OK is ignored: a person has just rolled nothing to play. The app clears it
   // after OK_GUARD_MS; the other keys work throughout.
   guarded: boolean;
@@ -142,13 +150,13 @@ export const SETTINGS_OPTION = 'Settings';
 export const settingsOptions = (
   sound: boolean,
   music: MusicSetting,
+  musicAvailable = true,
 ): string[] => [
-  `Music: ${music.on ? 'on' : 'off'}`,
-  `Music volume: ${music.volume}`,
+  ...(musicAvailable
+    ? [`Music: ${music.on ? 'on' : 'off'}`, `Music volume: ${music.volume}`]
+    : []),
   `Sound effects: ${sound ? 'on' : 'off'}`,
 ];
-const MUSIC_ROW = 0;
-const VOLUME_ROW = 1;
 
 export type ScreenOptions = {
   // Three dice. Injected so the screen never reaches for a global, and so a
@@ -247,7 +255,11 @@ export const resultOptions = ['Rematch', 'Main menu'];
 // A new game keeps the settings, which are not about the game.
 const board = (
   game: Game,
-  { sound, music }: Pick<ScreenState, 'sound' | 'music'>,
+  {
+    sound,
+    music,
+    musicAvailable,
+  }: Pick<ScreenState, 'sound' | 'music' | 'musicAvailable'>,
   cursor: Square = START,
 ): ScreenState => ({
   game,
@@ -256,6 +268,7 @@ const board = (
   pending: [],
   sound,
   music,
+  musicAvailable,
   guarded: false,
 });
 
@@ -268,6 +281,7 @@ const played = (state: ScreenState, game: Game): ScreenState => ({
   pending: [],
   sound: state.sound,
   music: state.music,
+  musicAvailable: state.musicAvailable,
   guarded: emptyRoll(game) && !botToAct(game),
 });
 
@@ -283,6 +297,7 @@ export const initialState = (
   restored?: Game | null,
   sound = true,
   music: MusicSetting = DEFAULT_MUSIC,
+  musicAvailable = false,
 ): ScreenState => {
   const game = restored ?? newGame('hotseat', options.newId());
   return {
@@ -296,6 +311,7 @@ export const initialState = (
     pending: [],
     sound,
     music,
+    musicAvailable,
     guarded: false,
   };
 };
@@ -548,14 +564,12 @@ const onSettings: Handler<'settings'> = (state, overlay, key) => {
             index: menuOptions(state.game).indexOf(SETTINGS_OPTION),
           },
     );
+  const rows = settingsOptions(state.sound, state.music, state.musicAvailable);
   if (key === 'up' || key === 'down')
-    return moved(
-      state,
-      overlay,
-      key,
-      settingsOptions(state.sound, state.music).length,
-    );
-  if (overlay.index === VOLUME_ROW) {
+    return moved(state, overlay, key, rows.length);
+  // What a row is comes from its label: the rows differ with the build.
+  const row = rows[overlay.index] ?? '';
+  if (row.startsWith('Music volume')) {
     if (key === 'select') return state;
     const volume = Math.max(
       0,
@@ -563,7 +577,7 @@ const onSettings: Handler<'settings'> = (state, overlay, key) => {
     );
     return { ...state, music: { ...state.music, volume } };
   }
-  if (overlay.index === MUSIC_ROW)
+  if (row.startsWith('Music:'))
     return { ...state, music: { ...state.music, on: !state.music.on } };
   return { ...state, sound: !state.sound };
 };
@@ -643,6 +657,15 @@ export function screenReducer(
   if (action.kind === 'bot') return botStep(state, options);
   if (action.kind === 'unguard')
     return state.guarded ? { ...state, guarded: false } : state;
+  if (action.kind === 'musicAvailable') {
+    if (action.available === state.musicAvailable) return state;
+    // Without music the settings have fewer rows: start them from the top.
+    const overlay: Overlay =
+      state.overlay.kind === 'settings'
+        ? { ...state.overlay, index: 0 }
+        : state.overlay;
+    return { ...state, musicAvailable: action.available, overlay };
+  }
   const { key } = action;
   const { overlay } = state;
   // Leaving any of those comes back here, to the screen they were started from.

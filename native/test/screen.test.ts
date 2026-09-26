@@ -408,6 +408,27 @@ const toSettings = (state: ScreenState): ScreenState => {
   return drive(state, ...(Array(at).fill('down') as BoardKey[]), 'select');
 };
 
+// A build with music, as the app reports once it has read the catalogue.
+const withMusic = (state: ScreenState): ScreenState =>
+  screenReducer(state, { kind: 'musicAvailable', available: true }, options);
+
+test('without music in the build, Settings offers only the sound effects', () => {
+  const settings = toSettings(fresh());
+  assert.equal(settings.musicAvailable, false);
+  assert.deepEqual(
+    settingsOptions(settings.sound, settings.music, settings.musicAvailable),
+    ['Sound effects: on'],
+  );
+  // The one row is the sound effects, and the arrows stay on it.
+  assert.equal(drive(settings, 'select').sound, false);
+  assert.equal(drive(settings, 'down').overlay.kind, 'settings');
+  assert.equal(drive(settings, 'down', 'select').sound, false);
+  // When the catalogue turns up, the rows grow and the cursor starts at the top.
+  const grown = withMusic(drive(settings, 'down'));
+  assert.equal(grown.musicAvailable, true);
+  assert.equal(grown.overlay.kind === 'settings' ? grown.overlay.index : -1, 0);
+});
+
 test('Settings opens from the home menu on music, and Back returns to it', () => {
   const settings = toSettings(fresh());
   assert.deepEqual(settings.overlay, {
@@ -429,7 +450,7 @@ test('Settings opens from the home menu on music, and Back returns to it', () =>
 });
 
 test('OK or the arrows sideways flip music and the sound effects', () => {
-  const settings = toSettings(fresh());
+  const settings = toSettings(withMusic(fresh()));
   const musicOff = drive(settings, 'select');
   assert.equal(musicOff.music.on, false);
   assert.equal(drive(musicOff, 'right').music.on, true);
@@ -442,7 +463,7 @@ test('OK or the arrows sideways flip music and the sound effects', () => {
 });
 
 test('the volume moves one step per press and stops at both ends', () => {
-  const volume = drive(toSettings(fresh()), 'down');
+  const volume = drive(toSettings(withMusic(fresh())), 'down');
   assert.equal(drive(volume, 'right').music.volume, 8);
   assert.equal(drive(volume, 'left', 'left').music.volume, 5);
   const top = drive(volume, 'right', 'right', 'right', 'right', 'right');
@@ -474,7 +495,7 @@ test('Settings from the game menu never asks to replace the game, and Back retur
 });
 
 test('a new game keeps the settings', () => {
-  const settings = toSettings(fresh());
+  const settings = toSettings(withMusic(fresh()));
   const changed = drive(settings, 'select', 'down', 'right', 'down', 'select');
   assert.deepEqual(changed.music, { on: false, volume: 8 });
   assert.equal(changed.sound, false);

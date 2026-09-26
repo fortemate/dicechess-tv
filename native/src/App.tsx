@@ -164,6 +164,10 @@ export const App = ({
   // The adaptive music (#76). The build ships a catalogue beside the tracks, or
   // none at all, and then the game plays without music.
   const [initialMusic] = React.useState(() => readMusic(settings));
+  // Known once the catalogue is read; an injected player counts as music.
+  const [musicAvailable, setMusicAvailable] = React.useState(
+    injectedMusic !== undefined,
+  );
   const music = React.useMemo(
     () => injectedMusic ?? createMusic({ report: onState }),
     // Made once, like the sound players.
@@ -176,7 +180,9 @@ export const App = ({
     if (injectedMusic) return;
     let live = true;
     void loadCatalogue().then((catalogue) => {
-      if (live) music.setCatalogue(catalogue);
+      if (!live) return;
+      music.setCatalogue(catalogue);
+      setMusicAvailable(catalogue !== null);
     });
     return () => {
       live = false;
@@ -254,6 +260,7 @@ export const App = ({
       music={music}
       initialMusic={initialMusic}
       onMusic={onMusic}
+      musicAvailable={musicAvailable}
     />
   );
 };

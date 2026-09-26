@@ -703,8 +703,8 @@ while dice remain the game continues.
 
 The game plays ten cues: a roll, a roll with nothing to play, a move, a capture,
 castling, a promotion, the handoff of the dice, and a win, a loss or a draw.
-Every one also has a visual equivalent already on screen, and a `Sound: on` item
-in both menus turns them all off. What was heard on a real speaker was chosen by
+Every one also has a visual equivalent already on screen, and the Settings screen,
+opened from both menus, turns them all off. What was heard on a real speaker was chosen by
 the owner, by ear, in `fortemate/dicechess-assets#8`; the empty roll's cue was
 chosen by ear too, in #85. The game's own sounds have been heard coming from the
 virtual device through the Mac's speakers. What has not been heard yet is the
@@ -757,9 +757,10 @@ and writes the modules it needs into the packaged manifest itself — the media
 controls and media descriptor modules included, which nothing in the source
 mentions.
 
-JDSherbert's licence forbids sharing the raw files. They can ship in the
-package, but **if this repository is ever made public, `sounds/jdsherbert-tabletop/`
-must be removed first.** Kenney's packs are CC0 and carry no such limit.
+JDSherbert's licence forbids sharing the raw files. The author gave written
+permission on 24 September 2026 to include these four in this public repository,
+for this project only (`THIRD_PARTY_NOTICES.md`). Kenney's packs are CC0 and carry
+no such limit.
 
 ### What the probe established
 
@@ -817,9 +818,91 @@ declared, a roll and a move each reach `playback stream successfully created`,
 start on a server handle, and are heard.
 
 What that failure also produced — `ended` never firing, `duration` and
-`currentTime` reading `NaN`, `error` sticking at 4 — came from the broken sink,
-and has not been re-measured since. `src/sound.ts` depends on none of them; check
-again before any code does.
+`currentTime` reading `NaN`, `error` sticking at 4 — came from the broken sink.
+The music probe of #76 measured them again on 26 September 2026: `ended` fires,
+and `duration` and `currentTime` are valid.
+
+## Music
+
+The game plays adaptive music (#76). The menus have their own theme. Over a game,
+the theme follows the danger to a king, calm, tense or critical, and changes at
+the start of a turn.
+
+**The tracks are not in this repository yet.** They were made for the game with
+Suno by pepka-prygni, and are held in dicechess-assets
+(`music/pepka-prygni-dicechess`) while their licence is decided.
+
+- `scripts/vendor-music.mjs` copies them from a pinned commit into `music/`, which
+  git ignores.
+- It refuses a pack whose licence is pending unless `--private` says the build is
+  local.
+- The build copies them to `assets/music/` with their catalogue, `music.json`.
+- A build without music finds no catalogue in its package. It plays none, and its
+  settings offer only the sound effects.
+
+**What plays when** is `musicRole` in `src/screen.ts`:
+
+- The menu theme plays on the home screen, the cards, the colour choice, the
+  tutorial, the rules and About, and once a game has ended.
+- Over a game, and over a menu opened from one, the level of danger plays.
+- After a result the music is silent for 2.5 s, so the jingle is heard on its own.
+
+**The danger** (`src/core/danger.ts`) is measured at the start of each turn, for
+the side about to roll:
+
+- critical: a roll lets that side take the king with its first action;
+- tense: at least 22 of the 216 rolls let it take the king within its turn;
+- calm: neither.
+
+Against the computer it is the danger to the person's king; in hotseat, to either
+king. The level rises at once and falls one step per turn, so one quiet turn does
+not drop a tense game to calm.
+
+The first check is one move generation. The second searches every roll: in the
+#76 probe on the virtual device, a whole search took a median of 427 ms and up to
+1.6 s. So `useDanger` advances it one roll at a time between frames, and the remote
+is never held up. In play on the virtual device, a turn's measurement took 0.5–2 s
+of wall time spread over frames, and a critical answer 18–30 ms. Tests:
+`test/danger.test.ts`, on engine positions whose answers came from the legal turn
+tree.
+
+**Playback** (`src/music.ts`) uses two w3cmedia players, as `MUSIC`/`USAGE_GAME`.
+
+- **Looping.** A track loops by handing each pass to the other player 0.3 s before
+  its end, with a crossfade. The player's own loop lost 0.3 s at the first seam in
+  the probe.
+- **Level changes** crossfade over 2 s, and a theme comes back where it was left.
+- **Leaving the foreground** stops the music at once, on `blur`. The virtual device
+  sent `blur` before the change to background on every one of four trips to the
+  launcher.
+- **Coming back** waits 300 ms: a scripted launch once made the app active for
+  0.2 s and took it away again.
+
+Tests: `test/music.test.ts` on a fake clock, and `test/musicApp.test.tsx`.
+
+**Settings.** The Settings screen, opened from both menus, holds:
+
+- music on or off, on by default;
+- the music volume in ten 3 dB steps, shown as rings;
+- the sound effects.
+
+All three are remembered. Tests: `test/screen.test.ts`, `test/musicApp.test.tsx`
+and `test/soundApp.test.tsx`.
+
+Checked on the virtual device on 26 September 2026, with the tracks vendored
+locally:
+
+- the home screen played the menu theme;
+- the settings turned music off and on, and it came back where it had stopped;
+- resuming a game crossfaded to the calm theme;
+- when a white knight reached f5, attacking the person's king on e7, the critical
+  theme took over;
+- bringing the launcher to the front stopped the music at once.
+
+The volume rings first ran 554 px into the right margin of the TV safe area. Now
+they are smaller, and the row wraps inside its frame rather than overflowing.
+
+Not checked: anything by ear, and anything on a Fire TV Stick (#10).
 
 ## Raster alternative
 

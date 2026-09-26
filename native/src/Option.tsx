@@ -41,7 +41,15 @@ export const Option = ({
       }}
     >
       {after ? (
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        // Wraps rather than running past the frame and the TV's safe area when
+        // the panel is narrower than expected.
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+          }}
+        >
           <Text style={{ color: focused ? '#f0f4f8' : '#aab8c9', fontSize }}>
             {label}
           </Text>
