@@ -95,10 +95,9 @@ other system-deployed libraries are left to the device, and not one comes from
 these six packages or from the packages that pull them in.
 
 They are Vega and React Native tooling, and on the developer's machine none of
-them runs the vulnerable code on input from outside this repository. Checked on
-2026-09-26 with SDK 0.24.12112, by reading each call site and by logging every
-copy that `check`, `lint`, `test`, the bundle, the build and the Metro dev
-server load:
+them runs its vulnerable code. Checked on 2026-09-26 with SDK 0.24.12112, by
+reading each call site and by logging every copy that `check`, `lint`, `test`,
+the bundle, the build and the Metro dev server load:
 
 - `lodash` 4.17.21 and 4.17.23 come from `kepler-cli-platform`, the manifest
   builder and `@microsoft/api-extractor`. The build calls `merge`, `isEmpty`
@@ -106,10 +105,13 @@ server load:
 - `minimatch` 3.0.8 comes from `@microsoft/api-extractor`, `test-exclude` and
   `node-dir`, and never loads. The copies ESLint and `glob` load, 3.1.5 and
   10.2.6, are fixed versions.
-- `toml` 3.0.0 parses our own `manifest.toml`: in the manifest builder during a
-  build, and in Amazon's ESLint plugin during lint. The advisories need a
-  crafted TOML document. The plugin carries its own compiled copy of the
-  parser, so no change to the installed package reaches it.
+- `toml` 3.0.0 comes from the manifest builder and Amazon's ESLint plugin, and
+  parses nothing. The build loads it but runs the builder without a manifest;
+  the reads of `manifest.toml` during a build are the SDK's own CLI, with its
+  own parser. The plugin carries a compiled copy of the parser, which no change
+  to the installed package reaches, and it read no TOML file during lint.
+  Either would parse only our own `manifest.toml`; the advisories need a
+  crafted TOML document.
 - `ajv` 8.12.0 and 8.13.0 come from `@microsoft/api-extractor` and never load.
   The advisory also needs the `$data` option, which neither caller enables.
 - `fast-xml-parser` 4.5.7 comes from the React Native CLI, which constructs an
