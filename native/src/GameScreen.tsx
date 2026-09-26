@@ -23,6 +23,9 @@ import { RulesScreen } from './RulesScreen';
 import { AboutScreen } from './AboutScreen';
 import { OpponentScreen } from './OpponentScreen';
 import type { Sounds } from './sound';
+import type { Music } from './music';
+import { MUSIC_STEPS, type MusicSetting } from './musicSetting';
+import { useDanger } from './useDanger';
 import { cues } from '../../src/core/cues';
 import { useRemoteInput } from './useRemoteInput';
 import { THEME } from './theme';
@@ -34,6 +37,8 @@ import {
   initialState,
   homeOptions,
   menuOptions,
+  settingsOptions,
+  musicRole,
   confirmOptions,
   colourOptions,
   resultOptions,
@@ -84,9 +89,46 @@ export type GameScreenProps = {
   sounds?: Sounds;
   // Whether sound starts on, read before the first render like the saved game.
   initialSound?: boolean;
-  // Called when a menu toggles sound, so the app can save the choice.
+  // Called when the settings change sound, so the app can save the choice.
   onSound?: (on: boolean) => void;
+  // The adaptive music (#76). The screen says which theme fits what it shows;
+  // whether music is on and how loud is the app's to apply and save.
+  music?: Music;
+  initialMusic?: MusicSetting;
+  onMusic?: (music: MusicSetting) => void;
 };
+
+// How long the music stays silent after a game ends, so the result's jingle is
+// heard on its own before the menu theme returns.
+export const RESULT_SILENCE_MS = 2500;
+
+// The volume as rings, like an opponent's level: filled up to the setting.
+const VolumeRings = ({
+  volume,
+  focused,
+}: {
+  volume: number;
+  focused: boolean;
+}) => (
+  <View style={{ flexDirection: 'row', marginLeft: 14 }}>
+    {Array.from({ length: MUSIC_STEPS }, (_, i) => (
+      <View
+        key={i}
+        testID={i < volume ? 'ring-filled' : 'ring-empty'}
+        style={{
+          width: 14,
+          height: 14,
+          borderRadius: 7,
+          borderWidth: 2,
+          borderColor: focused ? '#f0f4f8' : '#aab8c9',
+          backgroundColor:
+            i < volume ? (focused ? '#f0f4f8' : '#aab8c9') : 'transparent',
+          marginRight: 5,
+        }}
+      />
+    ))}
+  </View>
+);
 
 const Choices = ({
   title,
@@ -94,6 +136,7 @@ const Choices = ({
   options,
   index,
   pressed = false,
+  afters = [],
 }: {
   title: string;
   note?: string;
@@ -101,6 +144,8 @@ const Choices = ({
   index: number;
   // OK is held on the focused option.
   pressed?: boolean;
+  // Drawn after an option's label, by position.
+  afters?: (React.ReactNode | undefined)[];
 }) => (
   <View style={{ marginTop: 12 }}>
     <Text style={{ color: '#f0f4f8', fontSize: 30, marginBottom: 8 }}>
@@ -117,6 +162,7 @@ const Choices = ({
         label={option}
         focused={i === index}
         pressed={pressed}
+        after={afters[i]}
       />
     ))}
   </View>
@@ -240,6 +286,7 @@ const Panel = ({
   overlay,
   game,
   sound,
+  music,
   selected,
   ledger,
   pressed,
@@ -247,6 +294,7 @@ const Panel = ({
   overlay: Overlay;
   game: Game;
   sound: boolean;
+  music: MusicSetting;
   selected: string | null;
   ledger?: Ledger;
   // OK is held: the focused option of an open menu shows it.
@@ -258,7 +306,7 @@ const Panel = ({
         <>
           <Choices
             title="Dice Chess"
-            options={homeOptions(resumable(game), sound)}
+            options={homeOptions(resumable(game))}
             index={overlay.index}
             pressed={pressed}
           />
@@ -269,9 +317,27 @@ const Panel = ({
       return (
         <Choices
           title="Menu"
-          options={menuOptions(game, sound)}
+          options={menuOptions(game)}
           index={overlay.index}
           pressed={pressed}
+        />
+      );
+    case 'settings':
+      return (
+        <Choices
+          title="Settings"
+          note="Left and Right change the volume."
+          options={settingsOptions(sound, music)}
+          index={overlay.index}
+          pressed={pressed}
+          afters={[
+            undefined,
+            <VolumeRings
+              key="rings"
+              volume={music.volume}
+              focused={overlay.index === 1}
+            />,
+          ]}
         />
       );
     case 'colour':
@@ -367,6 +433,9 @@ export const GameScreen = ({
   sounds,
   initialSound = true,
   onSound,
+  music,
+  initialMusic,
+  onMusic,
 }: GameScreenProps) => {
   const { width, height } = useWindowDimensions();
   const reduce = React.useCallback(
@@ -374,10 +443,11 @@ export const GameScreen = ({
       screenReducer(state, action, options),
     [options],
   );
-  const [{ game, focus, overlay, sound, guarded }, dispatch] = React.useReducer(
-    reduce,
-    initial,
-    (restored) => initialState(options, restored, initialSound),
+  const [
+    { game, focus, overlay, sound, music: musicSetting, guarded },
+    dispatch,
+  ] = React.useReducer(reduce, initial, (restored) =>
+    initialState(options, restored, initialSound, initialMusic),
   );
   // OK held down, shown on the focused option of an open menu (#51).
   const [pressed, setPressed] = React.useState(false);
@@ -467,6 +537,31 @@ export const GameScreen = ({
     onSound?.(sound);
   }, [sound, onSound]);
 
+  // Seeded like the sound, so opening the screen is not reported as a change.
+  const setting = React.useRef(musicSetting);
+  React.useEffect(() => {
+    if (musicSetting === setting.current) return;
+    setting.current = musicSetting;
+    onMusic?.(musicSetting);
+  }, [musicSetting, onMusic]);
+
+  // The theme for what the screen shows, and over a game the danger to the king
+  // at the start of this turn (#76). When a game has just ended the music falls
+  // silent first, so the result's jingle is heard on its own.
+  const level = useDanger(game, options.background, onState);
+  const role = musicRole(overlay, game, level);
+  const lastRole = React.useRef<string | null>(null);
+  React.useEffect(() => {
+    if (!music || role === lastRole.current) return;
+    const ended =
+      game.phase === 'ended' &&
+      lastRole.current !== null &&
+      lastRole.current !== 'menu';
+    lastRole.current = role;
+    music.setRole(role, ended ? RESULT_SILENCE_MS : 0);
+    onState?.(`music ${role}${ended ? ` after ${RESULT_SILENCE_MS} ms` : ''}`);
+  }, [music, role, game.phase, onState]);
+
   React.useEffect(() => {
     onState?.(report(game, state, focus, overlay));
   }, [onState, game, state, focus, overlay]);
@@ -519,6 +614,7 @@ export const GameScreen = ({
           overlay={overlay}
           game={game}
           sound={sound}
+          music={musicSetting}
           selected={focus.selected}
           ledger={ledger}
           pressed={pressed}

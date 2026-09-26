@@ -36,3 +36,4 @@ export declare function useKeplerAppStateManager(): {
 };
 /** Test-only: move the app to another state, as Home or the launcher does. */
 export declare function setAppState(state: KeplerAppStateStatus): void;
+export declare function appEvent(name: 'blur' | 'focus'): void;

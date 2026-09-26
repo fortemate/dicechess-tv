@@ -33,6 +33,8 @@ import {
 } from '../../src/core/boardInput';
 import { botReply, botToAct } from '../../src/core/bot';
 import type { Square } from '../../src/core/board';
+import type { Level } from '../../src/core/danger';
+import { DEFAULT_MUSIC, MUSIC_STEPS, type MusicSetting } from './musicSetting';
 
 export const START: Square = 'e2';
 
@@ -96,6 +98,8 @@ export type Overlay =
   // starts. Back returns to the cards; `from` is where the cards return.
   | { kind: 'colour'; index: number; mode: BotMode; from: 'home' | 'menu' }
   | { kind: 'promotion'; moves: string[]; index: number }
+  // Music, its volume and the sound effects (#76). `from` is where Back returns.
+  | { kind: 'settings'; index: number; from: 'home' | 'menu' }
   // After a game against the bot: a rematch, or back to the main menu.
   | { kind: 'result'; index: number }
   // The tutorial, the rules guide and the About screen, which the screen hands
@@ -122,18 +126,29 @@ export type ScreenState = {
   // complete path before the first is played, so this is a reveal and not a
   // decision taken in instalments.
   pending: string[];
-  // Whether the game's sounds are heard. Toggled from either menu; the screen
-  // reports each change so the app can save it and mute the players.
+  // Whether the game's sound effects are heard, and whether music plays and how
+  // loud. Changed on the settings screen; the screen reports each change so the
+  // app can save it and apply it to the players.
   sound: boolean;
+  music: MusicSetting;
   // OK is ignored: a person has just rolled nothing to play. The app clears it
   // after OK_GUARD_MS; the other keys work throughout.
   guarded: boolean;
 };
 
-// The toggle's label says what the sound is now, which is what a viewer checks.
-export const soundOption = (on: boolean): string =>
-  on ? 'Sound: on' : 'Sound: off';
-const isSoundOption = (option: string): boolean => option.startsWith('Sound:');
+// Sound effects and music are set on a screen of their own, opened from both
+// menus. A label says what a setting is now, which is what a viewer checks.
+export const SETTINGS_OPTION = 'Settings';
+export const settingsOptions = (
+  sound: boolean,
+  music: MusicSetting,
+): string[] => [
+  `Music: ${music.on ? 'on' : 'off'}`,
+  `Music volume: ${music.volume}`,
+  `Sound effects: ${sound ? 'on' : 'off'}`,
+];
+const MUSIC_ROW = 0;
+const VOLUME_ROW = 1;
 
 export type ScreenOptions = {
   // Three dice. Injected so the screen never reaches for a global, and so a
@@ -148,6 +163,10 @@ export type ScreenOptions = {
   schedule: (step: () => void, wait: number) => void;
   // The colour a person gets on choosing Random. Injected like the dice.
   side: () => Side;
+  // Runs one small piece of background work soon, between frames: a step of
+  // measuring the danger to a king (#76). Without it the work runs at once,
+  // which is what a test wants.
+  background?: (step: () => void) => void;
 };
 
 // The home options that start a game: a hotseat game at once, a game against
@@ -155,13 +174,13 @@ export type ScreenOptions = {
 export const HOTSEAT_OPTION = 'New hotseat game';
 export const COMPUTER_OPTION = 'Play the computer';
 
-export const homeOptions = (resumable: boolean, sound = true): string[] => [
+export const homeOptions = (resumable: boolean): string[] => [
   ...(resumable ? ['Resume game'] : []),
   HOTSEAT_OPTION,
   COMPUTER_OPTION,
   'How to play',
   'Rules',
-  soundOption(sound),
+  SETTINGS_OPTION,
   // Last, because it is read once: it is where the credits a licence asks for
   // are shown.
   'About',
@@ -184,7 +203,7 @@ const start = (
       human,
       mode === 'hotseat' ? null : colour,
     ),
-    state.sound,
+    state,
     startFor(human),
   );
 };
@@ -206,10 +225,11 @@ const OPENS = new Map<string, Overlay>([
   ['Resume game', { kind: 'none' }],
   ['How to play', { kind: 'tutorial' }],
   ['Rules', { kind: 'rules' }],
+  [SETTINGS_OPTION, { kind: 'settings', index: 0, from: 'home' }],
   ['About', { kind: 'about' }],
 ]);
 
-export const menuOptions = (game: Game, sound = true): string[] => [
+export const menuOptions = (game: Game): string[] => [
   'Resume',
   'Resign',
   // A draw needs two players to agree; there is nobody to agree with a bot.
@@ -217,17 +237,17 @@ export const menuOptions = (game: Game, sound = true): string[] => [
   'New game',
   // Last: the order above is unchanged, and because the menu wraps, Up from
   // Resume reaches this in one press — the quickest way to silence a game.
-  soundOption(sound),
+  SETTINGS_OPTION,
 ];
 
 export const confirmOptions = ['Cancel', 'Yes'];
 
 export const resultOptions = ['Rematch', 'Main menu'];
 
-// A new game keeps the one setting that is not about the game: sound.
+// A new game keeps the settings, which are not about the game.
 const board = (
   game: Game,
-  sound: boolean,
+  { sound, music }: Pick<ScreenState, 'sound' | 'music'>,
   cursor: Square = START,
 ): ScreenState => ({
   game,
@@ -235,6 +255,7 @@ const board = (
   overlay: { kind: 'none' },
   pending: [],
   sound,
+  music,
   guarded: false,
 });
 
@@ -246,6 +267,7 @@ const played = (state: ScreenState, game: Game): ScreenState => ({
   overlay: after(game),
   pending: [],
   sound: state.sound,
+  music: state.music,
   guarded: emptyRoll(game) && !botToAct(game),
 });
 
@@ -260,6 +282,7 @@ export const initialState = (
   options: ScreenOptions,
   restored?: Game | null,
   sound = true,
+  music: MusicSetting = DEFAULT_MUSIC,
 ): ScreenState => {
   const game = restored ?? newGame('hotseat', options.newId());
   return {
@@ -272,6 +295,7 @@ export const initialState = (
     overlay: { kind: 'home', index: 0 },
     pending: [],
     sound,
+    music,
     guarded: false,
   };
 };
@@ -336,10 +360,31 @@ const show = (state: ScreenState, overlay: Overlay): ScreenState => ({
   overlay,
 });
 
-const toggleSound = (state: ScreenState): ScreenState => ({
-  ...state,
-  sound: !state.sound,
-});
+// What each overlay plays (#76): the menu theme away from a game, and the
+// level of danger over one. A menu opened from a game keeps the game's music, so
+// browsing it does not crossfade back and forth; a finished game is back in the
+// menus.
+export type MusicRole = 'menu' | Level;
+export const musicRole = (
+  overlay: Overlay,
+  game: Game,
+  level: Level,
+): MusicRole => {
+  if (game.phase === 'ended') return 'menu';
+  switch (overlay.kind) {
+    case 'none':
+    case 'menu':
+    case 'promotion':
+      return level;
+    case 'confirm':
+    case 'settings':
+    case 'opponent':
+    case 'colour':
+      return overlay.from === 'menu' ? level : 'menu';
+    default:
+      return 'menu';
+  }
+};
 
 // The arrows walk a list of options, wrapping at both ends.
 const moved = (
@@ -359,12 +404,10 @@ type Handler<K extends Overlay['kind']> = (
 ) => ScreenState;
 
 const onHome: Handler<'home'> = (state, overlay, key, options) => {
-  const choices = homeOptions(resumable(state.game), state.sound);
+  const choices = homeOptions(resumable(state.game));
   if (key === 'back') return state;
   if (key !== 'select') return moved(state, overlay, key, choices.length);
   const chosen = choices[overlay.index];
-  // The label under the cursor flips; the cursor stays on it.
-  if (isSoundOption(chosen)) return toggleSound(state);
   const opens = OPENS.get(chosen);
   if (opens) return show(state, opens);
   // A game against the computer starts with the choice of opponent.
@@ -392,13 +435,11 @@ const openerOf = (state: ScreenState, from: 'home' | 'menu'): Overlay =>
   from === 'home'
     ? {
         kind: 'home',
-        index: homeOptions(resumable(state.game), state.sound).indexOf(
-          COMPUTER_OPTION,
-        ),
+        index: homeOptions(resumable(state.game)).indexOf(COMPUTER_OPTION),
       }
     : {
         kind: 'menu',
-        index: menuOptions(state.game, state.sound).indexOf('New game'),
+        index: menuOptions(state.game).indexOf('New game'),
       };
 
 // The cards: the arrows walk them, OK takes one to the choice of colour.
@@ -445,7 +486,7 @@ const cancelled = (
     ? MENU
     : {
         kind: 'home',
-        index: homeOptions(resumable(state.game), state.sound).indexOf(
+        index: homeOptions(resumable(state.game)).indexOf(
           overlay.mode === 'hotseat' ? HOTSEAT_OPTION : COMPUTER_OPTION,
         ),
       };
@@ -463,14 +504,15 @@ const onConfirm: Handler<'confirm'> = (state, overlay, key, options) => {
 
 const onMenu: Handler<'menu'> = (state, overlay, key) => {
   const { game } = state;
-  const choices = menuOptions(game, state.sound);
+  const choices = menuOptions(game);
   if (key === 'back') return show(state, BOARD);
   if (key !== 'select') return moved(state, overlay, key, choices.length);
   const chosen = choices[overlay.index];
   if (chosen === 'Resume') return show(state, BOARD);
   // Handled before the fall-through below, which treats anything else as a
   // destructive choice and asks to confirm replacing the game.
-  if (isSoundOption(chosen)) return toggleSound(state);
+  if (chosen === SETTINGS_OPTION)
+    return show(state, { kind: 'settings', index: 0, from: 'menu' });
   if (chosen === 'Agree a draw') return played(state, agreeDraw(game));
   // A new game against the computer starts, like one from home, with the
   // cards, on the opponent of this game.
@@ -488,6 +530,42 @@ const onMenu: Handler<'menu'> = (state, overlay, key) => {
     mode: game.mode,
     from: 'menu',
   });
+};
+
+// Up and Down walk the settings. The arrows sideways change the volume on its
+// row and flip a switch on the others, as OK does, so either habit works.
+const onSettings: Handler<'settings'> = (state, overlay, key) => {
+  if (key === 'back')
+    return show(
+      state,
+      overlay.from === 'home'
+        ? {
+            kind: 'home',
+            index: homeOptions(resumable(state.game)).indexOf(SETTINGS_OPTION),
+          }
+        : {
+            kind: 'menu',
+            index: menuOptions(state.game).indexOf(SETTINGS_OPTION),
+          },
+    );
+  if (key === 'up' || key === 'down')
+    return moved(
+      state,
+      overlay,
+      key,
+      settingsOptions(state.sound, state.music).length,
+    );
+  if (overlay.index === VOLUME_ROW) {
+    if (key === 'select') return state;
+    const volume = Math.max(
+      0,
+      Math.min(MUSIC_STEPS, state.music.volume + (key === 'left' ? -1 : 1)),
+    );
+    return { ...state, music: { ...state.music, volume } };
+  }
+  if (overlay.index === MUSIC_ROW)
+    return { ...state, music: { ...state.music, on: !state.music.on } };
+  return { ...state, sound: !state.sound };
 };
 
 const onPromotion: Handler<'promotion'> = (state, overlay, key) => {
@@ -582,6 +660,8 @@ export function screenReducer(
       return onMenu(state, overlay, key, options);
     case 'promotion':
       return onPromotion(state, overlay, key, options);
+    case 'settings':
+      return onSettings(state, overlay, key, options);
     case 'result':
       return onResult(state, overlay, key, options);
     case 'none':

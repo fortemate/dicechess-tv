@@ -25,6 +25,13 @@ import { GameScreen } from './GameScreen';
 import { MmkvSnapshotStore } from './mmkvStore';
 import { createSounds, type Sounds } from './sound';
 import { readSound, saveSound } from './soundSetting';
+import { createMusic, loadCatalogue, type Music } from './music';
+import {
+  readMusic,
+  saveMusic,
+  musicGain,
+  type MusicSetting,
+} from './musicSetting';
 import { randomSource } from './randomSource';
 import type { ScreenOptions } from './screen';
 
@@ -40,12 +47,14 @@ export type AppProps = {
   onState?: (line: string) => void;
   // Injected by tests, which cannot hear; the app makes the real players.
   sounds?: Sounds;
+  music?: Music;
 };
 
 export const App = ({
   options: injected,
   onState,
   sounds: injectedSounds,
+  music: injectedMusic,
 }: AppProps) => {
   const store = React.useMemo(
     () => new MmkvSnapshotStore<Game>({ key: KEY, decode: decodeGame }),
@@ -70,6 +79,10 @@ export const App = ({
       // rather than seeing the board jump; the screen says how long each waits.
       schedule: (step, wait) => {
         setTimeout(step, wait);
+      },
+      // One roll of the danger search per slot between frames (#76).
+      background: (step) => {
+        setTimeout(step, 0);
       },
     };
   }, [injected]);
@@ -148,6 +161,36 @@ export const App = ({
     [settings, sounds],
   );
 
+  // The adaptive music (#76). The build ships a catalogue beside the tracks, or
+  // none at all, and then the game plays without music.
+  const [initialMusic] = React.useState(() => readMusic(settings));
+  const music = React.useMemo(
+    () => injectedMusic ?? createMusic({ report: onState }),
+    // Made once, like the sound players.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [injectedMusic],
+  );
+  React.useEffect(() => {
+    music.setEnabled(initialMusic.on);
+    music.setVolume(musicGain(initialMusic.volume));
+    if (injectedMusic) return;
+    let live = true;
+    void loadCatalogue().then((catalogue) => {
+      if (live) music.setCatalogue(catalogue);
+    });
+    return () => {
+      live = false;
+    };
+  }, [music, injectedMusic, initialMusic]);
+  const onMusic = React.useCallback(
+    (next: MusicSetting) => {
+      saveMusic(settings, next);
+      music.setEnabled(next.on);
+      music.setVolume(musicGain(next.volume));
+    },
+    [settings, music],
+  );
+
   // Time To Fully Drawn, one of the KPIs Amazon measures. A cool start is fully
   // drawn by the first render, since the saved game and the settings are read
   // synchronously and there is no loading frame.
@@ -165,15 +208,30 @@ export const App = ({
     const subscription = appState.addEventListener('change', (state) => {
       if (state === 'active') {
         sounds.setSuspended(false);
+        music.setSuspended(false);
         if (away) reportFullyDrawn();
         away = false;
       } else if (state === 'background' || state === 'inactive') {
         sounds.setSuspended(true);
+        music.setSuspended(true);
         away = true;
       }
     });
-    return () => subscription.remove();
-  }, [appState, sounds, reportFullyDrawn]);
+    // blur arrives before the change to background, and focus with the return
+    // (#76): music, which would otherwise carry on over the launcher, stops on
+    // the first sign of leaving.
+    const blur = appState.addEventListener('blur', () =>
+      music.setSuspended(true),
+    );
+    const focus = appState.addEventListener('focus', () =>
+      music.setSuspended(false),
+    );
+    return () => {
+      subscription.remove();
+      blur.remove();
+      focus.remove();
+    };
+  }, [appState, sounds, music, reportFullyDrawn]);
 
   const onCommit = React.useCallback(
     (game: Game) => {
@@ -193,6 +251,9 @@ export const App = ({
       sounds={sounds}
       initialSound={initialSound}
       onSound={onSound}
+      music={music}
+      initialMusic={initialMusic}
+      onMusic={onMusic}
     />
   );
 };

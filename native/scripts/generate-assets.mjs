@@ -21,6 +21,7 @@
 import { execFileSync } from 'node:child_process';
 import {
   copyFileSync,
+  existsSync,
   mkdirSync,
   readFileSync,
   rmSync,
@@ -242,6 +243,7 @@ export const main = () => {
     left,
     top,
     sounds: copySounds(),
+    music: copyMusic(),
   };
 };
 
@@ -273,15 +275,46 @@ export const copySounds = () => {
   return copied;
 };
 
+// The adaptive music (#76), when this checkout has it: scripts/vendor-music.mjs
+// puts the tracks and their catalogue in music/. They go to assets/music/, which
+// is /pkg/assets/music/ on the device, and only if each file still has the bytes
+// the catalogue pinned. A checkout without music builds a game without it: the
+// app finds no catalogue and plays none.
+export const copyMusic = () => {
+  const target = join(root, 'assets/music');
+  rmSync(target, { recursive: true, force: true });
+  const catalogue = join(root, 'music/music.json');
+  if (!existsSync(catalogue)) return [];
+  const bytes = readFileSync(catalogue);
+  const { tracks } = JSON.parse(bytes.toString('utf8'));
+  const copied = [];
+  for (const { file, sha256 } of Object.values(tracks)) {
+    if (copied.includes(file)) continue;
+    const data = readFileSync(join(root, 'music', file));
+    if (createHash('sha256').update(data).digest('hex') !== sha256)
+      throw new Error(`music/${file} no longer matches music/music.json`);
+    mkdirSync(dirname(join(target, file)), { recursive: true });
+    writeFileSync(join(target, file), data);
+    copied.push(file);
+  }
+  writeFileSync(join(target, 'music.json'), bytes);
+  return copied;
+};
+
 // Only when run as a script, so a test can import the pieces above.
 if (
   process.argv[1] &&
   resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
-  const { destination, icon, left, top, sounds } = main();
+  const { destination, icon, left, top, sounds, music } = main();
   const shown = (path) => path.replace(`${root}/`, '');
   console.log(`icon:   ${shown(icon)}`);
   console.log(`sounds: ${sounds.length} files -> assets/sfx/`);
+  console.log(
+    music.length
+      ? `music:  ${music.length} tracks -> assets/music/`
+      : 'music:  none in this checkout (native/music/music.json absent)',
+  );
   console.log(
     `splash: ${WIDTH}x${HEIGHT}, mark at ${left},${top} -> ${shown(destination)}`,
   );
