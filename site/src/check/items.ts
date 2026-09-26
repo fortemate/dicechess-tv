@@ -11,6 +11,13 @@
 export const VARIANTS = ['A', 'B', 'C'] as const;
 export type Variant = (typeof VARIANTS)[number];
 
+// The marks in plain words, for the visitor's result.
+export const MARK_NAMES: Record<Variant, string> = {
+  A: 'Green fill',
+  B: 'Green fill with corners',
+  C: 'Corners only',
+};
+
 export type Item = {
   id: string;
   variant: Variant;
@@ -26,7 +33,8 @@ export type Item = {
 
 // Two pictures per variant: one with several marks, one with a single mark
 // besides the cursor. Each has marks on both square colours and a last move
-// tinted on one light and one dark square.
+// tinted on one light and one dark square, and no two look alike: c-few
+// replaced a picture taken two actions after c-many, which looked the same.
 export const ITEMS: readonly Item[] = [
   {
     id: 'a-many',
@@ -66,9 +74,9 @@ export const ITEMS: readonly Item[] = [
   {
     id: 'c-few',
     variant: 'C',
-    movable: [0, 7],
-    lastMove: [2, 3],
-    cursor: 0,
+    movable: [58, 61],
+    lastMove: [36, 44],
+    cursor: 61,
   },
 ];
 

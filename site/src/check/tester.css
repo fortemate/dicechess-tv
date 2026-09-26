@@ -239,6 +239,18 @@ textarea {
   font-weight: 600;
 }
 
+.result {
+  margin-top: 8px;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.score {
+  margin-top: 0;
+  font-size: 22px;
+}
+
 /* Kept from people, and from assistive technology; see Code.js. */
 .trap {
   position: absolute;
