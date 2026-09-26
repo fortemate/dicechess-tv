@@ -6,7 +6,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
-import { press } from './stubs/react-native-kepler.mjs';
+import { press, pressBack } from './stubs/react-native-kepler.mjs';
 import { reset } from './stubs/react-native-mmkv.mjs';
 import { App } from '../src/App';
 import { NO_MOVE_LINE } from '../src/GameScreen';
@@ -76,8 +76,13 @@ const launch = (options: ScreenOptions, sounds: Sounds) => {
   return tree;
 };
 
+// Back arrives on its own channel on Vega, as in the other screen tests.
 const send = (...keys: string[]) => {
-  for (const key of keys) act(() => press(key));
+  for (const key of keys)
+    act(() => {
+      if (key === 'back') pressBack();
+      else press(key);
+    });
 };
 
 const text = (root: Instance) =>
@@ -186,10 +191,12 @@ test('with sound off, the empty roll still shows: the notice and the dimmed dice
   const clock = scheduler();
   const sounds = recorder();
   const tree = launch(optionsFor([5, 4, 6], clock), sounds);
-  // Home, nothing saved: Sound is fifth. Turn it off, go back up to a new
-  // hotseat game, and roll.
+  // Home, nothing saved: Settings is fifth, and the sound effects its third
+  // row. Turn them off, go back up to a new hotseat game, and roll.
   send('down', 'down', 'down', 'down', 'enter');
+  send('down', 'down', 'enter');
   assert.equal(sounds.muted, true);
+  send('back');
   send('up', 'up', 'up', 'up', 'enter', 'enter');
   const shown = text(tree.root);
   assert.match(shown, /No legal moves/);

@@ -75,11 +75,13 @@ Short cues mark each step:
 - the handoff of the dice;
 - a win, a loss or a draw.
 
-Each was chosen by ear, and they have been heard from the virtual device through a computer's speakers, not yet from a television. Every cue also has something to see on the screen, and a "Sound" item in both menus turns them all off.
+Each was chosen by ear, and they have been heard from the virtual device through a computer's speakers, not yet from a television. Every cue also has something to see on the screen, and the Settings screen, opened from both menus, turns them all off.
+
+Adaptive music that follows the danger to your king is built and checked on the virtual device, and waits for its tracks' licence ([#76](https://github.com/fortemate/dicechess-tv/issues/76)).
 
 Sound stops when the app leaves the screen. The tests check that the players pause, and on the virtual device the app came back from the launcher as it left; that nothing plays over the launcher is still to be confirmed by ear.
 
-![The game menu with the Sound item focused](../../../assets/screenshots/menu-sound.png)
+![The game menu with Settings focused](../../../assets/screenshots/menu-settings.png)
 
 ## Rematch
 

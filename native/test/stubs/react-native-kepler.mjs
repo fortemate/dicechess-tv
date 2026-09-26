@@ -102,13 +102,23 @@ export function listenerCount() {
 // The app-state manager: one shared instance, so an app and a test see the same
 // listeners. Test code moves the app between foreground and background.
 const appStateListeners = new Set();
+// blur and focus, which Vega sends around a change of state (#76).
+const appEventListeners = new Map();
 let appState = 'active';
 const appStateManager = {
   getCurrentState() {
     return appState;
   },
   addEventListener(name, callback) {
-    if (name !== 'change') return { remove() {} };
+    if (name !== 'change') {
+      if (!appEventListeners.has(name)) appEventListeners.set(name, new Set());
+      appEventListeners.get(name).add(callback);
+      return {
+        remove() {
+          appEventListeners.get(name).delete(callback);
+        },
+      };
+    }
     appStateListeners.add(callback);
     return {
       remove() {
@@ -117,6 +127,12 @@ const appStateManager = {
     };
   },
 };
+
+// Test-only: Vega sends blur or focus, as it does just before leaving for the
+// launcher and on the way back.
+export function appEvent(name) {
+  for (const listener of [...(appEventListeners.get(name) ?? [])]) listener();
+}
 
 export function useKeplerAppStateManager() {
   return appStateManager;

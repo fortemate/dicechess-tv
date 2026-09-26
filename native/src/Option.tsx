@@ -14,6 +14,8 @@ export type OptionProps = {
   // OK is held down while this item has focus.
   pressed?: boolean;
   fontSize?: number;
+  // Drawn after the label, on the same line: the rings of a volume.
+  after?: React.ReactNode;
 };
 
 export const Option = ({
@@ -21,6 +23,7 @@ export const Option = ({
   focused,
   pressed = false,
   fontSize = 26,
+  after,
 }: OptionProps) => {
   const fill = pressed ? THEME.pressedFill : THEME.focusFill;
   const down = focused && pressed;
@@ -37,9 +40,26 @@ export const Option = ({
         transform: [{ scale: down ? 0.97 : 1 }],
       }}
     >
-      <Text style={{ color: focused ? '#f0f4f8' : '#aab8c9', fontSize }}>
-        {label}
-      </Text>
+      {after ? (
+        // Wraps rather than running past the frame and the TV's safe area when
+        // the panel is narrower than expected.
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+          }}
+        >
+          <Text style={{ color: focused ? '#f0f4f8' : '#aab8c9', fontSize }}>
+            {label}
+          </Text>
+          {after}
+        </View>
+      ) : (
+        <Text style={{ color: focused ? '#f0f4f8' : '#aab8c9', fontSize }}>
+          {label}
+        </Text>
+      )}
     </View>
   );
 };

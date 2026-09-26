@@ -5,6 +5,8 @@ import {
   initialState,
   homeOptions,
   menuOptions,
+  settingsOptions,
+  musicRole,
   confirmOptions,
   resultOptions,
   colourOptions,
@@ -97,7 +99,7 @@ test('every launch opens on the home screen, and resume is offered only when the
     'Play the computer',
     'How to play',
     'Rules',
-    'Sound: on',
+    'Settings',
     'About',
   ]);
   assert.deepEqual(homeOptions(false), [
@@ -105,7 +107,7 @@ test('every launch opens on the home screen, and resume is offered only when the
     'Play the computer',
     'How to play',
     'Rules',
-    'Sound: on',
+    'Settings',
     'About',
   ]);
 });
@@ -200,7 +202,7 @@ test('the menu opens from the board and closes back to it', () => {
     'Resign',
     'Agree a draw',
     'New game',
-    'Sound: on',
+    'Settings',
   ]);
 
   assert.equal(drive(menu, 'select').overlay.kind, 'none');
@@ -321,7 +323,7 @@ test('a draw cannot be agreed with the opponent, only with another player', () =
     'Resume',
     'Resign',
     'New game',
-    'Sound: on',
+    'Settings',
   ]);
   const hotseat = drive(fresh(), 'select');
   assert.ok(menuOptions(hotseat.game).includes('Agree a draw'));
@@ -399,43 +401,144 @@ test('an interrupted turn is recomputed rather than resumed half-played', () => 
   assert.equal(finished.game.turn, 3);
 });
 
-test('the sound toggle flips in the home menu and the cursor stays on it', () => {
-  const start = fresh();
-  const at = homeOptions(false).indexOf('Sound: on');
-  const onIt = drive(start, ...(Array(at).fill('down') as BoardKey[]));
-  const off = drive(onIt, 'select');
-  assert.equal(off.sound, false);
-  assert.equal(off.overlay.kind, 'home');
-  assert.equal(off.overlay.kind === 'home' ? off.overlay.index : -1, at);
-  assert.equal(homeOptions(false, off.sound)[at], 'Sound: off');
-  assert.equal(drive(off, 'select').sound, true);
-});
+// ── Settings: music, its volume and the sound effects (#76) ────────────────────
 
-test('the sound toggle in the game menu never asks to replace the game', () => {
-  // Everything in that menu that is not handled explicitly falls through to a
-  // confirmation, so an unhandled toggle would offer to throw the game away.
-  const menu = drive(fresh(), 'select', 'select', 'back');
-  // Up from Resume wraps to the last item, which is the toggle.
-  const onIt = drive(menu, 'up');
-  const off = drive(onIt, 'select');
-  assert.equal(off.overlay.kind, 'menu');
-  assert.equal(off.sound, false);
-  assert.deepEqual(off.game, menu.game);
-});
+const toSettings = (state: ScreenState): ScreenState => {
+  const at = homeOptions(resumable(state.game)).indexOf('Settings');
+  return drive(state, ...(Array(at).fill('down') as BoardKey[]), 'select');
+};
 
-test('a new game keeps the sound setting', () => {
-  const at = homeOptions(false).indexOf('Sound: on');
-  const muted = drive(
-    fresh(),
-    ...(Array(at).fill('down') as BoardKey[]),
-    'select',
+// A build with music, as the app reports once it has read the catalogue.
+const withMusic = (state: ScreenState): ScreenState =>
+  screenReducer(state, { kind: 'musicAvailable', available: true }, options);
+
+test('without music in the build, Settings offers only the sound effects', () => {
+  const settings = toSettings(fresh());
+  assert.equal(settings.musicAvailable, false);
+  assert.deepEqual(
+    settingsOptions(settings.sound, settings.music, settings.musicAvailable),
+    ['Sound effects: on'],
   );
-  assert.equal(muted.sound, false);
-  // Back to the top and start a hotseat game.
-  const top = drive(muted, ...(Array(at).fill('up') as BoardKey[]));
-  const started = drive(top, 'select');
-  assert.equal(started.overlay.kind, 'none');
-  assert.equal(started.sound, false);
+  // The one row is the sound effects, and the arrows stay on it.
+  assert.equal(drive(settings, 'select').sound, false);
+  assert.equal(drive(settings, 'down').overlay.kind, 'settings');
+  assert.equal(drive(settings, 'down', 'select').sound, false);
+  // When the catalogue turns up, the rows grow and the cursor starts at the top.
+  const grown = withMusic(drive(settings, 'down'));
+  assert.equal(grown.musicAvailable, true);
+  assert.equal(grown.overlay.kind === 'settings' ? grown.overlay.index : -1, 0);
+});
+
+test('Settings opens from the home menu on music, and Back returns to it', () => {
+  const settings = toSettings(fresh());
+  assert.deepEqual(settings.overlay, {
+    kind: 'settings',
+    index: 0,
+    from: 'home',
+  });
+  assert.deepEqual(settingsOptions(settings.sound, settings.music), [
+    'Music: on',
+    'Music volume: 7',
+    'Sound effects: on',
+  ]);
+  const back = drive(settings, 'back');
+  assert.equal(back.overlay.kind, 'home');
+  assert.equal(
+    back.overlay.kind === 'home' ? back.overlay.index : -1,
+    homeOptions(false).indexOf('Settings'),
+  );
+});
+
+test('OK or the arrows sideways flip music and the sound effects', () => {
+  const settings = toSettings(withMusic(fresh()));
+  const musicOff = drive(settings, 'select');
+  assert.equal(musicOff.music.on, false);
+  assert.equal(drive(musicOff, 'right').music.on, true);
+  const effects = drive(settings, 'down', 'down');
+  assert.equal(drive(effects, 'select').sound, false);
+  assert.equal(drive(effects, 'left').sound, false);
+  // Neither touches the other, nor leaves the screen.
+  assert.equal(drive(effects, 'select').music.on, true);
+  assert.equal(drive(effects, 'select').overlay.kind, 'settings');
+});
+
+test('the volume moves one step per press and stops at both ends', () => {
+  const volume = drive(toSettings(withMusic(fresh())), 'down');
+  assert.equal(drive(volume, 'right').music.volume, 8);
+  assert.equal(drive(volume, 'left', 'left').music.volume, 5);
+  const top = drive(volume, 'right', 'right', 'right', 'right', 'right');
+  assert.equal(top.music.volume, 10);
+  const bottom = drive(volume, ...(Array(12).fill('left') as BoardKey[]));
+  assert.equal(bottom.music.volume, 0);
+  // OK on the volume changes nothing.
+  assert.deepEqual(drive(volume, 'select'), volume);
+});
+
+test('Settings from the game menu never asks to replace the game, and Back returns to the menu', () => {
+  // Everything in that menu that is not handled explicitly falls through to a
+  // confirmation, so an unhandled item would offer to throw the game away.
+  const menu = drive(fresh(), 'select', 'select', 'back');
+  // Up from Resume wraps to the last item, Settings.
+  const settings = drive(menu, 'up', 'select');
+  assert.deepEqual(settings.overlay, {
+    kind: 'settings',
+    index: 0,
+    from: 'menu',
+  });
+  assert.deepEqual(settings.game, menu.game);
+  const back = drive(settings, 'back');
+  assert.equal(back.overlay.kind, 'menu');
+  assert.equal(
+    back.overlay.kind === 'menu' ? back.overlay.index : -1,
+    menuOptions(menu.game).indexOf('Settings'),
+  );
+});
+
+test('a new game keeps the settings', () => {
+  const settings = toSettings(withMusic(fresh()));
+  const changed = drive(settings, 'select', 'down', 'right', 'down', 'select');
+  assert.deepEqual(changed.music, { on: false, volume: 8 });
+  assert.equal(changed.sound, false);
+  // Back to the home menu, on Settings, then up to a new hotseat game.
+  const home = drive(changed, 'back');
+  const at = homeOptions(false).indexOf('Settings');
+  const game = drive(home, ...(Array(at).fill('up') as BoardKey[]), 'select');
+  assert.equal(game.overlay.kind, 'none');
+  assert.deepEqual(game.music, { on: false, volume: 8 });
+  assert.equal(game.sound, false);
+});
+
+// ── Which music plays where (#76) ──────────────────────────────────────────────
+
+test('the menus play the menu theme, and a game plays its level of danger', () => {
+  const home = fresh();
+  assert.equal(musicRole(home.overlay, home.game, 'critical'), 'menu');
+  const board = drive(home, 'select');
+  assert.equal(board.overlay.kind, 'none');
+  assert.equal(musicRole(board.overlay, board.game, 'tense'), 'tense');
+  const menu = drive(board, 'back');
+  assert.equal(musicRole(menu.overlay, menu.game, 'tense'), 'tense');
+  // Settings keeps the music of where it was opened from.
+  const settings = drive(menu, 'up', 'select');
+  assert.equal(
+    musicRole(settings.overlay, settings.game, 'critical'),
+    'critical',
+  );
+  assert.equal(
+    musicRole(toSettings(fresh()).overlay, home.game, 'critical'),
+    'menu',
+  );
+  // The cards opened from home are part of the menus.
+  const cards = drive(fresh(), 'down', 'select');
+  assert.equal(cards.overlay.kind, 'opponent');
+  assert.equal(musicRole(cards.overlay, cards.game, 'tense'), 'menu');
+});
+
+test('a finished game is back in the menus', () => {
+  const board = drive(fresh(), 'select');
+  const menu = drive(board, 'back', 'down', 'select', 'down', 'select');
+  assert.equal(menu.game.phase, 'ended');
+  assert.equal(musicRole(menu.overlay, menu.game, 'critical'), 'menu');
 });
 
 // ── The colour against the bot (#53) ───────────────────────────────────────────

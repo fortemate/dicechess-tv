@@ -97,19 +97,21 @@ test('turning sound off is remembered at the next launch', () => {
   const first = recorder();
   let tree = launch(first);
   assert.equal(first.muted, false, 'sound starts on');
-  assert.match(text(tree.root), /Sound: on/);
 
   // Home, nothing saved: new hotseat, Play the computer, How to play, Rules,
-  // Sound.
+  // Settings. The sound effects are the third setting.
   send('down', 'down', 'down', 'down', 'enter');
-  assert.match(text(tree.root), /Sound: off/);
+  assert.match(text(tree.root), /Sound effects: on/);
+  send('down', 'down', 'enter');
+  assert.match(text(tree.root), /Sound effects: off/);
   assert.equal(first.muted, true);
   act(() => tree.unmount());
 
   const second = recorder();
   tree = launch(second);
-  assert.match(text(tree.root), /Sound: off/);
   assert.equal(second.muted, true, 'a relaunch starts muted');
+  send('down', 'down', 'down', 'down', 'enter');
+  assert.match(text(tree.root), /Sound effects: off/);
   act(() => tree.unmount());
 });
 
