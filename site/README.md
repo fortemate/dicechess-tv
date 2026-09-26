@@ -49,6 +49,40 @@ After every build, `scripts/check-friction-log.mjs` fails `npm run build` if an
 anchor is lost, the numbering has a gap, or the summary table stops linking to
 an entry.
 
+## The tester pages
+
+Two pages serve the tester round
+([#107](https://github.com/fortemate/dicechess-tv/issues/107)) and are not part of
+the site proper:
+
+- `/check/` asks visitors to find the marked pieces on six board pictures, for
+  the colour-blind check of the movable-piece mark
+  ([#108](https://github.com/fortemate/dicechess-tv/issues/108),
+  [#105](https://github.com/fortemate/dicechess-tv/issues/105));
+- `/feedback/` is a short form for people who have played the game
+  ([#109](https://github.com/fortemate/dicechess-tv/issues/109)).
+
+**Unlisted.** They are standalone Astro pages in `src/pages/`, outside Starlight.
+Nothing links to them, `astro.config.mjs` keeps them out of the sitemap, they are
+not in the search index, and they ask search engines not to index them. The
+repository is public, so they are not secret either.
+
+**Answers.** Send posts the answers to the Apps Script in
+[`answers-sheet/`](answers-sheet/README.md), which appends them to the owner's
+Google Sheet; its README says how to set it up. The build reads the script's
+address from the repository variable `FEEDBACK_URL`; without it, nothing is
+sent. So far both pages have been checked in a browser against a local stand-in
+for the script, at phone and desktop widths, and the script by its tests
+outside Google. Delivery to a real sheet is checked once the owner has deployed
+the script.
+
+**The pictures** in `src/assets/check/` are Release builds on the Vega Virtual
+Device, one hotseat game played on through three builds that differ only in the
+mark. [`src/check/items.ts`](src/check/items.ts) lists what each picture shows
+and scores an answer; the marked squares were read from the pictures' pixels and
+checked by eye. [`scripts/check-results.mjs`](scripts/check-results.mjs)
+summarises the answers.
+
 ## The icon
 
 The logo, the favicon and the picture on the home page are the app icon,
@@ -59,6 +93,5 @@ where it comes from.
 ## Formatting
 
 Prettier formats the site with the rest of the repository: `npm run format` at the
-root, and the Git hooks on each commit. It cannot parse Astro components without
-`prettier-plugin-astro`, and the site has none. The pull request that adds the
-first component adds the plugin too.
+root, and the Git hooks on each commit. The root's `prettier-plugin-astro` lets it
+format the Astro components as well.

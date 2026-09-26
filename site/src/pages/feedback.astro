@@ -1,0 +1,153 @@
+---
+// The feedback form for people who played the game (#109): other hackathon
+// participants, Live App Testing testers and guests of the owner's home
+// sessions. Unlisted like /check/: the owner hands its address to people.
+import icon from '../../../native/icon/icon-512.png';
+import '../check/tester.css';
+
+// The values the answers sheet accepts for "Played on"
+// (site/answers-sheet/Code.js checks the same list).
+const PLAYED_ON = [
+  ['stick', 'On a Fire TV Stick'],
+  ['vvd', 'On the Vega Virtual Device'],
+  ['other', 'Somewhere else'],
+] as const;
+
+const QUESTIONS = [
+  ['confusing', 'What was confusing or hard?'],
+  ['liked', 'What did you like?'],
+  ['broke', 'Did anything go wrong? What was on the screen when it did?'],
+] as const;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>How was the game? · Dice Chess TV</title>
+    <link rel="icon" href={icon.src} type="image/png" />
+  </head>
+  <body>
+    <main class="tester">
+      <p class="kicker">Dice Chess TV</p>
+      <h1>How was the game?</h1>
+
+      <section data-step="form">
+        <p>
+          Thank you for playing Dice Chess for Fire TV. Every question is
+          optional, and a few words are enough. Please leave out your name and
+          other personal details.
+        </p>
+        <form data-form="feedback">
+          <fieldset>
+            <legend>Where did you play?</legend>
+            {PLAYED_ON.map(([value, label]) => (
+              <label>
+                <input type="radio" name="playedOn" value={value} />
+                {label}
+              </label>
+            ))}
+          </fieldset>
+          {QUESTIONS.map(([name, label]) => (
+            <label class="field">
+              {label}
+              <textarea name={name} rows="4" maxlength="1000" />
+            </label>
+          ))}
+          <input
+            class="trap"
+            name="website"
+            tabindex="-1"
+            autocomplete="off"
+            aria-hidden="true"
+          />
+          <p class="note">
+            Send stores your answers in the project's private spreadsheet, with
+            a random code that only stops them being stored twice. The form asks
+            for no name or email, no IP address is stored, and nothing is sent
+            before you press Send.
+          </p>
+          <p class="error" role="alert" data-slot="error" hidden></p>
+          <button type="submit" class="primary">
+            Send
+          </button>
+        </form>
+      </section>
+
+      <section data-step="done" hidden>
+        <h2>Thank you!</h2>
+        <p>Your feedback has arrived. You can close this page.</p>
+      </section>
+
+      <section data-step="off" hidden>
+        <p>
+          This form is not collecting answers yet. Please send your thoughts to
+          the person who gave you the link.
+        </p>
+      </section>
+    </main>
+
+    <script>
+      import { ENDPOINT, newId, send } from '../check/send';
+
+      const $ = <T extends Element>(selector: string) => {
+        const found = document.querySelector<T>(selector);
+        if (!found) throw new Error(`Missing ${selector}`);
+        return found;
+      };
+      const show = (name: string) => {
+        for (const step of document.querySelectorAll<HTMLElement>(
+          '[data-step]',
+        )) {
+          step.hidden = step.dataset.step !== name;
+        }
+        window.scrollTo(0, 0);
+      };
+
+      if (!ENDPOINT) show('off');
+      // Kept for every try, so that a retry after a lost reply is stored once.
+      const id = newId();
+
+      const form = $<HTMLFormElement>('[data-form="feedback"]');
+      const error = $<HTMLElement>('[data-slot="error"]');
+      const button = $<HTMLButtonElement>('button[type="submit"]');
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const fields = new FormData(form);
+        const text = (name: string) => String(fields.get(name) ?? '').trim();
+        const answers = {
+          confusing: text('confusing'),
+          liked: text('liked'),
+          broke: text('broke'),
+        };
+        if (Object.values(answers).every((answer) => answer === '')) {
+          error.textContent = 'Please write something in at least one box.';
+          error.hidden = false;
+          return;
+        }
+        error.hidden = true;
+        button.disabled = true;
+        button.textContent = 'Sending…';
+        const sent = await send({
+          kind: 'feedback',
+          v: 1,
+          id,
+          playedOn: String(fields.get('playedOn') ?? ''),
+          ...answers,
+          website: String(fields.get('website') ?? ''),
+        });
+        if (sent) {
+          show('done');
+          return;
+        }
+        button.disabled = false;
+        button.textContent = 'Send';
+        error.textContent =
+          'Your feedback could not be sent. Please try again in a moment; your text is still here.';
+        error.hidden = false;
+      });
+    </script>
+  </body>
+</html>
