@@ -1,4 +1,4 @@
-import { test } from 'node:test';
+import { mock, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { DiceChess } from '@fortemate/dicechess-engine';
 import {
@@ -303,4 +303,115 @@ test('turn cap finishes a forced pass and cannot produce a turn beyond the save 
   assert.deepEqual(game.result, { winner: null, reason: 'turn-limit' });
   assert.deepEqual(decodeGame(JSON.stringify(game)), game);
   assert.throws(() => nextTurn(game));
+});
+
+// N, P, P here: c2c4 is legal only because Nb3xc5, which takes the king, can
+// follow it. A quiet knight move after c2c4 would end a turn that spends two
+// dice, while c2c3, c3c4, Nb3xc5 spends all three (#101).
+const GAP = '8/8/8/2k5/8/1N6/2P5/K7 w - - 0 1';
+
+test('a turn is checked as a whole: an action no full turn continues is refused', () => {
+  const rolled = rollGame(newGame('hotseat', 'gap', GAP), [2, 1, 1]);
+  const after = moveGame(rolled, 'c2c4');
+  assert.deepEqual(viewGame(after).legal, ['b3c5']);
+  assert.throws(() => moveGame(after, 'b3d4'), /Illegal move/);
+  const won = moveGame(after, 'b3c5');
+  assert.equal(won.phase, 'ended');
+  assert.deepEqual(won.result, { winner: 'w', reason: 'king-captured' });
+});
+
+test('the legal actions are exactly the keys of the tree node the turn has reached', () => {
+  let game = newGame('hotseat', 'keys');
+  const rolls = [
+    [1, 2, 5],
+    [1, 1, 3],
+    [2, 2, 1],
+    [1, 3, 4],
+    [5, 1, 2],
+    [6, 1, 1],
+  ];
+  for (const roll of rolls) {
+    game = rollGame(game, roll);
+    let node = DiceChess.getLegalTurnTree(viewGame(game).dfen);
+    for (;;) {
+      const { legal } = viewGame(game);
+      assert.deepEqual([...legal].sort(), Object.keys(node).sort());
+      // A turn goes on exactly while its node has children.
+      assert.equal(game.phase === 'move', legal.length > 0);
+      if (game.phase !== 'move') break;
+      const move = legal[legal.length - 1];
+      node = node[move];
+      game = moveGame(game, move);
+    }
+    if (game.phase === 'ended') break;
+    game = nextTurn(game);
+  }
+});
+
+test('a roll builds its turn tree once, keeps only that one, and replays a turn without legal lists', () => {
+  const trees = mock.method(DiceChess, 'getLegalTurnTree');
+  const lists = mock.method(DiceChess, 'getLegalUciMoves');
+  try {
+    // A start of its own, so no earlier test has left this roll's tree behind.
+    let game = rollGame(
+      newGame('hotseat', 'once', '4k3/pppppppp/8/8/8/8/PPPPPPPP/4K3 w - - 0 1'),
+      [1, 1, 1],
+    );
+    for (let i = 0; i < 3; i++) game = moveGame(game, viewGame(game).legal[0]);
+    viewGame(game);
+    assert.equal(trees.mock.callCount(), 1);
+    assert.equal(lists.mock.callCount(), 0);
+    const next = rollGame(nextTurn(game), [1, 1, 1]);
+    viewGame(next);
+    assert.equal(trees.mock.callCount(), 2);
+    // The earlier roll's tree was dropped, so viewing that turn builds it again.
+    viewGame(game);
+    assert.equal(trees.mock.callCount(), 3);
+    assert.equal(lists.mock.callCount(), 0);
+  } finally {
+    trees.mock.restore();
+    lists.mock.restore();
+  }
+});
+
+test('a bot reply must be a whole turn of the tree', () => {
+  // The person plays Black, so White's turn is the bot's.
+  const game = rollGame(newGame('random', 'gap-bot', GAP, 'b'), [2, 1, 1]);
+  const reply = (moves: string[]) => ({
+    gameId: game.id,
+    revision: game.revision,
+    dfen: viewGame(game).dfen,
+    moves,
+  });
+  assert.throws(
+    () => applyBotReply(game, reply(['c2c4'])),
+    /Incomplete bot turn/,
+  );
+  assert.throws(
+    () => applyBotReply(game, reply(['c2c4', 'b3d4'])),
+    /Illegal move/,
+  );
+  const won = applyBotReply(game, reply(['c2c4', 'b3c5']));
+  assert.deepEqual(won.result, { winner: 'w', reason: 'king-captured' });
+});
+
+test('a save whose turn left the tree is refused as damaged, and its legal prefix is not', () => {
+  const rolled = rollGame(newGame('hotseat', 'gap-save', GAP), [2, 1, 1]);
+  // What the TV could save before 0.13.0: c2c4, then a quiet knight move.
+  const forbidden: Game = {
+    ...rolled,
+    revision: rolled.revision + 2,
+    moves: ['c2c4', 'b3d4'],
+    phase: 'handoff',
+    lastMove: 'b3d4',
+  };
+  assert.throws(() => decodeGame(JSON.stringify(forbidden)), /Illegal action/);
+  const prefix: Game = {
+    ...rolled,
+    revision: rolled.revision + 1,
+    moves: ['c2c4'],
+    phase: 'move',
+    lastMove: 'c2c4',
+  };
+  assert.deepEqual(decodeGame(JSON.stringify(prefix)), prefix);
 });

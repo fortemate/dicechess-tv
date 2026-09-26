@@ -16,7 +16,7 @@
     "format:check": "prettier --check src native test scripts site *.json *.md docs/*.md .github/**/*.yml .github/**/*.yaml"
   },
   "dependencies": {
-    "@fortemate/dicechess-engine": "0.12.2"
+    "@fortemate/dicechess-engine": "0.13.0"
   },
   "devDependencies": {
     "@eslint/js": "9.39.5",

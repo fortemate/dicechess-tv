@@ -4,8 +4,8 @@
 // asking the engine for a complete legal path is the only way to be sure the
 // path obeys maximal dice use and promotion restrictions.
 //
-// This imports the full engine entry point rather than /rules, which is a bigger
-// payload than the board needs. Only a build that plays a bot pulls it in.
+// It imports the full engine entry point, as the game controller does for the
+// legal turn tree (src/core/game.ts), so every build bundles that entry.
 import { DiceChess } from '@fortemate/dicechess-engine';
 import { viewGame, type Game } from './game.ts';
 

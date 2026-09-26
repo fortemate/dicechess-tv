@@ -66,7 +66,7 @@ src/core/ — one shared, pure TypeScript core, no DOM and no React
 
 The core is pure by enforcement, not by convention: `tsconfig.core.json` compiles it with `lib: ES2022` and `types: []`, so a DOM or Node global there fails `npm run check`. That purity is what let one verified controller serve the WebView probe and the native board at once, and what let the probe be deleted without touching the rules.
 
-The canonical engine determines legal actions and board transitions. A narrow adapter retains dice across the pinned engine API's board-only `applyMove` result; the controller applies the existing game-service terminal policy. See the compatibility note in the full-game guide. The board only renders state and emits intent.
+The canonical engine determines legal actions and board transitions. The controller follows each roll through the engine's legal turn tree, so a turn is checked as a whole, and takes the dice left from the engine's `applyMove` (engine 0.13.0, #101). It applies the existing game-service terminal policy. The board only renders state and emits intent.
 
 [native/README.md](native/README.md) is the running record of what this platform actually does — input channels, persistence, randomness, sound — and has the build and install commands.
 

@@ -3,10 +3,11 @@
 // left unused. There are none before the roll.
 //
 // Which dice are spent is read off the engine's own record of the dice still
-// left, so castling, which spends a king and a rook die together, needs no rule
-// of its own here. The caller passes that record in, as `viewGame(...).remaining`:
-// every screen has already computed the view, and computing it again would
-// replay the turn and generate its legal moves once more on every render.
+// left: the DFEN field `applyMove` returns since engine 0.13.0, which `viewGame`
+// lists in roll order and upper case. So castling, which spends a king and a
+// rook die together, needs no rule of its own here. The caller passes that
+// record in, as `viewGame(...).remaining`: every screen has already computed the
+// view, and computing it again would replay the turn once more on every render.
 import { DiceChess } from '@fortemate/dicechess-engine/rules';
 
 export type Die = {

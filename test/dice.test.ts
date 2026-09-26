@@ -98,3 +98,20 @@ test('while an action remains, no die is a leftover', () => {
     diceAtEnd(moveGame(rolled, 'b1c3')).every(({ leftover }) => !leftover),
   );
 });
+
+test("Black's unspent dice stay unspent, though the engine writes them in lower case", () => {
+  const black = rollGame(
+    newGame(
+      'hotseat',
+      'black-dice',
+      'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1',
+    ),
+    [5, 4, 2],
+  );
+  // Queen, rook, knight: the knight moves, and the engine keeps `rq`.
+  const after = moveGame(black, 'g8f6');
+  assert.equal(viewGame(after).dfen.split(' ')[6], 'rq');
+  // Listed as rolled and in upper case, so the dice read left to right.
+  assert.equal(viewGame(after).remaining, 'QR');
+  assert.equal(faces(diceFor(after)), 'QRn');
+});

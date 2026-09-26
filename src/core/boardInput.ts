@@ -41,6 +41,12 @@ export type BoardInputResult = {
 
 const bySquare = (a: string, b: string) => a.localeCompare(b);
 
+// A promotion is offered queen first, then rook, bishop and knight, whatever
+// order the legal actions come in: the engine's turn tree lists them by UCI.
+const PROMOTION = 'qrbn';
+const byPromotion = (a: string, b: string) =>
+  PROMOTION.indexOf(a.slice(4)) - PROMOTION.indexOf(b.slice(4));
+
 // Legal actions that start on a square, so a square is known to be selectable.
 export function movesFrom(legal: readonly string[], square: string): string[] {
   return legal.filter((move) => move.slice(0, 2) === square);
@@ -110,7 +116,10 @@ export function boardInput(
       )
     : [];
   if (matches.length > 1) {
-    return { focus, action: { type: 'promote', moves: matches } };
+    return {
+      focus,
+      action: { type: 'promote', moves: matches.sort(byPromotion) },
+    };
   }
   if (matches.length === 1) {
     return { focus, action: { type: 'move', move: matches[0] } };
