@@ -11,6 +11,10 @@ hero:
     - text: Play the beta
       link: /dicechess-tv/play/beta/
       icon: right-arrow
+    - text: Watch the demo
+      link: https://www.youtube.com/watch?v=Q7wWAmUp2Sc
+      icon: external
+      variant: secondary
     - text: What it does
       link: /dicechess-tv/project/features/
       variant: secondary
@@ -25,6 +29,7 @@ import { Image } from 'astro:assets';
 import hotseat from '../../assets/screenshots/hotseat.png';
 import playBlack from '../../assets/screenshots/play-black.png';
 import tutorial from '../../assets/screenshots/tutorial.png';
+import demo from '../../assets/screenshots/demo.png';
 
 <CardGrid>
   <Card title="Family chess with a roll of the dice" icon="random">
@@ -57,6 +62,19 @@ import tutorial from '../../assets/screenshots/tutorial.png';
     engine, so anyone can read how a move is judged.
   </Card>
 </CardGrid>
+
+<figure class="demo">
+  <a href="https://www.youtube.com/watch?v=Q7wWAmUp2Sc">
+    <Image
+      src={demo}
+      alt="Play the demo video on YouTube: Grabby's queen slides in to take a bishop"
+    />
+  </a>
+  <figcaption>
+    The demo, 1:16 on YouTube, recorded on the Vega Virtual Device: hotseat, the
+    computer opponents, the tutorial and the rules.
+  </figcaption>
+</figure>
 
 <div class="screens">
   <figure>

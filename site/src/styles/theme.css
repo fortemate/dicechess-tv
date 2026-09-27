@@ -19,6 +19,24 @@
   white-space: nowrap;
 }
 
+/* The demo video on the home page: a picture that links to YouTube, so the
+   page makes no request to YouTube until a visitor chooses to watch. */
+.demo {
+  margin: 2rem auto 0;
+  max-width: 48rem;
+}
+
+.demo img {
+  width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+}
+
+.demo figcaption {
+  color: var(--sl-color-gray-3);
+  font-size: var(--sl-text-sm);
+}
+
 /* The screenshot strip on the home page: one column on a phone, up to three
    side by side on a wider screen. */
 .screens {
