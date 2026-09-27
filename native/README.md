@@ -70,9 +70,26 @@ npm ci --prefix native # this application
 npm run build --prefix native
 ```
 
-The package lands at `native/build/aarch64-release/dicechess-tv-native_aarch64.vpkg`.
-`armv7` and `x86_64` are built alongside it; the virtual device and the Stick
-both want `aarch64`.
+The build writes one package per processor:
+
+| Package                                                         | Install it on                                  |
+| --------------------------------------------------------------- | ---------------------------------------------- |
+| `native/build/aarch64-release/dicechess-tv-native_aarch64.vpkg` | The virtual device on a Mac with Apple silicon |
+| `native/build/x86_64-release/dicechess-tv-native_x86_64.vpkg`   | The virtual device on Linux or an Intel Mac    |
+| `native/build/armv7-release/dicechess-tv-native_armv7.vpkg`     | A Fire TV Stick with Vega OS                   |
+
+The virtual device needs the package that matches the computer's processor, and
+a Fire TV device needs `armv7`, as Amazon's
+[guide to running an app](https://developer.amazon.com/docs/vega/0.24/run-apps)
+says. A Stick is ARM, but 32-bit ARM: Amazon's
+[device specifications](https://developer.amazon.com/docs/device-specs/device-specifications-fire-tv-streaming-media-player.html)
+list a 32-bit application binary interface for both Sticks with Vega OS, the 4K
+Select (AFTCA002) and the HD (AFTCL001). On 2026-09-27 the Developer Console
+took the `armv7` package for a Live App Test and chose those two Sticks for it.
+All of this is Amazon's word, not a measurement: the app has not run on a Stick
+yet (#10).
+
+For the virtual device on a Mac with Apple silicon:
 
 ```sh
 vega device install-app -d VirtualDevice -p native/build/aarch64-release/dicechess-tv-native_aarch64.vpkg
