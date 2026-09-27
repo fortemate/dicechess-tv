@@ -183,7 +183,8 @@ test('a change of level crossfades over two seconds on the other player', async 
   assert.deepEqual(playing(), ['tense.mp3']);
 });
 
-test('coming back to a theme continues where it was left', async () => {
+test('a change of level starts the theme from its beginning, even one heard before', async () => {
+  // The owner chose this by ear: a theme joined in the middle sounded wrong.
   const { music, clock, players } = await rig();
   music.setRole('menu');
   await clock.advance(30_000);
@@ -194,11 +195,7 @@ test('coming back to a theme continues where it was left', async () => {
   const menu = players.find(
     (each) => each.playing && each.src.endsWith('menu.mp3'),
   )!;
-  // Left at about 32 s: 30 s of play and 2 s of fading out.
-  assert.ok(
-    menu.currentTime > 31 && menu.currentTime < 33,
-    `${menu.currentTime}`,
-  );
+  assert.ok(menu.currentTime < 0.5, `${menu.currentTime}`);
 });
 
 test('a theme still fading out fades back in rather than starting over', async () => {
@@ -216,23 +213,27 @@ test('a theme still fading out fades back in rather than starting over', async (
   );
 });
 
-test('a pass about to end hands over to a fresh pass on the other player', async () => {
+test('a pass about to end hands over to a fresh pass on the other player, over 3 s', async () => {
   const { music, clock, players, playing } = await rig({
-    tracks: { calm: { file: 'calm.mp3', loopStart: 1, loopEnd: 5, gainDb: 0 } },
+    tracks: {
+      calm: { file: 'calm.mp3', loopStart: 1, loopEnd: 20, gainDb: 0 },
+    },
   });
   music.setRole('calm');
-  // The pass starts at the loop start, 1 s, so it reaches the seam, 0.3 s before
-  // the loop end at 5 s, after 3.7 s.
-  await clock.advance(3_800);
-  // The second player has started the next pass from the loop start.
+  // The pass starts at the loop start, 1 s, and the seam begins 3 s before the
+  // loop end at 20 s: after 16 s of play.
+  await clock.advance(16_100);
   const [first, second] = players;
   assert.ok(first.playing && second.playing);
   assert.ok(second.currentTime < 1.2, `${second.currentTime}`);
-  await clock.advance(SEAM_MS + 100);
+  // Halfway through, both are heard at the same level: an equal-power curve.
+  await clock.advance(1_400);
+  assert.ok(Math.abs(first.volume - second.volume) < 0.05);
+  await clock.advance(SEAM_MS);
   assert.deepEqual(playing(), ['calm.mp3']);
   assert.equal(first.playing, false);
   // And the pass after that goes back to the first.
-  await clock.advance(4_000);
+  await clock.advance(16_000);
   assert.ok(first.playing, 'the first player takes the third pass');
 });
 

@@ -3,5 +3,9 @@
 # build and the tests check them against.
 native/sounds/
 
+# The music, vendored from fortemate/dicechess-assets and pinned byte for byte by
+# native/music/music.json (#76).
+native/music/
+
 # Written by Amazon's Vega ESLint plugin on every lint run; gitignored.
 native/generated/

@@ -2,13 +2,14 @@
 
 Fortemate's code in this repository is licensed under AGPL-3.0-only (see [LICENSE](LICENSE)). The third-party material below keeps its own licence and is not covered by the AGPL.
 
-| Component                                                | Pinned version           | License               | Source                                             |
-| -------------------------------------------------------- | ------------------------ | --------------------- | -------------------------------------------------- |
-| Dice Chess engine                                        | 0.13.0                   | AGPL-3.0-only         | https://github.com/fortemate/dicechess-engine      |
-| Vector Chess Pieces Pack, RhosGFX                        | 1.0.0                    | CC0-1.0               | https://rhosgfx.itch.io/vector-chess-pieces        |
-| Vector Emojis, RhosGFX                                   | downloaded 2026-09-26    | CC0-1.0               | https://rhosgfx.itch.io/vector-emojis              |
-| Tabletop Games SFX Pack, JDSherbert                      | 1.1.0                    | Free with attribution | https://jdsherbert.itch.io/tabletop-games-sfx-pack |
-| Casino Audio, Interface Sounds and Music Jingles, Kenney | 1.1, 1.0 and unversioned | CC0-1.0               | https://kenney.nl                                  |
+| Component                                                | Pinned version           | License                  | Source                                             |
+| -------------------------------------------------------- | ------------------------ | ------------------------ | -------------------------------------------------- |
+| Dice Chess engine                                        | 0.13.0                   | AGPL-3.0-only            | https://github.com/fortemate/dicechess-engine      |
+| Vector Chess Pieces Pack, RhosGFX                        | 1.0.0                    | CC0-1.0                  | https://rhosgfx.itch.io/vector-chess-pieces        |
+| Vector Emojis, RhosGFX                                   | downloaded 2026-09-26    | CC0-1.0                  | https://rhosgfx.itch.io/vector-emojis              |
+| Tabletop Games SFX Pack, JDSherbert                      | 1.1.0                    | Free with attribution    | https://jdsherbert.itch.io/tabletop-games-sfx-pack |
+| Casino Audio, Interface Sounds and Music Jingles, Kenney | 1.1, 1.0 and unversioned | CC0-1.0                  | https://kenney.nl                                  |
+| Dice Chess themes, pepka-prygni                          | 0.2.0 (four tracks)      | Permission for this game | https://www.youtube.com/@genreexplorer-h5o         |
 
 The engine and RhosGFX license texts are in [AGPL-3.0](licenses/AGPL-3.0.txt), [CC0-1.0](licenses/RhosGFX-CC0.txt) and, for the emojis, [CC0-1.0](licenses/RhosGFX-Emojis-CC0.txt). Full installed-package notices are retained in node_modules, and build-generated license comments must not be removed. The package locks record the exact dependency graph.
 
@@ -21,6 +22,12 @@ The faces of the three local opponents are three SVGs from the RhosGFX Vector Em
 The game's sounds are vendored under `native/sounds/` from the private asset repository `fortemate/dicechess-assets`, at the commit recorded in `native/sounds/sounds.lock.json`, each pack beside its own manifest and licence file.
 
 JDSherbert's licence requires visible credit, given on the About screen as "Sounds by JDSherbert" with the link jdsherbert.itch.io/tabletop-games-sfx-pack beneath it (the licence offers "Sounds by JDSherbert – https://jdsherbert.itch.io" as an example and calls a link optional), and it forbids sharing the raw files. The author, Josh Herbert, gave written permission on 24 September 2026 to include these four MP3 files in this public repository, with credit and a link to his page. That permission covers this project only: the files are not licensed under the AGPL, and using them anywhere else needs the author's permission or a copy of the pack from https://jdsherbert.itch.io/tabletop-games-sfx-pack. Kenney's packs are CC0 and carry no such limit; the About screen credits them as a courtesy.
+
+## Music
+
+The game's four music tracks are vendored under `native/music/` from the private asset repository `fortemate/dicechess-assets`, at the commit recorded in `native/music/music.json`, beside the pack's manifest and licence file (#76). They are Warm anticipation for the menus, and Clear Space, Tightening Layers and Tense Minor Pulse for the game.
+
+The tracks were made by pepka-prygni with Suno, on the author's paid plan. On 26 September 2026 the author gave written permission to use them in this game, with the credit "Music by pepka-prygni" and a link to his YouTube channel, which the About screen shows. That permission covers this project only: the files are not licensed under the AGPL or any other open licence, and using them anywhere else needs the author's permission. `native/music/pepka-prygni-dicechess/LICENSE.txt` records the terms. Suno keeps a licence of its own to everything made with it, and requires its "made with suno" metadata to stay in every copy; the MP3 files keep it.
 
 ## Amazon platform packages
 

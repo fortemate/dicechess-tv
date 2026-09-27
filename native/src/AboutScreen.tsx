@@ -8,7 +8,7 @@
 // One page, nothing to navigate. OK or Back leaves.
 import React from 'react';
 import { View, Text } from 'react-native';
-import { APP, CREDITS } from '../../src/core/credits';
+import { APP, CREDITS, ENGINE } from '../../src/core/credits';
 import type { BoardKey } from '../../src/core/boardInput';
 import { useRemoteInput } from './useRemoteInput';
 import { THEME } from './theme';
@@ -62,8 +62,10 @@ export const AboutScreen = ({ onExit, onState }: AboutScreenProps) => {
         ABOUT
       </Text>
       <Text style={{ color: '#f0f4f8', fontSize: 36 }}>{APP.title}</Text>
-      <Text style={{ color: '#aab8c9', fontSize: 22, marginBottom: 28 }}>
-        {APP.maker}
+      <Text style={{ color: '#aab8c9', fontSize: 22 }}>{APP.maker}</Text>
+      {/* The engine is Fortemate's own too, so it is named with the maker. */}
+      <Text style={{ color: '#aab8c9', fontSize: 18, marginBottom: 24 }}>
+        {`${ENGINE.line} · ${ENGINE.licence} · ${ENGINE.source}`}
       </Text>
 
       {/* Two columns: four credits in one column would not fit a television

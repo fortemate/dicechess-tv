@@ -9,10 +9,11 @@
 // silence at either end, until loop points are chosen by ear, and is levelled to
 // the quietest by the loudness the pack measured.
 //
-// A pack whose licence is still pending says so in its manifest
-// (`distribution: private`), and this public repository may not carry it. The
-// script refuses such a pack unless --private says the copy is for a local build
-// only. native/music/ is ignored by git until the licence is recorded.
+// A pack says in its manifest who may carry it: `distribution: public`, any
+// client; `project`, only the repositories its `clients` list; `private`, none,
+// which is also what a pending licence means. The script vendors a pack this
+// repository may carry, and refuses any other unless --private says the copy is
+// for a local build that is never committed.
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
@@ -21,6 +22,7 @@ import { fileURLToPath } from 'node:url';
 
 const PACK = 'pepka-prygni-dicechess';
 const UPSTREAM = 'fortemate/dicechess-assets';
+const CLIENT = 'fortemate/dicechess-tv';
 const ROLES = ['menu', 'calm', 'tense', 'critical'];
 const native = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -41,9 +43,12 @@ const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const manifest = JSON.parse(
   show(`music/${PACK}/manifest.json`).toString('utf8'),
 );
-if (manifest.distribution !== 'public' && !local)
+const allowed =
+  manifest.distribution === 'public' ||
+  (manifest.distribution === 'project' && manifest.clients?.includes(CLIENT));
+if (!allowed && !local)
   throw new Error(
-    `${PACK} is not distributable (license ${manifest.license}, distribution ${manifest.distribution}). ` +
+    `${PACK} may not be carried by ${CLIENT} (license ${manifest.license}, distribution ${manifest.distribution}). ` +
       'Pass --private for a local build that is never committed.',
   );
 const published = JSON.parse(
@@ -58,6 +63,7 @@ const quietest = Math.min(
 const root = join(native, 'music');
 rmSync(root, { recursive: true, force: true });
 mkdirSync(join(root, PACK), { recursive: true });
+const files = {};
 const copy = (path) => {
   const bytes = show(`music/${PACK}/${path}`);
   if (published[path] !== sha256(bytes))
@@ -66,6 +72,7 @@ const copy = (path) => {
     );
   const name = path.split('/').pop();
   writeFileSync(join(root, PACK, name), bytes);
+  files[name] = sha256(bytes);
   return { file: `${PACK}/${name}`, sha256: sha256(bytes) };
 };
 
@@ -97,11 +104,15 @@ const catalogue = {
   pack: PACK,
   version: manifest.version,
   license: manifest.license,
+  licenseFile: manifest.licenseFile,
   distribution: manifest.distribution,
+  clients: manifest.clients ?? null,
   attribution: manifest.attribution,
   attributionRequired: manifest.attributionRequired,
   roles: manifest.rolesStatus,
   tracks,
+  // Every file vendored for the pack, with its digest.
+  files,
 };
 writeFileSync(
   join(root, 'music.json'),

@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "id": "pepka-prygni-dicechess",
+  "title": "Dice Chess themes by pepka-prygni",
+  "author": "pepka-prygni",
+  "authorHandles": {
+    "suno": "@pepka-prygni",
+    "youtube": "https://www.youtube.com/@genreexplorer-h5o"
+  },
+  "attribution": "Music by pepka-prygni – https://www.youtube.com/@genreexplorer-h5o",
+  "attributionRequired": true,
+  "license": "Permission for this game",
+  "licenseFile": "LICENSE.txt",
+  "status": "imported",
+  "distribution": "project",
+  "clients": [
+    "fortemate/dicechess-tv"
+  ],
+  "generator": {
+    "tool": "Suno",
+    "plan": "paid (Pro or Premier), as the owner reports; the author confirms with the licence",
+    "note": "Generated with Suno. Suno grants commercial use for songs downloaded through its own channels on a paid plan, keeps a licence of its own to every output, and forbids removing the fingerprint, watermark or metadata it appends. Each source WAV carries Suno's comment tag, and every export keeps it."
+  },
+  "version": "0.2.0",
+  "formats": [
+    "wav",
+    "mp3"
+  ],
+  "exports": {
+    "mp3": "exports/mp3"
+  },
+  "sampleRate": 48000,
+  "channels": 2,
+  "checksums": "checksums.json",
+  "sourceFileCount": 4,
+  "provenance": {
+    "source": "WAV downloads from Suno by the author, handed to the owner, who committed them as music/*.wav: three in 2e105d4 and the menu theme in ba261ab, both on 2026-09-26. Moved here unchanged.",
+    "note": "The comment tag Suno wrote into each WAV reads \"made with suno\", the creation time and the Suno song id; sunoSongId and created below are copied from it.",
+    "permission": "On 26 September 2026 the author gave the owner written permission to use the tracks in Dice Chess for Fire TV. LICENSE.txt records its terms."
+  },
+  "tracks": {
+    "clear-space": {
+      "title": "Clear Space",
+      "source": "wav/Clear Space.wav",
+      "export": "exports/mp3/clear_space.mp3",
+      "sunoSongId": "9e71d258-dcce-48dd-8673-98d42d934a81",
+      "created": "2026-09-26T18:34:36Z",
+      "durationSeconds": 184.32,
+      "loudness": {
+        "integratedLufs": -16.0,
+        "rangeLu": 5.7,
+        "truePeakDbfs": -4.0
+      },
+      "leadingSilenceSeconds": 0.0,
+      "trailingSilenceSeconds": 0.67,
+      "loop": null
+    },
+    "tightening-layers": {
+      "title": "Tightening Layers",
+      "source": "wav/Tightening Layers.wav",
+      "export": "exports/mp3/tightening_layers.mp3",
+      "sunoSongId": "c4b22ac5-c758-43f6-beaf-e0038de70fd6",
+      "created": "2026-09-26T18:46:05Z",
+      "durationSeconds": 213.04,
+      "loudness": {
+        "integratedLufs": -13.7,
+        "rangeLu": 5.9,
+        "truePeakDbfs": -4.1
+      },
+      "leadingSilenceSeconds": 0.0,
+      "trailingSilenceSeconds": 0.0,
+      "loop": null
+    },
+    "tense-minor-pulse": {
+      "title": "Tense Minor Pulse",
+      "source": "wav/Tense Minor Pulse.wav",
+      "export": "exports/mp3/tense_minor_pulse.mp3",
+      "sunoSongId": "5f408f2e-43f0-46af-8da6-1663907a2ef0",
+      "created": "2026-09-26T18:48:02Z",
+      "durationSeconds": 154.4,
+      "loudness": {
+        "integratedLufs": -13.9,
+        "rangeLu": 8.5,
+        "truePeakDbfs": -3.7
+      },
+      "leadingSilenceSeconds": 0.7,
+      "trailingSilenceSeconds": 0.0,
+      "loop": null
+    },
+    "warm-anticipation": {
+      "title": "Warm anticipation",
+      "source": "wav/Warm anticipation.wav",
+      "export": "exports/mp3/warm_anticipation.mp3",
+      "sunoSongId": "c231361d-3910-4181-8387-73d040e49194",
+      "created": "2026-09-26T19:40:33Z",
+      "durationSeconds": 193.24,
+      "loudness": {
+        "integratedLufs": -15.9,
+        "rangeLu": 4.0,
+        "truePeakDbfs": -4.7
+      },
+      "leadingSilenceSeconds": 0.0,
+      "trailingSilenceSeconds": 1.09,
+      "loop": null
+    }
+  },
+  "roles": {
+    "menu": "warm-anticipation",
+    "calm": "clear-space",
+    "tense": "tightening-layers",
+    "critical": "tense-minor-pulse"
+  },
+  "rolesStatus": "confirmed",
+  "exportSources": {},
+  "derivedExports": {
+    "exports/mp3/clear_space.mp3": {
+      "source": "wav/Clear Space.wav",
+      "sha256": "82ab48c95ca7ce0396f300a477acb58f8702b05802d20b965a0e1d116120d022"
+    },
+    "exports/mp3/tightening_layers.mp3": {
+      "source": "wav/Tightening Layers.wav",
+      "sha256": "8c4414843183eb1c2bed0387e05e3a9415ccb9656228b52a979d0df82b588216"
+    },
+    "exports/mp3/tense_minor_pulse.mp3": {
+      "source": "wav/Tense Minor Pulse.wav",
+      "sha256": "3e6919e03ba902911b092c6b41cf42839cc6e65bb5541ff3173d6a8ba023c9fc"
+    },
+    "exports/mp3/warm_anticipation.mp3": {
+      "source": "wav/Warm anticipation.wav",
+      "sha256": "7487db0d13ecc97ed1fec960e9d640e253e29a0a78772e4cd3dceec8f5dfc008"
+    }
+  },
+  "derivation": {
+    "tool": "ffmpeg 9.0.1 with libmp3lame",
+    "arguments": "-map_metadata 0 -fflags +bitexact -flags:a +bitexact -codec:a libmp3lame -b:a 192k",
+    "note": "Vega OS plays MP3 and WAV, and the WAV sources are too large to ship. Each MP3 is transcoded from its WAV at the same sample rate and channel count, 192 kbit/s CBR like the sound exports. Unlike the sound exports, the metadata is kept (-map_metadata 0), so Suno's provenance tag travels with every copy. Deterministic with this encoder build: two encodes gave identical bytes."
+  }
+}

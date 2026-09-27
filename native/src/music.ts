@@ -8,7 +8,13 @@
 //   late. So a track loops on two players taking turns: the next pass starts on
 //   the other player just before the loop's end and the two crossfade.
 // - `volume` works, and a ramp of 50 ms steps holds its pace. Every fade here is
-//   such a ramp, driven by one ticker.
+//   such a ramp, driven by one ticker, on an equal-power curve, so a crossfade
+//   does not dip in the middle.
+//
+// What the owner chose by ear on the listening page (#76): the seam of a loop
+// crossfades over 3 s, which suited every track better than a short splice, and
+// a change of level starts the new theme from its beginning, not from the
+// middle.
 // - A player started at volume zero and moved to its position after `play()`
 //   cannot be heard getting there, which is simpler than seeking before the
 //   file has loaded.
@@ -72,7 +78,7 @@ export type MusicOptions = {
 
 export const TICK_MS = 50;
 export const CROSSFADE_MS = 2000;
-export const SEAM_MS = 300;
+export const SEAM_MS = 3000;
 export const STOP_MS = 500;
 export const RESUME_DELAY_MS = 300;
 export const RESUME_FADE_MS = 500;
@@ -147,7 +153,9 @@ export function createMusic({
       // Turning music off fades it like any other change, so the switch is not
       // folded in here.
       voice.player.volume = voice.track
-        ? volume * gainOf(voice.track.gainDb) * voice.fade
+        ? volume *
+          gainOf(voice.track.gainDb) *
+          Math.sin((voice.fade * Math.PI) / 2)
         : 0;
     });
 
@@ -284,7 +292,15 @@ export function createMusic({
         voices[0],
       );
     fadeOutAllBut(spare, CROSSFADE_MS);
-    begin(spare, want, track, audible ? CROSSFADE_MS : CROSSFADE_MS / 2);
+    // A new level starts its theme from the beginning; only a return from the
+    // background continues where the music stopped.
+    begin(
+      spare,
+      want,
+      track,
+      audible ? CROSSFADE_MS : CROSSFADE_MS / 2,
+      track.loopStart,
+    );
   };
 
   // Makes what plays agree with what was asked for.

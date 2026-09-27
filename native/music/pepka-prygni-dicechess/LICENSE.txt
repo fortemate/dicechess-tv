@@ -1,0 +1,18 @@
+Music by pepka-prygni - permission for Dice Chess for Fire TV
+
+The four tracks of this pack, Warm anticipation, Clear Space, Tightening
+Layers and Tense Minor Pulse, were made by pepka-prygni with Suno on the
+author's paid plan and downloaded by the author as WAV.
+
+On 26 September 2026 the author gave the owner of Fortemate written
+permission to use them in the game Dice Chess for Fire TV,
+https://github.com/fortemate/dicechess-tv.
+
+The permission is for that game only. The files are not licensed under the
+game's AGPL-3.0 licence or under any other open licence, and using them
+anywhere else needs the author's permission.
+
+Credit: Music by pepka-prygni - https://www.youtube.com/@genreexplorer-h5o
+
+Suno keeps a licence of its own to everything made with it, and requires the
+"made with suno" metadata to stay in every copy. The exports keep it.

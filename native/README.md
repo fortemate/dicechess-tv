@@ -828,17 +828,22 @@ The game plays adaptive music (#76). The menus have their own theme. Over a game
 the theme follows the danger to a king, calm, tense or critical, and changes at
 the start of a turn.
 
-**The tracks are not in this repository yet.** They were made for the game with
-Suno by pepka-prygni, and are held in dicechess-assets
-(`music/pepka-prygni-dicechess`) while their licence is decided.
+**The tracks** are four themes made for the game with Suno by pepka-prygni:
+Warm anticipation for the menus, and Clear Space, Tightening Layers and Tense Minor
+Pulse for calm, tense and critical. The author gave written permission on 26
+September 2026 to use them in this game only (`THIRD_PARTY_NOTICES.md`).
 
-- `scripts/vendor-music.mjs` copies them from a pinned commit into `music/`, which
-  git ignores.
-- It refuses a pack whose licence is pending unless `--private` says the build is
-  local.
-- The build copies them to `assets/music/` with their catalogue, `music.json`.
-- A build without music finds no catalogue in its package. It plays none, and its
-  settings offer only the sound effects.
+- **Vendoring.** `scripts/vendor-music.mjs` copies them from dicechess-assets
+  (`music/pepka-prygni-dicechess`) at a pinned commit into `music/`, beside the
+  pack's manifest and `LICENSE.txt`.
+- **Who may carry them.** It vendors a pack only when the pack allows this
+  repository: this one's permission lists fortemate/dicechess-tv as its one client.
+  It refuses any other unless `--private` says the build is local.
+- **The catalogue.** `music/music.json` pins the commit and every file's digest,
+  and `test/vendoredMusic.test.ts` holds the files to it.
+- **The build** copies the tracks to `assets/music/` with the catalogue. A build
+  without the catalogue plays no music, and its settings offer only the sound
+  effects.
 
 **What plays when** is `musicRole` in `src/screen.ts`:
 
@@ -868,10 +873,15 @@ tree.
 
 **Playback** (`src/music.ts`) uses two w3cmedia players, as `MUSIC`/`USAGE_GAME`.
 
-- **Looping.** A track loops by handing each pass to the other player 0.3 s before
-  its end, with a crossfade. The player's own loop lost 0.3 s at the first seam in
-  the probe.
-- **Level changes** crossfade over 2 s, and a theme comes back where it was left.
+- **Looping.** A track loops by handing each pass to the other player 3 s before
+  its end, with an equal-power crossfade. The player's own loop lost 0.3 s at the
+  first seam in the probe.
+- **Level changes** crossfade over 2 s, and the new theme starts from its
+  beginning. Only a return from the background continues where the music stopped.
+- **Chosen by ear.** The owner chose both on the listening page, on 27
+  September. The 3 s seam suited three tracks well and Tightening Layers passably,
+  where a short splice suited it badly. A theme joined in the middle sounded wrong
+  for both tense and critical. The levelled loudness was preferred too.
 - **Leaving the foreground** stops the music at once, on `blur`. The virtual device
   sent `blur` before the change to background on every one of four trips to the
   launcher.
