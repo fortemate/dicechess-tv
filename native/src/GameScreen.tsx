@@ -13,7 +13,7 @@ import {
   type Result,
 } from '../../src/core/game';
 import { opponentOf } from '../../src/core/opponents';
-import { summary, type Ledger } from '../../src/core/ledger';
+import type { Ledger } from '../../src/core/ledger';
 import { movableSquares, type BoardKey } from '../../src/core/boardInput';
 import { Board } from './Board';
 import { Dice } from './Dice';
@@ -191,24 +191,6 @@ const headline = (game: Game, view: GameView): string =>
   (emptyRoll(game) ? 'No legal moves' : `${sideName(view.side)} to play`) +
   mover(game, view.bot);
 
-// Hotseat results so far, by colour, because the seats change hands and nobody
-// here knows who sat where. The record against each local opponent is on its
-// card (#115), which keeps the home screen inside the safe area.
-const Record = ({ ledger }: { ledger: Ledger }) => {
-  const { white, draws, black } = summary(ledger).hotseat;
-  if (white + draws + black === 0) return null;
-  return (
-    <View style={{ marginTop: 20 }}>
-      <Text style={{ color: '#8dc9b6', fontSize: 20, letterSpacing: 2 }}>
-        COMPLETED GAMES
-      </Text>
-      <Text style={{ color: '#aab8c9', fontSize: 20 }}>
-        {`Hotseat — White ${white} · Drawn ${draws} · Black ${black}`}
-      </Text>
-    </View>
-  );
-};
-
 // Who the person plays: nobody in hotseat, else the opponent's name.
 const opponentName = (game: Game): string | null =>
   isBotMode(game.mode) ? opponentOf(game.mode).name : null;
@@ -298,7 +280,6 @@ const Panel = ({
   music,
   hasMusic,
   selected,
-  ledger,
   pressed,
 }: {
   overlay: Overlay;
@@ -307,22 +288,18 @@ const Panel = ({
   music: MusicSetting;
   hasMusic: boolean;
   selected: string | null;
-  ledger?: Ledger;
   // OK is held: the focused option of an open menu shows it.
   pressed: boolean;
 }) => {
   switch (overlay.kind) {
     case 'home':
       return (
-        <>
-          <Choices
-            title="Dice Chess"
-            options={homeOptions(resumable(game))}
-            index={overlay.index}
-            pressed={pressed}
-          />
-          {ledger ? <Record ledger={ledger} /> : null}
-        </>
+        <Choices
+          title="Dice Chess"
+          options={homeOptions(resumable(game))}
+          index={overlay.index}
+          pressed={pressed}
+        />
       );
     case 'menu':
       return (
@@ -645,7 +622,6 @@ export const GameScreen = ({
           music={musicSetting}
           hasMusic={hasMusic}
           selected={focus.selected}
-          ledger={ledger}
           pressed={pressed}
         />
       </View>
