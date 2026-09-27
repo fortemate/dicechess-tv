@@ -45,11 +45,11 @@ The game has adaptive music ([#76](https://github.com/fortemate/dicechess-tv/iss
 - **Tense** when at least a tenth of the rolls would let the side about to roll take the king within its turn.
 - **Critical** when the king is attacked directly, and only the right die is missing.
 
-Against the computer the music follows the danger to your own king. In hotseat, where both players are in the room, it follows the danger to either king. It rises at once and falls one step per turn, so one quiet turn does not drop a tense game to calm. Themes crossfade over two seconds, and after a result the music waits, so the jingle is heard on its own.
+Against the computer the music follows the danger to your own king. In hotseat, where both players are in the room, it follows the danger to either king. It rises at once and falls one step per turn, so one quiet turn does not drop a tense game to calm. Themes crossfade over two seconds, and a new theme starts from its beginning, as chosen by ear; after a result the music waits, so the jingle is heard on its own.
 
 The Settings screen switches music on or off and sets its volume, apart from the sound effects. Music stops at once when the app leaves the screen.
 
-The tracks join the app once their licence is recorded. Until then a build has no music, and its Settings offer only the sound effects.
+The four themes are by pepka-prygni, made with Suno and used with his permission: Warm anticipation in the menus, then Clear Space, Tightening Layers and Tense Minor Pulse as the danger grows. A build without them plays no music, and its Settings offer only the sound effects.
 
 ## What has been heard, and where
 

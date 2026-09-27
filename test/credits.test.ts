@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { APP, CREDITS } from '../src/core/credits.ts';
+import { APP, CREDITS, ENGINE } from '../src/core/credits.ts';
 
 const notices = readFileSync(
   new URL('../THIRD_PARTY_NOTICES.md', import.meta.url),
@@ -11,7 +11,7 @@ const notices = readFileSync(
 test('every credit on the screen is also in the notices', () => {
   // The About screen and THIRD_PARTY_NOTICES.md say the same thing to two
   // audiences. If they disagree, one of them is wrong about a licence.
-  for (const credit of CREDITS) {
+  for (const credit of [...CREDITS, ENGINE]) {
     assert.ok(
       notices.includes(credit.source),
       `${credit.subject}: ${credit.source} is not in THIRD_PARTY_NOTICES.md`,
@@ -26,7 +26,7 @@ test('every credit on the screen is also in the notices', () => {
 
 test('every credit is complete and readable from a sofa', () => {
   assert.ok(CREDITS.length > 0);
-  for (const credit of CREDITS) {
+  for (const credit of [...CREDITS, ENGINE]) {
     for (const [field, value] of Object.entries(credit))
       assert.ok(value.trim().length > 0, `${credit.subject}: empty ${field}`);
     // A source is read off a television, not followed, so no scheme.
@@ -53,6 +53,28 @@ test('the pieces and the faces are credited to their author even though CC0 asks
   // Four cards fill the About screen's two columns without leaving the
   // television's safe area.
   assert.equal(CREDITS.length, 4);
+});
+
+test('the vendored music is credited as its permission asks', () => {
+  // The catalogue repeats the pack's credit, worded like a sound pack's as
+  // "<who> – <link>": the words are a card's line, and the link, without its
+  // scheme, is where its source starts.
+  const catalogue = JSON.parse(
+    readFileSync(
+      new URL('../native/music/music.json', import.meta.url),
+      'utf8',
+    ),
+  ) as { attribution: string };
+  const [words, link = ''] = catalogue.attribution.split(' – ');
+  const credit = CREDITS.find((candidate) => candidate.line === words);
+  assert.ok(credit, `"${words}" is not on the About screen`);
+  assert.ok(
+    link
+      .replace(/^https?:\/\//, '')
+      .replace(/^www\./, '')
+      .startsWith(credit.source),
+    `${link} is not where ${credit.source} points`,
+  );
 });
 
 test('every vendored sound pack is credited as its manifest asks', () => {

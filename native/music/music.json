@@ -1,0 +1,57 @@
+{
+  "upstream": "fortemate/dicechess-assets",
+  "commit": "86abceab12cbe9bdd3b76abc4a2abff217bbf387",
+  "pack": "pepka-prygni-dicechess",
+  "version": "0.2.0",
+  "license": "Permission for this game",
+  "licenseFile": "LICENSE.txt",
+  "distribution": "project",
+  "clients": [
+    "fortemate/dicechess-tv"
+  ],
+  "attribution": "Music by pepka-prygni – https://www.youtube.com/@genreexplorer-h5o",
+  "attributionRequired": true,
+  "roles": "confirmed",
+  "tracks": {
+    "menu": {
+      "title": "Warm anticipation",
+      "file": "pepka-prygni-dicechess/warm_anticipation.mp3",
+      "sha256": "7487db0d13ecc97ed1fec960e9d640e253e29a0a78772e4cd3dceec8f5dfc008",
+      "loopStart": 0,
+      "loopEnd": 192.15,
+      "gainDb": -0.1
+    },
+    "calm": {
+      "title": "Clear Space",
+      "file": "pepka-prygni-dicechess/clear_space.mp3",
+      "sha256": "82ab48c95ca7ce0396f300a477acb58f8702b05802d20b965a0e1d116120d022",
+      "loopStart": 0,
+      "loopEnd": 183.65,
+      "gainDb": 0
+    },
+    "tense": {
+      "title": "Tightening Layers",
+      "file": "pepka-prygni-dicechess/tightening_layers.mp3",
+      "sha256": "8c4414843183eb1c2bed0387e05e3a9415ccb9656228b52a979d0df82b588216",
+      "loopStart": 0,
+      "loopEnd": 213.04,
+      "gainDb": -2.3
+    },
+    "critical": {
+      "title": "Tense Minor Pulse",
+      "file": "pepka-prygni-dicechess/tense_minor_pulse.mp3",
+      "sha256": "3e6919e03ba902911b092c6b41cf42839cc6e65bb5541ff3173d6a8ba023c9fc",
+      "loopStart": 0.7,
+      "loopEnd": 154.4,
+      "gainDb": -2.1
+    }
+  },
+  "files": {
+    "manifest.json": "344c690d68db4857ac76ded7ca040f1ba3e18279348cc32609664715dfcb138a",
+    "LICENSE.txt": "b8851d35d4724e3f52af2f0a17e61f6dfa82846fddb3ab7b5598d74942b1a17b",
+    "warm_anticipation.mp3": "7487db0d13ecc97ed1fec960e9d640e253e29a0a78772e4cd3dceec8f5dfc008",
+    "clear_space.mp3": "82ab48c95ca7ce0396f300a477acb58f8702b05802d20b965a0e1d116120d022",
+    "tightening_layers.mp3": "8c4414843183eb1c2bed0387e05e3a9415ccb9656228b52a979d0df82b588216",
+    "tense_minor_pulse.mp3": "3e6919e03ba902911b092c6b41cf42839cc6e65bb5541ff3173d6a8ba023c9fc"
+  }
+}

@@ -28,6 +28,15 @@ export const APP = {
   maker: 'Made by Fortemate',
 } as const;
 
+// The rules engine is Fortemate's own, like the app, so the About screen names it
+// under the maker rather than on a card: the four cards go to other authors.
+export const ENGINE: Credit = {
+  subject: 'Rules engine',
+  line: 'Dice Chess engine by Fortemate',
+  licence: 'AGPL-3.0-only',
+  source: 'github.com/fortemate/dicechess-engine',
+};
+
 export const CREDITS: readonly Credit[] = [
   {
     // Two packs by one artist, the chess pieces and the opponents' faces, on
@@ -56,9 +65,11 @@ export const CREDITS: readonly Credit[] = [
     source: 'kenney.nl',
   },
   {
-    subject: 'Rules engine',
-    line: 'Dice Chess engine by Fortemate',
-    licence: 'AGPL-3.0-only',
-    source: 'github.com/fortemate/dicechess-engine',
+    subject: 'Music',
+    // The author's permission covers this game only, and asks for this credit
+    // with a link to his channel (#76).
+    line: 'Music by pepka-prygni',
+    licence: 'Permission for this game',
+    source: 'youtube.com/@genreexplorer-h5o',
   },
 ];

@@ -1,6 +1,6 @@
 ---
 title: What it does
-description: 'A tour of Dice Chess for Fire TV: hotseat on one remote, three computer opponents as either colour, the tutorial and the rules guide, saving, the record of completed games, sound and rematch.'
+description: 'A tour of Dice Chess for Fire TV: hotseat on one remote, three computer opponents as either colour, the tutorial and the rules guide, saving, the record of completed games, sound, music that follows the danger to the king, and rematch.'
 sidebar:
   order: 2
 ---
@@ -77,7 +77,7 @@ Short cues mark each step:
 
 Each was chosen by ear, and they have been heard from the virtual device through a computer's speakers, not yet from a television. Every cue also has something to see on the screen, and the Settings screen, opened from both menus, turns them all off.
 
-Adaptive music that follows the danger to your king is built and checked on the virtual device, and waits for its tracks' licence ([#76](https://github.com/fortemate/dicechess-tv/issues/76)).
+Music follows the danger to your king: calm, tense when a roll could take it within a turn, and critical when it is attacked. The four themes are by pepka-prygni, used with his permission ([#76](https://github.com/fortemate/dicechess-tv/issues/76)). The Settings screen switches music on or off and sets its volume.
 
 Sound stops when the app leaves the screen. The tests check that the players pause, and on the virtual device the app came back from the launcher as it left; that nothing plays over the launcher is still to be confirmed by ear.
 
