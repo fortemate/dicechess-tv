@@ -1,6 +1,7 @@
 // The slide of a move on the board (#131): the piece in flight from its square
 // to its destination, what the destination shows meanwhile, and no slide when
-// the board is reset or the platform asks for less motion.
+// the board is reset, when the platform asks for less motion, or before it has
+// answered whether it does.
 import { test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
@@ -28,6 +29,8 @@ const globals = globalThis as {
   __holdSlides?: boolean;
   __heldSlides?: Held[];
   __reduceMotion?: boolean;
+  __reduceMotionQuery?: 'pending' | 'fails' | 'throws';
+  __answerReduceMotion?: (value: boolean) => void;
 };
 globals.IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -35,16 +38,18 @@ beforeEach(() => {
   globals.__holdSlides = true;
   globals.__heldSlides = [];
   globals.__reduceMotion = false;
+  globals.__reduceMotionQuery = undefined;
 });
 
 const isHost = (node: Instance, name: string) =>
   (node.type as unknown as string) === name;
 const styleOf = (node: Instance): Style => (node.props.style ?? {}) as Style;
 
-// Mounts the board on one position and returns what moves it on.
-const mount = (props: Record<string, unknown>) => {
+// Mounts the board on one position, lets the platform answer whether it asks
+// for less motion, and returns what moves the board on.
+const mount = async (props: Record<string, unknown>) => {
   let tree!: renderer.ReactTestRenderer;
-  act(() => {
+  await act(async () => {
     tree = renderer.create(
       React.createElement(Board, { size: SIZE, ...props } as never),
     );
@@ -109,8 +114,8 @@ test("a slide is short, and over before the opponent's next step", () => {
   assert.ok(SLIDE_MS < BOT_STEP_MS);
 });
 
-test('a move slides the piece from its square to its destination', () => {
-  const board = mount({ board: INITIAL, lastMove: null });
+test('a move slides the piece from its square to its destination', async () => {
+  const board = await mount({ board: INITIAL, lastMove: null });
   board.move({ board: AFTER_E4, lastMove: 'e2e4' });
 
   const [flight] = flights(board.root());
@@ -130,8 +135,11 @@ test('a move slides the piece from its square to its destination', () => {
   assert.equal(pieceOn(square(board.root(), 'e4')), 'P');
 });
 
-test('a capture shows the taken piece until the mover lands', () => {
-  const board = mount({ board: '4k3/8/8/3p4/4P3/8/8/4K3', lastMove: null });
+test('a capture shows the taken piece until the mover lands', async () => {
+  const board = await mount({
+    board: '4k3/8/8/3p4/4P3/8/8/4K3',
+    lastMove: null,
+  });
   board.move({ board: '4k3/8/8/3P4/8/8/8/4K3', lastMove: 'e4d5' });
   assert.equal(pieceOn(square(board.root(), 'd5')), 'p');
   assert.equal(pieceOn(flights(board.root())[0]), 'P');
@@ -141,14 +149,17 @@ test('a capture shows the taken piece until the mover lands', () => {
   assert.equal(board.root().findAllByType(PIECES.p as never).length, 0);
 });
 
-test('castling slides the king and the rook together', () => {
-  const board = mount({ board: 'r3k2r/8/8/8/8/8/8/R3K2R', lastMove: null });
+test('castling slides the king and the rook together', async () => {
+  const board = await mount({
+    board: 'r3k2r/8/8/8/8/8/8/R3K2R',
+    lastMove: null,
+  });
   board.move({ board: 'r3k2r/8/8/8/8/8/8/R4RK1', lastMove: 'e1g1' });
   assert.deepEqual(flights(board.root()).map(pieceOn).sort(), ['K', 'R']);
 });
 
-test('a board turned for Black slides in screen coordinates', () => {
-  const board = mount({ board: INITIAL, lastMove: null, flipped: true });
+test('a board turned for Black slides in screen coordinates', async () => {
+  const board = await mount({ board: INITIAL, lastMove: null, flipped: true });
   board.move({ board: AFTER_E4, lastMove: 'e2e4', flipped: true });
   assert.deepEqual(path(flights(board.root())[0]), {
     x: [3 * EDGE, 3 * EDGE],
@@ -156,15 +167,15 @@ test('a board turned for Black slides in screen coordinates', () => {
   });
 });
 
-test('a new game is redrawn without a slide', () => {
-  const board = mount({ board: AFTER_E4, lastMove: 'e2e4' });
+test('a new game is redrawn without a slide', async () => {
+  const board = await mount({ board: AFTER_E4, lastMove: 'e2e4' });
   board.move({ board: INITIAL, lastMove: null });
   assert.equal(flights(board.root()).length, 0);
   assert.equal(pieceOn(square(board.root(), 'e2')), 'P');
 });
 
-test('the next move takes over from a slide still in flight', () => {
-  const board = mount({ board: INITIAL, lastMove: null });
+test('the next move takes over from a slide still in flight', async () => {
+  const board = await mount({ board: INITIAL, lastMove: null });
   board.move({ board: AFTER_E4, lastMove: 'e2e4' });
   board.move({ board: AFTER_E5, lastMove: 'e7e5' });
   const [first] = globals.__heldSlides!;
@@ -178,9 +189,29 @@ test('the next move takes over from a slide still in flight', () => {
 
 test('when the platform asks for less motion, pieces do not slide', async () => {
   globals.__reduceMotion = true;
-  const board = mount({ board: INITIAL, lastMove: null });
-  await act(async () => {});
+  const board = await mount({ board: INITIAL, lastMove: null });
   board.move({ board: AFTER_E4, lastMove: 'e2e4' });
   assert.equal(flights(board.root()).length, 0);
   assert.equal(pieceOn(square(board.root(), 'e4')), 'P');
+});
+
+test('a move before the platform answers is drawn, not slid', async () => {
+  globals.__reduceMotionQuery = 'pending';
+  const board = await mount({ board: INITIAL, lastMove: null });
+  board.move({ board: AFTER_E4, lastMove: 'e2e4' });
+  assert.equal(flights(board.root()).length, 0);
+  assert.equal(pieceOn(square(board.root(), 'e4')), 'P');
+
+  await act(async () => globals.__answerReduceMotion?.(false));
+  board.move({ board: AFTER_E5, lastMove: 'e7e5' });
+  assert.equal(flights(board.root()).length, 1);
+});
+
+test('where the platform cannot answer, pieces slide', async () => {
+  for (const query of ['fails', 'throws'] as const) {
+    globals.__reduceMotionQuery = query;
+    const board = await mount({ board: INITIAL, lastMove: null });
+    board.move({ board: AFTER_E4, lastMove: 'e2e4' });
+    assert.equal(flights(board.root()).length, 1, query);
+  }
 });

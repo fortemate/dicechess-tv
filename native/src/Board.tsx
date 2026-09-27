@@ -195,10 +195,11 @@ const inFlight = (rows: SquareView[][], plan: MovePlan): SquareView[][] => {
   );
 };
 
-// Whether the platform asks for less motion. Where it gives no answer, pieces
-// slide.
-const useReducedMotion = (): boolean => {
-  const [reduced, setReduced] = React.useState(false);
+// Whether the platform asks for less motion, or null until it has answered.
+// Where it cannot answer, because the query fails or the platform lacks it,
+// pieces slide.
+const useReducedMotion = (): boolean | null => {
+  const [reduced, setReduced] = React.useState<boolean | null>(null);
   React.useEffect(() => {
     let live = true;
     const answer = (value: boolean) => {
@@ -206,13 +207,16 @@ const useReducedMotion = (): boolean => {
     };
     let subscription: { remove(): void } | undefined;
     try {
-      AccessibilityInfo.isReduceMotionEnabled().then(answer, () => undefined);
+      AccessibilityInfo.isReduceMotionEnabled().then(answer, () =>
+        answer(false),
+      );
       subscription = AccessibilityInfo.addEventListener(
         'reduceMotionChanged',
         answer,
       );
     } catch {
       // The platform does not offer the setting: keep the slides.
+      answer(false);
     }
     return () => {
       live = false;
@@ -234,7 +238,10 @@ const useMotion = (board: string, lastMove: string | null): Motion | null => {
     motion: Motion | null;
   }>({ board, motion: null });
   if (state.board !== board) {
-    const plan = reduced ? null : movePlan(state.board, board, lastMove);
+    // Nothing slides until the platform has said it does not ask for less
+    // motion: a move before that answer is simply drawn.
+    const plan =
+      reduced === false ? movePlan(state.board, board, lastMove) : null;
     setState({
       board,
       motion: plan

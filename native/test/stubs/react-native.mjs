@@ -55,9 +55,21 @@ export const Easing = {
   cubic: (t) => t,
 };
 
-// globalThis.__reduceMotion stands for the platform's setting.
+// globalThis.__reduceMotion stands for the platform's setting, and
+// globalThis.__reduceMotionQuery for how asking for it goes: answered at once
+// when unset, 'pending' until globalThis.__answerReduceMotion is called,
+// 'fails', or 'throws' as on a platform without the setting.
 export const AccessibilityInfo = {
-  isReduceMotionEnabled: () =>
-    Promise.resolve(Boolean(globalThis.__reduceMotion)),
+  isReduceMotionEnabled: () => {
+    const query = globalThis.__reduceMotionQuery;
+    if (query === 'throws')
+      throw new Error('AccessibilityInfo is not available');
+    if (query === 'fails') return Promise.reject(new Error('no answer'));
+    if (query === 'pending')
+      return new Promise((resolve) => {
+        globalThis.__answerReduceMotion = resolve;
+      });
+    return Promise.resolve(Boolean(globalThis.__reduceMotion));
+  },
   addEventListener: () => ({ remove() {} }),
 };
