@@ -1,6 +1,6 @@
 ---
 title: What it does
-description: 'A tour of Dice Chess for Fire TV: hotseat on one remote, three computer opponents as either colour, the tutorial and the rules guide, saving, the record of completed games, sound, music that follows the danger to the king, and rematch.'
+description: 'A tour of Dice Chess for Fire TV: hotseat on one remote, three computer opponents as either colour, the tutorial and the rules guide, saving, your record against each opponent, sound, music that follows the danger to the king, and rematch.'
 sidebar:
   order: 2
 ---
@@ -59,9 +59,9 @@ Nine topics, from how a game ends to castling, promotion, en passant and draws. 
 
 ## Saving, resuming and the record
 
-The game is saved after every action. The app opens on the home screen, where "Resume game" continues where the game stopped: on the virtual device, a game force-stopped mid-turn and relaunched came back as it was. The home screen also keeps the record of completed hotseat games, by colour. The record against each computer opponent, as wins, draws and losses for each side you played, is on its card.
+The game is saved after every action. The app opens on the home screen, where "Resume game" continues where the game stopped: on the virtual device, a game force-stopped mid-turn and relaunched came back as it was. Your record against each computer opponent, as wins, draws and losses for each side you played, is on its card: the tests check it, and on the virtual device a card showed a win as White and a loss as Black against Grabby.
 
-![The home screen with Resume game focused over a game in progress, and the record of completed games below the menu](../../../assets/screenshots/resume.png)
+![The home screen with Resume game focused over a game in progress](../../../assets/screenshots/resume.png)
 
 ## Sound
 
