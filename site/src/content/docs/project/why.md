@@ -30,7 +30,7 @@ This Fire TV app is new. Its repository started on 21 September 2026, during [Bu
 - the tutorial and the rules guide;
 - sound;
 - saving and the record of completed games;
-- the bot's turns, shown one action at a time.
+- the computer opponents' turns, shown one action at a time.
 
 It takes the rules from the engine's npm package, so the TV app and the web game play by the same rules.
 
