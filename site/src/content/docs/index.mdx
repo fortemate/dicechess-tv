@@ -1,16 +1,19 @@
 ---
 title: Dice Chess for Fire TV
-description: Chess with a roll of the dice, built for the living room. Share one remote, or take on an on-device bot.
+description: Chess with a roll of the dice, built for the living room. Share one remote, or take on one of three computer opponents.
 template: splash
 hero:
-  tagline: 'Chess with a roll of the dice, built for the living room: luck gives newcomers a real chance, so the whole family can play. Share one remote, or take on an on-device bot.'
+  tagline: 'Chess with a roll of the dice, built for the living room: luck gives newcomers a real chance, so the whole family can play. Share one remote, or take on one of three computer opponents.'
   image:
     file: ../../../../native/icon/icon-512.png
     alt: The app icon, two dice mid-roll in front of a knight and a rook
   actions:
+    - text: Play the beta
+      link: /dicechess-tv/play/beta/
+      icon: right-arrow
     - text: What it does
       link: /dicechess-tv/project/features/
-      icon: right-arrow
+      variant: secondary
     - text: Get the code
       link: https://github.com/fortemate/dicechess-tv
       icon: github
@@ -34,6 +37,16 @@ import tutorial from '../../assets/screenshots/tutorial.png';
     piece's destinations. Over [200 simulated
     games](https://github.com/fortemate/dicechess-tv/blob/main/scripts/cursor-presses.ts),
     a turn takes 8.7 presses instead of 22.6 square by square.
+  </Card>
+  <Card title="Three opponents on the TV" icon="puzzle">
+    Rolly plays any legal turn at random, Grabby takes the most valuable piece
+    it can, and Rampage goes for your king. Each card shows your record against
+    it, and you can play either colour.
+  </Card>
+  <Card title="Music that follows the game" icon="seti:audio">
+    Four themes by pepka-prygni: one for the menus, and three that grow tenser
+    as your king comes into danger. Settings turns the music and the sound
+    effects on or off.
   </Card>
   <Card title="Offline and private" icon="seti:lock">
     The rules, the computer opponents and the saved games all stay on the TV.
@@ -74,7 +87,7 @@ import tutorial from '../../assets/screenshots/tutorial.png';
   Testing on a physical Fire TV Stick is still to come.
 </p>
 
-[Why Dice Chess on TV](/dicechess-tv/project/why/) tells the story, and [What it does](/dicechess-tv/project/features/) tours every feature.
+[Why Dice Chess on TV](/dicechess-tv/project/why/) tells the story, [What it does](/dicechess-tv/project/features/) tours every feature, and [Play the beta](/dicechess-tv/play/beta/) says how to try it. The [roadmap](/dicechess-tv/roadmap/) shows what comes next.
 
 The TV app was built during [Build, Ship, Shape: Amazon Developer Hackathon 2026](https://amazonappdev2026.devpost.com/), in a repository started on 21 September 2026. It plays by the rules of Fortemate's open-source engine, [`@fortemate/dicechess-engine`](https://github.com/fortemate/dicechess-engine), which existed before. The [friction log](/dicechess-tv/friction-log/) records the obstacles we met in Amazon's Vega SDK along the way.
 
