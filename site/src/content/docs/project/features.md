@@ -27,9 +27,9 @@ Each is an algorithm of the Dice Chess rules engine, and each card shows your re
 
 Before the game you choose White or Black, or let the app pick a colour. Playing Black turns the board so that your pieces are at the bottom.
 
-![The colour choice before a game against the bot: Random, White or Black](../../../assets/screenshots/play-as.png)
+![The colour choice before a game against Grabby: Random, White or Black](../../../assets/screenshots/play-as.png)
 
-![Playing Black against the bot, with the board turned so that Black is at the bottom](../../../assets/screenshots/play-black.png)
+![Playing Black against Grabby, with the board turned so that Black is at the bottom](../../../assets/screenshots/play-black.png)
 
 ## A roll with nothing to play
 
@@ -59,10 +59,7 @@ Nine topics, from how a game ends to castling, promotion, en passant and draws. 
 
 ## Saving, resuming and the record
 
-The game is saved after every action. The app opens on the home screen, where "Resume game" continues where the game stopped: on the virtual device, a game force-stopped mid-turn and relaunched came back as it was. The home screen also keeps a record of completed games:
-
-- hotseat games, by colour;
-- games against the bot, as wins, draws and losses for each side you played.
+The game is saved after every action. The app opens on the home screen, where "Resume game" continues where the game stopped: on the virtual device, a game force-stopped mid-turn and relaunched came back as it was. The home screen also keeps the record of completed hotseat games, by colour. The record against each computer opponent, as wins, draws and losses for each side you played, is on its card.
 
 ![The home screen with Resume game focused over a game in progress, and the record of completed games below the menu](../../../assets/screenshots/resume.png)
 
@@ -85,6 +82,6 @@ Sound stops when the app leaves the screen. The tests check that the players pau
 
 ## Rematch
 
-A game against the bot ends on a choice: a rematch or the main menu. A rematch keeps your colour choice; if you chose Random, it picks again. In hotseat, a finished game stays on the board, and OK returns to the main menu.
+A game against the computer ends on a choice: a rematch or the main menu. A rematch keeps your colour choice; if you chose Random, it picks again. In hotseat, a finished game stays on the board, and OK returns to the main menu.
 
-![After resigning against the bot: Resigned, White wins, and the choice of Rematch or Main menu](../../../assets/screenshots/rematch.png)
+![After resigning against Grabby: Resigned, White wins, and the choice of Rematch or Main menu](../../../assets/screenshots/rematch.png)
