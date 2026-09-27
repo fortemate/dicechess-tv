@@ -16,7 +16,7 @@ Every feature here was played on the Vega Virtual Device, and the app's automate
 - **Three computer opponents**, Rolly, Grabby and Rampage, as either colour.
 - **Moves that slide** to their squares, so an opponent's turn can be followed.
 - **Music that follows the game**, and **Settings** for the music and the sound effects.
-- **Four public pre-releases**, with a playtest guide.
+- **Five public pre-releases**, with a playtest guide.
 
 ## Now
 
