@@ -1,5 +1,7 @@
 // Builds what the package ships under assets/: the application icon, the native
-// splash screen, and the game's sounds.
+// splash screen, the game's sounds and its music. The build packages the whole
+// directory, so it belongs to this script alone: every run deletes it and writes
+// it afresh (#122).
 //
 // Vega wants `assets/raw/SplashScreenImages.zip`, and inside it a `desc.txt`
 // naming the frame size and rate, plus a `_loop` directory of PNG frames. Ours
@@ -34,7 +36,9 @@ import { crc32, deflateSync, inflateSync } from 'node:zlib';
 import { createHash } from 'node:crypto';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const root = resolve(here, '..');
+// The application's directory. The functions below take it as `root`, so a test
+// can build into a temporary one instead.
+const native = resolve(here, '..');
 
 // A television frame. 4K is not supported by the animation service.
 const WIDTH = 1920;
@@ -167,7 +171,11 @@ const encodePng = (width, height, rgb) => {
 
 export const SPLASH = { WIDTH, HEIGHT, FPS, BACKGROUND };
 
-export const main = () => {
+export const main = (root = native) => {
+  // Nothing may be there that this run did not write: a file left by an earlier
+  // run, another branch or a hand copy would ship with the game.
+  rmSync(join(root, 'assets'), { recursive: true, force: true });
+
   // The game icon ships exactly as the asset repository exported it.
   const iconSource = join(root, 'icon/icon-512.png');
   const icon = join(root, 'assets/image/icon.png');
@@ -242,8 +250,8 @@ export const main = () => {
     iconSource,
     left,
     top,
-    sounds: copySounds(),
-    music: copyMusic(),
+    sounds: copySounds(root),
+    music: copyMusic(root),
   };
 };
 
@@ -251,7 +259,7 @@ export const main = () => {
 // which is /pkg/assets/sfx/<pack>/ on the device. Only the files the lock lists,
 // and only if their bytes are still the bytes the lock pinned — a vendored file
 // edited by hand stops the build rather than shipping.
-export const copySounds = () => {
+export const copySounds = (root = native) => {
   const lock = JSON.parse(
     readFileSync(join(root, 'sounds/sounds.lock.json'), 'utf8'),
   );
@@ -280,7 +288,7 @@ export const copySounds = () => {
 // is /pkg/assets/music/ on the device, and only if each file still has the bytes
 // the catalogue pinned. A checkout without music builds a game without it: the
 // app finds no catalogue and plays none.
-export const copyMusic = () => {
+export const copyMusic = (root = native) => {
   const target = join(root, 'assets/music');
   rmSync(target, { recursive: true, force: true });
   const catalogue = join(root, 'music/music.json');
@@ -307,7 +315,7 @@ if (
   resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
   const { destination, icon, left, top, sounds, music } = main();
-  const shown = (path) => path.replace(`${root}/`, '');
+  const shown = (path) => path.replace(`${native}/`, '');
   console.log(`icon:   ${shown(icon)}`);
   console.log(`sounds: ${sounds.length} files -> assets/sfx/`);
   console.log(

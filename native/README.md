@@ -971,7 +971,9 @@ invisible. Two traps are handled there and worth knowing: the archive must be
 built from **inside** the staging directory, because a wrapping folder hides
 `_loop` from the service and it silently shows nothing; and every entry,
 including the directory, is stamped with a fixed time so two builds produce
-identical bytes.
+identical bytes. The script also deletes the whole of `assets/` before writing
+it, because the build packages everything there: a file left by another branch
+or a hand copy would ship with the game (#122).
 
 `test/splash.test.ts` reads back the files that were written — the icon's bytes
 against the brand file, its ink inside the 80 % safe zone, the frame size, the
