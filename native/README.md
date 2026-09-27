@@ -348,8 +348,9 @@ native driver.
   to its native accessibility module. On the virtual device (SDK 0.24.12112) the
   query resolves `false` and the listener subscribes, but nothing turns the
   setting on: the device's Settings hold only Account Settings. When the platform
-  does ask for less motion, pieces are redrawn instead of slid; only the tests
-  cover that branch.
+  does ask for less motion, and until it has answered, pieces are redrawn instead
+  of slid; a query that fails or throws counts as no. Only the tests cover those
+  branches.
 
 Checked on the virtual device on 27 September, with frames streamed over the
 emulator's gRPC `streamScreenshot`: Grabby's knight took the queen, f6 to h5, in
@@ -648,11 +649,6 @@ with scripted key presses and a screenshot after each step: Play Random, the hom
 option then, opened the colour choice on Random; choosing Black turned the board
 and the bot played White's first turn; after the roll, Up moved the cursor from
 e7 to e6; and a relaunch resumed the game from Black's side with its dice.
-
-### What this still leaves
-
-- **Nothing animates.** Pieces are placed, not moved; there is no slide between
-  squares for either side. That is M2 polish, and the owner has deferred it.
 
 ## The completed-game ledger
 

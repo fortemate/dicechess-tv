@@ -7,6 +7,8 @@ The app was built during [Build, Ship, Shape: Amazon Developer Hackathon 2026](h
 
 ## Done
 
+Every feature here was played on the Vega Virtual Device, and the app's automated tests cover it. None has run on a Fire TV Stick yet.
+
 - **A native board** in React Native for Vega, played entirely with the remote.
 - **Hotseat** on one remote, **saving** after every action, and the record of results.
 - **A five-lesson tutorial** and a **rules guide**.
