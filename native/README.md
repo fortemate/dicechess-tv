@@ -843,7 +843,7 @@ September 2026 to use them in this game only (`THIRD_PARTY_NOTICES.md`).
   and `test/vendoredMusic.test.ts` holds the files to it.
 - **The build** copies the tracks to `assets/music/` with the catalogue. A build
   without the catalogue plays no music, and its settings offer only the sound
-  effects.
+  effects. Tests: `test/music.test.ts` and `test/screen.test.ts`.
 
 **What plays when** is `musicRole` in `src/screen.ts`:
 
@@ -877,11 +877,15 @@ tree.
   its end, with an equal-power crossfade. The player's own loop lost 0.3 s at the
   first seam in the probe.
 - **Level changes** crossfade over 2 s, and the new theme starts from its
-  beginning. Only a return from the background continues where the music stopped.
+  beginning. A return from the background continues where the music stopped.
 - **Chosen by ear.** The owner chose both on the listening page, on 27
   September. The 3 s seam suited three tracks well and Tightening Layers passably,
   where a short splice suited it badly. A theme joined in the middle sounded wrong
   for both tense and critical. The levelled loudness was preferred too.
+- **A level that comes back** while its theme is still fading out fades that
+  theme back in from where it is: it never fell silent. Not once the pass has
+  reached its seam, though, where it could play out its last seconds into
+  silence; then the theme starts over.
 - **Leaving the foreground** stops the music at once, on `blur`. The virtual device
   sent `blur` before the change to background on every one of four trips to the
   launcher.

@@ -10,14 +10,15 @@
 // - `volume` works, and a ramp of 50 ms steps holds its pace. Every fade here is
 //   such a ramp, driven by one ticker, on an equal-power curve, so a crossfade
 //   does not dip in the middle.
+// - A player started at volume zero and moved to its position after `play()`
+//   cannot be heard getting there, which is simpler than seeking before the
+//   file has loaded.
 //
 // What the owner chose by ear on the listening page (#76): the seam of a loop
 // crossfades over 3 s, which suited every track better than a short splice, and
 // a change of level starts the new theme from its beginning, not from the
-// middle.
-// - A player started at volume zero and moved to its position after `play()`
-//   cannot be heard getting there, which is simpler than seeking before the
-//   file has loaded.
+// middle. A theme still fading out when its level comes back is not new: it
+// fades back in from where it is (`canReturn`).
 //
 // Nothing in here may break the game. Every failure is reported and swallowed.
 import {
@@ -292,8 +293,8 @@ export function createMusic({
         voices[0],
       );
     fadeOutAllBut(spare, CROSSFADE_MS);
-    // A new level starts its theme from the beginning; only a return from the
-    // background continues where the music stopped.
+    // A new level starts its theme from the beginning. A return from the
+    // background continues where the music stopped instead.
     begin(
       spare,
       want,
@@ -302,6 +303,19 @@ export function createMusic({
       track.loopStart,
     );
   };
+
+  // A theme still fading out when its level comes back fades back in from where
+  // it is. It never fell silent, so this is not joining it in the middle, and on
+  // two players starting it over would cut one still heard or play the theme
+  // twice at once. Only before its seam, though: the old half of a seam has
+  // handed over and will not loop again, and a pass that went past its seam
+  // while fading out would hand over late, perhaps after its file has ended.
+  // Either could leave silence, so such a theme starts over like a new level.
+  const canReturn = (voice: Voice): boolean =>
+    voice.playing &&
+    !voice.seamed &&
+    voice.track !== null &&
+    voice.player.currentTime < voice.track.loopEnd - SEAM_MS / 1000;
 
   // Makes what plays agree with what was asked for.
   const reconcile = () => {
@@ -315,9 +329,8 @@ export function createMusic({
     }
     const audible = voices.find((voice) => voice.playing && voice.target > 0);
     if (audible?.role === want) return;
-    // A theme still fading out comes back from where it is, not from the top.
     const returning = voices.find(
-      (voice) => voice.playing && voice.role === want,
+      (voice) => voice.role === want && canReturn(voice),
     );
     if (!returning) return startTheme(want, audible);
     fadeOutAllBut(returning, CROSSFADE_MS);

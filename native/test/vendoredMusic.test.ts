@@ -43,7 +43,8 @@ test('this repository may carry the pack', () => {
   const allowed =
     catalogue.distribution === 'public' ||
     (catalogue.distribution === 'project' &&
-      (catalogue.clients ?? []).includes('fortemate/dicechess-tv'));
+      Array.isArray(catalogue.clients) &&
+      catalogue.clients.includes('fortemate/dicechess-tv'));
   assert.ok(allowed, `${catalogue.pack}: ${catalogue.distribution}`);
   assert.notEqual(catalogue.license, 'pending');
 });
@@ -80,7 +81,9 @@ test('every role plays a vendored track, looping inside it', () => {
     'tense',
   ]);
   for (const [role, track] of Object.entries(catalogue.tracks)) {
+    // The player opens the file by this path, so it must be the pack's copy.
     const name = track.file.split('/').pop()!;
+    assert.equal(track.file, `${catalogue.pack}/${name}`, role);
     assert.equal(catalogue.files[name], track.sha256, role);
     assert.ok(track.loopStart >= 0 && track.loopEnd > track.loopStart, role);
   }

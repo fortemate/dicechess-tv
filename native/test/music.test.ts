@@ -213,6 +213,50 @@ test('a theme still fading out fades back in rather than starting over', async (
   );
 });
 
+// A short loop, so a seam comes quickly: from 1 s, the seam begins after 16 s.
+const SHORT_LOOP: Catalogue = {
+  tracks: {
+    calm: { file: 'calm.mp3', loopStart: 1, loopEnd: 20, gainDb: 0 },
+    tense: { file: 'tense.mp3', loopStart: 0, loopEnd: 60, gainDb: 0 },
+  },
+};
+
+test('the old half of a seam never fades back in: its theme starts over and keeps looping', async () => {
+  // The old half has handed over and will not loop again. Faded back in, it
+  // would play out its last seconds and leave silence.
+  const { music, clock, players } = await rig(SHORT_LOOP);
+  music.setRole('calm');
+  // A second into the seam the level changes, and comes back half a second on.
+  await clock.advance(17_000);
+  music.setRole('tense');
+  await clock.advance(500);
+  music.setRole('calm');
+  await clock.advance(10_000);
+  const calm = players.filter(
+    (each) => each.playing && each.src.endsWith('calm.mp3'),
+  );
+  assert.equal(calm.length, 1);
+  // A fresh pass inside its loop, not the old one playing on past its end.
+  assert.ok(calm[0].currentTime < 20, `${calm[0].currentTime}`);
+});
+
+test('a theme that went past its seam while fading out starts over rather than hand over late', async () => {
+  const { music, clock, players } = await rig(SHORT_LOOP);
+  music.setRole('calm');
+  // Half a second before the seam the level changes, so calm fades out through
+  // it without handing over, and comes back 0.8 s later, past it.
+  await clock.advance(15_500);
+  music.setRole('tense');
+  await clock.advance(800);
+  music.setRole('calm');
+  await flush();
+  const fresh = players.find(
+    (each) =>
+      each.playing && each.src.endsWith('calm.mp3') && each.currentTime < 1.5,
+  );
+  assert.ok(fresh, 'calm starts again from its loop start');
+});
+
 test('a pass about to end hands over to a fresh pass on the other player, over 3 s', async () => {
   const { music, clock, players, playing } = await rig({
     tracks: {

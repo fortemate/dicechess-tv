@@ -45,7 +45,9 @@ const manifest = JSON.parse(
 );
 const allowed =
   manifest.distribution === 'public' ||
-  (manifest.distribution === 'project' && manifest.clients?.includes(CLIENT));
+  (manifest.distribution === 'project' &&
+    Array.isArray(manifest.clients) &&
+    manifest.clients.includes(CLIENT));
 if (!allowed && !local)
   throw new Error(
     `${PACK} may not be carried by ${CLIENT} (license ${manifest.license}, distribution ${manifest.distribution}). ` +
