@@ -22,12 +22,12 @@ On Linux, the command is `sha256sum` with the same arguments.
 
 ## Installing
 
-You need the `vega` command line from the Vega SDK.
+You need the `vega` command line from the Vega SDK, which installs on macOS or Ubuntu: see [Install the Vega SDK](https://developer.amazon.com/docs/vega/0.24/install-vega-sdk).
 
-- **A Fire TV Stick:** turn on developer mode first, as [Amazon's guide](https://developer.amazon.com/docs/vega/0.24/developer-mode.html) describes.
+- **A Fire TV Stick:** turn on developer mode first, as [Amazon's guide](https://developer.amazon.com/docs/vega/0.24/developer-mode) describes. It needs an Amazon Developer account, which `vega devmode login` signs in to, and the Stick on the same network as your computer.
 - **A computer:** start the Virtual Device with `vega virtual-device start`.
 
-Then install and launch the package for your device:
+Then install and launch the package for your device. For a Fire TV Stick:
 
 ```bash
 vega device list
@@ -35,7 +35,11 @@ vega device install-app -p dicechess-tv-native_armv7.vpkg
 vega device launch-app -a com.fortemate.dicechesstv.main
 ```
 
-With more than one device connected, add `-d` and the device's serial number, as `vega device list` shows it. To remove the app afterwards:
+For the Virtual Device, install `dicechess-tv-native_aarch64.vpkg` on a Mac with Apple silicon, or `dicechess-tv-native_x86_64.vpkg` on Linux or an Intel Mac, instead. With more than one device connected, add `-d` and the device's serial number, as `vega device list` shows it.
+
+A newer beta installs over the one you have and keeps its saved game, results and settings. On the Virtual Device, beta 3 installed over beta 2 kept all three.
+
+To remove the app:
 
 ```bash
 vega device uninstall-app -a com.fortemate.dicechesstv.main
