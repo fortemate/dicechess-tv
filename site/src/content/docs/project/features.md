@@ -1,6 +1,6 @@
 ---
 title: What it does
-description: 'A tour of Dice Chess for Fire TV: hotseat on one remote, three computer opponents as either colour, the tutorial and the rules guide, saving, the record of completed games, sound and rematch.'
+description: 'A tour of Dice Chess for Fire TV: hotseat on one remote, three computer opponents as either colour, the tutorial and the rules guide, saving, the record of completed games, sound, music that follows the danger to the king, and rematch.'
 sidebar:
   order: 2
 ---

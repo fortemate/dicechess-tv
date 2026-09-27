@@ -49,8 +49,9 @@ Removing the app deletes its saved game, results and settings. They never leave 
 2. Play a game against the computer: **Play the computer**, then pick Rolly (easy), Grabby (medium) or Rampage (hard). In 0.1.0 beta 1 there is one opponent, under **Play Random**.
 3. If someone is with you, start a **New hotseat game** and pass the remote.
 4. Look something up in **Rules**.
+5. Listen to the music follow the game: calm, then tense when a roll could take a king, then critical when a king is attacked. **Settings**, in the home menu and in the game menu, turns the music and the sound effects on or off and sets the music volume. Builds before 0.1.0 beta 3 have no music.
 
-The whole game uses the D-pad, OK and Back; on the Virtual Device, those are the arrow keys, Enter and Esc. Keep the sound on if you can.
+The whole game uses the D-pad, OK and Back; on the Virtual Device, those are the arrow keys, Enter and Esc. Keep the sound and the music on if you can.
 
 ## Telling us what you found
 
@@ -65,3 +66,4 @@ Say whether you played on a Fire TV Stick or on the Virtual Device. What confuse
 - **Tested on.** So far, the app's tests and the Vega Virtual Device. It has not yet run on a Fire TV Stick ([#10](https://github.com/fortemate/dicechess-tv/issues/10)).
 - **Privacy.** It has no network code, no accounts and no analytics: games, results and settings stay on the device.
 - **The opponents.** Rolly plays one of its legal turns at random, Grabby takes the most valuable piece it can, and Rampage hunts your pieces and goes for your king. Each is an algorithm of the rules engine, running on the device.
+- **The music.** Four themes by pepka-prygni, used with his permission. Against the computer the music follows the danger to your own king; with two players, to either king.
