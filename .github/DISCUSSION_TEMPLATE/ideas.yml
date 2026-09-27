@@ -1,0 +1,30 @@
+# The form for Ideas, where playtesters suggest a change (#107). One idea per
+# discussion, so that each can be voted for and answered on its own.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        What would make the game better? Please post one idea per discussion, so others can vote for it.
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you change?
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: What made you think of it?
+      description: The moment in a game, or the screen, where you wanted it.
+    validations:
+      required: false
+  - type: dropdown
+    id: device
+    attributes:
+      label: Where did you play?
+      options:
+        - On a Fire TV Stick
+        - On the Vega Virtual Device
+        - Somewhere else
+    validations:
+      required: false

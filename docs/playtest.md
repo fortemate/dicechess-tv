@@ -59,10 +59,13 @@ The whole game uses the D-pad, OK and Back; on the Virtual Device, those are the
 
 ## Telling us what you found
 
-- The short anonymous form: <https://fortemate.github.io/dicechess-tv/feedback/>.
-- A [GitHub issue](https://github.com/fortemate/dicechess-tv/issues/new), or a reply where you found this build.
+- **Without an account:** the short anonymous form, <https://fortemate.github.io/dicechess-tv/feedback/>.
+- **With a GitHub account:** [Discussions](https://github.com/fortemate/dicechess-tv/discussions). Tell us what happened in a game under **General**, suggest a change under **Ideas**, and ask for help with installing under **Q&A**. One finding per discussion is easiest to follow up.
+- Or reply where you found this build.
 
-Say whether you played on a Fire TV Stick or on the Virtual Device. What confused you is as useful as what broke: where you hesitated, what you expected a button to do, which rule surprised you. For a bug, say what was on the screen and what you pressed just before.
+Say which build you played (the release title, such as 0.1.0 beta 3), and whether on a Fire TV Stick or on the Virtual Device. What confused you is as useful as what broke: where you hesitated, what you expected a button to do, which rule surprised you. For a bug, say what was on the screen and what you pressed just before.
+
+We turn findings into issues and link each one in its discussion, so you can see what came of it.
 
 ## What this build is
 
