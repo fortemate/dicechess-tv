@@ -66,12 +66,9 @@ const isCastling = ([king, rook]: Slide[]): boolean =>
   rook.to ===
     squareAt((fileOf(king.from) + fileOf(king.to)) / 2, rankOf(king.from));
 
-export function movePlan(
-  before: string,
-  after: string,
-  lastMove: string | null,
-): MovePlan | null {
-  if (before === after || !lastMove) return null;
+// The squares that changed: the pieces that left them and the pieces that
+// arrived on them.
+const changes = (before: string, after: string) => {
   const left: Placed[] = [];
   const arrived: Placed[] = [];
   for (const square of SQUARES) {
@@ -81,33 +78,57 @@ export function movePlan(
     if (was) left.push({ square, piece: was });
     if (is) arrived.push({ square, piece: is });
   }
-  if (arrived.length === 0 || arrived.length > 2) return null;
+  return { left, arrived };
+};
 
+// Each arrival paired with the piece that travelled there, and the pieces left
+// over, which were taken. Null when an arrival came from nowhere.
+const pair = (
+  arrived: Placed[],
+  left: Placed[],
+): { slides: Slide[]; rest: Placed[] } | null => {
+  const rest = [...left];
   const slides: Slide[] = [];
   for (const target of arrived) {
-    const source = sourceOf(target, left);
+    const source = sourceOf(target, rest);
     if (!source) return null;
-    left.splice(left.indexOf(source), 1);
+    rest.splice(rest.indexOf(source), 1);
     slides.push({
       from: source.square,
       to: target.square,
       piece: source.piece,
     });
   }
-  if (slides.length === 2) {
-    slides.sort((a, b) =>
-      kind(a.piece) === 'k' ? -1 : kind(b.piece) === 'k' ? 1 : 0,
-    );
-    if (!isCastling(slides)) return null;
-  }
+  return { slides, rest };
+};
+
+// The king's slide first, since castling is reported as the king's move.
+const kingFirst = (slides: Slide[]): Slide[] =>
+  [...slides].sort(
+    (a, b) => Number(kind(b.piece) === 'k') - Number(kind(a.piece) === 'k'),
+  );
+
+export function movePlan(
+  before: string,
+  after: string,
+  lastMove: string | null,
+): MovePlan | null {
+  if (before === after || !lastMove) return null;
+  const { left, arrived } = changes(before, after);
+  if (arrived.length === 0 || arrived.length > 2) return null;
+  const paired = pair(arrived, left);
+  if (!paired) return null;
+  const slides = kingFirst(paired.slides);
+  if (slides.length === 2 && !isCastling(slides)) return null;
 
   // The action must be the last move the game reports.
   const [from, to] = [lastMove.slice(0, 2), lastMove.slice(2, 4)];
   if (slides[0].from !== from || slides[0].to !== to) return null;
 
   // Whatever else left the board was taken: at most one piece, of the other side.
-  if (left.length > 1) return null;
-  const taken = left[0] ?? null;
+  const { rest } = paired;
+  if (rest.length > 1) return null;
+  const taken = rest[0] ?? null;
   if (taken && isWhite(taken.piece) === isWhite(slides[0].piece)) return null;
   return { slides, taken };
 }
