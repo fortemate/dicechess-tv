@@ -626,10 +626,12 @@ game already counted, so a caller never has to track what it has done.
 A game that never ends is never counted, so an abandoned or replaced game stays
 out of the record without anything having to notice it was abandoned.
 
-Hotseat is reported by colour — White, drawn, Black — never by player: the seats
-change hands and nothing here knows who sat where. Games against an opponent are
-recorded per opponent **and** per side the player held, because one combined
-number would hide how it plays each colour.
+Hotseat is counted by colour — White, drawn, Black — never by player: the seats
+change hands and nothing here knows who sat where. That count is kept, so the save
+format stays the same, but nothing shows it: counts by colour say nothing about
+the people who played, who change from one evening to the next. Games against an
+opponent are recorded per opponent **and** per side the player held, because one
+combined number would hide how it plays each colour, and shown on its card.
 
 A ledger that no longer decodes is refused rather than reset to zero, and left on
 disk rather than overwritten. Losing a record silently is worse than showing

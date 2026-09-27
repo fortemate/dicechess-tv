@@ -69,7 +69,7 @@ const playAndResign = () => {
   send('back', 'down', 'select', 'down', 'select');
 };
 
-test('a finished game is counted, and the home screen shows it', () => {
+test('a finished game is counted, and the home screen shows no hotseat record', () => {
   reset();
   const root = launch();
   assert.equal(ledger(), null);
@@ -77,10 +77,11 @@ test('a finished game is counted, and the home screen shows it', () => {
   playAndResign();
   assert.deepEqual(ledger()?.hotseat, { white: 0, draws: 0, black: 1 });
 
-  // Back to the home screen, where a player is told what has been played.
+  // Back to the home screen: counts by colour say nothing about who played, so
+  // the menu stands alone. The record against an opponent is on its card.
   send('enter');
-  assert.match(text(root), /COMPLETED GAMES/);
-  assert.match(text(root), /Hotseat — White 0 · Drawn 0 · Black 1/);
+  assert.doesNotMatch(text(root), /COMPLETED GAMES/);
+  assert.doesNotMatch(text(root), /Hotseat —/);
 });
 
 test('a result already on screen when the app dies is counted exactly once', () => {
@@ -121,12 +122,6 @@ test('an abandoned game is never counted', () => {
   send('enter', 'enter');
   send('back', 'down', 'down', 'down', 'select', 'down', 'select');
   assert.equal(ledger(), null);
-});
-
-test('nothing is shown before a game has been completed', () => {
-  reset();
-  const root = launch();
-  assert.doesNotMatch(text(root), /COMPLETED GAMES/);
 });
 
 test('a game played as Black is counted under Black', () => {
