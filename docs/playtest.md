@@ -37,7 +37,7 @@ vega device launch-app -a com.fortemate.dicechesstv.main
 
 For the Virtual Device, install `dicechess-tv-native_aarch64.vpkg` on a Mac with Apple silicon, or `dicechess-tv-native_x86_64.vpkg` on Linux or an Intel Mac, instead. With more than one device connected, add `-d` and the device's serial number, as `vega device list` shows it.
 
-A newer beta installs over the one you have and keeps its saved game, results and settings. On the Virtual Device, beta 3 installed over beta 2 kept all three.
+A newer beta installs over the one you have and keeps its saved game, results and settings. On the Virtual Device, beta 3 installed over beta 2 kept all three, and beta 4 over beta 3 kept the last game and the results. An older beta does not install over a newer one: from beta 4 on, every build carries a higher build number, and the device refuses a lower one with "Package version decrease". To go back, remove the app first, which deletes its saved game.
 
 To remove the app:
 
