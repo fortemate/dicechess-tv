@@ -54,6 +54,10 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 | [FL-22](#fl-22) | The Builder Tools telemetry switch is undocumented and shared with the SDK   | Agent tools, docs                 | Medium   | Worked around |
 | [FL-23](#fl-23) | The Builder Tools installer registers its server at `@latest`                | Agent tools                       | Medium   | Worked around |
 | [FL-24](#fl-24) | The Builder Tools page lists an agent option and tools the package lacks     | Agent tools, docs                 | Low      | Worked around |
+| [FL-25](#fl-25) | Looping audio loses 0.3 s at the seam, and `ended` arrives late              | Audio                             | Medium   | Worked around |
+| [FL-26](#fl-26) | The docs call `volume` and `muted` unsupported, yet both take effect         | Audio, docs                       | Low      | Open          |
+| [FL-27](#fl-27) | MP3 encoder padding is played, not trimmed                                   | Audio                             | Low      | Worked around |
+| [FL-28](#fl-28) | `launch-app` restarts a backgrounded app, and Home cannot be scripted        | CLI, Virtual Device               | Medium   | Worked around |
 
 ## Entries
 
@@ -568,6 +572,107 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   package.
 - **Current status:** worked around.
 
+### FL-25 · Looping audio loses 0.3 s at the seam, and `ended` arrives late {#fl-25}
+
+- **Date and environment:** 2026-09-26 · SDK 0.24.12112 · Virtual Device.
+- **Tool / SDK / component version:** `@amazon-devices/react-native-w3cmedia` 2.3.2, `AudioPlayer` as
+  `CONTENT_TYPE_MUSIC` / `USAGE_GAME`.
+- **User task:** loop background music without a gap.
+- **Minimal reproduction steps:**
+  - play a 4.000 s WAV or MP3 with `loop = true` and track `currentTime` every 20 ms;
+  - separately, play it once and time the `ended` event against the position.
+- **Expected result:** a gapless loop, and `ended` when the position reaches the end.
+- **Actual result and evidence:**
+  - The first seam lost 318 ms with MP3 and 323 ms with WAV. A restart on `ended` lost 285 ms.
+  - `ended` came 380 to 460 ms after the position reached the end. The package implements `loop` in
+    JavaScript, by calling `play()` when `ended` arrives, which explains both.
+  - The package README lists `loop` among the unsupported members, yet it is implemented.
+
+  Evidence: the probe build ([`MusicProbe.tsx`](https://github.com/fortemate/dicechess-tv/blob/360be078d7297f1683670101ec2b10fe94790a6c/native/src/MusicProbe.tsx)) and its results in
+  [#76](https://github.com/fortemate/dicechess-tv/issues/76#issuecomment-5848979409).
+
+- **Severity and user impact:** Medium. A looping track would stall on every pass.
+- **Workaround:** two players taking turns. The next pass starts on the other player before the loop
+  ends, and the two crossfade ([native/README.md, Music](https://github.com/fortemate/dicechess-tv/blob/def2271cc2a63d019928bd7142a32835809f8497/native/README.md#music)).
+- **Suggested improvement:** loop natively, as a media element does in a browser. At least fire
+  `ended` when the position reaches the end, and document what `loop` does.
+- **Current status:** worked around.
+
+### FL-26 · The docs call `volume` and `muted` unsupported, yet both take effect {#fl-26}
+
+- **Date and environment:** 2026-09-26 · SDK 0.24.12112 · Virtual Device.
+- **Tool / SDK / component version:** `@amazon-devices/react-native-w3cmedia` 2.3.2; the package README
+  and the 0.24 media player guide.
+- **User task:** crossfade two music players and give the player a music volume setting.
+- **Minimal reproduction steps:** set `volume` to 0.5, 0.25, 0 and 1, reading it back each time; ramp it
+  from 1 to 0 in 40 steps of 50 ms; set `muted`.
+- **Expected result:** documentation that agrees with itself and with the player.
+- **Actual result and evidence:**
+  - The package README lists `volume` and `muted` as unsupported, while the media player guide calls
+    `volume` a standard property.
+  - On the device every value read back exactly from the native side. The ramp held its 50 ms steps,
+    each call took at most 1.2 ms, and `muted` read back too. Its effect on what is heard has not yet
+    been checked by ear.
+
+  Evidence: [#76](https://github.com/fortemate/dicechess-tv/issues/76#issuecomment-5848979409).
+
+- **Severity and user impact:** Low. It cost a probe run to find out.
+- **Workaround:** none needed; the app uses `volume` for its fades and its setting.
+- **Suggested improvement:** remove `volume` and `muted` from the unsupported list, or say what does
+  not work, and say whether a change is smoothed.
+- **Current status:** open, for the documentation.
+
+### FL-27 · MP3 encoder padding is played, not trimmed {#fl-27}
+
+- **Date and environment:** 2026-09-26 · SDK 0.24.12112 · Virtual Device.
+- **Tool / SDK / component version:** `@amazon-devices/react-native-w3cmedia` 2.3.2; ffmpeg 9.0.1 with
+  libmp3lame, which writes the LAME header's delay and padding.
+- **User task:** loop an MP3 cleanly.
+- **Minimal reproduction steps:** encode a 4.000 s WAV to 192 kbit/s MP3; play both and read
+  `duration` and the final `currentTime`.
+- **Expected result:** 4.000 s for both, as browsers report for an MP3 with a LAME header.
+- **Actual result and evidence:** the WAV reported 4.000 s. The MP3 reported 4.048 s and ended at
+  4.075 s, so every pass carries the encoder's silence. Evidence: [#76](https://github.com/fortemate/dicechess-tv/issues/76#issuecomment-5848979409).
+- **Severity and user impact:** Low. It adds a short gap to any MP3 loop.
+- **Workaround:** the overlapping crossfade of [FL-25](#fl-25) covers it. WAV is exact but about ten
+  times larger.
+- **Suggested improvement:** honour the LAME and Xing headers' delay and padding, or document that
+  they are ignored.
+- **Current status:** worked around.
+
+### FL-28 · `launch-app` restarts a backgrounded app, and Home cannot be scripted {#fl-28}
+
+- **Date and environment:** 2026-09-26 · SDK 0.24.12112, Vega CLI 1.3.4 · Virtual Device.
+- **Tool / SDK / component version:** `vega device launch-app`; the Virtual Device's input API through
+  our key driver ([FL-08](#fl-08)).
+- **User task:** check that music stops when the app leaves the screen and resumes when it returns.
+- **Minimal reproduction steps:**
+  - press Home through the emulator's input API (`KEY_HOMEPAGE`, 172, which the remote skin binds);
+  - bring the launcher to the front with `vega device launch-app -a com.amazon.keplerlauncherapp.main`;
+  - then run `vega device launch-app` for the app.
+- **Expected result:**
+  - Home sends the app to the background;
+  - launching an app that is already running brings it back as it was.
+- **Actual result and evidence:**
+  - The Home key did nothing: the app kept the screen and the next key.
+  - The launcher route worked: it delivered `blur` and then `change: background`, and on the return
+    `active` and `focus`, in every one of four trips.
+  - `launch-app` of the backgrounded app started a new process. Earlier, a saved game restored at that
+    start had made a restart look like a resume.
+
+  Evidence: [#76](https://github.com/fortemate/dicechess-tv/issues/76#issuecomment-5848979409).
+
+- **Severity and user impact:** Medium. It cost hours, and led to a wrong conclusion that had to be
+  corrected.
+- **Workaround:**
+  - send the app to the background by launching the launcher;
+  - log app-state events to a store that survives a restart, to tell a resume from a restart.
+- **Suggested improvement:**
+  - a CLI command that sends Home or backgrounds an app;
+  - `launch-app` that foregrounds a running app, or a flag for it;
+  - its output saying whether it started a process or resumed one.
+- **Current status:** worked around.
+
 ## What worked well
 
 Amazon asks for the whole experience, so the good parts belong here too:
@@ -585,3 +690,8 @@ Amazon asks for the whole experience, so the good parts belong here too:
   ([#80](https://github.com/fortemate/dicechess-tv/issues/80)).
 - Amazon's Builder Tools MCP installed with one command and started under Node 26, offering a coding
   agent documentation search, trace analysis and crash symbolication.
+- Two music players and three effect players ran at once without an error, and effects never paused
+  the music. A released player was re-created and playing again within about 50 ms
+  ([#76](https://github.com/fortemate/dicechess-tv/issues/76#issuecomment-5848979409)).
+- `blur` and the change to background arrived on every trip to the launcher, so the app can stop its
+  music before the launcher is on screen.
