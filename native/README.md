@@ -14,13 +14,13 @@ the canonical engine runs in this runtime, and
 
 ## What is here
 
-| Path                          | Purpose                                                        |
-| ----------------------------- | -------------------------------------------------------------- |
-| `src/Board.tsx`               | The 8x8 grid. Takes a board size and the `boardView()` inputs. |
-| `src/BoardScreen.tsx`         | A check screen driven by real engine state.                    |
-| `src/theme.ts`                | Square, cursor, destination and last-move colours.             |
-| `src/pieces/`                 | Generated piece components, one per FEN letter.                |
-| `scripts/generate-pieces.mjs` | Regenerates `src/pieces/` from the RhosGFX SVG sources.        |
+| Path                          | Purpose                                                                                |
+| ----------------------------- | -------------------------------------------------------------------------------------- |
+| `src/Board.tsx`               | The 8x8 grid, where each move slides. Takes a board size and the `boardView()` inputs. |
+| `src/BoardScreen.tsx`         | A check screen driven by real engine state.                                            |
+| `src/theme.ts`                | Square, cursor, destination and last-move colours.                                     |
+| `src/pieces/`                 | Generated piece components, one per FEN letter.                                        |
+| `scripts/generate-pieces.mjs` | Regenerates `src/pieces/` from the RhosGFX SVG sources.                                |
 
 The shared game logic is **not** duplicated here. `Board.tsx` imports
 `src/core/boardView.ts`, and `BoardScreen.tsx` imports `src/core/game.ts`, so the
@@ -320,6 +320,48 @@ nothing to press; green and amber are the pair colour-blind viewers confuse
 most; and they cost one legal-move generation per legal action, up to 43 ms per
 step on the virtual device. The green squares come from the legal list the
 screen already has, at no extra cost.
+
+## A move slides
+
+Each action slides its piece from its old square to its new one in 220 ms
+(#131), the person's own and the computer's alike, so an opponent's turn can be
+followed from the sofa. `src/core/moveAnimation.ts` works out what travelled by
+comparing the positions before and after with the move the game reports, and
+`Board.tsx` draws the piece above the grid and moves it with `Animated` on the
+native driver.
+
+- **A capture** leaves the taken piece on its square until the mover lands on
+  it. **En passant** leaves the taken pawn on its own square, beside the
+  destination. **Castling** slides the king and the rook together. **A
+  promotion** slides the pawn, and the new piece appears as it lands.
+- **Anything else is redrawn**, not slid: a new game, a rematch and a resumed
+  game report no last move, and two pieces moving at once, other than by
+  castling, are not one action.
+- **Presentation only.** The game has already moved on when a slide starts, so
+  the remote is never held up. A move made during a slide stops it and stands
+  that piece on its square.
+- **Timing.** 220 ms is inside the TV guidance of #51, about 300 ms, and the
+  opponent's steps are 600 ms apart (`BOT_STEP_MS`), so a slide is over before
+  the next step.
+- **Reduced motion.** Vega's React Native sends
+  `AccessibilityInfo.isReduceMotionEnabled` and the `reduceMotionChanged` event
+  to its native accessibility module. On the virtual device (SDK 0.24.12112) the
+  query resolves `false` and the listener subscribes, but nothing turns the
+  setting on: the device's Settings hold only Account Settings. When the platform
+  does ask for less motion, pieces are redrawn instead of slid; only the tests
+  cover that branch.
+
+Checked on the virtual device on 27 September, with frames streamed over the
+emulator's gRPC `streamScreenshot`: Grabby's knight took the queen, f6 to h5, in
+224 ms over 11 frames, and the queen stayed on h5 until the knight landed.
+Grabby's other knight and rook moves slid the same way, and so did the person's
+knight, pawn and queen moves. Tests: `test/moveAnimation.test.ts` for what each
+kind of action slides, and `native/test/boardMotion.test.tsx` for the pieces in
+flight, the squares under them, the board turned for Black, reduced motion and
+the timing.
+
+Still for a Fire TV Stick (#10): whether a slide stays smooth there, and whether
+the Stick offers a reduced-motion setting.
 
 ## Saving
 
@@ -1049,8 +1091,3 @@ matters for online play, where switching the TV's input must not forfeit a game.
   but only on a television can anyone judge whether it is loud enough, distinct
   enough and quick enough from a sofa. That check is the open half of
   `fortemate/dicechess-assets#8`.
-- **No animation.** A piece appears on its new square rather than travelling
-  there. The bot's turn is revealed one action at a time so the moves can at
-  least be followed.
-- **No attribution screen.** Both asset licences require visible credit and
-  there is nowhere yet that shows it.
