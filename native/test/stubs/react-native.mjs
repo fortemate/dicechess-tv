@@ -11,3 +11,65 @@ export const useWindowDimensions = () => ({
   scale: 2,
   fontScale: 1,
 });
+
+// Animated, as far as the board's slide uses it (#131). A slide ends as soon as
+// it starts, so a test sees the new position at once. A test that looks at a
+// piece in flight sets globalThis.__holdSlides and ends the slides itself
+// through globalThis.__heldSlides.
+class AnimatedValue {
+  constructor(value) {
+    this.value = value;
+  }
+  setValue(value) {
+    this.value = value;
+  }
+  interpolate(config) {
+    return { interpolation: config, of: this };
+  }
+}
+
+export const Animated = {
+  Value: AnimatedValue,
+  View: (props) => React.createElement('Animated.View', props),
+  timing: (value, config) => {
+    const entry = { value, config, done: null, stopped: false };
+    return {
+      start(done) {
+        entry.done = done;
+        if (globalThis.__holdSlides) {
+          globalThis.__heldSlides = [...(globalThis.__heldSlides ?? []), entry];
+          return;
+        }
+        value.setValue(config.toValue);
+        done?.({ finished: true });
+      },
+      stop() {
+        entry.stopped = true;
+      },
+    };
+  },
+};
+
+export const Easing = {
+  out: (easing) => easing,
+  cubic: (t) => t,
+};
+
+// globalThis.__reduceMotion stands for the platform's setting, and
+// globalThis.__reduceMotionQuery for how asking for it goes: answered at once
+// when unset, 'pending' until globalThis.__answerReduceMotion is called,
+// 'fails', or 'throws' as on a platform without the setting.
+export const AccessibilityInfo = {
+  isReduceMotionEnabled: () => {
+    const query = globalThis.__reduceMotionQuery;
+    if (query === 'throws')
+      throw new Error('AccessibilityInfo is not available');
+    if (query === 'fails') return Promise.reject(new Error('no answer'));
+    if (query === 'pending')
+      return new Promise((resolve) => {
+        globalThis.__answerReduceMotion = resolve;
+      });
+    return Promise.resolve(Boolean(globalThis.__reduceMotion));
+  },
+  addEventListener: () => ({ remove() {} }),
+};

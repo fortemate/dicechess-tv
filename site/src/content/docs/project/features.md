@@ -23,7 +23,7 @@ A person alone plays one of three opponents that run on the TV. They are chosen 
 - **Grabby** (Medium) takes the most valuable piece it can;
 - **Rampage** (Hard) hunts your pieces and goes for your king.
 
-Each is an algorithm of the Dice Chess rules engine, and each card shows your record against it. The faces are RhosGFX's Vector Emojis, by the artist of the pieces. Every opponent shows its turn one action at a time.
+Each is an algorithm of the Dice Chess rules engine, and each card shows your record against it. The faces are RhosGFX's Vector Emojis, by the artist of the pieces. Every opponent shows its turn one action at a time, and each piece slides to its new square, the opponent's and yours alike, so a turn can be followed from the sofa. Frames recorded on the virtual device show Grabby's knight sliding onto a queen it took in under a quarter of a second, and the tests cover captures, castling, en passant and promotion.
 
 Before the game you choose White or Black, or let the app pick a colour. Playing Black turns the board so that your pieces are at the bottom.
 
