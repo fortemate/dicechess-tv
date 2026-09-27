@@ -12,6 +12,7 @@ The app was built during [Build, Ship, Shape: Amazon Developer Hackathon 2026](h
 - **A five-lesson tutorial** and a **rules guide**.
 - **Sound** for every step of the game.
 - **Three computer opponents**, Rolly, Grabby and Rampage, as either colour.
+- **Moves that slide** to their squares, so an opponent's turn can be followed.
 - **Music that follows the game**, and **Settings** for the music and the sound effects.
 - **Four public pre-releases**, with a playtest guide.
 
@@ -28,7 +29,7 @@ What the tester round prompts comes first. Already on the list:
 - a cursor that stands out when many squares are highlighted ([#121](https://github.com/fortemate/dicechess-tv/issues/121));
 - a mark for the pieces that can move that reads well with colour-vision deficiency ([#105](https://github.com/fortemate/dicechess-tv/issues/105));
 - in hotseat, turning the board to the side to move ([#120](https://github.com/fortemate/dicechess-tv/issues/120));
-- piece animation and a smoother first run;
+- a short roll of the dice ([#99](https://github.com/fortemate/dicechess-tv/issues/99)) and a smoother first run;
 - board themes and piece sets ([#75](https://github.com/fortemate/dicechess-tv/issues/75));
 - translations, starting with Latvian.
 
