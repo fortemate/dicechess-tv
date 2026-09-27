@@ -37,8 +37,8 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 | [FL-05](#fl-05) | The static `UserInputManager.addListener` aborts the JS thread               | Input                             | Medium   | Avoided       |
 | [FL-06](#fl-06) | Back needs a different hook from every other key                             | Input, docs                       | Medium   | Worked around |
 | [FL-07](#fl-07) | An app that renders nothing at first never receives remote input             | Input                             | High     | Worked around |
-| [FL-08](#fl-08) | Remote input cannot be scripted on the Virtual Device with SDK tools         | Virtual Device                    | Medium   | Worked around |
-| [FL-09](#fl-09) | No SDK tool captures the screen                                              | CLI, device                       | Medium   | Worked around |
+| [FL-08](#fl-08) | Three key-injection routes report success and reach no app                   | Virtual Device                    | Medium   | Worked around |
+| [FL-09](#fl-09) | The Vega CLI has no screenshot command, and the device's tool fails          | CLI, device                       | Medium   | Worked around |
 | [FL-10](#fl-10) | Release builds send no `console.log` output to the log stream                | CLI                               | Medium   | Worked around |
 | [FL-11](#fl-11) | OGG and M4A do not play, and `canPlayType` answers backwards                 | Audio                             | Medium   | Worked around |
 | [FL-12](#fl-12) | Audio wants a plain path where `fetch` wants a `file://` URL                 | Audio                             | Low      | Worked around |
@@ -57,7 +57,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 | [FL-25](#fl-25) | Looping audio loses 0.3 s at the seam, and `ended` arrives late              | Audio                             | Medium   | Worked around |
 | [FL-26](#fl-26) | The docs call `volume` and `muted` unsupported, yet both take effect         | Audio, docs                       | Low      | Open          |
 | [FL-27](#fl-27) | MP3 encoder padding is played, not trimmed                                   | Audio                             | Low      | Worked around |
-| [FL-28](#fl-28) | `launch-app` restarts a backgrounded app, and Home cannot be scripted        | CLI, Virtual Device               | Medium   | Worked around |
+| [FL-28](#fl-28) | `launch-app` restarts a background app, and the emulator's Home does nothing | CLI, Virtual Device               | Medium   | Worked around |
 
 ## Entries
 
@@ -197,7 +197,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   document the constraint and warn in development builds.
 - **Current status:** worked around.
 
-### FL-08 · Remote input cannot be scripted on the Virtual Device with SDK tools {#fl-08}
+### FL-08 · Three key-injection routes report success and reach no app {#fl-08}
 
 - **Date and environment:** 2026-09-22 to 2026-09-25 · SDK 0.24.12112 · Virtual Device.
 - **Tool / SDK / component version:** `inputd-cli` on the device; the emulator console; QEMU monitor;
@@ -208,9 +208,10 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   and send keys through the emulator's gRPC `sendKey`.
 - **Expected result:** the key reaches the app, or the tool reports an error.
 - **Actual result and evidence:** all three report success, and nothing reaches the app. `inputd-cli`
-  does not even move the launcher with `KEY_HOME`; its `list_devices` finds no devices. The one route
-  that works is the Android emulator's own gRPC `EmulatorController.sendKey`, the path the on-screen
-  remote uses, which the Vega documentation does not mention. That route has three traps of its own.
+  does not even move the launcher with `KEY_HOME`; its `list_devices` finds no devices. Of the routes
+  we tried, the one that works is the Android emulator's own gRPC `EmulatorController.sendKey`, the
+  path the on-screen remote uses, which the Vega documentation does not mention. That route has three
+  traps of its own.
   After a Virtual Device restart its gRPC endpoint stays off until the emulator console command
   `grpc <port>` turns it on, and the running emulator's discovery file, which holds the port and
   token, appears only then. Back arrives only as `KEY_BACK`: `KEY_ESC` does not reach the app as
@@ -218,15 +219,24 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   cannot be sent as `select`: the virtual keyboard does not declare `KEY_SELECT` or `KEY_OK`.
   Evidence:
   [native/README.md, Remote input](https://github.com/fortemate/dicechess-tv/blob/5bc2357dd9489380a1f46f0e48b9d3be9ed1d498/native/README.md#remote-input).
-- **Severity and user impact:** Medium. No automated input testing without reverse engineering.
+- **Severity and user impact:** Medium. Hours went into routes that fail silently, and until the gRPC
+  route worked, every input check needed a person at the emulator.
 - **Workaround:** gRPC `sendKey` with the port and token from the running emulator's discovery file;
   after a restart, `grpc <port>` on the emulator console first; Back sent as `KEY_BACK`.
-- **Suggested improvement:** a supported `vega device send-key` command; `KEY_SELECT` declared on the
-  virtual keyboard, so that `select` can be tested without a device; and the gRPC endpoint kept on
-  across restarts, or the console command that turns it on documented.
+- **Suggested improvement:** a supported `vega device send-key` command; an error from `inputd-cli`
+  when it has no device to deliver to; `KEY_SELECT` declared on the virtual keyboard, so that `select`
+  can be tested without a device; and the gRPC endpoint kept on across restarts, or the console
+  command that turns it on documented.
 - **Current status:** worked around.
+- **Update, 2026-09-27:** Amazon documents a route we had missed. The
+  [Appium Vega driver](https://developer.amazon.com/docs/vega/0.24/appium-commands.html) sends keys
+  with `press_keycode`, through the device's automation toolkit. It needs an Appium 2.2.2 server, the
+  `@amazon-devices/appium-kepler-driver` package, and the toolkit switched on with
+  `vega exec vda shell "touch /tmp/automation-toolkit.enable"`. We have not tried it. The three routes
+  above still report success and deliver nothing, and the Vega CLI still has no command to send a
+  key.
 
-### FL-09 · No SDK tool captures the screen {#fl-09}
+### FL-09 · The Vega CLI has no screenshot command, and the device's tool fails {#fl-09}
 
 - **Date and environment:** 2026-09-22 to 2026-09-24 · SDK 0.24.12112 · Virtual Device.
 - **Tool / SDK / component version:** Vega CLI; the device's `screenshooter`.
@@ -239,9 +249,12 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   [native/README.md, Verification](https://github.com/fortemate/dicechess-tv/blob/5bc2357dd9489380a1f46f0e48b9d3be9ed1d498/native/README.md#verification).
 - **Severity and user impact:** Medium. For two days, every visual check needed a person at the
   emulator.
-- **Workaround:** the Android emulator console's `screenrecord screenshot <directory>`.
+- **Workaround:** the Android emulator console's `screenrecord screenshot <directory>`, and later the
+  emulator's gRPC `getScreenshot`.
 - **Suggested improvement:** a `vega device screenshot` command.
 - **Current status:** worked around.
+- **Update, 2026-09-27:** the Appium Vega driver's `get_screenshot` captures the screen too
+  ([FL-08](#fl-08)). We have not tried it; the Vega CLI still has no screenshot command.
 
 ### FL-10 · Release builds send no `console.log` output to the log stream {#fl-10}
 
@@ -640,7 +653,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   they are ignored.
 - **Current status:** worked around.
 
-### FL-28 · `launch-app` restarts a backgrounded app, and Home cannot be scripted {#fl-28}
+### FL-28 · `launch-app` restarts a background app, and the emulator's Home does nothing {#fl-28}
 
 - **Date and environment:** 2026-09-26 · SDK 0.24.12112, Vega CLI 1.3.4 · Virtual Device.
 - **Tool / SDK / component version:** `vega device launch-app`; the Virtual Device's input API through
@@ -654,7 +667,8 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   - Home sends the app to the background;
   - launching an app that is already running brings it back as it was.
 - **Actual result and evidence:**
-  - The Home key did nothing: the app kept the screen and the next key.
+  - The Home key did nothing: the app kept the screen and the next key. On 2026-09-27 we also sent
+    170, the code Amazon's Appium documentation gives for Home, with the same result.
   - The launcher route worked: it delivered `blur` and then `change: background`, and on the return
     `active` and `focus`, in every one of four trips.
   - `launch-app` of the backgrounded app started a new process. Earlier, a saved game restored at that
