@@ -59,7 +59,7 @@ Nine topics, from how a game ends to castling, promotion, en passant and draws. 
 
 ## Saving, resuming and the record
 
-The game is saved after every action. The app opens on the home screen, where "Resume game" continues where the game stopped: on the virtual device, a game force-stopped mid-turn and relaunched came back as it was. Your record against each computer opponent, as wins, draws and losses for each side you played, is on its card.
+The game is saved after every action. The app opens on the home screen, where "Resume game" continues where the game stopped: on the virtual device, a game force-stopped mid-turn and relaunched came back as it was. Your record against each computer opponent, as wins, draws and losses for each side you played, is on its card: the tests check it, and on the virtual device a card showed a win as White and a loss as Black against Grabby.
 
 ![The home screen with Resume game focused over a game in progress](../../../assets/screenshots/resume.png)
 

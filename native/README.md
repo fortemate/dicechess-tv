@@ -632,6 +632,11 @@ format stays the same, but nothing shows it: counts by colour say nothing about
 the people who played, who change from one evening to the next. Games against an
 opponent are recorded per opponent **and** per side the player held, because one
 combined number would hide how it plays each colour, and shown on its card.
+`native/test/ledger.test.tsx` checks that a finished hotseat game is counted and
+that the home screen shows no record, and `native/test/opponents.test.tsx` checks
+the cards. On the virtual device on 27 September, the home screen showed the menu
+alone while the ledger held a hotseat draw, and Grabby's card read "As White: 1W
+0D 0L" and "As Black: 0W 0D 1L".
 
 A ledger that no longer decodes is refused rather than reset to zero, and left on
 disk rather than overwritten. Losing a record silently is worse than showing
