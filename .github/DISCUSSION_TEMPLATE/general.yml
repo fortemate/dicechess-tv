@@ -1,0 +1,40 @@
+# The form for General, where playtesters tell us what happened in a game
+# (#107). Keep the builds in step with the pre-releases: add each new beta at
+# the top of the list.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for playing Dice Chess TV. Tell us about one moment per discussion: something that broke, something that confused you, or something you enjoyed. A few words are enough, and a photo of the screen helps.
+
+        No GitHub account? Use the anonymous form instead: https://fortemate.github.io/dicechess-tv/feedback/
+  - type: dropdown
+    id: build
+    attributes:
+      label: Which build did you play?
+      description: The title of the release you installed.
+      options:
+        - 0.1.0 beta 3
+        - 0.1.0 beta 2
+        - 0.1.0 beta 1
+        - Built from source
+        - Not sure
+    validations:
+      required: true
+  - type: dropdown
+    id: device
+    attributes:
+      label: Where did you play?
+      options:
+        - On a Fire TV Stick
+        - On the Vega Virtual Device
+        - Somewhere else
+    validations:
+      required: true
+  - type: textarea
+    id: happened
+    attributes:
+      label: What happened?
+      description: What was on the screen, what you pressed just before, and what you expected instead.
+    validations:
+      required: true

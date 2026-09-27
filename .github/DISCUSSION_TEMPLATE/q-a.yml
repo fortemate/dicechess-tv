@@ -1,0 +1,25 @@
+# The form for Q&A, where playtesters ask for help, most often with installing
+# a pre-release package (#107).
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Stuck installing or playing? The steps for installing a playtest build are in [docs/playtest.md](https://github.com/fortemate/dicechess-tv/blob/main/docs/playtest.md).
+  - type: dropdown
+    id: device
+    attributes:
+      label: What are you installing on?
+      options:
+        - A Fire TV Stick
+        - The Vega Virtual Device on a Mac with Apple silicon
+        - The Vega Virtual Device on Linux or an Intel Mac
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: question
+    attributes:
+      label: What did you try, and what happened?
+      description: The command you ran and what it printed, or what the screen showed.
+    validations:
+      required: true
