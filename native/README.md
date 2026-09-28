@@ -213,9 +213,11 @@ squares, 32 pieces and 32 dark squares with the cursor, selection, legal
 destinations and last move on four distinct sets of squares.
 
 **The owner confirmed on 22 September 2026 that all twelve pieces display well.**
-That confirmation is by eye, because the screen could not be captured: the
+That confirmation is by eye, because the screen could not be captured then: the
 device's `screenshooter` fails its capture call even once its buffer-permission
-problem is worked around, and the host cannot grab the emulator window.
+problem is worked around, and the host cannot grab the emulator window. Two days
+later the emulator turned out to take screenshots itself, and `vvd screenshot`
+uses that now (see "Checking from a script" below).
 
 **A complete turn was driven from the keyboard on the same day**, and the device
 reported every step: the roll produced `dice QRN legal 4`; four presses walked
@@ -232,6 +234,60 @@ virtual device: in the tutorial, dots on both of a pawn's squares, one light and
 one dark, and in the capture lesson a ring around the pawn the rook can take.
 Not confirmed by anyone yet: whether the focus overlays stay visible on both
 square colours, and legibility at TV viewing distance.
+
+### Checking from a script
+
+[vega-vvd-driver](https://github.com/fortemate/vega-vvd-driver) lets a script,
+or a coding agent through its MCP server, press the remote's keys on the virtual
+device and see the screen, with nobody at the emulator. Its README explains how
+it reaches the emulator and lists every command; "Remote input" below says what
+this app receives.
+
+```sh
+npm install -g @fortemate/vega-vvd-driver
+vega virtual-device start --no-gui
+vvd enable-grpc      # after every start of the device
+vega device launch-app -d VirtualDevice -a com.fortemate.dicechesstv.main
+sleep 3              # until the home screen is up
+vvd press up up ok   # Settings: the home menu wraps round
+vvd screenshot settings.png
+vega virtual-device stop
+```
+
+The game plays music from its first screen. OK on "Music: on", the first row of
+Settings, turns it off, and the setting is remembered across launches.
+
+`vvd wait-change` exits 0 once the screen changes and 1 when it times out, so a
+script can tell that a press did something. It compares with the screen as it
+was when it started, so start it before the press:
+`vvd wait-change & sleep 1; vvd press ok; wait $!`.
+
+Checked this way on 28 September 2026, with vvd 0.1.0 on SDK 0.24.12112. The
+package was beta 5, because the device refuses a local build over it: a local
+build has build number 0, and `install-app` failed with "Package version
+decrease". At the time, no file that goes into the package had changed on `main`
+since beta 5.
+
+- Up, Up and OK opened Settings from the home screen, and OK turned the music
+  off. Back returned to the home screen with the focus on Settings.
+- With nothing pressed, `vvd wait-change` exited 1. Up moved the focus to Rules,
+  and OK opened the rules guide: `vvd wait-change` exited 0.
+- Down three times reached "Use as many dice as you can", and Back returned to
+  the home screen with the app still running.
+- Up from Resume game wrapped round to About, and OK opened it. OK returned to
+  the home screen, and OK on Resume game resumed the game against Grabby. Back
+  opened the game menu, and Back again closed it.
+- After `vega device terminate-app` and `launch-app`, the home screen opened
+  with Resume game focused. Up four times and OK opened the tutorial, where OK
+  and OK played the first move, e2 to e3, and the lesson read "Done. OK: next
+  lesson · Back: leave".
+- Back left the tutorial, and Back on the home screen closed the app:
+  `vega device is-app-running` reported that it was not running, and the
+  launcher was on screen.
+
+The same session checked the safe area (see "Television guidance") and a slide
+(see "A move slides"), and compared two of the site's screenshots with fresh
+captures (`site/README.md`).
 
 ## Checks
 
@@ -311,13 +367,22 @@ reach the app at all — its virtual keyboard does not declare them — so `sele
 cannot be checked on the virtual device. That one is for the Stick.
 
 The fix was verified the way the on-screen remote works, without a person at the
-emulator: keys went in through the emulator's own gRPC `sendKey` (evdev codes;
-the port and token are in the running emulator's discovery file), and each step
-was checked on a screenshot taken with `screenrecord screenshot` on the emulator
-console. OK resumed the saved game, rolled, and picked up a knight; Back put it
-down, opened the menu and closed it; Back on the home screen closed the app. Two
-injection routes do **not** reach a Vega app, although both report success: the
-console's `event send` and QEMU's `send-key`.
+emulator: keys went in through the emulator's own gRPC `sendKey`, as evdev codes,
+and each step was checked on a screenshot that the emulator console took
+(`screenrecord screenshot`). OK resumed the saved game, rolled, and picked up a
+knight; Back put it down, opened the menu and closed it; Back on the home screen
+closed the app. Two injection routes do **not** reach a Vega app, although both
+report success: the console's `event send` and QEMU's `send-key`.
+
+Both halves are `vvd` commands now, from
+[vega-vvd-driver](https://github.com/fortemate/vega-vvd-driver): `vvd press ok`
+sends `KEY_KPENTER` by that same route, `vvd press back` sends `KEY_BACK`, and
+`vvd screenshot` captures the screen through the emulator's gRPC API. Its README
+explains how it finds the emulator, and that gRPC has to be turned on after
+every start of the device. On 28 September they repeated three of the checks
+above: OK resumed the saved game, Back opened the menu and closed it, and Back
+on the home screen closed the app (see "Checking from a script" under
+Verification).
 
 `eventType` arrives lower-case. `eventKeyAction` is
 `0` when the button goes down and on every repeat while it is held, and `1` once
@@ -401,7 +466,12 @@ Checked on the virtual device on 27 September, with frames streamed over the
 emulator's gRPC `streamScreenshot`: Grabby's knight took the queen, f6 to h5, in
 224 ms over 11 frames, and the queen stayed on h5 until the knight landed.
 Grabby's other knight and rook moves slid the same way, and so did the person's
-knight, pawn and queen moves. Tests: `test/moveAnimation.test.ts` for what each
+knight, pawn and queen moves. `vvd frames` captures such frames now (see
+"Checking from a script"). On 28 September it caught the tutorial's first move,
+e2 to e3: the pawn stood on e2 in one frame and on e3 in another 205 ms later,
+and was in flight in the three between them. It saves each frame before it
+takes the next, so it catches fewer frames of a slide than the stream did.
+Tests: `test/moveAnimation.test.ts` for what each
 kind of action slides, and `native/test/boardMotion.test.tsx` for the pieces in
 flight, the squares under them, the board turned for Black, reduced motion and
 the timing.
@@ -559,7 +629,10 @@ Checked on the virtual device on 25 September by scanning the outer 5 % of each
 screenshot for anything but the background: the home screen, a game and its
 menu, the hotseat menu over a roll with nothing to play (the tallest panel, about
 8 dp clear of the bottom band), the tutorial, the rules and About. A held OK was
-captured on the home menu. Tests: `native/test/layout.test.ts` for the insets
+captured on the home menu. `vvd safe-area --background '#122737'`, with the
+board's background colour, makes the same scan: on 28 September it found the
+margins clear on the rules guide, at two topics, on About and on the tutorial's
+first lesson. Tests: `native/test/layout.test.ts` for the insets
 and the panel width, and `native/test/input.test.tsx` for the framed focus and
 the press.
 
