@@ -222,7 +222,9 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 - **Severity and user impact:** Medium. Hours went into routes that fail silently, and until the gRPC
   route worked, every input check needed a person at the emulator.
 - **Workaround:** gRPC `sendKey` with the port and token from the running emulator's discovery file;
-  after a restart, `grpc <port>` on the emulator console first; Back sent as `KEY_BACK`.
+  after a restart, `grpc <port>` on the emulator console first; Back sent as `KEY_BACK`. We packaged
+  this route as [vega-vvd-driver](https://github.com/fortemate/vega-vvd-driver), an MIT-licensed
+  tool: `vvd enable-grpc` after a restart, then `vvd press`.
 - **Suggested improvement:** a supported `vega device send-key` command; an error from `inputd-cli`
   when it has no device to deliver to; `KEY_SELECT` declared on the virtual keyboard, so that `select`
   can be tested without a device; and the gRPC endpoint kept on across restarts, or the console
@@ -250,7 +252,8 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 - **Severity and user impact:** Medium. For two days, every visual check needed a person at the
   emulator.
 - **Workaround:** the Android emulator console's `screenrecord screenshot <directory>`, and later the
-  emulator's gRPC `getScreenshot`.
+  emulator's gRPC `getScreenshot`, which `vvd screenshot` in
+  [vega-vvd-driver](https://github.com/fortemate/vega-vvd-driver) calls.
 - **Suggested improvement:** a `vega device screenshot` command.
 - **Current status:** worked around.
 - **Update, 2026-09-27:** the Appium Vega driver's `get_screenshot` captures the screen too

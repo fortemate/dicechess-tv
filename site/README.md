@@ -40,6 +40,23 @@ Device with scripted presses of the remote, from the interface as it ships, and
 the pages say so: nothing is claimed for a physical Fire TV device before it has
 been tested on one (#10). Retake a screenshot when the screen it shows changes.
 
+To retake one, reach the screen with `vvd press` and capture it with
+`vvd screenshot`, from
+[vega-vvd-driver](https://github.com/fortemate/vega-vvd-driver);
+[native/README.md](../native/README.md#checking-from-a-script) sets it up. The
+capture is 1920 x 1080, and ImageMagick scales it. For the rules guide on "Use
+as many dice as you can", from the home screen as the app opens:
+
+```bash
+vvd press 'up*3' ok 'down*3'
+vvd screenshot rules-1080.png
+magick rules-1080.png -resize 1280x720 src/assets/screenshots/rules.png
+```
+
+On 28 September 2026, captures from beta 5 on SDK 0.24.12112, scaled this way,
+matched `rules.png` and `tutorial.png`: 105 and 118 of their 921,600 pixels
+differed, none visibly, so neither was replaced.
+
 ## The friction log
 
 The submission cites the friction log's entries by number, so each keeps its

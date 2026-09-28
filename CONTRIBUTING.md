@@ -93,6 +93,16 @@ On the virtual device the Mac keyboard stands in for the remote: arrow keys for
 the D-pad, Enter for OK, Esc for Back, F1 for Home. The on-screen remote's OK
 button works too.
 
+From a script, or for a coding agent, use
+[vega-vvd-driver](https://github.com/fortemate/vega-vvd-driver): `vvd press`
+presses the remote's keys and `vvd screenshot` saves the screen, after
+`vvd enable-grpc` once per start of the device.
+[native/README.md](native/README.md#checking-from-a-script) shows a session and
+what it checked.
+
+A local build has build number 0, so the device refuses it over beta 4 or later
+with "Package version decrease". Removing the app first deletes its saved game.
+
 Say in the pull request which kind of evidence a claim rests on — the virtual
 device, a Fire TV Stick, or a test — because they are not interchangeable.
 
