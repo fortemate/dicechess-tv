@@ -467,10 +467,14 @@ emulator's gRPC `streamScreenshot`: Grabby's knight took the queen, f6 to h5, in
 224 ms over 11 frames, and the queen stayed on h5 until the knight landed.
 Grabby's other knight and rook moves slid the same way, and so did the person's
 knight, pawn and queen moves. `vvd frames` captures such frames now (see
-"Checking from a script"). On 28 September it caught the tutorial's first move,
-e2 to e3: the pawn stood on e2 in one frame and on e3 in another 205 ms later,
-and was in flight in the three between them. It saves each frame before it
-takes the next, so it catches fewer frames of a slide than the stream did.
+"Checking from a script"). On 28 September, vvd 0.1.0 caught the tutorial's
+first move, e2 to e3: the pawn stood on e2 in one frame and on e3 in another
+205 ms later, and was in flight in the three between them. That version saved
+each frame before it took the next; vvd 0.2.0 saves them when the capture ends.
+Later that day, in three runs with each version, 0.2.0 caught the pawn in flight
+in 4 to 6 frames, 23 to 55 ms apart, and 0.1.0 in 3, 60 to 67 ms apart. That is
+still fewer frames than the stream delivered: while the screen changes, each
+screenshot takes the emulator 23 to 61 ms.
 Tests: `test/moveAnimation.test.ts` for what each
 kind of action slides, and `native/test/boardMotion.test.tsx` for the pieces in
 flight, the squares under them, the board turned for Black, reduced motion and
