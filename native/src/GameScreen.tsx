@@ -45,7 +45,8 @@ import {
   flipped,
   resumable,
   handsOff,
-  botWait,
+  botOwes,
+  BOT_STEP_MS,
   OK_GUARD_MS,
   type Overlay,
   type ScreenAction,
@@ -187,12 +188,21 @@ const mover = (game: Game, bot: boolean): string =>
   game.human !== null && !bot ? ' · you' : '';
 
 // Whose move it is, or that the roll left nothing to play (#85). Whose roll it
-// was shows in the dice, drawn in that side's colour, and against the bot in
-// the prompt too; leaving the side out keeps the notice to one line. Nobody did
-// anything wrong, so it says so plainly rather than "forfeited".
-const headline = (game: Game, view: GameView): string =>
-  (emptyRoll(game) ? 'No legal moves' : `${sideName(view.side)} to play`) +
-  mover(game, view.bot);
+// was shows in the dice, drawn in that side's colour; leaving the side out keeps
+// the notice to one line. Against the bot it is named, since its notice waits
+// for the person's OK and the prompt then asks for their roll rather than
+// saying the bot is playing. On the Virtual Device "No legal moves · Rampage"
+// and "Rampage has no moves" both took two lines; this is the wording that
+// fits the longest name.
+// Nobody did anything wrong, so it says so plainly rather than "forfeited".
+const headline = (game: Game, view: GameView): string => {
+  if (!emptyRoll(game))
+    return `${sideName(view.side)} to play${mover(game, view.bot)}`;
+  const name = opponentName(game);
+  return view.bot && name
+    ? `${name} can't move`
+    : `No legal moves${mover(game, view.bot)}`;
+};
 
 // Who the person plays: nobody in hotseat, else the opponent's name.
 const opponentName = (game: Game): string | null =>
@@ -257,9 +267,10 @@ const Status = ({
 // What OK and the arrows do now, when no menu or choice is open.
 const promptFor = (game: Game, selected: string | null): string => {
   // The board takes no keys while the opponent owes an action.
-  if (botToAct(game))
+  if (botOwes(game))
     return `${opponentName(game) ?? 'The computer'} is playing…`;
-  if (game.phase === 'roll') return 'OK: roll three dice';
+  // After the opponent's empty roll, OK passes its turn and rolls the person's.
+  if (game.phase === 'roll' || botToAct(game)) return 'OK: roll three dice';
   if (game.phase === 'handoff') return 'OK: continue';
   if (game.phase === 'ended') return 'OK: back to the menu';
   return selected
@@ -514,17 +525,17 @@ export const GameScreen = ({
   // player watches it roll and move instead of the board jumping. It is paused
   // while an overlay is up, which is also how leaving play stops it.
   React.useEffect(() => {
-    if (overlay.kind !== 'none' || !botToAct(game)) return;
+    if (overlay.kind !== 'none' || !botOwes(game)) return;
     let cancelled = false;
     options.schedule(() => {
       if (!cancelled) dispatch({ kind: 'bot' });
-    }, botWait(game));
+    }, BOT_STEP_MS);
     return () => {
       cancelled = true;
     };
   }, [game, overlay.kind, options]);
 
-  // After a person's roll with nothing to play, OK comes back once the guard
+  // After a roll with nothing to play, OK comes back once the guard
   // has run out (#85). A menu opened meanwhile does not stop the clock.
   React.useEffect(() => {
     if (!guarded) return;

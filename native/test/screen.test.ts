@@ -11,10 +11,8 @@ import {
   resultOptions,
   colourOptions,
   resumable,
-  botWait,
+  botOwes,
   flipped,
-  BOT_STEP_MS,
-  PASS_HOLD_MS,
   type ScreenOptions,
   type ScreenState,
 } from '../src/screen';
@@ -888,27 +886,40 @@ test('only an empty roll is guarded: a roll with moves and a turn with dice left
   assert.equal(drive(partial, 'select').game.turn, 2);
 });
 
-test('the opponent holds a roll with nothing to play longer; its other steps keep their pace', () => {
+test('the opponent’s roll with nothing to play waits for the person, whose OK rolls their own dice', () => {
   const handed = handedToBot();
-  assert.equal(botWait(handed.game), BOT_STEP_MS);
+  assert.equal(botOwes(handed.game), true);
   const stuck = screenReducer(handed, { kind: 'bot' }, nothing);
   assert.equal(stuck.game.phase, 'handoff');
   assert.equal(botToAct(stuck.game), true);
-  assert.equal(botWait(stuck.game), PASS_HOLD_MS);
-  // The board takes no OK for the bot anyway, so there is nothing to guard.
-  assert.equal(stuck.guarded, false);
-  assert.equal(
-    botToAct(screenReducer(stuck, { kind: 'bot' }, nothing).game),
-    false,
-  );
+  // Nothing is scheduled for the bot: the notice stays until OK.
+  assert.equal(botOwes(stuck.game), false);
+  assert.equal(screenReducer(stuck, { kind: 'bot' }, nothing), stuck);
+  // A double press cannot skip it either.
+  assert.equal(stuck.guarded, true);
+  assert.equal(driveWith(nothing, stuck, 'select'), stuck);
+  assert.equal(driveWith(nothing, stuck, 'back').overlay.kind, 'menu');
 
-  // A roll with moves, and a turn that ends with dice left, keep the step pace.
+  // One OK passes the bot's turn and rolls the person's: no press is added.
+  const ready = screenReducer(stuck, { kind: 'unguard' }, nothing);
+  const pawns: ScreenOptions = { ...options, roll: () => [1, 1, 1] };
+  const mine = driveWith(pawns, ready, 'select');
+  assert.equal(mine.game.turn, stuck.game.turn + 1);
+  assert.equal(botToAct(mine.game), false);
+  assert.equal(mine.game.phase, 'move');
+  assert.deepEqual(mine.game.roll, [1, 1, 1]);
+  assert.equal(mine.guarded, false);
+});
+
+test('a bot turn that ends with dice left is still the bot’s to hand over, unguarded', () => {
   const leftover: ScreenOptions = { ...options, roll: () => [2, 6, 6] };
-  const steps = settleSteps(handed, leftover);
+  const steps = settleSteps(handedToBot(), leftover);
   const partial = steps.find((s) => s.game.phase === 'handoff');
   assert.ok(partial && partial.game.moves.length > 0);
-  for (const state of steps.filter((s) => botToAct(s.game)))
-    assert.equal(botWait(state.game), BOT_STEP_MS);
+  // A turn that ends with dice left is not an empty roll: the bot hands over.
+  assert.equal(botOwes(partial.game), true);
+  assert.equal(partial.guarded, false);
+  assert.equal(botToAct(steps.at(-1)!.game), false);
 });
 
 // ── The choice of opponent (#115) ─────────────────────────────────────────────

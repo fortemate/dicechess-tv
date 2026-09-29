@@ -34,9 +34,13 @@ export function cues(before: Game, after: Game, humanSide: Side = 'w'): Cue[] {
   if (before.id !== after.id) return [];
 
   const heard: Cue[] = [];
-  if (after.turn === before.turn + 1) heard.push('turn_handoff');
-  else if (after.turn === before.turn) {
-    if (before.roll.length === 0 && after.roll.length > 0) {
+  const handed = after.turn === before.turn + 1;
+  // After the bot's roll with nothing to play, one OK hands the turn over and
+  // rolls. That step is heard as the roll alone: both cues play on the dice
+  // channel, where the clatter would cut the handoff short.
+  if (handed && after.roll.length === 0) heard.push('turn_handoff');
+  else if (handed || after.turn === before.turn) {
+    if ((handed || before.roll.length === 0) && after.roll.length > 0) {
       heard.push('dice_roll');
       // Named after the roll it follows; the native layer lets the dice land
       // before it plays. A roll that ends the game is heard as the result.

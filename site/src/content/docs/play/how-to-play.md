@@ -37,7 +37,7 @@ In Dice Chess, you **must use as many dice as the position legally allows**:
 ### Dimmed Dice & Empty Rolls
 
 - **Unplayable dice dim at once:** As soon as the dice land, the engine evaluates the position. Any die that cannot be spent by any legal sequence of moves dims immediately, so you never waste time looking for moves that do not exist.
-- **Empty rolls:** If no die rolled can be used by any piece on the board (which happens in about 1 in 12 rolls, and nearly 1 in 3 opening rolls), the turn passes automatically with a "No legal moves" announcement.
+- **Empty rolls:** If no die rolled can be used by any piece on the board (which happens in about 1 in 12 rolls, and nearly 1 in 3 opening rolls), the turn passes with a "No legal moves" announcement, which stays until you press OK. When it is the computer that has nothing to play, that OK also throws your dice.
 
 ## No Check, No Checkmate: Capture the King
 

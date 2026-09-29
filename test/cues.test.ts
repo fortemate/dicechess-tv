@@ -145,6 +145,22 @@ test('the empty roll is heard against the bot too, on either side’s roll', () 
   ]);
 });
 
+test('handing over after the bot’s empty roll and rolling at once is heard as the roll', () => {
+  // The bot plays White and rolls queen, rook, king at the start.
+  const theirs = rollGame(newGame('random', 'cues', OPENING, 'b'), [
+    QUEEN,
+    ROOK,
+    KING,
+  ]);
+  assert.equal(viewGame(theirs).bot, true);
+  const mine = (roll: number[]) => rollGame(nextTurn(theirs), roll);
+  assert.deepEqual(cues(theirs, mine([PAWN, PAWN, PAWN])), ['dice_roll']);
+  assert.deepEqual(cues(theirs, mine([QUEEN, ROOK, KING])), [
+    'dice_roll',
+    'no_move',
+  ]);
+});
+
 test('a roll that leaves something to play is a plain roll, and so is a turn that ends with dice left', () => {
   const before = newGame('hotseat', 'cues');
   // Knight, king, king: the knight can move, so this is only a roll.

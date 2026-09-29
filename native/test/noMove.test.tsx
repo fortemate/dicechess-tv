@@ -1,5 +1,5 @@
 // A roll with nothing to play, through the whole app (#85): what the screen
-// says, what is heard, how long the bot holds it, and when OK passes the turn.
+// says, what is heard, and when OK passes the turn.
 // Steps the app schedules wait in a queue here, with the wait they asked for,
 // so a test can look at the screen in between.
 import { test } from 'node:test';
@@ -10,12 +10,7 @@ import { press, pressBack } from './stubs/react-native-kepler.mjs';
 import { reset } from './stubs/react-native-mmkv.mjs';
 import { App } from '../src/App';
 import { NO_MOVE_LINE } from '../src/GameScreen';
-import {
-  BOT_STEP_MS,
-  OK_GUARD_MS,
-  PASS_HOLD_MS,
-  type ScreenOptions,
-} from '../src/screen';
+import { BOT_STEP_MS, OK_GUARD_MS, type ScreenOptions } from '../src/screen';
 import type { Sounds } from '../src/sound';
 import { THEME } from '../src/theme';
 import type { Cue } from '../../src/core/cues';
@@ -133,10 +128,11 @@ test('a hotseat roll with nothing to play is announced and heard, and OK waits o
   act(() => tree.unmount());
 });
 
-test('against the bot both sides’ empty rolls are announced, and the bot holds its own longer', () => {
+test('against the bot both sides’ empty rolls are announced, and the bot’s waits for OK, which rolls', () => {
   reset();
   const clock = scheduler();
-  const tree = launch(optionsFor([5, 4, 6], clock), recorder());
+  const sounds = recorder();
+  const tree = launch(optionsFor([5, 4, 6], clock), sounds);
   // Play the computer, Rolly, on Random, which draws White; then roll.
   send('down', 'enter', 'enter', 'enter', 'enter');
   assert.match(text(tree.root), /No legal moves · you/);
@@ -144,19 +140,32 @@ test('against the bot both sides’ empty rolls are announced, and the bot holds
   clock.next();
   send('enter');
 
-  // The bot's roll comes at the usual pace.
+  // The bot's roll comes at the usual pace, and its notice names it.
   assert.deepEqual(clock.waits(), [BOT_STEP_MS]);
   clock.next();
-  const shown = text(tree.root);
-  assert.match(shown, /No legal moves/);
-  assert.doesNotMatch(shown, /No legal moves · you/);
-  assert.match(shown, /Rolly is playing/);
+  let shown = text(tree.root);
+  assert.match(shown, /Rolly can't move/);
+  assert.doesNotMatch(shown, /No legal moves/);
   assert.ok(shown.includes(NO_MOVE_LINE));
-  // Its pass waits longer, so the notice can be read first.
-  assert.deepEqual(clock.waits(), [PASS_HOLD_MS]);
+  assert.match(shown, /OK: roll three dice/);
+  assert.doesNotMatch(shown, /Rolly is playing/);
+  assert.ok(faces(tree.root).every(dimmedWithoutRing));
+
+  // Nothing passes the turn but the person: only the guard is waiting.
+  assert.deepEqual(clock.waits(), [OK_GUARD_MS]);
+  send('enter');
+  assert.match(text(tree.root), /TURN 2/);
   clock.next();
-  assert.match(text(tree.root), /White to play · you/);
-  assert.match(text(tree.root), /TURN 3/);
+  assert.deepEqual(clock.waits(), []);
+  assert.match(text(tree.root), /Rolly can't move/);
+
+  // One OK: the turn passes and the person's dice are thrown, heard as a roll.
+  sounds.played.length = 0;
+  send('enter');
+  shown = text(tree.root);
+  assert.match(shown, /TURN 3/);
+  assert.match(shown, /No legal moves · you/);
+  assert.deepEqual(sounds.played, [['dice_roll', 'no_move']]);
   act(() => tree.unmount());
 });
 
