@@ -25,6 +25,15 @@ RECORD_SECONDS = 142
 OUTRO_SECONDS = 8
 
 def run(cmd, check=True):
+    """Run a subprocess command, print it, and exit on non-zero return code.
+
+    Args:
+        cmd: Command list to pass to subprocess.run.
+        check: When True (default), exit the process if the command fails.
+
+    Returns:
+        The CompletedProcess result object.
+    """
     print(f"-> {' '.join(cmd)}")
     res = subprocess.run(cmd, capture_output=True, text=True)
     if check and res.returncode != 0:
@@ -33,10 +42,24 @@ def run(cmd, check=True):
     return res
 
 def press(*keys, gap=0.55):
+    """Send one or more D-pad / remote key presses to the Virtual Device.
+
+    Args:
+        *keys: Key names accepted by ``vvd press`` (e.g. ``"up"``, ``"ok"``).
+        gap: Pause in seconds between consecutive key presses (default 0.55 s).
+    """
     cmd = [VVD_CLI, "press", *keys, "--gap", str(int(gap * 1000))]
     run(cmd)
 
 def create_watermark(path="/tmp/watermark.png"):
+    """Render the 'Vega Virtual Device on macOS' badge and save it as a PNG.
+
+    The badge is a transparent 1920×1080 overlay with a rounded-rectangle
+    badge in the top-right corner, suitable for use as an ffmpeg overlay input.
+
+    Args:
+        path: Destination file path for the watermark PNG.
+    """
     im = Image.new("RGBA", (1920, 1080), (0, 0, 0, 0))
     draw = ImageDraw.Draw(im)
     font = ImageFont.truetype(FONT_PATH, 20)
@@ -74,6 +97,15 @@ def create_watermark(path="/tmp/watermark.png"):
     print(f"Created watermark badge at {path}")
 
 def create_outro_card(path="/tmp/outro.png"):
+    """Render the 8-second outro summary card and save it as a PNG.
+
+    The card highlights Fire TV couch ergonomics, the AGPL-3.0 licence, and the
+    open-source repository URL. It is appended to the recording as a static
+    image converted to a short H.264 clip by ffmpeg.
+
+    Args:
+        path: Destination file path for the outro PNG.
+    """
     outro = Image.new("RGBA", (1920, 1080), (18, 39, 55, 255))
     draw = ImageDraw.Draw(outro)
 
@@ -157,6 +189,15 @@ def create_outro_card(path="/tmp/outro.png"):
 VDA_CLI = "/Users/jegors/vega/sdk/vega-sdk/main/0.24.12044/bin/tools/vda"
 
 def main():
+    """Orchestrate the full demo recording pipeline.
+
+    Steps:
+        1. Generate graphics assets (watermark badge, outro card).
+        2. Reinstall a clean copy of the app on the Virtual Device.
+        3. Start VVD screen-capture and drive scripted D-pad interactions.
+        4. Apply the watermark overlay and append the outro card.
+        5. Validate the final MP4 against the demo submission requirements.
+    """
     print("=== Step 1: Generating graphics assets ===")
     create_watermark("/tmp/watermark.png")
     create_outro_card("/tmp/outro.png")
@@ -336,6 +377,12 @@ def main():
         if err:
             print(f"Recorder stderr:\n{err}")
 
+    # Fail early on a non-zero recorder exit so a truncated or empty file is
+    # never passed to the ffmpeg pipeline below.
+    if rec_proc.returncode != 0:
+        print(f"Error: recorder exited with code {rec_proc.returncode}. Aborting.")
+        sys.exit(rec_proc.returncode)
+
     # Check raw video
     if not os.path.exists(raw_video):
         print(f"Error: {raw_video} was not generated!")
@@ -400,13 +447,73 @@ def main():
     ])
 
     print("\n=== Step 5: Validating final submission video ===")
-    probe = run(["ffprobe", "-hide_banner", final_output])
-    print(probe.stderr)
+    import json as _json
+
+    probe_res = run([
+        "ffprobe",
+        "-v", "quiet",
+        "-print_format", "json",
+        "-show_format",
+        "-show_streams",
+        final_output,
+    ])
+    probe_data = _json.loads(probe_res.stdout)
+
+    # --- validate requirements ---
+    errors = []
+
+    # Duration must be strictly under 3 minutes (180 s)
+    duration_s = float(probe_data["format"].get("duration", 0))
+    if duration_s <= 0 or duration_s >= 180:
+        errors.append(f"Duration {duration_s:.2f}s is not in range (0, 180)")
+
+    video_stream = next(
+        (s for s in probe_data.get("streams", []) if s.get("codec_type") == "video"),
+        None,
+    )
+    audio_stream = next(
+        (s for s in probe_data.get("streams", []) if s.get("codec_type") == "audio"),
+        None,
+    )
+
+    if video_stream is None:
+        errors.append("No video stream found")
+    else:
+        w = video_stream.get("width", 0)
+        h = video_stream.get("height", 0)
+        if w != 1920 or h != 1080:
+            errors.append(f"Resolution {w}x{h} != 1920x1080")
+
+        # r_frame_rate is a rational string like "30/1"
+        r_fr = video_stream.get("r_frame_rate", "0/1")
+        num, den = (int(x) for x in r_fr.split("/"))
+        fps = num / den if den else 0
+        if abs(fps - 30) > 0.5:
+            errors.append(f"Frame rate {fps:.2f} fps != 30 fps")
+
+    if audio_stream is None:
+        errors.append("No audio stream found")
+    else:
+        acodec = audio_stream.get("codec_name", "")
+        if acodec != "aac":
+            errors.append(f"Audio codec '{acodec}' != 'aac'")
+
+    if errors:
+        print("Validation FAILED:")
+        for e in errors:
+            print(f"  ✗ {e}")
+        sys.exit(1)
 
     size_mb = os.path.getsize(final_output) / (1024 * 1024)
+    print(f"  ✓ Duration: {duration_s:.2f}s (< 180s)")
+    if video_stream:
+        print(f"  ✓ Resolution: {video_stream['width']}x{video_stream['height']}")
+        print(f"  ✓ Frame rate: {fps:.0f} fps")
+    if audio_stream:
+        print(f"  ✓ Audio: {audio_stream['codec_name']}")
+    print(f"  ✓ Size: {size_mb:.2f} MB")
     print(f"\nFinal Video Created Successfully!")
     print(f"Path: {os.path.abspath(final_output)}")
-    print(f"Size: {size_mb:.2f} MB")
 
 if __name__ == "__main__":
     main()

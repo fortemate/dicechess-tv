@@ -147,6 +147,10 @@ export const FLIP_FADE_MS = 100;
 const useFlipFade = (flipped: boolean) => {
   const reduced = useReducedMotion();
   const [opacity] = React.useState(() => new Animated.Value(1));
+  // displayedRef shadows state.displayed during a two-phase animation so that
+  // committing the new orientation (setState) does not re-run this effect and
+  // inadvertently cancel the fade-in that is still in progress (#120).
+  const displayedRef = React.useRef(flipped);
   const [state, setState] = React.useState<{
     target: boolean;
     displayed: boolean;
@@ -160,7 +164,7 @@ const useFlipFade = (flipped: boolean) => {
   }
 
   React.useEffect(() => {
-    if (reduced !== false || state.displayed === state.target) {
+    if (reduced !== false || displayedRef.current === state.target) {
       opacity.setValue(1);
       return;
     }
@@ -182,6 +186,10 @@ const useFlipFade = (flipped: boolean) => {
     fadeOut.start(({ finished }) => {
       if (!live) return;
       if (finished) {
+        // Update the ref first so that the setState below does not cause this
+        // effect to re-run (state.displayed is the effect dependency, not the
+        // ref), keeping fadeIn alive through the full duration.
+        displayedRef.current = state.target;
         setState((current) => ({ ...current, displayed: current.target }));
         fadeIn.start(() => {
           if (live) opacity.setValue(1);
