@@ -146,16 +146,21 @@ export const FLIP_FADE_MS = 100;
 
 const useFlipFade = (flipped: boolean) => {
   const reduced = useReducedMotion();
-  const [displayed, setDisplayed] = React.useState(flipped);
-  const opacity = React.useRef(new Animated.Value(1)).current;
+  const [opacity] = React.useState(() => new Animated.Value(1));
+  const [state, setState] = React.useState<{
+    target: boolean;
+    displayed: boolean;
+  }>({ target: flipped, displayed: flipped });
+
+  if (state.target !== flipped) {
+    setState({
+      target: flipped,
+      displayed: reduced !== false ? flipped : state.displayed,
+    });
+  }
 
   React.useEffect(() => {
-    if (displayed === flipped) return;
-    if (reduced !== false) {
-      setDisplayed(flipped);
-      opacity.setValue(1);
-      return;
-    }
+    if (state.displayed === state.target) return;
     const fadeOut = Animated.timing(opacity, {
       toValue: 0,
       duration: FLIP_FADE_MS,
@@ -164,7 +169,7 @@ const useFlipFade = (flipped: boolean) => {
     });
     fadeOut.start(({ finished }) => {
       if (!finished) return;
-      setDisplayed(flipped);
+      setState((current) => ({ ...current, displayed: current.target }));
       Animated.timing(opacity, {
         toValue: 1,
         duration: FLIP_FADE_MS,
@@ -173,8 +178,9 @@ const useFlipFade = (flipped: boolean) => {
       }).start();
     });
     return () => fadeOut.stop();
-  }, [flipped, displayed, reduced, opacity]);
+  }, [state.target, state.displayed, opacity]);
 
+  const displayed = reduced !== false ? flipped : state.displayed;
   return { displayed, opacity };
 };
 
