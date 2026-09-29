@@ -34,6 +34,13 @@ npm test         # the address format of the variants
 `dist/` is self-contained and uses relative paths, so it can be served from any
 directory of any static host.
 
+The project site's deployment builds it and publishes it with the site, at
+<https://fortemate.github.io/dicechess-tv/bench/>, on every push to `main` that
+touches the bench or what it draws
+([`deploy-site.yaml`](../.github/workflows/deploy-site.yaml)). Like the site's
+tester pages it is unlisted: nothing links to it, and it asks search engines
+not to index it.
+
 ## Keys
 
 | Key                 | Remote             |
