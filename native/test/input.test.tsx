@@ -245,6 +245,18 @@ test('a complete turn plays out on the remote and hands over', () => {
 
   send(Select);
   assert.match(state(), /turn 2 \| phase roll \| side b/);
+  assert.equal(
+    overlays(root, (s) => s.backgroundColor === THEME.lastMove).length,
+    2,
+  );
+
+  send(Select);
+  assert.match(state(), /turn 2 \| phase move \| side b/);
+  assert.match(state(), /last -/);
+  assert.equal(
+    overlays(root, (s) => s.backgroundColor === THEME.lastMove).length,
+    0,
+  );
 });
 
 test('with a piece in hand the cursor lands only on its destinations', () => {

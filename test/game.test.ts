@@ -415,3 +415,20 @@ test('a save whose turn left the tree is refused as damaged, and its legal prefi
   };
   assert.deepEqual(decodeGame(JSON.stringify(prefix)), prefix);
 });
+
+test('rolling dice clears lastMove from previous turn', () => {
+  let game = newGame('hotseat', 'clear-last-move');
+  // Knight, king, king: the knight moves, then nothing can use the kings.
+  game = rollGame(game, [2, 6, 6]);
+  game = moveGame(game, 'b1c3');
+  assert.equal(game.lastMove, 'b1c3');
+  assert.equal(game.phase, 'handoff');
+  game = nextTurn(game);
+  assert.equal(game.phase, 'roll');
+  // Before the roll, lastMove is still preserved so the next player sees what was played
+  assert.equal(game.lastMove, 'b1c3');
+  // Rolling the dice clears lastMove
+  game = rollGame(game, [2, 6, 6]);
+  assert.equal(game.phase, 'move');
+  assert.equal(game.lastMove, null);
+});

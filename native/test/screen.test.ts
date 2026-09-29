@@ -426,6 +426,20 @@ test('an interrupted turn is recomputed rather than resumed half-played', () => 
   assert.equal(finished.game.turn, 3);
 });
 
+test('rolling the dice clears last move until the next action is played', () => {
+  const pawns: ScreenOptions = { ...options, roll: () => [1, 1, 1] };
+  const finished = settle(handedToBot(), pawns);
+  // Bot has finished turn 2 and handed to human for turn 3:
+  assert.equal(finished.game.turn, 3);
+  assert.equal(finished.game.phase, 'roll');
+  assert.notEqual(finished.game.lastMove, null);
+
+  // Human rolls with OK/select:
+  const rolled = drive(finished, 'select');
+  assert.equal(rolled.game.phase, 'move');
+  assert.equal(rolled.game.lastMove, null);
+});
+
 // ── Settings: music, its volume and the sound effects (#76) ────────────────────
 
 const toSettings = (state: ScreenState): ScreenState => {

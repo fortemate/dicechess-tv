@@ -272,6 +272,7 @@ export function rollGame(game: Game, roll: number[]): Game {
     revision: game.revision + 1,
     roll: [...roll],
     moves: [],
+    lastMove: null,
   });
 }
 export function moveGame(game: Game, move: string): Game {
