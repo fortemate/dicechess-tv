@@ -4,6 +4,7 @@ import { defineConfig } from 'astro/config';
 import { satteri } from '@astrojs/markdown-satteri';
 import sitemap from '@astrojs/sitemap';
 import starlight from '@astrojs/starlight';
+import mermaid from 'astro-mermaid';
 
 const REPOSITORY = 'https://github.com/fortemate/dicechess-tv';
 
@@ -51,6 +52,7 @@ export default defineConfig({
     processor: satteri({ features: { headingAttributes: true } }),
   },
   integrations: [
+    mermaid(),
     starlight({
       title: 'Dice Chess TV',
       description:
