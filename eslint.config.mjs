@@ -9,7 +9,16 @@ import tseslint from 'typescript-eslint';
 import globals from 'globals';
 
 export default tseslint.config(
-  { ignores: ['native/', 'site/dist/', 'site/.astro/', 'web/dist/'] },
+  {
+    ignores: [
+      'native/',
+      'site/dist/',
+      'site/.astro/',
+      'web/dist/',
+      'dist/',
+      'dist-vega/',
+    ],
+  },
   js.configs.recommended,
   tseslint.configs.recommended,
   {
