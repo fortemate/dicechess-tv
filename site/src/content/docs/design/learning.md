@@ -38,7 +38,7 @@ The rule that surprises new players most is that a roll can leave nothing to pla
 - about one roll in twelve;
 - nearly a third of first rolls, because at the start only pawns and knights can move (measured over 300 simulated games, [#85](https://github.com/fortemate/dicechess-tv/issues/85)).
 
-So the app teaches the rule where it happens. The headline reads "No legal moves", the dice dim, and a line under them gives the rules guide's reason: "No die can be used — the turn passes". OK then passes the turn, but not in the first 0.7 seconds, so that a double press on the remote cannot skip the notice.
+So the app teaches the rule where it happens. The headline reads "No legal moves", the dice dim, and a line under them gives the rules guide's reason: "No die can be used — the turn passes". When it is the computer's roll, the headline names it instead: "Rampage can't move". The notice stays until OK, whoever rolled: on your own roll OK passes the turn, and on the computer's it passes the turn and throws your dice, so reading it costs no extra press. OK is ignored for the first 0.7 seconds, so that a double press on the remote cannot skip the notice.
 
 These behaviours are covered by the app's tests and were played on the Vega Virtual Device; not yet on a Fire TV Stick.
 

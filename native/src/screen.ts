@@ -81,16 +81,19 @@ export type ScreenAction =
   | { kind: 'musicAvailable'; available: boolean };
 
 // How long the opponent's next step waits, in milliseconds: long enough to watch
-// each roll and move land. After a roll with nothing to play it holds longer, so
-// the notice can be read before the turn passes; the web client holds it for
-// 1500 ms as well (#85).
+// each roll and move land.
 export const BOT_STEP_MS = 600;
-export const PASS_HOLD_MS = 1500;
-export const botWait = (game: Game): number =>
-  emptyRoll(game) ? PASS_HOLD_MS : BOT_STEP_MS;
 
-// How long OK is ignored after a person's roll with nothing to play, so that a
-// double press on the remote cannot pass the turn before the notice is seen.
+// The opponent owes a step, which the screen takes for it on a timer. Its roll
+// with nothing to play is not one: the notice stays until the person presses
+// OK, which passes the turn and rolls their own dice (#149), so it can be read
+// for as long as it takes without adding a press.
+export const botOwes = (game: Game): boolean =>
+  botToAct(game) && !emptyRoll(game);
+
+// How long OK is ignored after a roll with nothing to play, either side's, so
+// that a double press on the remote cannot pass the turn before the notice is
+// seen.
 export const OK_GUARD_MS = 700;
 
 // `home` is the screen shown before a game is in play; the rest sit over the
@@ -155,7 +158,7 @@ export type ScreenState = {
   musicAvailable: boolean;
   // Whether the board turns to the side to move in hotseat (#120).
   turnHotseat: boolean;
-  // OK is ignored: a person has just rolled nothing to play. The app clears it
+  // OK is ignored: a roll has just left nothing to play. The app clears it
   // after OK_GUARD_MS; the other keys work throughout.
   guarded: boolean;
 };
@@ -293,7 +296,7 @@ const board = (
 });
 
 // A played move clears the selection, and the cursor settles for the next
-// choice. A person who has just rolled nothing to play is guarded.
+// choice. A roll that has just left nothing to play is guarded.
 const played = (
   state: ScreenState,
   game: Game,
@@ -307,7 +310,7 @@ const played = (
   music: state.music,
   musicAvailable: state.musicAvailable,
   turnHotseat: state.turnHotseat,
-  guarded: emptyRoll(game) && !botToAct(game),
+  guarded: emptyRoll(game),
 });
 
 const step = (key: BoardKey, index: number, length: number): number =>
@@ -354,7 +357,7 @@ export const initialState = (
 // opponent did cannot read the game.
 function botStep(state: ScreenState, options: ScreenOptions): ScreenState {
   const { game, pending } = state;
-  if (!botToAct(game)) return state;
+  if (!botOwes(game)) return state;
 
   // Mid-path: reveal the next action. moveGame revalidates it against the
   // position it is actually applied to.
@@ -372,7 +375,12 @@ function botStep(state: ScreenState, options: ScreenOptions): ScreenState {
   // or the turn count has run out, the result is a draw.
   if (game.phase === 'roll') {
     const next = rollGame(game, options.roll());
-    return { ...state, game: next, overlay: after(next) };
+    return {
+      ...state,
+      game: next,
+      overlay: after(next),
+      guarded: emptyRoll(next),
+    };
   }
   if (game.phase === 'handoff') return { ...state, game: nextTurn(game) };
 
@@ -675,7 +683,7 @@ const onBoard = (
   const { game } = state;
   if (game.phase === 'ended')
     return key === 'select' || key === 'back' ? show(state, HOME) : state;
-  const bot = botToAct(game);
+  const bot = botOwes(game);
   if (game.phase === 'move' && !bot) return onMove(state, key);
   // Otherwise Back opens the menu, and OK rolls the dice or passes the turn.
   // While the opponent owes an action the board takes no input but Back, so a
@@ -685,6 +693,10 @@ const onBoard = (
   if (game.phase === 'roll') {
     return played(state, rollGame(game, options.roll()));
   }
+  // OK after the opponent's empty roll is the person's roll: the one press
+  // they would have made on their own turn, made while the notice is up.
+  if (botToAct(game))
+    return played(state, rollGame(nextTurn(game), options.roll()));
   const next = nextTurn(game);
   const nextFocus =
     state.turnHotseat && next.mode === 'hotseat'
