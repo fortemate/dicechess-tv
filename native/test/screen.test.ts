@@ -206,6 +206,32 @@ test('the menu opens from the board and closes back to it', () => {
 
   assert.equal(drive(menu, 'select').overlay.kind, 'none');
   assert.equal(drive(menu, 'back').overlay.kind, 'none');
+  assert.equal(drive(menu, 'menu').overlay.kind, 'none');
+  assert.equal(drive(board, 'menu').overlay.kind, 'menu');
+});
+
+test('menu key drops a picked-up piece and opens the menu', () => {
+  const board = drive(fresh(), 'select', 'select');
+  const picked = drive(board, 'select');
+  assert.notEqual(picked.focus.selected, null);
+  const opened = drive(picked, 'menu');
+  assert.equal(opened.overlay.kind, 'menu');
+  assert.equal(opened.focus.selected, null);
+});
+
+test('menu key on secondary overlays returns to the main menu', () => {
+  const home = fresh();
+  const settings = drive(home, 'down', 'down', 'down', 'down', 'select');
+  assert.equal(settings.overlay.kind, 'settings');
+  assert.equal(drive(settings, 'menu').overlay.kind, 'home');
+
+  const opponent = drive(home, 'down', 'select');
+  assert.equal(opponent.overlay.kind, 'opponent');
+  assert.equal(drive(opponent, 'menu').overlay.kind, 'home');
+
+  const colour = drive(opponent, 'select');
+  assert.equal(colour.overlay.kind, 'colour');
+  assert.equal(drive(colour, 'menu').overlay.kind, 'home');
 });
 
 test('resigning asks first and hands the win to the other side', () => {

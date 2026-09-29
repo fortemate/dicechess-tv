@@ -117,6 +117,7 @@ const Left = 'left';
 const Right = 'right';
 const Select = 'enter';
 const Back = 'back';
+const Menu = 'menu';
 
 test('the screen subscribes to the TV event channel', () => {
   mount();
@@ -210,6 +211,20 @@ test('Back cancels a selection before it opens the menu', () => {
 
   send(Back);
   assert.match(state(), /overlay menu/);
+});
+
+test('Menu drops a selection and opens the menu immediately', () => {
+  const { state } = mount();
+  send(Select, Down, Left, Left, Left, Select);
+  assert.match(state(), /selected b1/);
+
+  send(Menu);
+  assert.match(state(), /overlay menu/);
+  assert.match(state(), /selected -/);
+  assert.match(state(), /dice "QRN"/);
+
+  send(Menu);
+  assert.match(state(), /overlay none/);
 });
 
 test('a complete turn plays out on the remote and hands over', () => {

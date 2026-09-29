@@ -59,14 +59,14 @@ export function tutorialReducer(
   if (state.exit) return state;
 
   if (state.finished)
-    return key === 'select' || key === 'back'
+    return key === 'select' || key === 'back' || key === 'menu'
       ? { ...state, exit: true }
       : state;
 
   // Between steps: OK goes on, Back leaves. The board takes no input, so a
   // stray press cannot undo what was just learned.
   if (state.complete) {
-    if (key === 'back') return { ...state, exit: true };
+    if (key === 'back' || key === 'menu') return { ...state, exit: true };
     if (key !== 'select') return state;
     return state.index + 1 < TUTORIAL.length
       ? atStep(state.index + 1)

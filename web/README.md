@@ -43,13 +43,14 @@ not to index it.
 
 ## Keys
 
-| Key                 | Remote             |
-| ------------------- | ------------------ |
-| Arrow keys          | D-pad              |
-| Enter or Space      | OK                 |
-| Escape or Backspace | Back               |
-| C                   | next vision filter |
-| V                   | next preset        |
+| Key                 | Remote                                        |
+| ------------------- | --------------------------------------------- |
+| Arrow keys          | D-pad                                         |
+| Enter or Space      | OK                                            |
+| Escape or Backspace | Back                                          |
+| M                   | Menu (verified in tests; not device evidence) |
+| C                   | next vision filter                            |
+| V                   | next preset                                   |
 
 Back where the television would close the app shows that it would, and the next
 key launches it again from its saved game. **New session** forgets the saved

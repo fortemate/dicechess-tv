@@ -40,6 +40,7 @@ const KEYS: Readonly<Record<string, BoardKey>> = {
   select: 'select',
   enter: 'select',
   kpenter: 'select',
+  menu: 'menu',
 };
 
 // Directions repeat while the button is held, which is how a cursor should walk

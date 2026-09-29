@@ -23,7 +23,7 @@ export const AboutScreen = ({ onExit, onState }: AboutScreenProps) => {
   // swapped this screen out must not leave twice.
   const [leaving, leave] = React.useReducer(
     (done: boolean, key: BoardKey) =>
-      done || key === 'select' || key === 'back',
+      done || key === 'select' || key === 'back' || key === 'menu',
     false,
   );
 

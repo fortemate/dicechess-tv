@@ -190,3 +190,15 @@ test('the worked example in #68: the pieces that can move follow maximal dice us
   const passed = nextTurn(rollGame(newGame('hotseat', 'example'), [5, 5, 6]));
   assert.deepEqual(movable(rollGame(passed, [1, 3, 5])), ['b7', 'd7', 'e7']);
 });
+
+test('menu with nothing selected asks to exit the board', () => {
+  const result = boardInput(at('b1'), 'menu', OPENING);
+  assert.deepEqual(result.focus, at('b1', null));
+  assert.deepEqual(result.action, { type: 'exit' });
+});
+
+test('menu drops a picked-up piece and asks to exit the board', () => {
+  const result = boardInput(at('c3', 'b1'), 'menu', OPENING);
+  assert.deepEqual(result.focus, at('b1', null));
+  assert.deepEqual(result.action, { type: 'exit' });
+});
