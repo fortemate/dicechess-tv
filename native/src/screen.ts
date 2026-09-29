@@ -38,22 +38,36 @@ import { DEFAULT_MUSIC, MUSIC_STEPS, type MusicSetting } from './musicSetting';
 
 export const START: Square = 'e2';
 
-// Where the cursor starts: on the person's own side of the board.
-const startFor = (human: Side | null): Square => (human === 'b' ? 'e7' : START);
+// Where the cursor starts: on the mover's own side of the board.
+export const startFor = (
+  human: Side | null,
+  isFlipped = human === 'b',
+): Square => (isFlipped ? 'e7' : START);
 
 // Against the bot a person plays the colour they chose, or one drawn for them.
 export const colourOptions = ['Random', 'White', 'Black'];
 const COLOURS: readonly ColourChoice[] = ['random', 'w', 'b'];
 
-// A person playing Black sees the board from Black's side.
-export const flipped = (game: Game): boolean => game.human === 'b';
+// A person playing Black sees the board from Black's side. In hotseat, turning
+// the board flips it for Black's turn (#120).
+export const flipped = (game: Game, turnHotseat = false): boolean =>
+  game.human === 'b' ||
+  (turnHotseat && game.mode === 'hotseat' && viewGame(game).side === 'b');
 
 // Where the cursor waits once the person has a piece to choose, after a roll or
 // an action (#68): on its square while that piece can still move, otherwise on
 // the central movable piece. On the opponent's turn it stays where it was.
-const settled = (focus: BoardFocus, game: Game): BoardFocus =>
+const settled = (
+  focus: BoardFocus,
+  game: Game,
+  turnHotseat = false,
+): BoardFocus =>
   game.phase === 'move' && !botToAct(game)
-    ? waitingFocus(focus.cursor, viewGame(game).legal, flipped(game))
+    ? waitingFocus(
+        focus.cursor,
+        viewGame(game).legal,
+        flipped(game, turnHotseat),
+      )
     : { ...focus, selected: null };
 
 // The screen advances on a key, on the local opponent taking its turn, or on
@@ -139,6 +153,8 @@ export type ScreenState = {
   // Whether this build has music. Without it the settings offer only the sound
   // effects, rather than switches that do nothing (#76).
   musicAvailable: boolean;
+  // Whether the board turns to the side to move in hotseat (#120).
+  turnHotseat: boolean;
   // OK is ignored: a person has just rolled nothing to play. The app clears it
   // after OK_GUARD_MS; the other keys work throughout.
   guarded: boolean;
@@ -151,11 +167,13 @@ export const settingsOptions = (
   sound: boolean,
   music: MusicSetting,
   musicAvailable = true,
+  turnHotseat = false,
 ): string[] => [
   ...(musicAvailable
     ? [`Music: ${music.on ? 'on' : 'off'}`, `Music volume: ${music.volume}`]
     : []),
   `Sound effects: ${sound ? 'on' : 'off'}`,
+  `Turn board in hotseat: ${turnHotseat ? 'on' : 'off'}`,
 ];
 
 export type ScreenOptions = {
@@ -259,7 +277,8 @@ const board = (
     sound,
     music,
     musicAvailable,
-  }: Pick<ScreenState, 'sound' | 'music' | 'musicAvailable'>,
+    turnHotseat,
+  }: Pick<ScreenState, 'sound' | 'music' | 'musicAvailable' | 'turnHotseat'>,
   cursor: Square = START,
 ): ScreenState => ({
   game,
@@ -269,19 +288,25 @@ const board = (
   sound,
   music,
   musicAvailable,
+  turnHotseat,
   guarded: false,
 });
 
 // A played move clears the selection, and the cursor settles for the next
 // choice. A person who has just rolled nothing to play is guarded.
-const played = (state: ScreenState, game: Game): ScreenState => ({
+const played = (
+  state: ScreenState,
+  game: Game,
+  nextFocus?: BoardFocus,
+): ScreenState => ({
   game,
-  focus: settled(state.focus, game),
+  focus: nextFocus ?? settled(state.focus, game, state.turnHotseat),
   overlay: after(game),
   pending: [],
   sound: state.sound,
   music: state.music,
   musicAvailable: state.musicAvailable,
+  turnHotseat: state.turnHotseat,
   guarded: emptyRoll(game) && !botToAct(game),
 });
 
@@ -298,12 +323,18 @@ export const initialState = (
   sound = true,
   music: MusicSetting = DEFAULT_MUSIC,
   musicAvailable = false,
+  turnHotseat = false,
 ): ScreenState => {
   const game = restored ?? newGame('hotseat', options.newId());
+  const isFlipped = flipped(game, turnHotseat);
   return {
     game,
     // A game restored mid-turn waits on a piece that can move.
-    focus: settled({ cursor: startFor(game.human), selected: null }, game),
+    focus: settled(
+      { cursor: startFor(game.human, isFlipped), selected: null },
+      game,
+      turnHotseat,
+    ),
     // Always the home screen: a new launch has a mode to choose, and a restored
     // game should be resumed deliberately rather than dropping the player
     // mid-turn into a game they may not remember.
@@ -312,6 +343,7 @@ export const initialState = (
     sound,
     music,
     musicAvailable,
+    turnHotseat,
     guarded: false,
   };
 };
@@ -564,7 +596,12 @@ const onSettings: Handler<'settings'> = (state, overlay, key) => {
             index: menuOptions(state.game).indexOf(SETTINGS_OPTION),
           },
     );
-  const rows = settingsOptions(state.sound, state.music, state.musicAvailable);
+  const rows = settingsOptions(
+    state.sound,
+    state.music,
+    state.musicAvailable,
+    state.turnHotseat,
+  );
   if (key === 'up' || key === 'down')
     return moved(state, overlay, key, rows.length);
   // What a row is comes from its label: the rows differ with the build.
@@ -579,7 +616,9 @@ const onSettings: Handler<'settings'> = (state, overlay, key) => {
   }
   if (row.startsWith('Music:'))
     return { ...state, music: { ...state.music, on: !state.music.on } };
-  return { ...state, sound: !state.sound };
+  if (row.startsWith('Sound effects:'))
+    return { ...state, sound: !state.sound };
+  return { ...state, turnHotseat: !state.turnHotseat };
 };
 
 const onPromotion: Handler<'promotion'> = (state, overlay, key) => {
@@ -608,7 +647,7 @@ const onMove = (state: ScreenState, key: BoardKey): ScreenState => {
     state.focus,
     key,
     viewGame(game).legal,
-    flipped(game),
+    flipped(game, state.turnHotseat),
   );
   const focused = { ...state, focus: result.focus };
   switch (result.action.type) {
@@ -643,10 +682,15 @@ const onBoard = (
   // player cannot move its pieces for it; while a guard is up, no OK either.
   if (key === 'back') return show(state, MENU);
   if (key !== 'select' || bot || state.guarded) return state;
-  return played(
-    state,
-    game.phase === 'roll' ? rollGame(game, options.roll()) : nextTurn(game),
-  );
+  if (game.phase === 'roll') {
+    return played(state, rollGame(game, options.roll()));
+  }
+  const next = nextTurn(game);
+  const nextFocus =
+    state.turnHotseat && next.mode === 'hotseat'
+      ? { cursor: startFor(next.human, flipped(next, true)), selected: null }
+      : undefined;
+  return played(state, next, nextFocus);
 };
 
 export function screenReducer(

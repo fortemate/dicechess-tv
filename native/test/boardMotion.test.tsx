@@ -215,3 +215,25 @@ test('where the platform cannot answer, pieces slide', async () => {
     assert.equal(flights(board.root()).length, 1, query);
   }
 });
+
+test('when the board flips with full motion, it fades out and back in', async () => {
+  const board = await mount({ board: INITIAL, lastMove: null, flipped: false });
+  board.move({ board: INITIAL, lastMove: null, flipped: true });
+  assert.ok(globals.__heldSlides!.length > 0);
+  const fadeOut = globals.__heldSlides![0];
+  assert.equal(fadeOut.config.toValue, 0);
+  await act(async () => {
+    fadeOut.done?.({ finished: true });
+  });
+  // After fade out completes, fade in is scheduled
+  assert.ok(globals.__heldSlides!.length > 1);
+  const fadeIn = globals.__heldSlides![1];
+  assert.equal(fadeIn.config.toValue, 1);
+});
+
+test('when the platform asks for less motion, the board flips at once', async () => {
+  globals.__reduceMotion = true;
+  const board = await mount({ board: INITIAL, lastMove: null, flipped: false });
+  board.move({ board: INITIAL, lastMove: null, flipped: true });
+  assert.equal(globals.__heldSlides!.length, 0);
+});

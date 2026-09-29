@@ -141,29 +141,69 @@ const useMotion = (board: string, lastMove: string | null): Motion | null => {
   return motion;
 };
 
+// How long the board fades out and in when it turns for a player (#120).
+export const FLIP_FADE_MS = 100;
+
+const useFlipFade = (flipped: boolean) => {
+  const reduced = useReducedMotion();
+  const [displayed, setDisplayed] = React.useState(flipped);
+  const opacity = React.useRef(new Animated.Value(1)).current;
+
+  React.useEffect(() => {
+    if (displayed === flipped) return;
+    if (reduced !== false) {
+      setDisplayed(flipped);
+      opacity.setValue(1);
+      return;
+    }
+    const fadeOut = Animated.timing(opacity, {
+      toValue: 0,
+      duration: FLIP_FADE_MS,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    });
+    fadeOut.start(({ finished }) => {
+      if (!finished) return;
+      setDisplayed(flipped);
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: FLIP_FADE_MS,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }).start();
+    });
+    return () => fadeOut.stop();
+  }, [flipped, displayed, reduced, opacity]);
+
+  return { displayed, opacity };
+};
+
 export const Board = ({ size, ...input }: BoardProps) => {
   const edge = Math.floor(size / 8);
+  const { displayed: flipped, opacity } = useFlipFade(input.flipped ?? false);
   const motion = useMotion(input.board, input.lastMove ?? null);
-  const rows = boardView(input);
+  const rows = boardView({ ...input, flipped });
   const shown = motion ? inFlight(rows, motion.plan) : rows;
   return (
     <View style={{ width: edge * 8, height: edge * 8 }}>
-      {shown.map((row) => (
-        <View key={row[0].square} style={{ flexDirection: 'row' }}>
-          {row.map((view) => (
-            <Square key={view.square} view={view} edge={edge} />
-          ))}
-        </View>
-      ))}
-      {motion?.plan.slides.map((slide) => (
-        <Flight
-          key={`${motion.id}-${slide.from}`}
-          slide={slide}
-          progress={motion.progress}
-          edge={edge}
-          flipped={input.flipped ?? false}
-        />
-      ))}
+      <Animated.View style={{ width: edge * 8, height: edge * 8, opacity }}>
+        {shown.map((row) => (
+          <View key={row[0].square} style={{ flexDirection: 'row' }}>
+            {row.map((view) => (
+              <Square key={view.square} view={view} edge={edge} />
+            ))}
+          </View>
+        ))}
+        {motion?.plan.slides.map((slide) => (
+          <Flight
+            key={`${motion.id}-${slide.from}`}
+            slide={slide}
+            progress={motion.progress}
+            edge={edge}
+            flipped={flipped}
+          />
+        ))}
+      </Animated.View>
     </View>
   );
 };

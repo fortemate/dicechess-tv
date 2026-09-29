@@ -16,7 +16,7 @@ Every feature here was played on the Vega Virtual Device, and the app's automate
 - **Three computer opponents**, Rolly, Grabby and Rampage, as either colour.
 - **Moves that slide** to their squares, so an opponent's turn can be followed.
 - **Dice that tumble in** on a roll, and dim when no legal turn can use them.
-- **Music that follows the game**, and **Settings** for the music and the sound effects.
+- **Music that follows the game**, and **Settings** for music, sound effects, and turning the board in hotseat ([#120](https://github.com/fortemate/dicechess-tv/issues/120)).
 - **Five public pre-releases**, with a playtest guide.
 
 ## Now
@@ -31,7 +31,6 @@ What the tester round prompts comes first. Already on the list:
 
 - a cursor that stands out when many squares are highlighted ([#121](https://github.com/fortemate/dicechess-tv/issues/121));
 - a mark for the pieces that can move that reads well with colour-vision deficiency ([#105](https://github.com/fortemate/dicechess-tv/issues/105));
-- in hotseat, turning the board to the side to move ([#120](https://github.com/fortemate/dicechess-tv/issues/120));
 - a smoother first run;
 - board themes and piece sets ([#75](https://github.com/fortemate/dicechess-tv/issues/75));
 - translations, starting with Latvian.

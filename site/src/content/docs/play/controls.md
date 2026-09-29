@@ -70,9 +70,19 @@ _Note on Keypad Enter (`kpenter`):_ The Vega Virtual Device on-screen remote ski
 - **Sofa Legibility:** All captions and labels use a minimum font size of 20 dp (exceeding Amazon's 14 sp guideline) for effortless reading from across the living room.
 - **Framed Cyan Focus:** Focused menu items, piece squares, and difficulty cards feature a luminous cyan border frame combined with a subtle fill, ensuring focus remains obvious regardless of lighting.
 
+### Hotseat Board Turning (Optional)
+
+When two players share a sofa or sit opposite each other, looking at an upside-down position can feel unnatural for the second player. In **Settings**, players can enable **Turn board in hotseat** (off by default):
+
+- The board smoothly turns to the side to move at turn boundaries (fading out for 100 ms and back in for 100 ms in the new orientation).
+- Arrow navigation naturally follows the television screen (Up moves towards the top of the TV regardless of board orientation).
+- The cursor starts on the active player's side (`e2` for White, `e7` for Black).
+- The setting is saved to device storage via MMKV and persists across application restarts.
+
 ### Reduced Motion Support
 
 For players sensitive to motion or animation effects, the application detects `AccessibilityInfo.isReduceMotionEnabled`. When enabled:
 
 - Piece moves draw immediately at their destinations rather than sliding across the board.
 - Dice land instantly without 3D tumbling animations.
+- The board flips immediately between turns in hotseat without fading out and back in.
