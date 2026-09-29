@@ -12,6 +12,7 @@ import {
   colourOptions,
   resumable,
   botWait,
+  flipped,
   BOT_STEP_MS,
   PASS_HOLD_MS,
   type ScreenOptions,
@@ -412,17 +413,23 @@ const toSettings = (state: ScreenState): ScreenState => {
 const withMusic = (state: ScreenState): ScreenState =>
   screenReducer(state, { kind: 'musicAvailable', available: true }, options);
 
-test('without music in the build, Settings offers only the sound effects', () => {
+test('without music in the build, Settings offers sound effects and hotseat board turning', () => {
   const settings = toSettings(fresh());
   assert.equal(settings.musicAvailable, false);
   assert.deepEqual(
-    settingsOptions(settings.sound, settings.music, settings.musicAvailable),
-    ['Sound effects: on'],
+    settingsOptions(
+      settings.sound,
+      settings.music,
+      settings.musicAvailable,
+      settings.turnHotseat,
+    ),
+    ['Sound effects: on', 'Turn board in hotseat: off'],
   );
-  // The one row is the sound effects, and the arrows stay on it.
+  // Down moves between sound effects and hotseat board turning.
   assert.equal(drive(settings, 'select').sound, false);
-  assert.equal(drive(settings, 'down').overlay.kind, 'settings');
-  assert.equal(drive(settings, 'down', 'select').sound, false);
+  const hotseat = drive(settings, 'down');
+  assert.equal(hotseat.overlay.kind, 'settings');
+  assert.equal(drive(hotseat, 'select').turnHotseat, true);
   // When the catalogue turns up, the rows grow and the cursor starts at the top.
   const grown = withMusic(drive(settings, 'down'));
   assert.equal(grown.musicAvailable, true);
@@ -436,11 +443,15 @@ test('Settings opens from the home menu on music, and Back returns to it', () =>
     index: 0,
     from: 'home',
   });
-  assert.deepEqual(settingsOptions(settings.sound, settings.music), [
-    'Music: on',
-    'Music volume: 7',
-    'Sound effects: on',
-  ]);
+  assert.deepEqual(
+    settingsOptions(settings.sound, settings.music, true, settings.turnHotseat),
+    [
+      'Music: on',
+      'Music volume: 7',
+      'Sound effects: on',
+      'Turn board in hotseat: off',
+    ],
+  );
   const back = drive(settings, 'back');
   assert.equal(back.overlay.kind, 'home');
   assert.equal(
@@ -449,7 +460,7 @@ test('Settings opens from the home menu on music, and Back returns to it', () =>
   );
 });
 
-test('OK or the arrows sideways flip music and the sound effects', () => {
+test('OK or the arrows sideways flip music, sound effects, and hotseat board turning', () => {
   const settings = toSettings(withMusic(fresh()));
   const musicOff = drive(settings, 'select');
   assert.equal(musicOff.music.on, false);
@@ -457,9 +468,13 @@ test('OK or the arrows sideways flip music and the sound effects', () => {
   const effects = drive(settings, 'down', 'down');
   assert.equal(drive(effects, 'select').sound, false);
   assert.equal(drive(effects, 'left').sound, false);
+  // Down once more reaches hotseat board turning.
+  const hotseat = drive(effects, 'down');
+  assert.equal(drive(hotseat, 'select').turnHotseat, true);
+  assert.equal(drive(hotseat, 'right').turnHotseat, true);
   // Neither touches the other, nor leaves the screen.
-  assert.equal(drive(effects, 'select').music.on, true);
-  assert.equal(drive(effects, 'select').overlay.kind, 'settings');
+  assert.equal(drive(hotseat, 'select').music.on, true);
+  assert.equal(drive(hotseat, 'select').overlay.kind, 'settings');
 });
 
 test('the volume moves one step per press and stops at both ends', () => {
@@ -947,4 +962,102 @@ test('a rematch keeps the opponent, and the cards open on it next time', () => {
   // Main menu, then Play the computer: the cards open on Rampage.
   const cards = drive(over, 'down', 'select', 'down', 'select');
   assert.deepEqual(cards.overlay, { kind: 'opponent', index: 2, from: 'home' });
+});
+
+// ── Hotseat board turning (#120) ─────────────────────────────────────────────
+
+test('when Turn board in hotseat is on, the board turns for Black and cursor starts on Black side', () => {
+  let state = initialState(options, null, true, undefined, false, true);
+  state = drive(state, 'select');
+  assert.equal(state.game.mode, 'hotseat');
+  assert.equal(state.game.turn, 1);
+  assert.equal(flipped(state.game, state.turnHotseat), false);
+  assert.equal(state.focus.cursor, 'e2');
+
+  // White rolls and plays moves
+  state = drive(state, 'select');
+  while (state.game.phase === 'move') {
+    const move = viewGame(state.game).legal[0];
+    state = play(state, move);
+  }
+  assert.equal(state.game.phase, 'handoff');
+  assert.equal(flipped(state.game, state.turnHotseat), false);
+
+  // Turn handover to Black
+  state = drive(state, 'select');
+  assert.equal(state.game.turn, 2);
+  assert.equal(viewGame(state.game).side, 'b');
+  assert.equal(flipped(state.game, state.turnHotseat), true);
+  assert.equal(state.focus.cursor, 'e7');
+
+  // Black rolls and plays moves
+  state = drive(state, 'select');
+  while (state.game.phase === 'move') {
+    const move = viewGame(state.game).legal[0];
+    state = play(state, move);
+  }
+  assert.equal(state.game.phase, 'handoff');
+  assert.equal(flipped(state.game, state.turnHotseat), true);
+
+  // Turn handover back to White
+  state = drive(state, 'select');
+  assert.equal(state.game.turn, 3);
+  assert.equal(viewGame(state.game).side, 'w');
+  assert.equal(flipped(state.game, state.turnHotseat), false);
+  assert.equal(state.focus.cursor, 'e2');
+});
+
+test('when Turn board in hotseat is off, the board remains drawn from White side throughout hotseat', () => {
+  let state = initialState(options, null, true, undefined, false, false);
+  state = drive(state, 'select');
+  assert.equal(state.game.mode, 'hotseat');
+  assert.equal(flipped(state.game, state.turnHotseat), false);
+
+  // White rolls and plays moves
+  state = drive(state, 'select');
+  while (state.game.phase === 'move') {
+    const move = viewGame(state.game).legal[0];
+    state = play(state, move);
+  }
+  assert.equal(state.game.phase, 'handoff');
+
+  // Turn handover to Black: board does not flip when setting is off
+  state = drive(state, 'select');
+  assert.equal(state.game.turn, 2);
+  assert.equal(flipped(state.game, state.turnHotseat), false);
+});
+
+test('a saved hotseat game resumes in the right orientation when Turn board in hotseat is on', () => {
+  // A game handed to Black on turn 2
+  let state = initialState(options, null, true, undefined, false, true);
+  state = drive(state, 'select', 'select');
+  while (state.game.phase === 'move') {
+    state = play(state, viewGame(state.game).legal[0]);
+  }
+  state = drive(state, 'select');
+  assert.equal(state.game.turn, 2);
+  assert.equal(viewGame(state.game).side, 'b');
+
+  // Resuming this saved game with turnHotseat on
+  const resumed = initialState(
+    options,
+    state.game,
+    true,
+    undefined,
+    false,
+    true,
+  );
+  assert.equal(flipped(resumed.game, resumed.turnHotseat), true);
+  assert.equal(resumed.focus.cursor, 'e7');
+
+  // Resuming with turnHotseat off stays on White side
+  const resumedOff = initialState(
+    options,
+    state.game,
+    true,
+    undefined,
+    false,
+    false,
+  );
+  assert.equal(flipped(resumedOff.game, resumedOff.turnHotseat), false);
 });

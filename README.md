@@ -15,7 +15,7 @@ Dice Chess for Amazon Fire TV: two players sharing one screen and remote, or a g
 
 **Status: a React Native for Vega application that builds and runs from this repository.** `npm run build --prefix native` produces an installable package; it launches on the Vega Virtual Device in 227 ms and plays. Hotseat and three local opponents, from easy to hard, three-die turns, promotion, king capture, resignation, draw agreement, save and resume mid-turn, a completed-game ledger, an interactive tutorial and a rules guide are all implemented on the native board, driven entirely by D-pad, OK and Back.
 
-Also done: sound for every step of the game — chosen by ear, heard on the virtual device, and set on a settings screen in both menus — an icon and splash screen, and an About screen carrying the credits the asset licences require. Adaptive music follows the danger to the king, with four themes by pepka-prygni used with his permission. On the virtual device its own reports show it switching themes and stopping for the launcher, but it has not been checked by ear there yet ([#76](https://github.com/fortemate/dicechess-tv/issues/76)). Each move slides to its new square, so an opponent's turn can be followed ([#131](https://github.com/fortemate/dicechess-tv/issues/131)), and a roll tumbles in ([#99](https://github.com/fortemate/dicechess-tv/issues/99)). Not done: onboarding. Everything above is evidence from the **virtual** device; nothing has yet run on physical Fire TV hardware, and the emulator does not measure Stick performance.
+Also done: sound for every step of the game — chosen by ear, heard on the virtual device, and set on a settings screen in both menus — an icon and splash screen, and an About screen carrying the credits the asset licences require. Adaptive music follows the danger to the king, with four themes by pepka-prygni used with his permission. On the virtual device its own reports show it switching themes and stopping for the launcher, but it has not been checked by ear there yet ([#76](https://github.com/fortemate/dicechess-tv/issues/76)). Each move slides to its new square, so an opponent's turn can be followed ([#131](https://github.com/fortemate/dicechess-tv/issues/131)), a roll tumbles in ([#99](https://github.com/fortemate/dicechess-tv/issues/99)), and the board can turn to the side to move in hotseat ([#120](https://github.com/fortemate/dicechess-tv/issues/120)). Not done: onboarding. Everything above is evidence from the **virtual** device; nothing has yet run on physical Fire TV hardware, and the emulator does not measure Stick performance.
 
 ## Try it
 
@@ -40,7 +40,7 @@ The application has no network code, no accounts and no analytics. Games, result
 
 ## Product scope
 
-- Hotseat: two people take turns using one remote after each complete Dice Chess turn.
+- Hotseat: two people take turns using one remote after each complete Dice Chess turn, with an optional living-room setting to turn the board to the active player's side.
 - Several entirely local bots, starting with Random and Aggressive. The interface must never stall: Random turned out to need no thread of its own, and a stronger bot's strength comes from a bounded work budget rather than from wall-clock time.
 - No stake doubling, coins, wallets or betting in the initial game.
 - Local win/draw/loss (W/D/L) statistics, separated by opponent and hotseat mode.

@@ -91,6 +91,9 @@ export type GameScreenProps = {
   initialSound?: boolean;
   // Called when the settings change sound, so the app can save the choice.
   onSound?: (on: boolean) => void;
+  // Whether the board turns to the side to move in hotseat (#120).
+  initialTurnBoard?: boolean;
+  onTurnBoard?: (on: boolean) => void;
   // The adaptive music (#76). The screen says which theme fits what it shows;
   // whether music is on and how loud is the app's to apply and save.
   music?: Music;
@@ -279,6 +282,7 @@ const Panel = ({
   sound,
   music,
   hasMusic,
+  turnHotseat,
   selected,
   pressed,
 }: {
@@ -287,6 +291,7 @@ const Panel = ({
   sound: boolean;
   music: MusicSetting;
   hasMusic: boolean;
+  turnHotseat: boolean;
   selected: string | null;
   // OK is held: the focused option of an open menu shows it.
   pressed: boolean;
@@ -315,7 +320,7 @@ const Panel = ({
         <Choices
           title="Settings"
           note={hasMusic ? 'Left and Right change the volume.' : undefined}
-          options={settingsOptions(sound, music, hasMusic)}
+          options={settingsOptions(sound, music, hasMusic, turnHotseat)}
           index={overlay.index}
           pressed={pressed}
           afters={
@@ -426,6 +431,8 @@ export const GameScreen = ({
   sounds,
   initialSound = true,
   onSound,
+  initialTurnBoard = false,
+  onTurnBoard,
   music,
   initialMusic,
   onMusic,
@@ -445,11 +452,19 @@ export const GameScreen = ({
       sound,
       music: musicSetting,
       musicAvailable: hasMusic,
+      turnHotseat,
       guarded,
     },
     dispatch,
   ] = React.useReducer(reduce, initial, (restored) =>
-    initialState(options, restored, initialSound, initialMusic, musicAvailable),
+    initialState(
+      options,
+      restored,
+      initialSound,
+      initialMusic,
+      musicAvailable,
+      initialTurnBoard,
+    ),
   );
   React.useEffect(() => {
     dispatch({ kind: 'musicAvailable', available: musicAvailable });
@@ -550,6 +565,14 @@ export const GameScreen = ({
     onMusic?.(musicSetting);
   }, [musicSetting, onMusic]);
 
+  // Seeded like the sound, so opening the screen is not reported as a change.
+  const turnSetting = React.useRef(turnHotseat);
+  React.useEffect(() => {
+    if (turnHotseat === turnSetting.current) return;
+    turnSetting.current = turnHotseat;
+    onTurnBoard?.(turnHotseat);
+  }, [turnHotseat, onTurnBoard]);
+
   // The theme for what the screen shows, and over a game the danger to the king
   // at the start of this turn (#76). When a game has just ended the music falls
   // silent first, so the result's jingle is heard on its own.
@@ -611,7 +634,7 @@ export const GameScreen = ({
         lastMove={game.lastMove}
         selected={focus.selected}
         cursor={focus.cursor}
-        flipped={flipped(game)}
+        flipped={flipped(game, turnHotseat)}
         movable={movable}
       />
       <View style={{ flex: 1, paddingLeft: BOARD_GAP }}>
@@ -622,6 +645,7 @@ export const GameScreen = ({
           sound={sound}
           music={musicSetting}
           hasMusic={hasMusic}
+          turnHotseat={turnHotseat}
           selected={focus.selected}
           pressed={pressed}
         />

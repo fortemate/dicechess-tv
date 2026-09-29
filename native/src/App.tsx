@@ -25,6 +25,7 @@ import { GameScreen } from './GameScreen';
 import { MmkvSnapshotStore } from './mmkvStore';
 import { createSounds, type Sounds } from './sound';
 import { readSound, saveSound } from './soundSetting';
+import { readTurnBoard, saveTurnBoard } from './turnSetting';
 import { createMusic, loadCatalogue, type Music } from './music';
 import {
   readMusic,
@@ -199,6 +200,15 @@ export const App = ({
     [settings, music],
   );
 
+  // Whether the board turns to the side to move in hotseat (#120).
+  const [initialTurnBoard] = React.useState(() => readTurnBoard(settings));
+  const onTurnBoard = React.useCallback(
+    (on: boolean) => {
+      saveTurnBoard(settings, on);
+    },
+    [settings],
+  );
+
   // Time To Fully Drawn, one of the KPIs Amazon measures. A cool start is fully
   // drawn by the first render, since the saved game and the settings are read
   // synchronously and there is no loading frame.
@@ -267,6 +277,8 @@ export const App = ({
       sounds={sounds}
       initialSound={initialSound}
       onSound={onSound}
+      initialTurnBoard={initialTurnBoard}
+      onTurnBoard={onTurnBoard}
       music={music}
       initialMusic={initialMusic}
       onMusic={onMusic}
