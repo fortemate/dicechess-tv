@@ -16,7 +16,8 @@
 import type { Square } from './board.ts';
 import { central, jump, RULE } from './cursor.ts';
 
-export type BoardKey = 'up' | 'down' | 'left' | 'right' | 'select' | 'back';
+export type BoardKey =
+  'up' | 'down' | 'left' | 'right' | 'select' | 'back' | 'menu';
 
 export type BoardFocus = {
   cursor: Square;
@@ -86,6 +87,17 @@ export function boardInput(
   flipped = false,
 ): BoardInputResult {
   const layout = { rule: RULE, flipped };
+  if (key === 'menu') {
+    // Menu opens the menu overlay immediately: if a piece was picked up, it
+    // is put back down first so the board is clean when returning.
+    return {
+      focus: focus.selected
+        ? { cursor: focus.selected, selected: null }
+        : focus,
+      action: { type: 'exit' },
+    };
+  }
+
   if (key === 'back') {
     // Back never leaves the player stuck: it puts a picked-up piece down, with
     // the cursor back on it, and otherwise hands the decision up.

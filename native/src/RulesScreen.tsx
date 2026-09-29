@@ -26,7 +26,8 @@ type State = { index: number; exit: boolean };
 
 const reducer = (state: State, key: BoardKey): State => {
   if (state.exit) return state;
-  if (key === 'back' || key === 'select') return { ...state, exit: true };
+  if (key === 'back' || key === 'select' || key === 'menu')
+    return { ...state, exit: true };
   if (key === 'left' || key === 'right') return state;
   const step = key === 'up' ? -1 : 1;
   return {

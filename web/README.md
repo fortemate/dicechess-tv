@@ -48,6 +48,7 @@ not to index it.
 | Arrow keys          | D-pad              |
 | Enter or Space      | OK                 |
 | Escape or Backspace | Back               |
+| M                   | Menu               |
 | C                   | next vision filter |
 | V                   | next preset        |
 

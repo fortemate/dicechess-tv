@@ -461,7 +461,7 @@ type Handler<K extends Overlay['kind']> = (
 
 const onHome: Handler<'home'> = (state, overlay, key, options) => {
   const choices = homeOptions(resumable(state.game));
-  if (key === 'back') return state;
+  if (key === 'back' || key === 'menu') return state;
   if (key !== 'select') return moved(state, overlay, key, choices.length);
   const chosen = choices[overlay.index];
   const opens = OPENS.get(chosen);
@@ -500,6 +500,7 @@ const openerOf = (state: ScreenState, from: 'home' | 'menu'): Overlay =>
 
 // The cards: the arrows walk them, OK takes one to the choice of colour.
 const onOpponent: Handler<'opponent'> = (state, overlay, key) => {
+  if (key === 'menu') return show(state, HOME);
   if (key === 'back') return show(state, openerOf(state, overlay.from));
   if (key !== 'select') return moved(state, overlay, key, OPPONENTS.length);
   return show(state, {
@@ -511,6 +512,7 @@ const onOpponent: Handler<'opponent'> = (state, overlay, key) => {
 };
 
 const onColour: Handler<'colour'> = (state, overlay, key, options) => {
+  if (key === 'menu') return show(state, HOME);
   if (key === 'back')
     return show(state, {
       kind: 'opponent',
@@ -548,6 +550,7 @@ const cancelled = (
       };
 
 const onConfirm: Handler<'confirm'> = (state, overlay, key, options) => {
+  if (key === 'menu') return show(state, HOME);
   if (key === 'back') return show(state, cancelled(state, overlay));
   if (key !== 'select')
     return moved(state, overlay, key, confirmOptions.length);
@@ -561,7 +564,7 @@ const onConfirm: Handler<'confirm'> = (state, overlay, key, options) => {
 const onMenu: Handler<'menu'> = (state, overlay, key) => {
   const { game } = state;
   const choices = menuOptions(game);
-  if (key === 'back') return show(state, BOARD);
+  if (key === 'back' || key === 'menu') return show(state, BOARD);
   if (key !== 'select') return moved(state, overlay, key, choices.length);
   const chosen = choices[overlay.index];
   if (chosen === 'Resume') return show(state, BOARD);
@@ -591,6 +594,7 @@ const onMenu: Handler<'menu'> = (state, overlay, key) => {
 // Up and Down walk the settings. The arrows sideways change the volume on its
 // row and flip a switch on the others, as OK does, so either habit works.
 const onSettings: Handler<'settings'> = (state, overlay, key) => {
+  if (key === 'menu') return show(state, HOME);
   if (key === 'back')
     return show(
       state,
@@ -630,7 +634,7 @@ const onSettings: Handler<'settings'> = (state, overlay, key) => {
 };
 
 const onPromotion: Handler<'promotion'> = (state, overlay, key) => {
-  if (key === 'back') return show(state, BOARD);
+  if (key === 'back' || key === 'menu') return show(state, BOARD);
   if (key === 'select')
     return played(state, moveGame(state.game, overlay.moves[overlay.index]));
   return moved(state, overlay, key, overlay.moves.length);
@@ -639,7 +643,7 @@ const onPromotion: Handler<'promotion'> = (state, overlay, key) => {
 // Rematch starts again against the same opponent, with the same colour option:
 // Random draws a side again. Back, like Main menu, leaves for the main menu.
 const onResult: Handler<'result'> = (state, overlay, key, options) => {
-  if (key === 'back') return show(state, HOME);
+  if (key === 'back' || key === 'menu') return show(state, HOME);
   if (key !== 'select') return moved(state, overlay, key, resultOptions.length);
   if (resultOptions[overlay.index] === 'Main menu') return show(state, HOME);
   const { mode, colour } = state.game;
@@ -660,7 +664,7 @@ const onMove = (state: ScreenState, key: BoardKey): ScreenState => {
   const focused = { ...state, focus: result.focus };
   switch (result.action.type) {
     case 'exit':
-      return show(state, MENU);
+      return show(focused, MENU);
     case 'move':
       return played(focused, moveGame(game, result.action.move));
     case 'promote':
@@ -682,13 +686,15 @@ const onBoard = (
 ): ScreenState => {
   const { game } = state;
   if (game.phase === 'ended')
-    return key === 'select' || key === 'back' ? show(state, HOME) : state;
+    return key === 'select' || key === 'back' || key === 'menu'
+      ? show(state, HOME)
+      : state;
   const bot = botOwes(game);
   if (game.phase === 'move' && !bot) return onMove(state, key);
   // Otherwise Back opens the menu, and OK rolls the dice or passes the turn.
-  // While the opponent owes an action the board takes no input but Back, so a
+  // While the opponent owes an action the board takes no input but Back or Menu, so a
   // player cannot move its pieces for it; while a guard is up, no OK either.
-  if (key === 'back') return show(state, MENU);
+  if (key === 'back' || key === 'menu') return show(state, MENU);
   if (key !== 'select' || bot || state.guarded) return state;
   if (game.phase === 'roll') {
     return played(state, rollGame(game, options.roll()));

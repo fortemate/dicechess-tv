@@ -13,6 +13,8 @@ const REMOTE: Readonly<Record<string, string>> = {
   Enter: 'select',
   NumpadEnter: 'select',
   ' ': 'select',
+  m: 'menu',
+  M: 'menu',
 };
 
 const BACK: ReadonlySet<string> = new Set(['Escape', 'Backspace']);
