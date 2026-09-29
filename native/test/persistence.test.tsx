@@ -95,7 +95,7 @@ test('a turn in progress survives a relaunch exactly as it was left', () => {
   assert.match(second.state(), /overlay home/);
   send('enter');
   assert.match(second.state(), /overlay none \| turn 1 \| phase move/);
-  assert.match(second.state(), /dice "QR" \| legal 1/);
+  assert.match(second.state(), /dice "QR" \| playable "R" \| legal 1/);
   const saved = store().read()!;
   assert.deepEqual(saved.moves, ['b1c3']);
   assert.equal(saved.lastMove, 'b1c3');

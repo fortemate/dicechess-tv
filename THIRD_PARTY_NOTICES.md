@@ -4,7 +4,7 @@ Fortemate's code in this repository is licensed under AGPL-3.0-only (see [LICENS
 
 | Component                                                | Pinned version           | License                  | Source                                             |
 | -------------------------------------------------------- | ------------------------ | ------------------------ | -------------------------------------------------- |
-| Dice Chess engine                                        | 0.13.0                   | AGPL-3.0-only            | https://github.com/fortemate/dicechess-engine      |
+| Dice Chess engine                                        | 0.14.0                   | AGPL-3.0-only            | https://github.com/fortemate/dicechess-engine      |
 | Vector Chess Pieces Pack, RhosGFX                        | 1.0.0                    | CC0-1.0                  | https://rhosgfx.itch.io/vector-chess-pieces        |
 | Vector Emojis, RhosGFX                                   | downloaded 2026-09-26    | CC0-1.0                  | https://rhosgfx.itch.io/vector-emojis              |
 | Tabletop Games SFX Pack, JDSherbert                      | 1.1.0                    | Free with attribution    | https://jdsherbert.itch.io/tabletop-games-sfx-pack |

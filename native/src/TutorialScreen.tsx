@@ -58,13 +58,15 @@ export const TutorialScreen = ({ onExit, onState }: TutorialScreenProps) => {
   }, [state.exit, onExit]);
 
   React.useEffect(() => {
+    const view = viewGame(state.game);
     onState?.(
       [
         `tutorial ${state.index + 1}/${TUTORIAL.length}`,
         `step ${step(state).id}`,
         `complete ${state.complete}`,
         `finished ${state.finished}`,
-        `dice "${viewGame(state.game).remaining}"`,
+        `dice "${view.remaining}"`,
+        `playable "${view.playable}"`,
         `cursor ${state.focus.cursor}`,
         `selected ${state.focus.selected ?? '-'}`,
         `last ${state.game.lastMove ?? '-'}`,
@@ -125,11 +127,7 @@ export const TutorialScreen = ({ onExit, onState }: TutorialScreenProps) => {
         )}
 
         <Dice
-          dice={diceOf(
-            state.game.roll,
-            board.remaining,
-            state.game.phase === 'handoff',
-          )}
+          dice={diceOf(state.game.roll, board.remaining, board.playable)}
           side={board.side}
           size={56}
         />

@@ -545,6 +545,41 @@ the panel. Checked on the virtual device on 25 September: empty slots before the
 roll, bishop, rook and bishop after it, and in the tutorial three pawn dice going
 dim one by one.
 
+**A die no legal turn can spend dims as soon as that is known** (#140): at the
+roll and after each action, on a person's turns and the opponent's alike. It
+takes the look of a die left over at the end of a turn, described below: no
+ring, 45 % and full size. In the opening with queen, bishop and knight only a
+knight can move, and no knight move frees the bishop or the queen, so both of
+those dice dim at the roll. The rule is about the whole turn, not the next
+action: with queen, rook and knight the rook cannot move first, but `a1b1` can
+follow `b1a3`, so only the queen dims. A die that dims stays dim for the rest of
+the turn. Of two equal dice only one of which can be spent, the right one dims,
+so the lit one is the next to be spent.
+
+The engine's `getPlayableDice` (0.14.0) decides, over the whole turn, from the
+roll and the actions played since. `viewGame` in `src/core/game.ts` lists its
+answer as `playable`, and the turn tree answers most positions without it:
+nothing is playable when the node ends the turn, and every die left is when a
+path below the node has an action for each of them. The engine is asked only in
+between, which can happen at the roll and after a first action that leaves two
+dice, and each answer is kept for the roll. Tests: `test/dice.test.ts` against
+engine positions, a king capture, two equal dice and a count of the calls
+included, and `native/test/playableDice.test.tsx` through the whole app, on a
+person's roll and on the opponent's.
+
+Checked on the virtual device on 29 September, with a local build and vvd 0.1.0:
+
+- In the tutorial's dice lesson the queen and bishop dice were dimmed from the
+  start, the knight die lit, and both stayed dimmed after the knight moved.
+- Against Rolly, a person's roll of bishop, knight and queen at the start lit
+  only the knight die, and the other two stayed dimmed once the knight had
+  moved and the turn was over.
+- Rolly's roll of bishop, rook and knight dimmed the bishop die before it
+  played, and it stayed dimmed after the knight. Its roll of rook, pawn and
+  queen lit all three, and its pawn move `e2e3` dimmed the rook die.
+- Rolls with nothing to play, a person's and Rolly's, still read "No legal
+  moves", with all three dice dimmed and the reason under them.
+
 ### A roll with nothing to play
 
 About one roll in twelve leaves nothing to play, and close to a third of first
@@ -560,8 +595,9 @@ that ends with dice left over.
   bot in the prompt; leaving the side out keeps the headline to one line.
   Nobody did anything wrong, so nothing says "forfeited".
 - **The dice** all lose their ring and dim to 45 % at full size: they were never
-  played, and nothing is left to play. When a turn ends with dice left over after
-  an action, those dice dim the same way, but there is no notice and no cue.
+  played, and nothing is left to play. Dice that a turn leaves over after an
+  action look the same, and dim as soon as no legal turn can spend them, often at
+  the roll, but there is no notice and no cue.
 - **OK is ignored for 700 ms** after a person's own empty roll, so a double press
   on the remote cannot pass the turn before the notice is seen. Back works
   throughout.

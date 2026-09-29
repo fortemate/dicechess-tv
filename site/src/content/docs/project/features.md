@@ -9,7 +9,7 @@ Every screenshot here comes from the Vega Virtual Device, captured with scripted
 
 ## Hotseat on one remote
 
-Two players share the remote and take turns. OK rolls three dice; the pieces the dice let you move are marked green. The arrows jump between those pieces. OK picks one up and lands on one of its destinations, the arrows jump between those, and OK plays the move. Back puts a piece down again.
+Two players share the remote and take turns. OK rolls three dice; the pieces the dice let you move are marked green, and a die that no legal turn can use dims at once. The arrows jump between those pieces. OK picks one up and lands on one of its destinations, the arrows jump between those, and OK plays the move. Back puts a piece down again.
 
 ![A hotseat game: Black's knight is picked up, its destinations are dotted, a capture is ringed, and three dice sit beside the board](../../../assets/screenshots/hotseat.png)
 
