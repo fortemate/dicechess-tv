@@ -49,6 +49,22 @@ jobs:
       - run: npx react-native bundle --entry-file index.js --platform kepler --dev false --bundle-output "${RUNNER_TEMP}/bundle.js"
         working-directory: native
 
+  # The browser test bench in web/ (web/README.md). It draws native/src/ on
+  # react-native-web, so a change there that the bench can no longer build fails
+  # here rather than in front of a tester. Its lint and format are the core job's.
+  web-bench:
+    runs-on: ${{ fromJSON(github.actor == 'dependabot[bot]' && '["ubuntu-24.04"]' || vars.RUNS_ON || '["ubuntu-24.04"]') }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: jdx/mise-action@v4
+      # The engine comes from the root install, as it does for the core.
+      - run: npm ci
+      - run: npm ci --prefix web
+      - run: npm test --prefix web
+      # Typechecks, then bundles.
+      - run: npm run build --prefix web
+
   # SonarQube Cloud, analysed here rather than by Automatic Analysis so that it
   # receives coverage from both packages. Informational, as in the engine: a
   # failed scan or quality gate does not fail the run. Runs without the token —
