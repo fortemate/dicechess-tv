@@ -1,15 +1,23 @@
 // The roll as three dice, as the other Dice Chess clients draw it: each face
 // shows the piece it permits, in the colour of the side to move. An unspent die
 // carries a ring; a spent one dims and shrinks, so it is told apart by more than
-// colour. Once the turn is over, a die it could not use loses its ring and dims
-// but keeps its size: it was never played, and nothing is left to play (#85).
-// Before the roll the three slots are empty.
+// colour. A die that no legal turn can spend loses its ring and dims but keeps
+// its size: it was never played, and it will not be (#85, #140). Before the roll
+// the three slots are empty.
+//
+// A roll tumbles in (#99): each die turns and grows onto its face, a beat after
+// the one on its left, on the native driver. The dice tumble lit, and the ones
+// no legal turn can spend dim as they land. It is presentation only: the roll is
+// already made, and the remote is never held up. Dice that were there when the
+// screen opened, such as a resumed game's, do not tumble; an action during the
+// tumble ends it; and it is skipped when the platform asks for less motion.
 import React from 'react';
-import { View } from 'react-native';
+import { Animated, Easing, View } from 'react-native';
 import type { Die } from '../../src/core/dice';
 import type { Side } from '../../src/core/game';
 import { PIECES } from './pieces';
 import { THEME } from './theme';
+import { useReducedMotion } from './useReducedMotion';
 
 export type DiceProps = {
   dice: readonly Die[];
@@ -17,6 +25,16 @@ export type DiceProps = {
   // Edge of one face in dp. The default reads from a sofa next to the board.
   size?: number;
 };
+
+// How long one die tumbles, and how long after the die on its left it starts.
+export const TUMBLE_MS = 200;
+export const TUMBLE_STAGGER_MS = 30;
+// From the roll until the last die lands: inside the TV guidance of #51, about
+// 300 ms.
+export const ROLL_MS = TUMBLE_MS + 2 * TUMBLE_STAGGER_MS;
+
+// The turn each die makes on its way in, so that the three do not move in step.
+const TURNS = ['-100deg', '80deg', '-60deg'];
 
 const Face = ({ die, side, size }: { die: Die; side: Side; size: number }) => {
   const letter = side === 'w' ? die.piece : die.piece.toLowerCase();
@@ -42,35 +60,155 @@ const Face = ({ die, side, size }: { die: Die; side: Side; size: number }) => {
   );
 };
 
-export const Dice = ({ dice, side, size = 72 }: DiceProps) => (
-  <View style={{ flexDirection: 'row', marginTop: 4, marginBottom: 12 }}>
-    {[0, 1, 2].map((slot) => (
-      // A fixed slot for each die, so a die that shrinks moves nothing else.
-      <View
-        key={slot}
-        style={{
-          width: size,
-          height: size,
-          marginRight: Math.round(size / 4),
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        {dice[slot] ? (
-          <Face die={dice[slot]} side={side} size={size} />
-        ) : (
+// A die on its way in: turned and small at first, faint for the first third.
+const Tumbling = ({
+  progress,
+  slot,
+  children,
+}: {
+  progress: Animated.Value;
+  slot: number;
+  children: React.ReactNode;
+}) => (
+  <Animated.View
+    testID="tumble"
+    style={{
+      opacity: progress.interpolate({
+        inputRange: [0, 0.3, 1],
+        outputRange: [0.2, 1, 1],
+      }),
+      transform: [
+        {
+          rotate: progress.interpolate({
+            inputRange: [0, 1],
+            outputRange: [TURNS[slot], '0deg'],
+          }),
+        },
+        {
+          scale: progress.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0.6, 1],
+          }),
+        },
+      ],
+    }}
+  >
+    {children}
+  </Animated.View>
+);
+
+// What the dice show, as a key: a tumble lasts only while they show what they
+// showed when they were rolled. There are no dice before the roll, so the key
+// is empty then.
+const keyOf = (dice: readonly Die[]): string =>
+  dice
+    .map(({ piece, spent, leftover }) =>
+      spent ? piece.toLowerCase() : leftover ? `(${piece})` : piece,
+    )
+    .join('');
+
+type Tumble = { id: number; progress: Animated.Value[] };
+
+// The tumble of the latest roll: dice where there were none. It is worked out
+// while rendering, so the first frame of the roll already shows the dice on
+// their way in instead of flashing them in place.
+const useTumble = (dice: readonly Die[]): Tumble | null => {
+  const reduced = useReducedMotion();
+  const key = keyOf(dice);
+  const [state, setState] = React.useState<{
+    key: string;
+    tumble: Tumble | null;
+  }>({ key, tumble: null });
+  if (state.key !== key) {
+    // Nothing tumbles until the platform has said it does not ask for less
+    // motion: a roll before that answer is simply drawn.
+    const rolled = state.key === '' && key !== '' && reduced === false;
+    setState({
+      key,
+      tumble: rolled
+        ? {
+            id: (state.tumble?.id ?? 0) + 1,
+            progress: dice.map(() => new Animated.Value(0)),
+          }
+        : null,
+    });
+  }
+  const tumble = state.key === key ? state.tumble : null;
+  React.useEffect(() => {
+    if (!tumble) return;
+    let rolling = tumble.progress.length;
+    const throws = tumble.progress.map((progress, slot) =>
+      Animated.timing(progress, {
+        toValue: 1,
+        duration: TUMBLE_MS,
+        delay: slot * TUMBLE_STAGGER_MS,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    );
+    for (const thrown of throws)
+      thrown.start(({ finished }) => {
+        rolling -= 1;
+        if (finished && rolling === 0)
+          setState((current) =>
+            current.tumble === tumble ? { ...current, tumble: null } : current,
+          );
+      });
+    return () => {
+      for (const thrown of throws) thrown.stop();
+    };
+  }, [tumble]);
+  return tumble;
+};
+
+export const Dice = ({ dice, side, size = 72 }: DiceProps) => {
+  const tumble = useTumble(dice);
+  return (
+    <View style={{ flexDirection: 'row', marginTop: 4, marginBottom: 12 }}>
+      {[0, 1, 2].map((slot) => {
+        const die = dice[slot];
+        return (
+          // A fixed slot for each die, so a die that shrinks moves nothing else.
           <View
+            key={slot}
             style={{
               width: size,
               height: size,
-              borderRadius: Math.round(size / 6),
-              borderWidth: 2,
-              borderColor: THEME.dieSlot,
-              opacity: 0.3,
+              marginRight: Math.round(size / 4),
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
-          />
-        )}
-      </View>
-    ))}
-  </View>
-);
+          >
+            {die && tumble ? (
+              <Tumbling
+                key={tumble.id}
+                progress={tumble.progress[slot]}
+                slot={slot}
+              >
+                {/* Lit on the way in: a lost die dims as it lands. */}
+                <Face
+                  die={{ ...die, leftover: false }}
+                  side={side}
+                  size={size}
+                />
+              </Tumbling>
+            ) : die ? (
+              <Face die={die} side={side} size={size} />
+            ) : (
+              <View
+                style={{
+                  width: size,
+                  height: size,
+                  borderRadius: Math.round(size / 6),
+                  borderWidth: 2,
+                  borderColor: THEME.dieSlot,
+                  opacity: 0.3,
+                }}
+              />
+            )}
+          </View>
+        );
+      })}
+    </View>
+  );
+};

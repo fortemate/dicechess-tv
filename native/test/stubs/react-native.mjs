@@ -12,9 +12,10 @@ export const useWindowDimensions = () => ({
   fontScale: 1,
 });
 
-// Animated, as far as the board's slide uses it (#131). A slide ends as soon as
-// it starts, so a test sees the new position at once. A test that looks at a
-// piece in flight sets globalThis.__holdSlides and ends the slides itself
+// Animated, as far as the board's slide (#131) and the dice roll (#99) use it.
+// Delays are not kept: an animation ends as soon as it starts, so a test sees
+// the new position at once. A test that looks at a piece in flight or a die on
+// its way in sets globalThis.__holdSlides and ends the animations itself
 // through globalThis.__heldSlides.
 class AnimatedValue {
   constructor(value) {

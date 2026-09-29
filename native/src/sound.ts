@@ -44,7 +44,7 @@ const CHANNEL: Readonly<Record<Cue, Channel>> = {
 // Cues that wait before they start, in milliseconds. A roll with nothing to
 // play is heard after the dice land, not over them: the throws last 0.4 to
 // 0.6 s (#85).
-const DELAY: Partial<Record<Cue, number>> = { no_move: 500 };
+export const CUE_DELAY_MS: Partial<Record<Cue, number>> = { no_move: 500 };
 
 const CHANNELS: readonly Channel[] = ['board', 'dice', 'result'];
 
@@ -163,7 +163,7 @@ export function createSounds({
       const step = ++steps;
       if (muted || suspended) return;
       for (const cue of cues) {
-        const wait = DELAY[cue];
+        const wait = CUE_DELAY_MS[cue];
         if (!wait) {
           void start(cue);
           continue;

@@ -19,7 +19,7 @@ declare module 'react-native-web' {
     setValue(value: number): void;
     interpolate(config: {
       inputRange: number[];
-      outputRange: number[];
+      outputRange: number[] | string[];
     }): unknown;
   }
   type Animation = {
@@ -34,6 +34,7 @@ declare module 'react-native-web' {
       config: {
         toValue: number;
         duration: number;
+        delay?: number;
         easing?: (t: number) => number;
         useNativeDriver: boolean;
       },
