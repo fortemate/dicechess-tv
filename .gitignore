@@ -8,6 +8,7 @@ mise.local.toml
 node_modules/
 build/
 dist/
+dist-vega/
 # Written by `react-native build-vega` next to the manifest.
 buildinfo.json
 # Built by native/scripts/generate-assets.mjs, which deletes and rebuilds it on
