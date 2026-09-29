@@ -2,7 +2,7 @@
 title: Play the beta
 description: How to get the playtest build of Dice Chess for Fire TV, on a Fire TV Stick or on the Vega Virtual Device, and how to tell us what you found.
 sidebar:
-  order: 1
+  order: 3
 ---
 
 Dice Chess for Fire TV is in a tester round before its release. The builds are pre-releases: free, in English, and still changing.
