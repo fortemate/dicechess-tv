@@ -31,6 +31,8 @@ The roll is drawn as three dice, as the other Dice Chess clients draw it. Each f
 - **A spent die** fades to 30 % and shrinks.
 - **A die no legal turn can use** loses its ring and fades to 45 %, but keeps its size: it will not be played. It dims as soon as that is known, at the roll or after an action, and not only once the turn is over. In the opening with queen, bishop and knight, only a knight can move, and no knight move frees the bishop or the queen, so both of those dice dim at the roll.
 
+A roll tumbles in: each die turns onto its face, and the three land lit in about a quarter of a second. A die that no legal turn can use dims as it lands.
+
 ## Sizes and the safe area
 
 The app lays out a 960 x 540 dp screen, which is how a 1920 x 1080 television reports itself.

@@ -8,7 +8,7 @@
 // slide runs on the native driver. It is presentation only: the game has
 // already moved on, and the remote is never held up.
 import React from 'react';
-import { AccessibilityInfo, Animated, Easing, View } from 'react-native';
+import { Animated, Easing, View } from 'react-native';
 import { fileOf, rankOf } from '../../src/core/board';
 import {
   boardView,
@@ -22,6 +22,7 @@ import {
 } from '../../src/core/moveAnimation';
 import { PIECES } from './pieces';
 import { Square } from './Square';
+import { useReducedMotion } from './useReducedMotion';
 
 export type BoardProps = BoardInput & {
   // Edge length of the whole board in pixels. The caller decides it from the
@@ -91,37 +92,6 @@ const inFlight = (rows: SquareView[][], plan: MovePlan): SquareView[][] => {
       return landing.has(view.square) ? { ...view, piece: null } : view;
     }),
   );
-};
-
-// Whether the platform asks for less motion, or null until it has answered.
-// Where it cannot answer, because the query fails or the platform lacks it,
-// pieces slide.
-const useReducedMotion = (): boolean | null => {
-  const [reduced, setReduced] = React.useState<boolean | null>(null);
-  React.useEffect(() => {
-    let live = true;
-    const answer = (value: boolean) => {
-      if (live) setReduced(value);
-    };
-    let subscription: { remove(): void } | undefined;
-    try {
-      AccessibilityInfo.isReduceMotionEnabled().then(answer, () =>
-        answer(false),
-      );
-      subscription = AccessibilityInfo.addEventListener(
-        'reduceMotionChanged',
-        answer,
-      );
-    } catch {
-      // The platform does not offer the setting: keep the slides.
-      answer(false);
-    }
-    return () => {
-      live = false;
-      subscription?.remove();
-    };
-  }, []);
-  return reduced;
 };
 
 type Motion = { id: number; plan: MovePlan; progress: Animated.Value };

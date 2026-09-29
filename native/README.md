@@ -538,7 +538,7 @@ and shrinks, so it differs by more than colour. Before the roll the three slots
 are empty, and the home screen, being a menu, leaves the dice out. Which dice
 are spent is read off the engine's record of the dice left (`src/core/dice.ts`),
 so castling spends the king and a rook die with no rule of its own. A repeated
-piece is spent from the left. There is no roll animation yet. Tests:
+piece is spent from the left. Tests:
 `test/dice.test.ts` against engine positions (castling included),
 `native/test/dice.test.tsx` for the faces, and `native/test/input.test.tsx` for
 the panel. Checked on the virtual device on 25 September: empty slots before the
@@ -579,6 +579,34 @@ Checked on the virtual device on 29 September, with a local build and vvd 0.1.0:
   queen lit all three, and its pawn move `e2e3` dimmed the rook die.
 - Rolls with nothing to play, a person's and Rolly's, still read "No legal
   moves", with all three dice dimmed and the reason under them.
+
+**A roll tumbles in** (#99). Each die turns and grows onto its face in 200 ms,
+starting 30 ms after the die on its left, so the last one lands 260 ms after the
+roll, inside the TV guidance of #51. `Dice.tsx` runs it on the native driver.
+The dice tumble lit, and the ones no legal turn can spend dim as they land.
+
+- **Presentation only.** The roll is already made and saved when the dice
+  tumble, and the cues are unchanged. The remote is never held up: an action
+  during the tumble ends it, and the opponent's next step comes 600 ms after its
+  roll, once the dice have landed. The `no_move` cue, 500 ms after a roll with
+  nothing to play, still follows them.
+- **Only a roll tumbles**, that is dice where there were none. The dice of a
+  resumed game or a tutorial lesson are drawn in place, and so are the dice
+  after an action.
+- **Reduced motion.** The dice ask the platform as the slides do
+  (`useReducedMotion.ts`, and "A move slides" for what Vega answers). They are
+  drawn at once when it asks for less motion, and until it has answered.
+
+Tests: `native/test/diceRoll.test.tsx`. Checked on the virtual device on 29
+September, in frames about 30 ms apart from vvd 0.2.0:
+
+- My roll of knight, rook and bishop at the start turned in from left to right
+  in about 260 ms, lit, and the bishop die dimmed about 90 ms after it landed,
+  when the app heard that the tumble was over.
+- A roll of rook, bishop and rook, with nothing to play, tumbled in lit under the
+  notice, and then all three dimmed.
+- Rolly's roll of king, king and pawn tumbled in the same way, and its first
+  action came 600 ms after the roll, with the dice at rest.
 
 ### A roll with nothing to play
 
