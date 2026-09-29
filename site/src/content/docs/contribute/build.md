@@ -1,0 +1,127 @@
+---
+title: Build and run
+description: How to set up prerequisites, build package binaries, install on the Vega Virtual Device or Fire TV Stick, and troubleshoot common issues.
+sidebar:
+  order: 1
+---
+
+Dice Chess TV is built with Amazon's Vega SDK and React Native for Vega. This guide covers how to set up the toolchain, compile package binaries, install them on emulators or physical hardware, and resolve common build issues.
+
+## Prerequisites
+
+1. **Node.js:** Version 26 (`>=26.8.2 <27`). Check with `node -v`.
+2. **Amazon Vega SDK 0.24:**
+   - Download and install the Vega SDK 0.24 from the [Amazon Developer Portal](https://developer.amazon.com/docs/vega/0.24/vega-get-started).
+   - Ensure the SDK's `bin/` directory is in your shell `PATH` so that `vega` commands are available.
+   - Note: The Vega SDK is distributed under Amazon's Program Materials License Agreement and cannot be committed to this repository.
+3. **Execution Target:**
+   - **Vega Virtual Device (Emulator):** Configured for 1920x1080 (SDK 0.24.12112).
+   - **Physical Fire TV Stick:** Enabled for Developer Mode / ADB debugging.
+
+## Building the Application
+
+The repository contains two packages: the root package (pure TypeScript core and rules engine) and the `native/` package (the Vega native application).
+
+```bash
+# 1. Install root dependencies (pure core & engine)
+npm ci
+
+# 2. Install native shell dependencies
+npm ci --prefix native
+
+# 3. Build target packages
+npm run build --prefix native
+```
+
+### Generated Package Binaries
+
+The build generates three architecture-specific `.vpkg` packages under `native/build/`:
+
+| Package Path                                                    | Target Hardware / Architecture                                                                 |
+| --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `native/build/aarch64-release/dicechess-tv-native_aarch64.vpkg` | **Vega Virtual Device** on Apple silicon Macs (ARM64)                                          |
+| `native/build/x86_64-release/dicechess-tv-native_x86_64.vpkg`   | **Vega Virtual Device** on Intel Macs or Linux (x86_64)                                        |
+| `native/build/armv7-release/dicechess-tv-native_armv7.vpkg`     | **Physical Fire TV Sticks** running Vega OS (32-bit `armv7`: 4K Select AFTCA002 & HD AFTCL001) |
+
+## Installing and Launching
+
+### On the Vega Virtual Device
+
+To run the app on an Apple silicon Mac using the virtual device:
+
+```bash
+# Start the virtual device emulator
+vega virtual-device start
+
+# Install the aarch64 binary
+vega device install-app -d VirtualDevice -p native/build/aarch64-release/dicechess-tv-native_aarch64.vpkg
+
+# Launch the app by its application ID
+vega device launch-app -d VirtualDevice -a com.fortemate.dicechesstv.main
+```
+
+### On a Physical Fire TV Stick
+
+Connect your Fire TV Stick over the local network via ADB or the Vega CLI:
+
+```bash
+# Discover connected target devices
+vega device list
+
+# Install the armv7 package
+vega device install-app -d <DeviceId> -p native/build/armv7-release/dicechess-tv-native_armv7.vpkg
+
+# Launch the application
+vega device launch-app -d <DeviceId> -a com.fortemate.dicechesstv.main
+```
+
+## Security Audit & Tooling Advisories
+
+Running `npm audit` inside `native/` reports 22 advisories (in packages such as `lodash`, `minimatch`, `toml`, `ajv`, `fast-xml-parser`, and `uuid`).
+
+### Why Zero Vulnerable Code Ships to Devices
+
+None of these packages reach the device package:
+
+- The compiled package bundle contains our JavaScript/Hermes bytecode, artwork, sound assets, `libreact-native-mmkv-kepler.so`, and manifest metadata.
+- The build source map lists 141 modules in the application bundle. React Native and system modules are deployed directly by the Vega OS platform runtime on the device.
+- The flagged packages belong exclusively to developer tooling (e.g. `@microsoft/api-extractor`, manifest generators, and CLI formatters) running on the local host machine during build time.
+
+:::caution[Do Not Run npm audit fix --force]
+Never execute `npm audit fix --force` in `native/`. The automated npm solver attempts to resolve dependencies by downgrading `@amazon-devices/react-native-kepler` to `2.1.0` (the older SDK 0.23 line). SDK 0.23 suffers from severe WebView crashes that forced the move to native React Native on SDK 0.24.
+:::
+
+## Metro Configuration Details
+
+The React Native packager configuration in `native/metro.config.js` differs from Amazon's default template.
+
+Because the TV app imports the shared core from `../src/core/` and the rules engine from the repository root's `node_modules/`, Metro must explicitly track paths outside `native/`:
+
+```javascript
+// native/metro.config.js
+watchFolders: [
+  path.resolve(__dirname, '..', 'src', 'core'),
+  path.resolve(__dirname, '..', 'node_modules'),
+],
+```
+
+Without these directives, Metro fails with `Unable to resolve module ../../src/core/game`.
+
+## Troubleshooting
+
+### "Package version decrease" Error
+
+When installing a local build over an existing pre-release beta package (e.g. installed from GitHub Releases or LAT), the device may reject installation because local development builds have build number 0:
+
+```bash
+# Solution: Uninstall the existing package before installing the local build
+vega device uninstall-app -d VirtualDevice -a com.fortemate.dicechesstv.main
+```
+
+### Missing Audio Output
+
+If no sound is heard on the virtual device, verify that the required audio services are declared in `native/manifest.toml`. Undeclared audio service connections fail silently with log warnings. See [Building on Vega](/dicechess-tv/technology/vega/#audio-subsystem--manifest-permissions).
+
+### `buildinfo.json`
+
+The SDK build tool writes `buildinfo.json` next to `manifest.toml` on every build. It contains local absolute machine paths and is ignored by git (`.gitignore`).
