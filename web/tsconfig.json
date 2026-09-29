@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "skipLibCheck": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["vite/client"],
+    "paths": {
+      "react-native": ["./src/shims/react-native.ts"],
+      "@amazon-devices/react-native-kepler": ["./src/shims/kepler.ts"],
+      "@amazon-devices/react-native-mmkv": ["./src/shims/mmkv.ts"],
+      "@amazon-devices/react-native-svg": ["./src/shims/svg.tsx"],
+      "@amazon-devices/react-native-w3cmedia": ["./src/shims/w3cmedia.ts"],
+      "@amazon-devices/kepler-performance-api": ["./src/shims/performance.ts"],
+      "react": ["./node_modules/@types/react"],
+      "react/jsx-runtime": ["./node_modules/@types/react/jsx-runtime"],
+      "@fortemate/dicechess-engine": [
+        "../node_modules/@fortemate/dicechess-engine"
+      ],
+      "@fortemate/dicechess-engine/rules": [
+        "../node_modules/@fortemate/dicechess-engine/dicechess-rules.d.ts"
+      ]
+    }
+  },
+  "include": ["src", "vite.config.ts", "test"]
+}

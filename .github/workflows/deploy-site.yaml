@@ -4,17 +4,32 @@ name: 'CD: Deploy Site'
 # so a broken page fails before the merge, and built and deployed to GitHub
 # Pages on a push to main. Its logo and favicon are the app icon, read from
 # native/icon/, so a new icon rebuilds it too.
+#
+# The browser test bench in web/ is deployed with it, under /bench/: it draws
+# the game's screens from native/src/ and src/core/ with the engine of the
+# root install and the vendored sounds, so a change to any of those redeploys
+# it. Like the tester pages it is unlisted (web/README.md).
 on:
   pull_request:
     paths:
       - 'site/**'
       - 'native/icon/icon-512.png'
+      - 'web/**'
+      - 'native/src/**'
+      - 'native/sounds/**'
+      - 'src/core/**'
+      - 'package-lock.json'
       - '.github/workflows/deploy-site.yaml'
   push:
     branches: [main]
     paths:
       - 'site/**'
       - 'native/icon/icon-512.png'
+      - 'web/**'
+      - 'native/src/**'
+      - 'native/sounds/**'
+      - 'src/core/**'
+      - 'package-lock.json'
       - '.github/workflows/deploy-site.yaml'
   workflow_dispatch:
 
@@ -68,6 +83,18 @@ jobs:
           # every visitor's browser reads it from the page. Without it the
           # pages send nothing.
           PUBLIC_FEEDBACK_URL: ${{ vars.FEEDBACK_URL }}
+
+      # The bench: its own package, with the engine from the root install, as
+      # the core imports it. Its build uses relative paths, so it is copied into
+      # the site's output as it is.
+      - name: Install the bench's dependencies
+        run: npm ci && npm ci --prefix web
+
+      - name: Build the bench
+        run: npm run build --prefix web
+
+      - name: Add the bench to the site
+        run: cp -R web/dist site/dist/bench
 
       - name: Upload the site
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'

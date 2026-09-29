@@ -1,0 +1,30 @@
+{
+  "name": "@fortemate/dicechess-tv-web",
+  "version": "0.0.0",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "description": "A browser test bench for Dice Chess TV: the screens in native/src/ on react-native-web, driven from the keyboard, with switchable board marks and a colour-vision simulation. Not the product; see README.md.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "check": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test test/*.test.ts"
+  },
+  "dependencies": {
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "react-native-web": "0.21.3"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.7",
+    "@vitejs/plugin-react": "6.1.1",
+    "typescript": "6.0.3",
+    "vite": "8.3.1"
+  },
+  "engines": {
+    "node": ">=26.8.2 <27"
+  }
+}

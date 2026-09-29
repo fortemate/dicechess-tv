@@ -5,7 +5,9 @@ presents the project to players and judges and documents it for developers. It i
 an [Astro Starlight](https://starlight.astro.build/) project, and its own npm
 package with its own lockfile; `mise run setup` does not install it.
 [`deploy-site.yaml`](../.github/workflows/deploy-site.yaml) builds it on every
-pull request that touches `site/` and deploys it to GitHub Pages from `main`.
+pull request that touches `site/` and deploys it to GitHub Pages from `main`. The
+browser test bench in [`web/`](../web/README.md) is built and deployed with it,
+at `/bench/`.
 
 ## Working on it
 
