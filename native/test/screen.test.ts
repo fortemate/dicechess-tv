@@ -911,7 +911,7 @@ test('the opponent’s roll with nothing to play waits for the person, whose OK 
   assert.equal(mine.guarded, false);
 });
 
-test('every step the opponent owes keeps the step pace, including a turn that ends with dice left', () => {
+test('a bot turn that ends with dice left is still the bot’s to hand over, unguarded', () => {
   const leftover: ScreenOptions = { ...options, roll: () => [2, 6, 6] };
   const steps = settleSteps(handedToBot(), leftover);
   const partial = steps.find((s) => s.game.phase === 'handoff');
