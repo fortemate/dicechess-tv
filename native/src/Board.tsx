@@ -160,25 +160,44 @@ const useFlipFade = (flipped: boolean) => {
   }
 
   React.useEffect(() => {
-    if (state.displayed === state.target) return;
+    if (reduced !== false || state.displayed === state.target) {
+      opacity.setValue(1);
+      return;
+    }
+
+    let live = true;
     const fadeOut = Animated.timing(opacity, {
       toValue: 0,
       duration: FLIP_FADE_MS,
       easing: Easing.out(Easing.cubic),
       useNativeDriver: true,
     });
-    fadeOut.start(({ finished }) => {
-      if (!finished) return;
-      setState((current) => ({ ...current, displayed: current.target }));
-      Animated.timing(opacity, {
-        toValue: 1,
-        duration: FLIP_FADE_MS,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      }).start();
+    const fadeIn = Animated.timing(opacity, {
+      toValue: 1,
+      duration: FLIP_FADE_MS,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
     });
-    return () => fadeOut.stop();
-  }, [state.target, state.displayed, opacity]);
+
+    fadeOut.start(({ finished }) => {
+      if (!live) return;
+      if (finished) {
+        setState((current) => ({ ...current, displayed: current.target }));
+        fadeIn.start(() => {
+          if (live) opacity.setValue(1);
+        });
+      } else {
+        opacity.setValue(1);
+      }
+    });
+
+    return () => {
+      live = false;
+      fadeOut.stop();
+      fadeIn.stop();
+      opacity.setValue(1);
+    };
+  }, [state.target, state.displayed, opacity, reduced]);
 
   const displayed = reduced !== false ? flipped : state.displayed;
   return { displayed, opacity };
