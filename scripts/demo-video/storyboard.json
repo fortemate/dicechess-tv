@@ -1,0 +1,113 @@
+{
+  "music": {
+    "file": "native/music/pepka-prygni-dicechess/warm_anticipation.mp3",
+    "gainDb": -9.1,
+    "cardLiftDb": 4,
+    "fadeInSeconds": 1.5,
+    "fadeOutSeconds": 4
+  },
+  "badge": "Vega Virtual Device on macOS",
+  "end": {
+    "seconds": 6,
+    "title": "Dice Chess for Fire TV",
+    "tagline": "Free · no ads · no account · open source",
+    "link": "github.com/fortemate/dicechess-tv",
+    "footer": "Recorded on the Vega Virtual Device on macOS · Music by pepka-prygni"
+  },
+  "scenes": [
+    {
+      "kicker": "Dice Chess for Fire TV",
+      "title": "Chess with a roll of the dice",
+      "clips": [
+        {
+          "take": "home",
+          "from": 1.0,
+          "to": 8.3
+        }
+      ]
+    },
+    {
+      "kicker": "Your turn",
+      "title": "Roll three dice: they decide which pieces you may move",
+      "clips": [
+        {
+          "take": "hotseat",
+          "from": 8.1,
+          "to": 15.3
+        }
+      ]
+    },
+    {
+      "kicker": "The dice",
+      "title": "A die that no move can use is dimmed",
+      "clips": [
+        {
+          "take": "hotseat",
+          "from": 20.1,
+          "to": 27.3
+        }
+      ]
+    },
+    {
+      "kicker": "Two players, one remote",
+      "title": "The board can turn to face whoever moves",
+      "clips": [
+        {
+          "take": "hotseat",
+          "from": 27.3,
+          "to": 34.0
+        }
+      ]
+    },
+    {
+      "kicker": "Against the computer",
+      "title": "Or play one of three computer opponents",
+      "clips": [
+        {
+          "take": "opponents",
+          "from": 4.3,
+          "to": 13.5
+        }
+      ]
+    },
+    {
+      "kicker": "The computer's turn",
+      "title": "Every move slides, so you can follow it",
+      "clips": [
+        {
+          "take": "grabby",
+          "from": 38.1,
+          "to": 41.3
+        },
+        {
+          "take": "grabby",
+          "from": 49.6,
+          "to": 53.05,
+          "hold": 1.8
+        }
+      ]
+    },
+    {
+      "kicker": "How to play",
+      "title": "A five-lesson tutorial teaches the game from scratch",
+      "clips": [
+        {
+          "take": "tutorial",
+          "from": 4.0,
+          "to": 15.0
+        }
+      ]
+    },
+    {
+      "kicker": "Rules",
+      "title": "A rules guide covers everything from castling to draws",
+      "clips": [
+        {
+          "take": "rules",
+          "from": 3.4,
+          "to": 16.8
+        }
+      ]
+    }
+  ]
+}
