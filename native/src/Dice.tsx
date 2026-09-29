@@ -100,12 +100,14 @@ const Tumbling = ({
 // What the dice show, as a key: a tumble lasts only while they show what they
 // showed when they were rolled. There are no dice before the roll, so the key
 // is empty then.
-const keyOf = (dice: readonly Die[]): string =>
-  dice
-    .map(({ piece, spent, leftover }) =>
-      spent ? piece.toLowerCase() : leftover ? `(${piece})` : piece,
-    )
-    .join('');
+const keyOf = (dice: readonly Die[]): string => dice.map(keyOfDie).join('');
+
+// One die in the key: lower case once spent, in brackets while no turn can
+// spend it.
+const keyOfDie = ({ piece, spent, leftover }: Die): string => {
+  if (spent) return piece.toLowerCase();
+  return leftover ? `(${piece})` : piece;
+};
 
 type Tumble = { id: number; progress: Animated.Value[] };
 
@@ -161,54 +163,68 @@ const useTumble = (dice: readonly Die[]): Tumble | null => {
   return tumble;
 };
 
+// What a slot holds: before the roll an empty outline, then its die, on its
+// way in or at rest.
+const SlotContent = ({
+  die,
+  tumble,
+  slot,
+  side,
+  size,
+}: {
+  die: Die | undefined;
+  tumble: Tumble | null;
+  slot: number;
+  side: Side;
+  size: number;
+}) => {
+  if (!die)
+    return (
+      <View
+        style={{
+          width: size,
+          height: size,
+          borderRadius: Math.round(size / 6),
+          borderWidth: 2,
+          borderColor: THEME.dieSlot,
+          opacity: 0.3,
+        }}
+      />
+    );
+  if (!tumble) return <Face die={die} side={side} size={size} />;
+  return (
+    <Tumbling key={tumble.id} progress={tumble.progress[slot]} slot={slot}>
+      {/* Lit on the way in: a lost die dims as it lands. */}
+      <Face die={{ ...die, leftover: false }} side={side} size={size} />
+    </Tumbling>
+  );
+};
+
 export const Dice = ({ dice, side, size = 72 }: DiceProps) => {
   const tumble = useTumble(dice);
   return (
     <View style={{ flexDirection: 'row', marginTop: 4, marginBottom: 12 }}>
-      {[0, 1, 2].map((slot) => {
-        const die = dice[slot];
-        return (
-          // A fixed slot for each die, so a die that shrinks moves nothing else.
-          <View
-            key={slot}
-            style={{
-              width: size,
-              height: size,
-              marginRight: Math.round(size / 4),
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {die && tumble ? (
-              <Tumbling
-                key={tumble.id}
-                progress={tumble.progress[slot]}
-                slot={slot}
-              >
-                {/* Lit on the way in: a lost die dims as it lands. */}
-                <Face
-                  die={{ ...die, leftover: false }}
-                  side={side}
-                  size={size}
-                />
-              </Tumbling>
-            ) : die ? (
-              <Face die={die} side={side} size={size} />
-            ) : (
-              <View
-                style={{
-                  width: size,
-                  height: size,
-                  borderRadius: Math.round(size / 6),
-                  borderWidth: 2,
-                  borderColor: THEME.dieSlot,
-                  opacity: 0.3,
-                }}
-              />
-            )}
-          </View>
-        );
-      })}
+      {[0, 1, 2].map((slot) => (
+        // A fixed slot for each die, so a die that shrinks moves nothing else.
+        <View
+          key={slot}
+          style={{
+            width: size,
+            height: size,
+            marginRight: Math.round(size / 4),
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <SlotContent
+            die={dice[slot]}
+            tumble={tumble}
+            slot={slot}
+            side={side}
+            size={size}
+          />
+        </View>
+      ))}
     </View>
   );
 };
