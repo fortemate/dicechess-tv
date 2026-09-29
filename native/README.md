@@ -567,6 +567,19 @@ engine positions, a king capture, two equal dice and a count of the calls
 included, and `native/test/playableDice.test.tsx` through the whole app, on a
 person's roll and on the opponent's.
 
+Checked on the virtual device on 29 September, with a local build and vvd 0.1.0:
+
+- In the tutorial's dice lesson the queen and bishop dice were dimmed from the
+  start, the knight die lit, and both stayed dimmed after the knight moved.
+- Against Rolly, a person's roll of bishop, knight and queen at the start lit
+  only the knight die, and the other two stayed dimmed once the knight had
+  moved and the turn was over.
+- Rolly's roll of bishop, rook and knight dimmed the bishop die before it
+  played, and it stayed dimmed after the knight. Its roll of rook, pawn and
+  queen lit all three, and its pawn move `e2e3` dimmed the rook die.
+- Rolls with nothing to play, a person's and Rolly's, still read "No legal
+  moves", with all three dice dimmed and the reason under them.
+
 ### A roll with nothing to play
 
 About one roll in twelve leaves nothing to play, and close to a third of first
