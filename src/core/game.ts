@@ -100,11 +100,55 @@ function afterAction(dfen: string, move: string): string {
 // action leaves open: an action legal on its own that no full turn continues
 // (#101). Built once per roll and kept for that roll only, because the largest
 // trees run to a quarter of a megabyte and every view of the game walks them.
-let turn: { dfen: string; tree: MoveTree } | null = null;
-function turnTree(dfen: string): MoveTree {
+// With it are kept the dice still playable after each set of actions, keyed by
+// the actions, since every view asks for them too.
+type RolledTurn = {
+  dfen: string;
+  tree: MoveTree;
+  playable: Map<string, string>;
+};
+let turn: RolledTurn | null = null;
+function turnOf(dfen: string): RolledTurn {
   if (turn?.dfen !== dfen)
-    turn = { dfen, tree: DiceChess.getLegalTurnTree(dfen) };
-  return turn.tree;
+    turn = {
+      dfen,
+      tree: DiceChess.getLegalTurnTree(dfen),
+      playable: new Map(),
+    };
+  return turn;
+}
+
+// Whether some path below `node` has `actions` actions.
+const reaches = (node: MoveTree, actions: number): boolean =>
+  actions === 0 ||
+  Object.values(node).some((child) => reaches(child, actions - 1));
+
+// The dice some legal turn can still spend once `game.moves` are played, listed
+// like `remaining` (#140). The engine judges them over the whole turn, from the
+// roll, but the tree answers most positions alone. A node that ends the turn
+// leaves nothing playable. Every action spends at least one die, so a path below
+// the node with an action for each die left spends every one of them. The
+// engine is asked only when the longest path below is shorter than that, which
+// can happen at the roll and after a first action that leaves two dice.
+function playableDice(
+  rolled: RolledTurn,
+  game: Game,
+  node: MoveTree,
+  remaining: string,
+): string {
+  const key = game.moves.join(' ');
+  let playable = rolled.playable.get(key);
+  if (playable === undefined) {
+    if (!Object.keys(node).length) playable = '';
+    else if (reaches(node, remaining.length)) playable = remaining;
+    else {
+      const field = DiceChess.getPlayableDice(rolled.dfen, game.moves);
+      if (field === undefined) throw new Error('Engine rejected actions');
+      playable = inRollOrder(game.roll, field);
+    }
+    rolled.playable.set(key, playable);
+  }
+  return playable;
 }
 
 // The dice left, in upper case and in the order they were rolled. The engine
@@ -124,10 +168,12 @@ function inRollOrder(roll: readonly number[], left: string): string {
 
 export function viewGame(game: Game) {
   let dfen = game.start;
+  let rolled: RolledTurn | null = null;
   let node: MoveTree | null = null;
   if (game.roll.length) {
     dfen += ' ' + diceField(game.roll);
-    node = turnTree(dfen);
+    rolled = turnOf(dfen);
+    node = rolled.tree;
   }
   // The actions played so far must be a path through the tree.
   for (const move of game.moves) {
@@ -138,13 +184,17 @@ export function viewGame(game: Game) {
   }
   const parts = dfen.split(' ');
   const side = parts[1] as Side;
+  const remaining = rolled ? inRollOrder(game.roll, parts[6] ?? '') : '';
   return {
     dfen,
     side,
     // What may come next in this turn: nothing before the roll or once the turn
     // is complete, a king taken included, which always ends a turn.
     legal: node ? Object.keys(node) : [],
-    remaining: game.roll.length ? inRollOrder(game.roll, parts[6] ?? '') : '',
+    remaining,
+    // The dice left that some legal turn can still spend: none before the roll
+    // or once the turn is complete.
+    playable: rolled && node ? playableDice(rolled, game, node, remaining) : '',
     // Whether the side to move belongs to the bot.
     bot: game.human !== null && side !== game.human,
   };

@@ -240,7 +240,7 @@ const Status = ({
         <Text style={STATUS_LINE}>{winnerLine(result)}</Text>
       ) : (
         <Dice
-          dice={diceOf(game.roll, view.remaining, game.phase === 'handoff')}
+          dice={diceOf(game.roll, view.remaining, view.playable)}
           side={view.side}
         />
       )}
@@ -393,6 +393,7 @@ const report = (
     `phase ${game.phase}`,
     `side ${view.side}`,
     `dice "${view.remaining}"`,
+    `playable "${view.playable}"`,
     `legal ${view.legal.length}`,
     `cursor ${focus.cursor}`,
     `selected ${focus.selected ?? '-'}`,

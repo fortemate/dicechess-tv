@@ -67,7 +67,10 @@ test('the dice lesson really does permit only knights', () => {
   const dice = TUTORIAL.find((step) => step.id === 'dice')!;
   const game = stepGame(dice);
   const state = viewGame(game);
-  assert.equal(state.remaining, 'QRN');
+  assert.equal(state.remaining, 'QBN');
+  // Only the knight die stays lit, so the dice agree with "Nothing else can
+  // move on this roll" for the whole turn, not only its first action.
+  assert.equal(state.playable, 'N');
   // Every legal action starts on a knight, which is what makes the lesson true.
   const board = state.dfen.split(' ')[0];
   for (const move of state.legal) {

@@ -29,7 +29,7 @@ The roll is drawn as three dice, as the other Dice Chess clients draw it. Each f
 
 - **A die still to play** carries a cyan ring.
 - **A spent die** fades to 30 % and shrinks.
-- **A die the turn could not use** loses its ring and fades to 45 %, but keeps its size: it was never played.
+- **A die no legal turn can use** loses its ring and fades to 45 %, but keeps its size: it will not be played. It dims as soon as that is known, at the roll or after an action, and not only once the turn is over. In the opening with queen, bishop and knight, only a knight can move, and no knight move frees the bishop or the queen, so both of those dice dim at the roll.
 
 ## Sizes and the safe area
 

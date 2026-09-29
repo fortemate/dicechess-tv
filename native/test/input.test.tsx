@@ -169,7 +169,10 @@ test('OK on the board rolls the dice', () => {
   const { state } = mount();
   assert.match(state(), /overlay none \| turn 1 \| phase roll/);
   send(Select);
-  assert.match(state(), /phase move \| side w \| dice "QRN" \| legal 4/);
+  assert.match(
+    state(),
+    /phase move \| side w \| dice "QRN" \| playable "RN" \| legal 4/,
+  );
 });
 
 test('arrows move the focus, OK picks a piece up and marks its destinations', () => {
@@ -214,7 +217,7 @@ test('a complete turn plays out on the remote and hands over', () => {
   send(Select);
 
   send(Down, Left, Left, Left, Select, Up, Up, Right, Select);
-  assert.match(state(), /dice "QR" \| legal 1/);
+  assert.match(state(), /dice "QR" \| playable "R" \| legal 1/);
   assert.match(state(), /last b1c3/);
   assert.equal(
     overlays(root, (s) => s.backgroundColor === THEME.lastMove).length,

@@ -56,8 +56,11 @@ export const TUTORIAL: readonly TutorialStep[] = [
     instruction: 'Play a knight. Nothing else can move on this roll.',
     note: 'Each die names a piece. A queen die is useless while the queen is blocked.',
     start: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-    // Queen, rook and knight: only the knights have anywhere to go.
-    roll: [5, 4, 2],
+    // Queen, bishop and knight: only the knights have anywhere to go, and no
+    // knight move frees the bishop or the queen, so both dice dim at the roll,
+    // as the instruction says. A rook die would stay lit, since a1b1 can follow
+    // b1a3.
+    roll: [5, 3, 2],
     goal: { kind: 'anyMove' },
   },
   {
