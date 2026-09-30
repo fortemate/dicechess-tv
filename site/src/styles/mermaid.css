@@ -1,0 +1,81 @@
+/* The colours of the Mermaid diagrams. This is not a page stylesheet:
+   astro.config.mjs reads it once, when the site starts, and hands it to Mermaid
+   as `themeCSS`, so restart `npm run dev` after changing it. Mermaid scopes it
+   to each diagram and places it after its own theme, so these rules win without
+   !important, and a diagram's own `style` and `classDef` lines still win over
+   them.
+
+   A diagram is drawn inline in the page, so Starlight's colour variables reach
+   it and it follows the light and dark themes the way the text does. In both
+   themes Starlight's scale runs from --sl-color-black, the page background, to
+   --sl-color-white, the text. */
+
+.label,
+.nodeLabel,
+span {
+  color: var(--sl-color-white);
+}
+
+.label text,
+text {
+  fill: var(--sl-color-white);
+}
+
+.node rect,
+.node circle,
+.node ellipse,
+.node polygon,
+.node path {
+  fill: var(--sl-color-black);
+  stroke: var(--sl-color-gray-4);
+  stroke-width: 1px;
+}
+
+/* A subgraph is a band behind its boxes, titled in the grey of secondary
+   text. */
+.cluster rect {
+  fill: var(--sl-color-gray-6);
+  stroke: var(--sl-color-hairline-light);
+}
+
+.cluster-label span,
+.cluster span {
+  color: var(--sl-color-gray-2);
+  font-weight: 600;
+}
+
+/* A node or subgraph given `class <id> accent` in a diagram takes the site's
+   accent, to pick out what the diagram is about. */
+.accent > rect,
+.accent.node rect {
+  fill: var(--sl-color-accent-low);
+  stroke: var(--sl-color-accent);
+}
+
+.flowchart-link,
+.edgePaths .path {
+  stroke: var(--sl-color-gray-3);
+}
+
+.marker,
+.marker.cross,
+.arrowheadPath,
+.arrowMarkerPath {
+  fill: var(--sl-color-gray-3);
+  stroke: var(--sl-color-gray-3);
+}
+
+/* An edge's label sits on the page background, which hides the line behind
+   it. */
+.edgeLabel,
+.edgeLabel p,
+.edgeLabel span,
+.labelBkg {
+  background-color: var(--sl-color-black);
+  color: var(--sl-color-gray-2);
+}
+
+.edgeLabel rect {
+  fill: var(--sl-color-black);
+  opacity: 1;
+}

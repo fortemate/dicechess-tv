@@ -8,45 +8,35 @@ sidebar:
 Dice Chess TV divides cleanly into three layers: a pure TypeScript core, a React Native for Vega native shell, and an open-source canonical rules engine.
 
 ```mermaid
-flowchart TD
-    subgraph UI ["React Native for Vega (native/)"]
-        App["App.tsx / GameScreen.tsx"]
-        Board["Board.tsx & Piece Components"]
-        Input["useRemoteInput (D-pad, OK, Back)"]
-        Store["mmkvStore (Synchronous Store)"]
-        Audio["Sound & Adaptive Music Subsystems"]
-    end
+flowchart TB
+  subgraph shell ["native/"]
+    input("<b>useRemoteInput.ts</b><br/>D-pad · OK · Back")
+    screen("<b>screen.ts</b><br/>screen reducer")
+    store[("<b>mmkvStore.ts</b><br/>synchronous saves")]
+    board("<b>Board.tsx</b><br/>draws the board")
+    audio("<b>sound.ts · music.ts</b><br/>effects, music")
+  end
 
-    subgraph Core ["Pure TypeScript Core (src/core/)"]
-        Reducer["screen.ts (Pure State Reducer)"]
-        GameController["game.ts (Turn Controller)"]
-        BoardView["boardView.ts & cursor.ts"]
-        Animation["moveAnimation.ts (Slide Calculation)"]
-        Bots["bot.ts (Opponents: Rolly, Grabby, Rampage)"]
-        Danger["danger.ts (Threat Evaluation)"]
-        Ledger["ledger.ts (Result Recording)"]
-    end
+  subgraph core ["src/core/"]
+    nav("<b>boardInput.ts</b><br/>cursor jumps")
+    game("<b>game.ts · bot.ts</b><br/>turns, opponents")
+    view("<b>boardView.ts</b><br/>squares, slides")
+    cues("<b>cues.ts · danger.ts</b><br/>cues, king danger")
+  end
 
-    subgraph Engine ["Rules Engine (@fortemate/dicechess-engine)"]
-        LegalTree["Legal Turn Tree Generator"]
-        ApplyMove["applyMove & State Transitions"]
-        PlayableDice["getPlayableDice (Maximal Use)"]
-        TerminalPolicy["Terminal Rules (King Capture, Draws)"]
-    end
+  engine[["<b>@fortemate/dicechess-engine</b><br/>legal turn tree · applyMove · playable dice"]]
 
-    Input -->|"Key Event"| Reducer
-    Reducer -->|"Action"| GameController
-    GameController -->|"Validate & Query"| Engine
-    Engine -->|"Legal Actions & Playable Dice"| GameController
-    GameController -->|"Next State"| Store
-    Store -.->|"Direct Sync Read"| App
-    GameController -->|"State Snapshot"| BoardView
-    BoardView -->|"SquareView Array"| Board
-    GameController -->|"Turn Step Transitions"| Animation
-    Animation -->|"Slide Coordinates"| Board
-    GameController -->|"Step Outcome"| Audio
-    Danger -->|"King Threat Level"| Audio
+  input --> screen
+  screen --> nav & game
+  store --> game
+  board --> view
+  audio --> cues
+  game & cues --> engine
+
+  class core accent
 ```
+
+Remote keys enter at the top, through `useRemoteInput.ts`. Every other arrow points from a module to the one it relies on, and all of them point down: the shell relies on the core and the core on the engine, and nothing in `src/core/` reaches back into `native/`.
 
 ## The Three Layers
 
