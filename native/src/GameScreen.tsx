@@ -22,6 +22,7 @@ import { TutorialScreen } from './TutorialScreen';
 import { RulesScreen } from './RulesScreen';
 import { AboutScreen } from './AboutScreen';
 import { OpponentScreen } from './OpponentScreen';
+import { Matchup } from './Matchup';
 import type { Sounds } from './sound';
 import type { Music } from './music';
 import { MUSIC_STEPS, type MusicSetting } from './musicSetting';
@@ -243,10 +244,18 @@ const Status = ({
     );
   return (
     <>
-      <Text style={{ color: '#8dc9b6', fontSize: 20, letterSpacing: 2 }}>
+      <Text
+        style={{
+          color: '#8dc9b6',
+          fontSize: 20,
+          letterSpacing: 2,
+          marginBottom: 10,
+        }}
+      >
         {mode}
       </Text>
-      <Text style={{ color: '#f0f4f8', fontSize: 38, marginBottom: 16 }}>
+      <Matchup game={game} side={view.side} thinking={botOwes(game)} />
+      <Text style={{ color: '#f0f4f8', fontSize: 36, marginBottom: 14 }}>
         {result ? RESULT[result.reason] : headline(game, view)}
       </Text>
       {result ? (
