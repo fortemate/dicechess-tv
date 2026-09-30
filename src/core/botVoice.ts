@@ -57,395 +57,145 @@ export type BotVoiceCueResult = {
   readonly nextState: BotVoiceState;
 };
 
+const BOT_PREFIX: Readonly<Record<BotMode, string>> = {
+  random: 'rolly',
+  greedy: 'grabby',
+  aggressive: 'rampage',
+};
+
+const RAW_SCRIPTS: Readonly<
+  Record<
+    BotMode,
+    Readonly<Record<VoiceEvent, readonly [string, string, string]>>
+  >
+> = {
+  random: {
+    intro: [
+      "Hey! Let's roll and see what happens!",
+      "Dice ready, board ready! Let's have fun!",
+      "I love rolling dice! Hope they're friendly today!",
+    ],
+    empty_roll: [
+      'Oops, nowhere to go! Your turn!',
+      "Nothing to move? That's dice for you!",
+      'A blank roll! Well, that was silly!',
+    ],
+    capture_heavy: [
+      'Whoa! Did I really just grab that big piece?!',
+      'Look what I found! Down goes a heavy hitter!',
+      'Yay! That was a huge capture!',
+    ],
+    capture: [
+      'Boop! Mine now!',
+      'Got one! Every little piece counts!',
+      'Snack time for my pieces!',
+    ],
+    danger_high: [
+      'Uh oh, my king looks a little nervous...',
+      "Yikes, watch where you're pointing that!",
+      'Wait wait wait, please leave my king alone!',
+    ],
+    win: [
+      'Yay, I won! Can we roll again?!',
+      'Woohoo! The dice were super friendly today!',
+      'High five! That was so much fun!',
+    ],
+    loss: [
+      'Aww, good game! You got me fair and square!',
+      'My king tripped! Nice checkmate!',
+      "You're too good! Let's play another round!",
+    ],
+  },
+  greedy: {
+    intro: [
+      'Everything on this board belongs in my collection.',
+      "Don't get attached to your pieces. I'm taking them all.",
+      'A fresh board! So many shiny pieces to hoard.',
+    ],
+    empty_roll: [
+      'No moves?! But I wanted to take something!',
+      'A waste of a roll! No loot for my vault this turn.',
+      'Empty roll! You got lucky... for now.',
+    ],
+    capture_heavy: [
+      'Jackpot! That prize piece is mine!',
+      'Exquisite loot! A crown jewel for my hoard!',
+      'The bigger the piece, the sweeter the profit!',
+    ],
+    capture: [
+      "Mine! I'll take that, thank you.",
+      'Another piece added to my private collection.',
+      "Yoink! You shouldn't leave valuables lying around.",
+    ],
+    danger_high: [
+      'Hey! Hands off the royal vault!',
+      'Back away from my king! What impudence!',
+      'Protect the crown! My hoard is in peril!',
+    ],
+    win: [
+      'Victory and total plunder! What a splendid haul!',
+      'Checkmate! All your squares and treasures are mine!',
+      'Greed is good, but winning is priceless!',
+    ],
+    loss: [
+      'No! My glorious collection! How dare you?!',
+      'Unacceptable! You plundered my king?!',
+      'Defeated?! My treasures... slipping away...',
+    ],
+  },
+  aggressive: {
+    intro: [
+      'Step forward. Your king will not survive this day.',
+      'No mercy. No retreat. Let the battle begin.',
+      'Prepare yourself! I strike without hesitation.',
+    ],
+    empty_roll: [
+      'The dice stall my fury. Savor your brief respite.',
+      'No targets?! Unacceptable! Next turn you fall.',
+      'A momentary pause before the storm resumes.',
+    ],
+    capture_heavy: [
+      'Crushed! Your mightiest defender falls into dust!',
+      'Devastating strike! You cannot withstand my assault!',
+      'Your high command is broken! Smashed to pieces!',
+    ],
+    capture: [
+      'Obliterated! One less obstacle in my path.',
+      'Cut down! Your ranks crumble before me.',
+      'Pathetic defense! Smashed aside!',
+    ],
+    danger_high: [
+      'You dare threaten me?! I will break your vanguard!',
+      'A bold assault... but you only seal your own doom!',
+      'My king does not flinch! Counterattack incoming!',
+    ],
+    win: [
+      'Total annihilation! Kneel before the conqueror!',
+      'Checkmate! Your king is crushed beneath my heel!',
+      'Victory was inevitable! You were completely outmatched!',
+    ],
+    loss: [
+      'Impossible! How could my onslaught fail?!',
+      'You fought fiercely... I acknowledge your triumph.',
+      'Downed, but not broken! We will battle again!',
+    ],
+  },
+};
+
 // Catalogue of 63 curated lines: 3 lines per event for each of the 3 bots.
-export const VOICE_CATALOGUE: readonly VoiceLine[] = [
-  // --- ROLLY (random, Easy) ---
-  // Goofy, cheerful, clumsy, playful, loves rolling dice.
-  {
-    id: 'rolly_intro_1',
-    bot: 'random',
-    event: 'intro',
-    text: "Hey! Let's roll and see what happens!",
-  },
-  {
-    id: 'rolly_intro_2',
-    bot: 'random',
-    event: 'intro',
-    text: "Dice ready, board ready! Let's have fun!",
-  },
-  {
-    id: 'rolly_intro_3',
-    bot: 'random',
-    event: 'intro',
-    text: "I love rolling dice! Hope they're friendly today!",
-  },
-  {
-    id: 'rolly_empty_roll_1',
-    bot: 'random',
-    event: 'empty_roll',
-    text: 'Oops, nowhere to go! Your turn!',
-  },
-  {
-    id: 'rolly_empty_roll_2',
-    bot: 'random',
-    event: 'empty_roll',
-    text: "Nothing to move? That's dice for you!",
-  },
-  {
-    id: 'rolly_empty_roll_3',
-    bot: 'random',
-    event: 'empty_roll',
-    text: 'A blank roll! Well, that was silly!',
-  },
-  {
-    id: 'rolly_capture_heavy_1',
-    bot: 'random',
-    event: 'capture_heavy',
-    text: 'Whoa! Did I really just grab that big piece?!',
-  },
-  {
-    id: 'rolly_capture_heavy_2',
-    bot: 'random',
-    event: 'capture_heavy',
-    text: 'Look what I found! Down goes a heavy hitter!',
-  },
-  {
-    id: 'rolly_capture_heavy_3',
-    bot: 'random',
-    event: 'capture_heavy',
-    text: 'Yay! That was a huge capture!',
-  },
-  {
-    id: 'rolly_capture_1',
-    bot: 'random',
-    event: 'capture',
-    text: 'Boop! Mine now!',
-  },
-  {
-    id: 'rolly_capture_2',
-    bot: 'random',
-    event: 'capture',
-    text: 'Got one! Every little piece counts!',
-  },
-  {
-    id: 'rolly_capture_3',
-    bot: 'random',
-    event: 'capture',
-    text: 'Snack time for my pieces!',
-  },
-  {
-    id: 'rolly_danger_high_1',
-    bot: 'random',
-    event: 'danger_high',
-    text: 'Uh oh, my king looks a little nervous...',
-  },
-  {
-    id: 'rolly_danger_high_2',
-    bot: 'random',
-    event: 'danger_high',
-    text: "Yikes, watch where you're pointing that!",
-  },
-  {
-    id: 'rolly_danger_high_3',
-    bot: 'random',
-    event: 'danger_high',
-    text: 'Wait wait wait, please leave my king alone!',
-  },
-  {
-    id: 'rolly_win_1',
-    bot: 'random',
-    event: 'win',
-    text: 'Yay, I won! Can we roll again?!',
-  },
-  {
-    id: 'rolly_win_2',
-    bot: 'random',
-    event: 'win',
-    text: 'Woohoo! The dice were super friendly today!',
-  },
-  {
-    id: 'rolly_win_3',
-    bot: 'random',
-    event: 'win',
-    text: 'High five! That was so much fun!',
-  },
-  {
-    id: 'rolly_loss_1',
-    bot: 'random',
-    event: 'loss',
-    text: 'Aww, good game! You got me fair and square!',
-  },
-  {
-    id: 'rolly_loss_2',
-    bot: 'random',
-    event: 'loss',
-    text: 'My king tripped! Nice checkmate!',
-  },
-  {
-    id: 'rolly_loss_3',
-    bot: 'random',
-    event: 'loss',
-    text: "You're too good! Let's play another round!",
-  },
-
-  // --- GRABBY (greedy, Medium) ---
-  // Materialistic, hoarder, counts values, hates losing pieces.
-  {
-    id: 'grabby_intro_1',
-    bot: 'greedy',
-    event: 'intro',
-    text: 'Everything on this board belongs in my collection.',
-  },
-  {
-    id: 'grabby_intro_2',
-    bot: 'greedy',
-    event: 'intro',
-    text: "Don't get attached to your pieces. I'm taking them all.",
-  },
-  {
-    id: 'grabby_intro_3',
-    bot: 'greedy',
-    event: 'intro',
-    text: 'A fresh board! So many shiny pieces to hoard.',
-  },
-  {
-    id: 'grabby_empty_roll_1',
-    bot: 'greedy',
-    event: 'empty_roll',
-    text: 'No moves?! But I wanted to take something!',
-  },
-  {
-    id: 'grabby_empty_roll_2',
-    bot: 'greedy',
-    event: 'empty_roll',
-    text: 'A waste of a roll! No loot for my vault this turn.',
-  },
-  {
-    id: 'grabby_empty_roll_3',
-    bot: 'greedy',
-    event: 'empty_roll',
-    text: 'Empty roll! You got lucky... for now.',
-  },
-  {
-    id: 'grabby_capture_heavy_1',
-    bot: 'greedy',
-    event: 'capture_heavy',
-    text: 'Jackpot! That prize piece is mine!',
-  },
-  {
-    id: 'grabby_capture_heavy_2',
-    bot: 'greedy',
-    event: 'capture_heavy',
-    text: 'Exquisite loot! A crown jewel for my hoard!',
-  },
-  {
-    id: 'grabby_capture_heavy_3',
-    bot: 'greedy',
-    event: 'capture_heavy',
-    text: 'The bigger the piece, the sweeter the profit!',
-  },
-  {
-    id: 'grabby_capture_1',
-    bot: 'greedy',
-    event: 'capture',
-    text: "Mine! I'll take that, thank you.",
-  },
-  {
-    id: 'grabby_capture_2',
-    bot: 'greedy',
-    event: 'capture',
-    text: 'Another piece added to my private collection.',
-  },
-  {
-    id: 'grabby_capture_3',
-    bot: 'greedy',
-    event: 'capture',
-    text: "Yoink! You shouldn't leave valuables lying around.",
-  },
-  {
-    id: 'grabby_danger_high_1',
-    bot: 'greedy',
-    event: 'danger_high',
-    text: 'Hey! Hands off the royal vault!',
-  },
-  {
-    id: 'grabby_danger_high_2',
-    bot: 'greedy',
-    event: 'danger_high',
-    text: 'Back away from my king! What impudence!',
-  },
-  {
-    id: 'grabby_danger_high_3',
-    bot: 'greedy',
-    event: 'danger_high',
-    text: 'Protect the crown! My hoard is in peril!',
-  },
-  {
-    id: 'grabby_win_1',
-    bot: 'greedy',
-    event: 'win',
-    text: 'Victory and total plunder! What a splendid haul!',
-  },
-  {
-    id: 'grabby_win_2',
-    bot: 'greedy',
-    event: 'win',
-    text: 'Checkmate! All your squares and treasures are mine!',
-  },
-  {
-    id: 'grabby_win_3',
-    bot: 'greedy',
-    event: 'win',
-    text: 'Greed is good, but winning is priceless!',
-  },
-  {
-    id: 'grabby_loss_1',
-    bot: 'greedy',
-    event: 'loss',
-    text: 'No! My glorious collection! How dare you?!',
-  },
-  {
-    id: 'grabby_loss_2',
-    bot: 'greedy',
-    event: 'loss',
-    text: 'Unacceptable! You plundered my king?!',
-  },
-  {
-    id: 'grabby_loss_3',
-    bot: 'greedy',
-    event: 'loss',
-    text: 'Defeated?! My treasures... slipping away...',
-  },
-
-  // --- RAMPAGE (aggressive, Hard) ---
-  // Fierce, menacing, aggressive, relentless hunter of the king.
-  {
-    id: 'rampage_intro_1',
-    bot: 'aggressive',
-    event: 'intro',
-    text: 'Step forward. Your king will not survive this day.',
-  },
-  {
-    id: 'rampage_intro_2',
-    bot: 'aggressive',
-    event: 'intro',
-    text: 'No mercy. No retreat. Let the battle begin.',
-  },
-  {
-    id: 'rampage_intro_3',
-    bot: 'aggressive',
-    event: 'intro',
-    text: 'Prepare yourself! I strike without hesitation.',
-  },
-  {
-    id: 'rampage_empty_roll_1',
-    bot: 'aggressive',
-    event: 'empty_roll',
-    text: 'The dice stall my fury. Savor your brief respite.',
-  },
-  {
-    id: 'rampage_empty_roll_2',
-    bot: 'aggressive',
-    event: 'empty_roll',
-    text: 'No targets?! Unacceptable! Next turn you fall.',
-  },
-  {
-    id: 'rampage_empty_roll_3',
-    bot: 'aggressive',
-    event: 'empty_roll',
-    text: 'A momentary pause before the storm resumes.',
-  },
-  {
-    id: 'rampage_capture_heavy_1',
-    bot: 'aggressive',
-    event: 'capture_heavy',
-    text: 'Crushed! Your mightiest defender falls into dust!',
-  },
-  {
-    id: 'rampage_capture_heavy_2',
-    bot: 'aggressive',
-    event: 'capture_heavy',
-    text: 'Devastating strike! You cannot withstand my assault!',
-  },
-  {
-    id: 'rampage_capture_heavy_3',
-    bot: 'aggressive',
-    event: 'capture_heavy',
-    text: 'Your high command is broken! Smashed to pieces!',
-  },
-  {
-    id: 'rampage_capture_1',
-    bot: 'aggressive',
-    event: 'capture',
-    text: 'Obliterated! One less obstacle in my path.',
-  },
-  {
-    id: 'rampage_capture_2',
-    bot: 'aggressive',
-    event: 'capture',
-    text: 'Cut down! Your ranks crumble before me.',
-  },
-  {
-    id: 'rampage_capture_3',
-    bot: 'aggressive',
-    event: 'capture',
-    text: 'Pathetic defense! Smashed aside!',
-  },
-  {
-    id: 'rampage_danger_high_1',
-    bot: 'aggressive',
-    event: 'danger_high',
-    text: 'You dare threaten me?! I will break your vanguard!',
-  },
-  {
-    id: 'rampage_danger_high_2',
-    bot: 'aggressive',
-    event: 'danger_high',
-    text: 'A bold assault... but you only seal your own doom!',
-  },
-  {
-    id: 'rampage_danger_high_3',
-    bot: 'aggressive',
-    event: 'danger_high',
-    text: 'My king does not flinch! Counterattack incoming!',
-  },
-  {
-    id: 'rampage_win_1',
-    bot: 'aggressive',
-    event: 'win',
-    text: 'Total annihilation! Kneel before the conqueror!',
-  },
-  {
-    id: 'rampage_win_2',
-    bot: 'aggressive',
-    event: 'win',
-    text: 'Checkmate! Your king is crushed beneath my heel!',
-  },
-  {
-    id: 'rampage_win_3',
-    bot: 'aggressive',
-    event: 'win',
-    text: 'Victory was inevitable! You were completely outmatched!',
-  },
-  {
-    id: 'rampage_loss_1',
-    bot: 'aggressive',
-    event: 'loss',
-    text: 'Impossible! How could my onslaught fail?!',
-  },
-  {
-    id: 'rampage_loss_2',
-    bot: 'aggressive',
-    event: 'loss',
-    text: 'You fought fiercely... I acknowledge your triumph.',
-  },
-  {
-    id: 'rampage_loss_3',
-    bot: 'aggressive',
-    event: 'loss',
-    text: 'Downed, but not broken! We will battle again!',
-  },
-];
+export const VOICE_CATALOGUE: readonly VoiceLine[] = (
+  Object.keys(RAW_SCRIPTS) as BotMode[]
+).flatMap((bot) => {
+  const events = RAW_SCRIPTS[bot];
+  return (Object.keys(events) as VoiceEvent[]).flatMap((event) =>
+    events[event].map((text, index) => ({
+      id: `${BOT_PREFIX[bot]}_${event}_${index + 1}`,
+      bot,
+      event,
+      text,
+    })),
+  );
+});
 
 export function voiceLinesFor(
   bot: BotMode,
