@@ -159,7 +159,10 @@ export const OpponentBadge = ({
   const opponentLabel = opponent ? opponent.name.toUpperCase() : 'PLAYER 2';
 
   return (
-    <View testID="opponent-section">
+    <View
+      testID="opponent-section"
+      style={{ position: 'relative', zIndex: 10 }}
+    >
       <View
         testID="opponent-badge"
         style={{
@@ -214,7 +217,17 @@ export const OpponentBadge = ({
         </View>
       </View>
       {speechBubble ? (
-        <View testID="speech-bubble-slot" style={{ marginTop: 8 }}>
+        <View
+          testID="speech-bubble-slot"
+          style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            marginTop: 4,
+            zIndex: 20,
+          }}
+        >
           {speechBubble}
         </View>
       ) : null}

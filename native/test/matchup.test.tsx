@@ -175,6 +175,8 @@ test('renders speech bubble under opponent badge when provided', () => {
   const slot = byTestId(tree.root, 'speech-bubble-slot');
   const bubble = byTestId(slot, 'test-bubble');
   assert.equal(texts(bubble)[0], 'Your king is trapped!');
+  assert.equal(styleOf(slot).position, 'absolute');
+  assert.equal(styleOf(slot).top, '100%');
 });
 
 test('renders center children between opponent and player badges', () => {
