@@ -154,3 +154,42 @@ test('neither badge is highlighted when the game has ended', () => {
   assert.notEqual(styleOf(player).borderColor, THEME.cursor);
   assert.notEqual(styleOf(opponent).borderColor, THEME.cursor);
 });
+
+test('renders speech bubble under opponent badge when provided', () => {
+  const game = newGame('aggressive', 'game-bubble');
+  let tree!: renderer.ReactTestRenderer;
+  act(() => {
+    tree = renderer.create(
+      React.createElement(Matchup, {
+        game,
+        side: 'b',
+        speechBubble: React.createElement(
+          'Text',
+          { testID: 'test-bubble' },
+          'Your king is trapped!',
+        ),
+      }),
+    );
+  });
+
+  const slot = byTestId(tree.root, 'speech-bubble-slot');
+  const bubble = byTestId(slot, 'test-bubble');
+  assert.equal(texts(bubble)[0], 'Your king is trapped!');
+});
+
+test('renders center children between opponent and player badges', () => {
+  const game = newGame('aggressive', 'game-children');
+  let tree!: renderer.ReactTestRenderer;
+  act(() => {
+    tree = renderer.create(
+      React.createElement(
+        Matchup,
+        { game, side: 'w' },
+        React.createElement('Text', { testID: 'center-action' }, 'TURN 1'),
+      ),
+    );
+  });
+
+  const center = byTestId(tree.root, 'center-action');
+  assert.equal(texts(center)[0], 'TURN 1');
+});

@@ -235,7 +235,9 @@ const Status = ({
 }) => {
   const { result } = game;
   const name = opponentName(game);
-  const mode = `${name ? `VS ${name.toUpperCase()}` : 'HOTSEAT'} · TURN ${game.turn}`;
+  const mode = home
+    ? `${name ? `VS ${name.toUpperCase()}` : 'HOTSEAT'} · TURN ${game.turn}`
+    : `${name ? '' : 'HOTSEAT · '}TURN ${game.turn}`;
   if (home)
     return (
       <Text style={{ color: '#8dc9b6', fontSize: 20, letterSpacing: 2 }}>
@@ -254,7 +256,6 @@ const Status = ({
       >
         {mode}
       </Text>
-      <Matchup game={game} side={view.side} thinking={botOwes(game)} />
       <Text style={{ color: '#f0f4f8', fontSize: 36, marginBottom: 14 }}>
         {result ? RESULT[result.reason] : headline(game, view)}
       </Text>
@@ -657,18 +658,38 @@ export const GameScreen = ({
         flipped={flipped(game, turnHotseat)}
         movable={movable}
       />
-      <View style={{ flex: 1, paddingLeft: BOARD_GAP }}>
-        <Status game={game} view={state} home={overlay.kind === 'home'} />
-        <Panel
-          overlay={overlay}
-          game={game}
-          sound={sound}
-          music={musicSetting}
-          hasMusic={hasMusic}
-          turnHotseat={turnHotseat}
-          selected={focus.selected}
-          pressed={pressed}
-        />
+      <View style={{ flex: 1, height: size, paddingLeft: BOARD_GAP }}>
+        {overlay.kind === 'home' ? (
+          <>
+            <Status game={game} view={state} home={true} />
+            <Panel
+              overlay={overlay}
+              game={game}
+              sound={sound}
+              music={musicSetting}
+              hasMusic={hasMusic}
+              turnHotseat={turnHotseat}
+              selected={focus.selected}
+              pressed={pressed}
+            />
+          </>
+        ) : (
+          <Matchup game={game} side={state.side} thinking={botOwes(game)}>
+            <View style={{ flex: 1, justifyContent: 'center' }}>
+              <Status game={game} view={state} home={false} />
+              <Panel
+                overlay={overlay}
+                game={game}
+                sound={sound}
+                music={musicSetting}
+                hasMusic={hasMusic}
+                turnHotseat={turnHotseat}
+                selected={focus.selected}
+                pressed={pressed}
+              />
+            </View>
+          </Matchup>
+        )}
       </View>
     </View>
   );

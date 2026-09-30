@@ -1,6 +1,6 @@
-// The matchup badges in the game screen HUD (#156): showing the player and
-// the opponent side by side, with an active turn highlight and bot thinking
-// status.
+// The matchup badges in the game screen HUD (#156): showing the opponent at the
+// top (mirroring black on the board) with a speech bubble hook (#158), game action
+// in the middle, and the player at the bottom (mirroring white on the board).
 import React from 'react';
 import { View, Text } from 'react-native';
 import {
@@ -16,10 +16,24 @@ import { FACE_OF } from './OpponentScreen';
 import { PIECES } from './pieces';
 import { THEME } from './theme';
 
+export type OpponentBadgeProps = {
+  game: Game;
+  side: Side;
+  thinking?: boolean;
+  speechBubble?: React.ReactNode;
+};
+
+export type PlayerBadgeProps = {
+  game: Game;
+  side: Side;
+};
+
 export type MatchupProps = {
   game: Game;
   side: Side;
   thinking?: boolean;
+  speechBubble?: React.ReactNode;
+  children?: React.ReactNode;
 };
 
 const LEVELS = ['Easy', 'Medium', 'Hard'] as const;
@@ -50,52 +64,152 @@ export const MatchupPips = ({ level }: { level: Opponent['level'] }) => {
   );
 };
 
-export const Matchup = ({ game, side, thinking = false }: MatchupProps) => {
+export const OpponentBadge = ({
+  game,
+  side,
+  thinking = false,
+  speechBubble,
+}: OpponentBadgeProps) => {
   const isBot = isBotMode(game.mode);
   const human = game.human ?? 'w';
-  const playerSide: Side = isBot ? human : 'w';
   const opponentSide: Side = isBot ? opposite(human) : 'b';
-
   const opponent = isBotMode(game.mode) ? opponentOf(game.mode) : null;
   const live = game.phase !== 'ended';
-  const playerActive = live && side === playerSide;
   const opponentActive = live && side === opponentSide;
-
-  const playerLabel = isBot ? 'YOU' : 'PLAYER 1';
   const opponentLabel = opponent ? opponent.name.toUpperCase() : 'PLAYER 2';
-
-  const PlayerPiece = PIECES[playerSide === 'w' ? 'K' : 'k'];
   const OpponentPiece = PIECES[opponentSide === 'w' ? 'K' : 'k'];
   const BotFace = opponent ? FACES[FACE_OF[opponent.mode]] : null;
 
   return (
+    <View testID="opponent-section">
+      <View
+        testID="opponent-badge"
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingVertical: 8,
+          paddingHorizontal: 10,
+          borderRadius: 12,
+          borderWidth: 2,
+          borderColor: opponentActive ? THEME.cursor : '#22384f',
+          backgroundColor: opponentActive
+            ? THEME.focusFill
+            : 'rgba(15, 23, 42, 0.55)',
+          opacity: opponentActive ? 1 : 0.72,
+        }}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+          <View
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 8,
+              backgroundColor: isBot ? 'transparent' : '#1b2d40',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginRight: 8,
+            }}
+          >
+            {BotFace ? <BotFace size={38} /> : <OpponentPiece size={32} />}
+          </View>
+          <View style={{ flex: 1, justifyContent: 'center' }}>
+            <Text
+              testID="opponent-name"
+              style={{
+                color: '#f0f4f8',
+                fontSize: 16,
+                fontWeight: '700',
+                letterSpacing: 1,
+              }}
+              numberOfLines={1}
+            >
+              {opponentLabel}
+            </Text>
+            {isBot && opponentActive && thinking ? (
+              <Text
+                testID="bot-status"
+                style={{
+                  color: '#5eead4',
+                  fontSize: 12,
+                  fontWeight: '600',
+                  marginTop: 2,
+                }}
+              >
+                Thinking…
+              </Text>
+            ) : isBot && opponent ? (
+              <View
+                testID="opponent-meta"
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  marginTop: 2,
+                }}
+              >
+                <Text
+                  style={{
+                    color: opponentActive ? '#8dc9b6' : '#94a3b8',
+                    fontSize: 12,
+                    marginRight: 6,
+                  }}
+                >
+                  {opponent.level}
+                </Text>
+                <MatchupPips level={opponent.level} />
+              </View>
+            ) : (
+              <Text
+                testID="opponent-side"
+                style={{
+                  color: opponentActive ? '#8dc9b6' : '#94a3b8',
+                  fontSize: 12,
+                  marginTop: 2,
+                }}
+              >
+                {sideName(opponentSide)}
+              </Text>
+            )}
+          </View>
+        </View>
+      </View>
+      {speechBubble ? (
+        <View testID="speech-bubble-slot" style={{ marginTop: 8 }}>
+          {speechBubble}
+        </View>
+      ) : null}
+    </View>
+  );
+};
+
+export const PlayerBadge = ({ game, side }: PlayerBadgeProps) => {
+  const isBot = isBotMode(game.mode);
+  const human = game.human ?? 'w';
+  const playerSide: Side = isBot ? human : 'w';
+  const live = game.phase !== 'ended';
+  const playerActive = live && side === playerSide;
+  const playerLabel = isBot ? 'YOU' : 'PLAYER 1';
+  const PlayerPiece = PIECES[playerSide === 'w' ? 'K' : 'k'];
+
+  return (
     <View
-      testID="matchup-header"
+      testID="player-badge"
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 14,
+        justifyContent: 'space-between',
+        paddingVertical: 8,
+        paddingHorizontal: 10,
+        borderRadius: 12,
+        borderWidth: 2,
+        borderColor: playerActive ? THEME.cursor : '#22384f',
+        backgroundColor: playerActive
+          ? THEME.focusFill
+          : 'rgba(15, 23, 42, 0.55)',
+        opacity: playerActive ? 1 : 0.72,
       }}
     >
-      {/* Player badge */}
-      <View
-        testID="player-badge"
-        style={{
-          flex: 1,
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingVertical: 8,
-          paddingHorizontal: 10,
-          marginRight: 10,
-          borderRadius: 12,
-          borderWidth: 2,
-          borderColor: playerActive ? THEME.cursor : '#22384f',
-          backgroundColor: playerActive
-            ? THEME.focusFill
-            : 'rgba(15, 23, 42, 0.55)',
-          opacity: playerActive ? 1 : 0.72,
-        }}
-      >
+      <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
         <View
           style={{
             width: 40,
@@ -134,97 +248,45 @@ export const Matchup = ({ game, side, thinking = false }: MatchupProps) => {
           </Text>
         </View>
       </View>
-
-      {/* Opponent badge */}
-      <View
-        testID="opponent-badge"
-        style={{
-          flex: 1,
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingVertical: 8,
-          paddingHorizontal: 10,
-          borderRadius: 12,
-          borderWidth: 2,
-          borderColor: opponentActive ? THEME.cursor : '#22384f',
-          backgroundColor: opponentActive
-            ? THEME.focusFill
-            : 'rgba(15, 23, 42, 0.55)',
-          opacity: opponentActive ? 1 : 0.72,
-        }}
-      >
+      {playerActive ? (
         <View
+          testID="player-active-indicator"
           style={{
-            width: 40,
-            height: 40,
-            borderRadius: 8,
-            backgroundColor: isBot ? 'transparent' : '#1b2d40',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginRight: 8,
+            width: 8,
+            height: 8,
+            borderRadius: 4,
+            backgroundColor: THEME.cursor,
+            marginRight: 4,
           }}
-        >
-          {BotFace ? <BotFace size={38} /> : <OpponentPiece size={32} />}
-        </View>
-        <View style={{ flex: 1, justifyContent: 'center' }}>
-          <Text
-            testID="opponent-name"
-            style={{
-              color: '#f0f4f8',
-              fontSize: 16,
-              fontWeight: '700',
-              letterSpacing: 1,
-            }}
-            numberOfLines={1}
-          >
-            {opponentLabel}
-          </Text>
-          {isBot && opponentActive && thinking ? (
-            <Text
-              testID="bot-status"
-              style={{
-                color: '#5eead4',
-                fontSize: 12,
-                fontWeight: '600',
-                marginTop: 2,
-              }}
-            >
-              Thinking…
-            </Text>
-          ) : isBot && opponent ? (
-            <View
-              testID="opponent-meta"
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginTop: 2,
-              }}
-            >
-              <Text
-                style={{
-                  color: opponentActive ? '#8dc9b6' : '#94a3b8',
-                  fontSize: 12,
-                  marginRight: 6,
-                }}
-              >
-                {opponent.level}
-              </Text>
-              <MatchupPips level={opponent.level} />
-            </View>
-          ) : (
-            <Text
-              testID="opponent-side"
-              style={{
-                color: opponentActive ? '#8dc9b6' : '#94a3b8',
-                fontSize: 12,
-                marginTop: 2,
-              }}
-            >
-              {sideName(opponentSide)}
-            </Text>
-          )}
-        </View>
-      </View>
+        />
+      ) : null}
+    </View>
+  );
+};
+
+export const Matchup = ({
+  game,
+  side,
+  thinking = false,
+  speechBubble,
+  children,
+}: MatchupProps) => {
+  return (
+    <View
+      testID="matchup-header"
+      style={{
+        flex: 1,
+        justifyContent: 'space-between',
+      }}
+    >
+      <OpponentBadge
+        game={game}
+        side={side}
+        thinking={thinking}
+        speechBubble={speechBubble}
+      />
+      {children}
+      <PlayerBadge game={game} side={side} />
     </View>
   );
 };
