@@ -122,6 +122,21 @@ vendored sounds and the licence texts in `licenses/` — are kept byte for byte,
 licence recorded in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and, when the
 licence asks for credit, a line on the About screen (`src/core/credits.ts`).
 
+## The bots' voices
+
+The bots' lines live in `src/core/botVoice.ts`. Their voices are synthesized from
+those lines in fortemate/dicechess-assets, which keeps the voice pack for every
+client. Whenever a line changes, commit it, export the catalogue, and have the pack
+synthesized again there before it is vendored here:
+
+```bash
+npm run -s voices:catalogue > catalogue.json
+```
+
+`-s` keeps npm's own header out of the JSON. The document names the commit its
+lines come from; an export taken while `src/core/botVoice.ts` has changes that are
+not committed is marked `dirty`, because no commit holds its texts.
+
 ## Releases
 
 A release is cut by the owner, on a machine with the Vega SDK; CI cannot build the
