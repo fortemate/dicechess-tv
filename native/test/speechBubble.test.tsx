@@ -58,8 +58,10 @@ test('satisfies 10-foot UI high-contrast color and font standards', () => {
   assert.equal(bodyStyle.borderColor, '#2b425b');
   assert.equal(tailStyle.borderBottomColor, '#2b425b');
 
-  // Text legibility on TV screens
+  // Text legibility on TV screens: no smaller than any other caption (#168),
+  // in at most the two rows the speech zone has room for.
   assert.equal(textStyle.color, '#f0f4f8');
-  assert.equal(textStyle.fontSize, 15);
+  assert.ok(Number(textStyle.fontSize) >= 20, 'bubble text is at least 20 dp');
   assert.equal(textStyle.fontWeight, '600');
+  assert.equal(text.props.numberOfLines, 2);
 });

@@ -64,7 +64,7 @@ export const AboutScreen = ({ onExit, onState }: AboutScreenProps) => {
       <Text style={{ color: '#f0f4f8', fontSize: 36 }}>{APP.title}</Text>
       <Text style={{ color: '#aab8c9', fontSize: 22 }}>{APP.maker}</Text>
       {/* The engine is Fortemate's own too, so it is named with the maker. */}
-      <Text style={{ color: '#aab8c9', fontSize: 18, marginBottom: 24 }}>
+      <Text style={{ color: '#aab8c9', fontSize: 20, marginBottom: 24 }}>
         {`${ENGINE.line} · ${ENGINE.licence} · ${ENGINE.source}`}
       </Text>
 

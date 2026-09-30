@@ -22,6 +22,9 @@ Long-form technical documentation, platform findings, performance benchmarks and
 | ----------------------------- | -------------------------------------------------------------------------------- |
 | `src/App.tsx`                 | The root: reads saves before first render; owns randomness, sound and music.     |
 | `src/GameScreen.tsx`          | The board and side status panel, with menus, dialogs, and prompts.               |
+| `src/Matchup.tsx`             | Matchup HUD: a badge per side, placed as on the board; turn frame; speech zone.  |
+| `src/SpeechBubble.tsx`        | The bot's line under its badge: 20 dp text in at most two rows.                  |
+| `src/useBotVoice.ts`          | Picks the bot's lines as the game moves and how long each stays on screen.       |
 | `src/screen.ts`               | The screen's whole flow, as a pure reducer over state and one action.            |
 | `src/OpponentScreen.tsx`      | Opponent selection: three cards with bot faces, difficulty, and player records.  |
 | `src/TutorialScreen.tsx`      | Five-lesson interactive tutorial running on an isolated sandbox board.           |

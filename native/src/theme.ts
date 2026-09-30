@@ -18,6 +18,10 @@ export const THEME = {
   // it, and filled more strongly while OK is held.
   focusFill: 'rgba(0, 234, 255, 0.14)',
   pressedFill: 'rgba(0, 234, 255, 0.34)',
+  // The side to move, in the matchup badges (#168): a warm frame kept apart
+  // from the cursor's cyan, which says "you can select this", and a faint lift.
+  turn: '#f2b33d',
+  turnFill: 'rgba(242, 179, 61, 0.12)',
   // Dice: ivory faces like the light squares, an unspent die ringed in the
   // cursor's cyan at half strength, and the outline of an empty slot.
   die: '#f4ead8',

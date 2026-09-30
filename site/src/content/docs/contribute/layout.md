@@ -54,6 +54,9 @@ Contains the TV presentation layer built with React Native for Vega:
 | ------------------------ | ------------------------------------------------------------------------------------------- |
 | `src/App.tsx`            | Root component initializing MMKV storage, audio managers, and settings.                     |
 | `src/GameScreen.tsx`     | Main screen housing the board, side status panel, menus, and dialogs.                       |
+| `src/Matchup.tsx`        | Matchup HUD: a badge per side, placed as on the board; turn frame; speech zone.             |
+| `src/SpeechBubble.tsx`   | The bot's line under its badge: 20 dp text in at most two rows.                             |
+| `src/useBotVoice.ts`     | Picks the bot's lines as the game moves and how long each stays on screen.                  |
 | `src/screen.ts`          | Pure state reducer coordinating menu navigation, confirmations, and gameplay flow.          |
 | `src/Board.tsx`          | 8x8 chessboard grid rendering pieces, square tints, focus rings, and move animations.       |
 | `src/Dice.tsx`           | Three-dice tray with tumbling roll animations and dimmed unplayable dice.                   |

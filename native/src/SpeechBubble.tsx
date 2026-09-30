@@ -1,10 +1,18 @@
 // High-contrast, 10-foot UI speech bubble for bot character dialogue (#158).
+//
+// Its text is 20 dp like every other caption (#168), in at most two rows: the
+// speech zone under the bot's badge is sized for two, and every voice line is
+// short enough for them (test/botVoice.test.ts).
 import React from 'react';
 import { View, Text } from 'react-native';
 
 export type SpeechBubbleProps = {
   text: string;
 };
+
+export const BUBBLE_TEXT = 20;
+export const BUBBLE_ROWS = 2;
+const TAIL = 7;
 
 export const SpeechBubble = ({ text }: SpeechBubbleProps) => {
   return (
@@ -22,13 +30,14 @@ export const SpeechBubble = ({ text }: SpeechBubbleProps) => {
           height: 0,
           backgroundColor: 'transparent',
           borderStyle: 'solid',
-          borderLeftWidth: 6,
-          borderRightWidth: 6,
-          borderBottomWidth: 6,
+          borderLeftWidth: TAIL,
+          borderRightWidth: TAIL,
+          borderBottomWidth: TAIL,
           borderLeftColor: 'transparent',
           borderRightColor: 'transparent',
           borderBottomColor: '#2b425b',
-          marginLeft: 24,
+          // Under the middle of the avatar.
+          marginLeft: 30 - TAIL,
         }}
       />
       <View
@@ -39,23 +48,20 @@ export const SpeechBubble = ({ text }: SpeechBubbleProps) => {
           borderColor: '#2b425b',
           borderRadius: 10,
           paddingHorizontal: 12,
-          paddingVertical: 7,
+          paddingVertical: 6,
+          // No shadow: on this background it could not be seen, and a bubble
+          // the width of the panel cast it into the TV's safe margin (#168).
           maxWidth: '100%',
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.25,
-          shadowRadius: 4,
-          elevation: 3,
         }}
       >
         <Text
           testID="speech-bubble-text"
+          numberOfLines={BUBBLE_ROWS}
           style={{
             color: '#f0f4f8',
-            fontSize: 15,
+            fontSize: BUBBLE_TEXT,
             fontWeight: '600',
-            lineHeight: 20,
-            letterSpacing: 0.2,
+            lineHeight: 24,
           }}
         >
           {text}
