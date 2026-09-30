@@ -227,6 +227,34 @@ test('Menu drops a selection and opens the menu immediately', () => {
   assert.match(state(), /overlay none/);
 });
 
+test('HUD opponent and player badges hide when an in-game menu overlay is opened', () => {
+  const { root, state } = mount();
+  send(Select);
+  assert.match(state(), /overlay none/);
+
+  const hasBadges = () =>
+    root.findAll((node) => node.props && node.props.testID === 'opponent-badge')
+      .length > 0;
+
+  assert.equal(hasBadges(), true, 'badges must be visible during gameplay');
+
+  send(Menu);
+  assert.match(state(), /overlay menu/);
+  assert.equal(
+    hasBadges(),
+    false,
+    'badges must be hidden when overlay menu is open',
+  );
+
+  send(Menu);
+  assert.match(state(), /overlay none/);
+  assert.equal(
+    hasBadges(),
+    true,
+    'badges must return when overlay menu closes',
+  );
+});
+
 test('a complete turn plays out on the remote and hands over', () => {
   const { root, state } = mount();
   send(Select);

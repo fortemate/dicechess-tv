@@ -22,6 +22,7 @@ import { TutorialScreen } from './TutorialScreen';
 import { RulesScreen } from './RulesScreen';
 import { AboutScreen } from './AboutScreen';
 import { OpponentScreen } from './OpponentScreen';
+import { Matchup } from './Matchup';
 import type { Sounds } from './sound';
 import type { Music } from './music';
 import { MUSIC_STEPS, type MusicSetting } from './musicSetting';
@@ -218,24 +219,32 @@ const STATUS_LINE = { color: '#aab8c9', fontSize: 24, marginBottom: 12 };
 // Under the dice after a roll with nothing to play, in the rules guide's words.
 export const NO_MOVE_LINE = 'No die can be used — the turn passes';
 
+// The single line above the status or menu: mode and turn.
+const modeLine = (game: Game, overlayOpen: boolean): string => {
+  const name = opponentName(game);
+  const turn = `TURN ${game.turn}`;
+  if (!name) return `HOTSEAT · ${turn}`;
+  if (overlayOpen) return `VS ${name.toUpperCase()} · ${turn}`;
+  return turn;
+};
+
 // The mode and the turn; then how the game ended or whose move it is; then the
 // winner or the dice, and why the turn passes when a roll left nothing to play.
-// The home screen keeps only the first line: it is a menu, its list and the
+// An open menu keeps only the first line: it is a menu, its list and the
 // record need the height to stay inside the safe area (#51), and the board
 // behind it already shows the game.
 const Status = ({
   game,
   view,
-  home,
+  overlayOpen,
 }: {
   game: Game;
   view: GameView;
-  home: boolean;
+  overlayOpen: boolean;
 }) => {
   const { result } = game;
-  const name = opponentName(game);
-  const mode = `${name ? `VS ${name.toUpperCase()}` : 'HOTSEAT'} · TURN ${game.turn}`;
-  if (home)
+  const mode = modeLine(game, overlayOpen);
+  if (overlayOpen)
     return (
       <Text style={{ color: '#8dc9b6', fontSize: 20, letterSpacing: 2 }}>
         {mode}
@@ -243,10 +252,17 @@ const Status = ({
     );
   return (
     <>
-      <Text style={{ color: '#8dc9b6', fontSize: 20, letterSpacing: 2 }}>
+      <Text
+        style={{
+          color: '#8dc9b6',
+          fontSize: 20,
+          letterSpacing: 2,
+          marginBottom: 10,
+        }}
+      >
         {mode}
       </Text>
-      <Text style={{ color: '#f0f4f8', fontSize: 38, marginBottom: 16 }}>
+      <Text style={{ color: '#f0f4f8', fontSize: 36, marginBottom: 14 }}>
         {result ? RESULT[result.reason] : headline(game, view)}
       </Text>
       {result ? (
@@ -648,18 +664,38 @@ export const GameScreen = ({
         flipped={flipped(game, turnHotseat)}
         movable={movable}
       />
-      <View style={{ flex: 1, paddingLeft: BOARD_GAP }}>
-        <Status game={game} view={state} home={overlay.kind === 'home'} />
-        <Panel
-          overlay={overlay}
-          game={game}
-          sound={sound}
-          music={musicSetting}
-          hasMusic={hasMusic}
-          turnHotseat={turnHotseat}
-          selected={focus.selected}
-          pressed={pressed}
-        />
+      <View style={{ flex: 1, height: size, paddingLeft: BOARD_GAP }}>
+        {overlay.kind !== 'none' ? (
+          <>
+            <Status game={game} view={state} overlayOpen={true} />
+            <Panel
+              overlay={overlay}
+              game={game}
+              sound={sound}
+              music={musicSetting}
+              hasMusic={hasMusic}
+              turnHotseat={turnHotseat}
+              selected={focus.selected}
+              pressed={pressed}
+            />
+          </>
+        ) : (
+          <Matchup game={game} side={state.side} thinking={botOwes(game)}>
+            <View style={{ flex: 1, justifyContent: 'center' }}>
+              <Status game={game} view={state} overlayOpen={false} />
+              <Panel
+                overlay={overlay}
+                game={game}
+                sound={sound}
+                music={musicSetting}
+                hasMusic={hasMusic}
+                turnHotseat={turnHotseat}
+                selected={focus.selected}
+                pressed={pressed}
+              />
+            </View>
+          </Matchup>
+        )}
       </View>
     </View>
   );
