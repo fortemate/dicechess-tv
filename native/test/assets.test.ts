@@ -37,7 +37,7 @@ test('a run leaves nothing under assets/ that it did not write', (t) => {
   t.after(() => rmSync(root, { recursive: true, force: true }));
   // Copied rather than linked, so nothing the generator deletes can reach the
   // real inputs.
-  for (const input of ['icon', 'brand', 'sounds', 'music'])
+  for (const input of ['icon', 'brand', 'sounds', 'music', 'voices'])
     cpSync(join(NATIVE, input), join(root, input), { recursive: true });
 
   // What gets left behind: a folder of its own, a loose file, and a file next to
@@ -54,7 +54,11 @@ test('a run leaves nothing under assets/ that it did not write', (t) => {
     writeFileSync(join(assets, stray), 'left over');
   }
 
-  const built = main(root) as { sounds: string[]; music: string[] };
+  const built = main(root) as {
+    sounds: string[];
+    music: string[];
+    voices: string[];
+  };
 
   assert.deepEqual(
     files(assets),
@@ -64,6 +68,7 @@ test('a run leaves nothing under assets/ that it did not write', (t) => {
       ...built.sounds.map((file) => `sfx/${file}`),
       ...built.music.map((file) => `music/${file}`),
       'music/music.json',
+      ...built.voices.map((file) => `voices/${file}`),
     ].sort(),
   );
   assert.equal(

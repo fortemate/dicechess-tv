@@ -10,6 +10,7 @@ Fortemate's code in this repository is licensed under AGPL-3.0-only (see [LICENS
 | Tabletop Games SFX Pack, JDSherbert                      | 1.1.0                    | Free with attribution    | https://jdsherbert.itch.io/tabletop-games-sfx-pack |
 | Casino Audio, Interface Sounds and Music Jingles, Kenney | 1.1, 1.0 and unversioned | CC0-1.0                  | https://kenney.nl                                  |
 | Dice Chess themes, pepka-prygni                          | 0.2.0 (four tracks)      | Permission for this game | https://www.youtube.com/@genreexplorer-h5o         |
+| Dice Chess bot voices, Fortemate, made with Amazon Polly | 63 lines                 | CC0-1.0                  | https://aws.amazon.com/polly                       |
 
 The engine and RhosGFX license texts are in [AGPL-3.0](licenses/AGPL-3.0.txt), [CC0-1.0](licenses/RhosGFX-CC0.txt) and, for the emojis, [CC0-1.0](licenses/RhosGFX-Emojis-CC0.txt). Full installed-package notices are retained in node_modules, and build-generated license comments must not be removed. The package locks record the exact dependency graph.
 
@@ -28,6 +29,12 @@ JDSherbert's licence requires visible credit, given on the About screen as "Soun
 The game's four music tracks are vendored under `native/music/` from the private asset repository `fortemate/dicechess-assets`, at the commit recorded in `native/music/music.json`, beside the pack's manifest and licence file (#76). They are Warm anticipation for the menus, and Clear Space, Tightening Layers and Tense Minor Pulse for the game.
 
 The tracks were made by pepka-prygni with Suno, on the author's paid plan. On 26 September 2026 the author gave written permission to use them in this game, with the credit "Music by pepka-prygni" and a link to his YouTube channel, which the About screen shows. That permission covers this project only: the files are not licensed under the AGPL or any other open licence, and using them anywhere else needs the author's permission. `native/music/pepka-prygni-dicechess/LICENSE.txt` records the terms. Suno keeps a licence of its own to everything made with it, and requires its "made with suno" metadata to stay in every copy; the MP3 files keep it.
+
+## Voices
+
+The bots' voices are vendored under `native/voices/` from the private asset repository `fortemate/dicechess-assets`, at the commit recorded in `native/voices/voices.json`, beside the pack's manifest and licence file (#159). There is one clip for each of the 63 lines in `src/core/botVoice.ts`, and the catalogue keeps the text each clip was recorded from.
+
+They are synthetic voices, made for this game with Amazon Polly from a Fortemate team member's AWS account. The Amazon Polly FAQ, read on 30 September 2026, says that as between the account holder and AWS the output belongs to the account holder, and that it may be cached and replayed. The account holder dedicated the recordings to the public domain under CC0 1.0, recorded in `native/voices/polly-dicechess-bots/LICENSE.txt`. No credit is required; the About screen names Amazon Polly beside the engine, so that a player knows the voices are synthetic.
 
 ## Amazon platform packages
 

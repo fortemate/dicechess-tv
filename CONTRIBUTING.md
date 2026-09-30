@@ -114,6 +114,7 @@ Never edit these by hand. Change the script, rerun it, and commit what it writes
 | ------------------------------------------------------ | ------------------------------------------------------------------------------ |
 | `native/src/pieces/*.tsx`                              | `native/scripts/generate-pieces.mjs`, from `src/assets/pieces/rhosgfx/`        |
 | `native/sounds/`, `native/src/cueFiles.ts`             | `native/scripts/vendor-sounds.mjs`, from one pinned commit of dicechess-assets |
+| `native/voices/`, `native/src/voiceFiles.ts`           | `native/scripts/vendor-voices.mjs`, from one pinned commit of dicechess-assets |
 | `site/public/voices/`, `site/src/voices/audition.json` | `site/scripts/vendor-voices.mjs`, from one pinned commit of dicechess-assets   |
 | `native/assets/` (not committed)                       | `native/scripts/generate-assets.mjs`, which every build runs                   |
 

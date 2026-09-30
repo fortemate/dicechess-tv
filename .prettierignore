@@ -7,6 +7,10 @@ native/sounds/
 # native/music/music.json (#76).
 native/music/
 
+# The bots' voices, vendored from fortemate/dicechess-assets and pinned byte for
+# byte by native/voices/voices.json (#159).
+native/voices/
+
 # Written by Amazon's Vega ESLint plugin on every lint run; gitignored.
 native/generated/
 

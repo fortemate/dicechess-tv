@@ -80,7 +80,8 @@ Automated tools for asset compilation and algorithmic measurement:
 - **`native/scripts/generate-faces.mjs`:** Compiles RhosGFX Vector Emoji SVGs into inline JSX components for bot opponent cards.
 - **`native/scripts/vendor-sounds.mjs`:** Copies pinned sound effects from `dicechess-assets` and verifies cryptographic SHA-256 hashes against `sounds.lock.json`.
 - **`native/scripts/vendor-music.mjs`:** Copies pinned music tracks from `dicechess-assets` and writes `music.json`.
-- **`native/scripts/generate-assets.mjs`:** Rebuilds `native/assets/` afresh on each build, assembling `SplashScreenImages.zip`, launcher icons, and sound files.
+- **`native/scripts/vendor-voices.mjs`:** Copies the pinned bot voice pack from `dicechess-assets`, writes `voices.json` and `src/voiceFiles.ts`, and keeps the text each clip was recorded from, so a changed line fails `vendoredVoices.test.ts`.
+- **`native/scripts/generate-assets.mjs`:** Rebuilds `native/assets/` afresh on each build, assembling `SplashScreenImages.zip`, launcher icons, sound files, music and voices.
 
 ### 4. Test Suites
 
