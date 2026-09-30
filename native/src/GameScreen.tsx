@@ -216,6 +216,7 @@ type GameView = ReturnType<typeof viewGame>;
 // The line under the headline: who won, or the dice still to use.
 const winnerLine = (result: Result): string =>
   result.winner ? `${sideName(result.winner)} wins` : 'Drawn';
+const HEADLINE = { color: '#f0f4f8', fontSize: 36, marginBottom: 14 };
 const STATUS_LINE = { color: '#aab8c9', fontSize: 24, marginBottom: 12 };
 
 // Under the dice after a roll with nothing to play, in the rules guide's words.
@@ -264,7 +265,7 @@ const Status = ({
       >
         {mode}
       </Text>
-      <Text style={{ color: '#f0f4f8', fontSize: 36, marginBottom: 14 }}>
+      <Text style={HEADLINE}>
         {result ? RESULT[result.reason] : headline(game, view)}
       </Text>
       {result ? (
@@ -281,6 +282,16 @@ const Status = ({
     </>
   );
 };
+
+// How a game against the bot ended, above the choice of what comes next
+// (#163). The badges around it already say who played, so the mode line is
+// left out.
+const Outcome = ({ result }: { result: Result }) => (
+  <>
+    <Text style={HEADLINE}>{RESULT[result.reason]}</Text>
+    <Text style={STATUS_LINE}>{winnerLine(result)}</Text>
+  </>
+);
 
 // What OK and the arrows do now, when no menu or choice is open.
 const promptFor = (game: Game, selected: string | null): string => {
@@ -646,6 +657,10 @@ export const GameScreen = ({
 
   const size = boardSide(width, height);
   const insets = safeInsets(width, height);
+  // The result of a game against the bot is drawn in the matchup HUD like the
+  // game itself, so the bot's last word shows under its badge (#163). It sits
+  // low, above the person's badge, which leaves that line room to wrap.
+  const result = overlay.kind === 'result' ? game.result : null;
   return (
     <View
       style={{
@@ -668,7 +683,7 @@ export const GameScreen = ({
         movable={movable}
       />
       <View style={{ flex: 1, height: size, paddingLeft: BOARD_GAP }}>
-        {overlay.kind !== 'none' ? (
+        {overlay.kind !== 'none' && !result ? (
           <>
             <Status game={game} view={state} overlayOpen={true} />
             <Panel
@@ -691,8 +706,18 @@ export const GameScreen = ({
               voiceLine ? <SpeechBubble text={voiceLine.text} /> : undefined
             }
           >
-            <View style={{ flex: 1, justifyContent: 'center' }}>
-              <Status game={game} view={state} overlayOpen={false} />
+            <View
+              style={{
+                flex: 1,
+                justifyContent: result ? 'flex-end' : 'center',
+                paddingBottom: result ? 12 : 0,
+              }}
+            >
+              {result ? (
+                <Outcome result={result} />
+              ) : (
+                <Status game={game} view={state} overlayOpen={false} />
+              )}
               <Panel
                 overlay={overlay}
                 game={game}
