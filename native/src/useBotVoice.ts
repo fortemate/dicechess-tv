@@ -61,7 +61,7 @@ export function useBotVoice(
     lastGame.current = game;
 
     // Reset voice state on new game or rematch
-    if (!prev || prev.id !== game.id) {
+    if (prev?.id !== game.id) {
       voiceState.current = INITIAL_BOT_VOICE_STATE;
       if (timer.current) {
         clearTimeout(timer.current);
