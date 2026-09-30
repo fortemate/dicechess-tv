@@ -78,10 +78,10 @@ Every interaction on the television flows through a unidirectional pipeline:
 2. **Screen Reducer:** `screen.ts` acts as a pure reducer over the screen state and the incoming key. Directions navigate menus or jump the cursor between selectable pieces.
 3. **Turn Controller:** When an action occurs (e.g. rolling dice or selecting a piece destination), `src/core/game.ts` validates the step against the engine's legal turn tree.
 4. **Engine Evaluation:** The engine transitions the board state, consumes the corresponding die, and verifies whether subsequent actions remain. If no legal moves exist, an empty roll is recorded.
-5. **Synchronous Persistence:** The updated snapshot is validated and written synchronously to MMKV before rendering.
-6. **View Projection:** `boardView()` translates the game state into an array of 64 `SquareView` records, declaring square tints, piece placements, cursor position, selection rings, legal destinations, and last-move highlights.
-7. **Native Rendering & Motion:** `Board.tsx` paints the grid. If a move occurred, `moveAnimation.ts` calculates source and destination coordinates, and React Native's `Animated` library smoothly slides the piece across the board on the native driver in 220 ms.
-8. **Audio Cues:** `cues()` determines the appropriate audio event (e.g. move, capture, roll, victory), and `sound.ts` plays the effect. Concurrently, `danger.ts` calculates king safety to adapt background music intensity.
+5. **View Projection:** `boardView()` translates the game state into an array of 64 `SquareView` records, declaring square tints, piece placements, cursor position, selection rings, legal destinations, and last-move highlights.
+6. **Native Rendering & Motion:** `Board.tsx` paints the grid. If a move occurred, `moveAnimation.ts` calculates source and destination coordinates, and React Native's `Animated` library smoothly slides the piece across the board on the native driver in 220 ms.
+7. **Synchronous Persistence:** After React commits the render, an effect in `GameScreen.tsx` passes the new game to `onCommit` in `App.tsx`, which saves it through `mmkvStore.ts`: the snapshot is validated and written synchronously to MMKV. The save does not wait for the slide to finish.
+8. **Audio Cues:** In the same effect, `cues()` determines the appropriate audio event (e.g. move, capture, roll, victory), and `sound.ts` plays the effect. Concurrently, `danger.ts` calculates king safety to adapt background music intensity.
 
 ## Hackathon Scope vs Existing Foundation
 
