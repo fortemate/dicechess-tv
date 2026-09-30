@@ -1,5 +1,5 @@
 // @ts-check
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { defineConfig } from 'astro/config';
 import { satteri } from '@astrojs/markdown-satteri';
 import sitemap from '@astrojs/sitemap';
@@ -28,6 +28,28 @@ const SITE_MAP = [
 // sitemap here (and ask search engines not to index them).
 const UNLISTED = ['/check/', '/feedback/'];
 
+// The Mermaid diagrams, drawn in the browser. They take Starlight's system font,
+// which Mermaid has to know because it sizes each box by measuring its label,
+// and the colours in src/styles/mermaid.css. The spacing is tighter than
+// Mermaid's own, which suits a diagram standing alone: here a diagram shares a
+// 45rem column with the text, and one drawn wider is shrunk to fit, labels and
+// all.
+const MERMAID = {
+  fontFamily:
+    "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', 'Noto Sans', Arial, sans-serif",
+  themeVariables: { fontSize: '14px' },
+  themeCSS: readFileSync(
+    new URL('./src/styles/mermaid.css', import.meta.url),
+    'utf8',
+  ),
+  flowchart: {
+    nodeSpacing: 24,
+    rankSpacing: 36,
+    padding: 12,
+    wrappingWidth: 320,
+  },
+};
+
 /** @param {string} directory */
 function hasPages(directory) {
   const path = new URL(`./src/content/docs/${directory}/`, import.meta.url);
@@ -52,7 +74,7 @@ export default defineConfig({
     processor: satteri({ features: { headingAttributes: true } }),
   },
   integrations: [
-    mermaid(),
+    mermaid({ mermaidConfig: MERMAID }),
     starlight({
       title: 'Dice Chess TV',
       description:
