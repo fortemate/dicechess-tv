@@ -48,7 +48,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 | [FL-16](#fl-16) | One icon field serves two surfaces with different shapes                     | Packaging                         | Low      | Worked around |
 | [FL-17](#fl-17) | The SDK installer edits every shell profile without asking                   | Installer                         | Low      | Open          |
 | [FL-18](#fl-18) | Undeclared system services are refused without an error in the app           | Manifest                          | High     | Worked around |
-| [FL-19](#fl-19) | Declaring `inputd.service`, as the TV guidance says, crashes the app on 0.24 | Manifest, docs                    | High     | Worked around |
+| [FL-19](#fl-19) | `inputd.service` is not needed on 0.24, and declaring it stopped our app     | Manifest, docs                    | Medium   | Worked around |
 | [FL-20](#fl-20) | The KPI Visualizer fails an offline app on network calls                     | Performance tools                 | Low      | Open          |
 | [FL-21](#fl-21) | Warm-start KPIs cannot be measured on the Virtual Device                     | Performance tools, Virtual Device | Medium   | Open          |
 | [FL-22](#fl-22) | The Builder Tools telemetry switch is undocumented and shared with the SDK   | Agent tools, docs                 | Medium   | Worked around |
@@ -471,7 +471,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   packages the app imports.
 - **Current status:** worked around.
 
-### FL-19 · Declaring `inputd.service`, as the TV guidance says, crashes the app on 0.24 {#fl-19}
+### FL-19 · `inputd.service` is not needed on 0.24, and declaring it stopped our app {#fl-19}
 
 - **Date and environment:** 2026-09-23 · SDK 0.24.12112 · Virtual Device.
 - **Tool / SDK / component version:** `[wants]` in `manifest.toml`; Amazon's React Native TV guidance,
@@ -485,11 +485,23 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   `Inputd-client: requestPriority ... WRITE_TO_UDEV`. Without the declaration the remote works. This was
   measured by adding and removing that one entry. Evidence:
   [native/manifest.toml](https://github.com/fortemate/dicechess-tv/blob/5bc2357dd9489380a1f46f0e48b9d3be9ed1d498/native/manifest.toml).
-- **Severity and user impact:** High. Following the documented step crashes the app at launch.
+- **Severity and user impact:** Medium. Following the documented step stopped our app at launch, and
+  the only clue was one log line. Amazon's own sample does not stop with the same entry (see the
+  update below), so this is not general 0.24 behaviour. It was High until 2026-09-30.
 - **Workaround:** leave the service undeclared.
-- **Suggested improvement:** update the guidance for SDK 0.24, and the samples and skills that repeat
-  it, or make the declaration harmless.
+- **Suggested improvement:** say in the guidance, and in the skill that repeats it, which SDK versions
+  and devices still need the entry for `useTVEventHandler`; and log a reason when a declared service
+  makes the process exit.
 - **Current status:** worked around; to be checked again on a Fire TV Stick.
+- **Update, 2026-09-30:** the entry title said that declaring the service crashes the app on 0.24,
+  which claimed more than we had measured. We built Amazon's
+  [vega-tv-interfaces-sample](https://github.com/AmazonAppDev/vega-tv-interfaces-sample) (commit
+  `7546400`, its 0.24 release) unchanged with SDK 0.24.12112 and ran it on the Virtual Device, once
+  as published, with `com.amazon.inputd.service` declared, and once with only that entry removed.
+  Both started and navigated. In both, Right closed the open menu, which only the sample's
+  `useTVEventHandler` callback does (`MenuWrapper.tsx`). So on the Virtual Device the service is not
+  needed for `useTVEventHandler`, and declaring it does not stop every app. Why it stops ours is
+  still open.
 
 ### FL-20 · The KPI Visualizer fails an offline app on network calls {#fl-20}
 
