@@ -440,7 +440,7 @@ test('rolling the dice clears last move until the next action is played', () => 
   assert.equal(rolled.game.lastMove, null);
 });
 
-// ── Settings: music, its volume and the sound effects (#76) ────────────────────
+// ── Settings: music, its volume, the sound effects and the voices (#76, #159) ──
 
 const toSettings = (state: ScreenState): ScreenState => {
   const at = homeOptions(resumable(state.game)).indexOf('Settings');
@@ -451,7 +451,7 @@ const toSettings = (state: ScreenState): ScreenState => {
 const withMusic = (state: ScreenState): ScreenState =>
   screenReducer(state, { kind: 'musicAvailable', available: true }, options);
 
-test('without music in the build, Settings offers sound effects and hotseat board turning', () => {
+test('without music in the build, Settings offers sound effects, bot voices and hotseat board turning', () => {
   const settings = toSettings(fresh());
   assert.equal(settings.musicAvailable, false);
   assert.deepEqual(
@@ -460,12 +460,17 @@ test('without music in the build, Settings offers sound effects and hotseat boar
       settings.music,
       settings.musicAvailable,
       settings.turnHotseat,
+      settings.voices,
     ),
-    ['Sound effects: on', 'Turn board in hotseat: off'],
+    ['Sound effects: on', 'Bot voices: on', 'Turn board in hotseat: off'],
   );
-  // Down moves between sound effects and hotseat board turning.
+  // Down moves from the sound effects to the voices, and on to hotseat board
+  // turning.
   assert.equal(drive(settings, 'select').sound, false);
-  const hotseat = drive(settings, 'down');
+  const voices = drive(settings, 'down');
+  assert.equal(drive(voices, 'select').voices, false);
+  assert.equal(drive(voices, 'select').sound, true);
+  const hotseat = drive(voices, 'down');
   assert.equal(hotseat.overlay.kind, 'settings');
   assert.equal(drive(hotseat, 'select').turnHotseat, true);
   // When the catalogue turns up, the rows grow and the cursor starts at the top.
@@ -482,11 +487,18 @@ test('Settings opens from the home menu on music, and Back returns to it', () =>
     from: 'home',
   });
   assert.deepEqual(
-    settingsOptions(settings.sound, settings.music, true, settings.turnHotseat),
+    settingsOptions(
+      settings.sound,
+      settings.music,
+      true,
+      settings.turnHotseat,
+      settings.voices,
+    ),
     [
       'Music: on',
       'Music volume: 7',
       'Sound effects: on',
+      'Bot voices: on',
       'Turn board in hotseat: off',
     ],
   );
@@ -498,7 +510,7 @@ test('Settings opens from the home menu on music, and Back returns to it', () =>
   );
 });
 
-test('OK or the arrows sideways flip music, sound effects, and hotseat board turning', () => {
+test('OK or the arrows sideways flip music, sound effects, bot voices and hotseat board turning', () => {
   const settings = toSettings(withMusic(fresh()));
   const musicOff = drive(settings, 'select');
   assert.equal(musicOff.music.on, false);
@@ -506,12 +518,19 @@ test('OK or the arrows sideways flip music, sound effects, and hotseat board tur
   const effects = drive(settings, 'down', 'down');
   assert.equal(drive(effects, 'select').sound, false);
   assert.equal(drive(effects, 'left').sound, false);
-  // Down once more reaches hotseat board turning.
-  const hotseat = drive(effects, 'down');
+  // Down once more reaches the voices, which are on by default.
+  const voices = drive(effects, 'down');
+  assert.equal(voices.voices, true);
+  assert.equal(drive(voices, 'select').voices, false);
+  assert.equal(drive(voices, 'right').voices, false);
+  assert.equal(drive(voices, 'select', 'left').voices, true);
+  // And once more, hotseat board turning.
+  const hotseat = drive(voices, 'down');
   assert.equal(drive(hotseat, 'select').turnHotseat, true);
   assert.equal(drive(hotseat, 'right').turnHotseat, true);
-  // Neither touches the other, nor leaves the screen.
+  // None touches another, nor leaves the screen.
   assert.equal(drive(hotseat, 'select').music.on, true);
+  assert.equal(drive(hotseat, 'select').voices, true);
   assert.equal(drive(hotseat, 'select').overlay.kind, 'settings');
 });
 
@@ -549,9 +568,19 @@ test('Settings from the game menu never asks to replace the game, and Back retur
 
 test('a new game keeps the settings', () => {
   const settings = toSettings(withMusic(fresh()));
-  const changed = drive(settings, 'select', 'down', 'right', 'down', 'select');
+  const changed = drive(
+    settings,
+    'select',
+    'down',
+    'right',
+    'down',
+    'select',
+    'down',
+    'select',
+  );
   assert.deepEqual(changed.music, { on: false, volume: 8 });
   assert.equal(changed.sound, false);
+  assert.equal(changed.voices, false);
   // Back to the home menu, on Settings, then up to a new hotseat game.
   const home = drive(changed, 'back');
   const at = homeOptions(false).indexOf('Settings');
@@ -559,6 +588,7 @@ test('a new game keeps the settings', () => {
   assert.equal(game.overlay.kind, 'none');
   assert.deepEqual(game.music, { on: false, volume: 8 });
   assert.equal(game.sound, false);
+  assert.equal(game.voices, false);
 });
 
 // ── Which music plays where (#76) ──────────────────────────────────────────────

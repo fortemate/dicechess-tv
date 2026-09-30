@@ -59,6 +59,8 @@ const recorder = () => {
     setMuted(value) {
       self.muted = value;
     },
+    say() {},
+    setVoices() {},
     setSuspended() {},
   };
   return self;
@@ -140,7 +142,9 @@ test('against the bot both sides’ empty rolls are announced, and the bot’s w
     const tree = launch(optionsFor([5, 4, 6], clock), sounds);
     // Play the computer, Rolly, on Random, which draws White; then roll.
     send('down', 'enter', 'enter', 'enter', 'enter');
-    act(() => mock.timers.tick(DISMISS_DELAY_MS));
+    // Said aloud, the line stays until it has been said: under 6 s for the
+    // longest (#159).
+    act(() => mock.timers.tick(DISMISS_DELAY_MS * 3));
     assert.match(text(tree.root), /No legal moves · you/);
     assert.deepEqual(clock.waits(), [OK_GUARD_MS]);
     clock.next();
@@ -209,10 +213,11 @@ test('with sound off, the empty roll still shows: the notice and the dimmed dice
   const clock = scheduler();
   const sounds = recorder();
   const tree = launch(optionsFor([5, 4, 6], clock), sounds);
-  // Home, nothing saved: Settings is fifth, and the sound effects its third
-  // row. Turn them off, go back up to a new hotseat game, and roll.
+  // Home, nothing saved: Settings is fifth, and without music in this build
+  // the sound effects are its first row. Turn them off, go back up to a new
+  // hotseat game, and roll.
   send('down', 'down', 'down', 'down', 'enter');
-  send('down', 'down', 'enter');
+  send('enter');
   assert.equal(sounds.muted, true);
   send('back');
   send('up', 'up', 'up', 'up', 'enter', 'enter');

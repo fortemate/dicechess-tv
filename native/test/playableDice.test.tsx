@@ -47,7 +47,13 @@ const optionsFor = (
   side: () => side,
 });
 
-const silent: Sounds = { play() {}, setMuted() {}, setSuspended() {} };
+const silent: Sounds = {
+  play() {},
+  setMuted() {},
+  say() {},
+  setVoices() {},
+  setSuspended() {},
+};
 
 // The app, and the last line the game screen reported about itself.
 const launch = (options: ScreenOptions) => {

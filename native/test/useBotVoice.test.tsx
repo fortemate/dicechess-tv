@@ -203,6 +203,8 @@ test('resets voice state and triggers new intro on rematch or new game ID', () =
 
     const secondIntro = getLine();
     assert.ok(secondIntro);
+    // Spoken aloud, the same opening twice in a row would be heard (#159).
+    assert.notEqual(secondIntro.id, firstIntro.id);
 
     // After 1000 ms, second intro should still be visible because timer was reset
     act(() => {
@@ -213,6 +215,29 @@ test('resets voice state and triggers new intro on rematch or new game ID', () =
     // After another 1800 ms (2800 ms total for game 2), it dismisses
     act(() => {
       mock.timers.tick(1800);
+    });
+    assert.equal(getLine(), null);
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+test('a line said aloud keeps its bubble until it has been said (#159)', () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  try {
+    const { getLine, Harness } = setupHarness();
+    const game = newGame('random', 'game-hold');
+    act(() => {
+      renderer.create(<Harness game={game} options={{ holdMs: () => 4500 }} />);
+    });
+    const intro = getLine();
+    assert.ok(intro);
+    act(() => {
+      mock.timers.tick(DISMISS_DELAY_MS);
+    });
+    assert.equal(getLine(), intro, 'still being said');
+    act(() => {
+      mock.timers.tick(4500 - DISMISS_DELAY_MS);
     });
     assert.equal(getLine(), null);
   } finally {

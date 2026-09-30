@@ -20,6 +20,10 @@
 // middle. A theme still fading out when its level comes back is not new: it
 // fades back in from where it is (`canReturn`).
 //
+// A bot's line ducks the music (#159): it falls by DUCK_DB while the line is
+// said, quickly, and comes back more slowly once it has been, so the words are
+// heard over the bed rather than against it.
+//
 // Nothing in here may break the game. Every failure is reported and swallowed.
 import {
   AudioPlayer,
@@ -53,6 +57,8 @@ export type Music = {
   setSuspended(suspended: boolean): void;
   // The catalogue arrives after launch, and not at all in a build without music.
   setCatalogue(catalogue: Catalogue | null): void;
+  // Lower while a bot's line is being said.
+  setDucked(ducked: boolean): void;
 };
 
 type Player = Pick<
@@ -84,6 +90,9 @@ export const STOP_MS = 500;
 export const RESUME_DELAY_MS = 300;
 export const RESUME_FADE_MS = 500;
 export const END_FADE_MS = 1000;
+export const DUCK_DB = -9;
+export const DUCK_MS = 200;
+export const UNDUCK_MS = 600;
 
 const realClock: Clock = {
   now: () => Date.now(),
@@ -137,6 +146,9 @@ export function createMusic({
   let cancelHold: (() => void) | null = null;
   let cancelResume: (() => void) | null = null;
   let stopTicker: (() => void) | null = null;
+  // How far the music is ducked, 0 to 1, and where that is heading.
+  let duck = 0;
+  let ducked = false;
   // Where each theme was left, so coming back to it continues rather than
   // starting over.
   const positions = new Map<MusicRole, number>();
@@ -155,7 +167,7 @@ export function createMusic({
       // folded in here.
       voice.player.volume = voice.track
         ? volume *
-          gainOf(voice.track.gainDb) *
+          gainOf(voice.track.gainDb + duck * DUCK_DB) *
           Math.sin((voice.fade * Math.PI) / 2)
         : 0;
     });
@@ -248,14 +260,26 @@ export function createMusic({
     return true;
   };
 
+  // One tick of the duck, which every playing voice follows.
+  const duckStep = () => {
+    const target = ducked ? 1 : 0;
+    if (duck === target || !voices) return;
+    const step = TICK_MS / (ducked ? DUCK_MS : UNDUCK_MS);
+    duck = ducked ? Math.min(1, duck + step) : Math.max(0, duck - step);
+    for (const voice of voices) if (voice.playing) apply(voice);
+  };
+
   const tick = () => {
     if (!voices) return;
+    duckStep();
     for (const voice of voices) if (voice.playing) fadeStep(voice);
     const [a, b] = voices;
     if (!handOver(a, b)) handOver(b, a);
     if (voices.some((voice) => voice.playing)) return;
     stopTicker?.();
     stopTicker = null;
+    // Nothing is heard, so a duck under way can simply arrive.
+    duck = ducked ? 1 : 0;
   };
 
   const ticking = () => {
@@ -417,6 +441,12 @@ export function createMusic({
           begin(spare, want, catalogue!.tracks[want]!, RESUME_FADE_MS);
         }
       });
+    },
+    setDucked(on) {
+      if (on === ducked) return;
+      ducked = on;
+      if (voices?.some((voice) => voice.playing)) ticking();
+      else duck = on ? 1 : 0;
     },
     setCatalogue(next) {
       const roles = next ? Object.keys(next.tracks).join(', ') : '';

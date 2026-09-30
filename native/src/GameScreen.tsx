@@ -24,8 +24,9 @@ import { AboutScreen } from './AboutScreen';
 import { OpponentScreen } from './OpponentScreen';
 import { Matchup } from './Matchup';
 import { SpeechBubble } from './SpeechBubble';
-import { useBotVoice } from './useBotVoice';
-import type { Sounds } from './sound';
+import { DISMISS_DELAY_MS, useBotVoice } from './useBotVoice';
+import type { VoiceLine } from '../../src/core/botVoice';
+import { speechTiming, type Sounds } from './sound';
 import type { Music } from './music';
 import { MUSIC_STEPS, type MusicSetting } from './musicSetting';
 import { useDanger } from './useDanger';
@@ -98,6 +99,9 @@ export type GameScreenProps = {
   // Whether the board turns to the side to move in hotseat (#120).
   initialTurnBoard?: boolean;
   onTurnBoard?: (on: boolean) => void;
+  // Whether the bots speak their lines aloud (#159).
+  initialVoices?: boolean;
+  onVoices?: (on: boolean) => void;
   // The adaptive music (#76). The screen says which theme fits what it shows;
   // whether music is on and how loud is the app's to apply and save.
   music?: Music;
@@ -110,6 +114,12 @@ export type GameScreenProps = {
 // How long the music stays silent after a game ends, so the result's jingle is
 // heard on its own before the menu theme returns.
 export const RESULT_SILENCE_MS = 2500;
+
+// A bubble stays its usual time, or until its line has been said (#159).
+const bubbleHoldMs = (line: VoiceLine): number => {
+  const timing = speechTiming(line);
+  return Math.max(DISMISS_DELAY_MS, timing ? timing.delayMs + timing.ms : 0);
+};
 
 // The volume as rings, like an opponent's level: filled up to the setting. Small
 // enough that the label and ten rings fit the panel, which measured about
@@ -303,6 +313,7 @@ const Panel = ({
   music,
   hasMusic,
   turnHotseat,
+  voices,
   selected,
   pressed,
 }: {
@@ -312,6 +323,7 @@ const Panel = ({
   music: MusicSetting;
   hasMusic: boolean;
   turnHotseat: boolean;
+  voices: boolean;
   selected: string | null;
   // OK is held: the focused option of an open menu shows it.
   pressed: boolean;
@@ -340,7 +352,7 @@ const Panel = ({
         <Choices
           title="Settings"
           note={hasMusic ? 'Left and Right change the volume.' : undefined}
-          options={settingsOptions(sound, music, hasMusic, turnHotseat)}
+          options={settingsOptions(sound, music, hasMusic, turnHotseat, voices)}
           index={overlay.index}
           pressed={pressed}
           afters={
@@ -453,6 +465,8 @@ export const GameScreen = ({
   onSound,
   initialTurnBoard = false,
   onTurnBoard,
+  initialVoices = true,
+  onVoices,
   music,
   initialMusic,
   onMusic,
@@ -473,6 +487,7 @@ export const GameScreen = ({
       music: musicSetting,
       musicAvailable: hasMusic,
       turnHotseat,
+      voices,
       guarded,
     },
     dispatch,
@@ -484,6 +499,7 @@ export const GameScreen = ({
       initialMusic,
       musicAvailable,
       initialTurnBoard,
+      initialVoices,
     ),
   );
   React.useEffect(() => {
@@ -593,11 +609,28 @@ export const GameScreen = ({
     onTurnBoard?.(turnHotseat);
   }, [turnHotseat, onTurnBoard]);
 
+  // Seeded like the sound, so opening the screen is not reported as a change.
+  const voiceSetting = React.useRef(voices);
+  React.useEffect(() => {
+    if (voices === voiceSetting.current) return;
+    voiceSetting.current = voices;
+    onVoices?.(voices);
+  }, [voices, onVoices]);
+
   // The theme for what the screen shows, and over a game the danger to the king
   // at the start of this turn (#76). When a game has just ended the music falls
   // silent first, so the result's jingle is heard on its own.
   const level = useDanger(game, options.background, onState);
-  const voiceLine = useBotVoice(game, level);
+  // Each line is said as it shows, and its bubble stays until it has been
+  // said (#159).
+  const say = React.useCallback(
+    (line: VoiceLine) => sounds?.say(line),
+    [sounds],
+  );
+  const voiceLine = useBotVoice(game, level, {
+    onVoiceLine: say,
+    holdMs: bubbleHoldMs,
+  });
   const role = musicRole(overlay, game, level);
   const lastRole = React.useRef<string | null>(null);
   React.useEffect(() => {
@@ -673,6 +706,7 @@ export const GameScreen = ({
               music={musicSetting}
               hasMusic={hasMusic}
               turnHotseat={turnHotseat}
+              voices={voices}
               selected={focus.selected}
               pressed={pressed}
             />
@@ -698,6 +732,7 @@ export const GameScreen = ({
               music={musicSetting}
               hasMusic={hasMusic}
               turnHotseat={turnHotseat}
+              voices={voices}
               selected={focus.selected}
               pressed={pressed}
             />

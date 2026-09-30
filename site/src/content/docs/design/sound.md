@@ -51,6 +51,17 @@ The Settings screen switches music on or off and sets its volume, apart from the
 
 The four themes are by pepka-prygni, made with Suno and used with his permission: Warm anticipation in the menus, then Clear Space, Tightening Layers and Tense Minor Pulse as the danger grows. A build without them plays no music, and its Settings offer only the sound effects.
 
+## The bots speak
+
+Against the computer, each bot says its lines aloud as well as in its speech bubble ([#159](https://github.com/fortemate/dicechess-tv/issues/159)). The voices are synthetic, made ahead of time with Amazon Polly, so nothing is generated during play and the game stays offline. Each bot's voice was chosen by ear from an audition. The recordings are dedicated to the public domain.
+
+- **A player of its own.** A line neither cuts nor is cut by the board, dice and result cues, and a new line replaces the one being said.
+- **Over the music.** The music ducks by 9 dB while a line is said, and comes back after it. A win or a loss is said after its jingle.
+- **No repeats.** The same line is never said twice in a row for an event, including at the start of a rematch. The bubble stays until its line has been said.
+- **A setting of its own.** The Settings screen switches the bot voices on or off apart from the sound effects. They are on by default, and they stop when the app leaves the screen.
+
+On the Virtual Device the voice was measured at about 14 dB above the music, with the music lower between the words and back after the line.
+
 ## What has been heard, and where
 
 The cues have been heard from the Vega Virtual Device through a computer's speakers, not yet from a television. The tests check that the players pause when the app leaves the screen. On the Virtual Device the app came back from the launcher as it left, but that nothing plays over the launcher is still to be confirmed by ear.

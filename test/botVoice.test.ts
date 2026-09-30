@@ -122,6 +122,35 @@ test('deterministic seed picks exact line variant', () => {
   assert.equal(line2?.id, 'rolly_intro_3');
 });
 
+test('an event never says the same line twice in a row (#159)', () => {
+  const rolly = opponentOf('random');
+  const game = newGame('random', 'repeat-test');
+  const rolledGame = rollGame(game, [KNIGHT, BISHOP, ROOK]);
+  const said = {
+    ...INITIAL_BOT_VOICE_STATE,
+    lastLines: { intro: 'rolly_intro_1' },
+  };
+  const pick = (random: number) =>
+    botVoiceCue(game, rolledGame, rolly, 'calm', said, () => random);
+  // The other two lines share the whole range between them.
+  assert.equal(pick(0).line?.id, 'rolly_intro_2');
+  assert.equal(pick(0.49).line?.id, 'rolly_intro_2');
+  assert.equal(pick(0.5).line?.id, 'rolly_intro_3');
+  assert.equal(pick(0.99).line?.id, 'rolly_intro_3');
+  // The state remembers the line said, for this event only.
+  const cue = pick(0);
+  assert.deepEqual(cue.state.lastLines, { intro: 'rolly_intro_2' });
+  const first = botVoiceCue(
+    game,
+    rolledGame,
+    rolly,
+    'calm',
+    undefined,
+    () => 0,
+  );
+  assert.deepEqual(first.state.lastLines, { intro: 'rolly_intro_1' });
+});
+
 test('match start triggers intro once and sets introSpoken flag', () => {
   const grabby = opponentOf('greedy');
   const start = newGame('greedy', 'intro-test');
