@@ -19,12 +19,16 @@ import {
 } from './game.ts';
 import type { Opponent } from './opponents.ts';
 
+// What the bot speaks about. A threat is its own: in a game against the
+// computer the danger that turnDanger measures, and the music follows, is the
+// danger to the person's king, so the bot names that king (#164). A win is the
+// person's king taken or the person's resignation, so its lines claim neither.
 export type VoiceEvent =
   | 'intro'
   | 'empty_roll'
   | 'capture_heavy'
   | 'capture'
-  | 'danger_high'
+  | 'threat'
   | 'win'
   | 'loss';
 
@@ -37,13 +41,13 @@ export type VoiceLine = {
 
 export type BotVoiceState = {
   readonly lastSpokenTurn: number;
-  readonly dangerSpoken: boolean;
+  readonly threatSpoken: boolean;
   readonly introSpoken: boolean;
 };
 
 export const INITIAL_BOT_VOICE_STATE: BotVoiceState = {
   lastSpokenTurn: -99,
-  dangerSpoken: false,
+  threatSpoken: false,
   introSpoken: false,
 };
 
@@ -90,10 +94,10 @@ const RAW_SCRIPTS: Readonly<
       'Got one! Every little piece counts!',
       'Snack time for my pieces!',
     ],
-    danger_high: [
-      'Uh oh, my king looks a little nervous...',
-      "Yikes, watch where you're pointing that!",
-      'Wait wait wait, please leave my king alone!',
+    threat: [
+      'Ooh! Your king is right in my path!',
+      'One lucky roll and your king goes boop!',
+      'Psst... your king might want to hide!',
     ],
     win: [
       'Yay, I won! Can we roll again?!',
@@ -102,7 +106,7 @@ const RAW_SCRIPTS: Readonly<
     ],
     loss: [
       'Aww, good game! You got me fair and square!',
-      'My king tripped! Nice checkmate!',
+      'My king tripped! Nice catch!',
       "You're too good! Let's play another round!",
     ],
   },
@@ -127,14 +131,14 @@ const RAW_SCRIPTS: Readonly<
       'Another piece added to my private collection.',
       "Yoink! You shouldn't leave valuables lying around.",
     ],
-    danger_high: [
-      'Hey! Hands off the royal vault!',
-      'Back away from my king! What impudence!',
-      'Protect the crown! My hoard is in peril!',
+    threat: [
+      'Your king would look lovely in my vault.',
+      'One good roll and your king is mine!',
+      'I spy your king. Very collectible!',
     ],
     win: [
       'Victory and total plunder! What a splendid haul!',
-      'Checkmate! All your squares and treasures are mine!',
+      'All your squares and treasures are mine!',
       'Greed is good, but winning is priceless!',
     ],
     loss: [
@@ -164,14 +168,14 @@ const RAW_SCRIPTS: Readonly<
       'Cut down! Your ranks crumble before me.',
       'Pathetic defense! Smashed aside!',
     ],
-    danger_high: [
-      'You dare threaten me?! I will break your vanguard!',
-      'A bold assault... but you only seal your own doom!',
-      'My king does not flinch! Counterattack incoming!',
+    threat: [
+      'Your king is in my sights!',
+      'The right roll, and your king falls!',
+      "I can smell your king's fear!",
     ],
     win: [
       'Total annihilation! Kneel before the conqueror!',
-      'Checkmate! Your king is crushed beneath my heel!',
+      'Your army is crushed beneath my heel!',
       'Victory was inevitable! You were completely outmatched!',
     ],
     loss: [
@@ -295,7 +299,7 @@ function nextVoiceState(
 ): BotVoiceState {
   return {
     lastSpokenTurn: currentTurn,
-    dangerSpoken: state.dangerSpoken || event === 'danger_high',
+    threatSpoken: state.threatSpoken || event === 'threat',
     introSpoken: state.introSpoken || event === 'intro',
   };
 }
@@ -317,9 +321,10 @@ function evaluateNonTerminalEvent(
     return 'capture_heavy';
   }
 
-  // Priority 2: Critical threat to king (100% threshold, max 1 per game)
-  if (!state.dangerSpoken && dangerLevel === 'critical') {
-    return 'danger_high';
+  // Priority 2: the bot threatens the person's king (100% threshold, max 1 per
+  // game): one right die lets it take that king with its first action.
+  if (!state.threatSpoken && dangerLevel === 'critical') {
+    return 'threat';
   }
 
   // Priority 3: Bot empty roll (70% threshold)
@@ -343,6 +348,8 @@ function evaluateNonTerminalEvent(
 }
 
 // Pure reducer function evaluating game transitions to select authentic bot commentary.
+// `dangerLevel` is the danger to the person's king at the start of the turn, as
+// turnDanger measures it in a game against the computer.
 export function botVoiceCue(
   before: Game,
   after: Game,
