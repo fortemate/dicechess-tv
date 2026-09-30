@@ -43,6 +43,9 @@ export type BotVoiceState = {
   readonly lastSpokenTurn: number;
   readonly threatSpoken: boolean;
   readonly introSpoken: boolean;
+  // The line each event said last, so the next is another (#159). Kept from one
+  // game to the next: the same intro at the start of a rematch is a repeat too.
+  readonly lastLines?: Readonly<Partial<Record<VoiceEvent, string>>>;
 };
 
 export const INITIAL_BOT_VOICE_STATE: BotVoiceState = {
@@ -279,28 +282,33 @@ function isMatchStartStep(before: Game, after: Game): boolean {
   );
 }
 
+// A line is never picked twice in a row for an event: with a voice, a repeat is
+// heard at once, where a bubble read twice might pass (#159).
 function pickVoiceLine(
   bot: BotMode,
   event: VoiceEvent,
   random: () => number,
+  last?: string,
 ): VoiceLine {
-  const lines = voiceLinesFor(bot, event);
-  if (lines.length === 0) {
+  const all = voiceLinesFor(bot, event);
+  if (all.length === 0) {
     throw new Error(`No voice lines found for bot ${bot} and event ${event}`);
   }
+  const lines = all.length > 1 ? all.filter((line) => line.id !== last) : all;
   const index = Math.floor(random() * lines.length);
   return lines[Math.min(index, lines.length - 1)];
 }
 
 function nextVoiceState(
   state: BotVoiceState,
-  event: VoiceEvent,
+  line: VoiceLine,
   currentTurn: number,
 ): BotVoiceState {
   return {
     lastSpokenTurn: currentTurn,
-    threatSpoken: state.threatSpoken || event === 'threat',
-    introSpoken: state.introSpoken || event === 'intro',
+    threatSpoken: state.threatSpoken || line.event === 'threat',
+    introSpoken: state.introSpoken || line.event === 'intro',
+    lastLines: { ...state.lastLines, [line.event]: line.id },
   };
 }
 
@@ -369,8 +377,13 @@ export function botVoiceCue(
   // Terminal results bypass cooldown and random probability gates
   const terminal = resultEvent(before, after);
   if (terminal) {
-    const line = pickVoiceLine(opponent.mode, terminal, random);
-    const next = nextVoiceState(state, terminal, after.turn);
+    const line = pickVoiceLine(
+      opponent.mode,
+      terminal,
+      random,
+      state.lastLines?.[terminal],
+    );
+    const next = nextVoiceState(state, line, after.turn);
     return { line, state: next, nextState: next };
   }
 
@@ -390,8 +403,13 @@ export function botVoiceCue(
     return { line: null, state, nextState: state };
   }
 
-  const line = pickVoiceLine(opponent.mode, event, random);
-  const next = nextVoiceState(state, event, after.turn);
+  const line = pickVoiceLine(
+    opponent.mode,
+    event,
+    random,
+    state.lastLines?.[event],
+  );
+  const next = nextVoiceState(state, line, after.turn);
   return { line, state: next, nextState: next };
 }
 

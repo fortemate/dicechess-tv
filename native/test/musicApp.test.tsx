@@ -57,6 +57,7 @@ const recorder = (): Recorder => {
       self.suspended = value;
     },
     setCatalogue() {},
+    setDucked() {},
   };
   return self;
 };

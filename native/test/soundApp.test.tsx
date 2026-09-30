@@ -36,6 +36,8 @@ type Recorder = Sounds & {
   played: Cue[][];
   muted: boolean | null;
   suspended: boolean | null;
+  said: string[];
+  voices: boolean | null;
 };
 
 const recorder = (): Recorder => {
@@ -43,11 +45,19 @@ const recorder = (): Recorder => {
     played: [],
     muted: null,
     suspended: null,
+    said: [],
+    voices: null,
     play(cues) {
       if (cues.length) self.played.push([...cues]);
     },
     setMuted(value) {
       self.muted = value;
+    },
+    say(line) {
+      self.said.push(line.id);
+    },
+    setVoices(on) {
+      self.voices = on;
     },
     setSuspended(value) {
       self.suspended = value;
@@ -99,10 +109,10 @@ test('turning sound off is remembered at the next launch', () => {
   assert.equal(first.muted, false, 'sound starts on');
 
   // Home, nothing saved: new hotseat, Play the computer, How to play, Rules,
-  // Settings. The sound effects are the third setting.
+  // Settings. This build has no music, so the sound effects come first.
   send('down', 'down', 'down', 'down', 'enter');
   assert.match(text(tree.root), /Sound effects: on/);
-  send('down', 'down', 'enter');
+  send('enter');
   assert.match(text(tree.root), /Sound effects: off/);
   assert.equal(first.muted, true);
   act(() => tree.unmount());
@@ -112,6 +122,37 @@ test('turning sound off is remembered at the next launch', () => {
   assert.equal(second.muted, true, 'a relaunch starts muted');
   send('down', 'down', 'down', 'down', 'enter');
   assert.match(text(tree.root), /Sound effects: off/);
+  act(() => tree.unmount());
+});
+
+test('the bots speak by default, and turning their voices off is remembered (#159)', () => {
+  reset();
+  const first = recorder();
+  let tree = launch(first);
+  assert.equal(first.voices, true, 'voices start on');
+  // Settings, then the row after the sound effects.
+  send('down', 'down', 'down', 'down', 'enter');
+  assert.match(text(tree.root), /Bot voices: on/);
+  send('down', 'enter');
+  assert.match(text(tree.root), /Bot voices: off/);
+  assert.equal(first.voices, false);
+  assert.equal(first.muted, false, 'the effects are left alone');
+  act(() => tree.unmount());
+
+  const second = recorder();
+  tree = launch(second);
+  assert.equal(second.voices, false, 'a relaunch starts without voices');
+  act(() => tree.unmount());
+});
+
+test('a line the bot says is handed to the voice', () => {
+  reset();
+  const sounds = recorder();
+  const tree = launch(sounds);
+  // Play the computer, Rolly, on Random: the game opens with Rolly's intro.
+  send('down', 'enter', 'enter', 'enter');
+  assert.equal(sounds.said.length, 1);
+  assert.match(sounds.said[0], /^rolly_intro_[123]$/);
   act(() => tree.unmount());
 });
 

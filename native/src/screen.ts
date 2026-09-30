@@ -120,7 +120,8 @@ export type Overlay =
   // starts. Back returns to the cards; `from` is where the cards return.
   | { kind: 'colour'; index: number; mode: BotMode; from: 'home' | 'menu' }
   | { kind: 'promotion'; moves: string[]; index: number }
-  // Music, its volume and the sound effects (#76). `from` is where Back returns.
+  // Music, its volume, the sound effects and the bot voices (#76, #159).
+  // `from` is where Back returns.
   | { kind: 'settings'; index: number; from: 'home' | 'menu' }
   // After a game against the bot: a rematch, or back to the main menu.
   | { kind: 'result'; index: number }
@@ -158,24 +159,28 @@ export type ScreenState = {
   musicAvailable: boolean;
   // Whether the board turns to the side to move in hotseat (#120).
   turnHotseat: boolean;
+  // Whether the bots speak their lines aloud (#159).
+  voices: boolean;
   // OK is ignored: a roll has just left nothing to play. The app clears it
   // after OK_GUARD_MS; the other keys work throughout.
   guarded: boolean;
 };
 
-// Sound effects and music are set on a screen of their own, opened from both
-// menus. A label says what a setting is now, which is what a viewer checks.
+// Sound effects, music and the bots' voices are set on a screen of their own,
+// opened from both menus. A label says what a setting is now, which is what a viewer checks.
 export const SETTINGS_OPTION = 'Settings';
 export const settingsOptions = (
   sound: boolean,
   music: MusicSetting,
   musicAvailable = true,
   turnHotseat = false,
+  voices = true,
 ): string[] => [
   ...(musicAvailable
     ? [`Music: ${music.on ? 'on' : 'off'}`, `Music volume: ${music.volume}`]
     : []),
   `Sound effects: ${sound ? 'on' : 'off'}`,
+  `Bot voices: ${voices ? 'on' : 'off'}`,
   `Turn board in hotseat: ${turnHotseat ? 'on' : 'off'}`,
 ];
 
@@ -281,7 +286,11 @@ const board = (
     music,
     musicAvailable,
     turnHotseat,
-  }: Pick<ScreenState, 'sound' | 'music' | 'musicAvailable' | 'turnHotseat'>,
+    voices,
+  }: Pick<
+    ScreenState,
+    'sound' | 'music' | 'musicAvailable' | 'turnHotseat' | 'voices'
+  >,
   cursor: Square = START,
 ): ScreenState => ({
   game,
@@ -292,6 +301,7 @@ const board = (
   music,
   musicAvailable,
   turnHotseat,
+  voices,
   guarded: false,
 });
 
@@ -310,6 +320,7 @@ const played = (
   music: state.music,
   musicAvailable: state.musicAvailable,
   turnHotseat: state.turnHotseat,
+  voices: state.voices,
   guarded: emptyRoll(game),
 });
 
@@ -327,6 +338,7 @@ export const initialState = (
   music: MusicSetting = DEFAULT_MUSIC,
   musicAvailable = false,
   turnHotseat = false,
+  voices = true,
 ): ScreenState => {
   const game = restored ?? newGame('hotseat', options.newId());
   const isFlipped = flipped(game, turnHotseat);
@@ -347,6 +359,7 @@ export const initialState = (
     music,
     musicAvailable,
     turnHotseat,
+    voices,
     guarded: false,
   };
 };
@@ -613,6 +626,7 @@ const onSettings: Handler<'settings'> = (state, overlay, key) => {
     state.music,
     state.musicAvailable,
     state.turnHotseat,
+    state.voices,
   );
   if (key === 'up' || key === 'down')
     return moved(state, overlay, key, rows.length);
@@ -630,6 +644,7 @@ const onSettings: Handler<'settings'> = (state, overlay, key) => {
     return { ...state, music: { ...state.music, on: !state.music.on } };
   if (row.startsWith('Sound effects:'))
     return { ...state, sound: !state.sound };
+  if (row.startsWith('Bot voices:')) return { ...state, voices: !state.voices };
   return { ...state, turnHotseat: !state.turnHotseat };
 };
 

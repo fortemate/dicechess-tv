@@ -26,6 +26,7 @@ import { MmkvSnapshotStore } from './mmkvStore';
 import { createSounds, type Sounds } from './sound';
 import { readSound, saveSound } from './soundSetting';
 import { readTurnBoard, saveTurnBoard } from './turnSetting';
+import { readVoices, saveVoices } from './voiceSetting';
 import { createMusic, loadCatalogue, type Music } from './music';
 import {
   readMusic,
@@ -144,20 +145,44 @@ export const App = ({
   // one state and then flips to another.
   const settings = React.useMemo(() => new MMKV(), []);
   const [initialSound] = React.useState(() => readSound(settings));
+  const [initialVoices] = React.useState(() => readVoices(settings));
+  // The adaptive music (#76), made before the sounds so that a bot's line can
+  // duck it (#159).
+  const music = React.useMemo(
+    () => injectedMusic ?? createMusic({ report: onState }),
+    // Made once, like the sound players.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [injectedMusic],
+  );
   const sounds = React.useMemo(
     () =>
-      injectedSounds ?? createSounds({ muted: !initialSound, report: onState }),
+      injectedSounds ??
+      createSounds({
+        muted: !initialSound,
+        voices: initialVoices,
+        report: onState,
+        onSpeech: (on) => music.setDucked(on),
+      }),
     // Made once: the players are created and initialised up front.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [injectedSounds],
+    [injectedSounds, music],
   );
   React.useEffect(() => {
-    if (injectedSounds) injectedSounds.setMuted(!initialSound);
-  }, [injectedSounds, initialSound]);
+    if (!injectedSounds) return;
+    injectedSounds.setMuted(!initialSound);
+    injectedSounds.setVoices(initialVoices);
+  }, [injectedSounds, initialSound, initialVoices]);
   const onSound = React.useCallback(
     (on: boolean) => {
       saveSound(settings, on);
       sounds.setMuted(!on);
+    },
+    [settings, sounds],
+  );
+  const onVoices = React.useCallback(
+    (on: boolean) => {
+      saveVoices(settings, on);
+      sounds.setVoices(on);
     },
     [settings, sounds],
   );
@@ -168,12 +193,6 @@ export const App = ({
   // Known once the catalogue is read; an injected player counts as music.
   const [musicAvailable, setMusicAvailable] = React.useState(
     injectedMusic !== undefined,
-  );
-  const music = React.useMemo(
-    () => injectedMusic ?? createMusic({ report: onState }),
-    // Made once, like the sound players.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [injectedMusic],
   );
   React.useEffect(() => {
     music.setEnabled(initialMusic.on);
@@ -279,6 +298,8 @@ export const App = ({
       onSound={onSound}
       initialTurnBoard={initialTurnBoard}
       onTurnBoard={onTurnBoard}
+      initialVoices={initialVoices}
+      onVoices={onVoices}
       music={music}
       initialMusic={initialMusic}
       onMusic={onMusic}

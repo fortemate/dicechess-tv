@@ -20,6 +20,9 @@ const lastWord = (line: VoiceLine): boolean =>
 
 export type UseBotVoiceOptions = {
   timeoutMs?: number;
+  // How long a line's bubble stays, when it should outlast `timeoutMs`: a
+  // spoken line stays until it has been said (#159).
+  holdMs?: (line: VoiceLine) => number;
   onVoiceLine?: (line: VoiceLine) => void;
 };
 
@@ -35,10 +38,12 @@ export function useBotVoice(
 
   const timeoutMs = options?.timeoutMs ?? DISMISS_DELAY_MS;
   const timeoutMsRef = React.useRef(timeoutMs);
+  const holdMsRef = React.useRef(options?.holdMs);
   const onVoiceLineRef = React.useRef(options?.onVoiceLine);
 
   React.useLayoutEffect(() => {
     timeoutMsRef.current = timeoutMs;
+    holdMsRef.current = options?.holdMs;
     onVoiceLineRef.current = options?.onVoiceLine;
   });
 
@@ -48,10 +53,14 @@ export function useBotVoice(
     if (timer.current) clearTimeout(timer.current);
     timer.current = null;
     if (lastWord(line)) return;
-    timer.current = setTimeout(() => {
-      setActiveLine(null);
-      timer.current = null;
-    }, timeoutMsRef.current);
+    const hold = holdMsRef.current?.(line) ?? 0;
+    timer.current = setTimeout(
+      () => {
+        setActiveLine(null);
+        timer.current = null;
+      },
+      Math.max(timeoutMsRef.current, hold),
+    );
   }, []);
 
   React.useEffect(() => {
@@ -69,8 +78,13 @@ export function useBotVoice(
     lastGame.current = game;
 
     // Reset voice state on new game or rematch
+    // A new game speaks afresh, but remembers which lines were said last, so a
+    // rematch does not open with the intro it just heard.
     if (prev?.id !== game.id) {
-      voiceState.current = INITIAL_BOT_VOICE_STATE;
+      voiceState.current = {
+        ...INITIAL_BOT_VOICE_STATE,
+        lastLines: voiceState.current.lastLines,
+      };
       if (timer.current) {
         clearTimeout(timer.current);
         timer.current = null;

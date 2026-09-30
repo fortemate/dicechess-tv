@@ -7,9 +7,12 @@ import {
   createMusic,
   loadCatalogue,
   CROSSFADE_MS,
+  DUCK_DB,
+  DUCK_MS,
   RESUME_DELAY_MS,
   SEAM_MS,
   STOP_MS,
+  UNDUCK_MS,
   type Catalogue,
   type Clock,
 } from '../src/music';
@@ -339,6 +342,30 @@ test('the volume setting scales every player at once', async () => {
   music.setVolume(0.5);
   const menu = players.find((each) => each.playing)!;
   assert.ok(Math.abs(menu.volume - 0.5) < 1e-9);
+});
+
+test('a bot line ducks the music quickly, and it comes back more slowly (#159)', async () => {
+  const { music, clock, players } = await rig();
+  music.setRole('calm');
+  await clock.advance(CROSSFADE_MS);
+  const calm = players.find((each) => each.playing)!;
+  assert.ok(Math.abs(calm.volume - 1) < 1e-9);
+  const ducked = 10 ** (DUCK_DB / 20);
+  music.setDucked(true);
+  await clock.advance(DUCK_MS);
+  assert.ok(Math.abs(calm.volume - ducked) < 1e-9, `ducked to ${calm.volume}`);
+  music.setDucked(false);
+  await clock.advance(DUCK_MS);
+  assert.ok(calm.volume > ducked && calm.volume < 1, 'still coming back');
+  await clock.advance(UNDUCK_MS);
+  assert.ok(Math.abs(calm.volume - 1) < 1e-9);
+  // Ducked while nothing plays, a theme that starts is ducked from the start.
+  const quiet = await rig();
+  quiet.music.setDucked(true);
+  quiet.music.setRole('menu');
+  await quiet.clock.advance(CROSSFADE_MS);
+  const menu = quiet.players.find((each) => each.playing)!;
+  assert.ok(Math.abs(menu.volume - ducked) < 1e-9);
 });
 
 test('after a result the music falls silent before the menu theme returns', async () => {
