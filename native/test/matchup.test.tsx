@@ -1,12 +1,14 @@
-// The matchup header in the gameplay HUD (#156): player and opponent badges,
-// active turn borders, bot difficulty pips, and thinking status.
+// The matchup header in the gameplay HUD (#156, #168): a badge for each side
+// where that side sits on the board, the side to move framed in the turn colour
+// rather than the focus style, the bot's level and thinking status, and the
+// speech zone under the top badge.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
-import { Matchup } from '../src/Matchup';
+import { Matchup, SPEECH_ZONE, type MatchupProps } from '../src/Matchup';
 import { THEME } from '../src/theme';
-import { newGame, type Game, type Side } from '../../src/core/game';
+import { newGame, type Game } from '../../src/core/game';
 
 type Instance = renderer.ReactTestInstance;
 type Style = Record<string, unknown>;
@@ -19,22 +21,19 @@ const isHost = (node: Instance, name: string) =>
   (node.type as unknown as string) === name;
 const styleOf = (node: Instance): Style => (node.props.style ?? {}) as Style;
 
-const mount = (
-  game: Game,
-  side: Side,
-  thinking = false,
-): renderer.ReactTestRenderer => {
+const mount = (props: MatchupProps): renderer.ReactTestRenderer => {
   let tree!: renderer.ReactTestRenderer;
   act(() => {
-    tree = renderer.create(
-      React.createElement(Matchup, { game, side, thinking }),
-    );
+    tree = renderer.create(React.createElement(Matchup, props));
   });
   return tree;
 };
 
+// The host element with a testID: the stubs pass it on from their component.
 const byTestId = (root: Instance, id: string): Instance => {
-  const match = root.find((node) => node.props && node.props.testID === id);
+  const match = root.find(
+    (node) => typeof node.type === 'string' && node.props.testID === id,
+  );
   assert.ok(match, `expected element with testID="${id}"`);
   return match;
 };
@@ -44,50 +43,68 @@ const texts = (node: Instance): string[] =>
     .findAll((each) => isHost(each, 'Text'))
     .map((each) => String(each.props.children));
 
+// The badges from top to bottom.
+const badges = (root: Instance): string[] =>
+  root
+    .findAll(
+      (node) =>
+        isHost(node, 'View') && /-badge$/.test(String(node.props.testID)),
+    )
+    .map((node) => texts(node)[0]);
+
+const assertToMove = (badge: Instance) => {
+  assert.equal(styleOf(badge).borderColor, THEME.turn);
+  assert.equal(styleOf(badge).opacity, 1);
+};
+const assertWaiting = (badge: Instance) => {
+  assert.notEqual(styleOf(badge).borderColor, THEME.turn);
+  assert.ok(Number(styleOf(badge).opacity) < 1, 'the waiting side dims');
+};
+
 test('renders player and opponent badges with initial turn on White', () => {
-  const game = newGame('aggressive', 'game-1');
-  const tree = mount(game, 'w');
+  const tree = mount({ game: newGame('aggressive', 'game-1'), side: 'w' });
 
   const player = byTestId(tree.root, 'player-badge');
   const opponent = byTestId(tree.root, 'opponent-badge');
-
   assert.deepEqual(texts(player), ['YOU', 'White']);
-  assert.equal(texts(opponent)[0], 'RAMPAGE');
-  assert.equal(texts(opponent)[1], 'Hard');
-
-  // White (player) has active turn
-  assert.equal(styleOf(player).borderColor, THEME.cursor);
-  assert.equal(styleOf(player).opacity, 1);
-
-  // Black (bot) is inactive
-  assert.notEqual(styleOf(opponent).borderColor, THEME.cursor);
-  assert.equal(styleOf(opponent).opacity, 0.72);
+  assert.deepEqual(texts(opponent), ['RAMPAGE', 'Hard']);
+  assertToMove(player);
+  assertWaiting(opponent);
+  assert.deepEqual(badges(tree.root), ['RAMPAGE', 'YOU']);
 });
 
 test('active turn shifts to opponent on Black turn', () => {
-  const game = newGame('aggressive', 'game-2');
-  const tree = mount(game, 'b');
+  const tree = mount({ game: newGame('aggressive', 'game-2'), side: 'b' });
 
-  const player = byTestId(tree.root, 'player-badge');
-  const opponent = byTestId(tree.root, 'opponent-badge');
+  assertWaiting(byTestId(tree.root, 'player-badge'));
+  assertToMove(byTestId(tree.root, 'opponent-badge'));
+});
 
-  // Player is inactive
-  assert.notEqual(styleOf(player).borderColor, THEME.cursor);
-  assert.equal(styleOf(player).opacity, 0.72);
-
-  // Opponent has active turn
-  assert.equal(styleOf(opponent).borderColor, THEME.cursor);
-  assert.equal(styleOf(opponent).opacity, 1);
+test('no badge wears the focus style, which is the cursor and menu items', () => {
+  for (const mode of ['hotseat', 'random', 'aggressive'] as const)
+    for (const side of ['w', 'b'] as const) {
+      const tree = mount({ game: newGame(mode, `focus-${mode}`), side });
+      for (const id of ['player-badge', 'opponent-badge']) {
+        const style = styleOf(byTestId(tree.root, id));
+        assert.notEqual(style.borderColor, THEME.cursor, `${mode} ${id}`);
+        assert.notEqual(
+          style.backgroundColor,
+          THEME.focusFill,
+          `${mode} ${id}`,
+        );
+      }
+    }
 });
 
 test('bot shows Thinking… status when it owes a move', () => {
-  const game = newGame('aggressive', 'game-3');
-  const tree = mount(game, 'b', true);
+  const tree = mount({
+    game: newGame('aggressive', 'game-3'),
+    side: 'b',
+    thinking: true,
+  });
 
   const opponent = byTestId(tree.root, 'opponent-badge');
-  const status = byTestId(opponent, 'bot-status');
-
-  assert.equal(texts(status)[0], 'Thinking…');
+  assert.equal(byTestId(opponent, 'bot-status').props.children, 'Thinking…');
 });
 
 test('reflects difficulty pips for each bot opponent', () => {
@@ -96,48 +113,48 @@ test('reflects difficulty pips for each bot opponent', () => {
     ['greedy', 2],
     ['aggressive', 3],
   ] as const) {
-    const game = newGame(mode, `game-${mode}`);
-    const tree = mount(game, 'w');
+    const tree = mount({ game: newGame(mode, `game-${mode}`), side: 'w' });
     const opponent = byTestId(tree.root, 'opponent-badge');
     const filled = opponent.findAll(
       (node) => isHost(node, 'View') && node.props.testID === 'pip-filled',
     );
-    assert.equal(
-      filled.length,
-      expectedFilled,
-      `expected ${expectedFilled} pips for ${mode}`,
-    );
+    assert.equal(filled.length, expectedFilled, `pips for ${mode}`);
   }
 });
 
-test('renders correctly when player chooses Black against bot', () => {
+test('the person playing Black still sits at the bottom, as the board turns', () => {
   const game = newGame('greedy', 'game-black', undefined, 'b');
-  const tree = mount(game, 'b');
+  const tree = mount({ game, side: 'b' });
 
   const player = byTestId(tree.root, 'player-badge');
-  const opponent = byTestId(tree.root, 'opponent-badge');
-
   assert.deepEqual(texts(player), ['YOU', 'Black']);
-  assert.equal(texts(opponent)[0], 'GRABBY');
-
-  // Player on Black is active
-  assert.equal(styleOf(player).borderColor, THEME.cursor);
-  assert.equal(styleOf(player).opacity, 1);
+  assertToMove(player);
+  assert.deepEqual(badges(tree.root), ['GRABBY', 'YOU']);
 });
 
 test('renders Hotseat mode with Player 1 and Player 2 badges', () => {
-  const game = newGame('hotseat', 'game-hotseat');
-  const tree = mount(game, 'w');
+  const tree = mount({ game: newGame('hotseat', 'game-hotseat'), side: 'w' });
 
   const player = byTestId(tree.root, 'player-badge');
   const opponent = byTestId(tree.root, 'opponent-badge');
-
   assert.deepEqual(texts(player), ['PLAYER 1', 'White']);
   assert.deepEqual(texts(opponent), ['PLAYER 2', 'Black']);
+  assertToMove(player);
+  assertWaiting(opponent);
+  assert.deepEqual(badges(tree.root), ['PLAYER 2', 'PLAYER 1']);
+});
 
-  // Player 1 (White) is active
-  assert.equal(styleOf(player).borderColor, THEME.cursor);
-  assert.notEqual(styleOf(opponent).borderColor, THEME.cursor);
+test('in hotseat the badges follow the turned board', () => {
+  // Black to move with the board turned to it (#120): Black's pieces are at
+  // the bottom, and so is Player 2.
+  const tree = mount({
+    game: newGame('hotseat', 'game-turned'),
+    side: 'b',
+    flipped: true,
+  });
+
+  assert.deepEqual(badges(tree.root), ['PLAYER 1', 'PLAYER 2']);
+  assertToMove(byTestId(tree.root, 'opponent-badge'));
 });
 
 test('neither badge is highlighted when the game has ended', () => {
@@ -146,52 +163,69 @@ test('neither badge is highlighted when the game has ended', () => {
     phase: 'ended',
     result: { reason: 'king-captured', winner: 'w' },
   };
-  const tree = mount(game, 'w');
+  const tree = mount({ game, side: 'w' });
 
-  const player = byTestId(tree.root, 'player-badge');
-  const opponent = byTestId(tree.root, 'opponent-badge');
-
-  assert.notEqual(styleOf(player).borderColor, THEME.cursor);
-  assert.notEqual(styleOf(opponent).borderColor, THEME.cursor);
+  assertWaiting(byTestId(tree.root, 'player-badge'));
+  assertWaiting(byTestId(tree.root, 'opponent-badge'));
 });
 
-test('renders speech bubble under opponent badge when provided', () => {
-  const game = newGame('aggressive', 'game-bubble');
-  let tree!: renderer.ReactTestRenderer;
-  act(() => {
-    tree = renderer.create(
-      React.createElement(Matchup, {
-        game,
-        side: 'b',
-        speechBubble: React.createElement(
-          'Text',
-          { testID: 'test-bubble' },
-          'Your king is trapped!',
-        ),
-      }),
-    );
+test('the bot speaks in a zone of its own, in place of the turn line', () => {
+  const tree = mount({
+    game: newGame('aggressive', 'game-bubble'),
+    side: 'b',
+    header: React.createElement('Text', { testID: 'turn-line' }, 'TURN 3'),
+    speechBubble: React.createElement(
+      'Text',
+      { testID: 'test-bubble' },
+      'Your king is in my sights!',
+    ),
   });
 
-  const slot = byTestId(tree.root, 'speech-bubble-slot');
-  const bubble = byTestId(slot, 'test-bubble');
-  assert.equal(texts(bubble)[0], 'Your king is trapped!');
+  const zone = byTestId(tree.root, 'speech-zone');
+  assert.equal(styleOf(zone).height, SPEECH_ZONE);
+  assert.equal(styleOf(zone).justifyContent, 'flex-end');
+  const slot = byTestId(zone, 'speech-bubble-slot');
   assert.equal(styleOf(slot).position, 'absolute');
-  assert.equal(styleOf(slot).top, '100%');
+  assert.equal(styleOf(slot).top, 0);
+  assert.deepEqual(texts(slot), ['Your king is in my sights!']);
+  // The turn line is left out while the bot speaks, from the screen and from
+  // a screen reader, and the zone keeps its height.
+  assert.equal(
+    zone.findAll((node) => node.props?.testID === 'turn-line').length,
+    0,
+  );
+  assert.ok(!texts(zone).includes('TURN 3'));
 });
 
-test('renders center children between opponent and player badges', () => {
-  const game = newGame('aggressive', 'game-children');
-  let tree!: renderer.ReactTestRenderer;
-  act(() => {
-    tree = renderer.create(
-      React.createElement(
-        Matchup,
-        { game, side: 'w' },
-        React.createElement('Text', { testID: 'center-action' }, 'TURN 1'),
-      ),
-    );
+test('the turn line shows while the bot is quiet', () => {
+  const tree = mount({
+    game: newGame('aggressive', 'game-quiet-bot'),
+    side: 'w',
+    header: React.createElement('Text', null, 'TURN 3'),
   });
 
-  const center = byTestId(tree.root, 'center-action');
-  assert.equal(texts(center)[0], 'TURN 1');
+  const zone = byTestId(tree.root, 'speech-zone');
+  assert.deepEqual(texts(byTestId(zone, 'turn-line')), ['TURN 3']);
+});
+
+test('hotseat has no speech zone to leave empty', () => {
+  const tree = mount({
+    game: newGame('hotseat', 'game-quiet'),
+    side: 'w',
+    header: React.createElement('Text', null, 'HOTSEAT · TURN 1'),
+  });
+
+  assert.equal(styleOf(byTestId(tree.root, 'speech-zone')).height, undefined);
+});
+
+test('renders center children between the badges, anchored at the top', () => {
+  const tree = mount({
+    game: newGame('aggressive', 'game-children'),
+    side: 'w',
+    children: React.createElement('Text', null, 'White to play · you'),
+  });
+
+  const center = byTestId(tree.root, 'matchup-center');
+  assert.deepEqual(texts(center), ['White to play · you']);
+  assert.notEqual(styleOf(center).justifyContent, 'center');
 });

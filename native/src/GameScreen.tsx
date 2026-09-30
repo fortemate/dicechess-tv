@@ -216,7 +216,7 @@ type GameView = ReturnType<typeof viewGame>;
 // The line under the headline: who won, or the dice still to use.
 const winnerLine = (result: Result): string =>
   result.winner ? `${sideName(result.winner)} wins` : 'Drawn';
-const HEADLINE = { color: '#f0f4f8', fontSize: 36, marginBottom: 14 };
+const HEADLINE = { color: '#f0f4f8', fontSize: 38, marginBottom: 16 };
 const STATUS_LINE = { color: '#aab8c9', fontSize: 24, marginBottom: 12 };
 
 // Under the dice after a roll with nothing to play, in the rules guide's words.
@@ -231,40 +231,30 @@ const modeLine = (game: Game, overlayOpen: boolean): string => {
   return turn;
 };
 
-// The mode and the turn; then how the game ended or whose move it is; then the
-// winner or the dice, and why the turn passes when a roll left nothing to play.
-// An open menu keeps only the first line: it is a menu, its list and the
-// record need the height to stay inside the safe area (#51), and the board
-// behind it already shows the game.
-const Status = ({
+// The mode and the turn. Over an open menu it is the only line: a menu, its
+// list and the record need the height to stay inside the safe area (#51), and
+// the board behind it already shows the game. During play it stands under the
+// top badge, at the foot of the bot's speech zone in a game against the bot,
+// and the badges name the opponent.
+const ModeLine = ({
   game,
-  view,
   overlayOpen,
 }: {
   game: Game;
-  view: GameView;
   overlayOpen: boolean;
-}) => {
+}) => (
+  <Text style={{ color: '#8dc9b6', fontSize: 20, letterSpacing: 2 }}>
+    {modeLine(game, overlayOpen)}
+  </Text>
+);
+
+// How the game ended or whose move it is; then the winner or the dice, and why
+// the turn passes when a roll left nothing to play. It also shows the result of
+// a game against the bot, above the choice of what comes next (#163).
+const Status = ({ game, view }: { game: Game; view: GameView }) => {
   const { result } = game;
-  const mode = modeLine(game, overlayOpen);
-  if (overlayOpen)
-    return (
-      <Text style={{ color: '#8dc9b6', fontSize: 20, letterSpacing: 2 }}>
-        {mode}
-      </Text>
-    );
   return (
     <>
-      <Text
-        style={{
-          color: '#8dc9b6',
-          fontSize: 20,
-          letterSpacing: 2,
-          marginBottom: 10,
-        }}
-      >
-        {mode}
-      </Text>
       <Text style={HEADLINE}>
         {result ? RESULT[result.reason] : headline(game, view)}
       </Text>
@@ -282,16 +272,6 @@ const Status = ({
     </>
   );
 };
-
-// How a game against the bot ended, above the choice of what comes next
-// (#163). The badges around it already say who played, so the mode line is
-// left out.
-const Outcome = ({ result }: { result: Result }) => (
-  <>
-    <Text style={HEADLINE}>{RESULT[result.reason]}</Text>
-    <Text style={STATUS_LINE}>{winnerLine(result)}</Text>
-  </>
-);
 
 // What OK and the arrows do now, when no menu or choice is open.
 const promptFor = (game: Game, selected: string | null): string => {
@@ -658,9 +638,9 @@ export const GameScreen = ({
   const size = boardSide(width, height);
   const insets = safeInsets(width, height);
   // The result of a game against the bot is drawn in the matchup HUD like the
-  // game itself, so the bot's last word shows under its badge (#163). It sits
-  // low, above the person's badge, which leaves that line room to wrap.
+  // game itself, so the bot's last word shows under its badge (#163).
   const result = overlay.kind === 'result' ? game.result : null;
+  const isFlipped = flipped(game, turnHotseat);
   return (
     <View
       style={{
@@ -679,13 +659,13 @@ export const GameScreen = ({
         lastMove={game.lastMove}
         selected={focus.selected}
         cursor={focus.cursor}
-        flipped={flipped(game, turnHotseat)}
+        flipped={isFlipped}
         movable={movable}
       />
       <View style={{ flex: 1, height: size, paddingLeft: BOARD_GAP }}>
         {overlay.kind !== 'none' && !result ? (
           <>
-            <Status game={game} view={state} overlayOpen={true} />
+            <ModeLine game={game} overlayOpen={true} />
             <Panel
               overlay={overlay}
               game={game}
@@ -698,37 +678,29 @@ export const GameScreen = ({
             />
           </>
         ) : (
+          // Anchored at the top: the headline, the dice and the prompt keep
+          // their place whatever the prompt's length (#168).
           <Matchup
             game={game}
             side={state.side}
+            flipped={isFlipped}
             thinking={botOwes(game)}
             speechBubble={
               voiceLine ? <SpeechBubble text={voiceLine.text} /> : undefined
             }
+            header={<ModeLine game={game} overlayOpen={false} />}
           >
-            <View
-              style={{
-                flex: 1,
-                justifyContent: result ? 'flex-end' : 'center',
-                paddingBottom: result ? 12 : 0,
-              }}
-            >
-              {result ? (
-                <Outcome result={result} />
-              ) : (
-                <Status game={game} view={state} overlayOpen={false} />
-              )}
-              <Panel
-                overlay={overlay}
-                game={game}
-                sound={sound}
-                music={musicSetting}
-                hasMusic={hasMusic}
-                turnHotseat={turnHotseat}
-                selected={focus.selected}
-                pressed={pressed}
-              />
-            </View>
+            <Status game={game} view={state} />
+            <Panel
+              overlay={overlay}
+              game={game}
+              sound={sound}
+              music={musicSetting}
+              hasMusic={hasMusic}
+              turnHotseat={turnHotseat}
+              selected={focus.selected}
+              pressed={pressed}
+            />
           </Matchup>
         )}
       </View>

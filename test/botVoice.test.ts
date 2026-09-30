@@ -71,6 +71,18 @@ test('catalogue contains exactly 63 lines (3 lines per event for all 3 bots)', (
   }
 });
 
+// The bubble shows at most two rows of 20 dp text (#168), and a row holds
+// about 36 characters on the Virtual Device, so a line is kept well inside two
+// rows, with room for wide letters and for where the words break.
+const BUBBLE_CHARACTERS = 64;
+
+test('every voice line fits the two rows of the speech bubble', () => {
+  const long = VOICE_CATALOGUE.filter(
+    (line) => line.text.length > BUBBLE_CHARACTERS,
+  ).map((line) => `${line.id} (${line.text.length})`);
+  assert.deepEqual(long, []);
+});
+
 test('voiceLineById returns undefined for non-existent id', () => {
   assert.equal(voiceLineById('unknown_line_id'), undefined);
 });
