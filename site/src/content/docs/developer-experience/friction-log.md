@@ -38,7 +38,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 | [FL-06](#fl-06) | Back needs a different hook from every other key                             | Input, docs                       | Medium   | Worked around |
 | [FL-07](#fl-07) | An app that renders nothing at first never receives remote input             | Input                             | High     | Worked around |
 | [FL-08](#fl-08) | Three key-injection routes report success and reach no app                   | Virtual Device                    | Medium   | Worked around |
-| [FL-09](#fl-09) | The Vega CLI has no screenshot command, and the device's tool fails          | CLI, device                       | Medium   | Worked around |
+| [FL-09](#fl-09) | The Vega CLI has no screenshot command, and the device's tool fails silently | CLI, device                       | Medium   | Worked around |
 | [FL-10](#fl-10) | Release builds send no `console.log` output to the log stream                | CLI                               | Medium   | Worked around |
 | [FL-11](#fl-11) | OGG and M4A do not play, and `canPlayType` answers backwards                 | Audio                             | Medium   | Worked around |
 | [FL-12](#fl-12) | Audio wants a plain path where `fetch` wants a `file://` URL                 | Audio                             | Low      | Worked around |
@@ -238,7 +238,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   above still report success and deliver nothing, and the Vega CLI still has no command to send a
   key.
 
-### FL-09 · The Vega CLI has no screenshot command, and the device's tool fails {#fl-09}
+### FL-09 · The Vega CLI has no screenshot command, and the device's tool fails silently {#fl-09}
 
 - **Date and environment:** 2026-09-22 to 2026-09-24 · SDK 0.24.12112 · Virtual Device.
 - **Tool / SDK / component version:** Vega CLI; the device's `screenshooter`.
@@ -258,6 +258,17 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 - **Current status:** worked around.
 - **Update, 2026-09-27:** the Appium Vega driver's `get_screenshot` captures the screen too
   ([FL-08](#fl-08)). We have not tried it; the Vega CLI still has no screenshot command.
+- **Update, 2026-09-29:** on 2026-09-28, the device's `gwsi-tool-screenshooter`, which forum
+  replies had suggested for screenshots, wrote a 0-byte PNG or hung on the Virtual Device, with no
+  error. We
+  [reported it](https://community.amazondeveloper.com/t/sdk-0-24-12112-vvd-gwsi-tool-screenshooter-writes-a-0-byte-png-or-hangs/29249),
+  and Amazon staff replied that this is expected: the
+  [VDA reference](https://developer.amazon.com/docs/vega/0.24/vda-tools.html) notes that the Virtual
+  Device does not support the tool. It is the tool for a Fire TV Stick, and on the Virtual Device
+  Amazon points to the Appium Vega driver's `get_screenshot`. The remaining friction is that the tool
+  fails silently where it is unsupported, instead of exiting with an error that says so. Suggested
+  improvement: make it exit with that error on the Virtual Device, and link the Appium screenshot
+  documentation from the note.
 
 ### FL-10 · Release builds send no `console.log` output to the log stream {#fl-10}
 
