@@ -1,0 +1,13 @@
+Dice Chess bot voices (Amazon Polly)
+
+CC0 1.0 Universal. To the extent possible under law, Fortemate has waived all
+copyright and related or neighboring rights to the voice recordings of this pack
+and their records. The full legal code:
+https://creativecommons.org/publicdomain/zero/1.0/legalcode
+
+The recordings are synthetic: Fortemate made them with Amazon Polly from its own
+texts. The Amazon Polly FAQ, read on 2026-09-30, says that as between the account
+holder and AWS the Polly output belongs to the account holder.
+
+CC0 covers copyright only. It grants no rights in the names Dice Chess, Rolly,
+Grabby and Rampage, or in any other mark.

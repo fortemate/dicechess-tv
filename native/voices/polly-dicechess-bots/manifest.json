@@ -1,0 +1,1614 @@
+{
+  "attributionRequired": false,
+  "audition": "audition.json",
+  "casting": "casting.json",
+  "derivation": {
+    "arguments": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+    "note": "Each export is its source with the gain that brings it to the target loudness, measured by ffmpeg's ebur128 filter, then a limiter, as mono MP3 without metadata.",
+    "target": {
+      "bitrate": "64k",
+      "integratedLufs": -16,
+      "limitDbfs": -1.5
+    },
+    "tool": "ffmpeg version 9.0.1-essentials_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers"
+  },
+  "distribution": "public",
+  "generator": {
+    "note": "Synthetic voices. The Amazon Polly FAQ, read on 2026-09-30, says that as between the account holder and AWS the Polly output belongs to the account holder, and that it may be cached and replayed at no additional cost.",
+    "tool": "Amazon Polly",
+    "via": "aws polly synthesize-speech, run by tools/polly_voices.py with the owner's AWS profile"
+  },
+  "id": "polly-dicechess-bots",
+  "license": "CC0-1.0",
+  "licenseFile": "LICENSE.txt",
+  "lines": {
+    "grabby_capture_1": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.672,
+      "engine": "neural",
+      "event": "capture",
+      "export": "exports/mp3/grabby_capture_1.mp3",
+      "loudness": {
+        "exportLufs": -17.1,
+        "gainDb": 9.0,
+        "sourceLufs": -25.0
+      },
+      "rate": 100,
+      "sha256": "e9cd5d45e5410f388f000d1fcaf8c76d9806edaf4cf023e50cbd1dbfc53522fd",
+      "source": "source/mp3/grabby_capture_1.mp3",
+      "sourceSha256": "081daa6403cabb1d4b22685547d578cc20efc66a9a33176e55846ce23b4d343a",
+      "synthesized": "2026-09-30T18:19:37Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Mine! I'll take that, thank you.",
+      "voice": "Brian"
+    },
+    "grabby_capture_2": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 2.928,
+      "engine": "neural",
+      "event": "capture",
+      "export": "exports/mp3/grabby_capture_2.mp3",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 7.9,
+        "sourceLufs": -23.9
+      },
+      "rate": 100,
+      "sha256": "ab52b787c4d1626c69f3676961ff777b64dce71692569ce6ac5323a419d732d0",
+      "source": "source/mp3/grabby_capture_2.mp3",
+      "sourceSha256": "697c414a731675385a300965b5721485558532fcabc588a23d4d3c642382e557",
+      "synthesized": "2026-09-30T18:19:39Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Another piece added to my private collection.",
+      "voice": "Brian"
+    },
+    "grabby_capture_3": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 4.416,
+      "engine": "neural",
+      "event": "capture",
+      "export": "exports/mp3/grabby_capture_3.mp3",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 7.4,
+        "sourceLufs": -23.4
+      },
+      "rate": 100,
+      "sha256": "43ba2bc8b8159a86aa5a73634518648dfb5379d15a6f10f4263aef2a62622e49",
+      "source": "source/mp3/grabby_capture_3.mp3",
+      "sourceSha256": "15a0361e870fd9ff86491d4cfe3e56e34a5d5bf693d622939d9f21fd9bd92183",
+      "synthesized": "2026-09-30T18:19:41Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Yoink! You shouldn't leave valuables lying around.",
+      "voice": "Brian"
+    },
+    "grabby_capture_heavy_1": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.6,
+      "engine": "neural",
+      "event": "capture_heavy",
+      "export": "exports/mp3/grabby_capture_heavy_1.mp3",
+      "loudness": {
+        "exportLufs": -16.7,
+        "gainDb": 8.7,
+        "sourceLufs": -24.7
+      },
+      "rate": 100,
+      "sha256": "0129cb4f7837af4ac89bd8358f2e574f3263a4b34fff794c1f55aefa26af5f54",
+      "source": "source/mp3/grabby_capture_heavy_1.mp3",
+      "sourceSha256": "2c713721ea57efa8e824bd670bf2f05374dc4407745d6e3304f973570e5a5ef5",
+      "synthesized": "2026-09-30T18:19:31Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Jackpot! That prize piece is mine!",
+      "voice": "Brian"
+    },
+    "grabby_capture_heavy_2": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 4.416,
+      "engine": "neural",
+      "event": "capture_heavy",
+      "export": "exports/mp3/grabby_capture_heavy_2.mp3",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 7.5,
+        "sourceLufs": -23.5
+      },
+      "rate": 100,
+      "sha256": "9eb17fe0aa18282c3883701f9fb8c3b2fe602df24bbcc4c8821cac59b66f3edd",
+      "source": "source/mp3/grabby_capture_heavy_2.mp3",
+      "sourceSha256": "6d9f0645367d79661e1778492fd71df8bf1316c9e41be15ceb596df855afbacb",
+      "synthesized": "2026-09-30T18:19:33Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Exquisite loot! A crown jewel for my hoard!",
+      "voice": "Brian"
+    },
+    "grabby_capture_heavy_3": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 2.928,
+      "engine": "neural",
+      "event": "capture_heavy",
+      "export": "exports/mp3/grabby_capture_heavy_3.mp3",
+      "loudness": {
+        "exportLufs": -17.0,
+        "gainDb": 9.6,
+        "sourceLufs": -25.6
+      },
+      "rate": 100,
+      "sha256": "e9067d6a593c59b0bdb5dcc44ed5263216f718e683e302e8da41e1477dc3aecb",
+      "source": "source/mp3/grabby_capture_heavy_3.mp3",
+      "sourceSha256": "9b4dd014cb80cfbdd97829a91a69992f19fa787f9e15912bfe7702e4b809133c",
+      "synthesized": "2026-09-30T18:19:35Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "The bigger the piece, the sweeter the profit!",
+      "voice": "Brian"
+    },
+    "grabby_empty_roll_1": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.792,
+      "engine": "neural",
+      "event": "empty_roll",
+      "export": "exports/mp3/grabby_empty_roll_1.mp3",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 7.8,
+        "sourceLufs": -23.8
+      },
+      "rate": 100,
+      "sha256": "e0aaa39b0ee33207b751e373ef4f7bc8523cd9f4b5d412df561adad44b693270",
+      "source": "source/mp3/grabby_empty_roll_1.mp3",
+      "sourceSha256": "c38a0baf85054f23d478e1e10c801a6e29e7c38577c4b224d7d3028094762bad",
+      "synthesized": "2026-09-30T18:19:24Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "No moves?! But I wanted to take something!",
+      "voice": "Brian"
+    },
+    "grabby_empty_roll_2": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 4.728,
+      "engine": "neural",
+      "event": "empty_roll",
+      "export": "exports/mp3/grabby_empty_roll_2.mp3",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 7.8,
+        "sourceLufs": -23.8
+      },
+      "rate": 100,
+      "sha256": "4ca8d3d71117d625522aeeffc88e60eb629c937db5e6b99f07e6e317fb9a6e1b",
+      "source": "source/mp3/grabby_empty_roll_2.mp3",
+      "sourceSha256": "1fbbc037b91120f0c2758849cea892cec1d1b4be4391ca1b16255fc704ec45cb",
+      "synthesized": "2026-09-30T18:19:26Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "A waste of a roll! No loot for my vault this turn.",
+      "voice": "Brian"
+    },
+    "grabby_empty_roll_3": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 4.584,
+      "engine": "neural",
+      "event": "empty_roll",
+      "export": "exports/mp3/grabby_empty_roll_3.mp3",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 8.1,
+        "sourceLufs": -24.1
+      },
+      "rate": 100,
+      "sha256": "dd6cf95f892497ee13594ae2680cccaa0c62cb70eb5580d2a641d3e420657d02",
+      "source": "source/mp3/grabby_empty_roll_3.mp3",
+      "sourceSha256": "3c910a455b82879cfd5c0e9ad98bf9b427c46ef52beebfb20bc88fc848671f29",
+      "synthesized": "2026-09-30T18:19:29Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Empty roll! You got lucky... for now.",
+      "voice": "Brian"
+    },
+    "grabby_intro_1": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.36,
+      "engine": "neural",
+      "event": "intro",
+      "export": "exports/mp3/grabby_intro_1.mp3",
+      "loudness": {
+        "exportLufs": -16.6,
+        "gainDb": 7.9,
+        "sourceLufs": -23.9
+      },
+      "rate": 100,
+      "sha256": "a3bfb3d8bf2ecbcefddffcdabd418eb56584bed5748cb9fbeafcd504d1e39b94",
+      "source": "source/mp3/grabby_intro_1.mp3",
+      "sourceSha256": "94de9d55547e9d72b4af01edb55aaacf518dfbf49291fc41f03ca56fe8ffebf9",
+      "synthesized": "2026-09-30T18:19:18Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Everything on this board belongs in my collection.",
+      "voice": "Brian"
+    },
+    "grabby_intro_2": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 4.8,
+      "engine": "neural",
+      "event": "intro",
+      "export": "exports/mp3/grabby_intro_2.mp3",
+      "loudness": {
+        "exportLufs": -16.7,
+        "gainDb": 8.3,
+        "sourceLufs": -24.3
+      },
+      "rate": 100,
+      "sha256": "6311743f7095fb506d441ae59526794710cbf013895e1e64404558db9e1b8b86",
+      "source": "source/mp3/grabby_intro_2.mp3",
+      "sourceSha256": "59ba3f22f388a3082b77e527232eaa265f2095d1fed7d4c7e7cd1ec0e5cbcb4c",
+      "synthesized": "2026-09-30T18:19:20Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Don't get attached to your pieces. I'm taking them all.",
+      "voice": "Brian"
+    },
+    "grabby_intro_3": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 4.344,
+      "engine": "neural",
+      "event": "intro",
+      "export": "exports/mp3/grabby_intro_3.mp3",
+      "loudness": {
+        "exportLufs": -16.7,
+        "gainDb": 8.5,
+        "sourceLufs": -24.5
+      },
+      "rate": 100,
+      "sha256": "62afd97f6ca596406f228752a4806e398d127b53c8fef46ee1c9f7c827093406",
+      "source": "source/mp3/grabby_intro_3.mp3",
+      "sourceSha256": "3dd8c1bddd0e1481dfcda1291d28df934e553416dd90ec6a40ecbd6703ed991b",
+      "synthesized": "2026-09-30T18:19:22Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "A fresh board! So many shiny pieces to hoard.",
+      "voice": "Brian"
+    },
+    "grabby_loss_1": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 5.088,
+      "engine": "neural",
+      "event": "loss",
+      "export": "exports/mp3/grabby_loss_1.mp3",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 7.8,
+        "sourceLufs": -23.8
+      },
+      "rate": 100,
+      "sha256": "7393ad17422bbe9e287a4d32878411d3295cc609b107d98c6d0137447188d4d4",
+      "source": "source/mp3/grabby_loss_1.mp3",
+      "sourceSha256": "67b07fc69a8e7c5b67f41d10d720aceedd5fb4d882a9a691d32d01da4c7de160",
+      "synthesized": "2026-09-30T18:19:54Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "No! My glorious collection! How dare you?!",
+      "voice": "Brian"
+    },
+    "grabby_loss_2": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.6,
+      "engine": "neural",
+      "event": "loss",
+      "export": "exports/mp3/grabby_loss_2.mp3",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 8.1,
+        "sourceLufs": -24.1
+      },
+      "rate": 100,
+      "sha256": "95ecb600942310932623b0d6352fa955e6b6bb299c40ccd476344f61db6c0fae",
+      "source": "source/mp3/grabby_loss_2.mp3",
+      "sourceSha256": "8fa17f9850920cc451c2359b04959347707227896670d09516a33e6d9c3f4d10",
+      "synthesized": "2026-09-30T18:19:56Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Unacceptable! You plundered my king?!",
+      "voice": "Brian"
+    },
+    "grabby_loss_3": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 4.776,
+      "engine": "neural",
+      "event": "loss",
+      "export": "exports/mp3/grabby_loss_3.mp3",
+      "loudness": {
+        "exportLufs": -16.7,
+        "gainDb": 8.2,
+        "sourceLufs": -24.2
+      },
+      "rate": 100,
+      "sha256": "a01be692ee4c294391d0a2e7595f28fa23fbf5d07806aa01555016d1b7c5efed",
+      "source": "source/mp3/grabby_loss_3.mp3",
+      "sourceSha256": "79dd654550b779397b58ffa3f2be5bf63a043467d3dd2af618ab50cd3c626ea1",
+      "synthesized": "2026-09-30T18:19:58Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Defeated?! My treasures... slipping away...",
+      "voice": "Brian"
+    },
+    "grabby_threat_1": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 2.856,
+      "engine": "neural",
+      "event": "threat",
+      "export": "exports/mp3/grabby_threat_1.mp3",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 7.4,
+        "sourceLufs": -23.4
+      },
+      "rate": 100,
+      "sha256": "886bc321ba71c1c6f2ac3ec4c08659454c1e97b5173720fd74eee9557be3cf1b",
+      "source": "source/mp3/grabby_threat_1.mp3",
+      "sourceSha256": "11dc04b67631f40e3712bb5f561dcc0b8a57a2402723c7a2fc37cf6d79ac7d87",
+      "synthesized": "2026-09-30T18:19:43Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Your king would look lovely in my vault.",
+      "voice": "Brian"
+    },
+    "grabby_threat_2": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 2.664,
+      "engine": "neural",
+      "event": "threat",
+      "export": "exports/mp3/grabby_threat_2.mp3",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 6.9,
+        "sourceLufs": -22.9
+      },
+      "rate": 100,
+      "sha256": "50f1d0f504b91b006652d078c80840844798470456b3bb6e4cf4956a4c9ba95f",
+      "source": "source/mp3/grabby_threat_2.mp3",
+      "sourceSha256": "e2585567ea093e0de676d8e439c4776796ebb920fcf22d5ad6b00de8252f6756",
+      "synthesized": "2026-09-30T18:19:44Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "One good roll and your king is mine!",
+      "voice": "Brian"
+    },
+    "grabby_threat_3": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.528,
+      "engine": "neural",
+      "event": "threat",
+      "export": "exports/mp3/grabby_threat_3.mp3",
+      "loudness": {
+        "exportLufs": -16.6,
+        "gainDb": 7.3,
+        "sourceLufs": -23.3
+      },
+      "rate": 100,
+      "sha256": "baf70e7b055327b3d9b8dc65f35f508ca02fd601cc0ce07456e117bcd99724bf",
+      "source": "source/mp3/grabby_threat_3.mp3",
+      "sourceSha256": "3acfd52f0d6962f55a4b11ea7cfcbba4f04e86cc658d1c627eeac40a66c3dddb",
+      "synthesized": "2026-09-30T18:19:46Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "I spy your king. Very collectible!",
+      "voice": "Brian"
+    },
+    "grabby_win_1": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 4.608,
+      "engine": "neural",
+      "event": "win",
+      "export": "exports/mp3/grabby_win_1.mp3",
+      "loudness": {
+        "exportLufs": -16.6,
+        "gainDb": 9.0,
+        "sourceLufs": -25.0
+      },
+      "rate": 100,
+      "sha256": "59e8b7db3641c3be0773d4a457a1998a631a8276b3e42cfffb1c82beba3b9469",
+      "source": "source/mp3/grabby_win_1.mp3",
+      "sourceSha256": "3adc50b1c3c1deec9175eff7536721f276619d6b1919f5e4cdd8ab7ee054154f",
+      "synthesized": "2026-09-30T18:19:48Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Victory and total plunder! What a splendid haul!",
+      "voice": "Brian"
+    },
+    "grabby_win_2": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 2.808,
+      "engine": "neural",
+      "event": "win",
+      "export": "exports/mp3/grabby_win_2.mp3",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 7.7,
+        "sourceLufs": -23.7
+      },
+      "rate": 100,
+      "sha256": "93971fe32baba1622f01997fd58a10259072476c5a6a34bc38af493532c4daf7",
+      "source": "source/mp3/grabby_win_2.mp3",
+      "sourceSha256": "d22ee47bb4ae3b220cfa8c099ea6fca520f44dac53d045065969e95b8c816d87",
+      "synthesized": "2026-09-30T18:19:50Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "All your squares and treasures are mine!",
+      "voice": "Brian"
+    },
+    "grabby_win_3": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.168,
+      "engine": "neural",
+      "event": "win",
+      "export": "exports/mp3/grabby_win_3.mp3",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 8.2,
+        "sourceLufs": -24.2
+      },
+      "rate": 100,
+      "sha256": "76c5ebdf0a280fe5ceb71af8a0dac4db28b9778a533c7af23f9ba26d91964556",
+      "source": "source/mp3/grabby_win_3.mp3",
+      "sourceSha256": "9f534ee6ead8d69825a239d1877d297aaee19ba5c15784ab32166b4acea6739b",
+      "synthesized": "2026-09-30T18:19:52Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Greed is good, but winning is priceless!",
+      "voice": "Brian"
+    },
+    "rampage_capture_1": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.504,
+      "engine": "generative",
+      "event": "capture",
+      "export": "exports/mp3/rampage_capture_1.mp3",
+      "loudness": {
+        "exportLufs": -16.7,
+        "gainDb": 8.2,
+        "sourceLufs": -24.2
+      },
+      "rate": 100,
+      "sha256": "ffcf4321836504636d3ecfffbb681f54c0ecfdbac01dc7779a627e1cf34aa660",
+      "source": "source/mp3/rampage_capture_1.mp3",
+      "sourceSha256": "93a9d1cac930cc8d3bd38d9180eca4f48bd0b533d6147cef6cb61d10b07dced9",
+      "synthesized": "2026-09-30T18:20:24Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Obliterated! One less obstacle in my path.",
+      "voice": "Stephen"
+    },
+    "rampage_capture_2": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.312,
+      "engine": "generative",
+      "event": "capture",
+      "export": "exports/mp3/rampage_capture_2.mp3",
+      "loudness": {
+        "exportLufs": -16.7,
+        "gainDb": 8.7,
+        "sourceLufs": -24.7
+      },
+      "rate": 100,
+      "sha256": "25b651fbe1e2b54315d8d0c8ad14be819583f90bc50d1f89a439e381179d4075",
+      "source": "source/mp3/rampage_capture_2.mp3",
+      "sourceSha256": "848622870bcf4c6cd78716515e4b654abaed62fd1774c7d7b6d800e6b2e1cde2",
+      "synthesized": "2026-09-30T18:20:27Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Cut down! Your ranks crumble before me.",
+      "voice": "Stephen"
+    },
+    "rampage_capture_3": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.168,
+      "engine": "generative",
+      "event": "capture",
+      "export": "exports/mp3/rampage_capture_3.mp3",
+      "loudness": {
+        "exportLufs": -16.7,
+        "gainDb": 8.6,
+        "sourceLufs": -24.6
+      },
+      "rate": 100,
+      "sha256": "fe1f7e0e84b2584f9475919333b4a764c97adb023a97256b97965790180eed3d",
+      "source": "source/mp3/rampage_capture_3.mp3",
+      "sourceSha256": "c0fa3536eb369ed0f68771ff14c3c96ebc82d52f722d8d5b1822b11a4329109d",
+      "synthesized": "2026-09-30T18:20:29Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Pathetic defense! Smashed aside!",
+      "voice": "Stephen"
+    },
+    "rampage_capture_heavy_1": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.48,
+      "engine": "generative",
+      "event": "capture_heavy",
+      "export": "exports/mp3/rampage_capture_heavy_1.mp3",
+      "loudness": {
+        "exportLufs": -16.8,
+        "gainDb": 7.9,
+        "sourceLufs": -23.9
+      },
+      "rate": 100,
+      "sha256": "725c4998b59d1761681f88f8ff258774cd1e870f4997c194b347e512e60f7159",
+      "source": "source/mp3/rampage_capture_heavy_1.mp3",
+      "sourceSha256": "47c407c79dd781d9ea649c4f7ea16178284fb6e71707f74f4316d76e8663484a",
+      "synthesized": "2026-09-30T18:20:16Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Crushed! Your mightiest defender falls into dust!",
+      "voice": "Stephen"
+    },
+    "rampage_capture_heavy_2": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.768,
+      "engine": "generative",
+      "event": "capture_heavy",
+      "export": "exports/mp3/rampage_capture_heavy_2.mp3",
+      "loudness": {
+        "exportLufs": -16.6,
+        "gainDb": 7.8,
+        "sourceLufs": -23.8
+      },
+      "rate": 100,
+      "sha256": "983404dfc055d105f858378bd6e536f3f249760c598a8c699c625fee9e69cbac",
+      "source": "source/mp3/rampage_capture_heavy_2.mp3",
+      "sourceSha256": "87f617b02ada327eea478995ecb8de688ac7686d19b5cae66858514c6761908f",
+      "synthesized": "2026-09-30T18:20:19Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Devastating strike! You cannot withstand my assault!",
+      "voice": "Stephen"
+    },
+    "rampage_capture_heavy_3": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.72,
+      "engine": "generative",
+      "event": "capture_heavy",
+      "export": "exports/mp3/rampage_capture_heavy_3.mp3",
+      "loudness": {
+        "exportLufs": -16.7,
+        "gainDb": 8.3,
+        "sourceLufs": -24.3
+      },
+      "rate": 100,
+      "sha256": "a02143e02dcbe8ec34917690db7698305f92367a7e5b471d921280c10c57a5f0",
+      "source": "source/mp3/rampage_capture_heavy_3.mp3",
+      "sourceSha256": "2868fb9826e41c4f210b923a75ba3343568624c413a9a87346f6c32358f2d334",
+      "synthesized": "2026-09-30T18:20:22Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Your high command is broken! Smashed to pieces!",
+      "voice": "Stephen"
+    },
+    "rampage_empty_roll_1": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.984,
+      "engine": "generative",
+      "event": "empty_roll",
+      "export": "exports/mp3/rampage_empty_roll_1.mp3",
+      "loudness": {
+        "exportLufs": -16.7,
+        "gainDb": 8.2,
+        "sourceLufs": -24.2
+      },
+      "rate": 100,
+      "sha256": "f78123c2cc5aa3e40ada54ed8260d033638ed26d159f97b10c2bed254f76f0b5",
+      "source": "source/mp3/rampage_empty_roll_1.mp3",
+      "sourceSha256": "00d3c48e0acb90e9909be80746552a232f5151d49ca3db433a54a06a425c7392",
+      "synthesized": "2026-09-30T18:20:09Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "The dice stall my fury. Savor your brief respite.",
+      "voice": "Stephen"
+    },
+    "rampage_empty_roll_2": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 4.368,
+      "engine": "generative",
+      "event": "empty_roll",
+      "export": "exports/mp3/rampage_empty_roll_2.mp3",
+      "loudness": {
+        "exportLufs": -16.7,
+        "gainDb": 8.4,
+        "sourceLufs": -24.4
+      },
+      "rate": 100,
+      "sha256": "758e7529ddab3638abb87a79e9480155d62e2e3b6f9a0bb7ae7e8c84bb89b6d5",
+      "source": "source/mp3/rampage_empty_roll_2.mp3",
+      "sourceSha256": "4f7c06f653aa70d0deb6ddb47b950a7bb5fa5f965286ef4ecd6d79202dfb870e",
+      "synthesized": "2026-09-30T18:20:12Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "No targets?! Unacceptable! Next turn you fall.",
+      "voice": "Stephen"
+    },
+    "rampage_empty_roll_3": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 2.784,
+      "engine": "generative",
+      "event": "empty_roll",
+      "export": "exports/mp3/rampage_empty_roll_3.mp3",
+      "loudness": {
+        "exportLufs": -16.6,
+        "gainDb": 8.9,
+        "sourceLufs": -24.9
+      },
+      "rate": 100,
+      "sha256": "7c9d03c6a2589560997890e4cb27cf43747b008c2d871e9176fb3c02da90b2b2",
+      "source": "source/mp3/rampage_empty_roll_3.mp3",
+      "sourceSha256": "5471953fe8defd69d0966ebf229885643a69e73769bd163a68171628163a24f2",
+      "synthesized": "2026-09-30T18:20:14Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "A momentary pause before the storm resumes.",
+      "voice": "Stephen"
+    },
+    "rampage_intro_1": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.72,
+      "engine": "generative",
+      "event": "intro",
+      "export": "exports/mp3/rampage_intro_1.mp3",
+      "loudness": {
+        "exportLufs": -16.7,
+        "gainDb": 7.9,
+        "sourceLufs": -23.9
+      },
+      "rate": 100,
+      "sha256": "8f9c834ad91548663f43d61acb8291497be86644b94f7a3e6e3c224e6a9ec377",
+      "source": "source/mp3/rampage_intro_1.mp3",
+      "sourceSha256": "55b624562f588615df98610af7e655cd4c63430f506e8906cdea19a23722188d",
+      "synthesized": "2026-09-30T18:20:01Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Step forward. Your king will not survive this day.",
+      "voice": "Stephen"
+    },
+    "rampage_intro_2": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 4.2,
+      "engine": "generative",
+      "event": "intro",
+      "export": "exports/mp3/rampage_intro_2.mp3",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 7.8,
+        "sourceLufs": -23.8
+      },
+      "rate": 100,
+      "sha256": "d69c0d33f95fdf249a6f98e21bc54523ebe3dd038306d5775f4a89d09f679f2f",
+      "source": "source/mp3/rampage_intro_2.mp3",
+      "sourceSha256": "7d425e84d2ff97874a34baa8ba3476c0bc75284c3bd1c951f27b6e63494eb37c",
+      "synthesized": "2026-09-30T18:20:03Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "No mercy. No retreat. Let the battle begin.",
+      "voice": "Stephen"
+    },
+    "rampage_intro_3": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.384,
+      "engine": "generative",
+      "event": "intro",
+      "export": "exports/mp3/rampage_intro_3.mp3",
+      "loudness": {
+        "exportLufs": -16.6,
+        "gainDb": 8.5,
+        "sourceLufs": -24.5
+      },
+      "rate": 100,
+      "sha256": "1576712e8ad662b34e77997a18324eef782b9f2c4cb60e9aa1d3ce642b47c5af",
+      "source": "source/mp3/rampage_intro_3.mp3",
+      "sourceSha256": "d4a7f116989a86a897334587621c5e61b7b8073dd76753671f90a4ec9f3fd7cb",
+      "synthesized": "2026-09-30T18:20:06Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Prepare yourself! I strike without hesitation.",
+      "voice": "Stephen"
+    },
+    "rampage_loss_1": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.096,
+      "engine": "generative",
+      "event": "loss",
+      "export": "exports/mp3/rampage_loss_1.mp3",
+      "loudness": {
+        "exportLufs": -16.6,
+        "gainDb": 8.2,
+        "sourceLufs": -24.2
+      },
+      "rate": 100,
+      "sha256": "921c5139c9373f164654cba97de52b039c0412c59157f5f4841aeef88443fe46",
+      "source": "source/mp3/rampage_loss_1.mp3",
+      "sourceSha256": "279fe1f65d75d8581b3b03f5326fbae1e71df25529f792f79a30a02651c91ccb",
+      "synthesized": "2026-09-30T18:20:45Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Impossible! How could my onslaught fail?!",
+      "voice": "Stephen"
+    },
+    "rampage_loss_2": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.336,
+      "engine": "generative",
+      "event": "loss",
+      "export": "exports/mp3/rampage_loss_2.mp3",
+      "loudness": {
+        "exportLufs": -16.9,
+        "gainDb": 8.2,
+        "sourceLufs": -24.2
+      },
+      "rate": 100,
+      "sha256": "595772c8eb87e69412b6fae172565ad8af42b9d2f7fb191384a158abc4f0fb95",
+      "source": "source/mp3/rampage_loss_2.mp3",
+      "sourceSha256": "bef01f492499132864af1690475456f7e164fe75de0993dc72786f0971299a90",
+      "synthesized": "2026-09-30T18:20:48Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "You fought fiercely... I acknowledge your triumph.",
+      "voice": "Stephen"
+    },
+    "rampage_loss_3": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.768,
+      "engine": "generative",
+      "event": "loss",
+      "export": "exports/mp3/rampage_loss_3.mp3",
+      "loudness": {
+        "exportLufs": -17.1,
+        "gainDb": 8.3,
+        "sourceLufs": -24.3
+      },
+      "rate": 100,
+      "sha256": "833def77743c92b255c194887420ea05f948ae486f32d202ff6888f8c1e534d9",
+      "source": "source/mp3/rampage_loss_3.mp3",
+      "sourceSha256": "3968ae1af6bd73da26f3f72588749cb254fbc5976d93dbe0992b04c3952ca8a1",
+      "synthesized": "2026-09-30T18:20:50Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Downed, but not broken! We will battle again!",
+      "voice": "Stephen"
+    },
+    "rampage_threat_1": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 1.968,
+      "engine": "generative",
+      "event": "threat",
+      "export": "exports/mp3/rampage_threat_1.mp3",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 7.5,
+        "sourceLufs": -23.5
+      },
+      "rate": 100,
+      "sha256": "7a00d3d62b9b6a164a688e16c756b8c0139e405368d31fa6b0e3f2ea68ce09a5",
+      "source": "source/mp3/rampage_threat_1.mp3",
+      "sourceSha256": "08c436d75c8564158e0ca41ccbbd6047f44ee224b23fd434f63faaa2cb17dcae",
+      "synthesized": "2026-09-30T18:20:31Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Your king is in my sights!",
+      "voice": "Stephen"
+    },
+    "rampage_threat_2": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 2.664,
+      "engine": "generative",
+      "event": "threat",
+      "export": "exports/mp3/rampage_threat_2.mp3",
+      "loudness": {
+        "exportLufs": -16.6,
+        "gainDb": 7.8,
+        "sourceLufs": -23.8
+      },
+      "rate": 100,
+      "sha256": "f81652a74e6cd22e524683a0d5fb2eb0d6df0dc695e3ace5d33941672078bb22",
+      "source": "source/mp3/rampage_threat_2.mp3",
+      "sourceSha256": "9ed11f06f4169e67d0bf1900cd9d8a0d5a4736522b6b25595ae4fb30b6861ada",
+      "synthesized": "2026-09-30T18:20:33Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "The right roll, and your king falls!",
+      "voice": "Stephen"
+    },
+    "rampage_threat_3": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 2.16,
+      "engine": "generative",
+      "event": "threat",
+      "export": "exports/mp3/rampage_threat_3.mp3",
+      "loudness": {
+        "exportLufs": -16.6,
+        "gainDb": 8.2,
+        "sourceLufs": -24.2
+      },
+      "rate": 100,
+      "sha256": "03d64b3bfb78b3b47e0814e2ee4322bcbddf2377cac7422c397249c7cad8e1fb",
+      "source": "source/mp3/rampage_threat_3.mp3",
+      "sourceSha256": "90022ab6a37ef659c9d3731067080ad7c93f59b9e678521e15d774255352d849",
+      "synthesized": "2026-09-30T18:20:35Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "I can smell your king's fear!",
+      "voice": "Stephen"
+    },
+    "rampage_win_1": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.48,
+      "engine": "generative",
+      "event": "win",
+      "export": "exports/mp3/rampage_win_1.mp3",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 8.0,
+        "sourceLufs": -24.0
+      },
+      "rate": 100,
+      "sha256": "0110c820908717c46cb95e1fdb1ae5fb44193e5c760511c4ae0816ae66335870",
+      "source": "source/mp3/rampage_win_1.mp3",
+      "sourceSha256": "e8ca2b3a38ab9559a4e33850f0b9eea832ea5a0d89c13b3db8e6f1b51cc8c30c",
+      "synthesized": "2026-09-30T18:20:38Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Total annihilation! Kneel before the conqueror!",
+      "voice": "Stephen"
+    },
+    "rampage_win_2": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 2.448,
+      "engine": "generative",
+      "event": "win",
+      "export": "exports/mp3/rampage_win_2.mp3",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 7.5,
+        "sourceLufs": -23.5
+      },
+      "rate": 100,
+      "sha256": "319387db5297d4ffa884e8599a9abcd52eff63892f8263d26f75fdbf71b753fe",
+      "source": "source/mp3/rampage_win_2.mp3",
+      "sourceSha256": "8d80ca3205943a7df9d3c949dbaa0aae590127ac8fbcf9d19b26e15cbd22a87d",
+      "synthesized": "2026-09-30T18:20:40Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Your army is crushed beneath my heel!",
+      "voice": "Stephen"
+    },
+    "rampage_win_3": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.888,
+      "engine": "generative",
+      "event": "win",
+      "export": "exports/mp3/rampage_win_3.mp3",
+      "loudness": {
+        "exportLufs": -16.8,
+        "gainDb": 8.4,
+        "sourceLufs": -24.4
+      },
+      "rate": 100,
+      "sha256": "3a78b622538c1aaa80dd9e89ec396bd97dd23471f1431980de833a1ac84d8f9c",
+      "source": "source/mp3/rampage_win_3.mp3",
+      "sourceSha256": "2e6b61cc66880cafe542732a4ce7d83c2540aca8f291c0616e2884c452f08041",
+      "synthesized": "2026-09-30T18:20:43Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Victory was inevitable! You were completely outmatched!",
+      "voice": "Stephen"
+    },
+    "rolly_capture_1": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 2.016,
+      "engine": "neural",
+      "event": "capture",
+      "export": "exports/mp3/rolly_capture_1.mp3",
+      "loudness": {
+        "exportLufs": -17.3,
+        "gainDb": 8.4,
+        "sourceLufs": -24.4
+      },
+      "rate": 100,
+      "sha256": "efa3d1ece608c0882ea41a1f0fd0c2d69b6806db53aeee63436078ce551b11a4",
+      "source": "source/mp3/rolly_capture_1.mp3",
+      "sourceSha256": "462371117325728b4acec645eaad0b7637fdc867fb5b3b79111cc9d4cb62b8cb",
+      "synthesized": "2026-09-30T18:18:55Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Boop! Mine now!",
+      "voice": "Justin"
+    },
+    "rolly_capture_2": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 2.832,
+      "engine": "neural",
+      "event": "capture",
+      "export": "exports/mp3/rolly_capture_2.mp3",
+      "loudness": {
+        "exportLufs": -17.0,
+        "gainDb": 9.0,
+        "sourceLufs": -25.0
+      },
+      "rate": 100,
+      "sha256": "07c0700ffb46c2fc3c529d806740eefc5042985b15a1501ae6c7ec8d4f869c49",
+      "source": "source/mp3/rolly_capture_2.mp3",
+      "sourceSha256": "dce0759e79bd5dfffd32bf145eb262bbab059abbd9c9bbb5951d528b3e05309c",
+      "synthesized": "2026-09-30T18:18:57Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Got one! Every little piece counts!",
+      "voice": "Justin"
+    },
+    "rolly_capture_3": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 1.848,
+      "engine": "neural",
+      "event": "capture",
+      "export": "exports/mp3/rolly_capture_3.mp3",
+      "loudness": {
+        "exportLufs": -16.8,
+        "gainDb": 8.9,
+        "sourceLufs": -24.9
+      },
+      "rate": 100,
+      "sha256": "c48cc31d4b52a83f56f254ebc42e36326d4c18e72b8c58e6002eaf086fd582df",
+      "source": "source/mp3/rolly_capture_3.mp3",
+      "sourceSha256": "e1f175e3a034a54e6bf4f8f9fd64c1902f53cccfbbdfbef3a2181a5d4a148be8",
+      "synthesized": "2026-09-30T18:18:59Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Snack time for my pieces!",
+      "voice": "Justin"
+    },
+    "rolly_capture_heavy_1": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.288,
+      "engine": "neural",
+      "event": "capture_heavy",
+      "export": "exports/mp3/rolly_capture_heavy_1.mp3",
+      "loudness": {
+        "exportLufs": -16.6,
+        "gainDb": 7.7,
+        "sourceLufs": -23.7
+      },
+      "rate": 100,
+      "sha256": "4102a5f988e8b28fdaddfd8cb95b33f556787ea809895461931771298c2d88a6",
+      "source": "source/mp3/rolly_capture_heavy_1.mp3",
+      "sourceSha256": "61101c052bd8bdb2801841509b9cc1040498cc4042eb4f1b10f4274135900613",
+      "synthesized": "2026-09-30T18:18:50Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Whoa! Did I really just grab that big piece?!",
+      "voice": "Justin"
+    },
+    "rolly_capture_heavy_2": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.216,
+      "engine": "neural",
+      "event": "capture_heavy",
+      "export": "exports/mp3/rolly_capture_heavy_2.mp3",
+      "loudness": {
+        "exportLufs": -16.6,
+        "gainDb": 7.9,
+        "sourceLufs": -23.9
+      },
+      "rate": 100,
+      "sha256": "1a16ce62f038535ae9ace1d28ce6e5e45089f0a3bec674a4e39244f5600d2c62",
+      "source": "source/mp3/rolly_capture_heavy_2.mp3",
+      "sourceSha256": "aec7121088e5fcb98870faab6b70dc8aa1c0418c88025452fcb944328326764a",
+      "synthesized": "2026-09-30T18:18:52Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Look what I found! Down goes a heavy hitter!",
+      "voice": "Justin"
+    },
+    "rolly_capture_heavy_3": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 2.664,
+      "engine": "neural",
+      "event": "capture_heavy",
+      "export": "exports/mp3/rolly_capture_heavy_3.mp3",
+      "loudness": {
+        "exportLufs": -17.1,
+        "gainDb": 9.2,
+        "sourceLufs": -25.2
+      },
+      "rate": 100,
+      "sha256": "4246714ffa2a931a3c230d00973f9c3eb86e22314b47250cd5465b339e3c6b46",
+      "source": "source/mp3/rolly_capture_heavy_3.mp3",
+      "sourceSha256": "61d2d49f472806665561f30c340bcc2b95303337fef6b476a769aaa6b9b76862",
+      "synthesized": "2026-09-30T18:18:54Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Yay! That was a huge capture!",
+      "voice": "Justin"
+    },
+    "rolly_empty_roll_1": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.072,
+      "engine": "neural",
+      "event": "empty_roll",
+      "export": "exports/mp3/rolly_empty_roll_1.mp3",
+      "loudness": {
+        "exportLufs": -16.7,
+        "gainDb": 7.6,
+        "sourceLufs": -23.6
+      },
+      "rate": 100,
+      "sha256": "8855205fdf4618276f1e7f8bd3ff7c7144d0be9b27d2e310b87ce1a233ba06b1",
+      "source": "source/mp3/rolly_empty_roll_1.mp3",
+      "sourceSha256": "eba5b45be86e24ca2e4813014b41c9c1c377830a011b505971c457a3c5f55de9",
+      "synthesized": "2026-09-30T18:18:45Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Oops, nowhere to go! Your turn!",
+      "voice": "Justin"
+    },
+    "rolly_empty_roll_2": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 2.856,
+      "engine": "neural",
+      "event": "empty_roll",
+      "export": "exports/mp3/rolly_empty_roll_2.mp3",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 8.0,
+        "sourceLufs": -24.0
+      },
+      "rate": 100,
+      "sha256": "cb28c57b6558812675a09befc03f0e22694db4f8d9c41c07066627df53728310",
+      "source": "source/mp3/rolly_empty_roll_2.mp3",
+      "sourceSha256": "2c6bb6582c3302b71ebc50035db16902cf5ef7c6914e910b32c7cda20849bcdd",
+      "synthesized": "2026-09-30T18:18:47Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Nothing to move? That's dice for you!",
+      "voice": "Justin"
+    },
+    "rolly_empty_roll_3": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.264,
+      "engine": "neural",
+      "event": "empty_roll",
+      "export": "exports/mp3/rolly_empty_roll_3.mp3",
+      "loudness": {
+        "exportLufs": -16.9,
+        "gainDb": 8.4,
+        "sourceLufs": -24.4
+      },
+      "rate": 100,
+      "sha256": "298aa4a970d50a3c72e11b8c9fc73e702e662eb0a213d0a4aef55f07712fb12b",
+      "source": "source/mp3/rolly_empty_roll_3.mp3",
+      "sourceSha256": "b046118695a658d84ed40362526e7351ac880200ae5941b2b25886f98a27ea91",
+      "synthesized": "2026-09-30T18:18:49Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "A blank roll! Well, that was silly!",
+      "voice": "Justin"
+    },
+    "rolly_intro_1": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 2.952,
+      "engine": "neural",
+      "event": "intro",
+      "export": "exports/mp3/rolly_intro_1.mp3",
+      "loudness": {
+        "exportLufs": -16.9,
+        "gainDb": 7.7,
+        "sourceLufs": -23.7
+      },
+      "rate": 100,
+      "sha256": "19a4b35eb1d3898ed1e5f86c325cefee042ea81714da3c8545674d0278010cd8",
+      "source": "source/mp3/rolly_intro_1.mp3",
+      "sourceSha256": "4fc5a812d62732d94e8815aaa15791db8d4466fcf08178413d5b01b4b4285e04",
+      "synthesized": "2026-09-30T18:18:39Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Hey! Let's roll and see what happens!",
+      "voice": "Justin"
+    },
+    "rolly_intro_2": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.312,
+      "engine": "neural",
+      "event": "intro",
+      "export": "exports/mp3/rolly_intro_2.mp3",
+      "loudness": {
+        "exportLufs": -16.8,
+        "gainDb": 7.9,
+        "sourceLufs": -23.9
+      },
+      "rate": 100,
+      "sha256": "f0d0d59618df8e1fcff1f3345bdc47c82d8d29b741874ec649d4c1b01eb53266",
+      "source": "source/mp3/rolly_intro_2.mp3",
+      "sourceSha256": "51291584bdb2c8f953181b75f21cfb5c37578e0f077f0fb2978d58b10a4b9ff7",
+      "synthesized": "2026-09-30T18:18:42Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Dice ready, board ready! Let's have fun!",
+      "voice": "Justin"
+    },
+    "rolly_intro_3": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.456,
+      "engine": "neural",
+      "event": "intro",
+      "export": "exports/mp3/rolly_intro_3.mp3",
+      "loudness": {
+        "exportLufs": -16.6,
+        "gainDb": 7.1,
+        "sourceLufs": -23.1
+      },
+      "rate": 100,
+      "sha256": "eeca9444aa9152c43dfa703ac851a29487400e52fbe3901f5f81242c264a28d6",
+      "source": "source/mp3/rolly_intro_3.mp3",
+      "sourceSha256": "feffd899b3b20bf09f3227d138ae08998cd437920e701776aa0c65ab139c0266",
+      "synthesized": "2026-09-30T18:18:43Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "I love rolling dice! Hope they're friendly today!",
+      "voice": "Justin"
+    },
+    "rolly_loss_1": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.576,
+      "engine": "neural",
+      "event": "loss",
+      "export": "exports/mp3/rolly_loss_1.mp3",
+      "loudness": {
+        "exportLufs": -16.6,
+        "gainDb": 7.1,
+        "sourceLufs": -23.1
+      },
+      "rate": 100,
+      "sha256": "1cae99d4ad5c455903a90f398df0d61e7467f0cedd8a103dd0a3829cc08a3a8d",
+      "source": "source/mp3/rolly_loss_1.mp3",
+      "sourceSha256": "26c9dfa0a322f90020c5574d191485dcee25f9f13346665ce5de1f0d4d8c7021",
+      "synthesized": "2026-09-30T18:19:12Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Aww, good game! You got me fair and square!",
+      "voice": "Justin"
+    },
+    "rolly_loss_2": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 2.688,
+      "engine": "neural",
+      "event": "loss",
+      "export": "exports/mp3/rolly_loss_2.mp3",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 8.4,
+        "sourceLufs": -24.4
+      },
+      "rate": 100,
+      "sha256": "c072874cf144cce029770224240f26c2a3b9e873ac660392a34fcbf20a237fd4",
+      "source": "source/mp3/rolly_loss_2.mp3",
+      "sourceSha256": "19a4cc85d87e72a5b96472c4bbd1f89a2ef0bae9844e345437f4aa64d1454643",
+      "synthesized": "2026-09-30T18:19:14Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "My king tripped! Nice catch!",
+      "voice": "Justin"
+    },
+    "rolly_loss_3": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.0,
+      "engine": "neural",
+      "event": "loss",
+      "export": "exports/mp3/rolly_loss_3.mp3",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 7.8,
+        "sourceLufs": -23.8
+      },
+      "rate": 100,
+      "sha256": "bda8fc653733844fa8c3238420a5dd1a8850a2902a9cab864812c465597810d0",
+      "source": "source/mp3/rolly_loss_3.mp3",
+      "sourceSha256": "d8ca080e70dcfbac19dfa16708fa45250870aaeba136bf4a8d6ba892be35c150",
+      "synthesized": "2026-09-30T18:19:16Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "You're too good! Let's play another round!",
+      "voice": "Justin"
+    },
+    "rolly_threat_1": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 2.712,
+      "engine": "neural",
+      "event": "threat",
+      "export": "exports/mp3/rolly_threat_1.mp3",
+      "loudness": {
+        "exportLufs": -16.8,
+        "gainDb": 8.0,
+        "sourceLufs": -24.0
+      },
+      "rate": 100,
+      "sha256": "fccb3fa331c8078adfc5093d1a9769670b109440b9c895054d5170997691f812",
+      "source": "source/mp3/rolly_threat_1.mp3",
+      "sourceSha256": "e8565830457e8164ce2b5e85894fc96181a94fb31cda26cbeac02e8af88bc678",
+      "synthesized": "2026-09-30T18:19:01Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Ooh! Your king is right in my path!",
+      "voice": "Justin"
+    },
+    "rolly_threat_2": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 2.4,
+      "engine": "neural",
+      "event": "threat",
+      "export": "exports/mp3/rolly_threat_2.mp3",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 7.7,
+        "sourceLufs": -23.7
+      },
+      "rate": 100,
+      "sha256": "5519fe1e1fccc0cf84ca4162f3f7c207e2331cc9cdc17f524a67192937fbcc53",
+      "source": "source/mp3/rolly_threat_2.mp3",
+      "sourceSha256": "b66271af1c731e802c5cb2609664c84ec0389b98d110e46df45cb1449ca0c0a1",
+      "synthesized": "2026-09-30T18:19:02Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "One lucky roll and your king goes boop!",
+      "voice": "Justin"
+    },
+    "rolly_threat_3": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.216,
+      "engine": "neural",
+      "event": "threat",
+      "export": "exports/mp3/rolly_threat_3.mp3",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 8.6,
+        "sourceLufs": -24.6
+      },
+      "rate": 100,
+      "sha256": "d46637dbb0e5c191fef0e12170846a944326b006a638699896494190d8d767df",
+      "source": "source/mp3/rolly_threat_3.mp3",
+      "sourceSha256": "994422e710f87d3acbcd6585098b5303d8c822675dafce85b0389494de7802d4",
+      "synthesized": "2026-09-30T18:19:05Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Psst... your king might want to hide!",
+      "voice": "Justin"
+    },
+    "rolly_win_1": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.0,
+      "engine": "neural",
+      "event": "win",
+      "export": "exports/mp3/rolly_win_1.mp3",
+      "loudness": {
+        "exportLufs": -16.7,
+        "gainDb": 8.8,
+        "sourceLufs": -24.8
+      },
+      "rate": 100,
+      "sha256": "fa9564107b54285dcc60e45d8c83e5fff9fb1a6226334b368c250d2e3c3cab64",
+      "source": "source/mp3/rolly_win_1.mp3",
+      "sourceSha256": "be7e12dc9ee622b8c2fc3c5894c36d7fcd81df27aca635b250ec4e701b69fc28",
+      "synthesized": "2026-09-30T18:19:06Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Yay, I won! Can we roll again?!",
+      "voice": "Justin"
+    },
+    "rolly_win_2": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 3.312,
+      "engine": "neural",
+      "event": "win",
+      "export": "exports/mp3/rolly_win_2.mp3",
+      "loudness": {
+        "exportLufs": -16.7,
+        "gainDb": 9.3,
+        "sourceLufs": -25.3
+      },
+      "rate": 100,
+      "sha256": "aa45707fb16e6384ecb161af624cb03f58b44f5966795931d80be9513f250240",
+      "source": "source/mp3/rolly_win_2.mp3",
+      "sourceSha256": "b8903b465689b53562ee6b280d6507ed6c77783393146ea6bc6a0319f91fd5c6",
+      "synthesized": "2026-09-30T18:19:08Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Woohoo! The dice were super friendly today!",
+      "voice": "Justin"
+    },
+    "rolly_win_3": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "durationSeconds": 2.88,
+      "engine": "neural",
+      "event": "win",
+      "export": "exports/mp3/rolly_win_3.mp3",
+      "loudness": {
+        "exportLufs": -16.8,
+        "gainDb": 8.5,
+        "sourceLufs": -24.5
+      },
+      "rate": 100,
+      "sha256": "d4f23a047a48dc792d78a072f1cd5c0cf756e246908e7fbcacb1441d25e17062",
+      "source": "source/mp3/rolly_win_3.mp3",
+      "sourceSha256": "a2130a134a86241e90903240d5a98f0befd3140a0ab4949b70a4321e1d9b8fcc",
+      "synthesized": "2026-09-30T18:19:10Z",
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "High five! That was so much fun!",
+      "voice": "Justin"
+    }
+  },
+  "pack": {
+    "region": "us-east-1",
+    "texts": {
+      "commit": "9e8e42a169bb04c47dc523e7e25dec7667f0f6c0",
+      "dirty": false,
+      "path": "src/core/botVoice.ts",
+      "repository": "fortemate/dicechess-tv"
+    }
+  },
+  "schemaVersion": 1,
+  "status": "draft",
+  "texts": "catalogue.json",
+  "title": "Dice Chess bot voices (Amazon Polly)"
+}

@@ -27,11 +27,14 @@
 # clone. That happened once in dicechess-assets before it had the same rule.
 # Vendored, so they stay out of the repository's language statistics too.
 native/sounds/** -text linguist-vendored
+# The bots' voices, pinned by native/voices/voices.json the same way (#159).
+native/voices/** -text linguist-vendored
 
 # Written by scripts rather than by hand: collapsed in pull-request diffs and left
 # out of the language statistics. Change the script and regenerate instead.
 native/src/pieces/*.tsx linguist-generated
 native/src/faces/*.tsx  linguist-generated
 native/src/cueFiles.ts  linguist-generated
+native/src/voiceFiles.ts linguist-generated
 # The voice audition of /voices/ keeps its upstream bytes (#172).
 site/public/voices/** -text linguist-vendored

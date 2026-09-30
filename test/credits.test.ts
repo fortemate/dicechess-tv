@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { APP, CREDITS, ENGINE } from '../src/core/credits.ts';
+import { APP, CREDITS, ENGINE, VOICES } from '../src/core/credits.ts';
 
 const notices = readFileSync(
   new URL('../THIRD_PARTY_NOTICES.md', import.meta.url),
@@ -11,7 +11,7 @@ const notices = readFileSync(
 test('every credit on the screen is also in the notices', () => {
   // The About screen and THIRD_PARTY_NOTICES.md say the same thing to two
   // audiences. If they disagree, one of them is wrong about a licence.
-  for (const credit of [...CREDITS, ENGINE]) {
+  for (const credit of [...CREDITS, ENGINE, VOICES]) {
     assert.ok(
       notices.includes(credit.source),
       `${credit.subject}: ${credit.source} is not in THIRD_PARTY_NOTICES.md`,
@@ -26,7 +26,7 @@ test('every credit on the screen is also in the notices', () => {
 
 test('every credit is complete and readable from a sofa', () => {
   assert.ok(CREDITS.length > 0);
-  for (const credit of [...CREDITS, ENGINE]) {
+  for (const credit of [...CREDITS, ENGINE, VOICES]) {
     for (const [field, value] of Object.entries(credit))
       assert.ok(value.trim().length > 0, `${credit.subject}: empty ${field}`);
     // A source is read off a television, not followed, so no scheme.
@@ -109,4 +109,17 @@ test('every vendored sound pack is credited as its manifest asks', () => {
       `${pack}: ${link} is not the start of the source ${credit.source}`,
     );
   }
+});
+
+test('the vendored voices are named with their source', () => {
+  // The pack is Fortemate's, synthesized with Amazon Polly and dedicated under
+  // CC0 (#159): the About screen says so beside the engine.
+  const catalogue = JSON.parse(
+    readFileSync(
+      new URL('../native/voices/voices.json', import.meta.url),
+      'utf8',
+    ),
+  ) as { generator: string; license: string };
+  assert.ok(VOICES.line.includes(catalogue.generator));
+  assert.equal(VOICES.licence.replace(' ', '-'), catalogue.license);
 });

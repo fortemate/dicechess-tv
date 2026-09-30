@@ -37,6 +37,17 @@ export const ENGINE: Credit = {
   source: 'github.com/fortemate/dicechess-engine',
 };
 
+// The bots' voices are Fortemate's own too: synthesized for this game with
+// Amazon Polly and dedicated to the public domain (#159). They are named with
+// the engine, which leaves the four cards to other authors. Polly asks for no
+// credit; the line says the voices are synthetic, and made with what.
+export const VOICES: Credit = {
+  subject: 'Bot voices',
+  line: 'Bot voices made with Amazon Polly',
+  licence: 'CC0 1.0',
+  source: 'aws.amazon.com/polly',
+};
+
 export const CREDITS: readonly Credit[] = [
   {
     // Two packs by one artist, the chess pieces and the opponents' faces, on

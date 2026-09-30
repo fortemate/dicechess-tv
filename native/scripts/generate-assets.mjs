@@ -1,7 +1,7 @@
 // Builds what the package ships under assets/: the application icon, the native
-// splash screen, the game's sounds and its music. The build packages the whole
-// directory, so it belongs to this script alone: every run deletes it and writes
-// it afresh (#122).
+// splash screen, the game's sounds, its music and the bots' voices. The build
+// packages the whole directory, so it belongs to this script alone: every run
+// deletes it and writes it afresh (#122).
 //
 // Vega wants `assets/raw/SplashScreenImages.zip`, and inside it a `desc.txt`
 // naming the frame size and rate, plus a `_loop` directory of PNG frames. Ours
@@ -252,6 +252,7 @@ export const main = (root = native) => {
     top,
     sounds: copySounds(root),
     music: copyMusic(root),
+    voices: copyVoices(root),
   };
 };
 
@@ -309,12 +310,33 @@ export const copyMusic = (root = native) => {
   return copied;
 };
 
+// The bots' voices (#159), vendored by scripts/vendor-voices.mjs into voices/.
+// Their clips go to assets/voices/, which is /pkg/assets/voices/ on the device,
+// and only if each still has the bytes voices/voices.json pinned.
+export const copyVoices = (root = native) => {
+  const target = join(root, 'assets/voices');
+  rmSync(target, { recursive: true, force: true });
+  const { lines } = JSON.parse(
+    readFileSync(join(root, 'voices/voices.json'), 'utf8'),
+  );
+  const copied = [];
+  for (const { file, sha256 } of Object.values(lines)) {
+    const data = readFileSync(join(root, 'voices', file));
+    if (createHash('sha256').update(data).digest('hex') !== sha256)
+      throw new Error(`voices/${file} no longer matches voices/voices.json`);
+    mkdirSync(dirname(join(target, file)), { recursive: true });
+    writeFileSync(join(target, file), data);
+    copied.push(file);
+  }
+  return copied;
+};
+
 // Only when run as a script, so a test can import the pieces above.
 if (
   process.argv[1] &&
   resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
-  const { destination, icon, left, top, sounds, music } = main();
+  const { destination, icon, left, top, sounds, music, voices } = main();
   const shown = (path) => path.replace(`${native}/`, '');
   console.log(`icon:   ${shown(icon)}`);
   console.log(`sounds: ${sounds.length} files -> assets/sfx/`);
@@ -323,6 +345,7 @@ if (
       ? `music:  ${music.length} tracks -> assets/music/`
       : 'music:  none in this checkout (native/music/music.json absent)',
   );
+  console.log(`voices: ${voices.length} clips -> assets/voices/`);
   console.log(
     `splash: ${WIDTH}x${HEIGHT}, mark at ${left},${top} -> ${shown(destination)}`,
   );
