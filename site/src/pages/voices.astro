@@ -169,10 +169,14 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         return found;
       };
 
-      // One line plays at a time; pressing it again stops it.
+      // One line plays at a time; pressing it again stops it. Each start is a
+      // new attempt: pausing rejects a play() still pending, later, and that
+      // rejection must not stop the line started after it.
       const player = new Audio();
       let playing: HTMLButtonElement | null = null;
+      let attempt = 0;
       const stop = () => {
+        attempt++;
         player.pause();
         playing?.setAttribute('aria-pressed', 'false');
         playing = null;
@@ -188,7 +192,10 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
           player.src = button.dataset.src ?? '';
           playing = button;
           button.setAttribute('aria-pressed', 'true');
-          void player.play().catch(stop);
+          const started = attempt;
+          void player.play().catch(() => {
+            if (started === attempt) stop();
+          });
         });
       }
 
