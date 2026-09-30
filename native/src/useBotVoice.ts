@@ -12,6 +12,12 @@ import type { Level } from '../../src/core/danger';
 
 export const DISMISS_DELAY_MS = 2800;
 
+// The bot's last word, said as the game ends. It stays for as long as the
+// result is on screen, where nothing else asks for the person's attention
+// (#163); a new game replaces it with its own first line.
+const lastWord = (line: VoiceLine): boolean =>
+  line.event === 'win' || line.event === 'loss';
+
 export type UseBotVoiceOptions = {
   timeoutMs?: number;
   onVoiceLine?: (line: VoiceLine) => void;
@@ -40,6 +46,8 @@ export function useBotVoice(
     setActiveLine(line);
     onVoiceLineRef.current?.(line);
     if (timer.current) clearTimeout(timer.current);
+    timer.current = null;
+    if (lastWord(line)) return;
     timer.current = setTimeout(() => {
       setActiveLine(null);
       timer.current = null;
