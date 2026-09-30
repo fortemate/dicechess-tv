@@ -6,7 +6,7 @@
 // (#168). Cyan belongs to the cursor and to a focused item, so a badge never
 // wears it: a frame in the focus style read as one more thing to select.
 import React from 'react';
-import { View, Text, type ViewStyle } from 'react-native';
+import { View, Text } from 'react-native';
 import {
   isBotMode,
   opposite,
@@ -36,7 +36,7 @@ export type MatchupProps = {
 };
 
 // Room under the top badge for the bot's line: two rows of the bubble at 20 dp
-// and its tail. The turn line stands at the foot of it and steps aside while
+// and its tail. The turn line stands at the foot of it and is left out while
 // the bot speaks, so the line covers nothing and nothing below it moves
 // (#168).
 export const SPEECH_ZONE = 76;
@@ -84,17 +84,18 @@ export const MatchupPips = ({ level }: { level: Opponent['level'] }) => {
 
 // A badge's frame: the turn colour around the side to move, which also stays
 // at full strength while the other side dims, so colour is not the only sign.
-const frame = (active: boolean): ViewStyle => ({
-  flexDirection: 'row',
-  alignItems: 'center',
-  paddingVertical: 6,
-  paddingHorizontal: 10,
-  borderRadius: 12,
-  borderWidth: 2,
-  borderColor: active ? THEME.turn : '#22384f',
-  backgroundColor: active ? THEME.turnFill : 'rgba(15, 23, 42, 0.55)',
-  opacity: active ? 1 : 0.6,
-});
+const frame = (active: boolean) =>
+  ({
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: active ? THEME.turn : '#22384f',
+    backgroundColor: active ? THEME.turnFill : 'rgba(15, 23, 42, 0.55)',
+    opacity: active ? 1 : 0.6,
+  }) as const;
 
 // Who plays a side: the bot, the person against it, or in hotseat the player
 // of that colour. The ids keep the bot and Player 2 as the opponent.
@@ -192,7 +193,11 @@ const SideBadge = ({
       >
         <Avatar seat={seat} side={side} />
       </View>
-      <Text testID={`${id}-name`} style={[NAME, { flex: 1 }]} numberOfLines={1}>
+      <Text
+        testID={`${id}-name`}
+        style={{ ...NAME, flex: 1 }}
+        numberOfLines={1}
+      >
         {name}
       </Text>
       <Meta
@@ -233,10 +238,8 @@ export const Matchup = ({
           marginBottom: 4,
         }}
       >
-        {header ? (
-          <View testID="turn-line" style={{ opacity: speechBubble ? 0 : 1 }}>
-            {header}
-          </View>
+        {header && !speechBubble ? (
+          <View testID="turn-line">{header}</View>
         ) : null}
         {speechBubble ? (
           <View

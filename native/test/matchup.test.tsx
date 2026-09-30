@@ -169,7 +169,7 @@ test('neither badge is highlighted when the game has ended', () => {
   assertWaiting(byTestId(tree.root, 'opponent-badge'));
 });
 
-test('the bot speaks in a zone of its own, in the turn line place', () => {
+test('the bot speaks in a zone of its own, in place of the turn line', () => {
   const tree = mount({
     game: newGame('aggressive', 'game-bubble'),
     side: 'b',
@@ -188,12 +188,13 @@ test('the bot speaks in a zone of its own, in the turn line place', () => {
   assert.equal(styleOf(slot).position, 'absolute');
   assert.equal(styleOf(slot).top, 0);
   assert.deepEqual(texts(slot), ['Your king is in my sights!']);
-  // The turn line keeps its place but steps aside while the bot speaks.
-  assert.equal(styleOf(byTestId(zone, 'turn-line')).opacity, 0);
-  assert.deepEqual(
-    texts(zone).filter((text) => text === 'TURN 3'),
-    ['TURN 3'],
+  // The turn line is left out while the bot speaks, from the screen and from
+  // a screen reader, and the zone keeps its height.
+  assert.equal(
+    zone.findAll((node) => node.props?.testID === 'turn-line').length,
+    0,
   );
+  assert.ok(!texts(zone).includes('TURN 3'));
 });
 
 test('the turn line shows while the bot is quiet', () => {
@@ -204,7 +205,7 @@ test('the turn line shows while the bot is quiet', () => {
   });
 
   const zone = byTestId(tree.root, 'speech-zone');
-  assert.equal(styleOf(byTestId(zone, 'turn-line')).opacity, 1);
+  assert.deepEqual(texts(byTestId(zone, 'turn-line')), ['TURN 3']);
 });
 
 test('hotseat has no speech zone to leave empty', () => {
