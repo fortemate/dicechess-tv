@@ -11,7 +11,7 @@ Dice Chess for Amazon Fire TV: two players sharing one screen and remote, or a g
 
 **Browser test bench:** [`web/`](web/README.md) draws the same screens in a browser, driven from the keyboard, with switchable board marks and a colour-vision simulation — for testers without an emulator. It is not device evidence.
 
-**Demo video:** <https://www.youtube.com/watch?v=Q7wWAmUp2Sc>, 1:16, recorded on the Vega Virtual Device.
+**Demo video:** <https://youtu.be/m6eeHE-8p1Y>, 1:45, recorded on the Vega Virtual Device.
 
 **Status: a React Native for Vega application that builds and runs from this repository.** `npm run build --prefix native` produces an installable package; it launches on the Vega Virtual Device in 227 ms and plays. Hotseat and three local opponents, from easy to hard, three-die turns, promotion, king capture, resignation, draw agreement, save and resume mid-turn, a completed-game ledger, an interactive tutorial and a rules guide are all implemented on the native board, driven entirely by D-pad, OK and Back.
 
