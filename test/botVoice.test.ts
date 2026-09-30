@@ -348,12 +348,36 @@ test('botVoiceLine and nextBotVoice helpers match botVoiceCue behavior', () => {
   const grabby = opponentOf('greedy');
   const game = newGame('greedy', 'helpers-test');
   const rolled = rollGame(game, [KNIGHT, KNIGHT, KNIGHT]);
+  const deterministicRandom = () => 0.0;
 
-  const line = botVoiceLine(game, rolled, grabby);
+  const cue = botVoiceCue(
+    game,
+    rolled,
+    grabby,
+    'calm',
+    INITIAL_BOT_VOICE_STATE,
+    deterministicRandom,
+  );
+  const line = botVoiceLine(
+    game,
+    rolled,
+    grabby,
+    'calm',
+    INITIAL_BOT_VOICE_STATE,
+    deterministicRandom,
+  );
   assert.ok(line);
   assert.equal(line.event, 'intro');
+  assert.deepEqual(line, cue.line);
 
-  const reduced = nextBotVoice(INITIAL_BOT_VOICE_STATE, game, rolled, grabby);
+  const reduced = nextBotVoice(
+    INITIAL_BOT_VOICE_STATE,
+    game,
+    rolled,
+    grabby,
+    'calm',
+    deterministicRandom,
+  );
   assert.deepEqual(reduced.line, line);
   assert.equal(reduced.nextState.introSpoken, true);
 });
