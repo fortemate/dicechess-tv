@@ -1,0 +1,269 @@
+{
+  "upstream": "fortemate/dicechess-assets",
+  "commit": "03fbddfb43eaa46f2d48f4b7993c072a1be0f706",
+  "pack": "voices/polly-dicechess-bots",
+  "license": "CC0-1.0",
+  "texts": {
+    "commit": "9e8e42a169bb04c47dc523e7e25dec7667f0f6c0",
+    "dirty": false,
+    "path": "src/core/botVoice.ts",
+    "repository": "fortemate/dicechess-tv"
+  },
+  "bots": [
+    {
+      "mode": "random",
+      "name": "Rolly",
+      "level": "Easy",
+      "candidates": [
+        {
+          "id": "a",
+          "clips": [
+            {
+              "line": "rolly_intro_1",
+              "text": "Hey! Let's roll and see what happens!",
+              "file": "voices/random/a/rolly_intro_1.mp3",
+              "sha256": "ef269ede6de1eca3402e3711f6918a1a186ed75d1c4ddb57d1b968699cab56c3",
+              "seconds": 2.808
+            },
+            {
+              "line": "rolly_capture_heavy_1",
+              "text": "Whoa! Did I really just grab that big piece?!",
+              "file": "voices/random/a/rolly_capture_heavy_1.mp3",
+              "sha256": "fa47d635fda427031d7200d845d093fe8084ed0aec3a7e01bf209e07beedf1bb",
+              "seconds": 3.048
+            },
+            {
+              "line": "rolly_loss_1",
+              "text": "Aww, good game! You got me fair and square!",
+              "file": "voices/random/a/rolly_loss_1.mp3",
+              "sha256": "5e13006fe6cce3816e0e7c9a585e5c6a9c86c61ae506ca4cdb91ca03f48bfb2c",
+              "seconds": 3.36
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "clips": [
+            {
+              "line": "rolly_intro_1",
+              "text": "Hey! Let's roll and see what happens!",
+              "file": "voices/random/b/rolly_intro_1.mp3",
+              "sha256": "4fc5a812d62732d94e8815aaa15791db8d4466fcf08178413d5b01b4b4285e04",
+              "seconds": 2.952
+            },
+            {
+              "line": "rolly_capture_heavy_1",
+              "text": "Whoa! Did I really just grab that big piece?!",
+              "file": "voices/random/b/rolly_capture_heavy_1.mp3",
+              "sha256": "61101c052bd8bdb2801841509b9cc1040498cc4042eb4f1b10f4274135900613",
+              "seconds": 3.288
+            },
+            {
+              "line": "rolly_loss_1",
+              "text": "Aww, good game! You got me fair and square!",
+              "file": "voices/random/b/rolly_loss_1.mp3",
+              "sha256": "26c9dfa0a322f90020c5574d191485dcee25f9f13346665ce5de1f0d4d8c7021",
+              "seconds": 3.576
+            }
+          ]
+        },
+        {
+          "id": "c",
+          "clips": [
+            {
+              "line": "rolly_intro_1",
+              "text": "Hey! Let's roll and see what happens!",
+              "file": "voices/random/c/rolly_intro_1.mp3",
+              "sha256": "ea7b15382cb0abbdc043b12e58677d935c2d2486cef51dffc76b7d439c1e17e6",
+              "seconds": 3.048
+            },
+            {
+              "line": "rolly_capture_heavy_1",
+              "text": "Whoa! Did I really just grab that big piece?!",
+              "file": "voices/random/c/rolly_capture_heavy_1.mp3",
+              "sha256": "2947faaddff7e36db3df1d52aac6e7db0d7eb50b1e8ccf990b00a90b2e0af744",
+              "seconds": 3.576
+            },
+            {
+              "line": "rolly_loss_1",
+              "text": "Aww, good game! You got me fair and square!",
+              "file": "voices/random/c/rolly_loss_1.mp3",
+              "sha256": "eac11c6b84aebd6ebcfd0ba8d956cedfe7194797892e58b050ec0b6d82c5c921",
+              "seconds": 3.696
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "greedy",
+      "name": "Grabby",
+      "level": "Medium",
+      "candidates": [
+        {
+          "id": "a",
+          "clips": [
+            {
+              "line": "grabby_intro_1",
+              "text": "Everything on this board belongs in my collection.",
+              "file": "voices/greedy/a/grabby_intro_1.mp3",
+              "sha256": "94de9d55547e9d72b4af01edb55aaacf518dfbf49291fc41f03ca56fe8ffebf9",
+              "seconds": 3.36
+            },
+            {
+              "line": "grabby_capture_heavy_1",
+              "text": "Jackpot! That prize piece is mine!",
+              "file": "voices/greedy/a/grabby_capture_heavy_1.mp3",
+              "sha256": "2c713721ea57efa8e824bd670bf2f05374dc4407745d6e3304f973570e5a5ef5",
+              "seconds": 3.6
+            },
+            {
+              "line": "grabby_loss_1",
+              "text": "No! My glorious collection! How dare you?!",
+              "file": "voices/greedy/a/grabby_loss_1.mp3",
+              "sha256": "67b07fc69a8e7c5b67f41d10d720aceedd5fb4d882a9a691d32d01da4c7de160",
+              "seconds": 5.088
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "clips": [
+            {
+              "line": "grabby_intro_1",
+              "text": "Everything on this board belongs in my collection.",
+              "file": "voices/greedy/b/grabby_intro_1.mp3",
+              "sha256": "4045633ad4c4fde13c97729d7c8666f69f34822e228b11f4e85e63150f5f0e39",
+              "seconds": 2.976
+            },
+            {
+              "line": "grabby_capture_heavy_1",
+              "text": "Jackpot! That prize piece is mine!",
+              "file": "voices/greedy/b/grabby_capture_heavy_1.mp3",
+              "sha256": "22371d7a3716e609c52fe73180fcb8d6e5257afbf505f57039d5ea41373aea8f",
+              "seconds": 2.976
+            },
+            {
+              "line": "grabby_loss_1",
+              "text": "No! My glorious collection! How dare you?!",
+              "file": "voices/greedy/b/grabby_loss_1.mp3",
+              "sha256": "b75104ceec1173e2b8e40ac1cdc26f599fcf20e6820cec85657d4fb297c83949",
+              "seconds": 3.6
+            }
+          ]
+        },
+        {
+          "id": "c",
+          "clips": [
+            {
+              "line": "grabby_intro_1",
+              "text": "Everything on this board belongs in my collection.",
+              "file": "voices/greedy/c/grabby_intro_1.mp3",
+              "sha256": "8d4e7d36971e34519adfe3c66d09e5a1ad6f55068763c1ba7b183680b144a44b",
+              "seconds": 2.448
+            },
+            {
+              "line": "grabby_capture_heavy_1",
+              "text": "Jackpot! That prize piece is mine!",
+              "file": "voices/greedy/c/grabby_capture_heavy_1.mp3",
+              "sha256": "4cbbc3ea0d1d813c7a23f3103f065e9bc3a8d237d31faba601bedeb9db40e994",
+              "seconds": 2.688
+            },
+            {
+              "line": "grabby_loss_1",
+              "text": "No! My glorious collection! How dare you?!",
+              "file": "voices/greedy/c/grabby_loss_1.mp3",
+              "sha256": "bedd65b1c308d7e2a6b2679b36bb4d254b12da9f08242d67c5cea9fe56139da7",
+              "seconds": 3.552
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "aggressive",
+      "name": "Rampage",
+      "level": "Hard",
+      "candidates": [
+        {
+          "id": "a",
+          "clips": [
+            {
+              "line": "rampage_intro_1",
+              "text": "Step forward. Your king will not survive this day.",
+              "file": "voices/aggressive/a/rampage_intro_1.mp3",
+              "sha256": "873bff5295526119a498213b503293defc8c4e4f8cf2c46420058c0ded846a43",
+              "seconds": 3.072
+            },
+            {
+              "line": "rampage_capture_heavy_1",
+              "text": "Crushed! Your mightiest defender falls into dust!",
+              "file": "voices/aggressive/a/rampage_capture_heavy_1.mp3",
+              "sha256": "6bc8a198201bdac1e1cf313ca2fbacd49e7c7f25b8036e8acebddca4dd457c21",
+              "seconds": 3.096
+            },
+            {
+              "line": "rampage_loss_1",
+              "text": "Impossible! How could my onslaught fail?!",
+              "file": "voices/aggressive/a/rampage_loss_1.mp3",
+              "sha256": "46326ed1d1233b2b842fe9694b5952dedb54003d7032477e88662f85e0d9796a",
+              "seconds": 2.784
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "clips": [
+            {
+              "line": "rampage_intro_1",
+              "text": "Step forward. Your king will not survive this day.",
+              "file": "voices/aggressive/b/rampage_intro_1.mp3",
+              "sha256": "55b624562f588615df98610af7e655cd4c63430f506e8906cdea19a23722188d",
+              "seconds": 3.72
+            },
+            {
+              "line": "rampage_capture_heavy_1",
+              "text": "Crushed! Your mightiest defender falls into dust!",
+              "file": "voices/aggressive/b/rampage_capture_heavy_1.mp3",
+              "sha256": "47c407c79dd781d9ea649c4f7ea16178284fb6e71707f74f4316d76e8663484a",
+              "seconds": 3.48
+            },
+            {
+              "line": "rampage_loss_1",
+              "text": "Impossible! How could my onslaught fail?!",
+              "file": "voices/aggressive/b/rampage_loss_1.mp3",
+              "sha256": "279fe1f65d75d8581b3b03f5326fbae1e71df25529f792f79a30a02651c91ccb",
+              "seconds": 3.096
+            }
+          ]
+        },
+        {
+          "id": "c",
+          "clips": [
+            {
+              "line": "rampage_intro_1",
+              "text": "Step forward. Your king will not survive this day.",
+              "file": "voices/aggressive/c/rampage_intro_1.mp3",
+              "sha256": "a0d71666187454b2b64c06fe9d983b00cc55abb7d59d8df23708583b05d7592c",
+              "seconds": 3.216
+            },
+            {
+              "line": "rampage_capture_heavy_1",
+              "text": "Crushed! Your mightiest defender falls into dust!",
+              "file": "voices/aggressive/c/rampage_capture_heavy_1.mp3",
+              "sha256": "ab842bfd9c63d5529501b7dd7af56b2ac2a8d72db7e0d67520aeabdea7bd6583",
+              "seconds": 3.024
+            },
+            {
+              "line": "rampage_loss_1",
+              "text": "Impossible! How could my onslaught fail?!",
+              "file": "voices/aggressive/c/rampage_loss_1.mp3",
+              "sha256": "03b2f7ed9c125b822fb7ec4982828b37f29e4f5eab466fe5da29e621be6536f8",
+              "seconds": 2.688
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

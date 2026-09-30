@@ -33,3 +33,5 @@ native/sounds/** -text linguist-vendored
 native/src/pieces/*.tsx linguist-generated
 native/src/faces/*.tsx  linguist-generated
 native/src/cueFiles.ts  linguist-generated
+# The voice audition of /voices/ keeps its upstream bytes (#172).
+site/public/voices/** -text linguist-vendored

@@ -23,10 +23,10 @@ const SITE_MAP = [
   { label: 'Roadmap', directory: 'roadmap' },
 ];
 
-// The tester pages of #108 and #109. They are unlisted: nothing links to them,
-// the owner hands their addresses to people, and they are kept out of the
+// The tester pages of #108, #109 and #172. They are unlisted: nothing links to
+// them, the owner hands their addresses to people, and they are kept out of the
 // sitemap here (and ask search engines not to index them).
-const UNLISTED = ['/check/', '/feedback/'];
+const UNLISTED = ['/check/', '/feedback/', '/voices/'];
 
 // The Mermaid diagrams, drawn in the browser. They take Starlight's system font,
 // which Mermaid has to know because it sizes each box by measuring its label,

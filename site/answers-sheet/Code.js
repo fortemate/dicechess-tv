@@ -1,6 +1,7 @@
 // Dice Chess TV: the answers of the site's tester pages, the colour-vision
-// check (/check/) and the feedback form (/feedback/), appended to the Google
-// Sheet this script is bound to, one row per submission. Setup: README.md next
+// check (/check/), the feedback form (/feedback/) and the voice audition
+// (/voices/), appended to the Google Sheet this script is bound to, one row per
+// submission. Setup: README.md next
 // to this file.
 //
 // Only what the pages send is stored. They ask for no name or email, and no IP
@@ -20,6 +21,13 @@ const PLAYED_ON = ['', 'stick', 'vvd', 'other'];
 const VARIANTS = ['A', 'B', 'C'];
 const COUNTS = ['found', 'missed', 'lastMove', 'other'];
 const PICTURE = /^[abc]-(many|few)$/;
+// The audition's bots and their candidates, as site/src/voices/audition.json
+// has them; an empty pick is no preference.
+const BOTS = ['random', 'greedy', 'aggressive'];
+const CANDIDATES = ['', 'a', 'b', 'c'];
+// The asset commit whose audition the tester heard, so that a vote stays
+// readable if the candidates change later.
+const COMMIT = /^[0-9a-f]{40}$/;
 // A random id the page draws once per visit (site/src/check/send.ts), so that a
 // submission sent twice, a retry after a lost reply, is stored once. It says
 // nothing about who sent it.
@@ -47,6 +55,15 @@ const HEADERS = {
     'Went wrong',
     'Submission',
   ],
+  voices: [
+    'Received',
+    'Rolly',
+    'Grabby',
+    'Rampage',
+    'Comment',
+    'Audition',
+    'Submission',
+  ],
 };
 
 function doPost(e) {
@@ -66,6 +83,7 @@ function doPost(e) {
   let row = null;
   if (data.kind === 'check') row = checkRow(data);
   else if (data.kind === 'feedback') row = feedbackRow(data);
+  else if (data.kind === 'voices') row = voicesRow(data);
   if (!row) return reply(false);
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
@@ -152,6 +170,20 @@ function feedbackRow(data) {
   }
   if (texts.every((text) => text.trim() === '')) return null;
   return [playedOn, ...texts.map((text) => text.trim())];
+}
+
+function voicesRow(data) {
+  if (data.v !== 1 || typeof data.audition !== 'string') return null;
+  if (!COMMIT.test(data.audition)) return null;
+  const picks = data.picks;
+  if (!picks || typeof picks !== 'object' || Array.isArray(picks)) return null;
+  if (Object.keys(picks).some((bot) => !BOTS.includes(bot))) return null;
+  const chosen = BOTS.map((bot) => picks[bot] ?? '');
+  if (chosen.some((pick) => !CANDIDATES.includes(pick))) return null;
+  if (chosen.every((pick) => pick === '')) return null;
+  const comment = data.comment ?? '';
+  if (typeof comment !== 'string' || comment.length > MAX_TEXT) return null;
+  return [...chosen, comment.trim(), data.audition];
 }
 
 function sheetFor(kind) {
