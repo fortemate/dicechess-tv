@@ -5,6 +5,9 @@ import React from 'react';
 
 export const View = (props) => React.createElement('View', props);
 export const Text = (props) => React.createElement('Text', props);
+export const StyleSheet = {
+  create: (styles) => styles,
+};
 export const useWindowDimensions = () => ({
   width: 960,
   height: 540,

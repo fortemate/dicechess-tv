@@ -23,6 +23,8 @@ import { RulesScreen } from './RulesScreen';
 import { AboutScreen } from './AboutScreen';
 import { OpponentScreen } from './OpponentScreen';
 import { Matchup } from './Matchup';
+import { SpeechBubble } from './SpeechBubble';
+import { useBotVoice } from './useBotVoice';
 import type { Sounds } from './sound';
 import type { Music } from './music';
 import { MUSIC_STEPS, type MusicSetting } from './musicSetting';
@@ -604,6 +606,7 @@ export const GameScreen = ({
   // at the start of this turn (#76). When a game has just ended the music falls
   // silent first, so the result's jingle is heard on its own.
   const level = useDanger(game, options.background, onState);
+  const voiceLine = useBotVoice(game, level);
   const role = musicRole(overlay, game, level);
   const lastRole = React.useRef<string | null>(null);
   React.useEffect(() => {
@@ -680,7 +683,14 @@ export const GameScreen = ({
             />
           </>
         ) : (
-          <Matchup game={game} side={state.side} thinking={botOwes(game)}>
+          <Matchup
+            game={game}
+            side={state.side}
+            thinking={botOwes(game)}
+            speechBubble={
+              voiceLine ? <SpeechBubble text={voiceLine.text} /> : undefined
+            }
+          >
             <View style={{ flex: 1, justifyContent: 'center' }}>
               <Status game={game} view={state} overlayOpen={false} />
               <Panel
