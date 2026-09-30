@@ -254,7 +254,7 @@ function analyzeCaptures(before: Game, after: Game): CaptureAnalysis {
 
 function resultEvent(before: Game, after: Game): VoiceEvent | null {
   if (before.phase === 'ended' || after.phase !== 'ended') return null;
-  if (!after.result || !after.result.winner || !after.human) return null;
+  if (!after.result?.winner || !after.human) return null;
   const botSide = opposite(after.human);
   return after.result.winner === botSide ? 'win' : 'loss';
 }
