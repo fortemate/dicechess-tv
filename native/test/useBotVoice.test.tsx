@@ -233,11 +233,17 @@ test('cleans up active timers when unmounted', () => {
 
     assert.ok(getLine());
 
+    const cleared = mock.method(globalThis, 'clearTimeout');
     act(() => {
       tree.unmount();
     });
+    assert.equal(
+      cleared.mock.callCount(),
+      1,
+      'unmount must cancel the dismiss timer',
+    );
+    cleared.mock.restore();
 
-    // Ticking after unmount should not throw or cause errors
     act(() => {
       mock.timers.tick(DISMISS_DELAY_MS);
     });
