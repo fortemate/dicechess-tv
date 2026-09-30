@@ -50,17 +50,19 @@ text over its menus.
 
    It writes `dist/demo-video/dicechess-tv-demo.mp4`, `chapters.txt` for the
    YouTube description, and `sheet.png`, a frame every two seconds to check the
-   cut by. It stops unless the video is shorter than three minutes, 1080p at 30
-   frames a second, with AAC sound, and warns about a chapter shorter than the
-   10 s YouTube needs.
+   cut by. The script enforces that the video is shorter than three minutes,
+   1080p at 30 frames a second, with AAC sound, and prints a warning for any
+   chapter shorter than the 10 s YouTube needs (checked by assemble.ts, not on
+   a device).
 
 ## How the cut is made
 
-- A card holds one idea in about ten words. It stays up 1.4 s plus 0.26 s a
-  word of its title, between 2.8 and 4.2 s, unless `seconds` says otherwise.
+- A card holds one idea in about ten words. Its duration is configurable and
+  scales with the word count of its title; `seconds` in the storyboard overrides
+  it.
 - The music is the menu theme at the game's own balance: the track's gain and
-  the default volume step. It is 4 dB louder while a card is up, where there are
-  no effects, and the finished mix is brought to −16 LUFS.
+  the default volume step. It is louder while a card is up, where there are
+  no effects, and the finished mix is brought to a target loudness level.
 - A clip's `hold` keeps its last frame up. The takes press OK at a steady pace,
   so a screen the app keeps up until a key is pressed, such as a result, closes
   at once in the take.

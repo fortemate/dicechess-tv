@@ -264,7 +264,9 @@ function main(): void {
   const list = join(WORK, 'segments.txt');
   writeFileSync(
     list,
-    segments.map((file) => `file '${resolve(file)}'\n`).join(''),
+    segments
+      .map((file) => `file '${resolve(file).replaceAll("'", "\\'")}'\n`)
+      .join(''),
   );
   const joined = join(WORK, 'joined.mp4');
   ffmpeg(['-f', 'concat', '-safe', '0', '-i', list, '-c', 'copy', joined]);

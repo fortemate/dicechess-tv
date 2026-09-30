@@ -94,7 +94,13 @@ async function record(
     ),
   );
   await sleep(LEAD);
-  await act();
+  try {
+    await act();
+  } catch (err) {
+    recorder.kill();
+    await done.catch(() => {});
+    throw err;
+  }
   await done;
 }
 
@@ -104,13 +110,19 @@ async function checkSilent(): Promise<void> {
   const file = join(TAKES, 'silence.mp4');
   await record('silence', 3, () => {});
   // ffmpeg reports the level on stderr.
-  const { stderr: report } = spawnSync(
+  const probe = spawnSync(
     'ffmpeg',
     ['-v', 'info', '-i', file, '-af', 'volumedetect', '-vn', '-f', 'null', '-'],
     { encoding: 'utf8' },
   );
   rmSync(file, { force: true });
-  const peak = /max_volume: (-?[\d.]+) dB/.exec(report)?.[1];
+  if (probe.status !== 0) {
+    console.error(
+      `ffmpeg audio probe failed (exit ${probe.status}):\n${probe.stderr}`,
+    );
+    process.exit(1);
+  }
+  const peak = /max_volume: (-?[\d.]+) dB/.exec(probe.stderr)?.[1];
   if (peak !== undefined && Number(peak) > -50) {
     console.error(
       `the home screen is not silent (peak ${peak} dB): turn music off in Settings`,
@@ -204,6 +216,17 @@ const takes: Record<string, () => Promise<void>> = {
   },
 };
 
+// Takes that depend on prior app state: each entry lists the takes that must
+// run before the named take when it is selected without its predecessors.
+const prereqs: Partial<Record<string, string[]>> = {
+  // hotseat continues from the hotseat game home started.
+  hotseat: ['home'],
+  // grabby continues from the single-player game opponents started.
+  grabby: ['opponents'],
+  // rules is navigated from the tutorial end screen.
+  rules: ['tutorial'],
+};
+
 const chosen = process.argv.slice(2);
 const unknown = chosen.filter((name) => !(name in takes));
 if (unknown.length) {
@@ -213,5 +236,20 @@ if (unknown.length) {
   process.exit(2);
 }
 mkdirSync(TAKES, { recursive: true });
-for (const name of chosen.length ? chosen : Object.keys(takes))
-  await takes[name]();
+
+// Build the ordered run list: full set, or selected takes with their
+// prerequisites prepended (deduplicating while preserving order).
+const order = Object.keys(takes);
+const toRun: string[] =
+  chosen.length === 0
+    ? order
+    : [
+        ...new Set(chosen.flatMap((name) => [...(prereqs[name] ?? []), name])),
+      ].sort((a, b) => order.indexOf(a) - order.indexOf(b));
+
+if (chosen.length && toRun.length > chosen.length) {
+  const added = toRun.filter((n) => !chosen.includes(n));
+  console.log(`note: running prerequisites first: ${added.join(', ')}`);
+}
+
+for (const name of toRun) await takes[name]();
