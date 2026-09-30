@@ -18,41 +18,12 @@ import {
   isLight,
   scoreItem,
 } from '../src/check/items.ts';
+import { csvRows } from '../src/csv.ts';
 
 const inputs = process.argv.slice(2);
 const sources = inputs.length
   ? inputs.map((file) => ({ name: file, text: readFileSync(file, 'utf8') }))
   : [{ name: 'standard input', text: readFileSync(0, 'utf8') }];
-
-// RFC 4180 fields: quoted fields may hold commas, quotes and line breaks.
-function csvRows(source) {
-  const rows = [];
-  let row = [];
-  let field = '';
-  let quoted = false;
-  for (let i = 0; i < source.length; i++) {
-    const char = source[i];
-    if (quoted) {
-      if (char === '"' && source[i + 1] === '"') {
-        field += '"';
-        i++;
-      } else if (char === '"') quoted = false;
-      else field += char;
-    } else if (char === '"') quoted = true;
-    else if (char === ',') {
-      row.push(field);
-      field = '';
-    } else if (char === '\n' || char === '\r') {
-      if (char === '\r' && source[i + 1] === '\n') i++;
-      row.push(field);
-      rows.push(row);
-      row = [];
-      field = '';
-    } else field += char;
-  }
-  if (field || row.length) rows.push([...row, field]);
-  return rows;
-}
 
 // Each visit in one file as { id, vision, taps }. A row or code that cannot be
 // read stops the summary with its place, rather than being left out of it.

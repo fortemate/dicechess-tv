@@ -204,3 +204,60 @@ test('a full tab takes no more rows', () => {
     ['Received'],
   );
 });
+
+const voices = {
+  kind: 'voices',
+  v: 1,
+  id: '5b2e8c1a-7d3f-4a6b-9c0e-1f2a3b4c5d6e',
+  audition: '03fbddfb43eaa46f2d48f4b7993c072a1be0f706',
+  picks: { random: 'a', greedy: '', aggressive: 'c' },
+  comment: 'Rolly sounds just right.',
+  website: '',
+};
+
+test('a voice vote is appended to the voices tab', () => {
+  const { post, tabs } = load();
+  assert.equal(post(voices), true);
+  const tab = tabs.get('voices') as Tab;
+  assert.deepEqual(tab.rows[0], [
+    'Received',
+    'Rolly',
+    'Grabby',
+    'Rampage',
+    'Comment',
+    'Audition',
+    'Submission',
+  ]);
+  assert.deepEqual(tab.rows[1].slice(1), [
+    'a',
+    '',
+    'c',
+    'Rolly sounds just right.',
+    voices.audition,
+    voices.id,
+  ]);
+  // Sent twice, stored once.
+  assert.equal(post(voices), true);
+  assert.equal(tab.rows.length, 2);
+});
+
+test('a voice vote with anything the page cannot send is refused', () => {
+  const { post, tabs } = load();
+  for (const bad of [
+    { ...voices, picks: { random: '', greedy: '', aggressive: '' } },
+    { ...voices, picks: { random: 'd' } },
+    { ...voices, picks: { rolly: 'a' } },
+    { ...voices, picks: ['a'] },
+    { ...voices, audition: 'main' },
+    { ...voices, comment: 'x'.repeat(1001) },
+    { ...voices, v: 2 },
+  ])
+    assert.equal(post(bad), false, JSON.stringify(bad).slice(0, 80));
+  assert.equal(tabs.has('voices'), false);
+});
+
+test('a comment that looks like a formula is kept as text', () => {
+  const { post, tabs } = load();
+  assert.equal(post({ ...voices, comment: '=IMPORTXML("x")' }), true);
+  assert.equal((tabs.get('voices') as Tab).rows[1][4], `'=IMPORTXML("x")`);
+});

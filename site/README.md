@@ -70,7 +70,7 @@ an entry.
 
 ## The tester pages
 
-Two pages serve the tester round
+Three pages serve the tester round
 ([#107](https://github.com/fortemate/dicechess-tv/issues/107)) and are not part of
 the site proper:
 
@@ -79,7 +79,9 @@ the site proper:
   ([#108](https://github.com/fortemate/dicechess-tv/issues/108),
   [#105](https://github.com/fortemate/dicechess-tv/issues/105));
 - `/feedback/` is a short form for people who have played the game
-  ([#109](https://github.com/fortemate/dicechess-tv/issues/109)).
+  ([#109](https://github.com/fortemate/dicechess-tv/issues/109));
+- `/voices/` plays three candidate voices for each bot and asks which fits
+  ([#172](https://github.com/fortemate/dicechess-tv/issues/172)).
 
 **Unlisted.** They are standalone Astro pages in `src/pages/`, outside Starlight.
 Nothing links to them, `astro.config.mjs` keeps them out of the sitemap, they are
@@ -104,6 +106,24 @@ legends are cut from, not a scored picture.
 scores an answer; the marked squares were read from the pictures' pixels and
 checked by eye. [`scripts/check-results.mjs`](scripts/check-results.mjs)
 summarises the answers.
+
+**The voices** on `/voices/` are a pinned copy of the audition in
+fortemate/dicechess-assets (`voices/polly-dicechess-bots`, CC0 1.0), written by
+[`scripts/vendor-voices.mjs`](scripts/vendor-voices.mjs) into `public/voices/`
+with the page's data in `src/voices/audition.json`:
+
+```bash
+node site/scripts/vendor-voices.mjs ../dicechess-assets <full commit>
+```
+
+It checks every clip against the digest the asset repository published and
+refuses a pack that is not public. The page shows the candidates as A, B and C;
+the data carries no voice names, and `test/voice-audition.test.ts` fails if it
+does, if a clip's bytes change, or if a clip says other words than the game's
+catalogue. [`scripts/voice-results.mjs`](scripts/voice-results.mjs) counts the
+picks from the `voices` tab. The page was checked in a browser at phone width:
+the lines play one at a time, a pick is needed to send, and the request is the
+one the script's tests accept; the live script is the owner's to update.
 
 ## The icon
 

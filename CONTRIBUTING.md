@@ -110,11 +110,12 @@ device, a Fire TV Stick, or a test — because they are not interchangeable.
 
 Never edit these by hand. Change the script, rerun it, and commit what it writes:
 
-| Path                                       | Written by                                                                     |
-| ------------------------------------------ | ------------------------------------------------------------------------------ |
-| `native/src/pieces/*.tsx`                  | `native/scripts/generate-pieces.mjs`, from `src/assets/pieces/rhosgfx/`        |
-| `native/sounds/`, `native/src/cueFiles.ts` | `native/scripts/vendor-sounds.mjs`, from one pinned commit of dicechess-assets |
-| `native/assets/` (not committed)           | `native/scripts/generate-assets.mjs`, which every build runs                   |
+| Path                                                   | Written by                                                                     |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| `native/src/pieces/*.tsx`                              | `native/scripts/generate-pieces.mjs`, from `src/assets/pieces/rhosgfx/`        |
+| `native/sounds/`, `native/src/cueFiles.ts`             | `native/scripts/vendor-sounds.mjs`, from one pinned commit of dicechess-assets |
+| `site/public/voices/`, `site/src/voices/audition.json` | `site/scripts/vendor-voices.mjs`, from one pinned commit of dicechess-assets   |
+| `native/assets/` (not committed)                       | `native/scripts/generate-assets.mjs`, which every build runs                   |
 
 Third-party files — the RhosGFX pieces, the brand images in `native/brand/`, the
 vendored sounds and the licence texts in `licenses/` — are kept byte for byte, and

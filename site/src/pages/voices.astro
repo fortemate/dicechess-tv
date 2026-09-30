@@ -1,0 +1,249 @@
+---
+// The voice audition for testers (#172). The bots of Dice Chess TV are about to
+// speak, and each has three candidate voices; a visitor plays them and picks
+// the one that suits each bot. Unlisted like /check/ and /feedback/: the owner
+// hands its address to people.
+//
+// The clips are a pinned copy of the audition in fortemate/dicechess-assets,
+// written by scripts/vendor-voices.mjs with the data below. The candidates are
+// A, B and C here: the voice names stay in the asset repository, so that a name
+// does not sway anyone.
+import icon from '../../../native/icon/icon-512.png';
+import audition from '../voices/audition.json';
+import '../check/tester.css';
+
+// Who each bot is, in a line, for the visitor to cast a voice to.
+const PERSONA: Record<string, string> = {
+  random:
+    'Cheerful and a little scatterbrained: plays any legal turn, at random.',
+  greedy: 'A greedy collector: takes the most valuable piece it can.',
+  aggressive: 'A fierce attacker: hunts your pieces and goes for your king.',
+};
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Which voice fits? · Dice Chess TV</title>
+    <link rel="icon" href={icon.src} type="image/png" />
+  </head>
+  <body>
+    <main class="tester">
+      <p class="kicker">Dice Chess TV</p>
+      <h1>Which voice fits?</h1>
+
+      <section data-step="form">
+        <p>
+          In Dice Chess for Fire TV you play against three bots, and soon they
+          will speak. Each has three candidate voices. Play the lines, then pick
+          the voice that suits each bot best. Every pick is optional.
+        </p>
+        <form data-form="voices" data-audition={audition.commit}>
+          {audition.bots.map((bot) => (
+            <fieldset class="bot">
+              <legend>
+                {bot.name} · {bot.level}
+              </legend>
+              <p class="persona">{PERSONA[bot.mode]}</p>
+              {bot.candidates.map((candidate) => (
+                <div class="candidate">
+                  <label>
+                    <input type="radio" name={bot.mode} value={candidate.id} />
+                    Voice {candidate.id.toUpperCase()}
+                  </label>
+                  <ul class="lines">
+                    {candidate.clips.map((clip) => (
+                      <li>
+                        <button
+                          type="button"
+                          class="play"
+                          aria-pressed="false"
+                          data-src={`${base}/${clip.file}`}
+                        >
+                          <span aria-hidden="true" class="glyph" />
+                          <span>{clip.text}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+              <label>
+                <input type="radio" name={bot.mode} value="" checked />
+                No preference
+              </label>
+            </fieldset>
+          ))}
+          <label class="field">
+            Anything to add?
+            <textarea name="comment" rows="3" maxlength="1000"></textarea>
+          </label>
+          <input
+            class="trap"
+            name="website"
+            tabindex="-1"
+            autocomplete="off"
+            aria-hidden="true"
+          />
+          <p class="note">
+            The voices are synthetic, made with Amazon Polly, and free for
+            anyone to use (CC0). Send stores your picks and comment in the
+            project's private spreadsheet, with a random code that only stops
+            them being stored twice. The page asks for no name or email, no IP
+            address is stored, and nothing is sent before you press Send.
+          </p>
+          <p class="error" role="alert" data-slot="error" hidden></p>
+          <button type="submit" class="primary">
+            Send
+          </button>
+        </form>
+      </section>
+
+      <section data-step="done" hidden>
+        <h2>Thank you!</h2>
+        <p>Your picks have arrived. You can close this page.</p>
+      </section>
+
+      <section data-step="off" hidden>
+        <p>
+          This page is not collecting answers yet. You can still listen; please
+          tell the person who gave you the link which voices you liked.
+        </p>
+      </section>
+    </main>
+
+    <style>
+      .persona {
+        margin: 0 0 8px;
+        color: var(--muted);
+      }
+      .candidate {
+        padding: 4px 0 8px;
+        border-top: 1px solid var(--line);
+      }
+      .lines {
+        margin: 0 0 4px 34px;
+        padding: 0;
+        list-style: none;
+      }
+      .play {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        width: 100%;
+        min-height: 44px;
+        padding: 6px 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        margin: 4px 0;
+        background: var(--field);
+        color: var(--ink);
+        font: inherit;
+        font-size: 16px;
+        text-align: left;
+        cursor: pointer;
+      }
+      .play:focus-visible,
+      .play[aria-pressed='true'] {
+        border-color: var(--accent);
+      }
+      .glyph::before {
+        content: '▶';
+        color: var(--accent);
+      }
+      .play[aria-pressed='true'] .glyph::before {
+        content: '■';
+      }
+    </style>
+
+    <script>
+      import { ENDPOINT, newId, send } from '../check/send';
+
+      const $ = <T extends Element>(selector: string) => {
+        const found = document.querySelector<T>(selector);
+        if (!found) throw new Error(`Missing ${selector}`);
+        return found;
+      };
+
+      // One line plays at a time; pressing it again stops it.
+      const player = new Audio();
+      let playing: HTMLButtonElement | null = null;
+      const stop = () => {
+        player.pause();
+        playing?.setAttribute('aria-pressed', 'false');
+        playing = null;
+      };
+      player.addEventListener('ended', stop);
+      for (const button of document.querySelectorAll<HTMLButtonElement>(
+        'button.play',
+      )) {
+        button.addEventListener('click', () => {
+          const again = playing === button;
+          stop();
+          if (again) return;
+          player.src = button.dataset.src ?? '';
+          playing = button;
+          button.setAttribute('aria-pressed', 'true');
+          void player.play().catch(stop);
+        });
+      }
+
+      const form = $<HTMLFormElement>('[data-form="voices"]');
+      const error = $<HTMLElement>('[data-slot="error"]');
+      const button = $<HTMLButtonElement>('button[type="submit"]');
+      if (!ENDPOINT) {
+        // The lines can still be heard; only sending is off.
+        button.hidden = true;
+        $<HTMLElement>('[data-step="off"]').hidden = false;
+      }
+      // Kept for every try, so that a retry after a lost reply is stored once.
+      const id = newId();
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const fields = new FormData(form);
+        const value = (name: string) => String(fields.get(name) ?? '');
+        const picks = {
+          random: value('random'),
+          greedy: value('greedy'),
+          aggressive: value('aggressive'),
+        };
+        if (Object.values(picks).every((pick) => pick === '')) {
+          error.textContent = 'Please pick a voice for at least one bot.';
+          error.hidden = false;
+          return;
+        }
+        error.hidden = true;
+        stop();
+        button.disabled = true;
+        button.textContent = 'Sending…';
+        const sent = await send({
+          kind: 'voices',
+          v: 1,
+          id,
+          audition: form.dataset.audition,
+          picks,
+          comment: value('comment').trim(),
+          website: value('website'),
+        });
+        if (sent) {
+          for (const step of document.querySelectorAll<HTMLElement>(
+            '[data-step]',
+          ))
+            step.hidden = step.dataset.step !== 'done';
+          window.scrollTo(0, 0);
+          return;
+        }
+        button.disabled = false;
+        button.textContent = 'Send';
+        error.textContent =
+          'Your picks could not be sent. Please try again in a moment; they are still here.';
+        error.hidden = false;
+      });
+    </script>
+  </body>
+</html>

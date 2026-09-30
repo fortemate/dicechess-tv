@@ -1,13 +1,14 @@
 # The answers sheet
 
-The site's two tester pages send their answers to a Google Sheet that belongs to
+The site's tester pages send their answers to a Google Sheet that belongs to
 the project's owner:
 
 - `/check/`, the colour-vision check ([#108](https://github.com/fortemate/dicechess-tv/issues/108));
 - `/feedback/`, the feedback form for people who played the game ([#109](https://github.com/fortemate/dicechess-tv/issues/109)).
+- `/voices/`, the audition of the bots' voices ([#172](https://github.com/fortemate/dicechess-tv/issues/172)).
 
 [`Code.js`](Code.js) is the Google Apps Script bound to that sheet. It appends
-one row per submission, to a tab named `check` or `feedback`, and creates each
+one row per submission, to a tab named `check`, `feedback` or `voices`, and creates each
 tab with its header row on the first submission.
 
 - **Privacy.** The pages ask for no name or email, and no IP address reaches the
@@ -54,6 +55,17 @@ collecting answers yet.
   and deploy the site again to stop the pages from sending.
 
 ## Reading the results
+
+The `voices` tab holds, for each visit, the candidate picked for Rolly, Grabby
+and Rampage (`a`, `b`, `c`, or empty for no preference), the comment, and the
+asset commit whose audition was heard. Which voice each letter is lives in
+`voices/polly-dicechess-bots/casting.json` of fortemate/dicechess-assets at that
+commit; the page never names the voices. [`../scripts/voice-results.mjs`](../scripts/voice-results.mjs)
+counts the picks from the tab's CSV export.
+
+The script gained the `voices` tab with #172. A sheet set up before it needs the
+new version of `Code.js` (see "A new version of the script" above) before the
+page can send.
 
 The `check` tab holds, for each visit, the colour-vision answer, the screen, and
 four counts for each variant:

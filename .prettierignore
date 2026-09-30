@@ -9,3 +9,9 @@ native/music/
 
 # Written by Amazon's Vega ESLint plugin on every lint run; gitignored.
 native/generated/
+
+# The voice audition for /voices/, vendored from fortemate/dicechess-assets by
+# site/scripts/vendor-voices.mjs and checked against the digests it records
+# (#172).
+site/public/voices/
+site/src/voices/audition.json
