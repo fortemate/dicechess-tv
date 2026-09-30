@@ -13,9 +13,11 @@ import {
   type BotVoiceState,
   type VoiceEvent,
 } from '../src/core/botVoice.ts';
+import { finish, turnDanger } from '../src/core/danger.ts';
 import {
   moveGame,
   newGame,
+  resignGame,
   rollGame,
   type BotMode,
   type Game,
@@ -32,7 +34,7 @@ const EVENTS: readonly VoiceEvent[] = [
   'empty_roll',
   'capture_heavy',
   'capture',
-  'danger_high',
+  'threat',
   'win',
   'loss',
 ];
@@ -212,14 +214,14 @@ test('bot capturing standard piece triggers capture governed by 50% probability'
   assert.equal(resSkip.line, null);
 });
 
-test('critical danger triggers danger_high and is capped at 1 line per game', () => {
+test('critical danger triggers a threat and is capped at 1 line per game', () => {
   const rampage = opponentOf('aggressive');
   const game = newGame('aggressive', 'danger-test');
 
   // Turn 3: cooldown allows speaking
   const stateAtTurn3: BotVoiceState = {
     lastSpokenTurn: 1,
-    dangerSpoken: false,
+    threatSpoken: false,
     introSpoken: true,
   };
   const turn3Game: Game = { ...game, turn: 3 };
@@ -231,9 +233,9 @@ test('critical danger triggers danger_high and is capped at 1 line per game', ()
     'critical',
     stateAtTurn3,
   );
-  assert.equal(res1.line?.event, 'danger_high');
+  assert.equal(res1.line?.event, 'threat');
   assert.equal(res1.line?.bot, 'aggressive');
-  assert.equal(res1.state.dangerSpoken, true);
+  assert.equal(res1.state.threatSpoken, true);
   assert.equal(res1.state.lastSpokenTurn, 3);
 
   // Turn 6: even after cooldown has elapsed, danger is not repeated
@@ -246,6 +248,66 @@ test('critical danger triggers danger_high and is capped at 1 line per game', ()
     res1.state,
   );
   assert.equal(res2.line, null);
+});
+
+test("a threat follows the danger to the person's king, which turnDanger measures", () => {
+  const rampage = opponentOf('aggressive');
+  const quiet: BotVoiceState = {
+    lastSpokenTurn: -99,
+    threatSpoken: false,
+    introSpoken: true,
+  };
+  // The person plays White. Rampage's rook on e4 attacks White's king on e1:
+  // one rook die, and it takes that king with its first action.
+  const start = '4k3/8/8/8/4r3/8/8/4K3 w - - 0 1';
+  const threatened = newGame('aggressive', 'threatened', start, 'w');
+  const level = finish(turnDanger(threatened));
+  assert.equal(level, 'critical');
+  const cue = botVoiceCue(threatened, threatened, rampage, level, quiet);
+  assert.equal(cue.line?.event, 'threat');
+
+  // Here the person's rook on e5 attacks Rampage's king instead. The level
+  // stays calm, since it measures the person's king only, and the bot is quiet.
+  const other = '4k3/8/8/4R3/8/8/8/4K3 w - - 0 1';
+  const threatening = newGame('aggressive', 'threatening', other, 'w');
+  const calm = finish(turnDanger(threatening));
+  assert.equal(calm, 'calm');
+  assert.equal(
+    botVoiceCue(threatening, threatening, rampage, calm, quiet).line,
+    null,
+  );
+});
+
+test("every threat line speaks of the person's king", () => {
+  for (const bot of BOTS) {
+    const lines = voiceLinesFor(bot, 'threat');
+    assert.ok(lines.length > 0, `no threat lines for ${bot}`);
+    for (const line of lines)
+      assert.match(line.text, /\byour king\b/i, line.id);
+  }
+});
+
+test('no line speaks of check or checkmate, which Dice Chess does not have', () => {
+  // The rules guide: "There is no checkmate. The king is taken like any other
+  // piece." (src/core/rules.ts)
+  for (const line of VOICE_CATALOGUE)
+    assert.doesNotMatch(
+      line.text,
+      /\b(check|checks|checkmate|checkmated|stalemate)\b/i,
+      line.id,
+    );
+});
+
+test('a win line also plays when the person resigns', () => {
+  const grabby = opponentOf('greedy');
+  const game = newGame('greedy', 'resign-test');
+  const state: BotVoiceState = {
+    lastSpokenTurn: 1,
+    threatSpoken: false,
+    introSpoken: true,
+  };
+  const res = botVoiceCue(game, resignGame(game), grabby, 'calm', state);
+  assert.equal(res.line?.event, 'win');
 });
 
 test('bot winning the game triggers win line and bypasses cooldown', () => {
@@ -262,7 +324,7 @@ test('bot winning the game triggers win line and bypasses cooldown', () => {
   // Cooldown is active from the same turn
   const cooldownState: BotVoiceState = {
     lastSpokenTurn: after.turn,
-    dangerSpoken: false,
+    threatSpoken: false,
     introSpoken: true,
   };
 
@@ -285,7 +347,7 @@ test('human winning triggers bot loss line and bypasses cooldown', () => {
 
   const cooldownState: BotVoiceState = {
     lastSpokenTurn: after.turn,
-    dangerSpoken: false,
+    threatSpoken: false,
     introSpoken: true,
   };
 
@@ -308,7 +370,7 @@ test('anti-spam enforces turn cooldown between non-terminal lines', () => {
   const turn2Game: Game = { ...after, turn: 2 };
   const stateTurn1: BotVoiceState = {
     lastSpokenTurn: 1,
-    dangerSpoken: false,
+    threatSpoken: false,
     introSpoken: true,
   };
 

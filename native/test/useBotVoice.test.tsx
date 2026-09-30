@@ -164,7 +164,7 @@ test('triggers critical danger voice line during gameplay', () => {
 
     const dangerLine = getLine();
     assert.ok(dangerLine, 'expected danger voice line');
-    assert.equal(dangerLine.event, 'danger_high');
+    assert.equal(dangerLine.event, 'threat');
 
     // Auto-dismisses
     act(() => {
