@@ -219,6 +219,15 @@ const STATUS_LINE = { color: '#aab8c9', fontSize: 24, marginBottom: 12 };
 // Under the dice after a roll with nothing to play, in the rules guide's words.
 export const NO_MOVE_LINE = 'No die can be used — the turn passes';
 
+// The single line above the status or menu: mode and turn.
+const modeLine = (game: Game, overlayOpen: boolean): string => {
+  const name = opponentName(game);
+  const turn = `TURN ${game.turn}`;
+  if (!name) return `HOTSEAT · ${turn}`;
+  if (overlayOpen) return `VS ${name.toUpperCase()} · ${turn}`;
+  return turn;
+};
+
 // The mode and the turn; then how the game ended or whose move it is; then the
 // winner or the dice, and why the turn passes when a roll left nothing to play.
 // An open menu keeps only the first line: it is a menu, its list and the
@@ -234,10 +243,7 @@ const Status = ({
   overlayOpen: boolean;
 }) => {
   const { result } = game;
-  const name = opponentName(game);
-  const mode = overlayOpen
-    ? `${name ? `VS ${name.toUpperCase()}` : 'HOTSEAT'} · TURN ${game.turn}`
-    : `${name ? '' : 'HOTSEAT · '}TURN ${game.turn}`;
+  const mode = modeLine(game, overlayOpen);
   if (overlayOpen)
     return (
       <Text style={{ color: '#8dc9b6', fontSize: 20, letterSpacing: 2 }}>

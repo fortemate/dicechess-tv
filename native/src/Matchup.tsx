@@ -64,6 +64,86 @@ export const MatchupPips = ({ level }: { level: Opponent['level'] }) => {
   );
 };
 
+const OpponentAvatar = ({
+  opponent,
+  opponentSide,
+}: {
+  opponent: Opponent | null;
+  opponentSide: Side;
+}) => {
+  if (opponent) {
+    const BotFace = FACES[FACE_OF[opponent.mode]];
+    return <BotFace size={38} />;
+  }
+  const OpponentPiece = PIECES[opponentSide === 'w' ? 'K' : 'k'];
+  return <OpponentPiece size={32} />;
+};
+
+const OpponentSubtitle = ({
+  opponent,
+  opponentSide,
+  opponentActive,
+  thinking,
+}: {
+  opponent: Opponent | null;
+  opponentSide: Side;
+  opponentActive: boolean;
+  thinking: boolean;
+}) => {
+  if (opponent && opponentActive && thinking) {
+    return (
+      <Text
+        testID="bot-status"
+        style={{
+          color: '#5eead4',
+          fontSize: 12,
+          fontWeight: '600',
+          marginTop: 2,
+        }}
+      >
+        Thinking…
+      </Text>
+    );
+  }
+
+  if (opponent) {
+    return (
+      <View
+        testID="opponent-meta"
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginTop: 2,
+        }}
+      >
+        <Text
+          style={{
+            color: opponentActive ? '#8dc9b6' : '#94a3b8',
+            fontSize: 12,
+            marginRight: 6,
+          }}
+        >
+          {opponent.level}
+        </Text>
+        <MatchupPips level={opponent.level} />
+      </View>
+    );
+  }
+
+  return (
+    <Text
+      testID="opponent-side"
+      style={{
+        color: opponentActive ? '#8dc9b6' : '#94a3b8',
+        fontSize: 12,
+        marginTop: 2,
+      }}
+    >
+      {sideName(opponentSide)}
+    </Text>
+  );
+};
+
 export const OpponentBadge = ({
   game,
   side,
@@ -77,8 +157,6 @@ export const OpponentBadge = ({
   const live = game.phase !== 'ended';
   const opponentActive = live && side === opponentSide;
   const opponentLabel = opponent ? opponent.name.toUpperCase() : 'PLAYER 2';
-  const OpponentPiece = PIECES[opponentSide === 'w' ? 'K' : 'k'];
-  const BotFace = opponent ? FACES[FACE_OF[opponent.mode]] : null;
 
   return (
     <View testID="opponent-section">
@@ -111,7 +189,7 @@ export const OpponentBadge = ({
               marginRight: 8,
             }}
           >
-            {BotFace ? <BotFace size={38} /> : <OpponentPiece size={32} />}
+            <OpponentAvatar opponent={opponent} opponentSide={opponentSide} />
           </View>
           <View style={{ flex: 1, justifyContent: 'center' }}>
             <Text
@@ -126,50 +204,12 @@ export const OpponentBadge = ({
             >
               {opponentLabel}
             </Text>
-            {isBot && opponentActive && thinking ? (
-              <Text
-                testID="bot-status"
-                style={{
-                  color: '#5eead4',
-                  fontSize: 12,
-                  fontWeight: '600',
-                  marginTop: 2,
-                }}
-              >
-                Thinking…
-              </Text>
-            ) : isBot && opponent ? (
-              <View
-                testID="opponent-meta"
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  marginTop: 2,
-                }}
-              >
-                <Text
-                  style={{
-                    color: opponentActive ? '#8dc9b6' : '#94a3b8',
-                    fontSize: 12,
-                    marginRight: 6,
-                  }}
-                >
-                  {opponent.level}
-                </Text>
-                <MatchupPips level={opponent.level} />
-              </View>
-            ) : (
-              <Text
-                testID="opponent-side"
-                style={{
-                  color: opponentActive ? '#8dc9b6' : '#94a3b8',
-                  fontSize: 12,
-                  marginTop: 2,
-                }}
-              >
-                {sideName(opponentSide)}
-              </Text>
-            )}
+            <OpponentSubtitle
+              opponent={opponent}
+              opponentSide={opponentSide}
+              opponentActive={opponentActive}
+              thinking={thinking}
+            />
           </View>
         </View>
       </View>
