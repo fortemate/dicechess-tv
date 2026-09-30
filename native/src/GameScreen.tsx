@@ -221,24 +221,24 @@ export const NO_MOVE_LINE = 'No die can be used — the turn passes';
 
 // The mode and the turn; then how the game ended or whose move it is; then the
 // winner or the dice, and why the turn passes when a roll left nothing to play.
-// The home screen keeps only the first line: it is a menu, its list and the
+// An open menu keeps only the first line: it is a menu, its list and the
 // record need the height to stay inside the safe area (#51), and the board
 // behind it already shows the game.
 const Status = ({
   game,
   view,
-  home,
+  overlayOpen,
 }: {
   game: Game;
   view: GameView;
-  home: boolean;
+  overlayOpen: boolean;
 }) => {
   const { result } = game;
   const name = opponentName(game);
-  const mode = home
+  const mode = overlayOpen
     ? `${name ? `VS ${name.toUpperCase()}` : 'HOTSEAT'} · TURN ${game.turn}`
     : `${name ? '' : 'HOTSEAT · '}TURN ${game.turn}`;
-  if (home)
+  if (overlayOpen)
     return (
       <Text style={{ color: '#8dc9b6', fontSize: 20, letterSpacing: 2 }}>
         {mode}
@@ -659,9 +659,9 @@ export const GameScreen = ({
         movable={movable}
       />
       <View style={{ flex: 1, height: size, paddingLeft: BOARD_GAP }}>
-        {overlay.kind === 'home' ? (
+        {overlay.kind !== 'none' ? (
           <>
-            <Status game={game} view={state} home={true} />
+            <Status game={game} view={state} overlayOpen={true} />
             <Panel
               overlay={overlay}
               game={game}
@@ -676,7 +676,7 @@ export const GameScreen = ({
         ) : (
           <Matchup game={game} side={state.side} thinking={botOwes(game)}>
             <View style={{ flex: 1, justifyContent: 'center' }}>
-              <Status game={game} view={state} home={false} />
+              <Status game={game} view={state} overlayOpen={false} />
               <Panel
                 overlay={overlay}
                 game={game}
