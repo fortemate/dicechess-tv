@@ -58,12 +58,24 @@ async function relaunch(): Promise<void> {
   await sleep(6000);
 }
 
-// Cyan pixels in each of the given areas of the screen, [x, y, width, height]:
-// the frame of whatever has the focus.
-function cyanIn(...areas: [number, number, number, number][]): number[] {
+type Area = [x: number, y: number, width: number, height: number];
+type Match = (r: number, g: number, b: number) => boolean;
+
+// The frame of whatever has the focus.
+const CYAN: Match = (r, g, b) => r < 90 && g > 200 && b > 220;
+// The frame of the badge whose turn it is.
+const GOLD: Match = (r, g, b) => r > 210 && g > 150 && g < 205 && b < 110;
+
+// The side panel, and in a game against the computer the person's badge, at
+// its foot.
+const PANEL: Area = [1050, 90, 820, 900];
+const PERSON_BADGE: Area = [1074, 888, 746, 110];
+
+// How many pixels of each area have its colour, in one screenshot.
+function count(...probes: [Area, Match][]): number[] {
   const shot = join(TAKES, 'probe.png');
   vvd('screenshot', shot);
-  const counts = areas.map(([x, y, w, h]) => {
+  const counts = probes.map(([[x, y, w, h], match]) => {
     const pixels = execFileSync(
       'ffmpeg',
       [
@@ -80,10 +92,10 @@ function cyanIn(...areas: [number, number, number, number][]): number[] {
       // A crop of the panel is 2.2 MB, over execFileSync's default of 1 MB.
       { maxBuffer: 8 * 1024 * 1024 },
     );
-    let cyan = 0;
+    let matching = 0;
     for (let i = 0; i < pixels.length; i += 3)
-      if (pixels[i] < 90 && pixels[i + 1] > 200 && pixels[i + 2] > 220) cyan++;
-    return cyan;
+      if (match(pixels[i], pixels[i + 1], pixels[i + 2])) matching++;
+    return matching;
   });
   rmSync(shot, { force: true });
   return counts;
@@ -92,15 +104,15 @@ function cyanIn(...areas: [number, number, number, number][]): number[] {
 // The frame of a focused option in the side panel, as in a menu, a
 // confirmation or a result. The board's own cursor is on the other side of the
 // screen, and nothing in the panel has a frame during play.
-const focusInPanel = (): number => cyanIn([1050, 90, 820, 900])[0];
+const focusInPanel = (): number => count([PANEL, CYAN])[0];
 
 // Which of the three opponent cards has the focus: they open on the opponent
 // of the game in play.
 function focusedCard(): number {
-  const counts = cyanIn(
-    [96, 216, 544, 688],
-    [688, 216, 544, 688],
-    [1280, 216, 544, 688],
+  const counts = count(
+    [[96, 216, 544, 688], CYAN],
+    [[688, 216, 544, 688], CYAN],
+    [[1280, 216, 544, 688], CYAN],
   );
   return counts.indexOf(Math.max(...counts));
 }
@@ -201,6 +213,10 @@ const takes: Record<string, () => Promise<void>> = {
     await record('opponents', 20, () => {
       press(times('up', 5), 300); // Play the computer
       press(['ok'], 1800);
+      // The cards open on the opponent of the game in play: back to Rolly
+      // first, which a run of all the takes never needs.
+      const card = focusedCard();
+      if (card) press(times('left', card), 300);
       press(['right', 'right', 'left'], 1400); // Grabby, Rampage, Grabby
       press(['ok'], 1200); // the choice of colour
       press(['down'], 1200); // White
@@ -210,17 +226,28 @@ const takes: Record<string, () => Promise<void>> = {
   },
 
   // Grabby's turns, some way into the game so that there is something to take.
-  // The first stretch is played quickly and not recorded; while Grabby plays,
-  // the board ignores OK. When the game ends the pressing stops, since the
-  // next OK would choose Rematch: the result stays up while Grabby says its
-  // last word, after the jingle.
+  // The first stretch is played quickly and not recorded. When the game ends
+  // the pressing stops, since the next OK would choose Rematch: the result
+  // stays up while Grabby says its last word, after the jingle. OK is pressed
+  // on the person's turn, when their badge is framed: Grabby's move can end
+  // the game between a look and a press. Only a wait that is nobody's turn by
+  // the badges, such as the OK after Grabby's empty roll, is pressed through,
+  // after a while.
   grabby: async () => {
-    press(times('ok', 160), QUICK);
-    await record('grabby', 80, () => {
-      for (let step = 0; step < 56; step++) {
-        // Looking for the result takes about as long as the rest of a step.
+    press(times('ok', 130), QUICK);
+    await record('grabby', 80, async () => {
+      let waited = 0;
+      for (let step = 0; step < 72; step++) {
+        const [focus, yours] = count([PANEL, CYAN], [PERSON_BADGE, GOLD]);
+        if (focus > 500) return;
+        // A framed badge is about 4,700 gold pixels.
+        if (yours < 3000 && ++waited < 6) {
+          await sleep(PACE);
+          continue;
+        }
+        waited = 0;
+        // Looking takes about as long as the rest of a step.
         press(['ok'], PACE - PROBE);
-        if (focusInPanel() > 500) return;
       }
     });
   },

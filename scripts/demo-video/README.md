@@ -20,7 +20,10 @@ text over its menus.
   `vega device launch-app`.
 - [`vvd`](https://github.com/fortemate/vega-vvd-driver) on the PATH with gRPC
   on (`vvd enable-grpc`), and `vega`, `ffmpeg`, `ffprobe` and `swift`. `VVD`
-  and `VEGA` name the first two when they are elsewhere.
+  and `VEGA` name the first two when they are elsewhere. Use a `vvd` with
+  fortemate/vega-vvd-driver#14: earlier versions record long sounds, such as
+  the bots' lines, with a hole every few packets, heard as a rattle
+  (fortemate/vega-vvd-driver#13).
 - In the app's Settings: music off, and sound effects, bot voices and "Turn
   board in hotseat" on. The takes carry only the sound effects and the bots'
   lines, and `record.ts` stops if the home screen is not silent. The music is
@@ -42,6 +45,9 @@ text over its menus.
    needs, such as a die dimmed by the roll or the end of Grabby's game; record
    that take again. With the music off, a bot's line is the only sound in a
    take longer than a second, which is how to find the stretches for `duck`.
+   The Virtual Device itself now and then sends a packet of silence in the
+   middle of a sound while it is recorded, about once in 30 s of sound: keep
+   such a moment out of the clips, or record the take again.
    The times in the file belong to the takes the last cut was made from.
 
 3. Cut the video:
