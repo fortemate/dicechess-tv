@@ -13,11 +13,11 @@ Every feature here was played on the Vega Virtual Device, and the app's automate
 - **Hotseat** on one remote, **saving** after every action, and the record of results.
 - **A five-lesson tutorial** and a **rules guide**.
 - **Sound** for every step of the game.
-- **Three computer opponents**, Rolly, Grabby and Rampage, as either colour, each with a face, speech bubbles and a synthetic voice ([#155](https://github.com/fortemate/dicechess-tv/issues/155)).
+- **Three computer opponents**, Rolly, Grabby and Rampage, as either colour, each with a face, speech bubbles and a synthetic voice ([#155](https://github.com/fortemate/dicechess-tv/issues/155)). They are fairy-tale characters, a pixie, a goblin and a little horned imp, and their voices act their lines ([#187](https://github.com/fortemate/dicechess-tv/issues/187)).
 - **Moves that slide** to their squares, so an opponent's turn can be followed.
 - **Dice that tumble in** on a roll, and dim when no legal turn can use them.
 - **Music that follows the game**, and **Settings** for music, sound effects, bot voices, and turning the board in hotseat ([#120](https://github.com/fortemate/dicechess-tv/issues/120)).
-- **Six public pre-releases**, with a playtest guide.
+- **Seven public pre-releases**, with a playtest guide.
 
 ## Now
 
