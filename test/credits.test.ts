@@ -112,8 +112,8 @@ test('every vendored sound pack is credited as its manifest asks', () => {
 });
 
 test('the vendored voices are named with their source', () => {
-  // The pack is Fortemate's, synthesized with Amazon Polly and dedicated under
-  // CC0 (#159): the About screen says so beside the engine.
+  // The pack is Fortemate's, made with ElevenLabs and licensed to Fortemate's
+  // Dice Chess apps only (#187): the About screen says so beside the engine.
   const catalogue = JSON.parse(
     readFileSync(
       new URL('../native/voices/voices.json', import.meta.url),
@@ -121,5 +121,5 @@ test('the vendored voices are named with their source', () => {
     ),
   ) as { generator: string; license: string };
   assert.ok(VOICES.line.includes(catalogue.generator));
-  assert.equal(VOICES.licence.replace(' ', '-'), catalogue.license);
+  assert.equal(VOICES.licence, catalogue.license);
 });

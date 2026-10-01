@@ -1,16 +1,18 @@
 {
   "upstream": "fortemate/dicechess-assets",
-  "commit": "7fd1fd6077df251acfff020fe1875c7c6f2dd49e",
-  "pack": "polly-dicechess-bots",
-  "title": "Dice Chess bot voices (Amazon Polly)",
-  "license": "CC0-1.0",
+  "commit": "ef1e4a328e755d607030c28682911b1ee2177eaf",
+  "pack": "elevenlabs-dicechess-bots",
+  "title": "Dice Chess bot voices (ElevenLabs)",
+  "license": "Fortemate apps only",
   "licenseFile": "LICENSE.txt",
-  "distribution": "public",
-  "clients": null,
+  "distribution": "project",
+  "clients": [
+    "fortemate/dicechess-tv"
+  ],
   "attributionRequired": false,
-  "generator": "Amazon Polly",
+  "generator": "ElevenLabs",
   "texts": {
-    "commit": "9e8e42a169bb04c47dc523e7e25dec7667f0f6c0",
+    "commit": "77022f5b63902b2ebc879e85619c48cd2d1aa12b",
     "dirty": false,
     "path": "src/core/botVoice.ts",
     "repository": "fortemate/dicechess-tv"
@@ -20,635 +22,635 @@
       "bot": "greedy",
       "event": "capture",
       "text": "Mine! I'll take that, thank you.",
-      "voice": "Brian",
-      "file": "polly-dicechess-bots/grabby_capture_1.mp3",
-      "sha256": "e9cd5d45e5410f388f000d1fcaf8c76d9806edaf4cf023e50cbd1dbfc53522fd",
-      "seconds": 3.672
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots/grabby_capture_1.mp3",
+      "sha256": "b8875a2bccdc7fb0817d5499079fe1a411ec3a982ccd29627cc45c663325ff1d",
+      "seconds": 3.36
     },
     "grabby_capture_2": {
       "bot": "greedy",
       "event": "capture",
       "text": "Another piece added to my private collection.",
-      "voice": "Brian",
-      "file": "polly-dicechess-bots/grabby_capture_2.mp3",
-      "sha256": "ab52b787c4d1626c69f3676961ff777b64dce71692569ce6ac5323a419d732d0",
-      "seconds": 2.928
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots/grabby_capture_2.mp3",
+      "sha256": "07d740a55736bc1629c2d296fc6d7629f7e5a3d692c20d56ad6673c637aca535",
+      "seconds": 3.44
     },
     "grabby_capture_3": {
       "bot": "greedy",
       "event": "capture",
       "text": "Yoink! You shouldn't leave valuables lying around.",
-      "voice": "Brian",
-      "file": "polly-dicechess-bots/grabby_capture_3.mp3",
-      "sha256": "43ba2bc8b8159a86aa5a73634518648dfb5379d15a6f10f4263aef2a62622e49",
-      "seconds": 4.416
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots/grabby_capture_3.mp3",
+      "sha256": "6f3c02cc2c18ef1c3d7812add913bfa9bfbbbfa6c1b116cf7c4e91418b328466",
+      "seconds": 4.72
     },
     "grabby_capture_heavy_1": {
       "bot": "greedy",
       "event": "capture_heavy",
       "text": "Jackpot! That prize piece is mine!",
-      "voice": "Brian",
-      "file": "polly-dicechess-bots/grabby_capture_heavy_1.mp3",
-      "sha256": "0129cb4f7837af4ac89bd8358f2e574f3263a4b34fff794c1f55aefa26af5f54",
-      "seconds": 3.6
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots/grabby_capture_heavy_1.mp3",
+      "sha256": "380061d1620a49bdf8fbddfef5646b27af4326809263535a4f5d6db5a4e28607",
+      "seconds": 4.64
     },
     "grabby_capture_heavy_2": {
       "bot": "greedy",
       "event": "capture_heavy",
       "text": "Exquisite loot! A crown jewel for my hoard!",
-      "voice": "Brian",
-      "file": "polly-dicechess-bots/grabby_capture_heavy_2.mp3",
-      "sha256": "9eb17fe0aa18282c3883701f9fb8c3b2fe602df24bbcc4c8821cac59b66f3edd",
-      "seconds": 4.416
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots/grabby_capture_heavy_2.mp3",
+      "sha256": "dc96e7ad37b9178b5b0e3fc5eafb2199c3e022d095ab247718f6a09f5ef12b93",
+      "seconds": 5.28
     },
     "grabby_capture_heavy_3": {
       "bot": "greedy",
       "event": "capture_heavy",
       "text": "The bigger the piece, the sweeter the profit!",
-      "voice": "Brian",
-      "file": "polly-dicechess-bots/grabby_capture_heavy_3.mp3",
-      "sha256": "e9067d6a593c59b0bdb5dcc44ed5263216f718e683e302e8da41e1477dc3aecb",
-      "seconds": 2.928
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots/grabby_capture_heavy_3.mp3",
+      "sha256": "2cd781e0a408b6cfb7933f41f868881eb6b07e1281ed72e783bed20f2d019162",
+      "seconds": 4.56
     },
     "grabby_empty_roll_1": {
       "bot": "greedy",
       "event": "empty_roll",
       "text": "No moves?! But I wanted to take something!",
-      "voice": "Brian",
-      "file": "polly-dicechess-bots/grabby_empty_roll_1.mp3",
-      "sha256": "e0aaa39b0ee33207b751e373ef4f7bc8523cd9f4b5d412df561adad44b693270",
-      "seconds": 3.792
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots/grabby_empty_roll_1.mp3",
+      "sha256": "bfb7924bc38a156baeb61eea2cd69022f4fadc3d5a59181fee77c3ca56cc19ea",
+      "seconds": 3.52
     },
     "grabby_empty_roll_2": {
       "bot": "greedy",
       "event": "empty_roll",
       "text": "A waste of a roll! No loot for my vault this turn.",
-      "voice": "Brian",
-      "file": "polly-dicechess-bots/grabby_empty_roll_2.mp3",
-      "sha256": "4ca8d3d71117d625522aeeffc88e60eb629c937db5e6b99f07e6e317fb9a6e1b",
-      "seconds": 4.728
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots/grabby_empty_roll_2.mp3",
+      "sha256": "55bd093693b09e7a413694b074a45708be1bc48241c741922afabcd1abcbd203",
+      "seconds": 5.28
     },
     "grabby_empty_roll_3": {
       "bot": "greedy",
       "event": "empty_roll",
       "text": "Empty roll! You got lucky... for now.",
-      "voice": "Brian",
-      "file": "polly-dicechess-bots/grabby_empty_roll_3.mp3",
-      "sha256": "dd6cf95f892497ee13594ae2680cccaa0c62cb70eb5580d2a641d3e420657d02",
-      "seconds": 4.584
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots/grabby_empty_roll_3.mp3",
+      "sha256": "bfe974d2903d95db47eaa494bc0b313e00df7796ba72ea2e150031036be465fc",
+      "seconds": 4.4
     },
     "grabby_intro_1": {
       "bot": "greedy",
       "event": "intro",
       "text": "Everything on this board belongs in my collection.",
-      "voice": "Brian",
-      "file": "polly-dicechess-bots/grabby_intro_1.mp3",
-      "sha256": "a3bfb3d8bf2ecbcefddffcdabd418eb56584bed5748cb9fbeafcd504d1e39b94",
-      "seconds": 3.36
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots/grabby_intro_1.mp3",
+      "sha256": "fbcfb104d45dbaad64df3a25d93b1b5ad6d98ee70e34f0f8c119672df1462563",
+      "seconds": 4.08
     },
     "grabby_intro_2": {
       "bot": "greedy",
       "event": "intro",
       "text": "Don't get attached to your pieces. I'm taking them all.",
-      "voice": "Brian",
-      "file": "polly-dicechess-bots/grabby_intro_2.mp3",
-      "sha256": "6311743f7095fb506d441ae59526794710cbf013895e1e64404558db9e1b8b86",
-      "seconds": 4.8
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots/grabby_intro_2.mp3",
+      "sha256": "50f5ea55d5ac8a27d30e4ea26399520e290a9d64ec1db7edee1f8ce4098bc5da",
+      "seconds": 4.64
     },
     "grabby_intro_3": {
       "bot": "greedy",
       "event": "intro",
       "text": "A fresh board! So many shiny pieces to hoard.",
-      "voice": "Brian",
-      "file": "polly-dicechess-bots/grabby_intro_3.mp3",
-      "sha256": "62afd97f6ca596406f228752a4806e398d127b53c8fef46ee1c9f7c827093406",
-      "seconds": 4.344
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots/grabby_intro_3.mp3",
+      "sha256": "ff0fa1ae1310afc045f36d5d795a8cfeace0b5425e57bdcf27a4d8750cac8d31",
+      "seconds": 4.48
     },
     "grabby_loss_1": {
       "bot": "greedy",
       "event": "loss",
       "text": "No! My glorious collection! How dare you?!",
-      "voice": "Brian",
-      "file": "polly-dicechess-bots/grabby_loss_1.mp3",
-      "sha256": "7393ad17422bbe9e287a4d32878411d3295cc609b107d98c6d0137447188d4d4",
-      "seconds": 5.088
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots/grabby_loss_1.mp3",
+      "sha256": "7f358b285f5e6d8a75827c9ec1c56aeec13c624bc1449a9cac780368e5e67727",
+      "seconds": 5.76
     },
     "grabby_loss_2": {
       "bot": "greedy",
       "event": "loss",
       "text": "Unacceptable! You plundered my king?!",
-      "voice": "Brian",
-      "file": "polly-dicechess-bots/grabby_loss_2.mp3",
-      "sha256": "95ecb600942310932623b0d6352fa955e6b6bb299c40ccd476344f61db6c0fae",
-      "seconds": 3.6
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots/grabby_loss_2.mp3",
+      "sha256": "61b954c268f87334717871b5aa0d45cb695c1539315f9d75db6fdc54eebb184a",
+      "seconds": 3.92
     },
     "grabby_loss_3": {
       "bot": "greedy",
       "event": "loss",
       "text": "Defeated?! My treasures... slipping away...",
-      "voice": "Brian",
-      "file": "polly-dicechess-bots/grabby_loss_3.mp3",
-      "sha256": "a01be692ee4c294391d0a2e7595f28fa23fbf5d07806aa01555016d1b7c5efed",
-      "seconds": 4.776
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots/grabby_loss_3.mp3",
+      "sha256": "76d65c96cbb7821c866cbb52b2e865bc73786c3ec817276dfdf1c55f1c31198b",
+      "seconds": 6.08
     },
     "grabby_threat_1": {
       "bot": "greedy",
       "event": "threat",
       "text": "Your king would look lovely in my vault.",
-      "voice": "Brian",
-      "file": "polly-dicechess-bots/grabby_threat_1.mp3",
-      "sha256": "886bc321ba71c1c6f2ac3ec4c08659454c1e97b5173720fd74eee9557be3cf1b",
-      "seconds": 2.856
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots/grabby_threat_1.mp3",
+      "sha256": "5ff23158b99f693205a0b01587c8128cecfd7f989ca1bf0073388c1229454c80",
+      "seconds": 3.6
     },
     "grabby_threat_2": {
       "bot": "greedy",
       "event": "threat",
       "text": "One good roll and your king is mine!",
-      "voice": "Brian",
-      "file": "polly-dicechess-bots/grabby_threat_2.mp3",
-      "sha256": "50f1d0f504b91b006652d078c80840844798470456b3bb6e4cf4956a4c9ba95f",
-      "seconds": 2.664
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots/grabby_threat_2.mp3",
+      "sha256": "3a38796d9c8e4f2dde8327d88c481ef2a45eec45e630bc6f76154123029ee3a5",
+      "seconds": 3.12
     },
     "grabby_threat_3": {
       "bot": "greedy",
       "event": "threat",
       "text": "I spy your king. Very collectible!",
-      "voice": "Brian",
-      "file": "polly-dicechess-bots/grabby_threat_3.mp3",
-      "sha256": "baf70e7b055327b3d9b8dc65f35f508ca02fd601cc0ce07456e117bcd99724bf",
-      "seconds": 3.528
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots/grabby_threat_3.mp3",
+      "sha256": "94fcada4c96c83d09737597411b4680ce5b54af28e1c44e06f3d9693f051f8dd",
+      "seconds": 4.24
     },
     "grabby_win_1": {
       "bot": "greedy",
       "event": "win",
       "text": "Victory and total plunder! What a splendid haul!",
-      "voice": "Brian",
-      "file": "polly-dicechess-bots/grabby_win_1.mp3",
-      "sha256": "59e8b7db3641c3be0773d4a457a1998a631a8276b3e42cfffb1c82beba3b9469",
-      "seconds": 4.608
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots/grabby_win_1.mp3",
+      "sha256": "4f2fc882511a382f39a1e0e7829ddb15aea13a99dacf67a9f76719d94661769e",
+      "seconds": 6
     },
     "grabby_win_2": {
       "bot": "greedy",
       "event": "win",
       "text": "All your squares and treasures are mine!",
-      "voice": "Brian",
-      "file": "polly-dicechess-bots/grabby_win_2.mp3",
-      "sha256": "93971fe32baba1622f01997fd58a10259072476c5a6a34bc38af493532c4daf7",
-      "seconds": 2.808
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots/grabby_win_2.mp3",
+      "sha256": "c2ba2602e59dbe9ec846d1b787d5f9ec2cd0700bf0bbe7b731c0db510765ade2",
+      "seconds": 4.32
     },
     "grabby_win_3": {
       "bot": "greedy",
       "event": "win",
       "text": "Greed is good, but winning is priceless!",
-      "voice": "Brian",
-      "file": "polly-dicechess-bots/grabby_win_3.mp3",
-      "sha256": "76c5ebdf0a280fe5ceb71af8a0dac4db28b9778a533c7af23f9ba26d91964556",
-      "seconds": 3.168
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots/grabby_win_3.mp3",
+      "sha256": "dbe1ff168e0bf7d8f365fb88090409db9e0148f5666c28c670fbb8e3aface9cd",
+      "seconds": 4.08
     },
     "rampage_capture_1": {
       "bot": "aggressive",
       "event": "capture",
       "text": "Obliterated! One less obstacle in my path.",
-      "voice": "Stephen",
-      "file": "polly-dicechess-bots/rampage_capture_1.mp3",
-      "sha256": "ffcf4321836504636d3ecfffbb681f54c0ecfdbac01dc7779a627e1cf34aa660",
-      "seconds": 3.504
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots/rampage_capture_1.mp3",
+      "sha256": "df36348dcc5b584bffc02f9c9a60f2c5150daf466f7f8e7c6ad70e9dc0a7840f",
+      "seconds": 4.56
     },
     "rampage_capture_2": {
       "bot": "aggressive",
       "event": "capture",
       "text": "Cut down! Your ranks crumble before me.",
-      "voice": "Stephen",
-      "file": "polly-dicechess-bots/rampage_capture_2.mp3",
-      "sha256": "25b651fbe1e2b54315d8d0c8ad14be819583f90bc50d1f89a439e381179d4075",
-      "seconds": 3.312
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots/rampage_capture_2.mp3",
+      "sha256": "9a4884a2ab7b09997cbf133531f54d29b092c114285fd633369960a4e4b22436",
+      "seconds": 4.16
     },
     "rampage_capture_3": {
       "bot": "aggressive",
       "event": "capture",
       "text": "Pathetic defense! Smashed aside!",
-      "voice": "Stephen",
-      "file": "polly-dicechess-bots/rampage_capture_3.mp3",
-      "sha256": "fe1f7e0e84b2584f9475919333b4a764c97adb023a97256b97965790180eed3d",
-      "seconds": 3.168
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots/rampage_capture_3.mp3",
+      "sha256": "31550ad8e76c03e2301336ae94f0bd46ede9b884929a21822d553a4cfdf5f80a",
+      "seconds": 3.6
     },
     "rampage_capture_heavy_1": {
       "bot": "aggressive",
       "event": "capture_heavy",
       "text": "Crushed! Your mightiest defender falls into dust!",
-      "voice": "Stephen",
-      "file": "polly-dicechess-bots/rampage_capture_heavy_1.mp3",
-      "sha256": "725c4998b59d1761681f88f8ff258774cd1e870f4997c194b347e512e60f7159",
-      "seconds": 3.48
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots/rampage_capture_heavy_1.mp3",
+      "sha256": "2bbfe93a4bd2b5e09b1864b8ab9fda60a0c99e520be31c26193db38e8524d9e1",
+      "seconds": 4.8
     },
     "rampage_capture_heavy_2": {
       "bot": "aggressive",
       "event": "capture_heavy",
       "text": "Devastating strike! You cannot withstand my assault!",
-      "voice": "Stephen",
-      "file": "polly-dicechess-bots/rampage_capture_heavy_2.mp3",
-      "sha256": "983404dfc055d105f858378bd6e536f3f249760c598a8c699c625fee9e69cbac",
-      "seconds": 3.768
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots/rampage_capture_heavy_2.mp3",
+      "sha256": "ec447e8271130d74319b144c67ee0ebd862049a2d38d311968e74b01d0b0a3e6",
+      "seconds": 5.68
     },
     "rampage_capture_heavy_3": {
       "bot": "aggressive",
       "event": "capture_heavy",
       "text": "Your high command is broken! Smashed to pieces!",
-      "voice": "Stephen",
-      "file": "polly-dicechess-bots/rampage_capture_heavy_3.mp3",
-      "sha256": "a02143e02dcbe8ec34917690db7698305f92367a7e5b471d921280c10c57a5f0",
-      "seconds": 3.72
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots/rampage_capture_heavy_3.mp3",
+      "sha256": "2c45e069576f6c2bf7ef98128d96f76233e39e2eb39205bbcaad53f504825bc5",
+      "seconds": 4.56
     },
     "rampage_empty_roll_1": {
       "bot": "aggressive",
       "event": "empty_roll",
       "text": "The dice stall my fury. Savor your brief respite.",
-      "voice": "Stephen",
-      "file": "polly-dicechess-bots/rampage_empty_roll_1.mp3",
-      "sha256": "f78123c2cc5aa3e40ada54ed8260d033638ed26d159f97b10c2bed254f76f0b5",
-      "seconds": 3.984
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots/rampage_empty_roll_1.mp3",
+      "sha256": "832190283727b14ff81705b82437e7bbc8851a23f9605747056a025fa6ef9a65",
+      "seconds": 5.04
     },
     "rampage_empty_roll_2": {
       "bot": "aggressive",
       "event": "empty_roll",
       "text": "No targets?! Unacceptable! Next turn you fall.",
-      "voice": "Stephen",
-      "file": "polly-dicechess-bots/rampage_empty_roll_2.mp3",
-      "sha256": "758e7529ddab3638abb87a79e9480155d62e2e3b6f9a0bb7ae7e8c84bb89b6d5",
-      "seconds": 4.368
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots/rampage_empty_roll_2.mp3",
+      "sha256": "63bb49e721be87487c8df4e9d805f5fbe3608fddf25931e9b4bf50e930632fb9",
+      "seconds": 5.12
     },
     "rampage_empty_roll_3": {
       "bot": "aggressive",
       "event": "empty_roll",
       "text": "A momentary pause before the storm resumes.",
-      "voice": "Stephen",
-      "file": "polly-dicechess-bots/rampage_empty_roll_3.mp3",
-      "sha256": "7c9d03c6a2589560997890e4cb27cf43747b008c2d871e9176fb3c02da90b2b2",
-      "seconds": 2.784
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots/rampage_empty_roll_3.mp3",
+      "sha256": "ac08e1b9d7890141027eb14e35deb1bf56328cc8bdbe9823a44b08edc9fb0ef9",
+      "seconds": 3.52
     },
     "rampage_intro_1": {
       "bot": "aggressive",
       "event": "intro",
       "text": "Step forward. Your king will not survive this day.",
-      "voice": "Stephen",
-      "file": "polly-dicechess-bots/rampage_intro_1.mp3",
-      "sha256": "8f9c834ad91548663f43d61acb8291497be86644b94f7a3e6e3c224e6a9ec377",
-      "seconds": 3.72
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots/rampage_intro_1.mp3",
+      "sha256": "ae7f48c7bf303d4bd3a8464bd115fe41e14fced812cddbe9165370639175169d",
+      "seconds": 5.36
     },
     "rampage_intro_2": {
       "bot": "aggressive",
       "event": "intro",
       "text": "No mercy. No retreat. Let the battle begin.",
-      "voice": "Stephen",
-      "file": "polly-dicechess-bots/rampage_intro_2.mp3",
-      "sha256": "d69c0d33f95fdf249a6f98e21bc54523ebe3dd038306d5775f4a89d09f679f2f",
-      "seconds": 4.2
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots/rampage_intro_2.mp3",
+      "sha256": "b3cb6f296d8bee2911f57f400dd3e457770bca60c36f41304cb330575e99b288",
+      "seconds": 5.28
     },
     "rampage_intro_3": {
       "bot": "aggressive",
       "event": "intro",
       "text": "Prepare yourself! I strike without hesitation.",
-      "voice": "Stephen",
-      "file": "polly-dicechess-bots/rampage_intro_3.mp3",
-      "sha256": "1576712e8ad662b34e77997a18324eef782b9f2c4cb60e9aa1d3ce642b47c5af",
-      "seconds": 3.384
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots/rampage_intro_3.mp3",
+      "sha256": "c61fb39ff037a9187d48e0efc10cd9804ebe94ca86a8fc2e5988963f71ac5455",
+      "seconds": 4.24
     },
     "rampage_loss_1": {
       "bot": "aggressive",
       "event": "loss",
       "text": "Impossible! How could my onslaught fail?!",
-      "voice": "Stephen",
-      "file": "polly-dicechess-bots/rampage_loss_1.mp3",
-      "sha256": "921c5139c9373f164654cba97de52b039c0412c59157f5f4841aeef88443fe46",
-      "seconds": 3.096
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots/rampage_loss_1.mp3",
+      "sha256": "8dc90046274b46cc4b7d8628e2932203860904db7ec00492a891db4091ea43de",
+      "seconds": 3.84
     },
     "rampage_loss_2": {
       "bot": "aggressive",
       "event": "loss",
       "text": "You fought fiercely... I acknowledge your triumph.",
-      "voice": "Stephen",
-      "file": "polly-dicechess-bots/rampage_loss_2.mp3",
-      "sha256": "595772c8eb87e69412b6fae172565ad8af42b9d2f7fb191384a158abc4f0fb95",
-      "seconds": 3.336
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots/rampage_loss_2.mp3",
+      "sha256": "37bb77ad74075123290f54d7454adae2db2d40ec3e1fbccc0e88c09a148fed28",
+      "seconds": 5.44
     },
     "rampage_loss_3": {
       "bot": "aggressive",
       "event": "loss",
       "text": "Downed, but not broken! We will battle again!",
-      "voice": "Stephen",
-      "file": "polly-dicechess-bots/rampage_loss_3.mp3",
-      "sha256": "833def77743c92b255c194887420ea05f948ae486f32d202ff6888f8c1e534d9",
-      "seconds": 3.768
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots/rampage_loss_3.mp3",
+      "sha256": "dc44c3c9d943a37cb285d0a2a54fb4870da7ce6130311e391427f412605994b7",
+      "seconds": 4.88
     },
     "rampage_threat_1": {
       "bot": "aggressive",
       "event": "threat",
       "text": "Your king is in my sights!",
-      "voice": "Stephen",
-      "file": "polly-dicechess-bots/rampage_threat_1.mp3",
-      "sha256": "7a00d3d62b9b6a164a688e16c756b8c0139e405368d31fa6b0e3f2ea68ce09a5",
-      "seconds": 1.968
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots/rampage_threat_1.mp3",
+      "sha256": "740d65f0ace3c5b7d376008b4add36f7289196d79bf5370a77e3005be7759b71",
+      "seconds": 2.8
     },
     "rampage_threat_2": {
       "bot": "aggressive",
       "event": "threat",
       "text": "The right roll, and your king falls!",
-      "voice": "Stephen",
-      "file": "polly-dicechess-bots/rampage_threat_2.mp3",
-      "sha256": "f81652a74e6cd22e524683a0d5fb2eb0d6df0dc695e3ace5d33941672078bb22",
-      "seconds": 2.664
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots/rampage_threat_2.mp3",
+      "sha256": "dfd91698a2f64711591e6e4125de6b25c5f7bf4b219e8b35cc3cbac9d9fe1244",
+      "seconds": 3.28
     },
     "rampage_threat_3": {
       "bot": "aggressive",
       "event": "threat",
       "text": "I can smell your king's fear!",
-      "voice": "Stephen",
-      "file": "polly-dicechess-bots/rampage_threat_3.mp3",
-      "sha256": "03d64b3bfb78b3b47e0814e2ee4322bcbddf2377cac7422c397249c7cad8e1fb",
-      "seconds": 2.16
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots/rampage_threat_3.mp3",
+      "sha256": "3a17eb4a6ca2a56ea8ad742376ddcac5815c181b55eb6ec8620a13527affd807",
+      "seconds": 4.16
     },
     "rampage_win_1": {
       "bot": "aggressive",
       "event": "win",
       "text": "Total annihilation! Kneel before the conqueror!",
-      "voice": "Stephen",
-      "file": "polly-dicechess-bots/rampage_win_1.mp3",
-      "sha256": "0110c820908717c46cb95e1fdb1ae5fb44193e5c760511c4ae0816ae66335870",
-      "seconds": 3.48
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots/rampage_win_1.mp3",
+      "sha256": "4b0083cb0ba6d38be1dbc69e7f2e86a81c62b8084a156d489393f7dd14acfc7b",
+      "seconds": 5.44
     },
     "rampage_win_2": {
       "bot": "aggressive",
       "event": "win",
       "text": "Your army is crushed beneath my heel!",
-      "voice": "Stephen",
-      "file": "polly-dicechess-bots/rampage_win_2.mp3",
-      "sha256": "319387db5297d4ffa884e8599a9abcd52eff63892f8263d26f75fdbf71b753fe",
-      "seconds": 2.448
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots/rampage_win_2.mp3",
+      "sha256": "771b2f0ffe28ea59a69b24c04d741de61925826619431cdaf18f6152491c1d4e",
+      "seconds": 4.88
     },
     "rampage_win_3": {
       "bot": "aggressive",
       "event": "win",
       "text": "Victory was inevitable! You were completely outmatched!",
-      "voice": "Stephen",
-      "file": "polly-dicechess-bots/rampage_win_3.mp3",
-      "sha256": "3a78b622538c1aaa80dd9e89ec396bd97dd23471f1431980de833a1ac84d8f9c",
-      "seconds": 3.888
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots/rampage_win_3.mp3",
+      "sha256": "d9699983dbfda4d2ac3a553ce298d00aaa84f6fc462729ce604bfa377cc1da2d",
+      "seconds": 4.64
     },
     "rolly_capture_1": {
       "bot": "random",
       "event": "capture",
       "text": "Boop! Mine now!",
-      "voice": "Justin",
-      "file": "polly-dicechess-bots/rolly_capture_1.mp3",
-      "sha256": "efa3d1ece608c0882ea41a1f0fd0c2d69b6806db53aeee63436078ce551b11a4",
-      "seconds": 2.016
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots/rolly_capture_1.mp3",
+      "sha256": "98a09c8ecfe418f9644174feee658427ac38d31b6cf60d2fa1209b1656d26aef",
+      "seconds": 2.88
     },
     "rolly_capture_2": {
       "bot": "random",
       "event": "capture",
       "text": "Got one! Every little piece counts!",
-      "voice": "Justin",
-      "file": "polly-dicechess-bots/rolly_capture_2.mp3",
-      "sha256": "07c0700ffb46c2fc3c529d806740eefc5042985b15a1501ae6c7ec8d4f869c49",
-      "seconds": 2.832
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots/rolly_capture_2.mp3",
+      "sha256": "4a049083d26cfc0844a5716358d9d022d1a6dfc4ab0b0fae6e0d56aa2f6ee97b",
+      "seconds": 3.12
     },
     "rolly_capture_3": {
       "bot": "random",
       "event": "capture",
       "text": "Snack time for my pieces!",
-      "voice": "Justin",
-      "file": "polly-dicechess-bots/rolly_capture_3.mp3",
-      "sha256": "c48cc31d4b52a83f56f254ebc42e36326d4c18e72b8c58e6002eaf086fd582df",
-      "seconds": 1.848
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots/rolly_capture_3.mp3",
+      "sha256": "0d5cc8f6a8214e2f75b9bc3addec69eb07766b01178d6e5fd4508bf7d78809c5",
+      "seconds": 2.8
     },
     "rolly_capture_heavy_1": {
       "bot": "random",
       "event": "capture_heavy",
       "text": "Whoa! Did I really just grab that big piece?!",
-      "voice": "Justin",
-      "file": "polly-dicechess-bots/rolly_capture_heavy_1.mp3",
-      "sha256": "4102a5f988e8b28fdaddfd8cb95b33f556787ea809895461931771298c2d88a6",
-      "seconds": 3.288
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots/rolly_capture_heavy_1.mp3",
+      "sha256": "744bad0077874ff78bdb8b52cdd203a5d171f576ef0d4d20707679f5b744346b",
+      "seconds": 4.48
     },
     "rolly_capture_heavy_2": {
       "bot": "random",
       "event": "capture_heavy",
       "text": "Look what I found! Down goes a heavy hitter!",
-      "voice": "Justin",
-      "file": "polly-dicechess-bots/rolly_capture_heavy_2.mp3",
-      "sha256": "1a16ce62f038535ae9ace1d28ce6e5e45089f0a3bec674a4e39244f5600d2c62",
-      "seconds": 3.216
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots/rolly_capture_heavy_2.mp3",
+      "sha256": "e3fa60512204e9d730ad85bb0fd4f8889fe6dc151626866d417ecfbed97f93f9",
+      "seconds": 4.72
     },
     "rolly_capture_heavy_3": {
       "bot": "random",
       "event": "capture_heavy",
       "text": "Yay! That was a huge capture!",
-      "voice": "Justin",
-      "file": "polly-dicechess-bots/rolly_capture_heavy_3.mp3",
-      "sha256": "4246714ffa2a931a3c230d00973f9c3eb86e22314b47250cd5465b339e3c6b46",
-      "seconds": 2.664
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots/rolly_capture_heavy_3.mp3",
+      "sha256": "80e6d67ce59505e437846d197ce3a643e68136da8e654e9510a836d8601fd828",
+      "seconds": 3.84
     },
     "rolly_empty_roll_1": {
       "bot": "random",
       "event": "empty_roll",
       "text": "Oops, nowhere to go! Your turn!",
-      "voice": "Justin",
-      "file": "polly-dicechess-bots/rolly_empty_roll_1.mp3",
-      "sha256": "8855205fdf4618276f1e7f8bd3ff7c7144d0be9b27d2e310b87ce1a233ba06b1",
-      "seconds": 3.072
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots/rolly_empty_roll_1.mp3",
+      "sha256": "00aeaa221b9f757de08a55fcc2a53a78fa166b345fafd78103ed517f2c0f3e31",
+      "seconds": 4.4
     },
     "rolly_empty_roll_2": {
       "bot": "random",
       "event": "empty_roll",
       "text": "Nothing to move? That's dice for you!",
-      "voice": "Justin",
-      "file": "polly-dicechess-bots/rolly_empty_roll_2.mp3",
-      "sha256": "cb28c57b6558812675a09befc03f0e22694db4f8d9c41c07066627df53728310",
-      "seconds": 2.856
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots/rolly_empty_roll_2.mp3",
+      "sha256": "0c0380ab708b3a0f998dcb9114513361deeb0a1d8e5df1c9d04f7d376ea71dd7",
+      "seconds": 4.08
     },
     "rolly_empty_roll_3": {
       "bot": "random",
       "event": "empty_roll",
       "text": "A blank roll! Well, that was silly!",
-      "voice": "Justin",
-      "file": "polly-dicechess-bots/rolly_empty_roll_3.mp3",
-      "sha256": "298aa4a970d50a3c72e11b8c9fc73e702e662eb0a213d0a4aef55f07712fb12b",
-      "seconds": 3.264
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots/rolly_empty_roll_3.mp3",
+      "sha256": "c26defaed3d02b87be08e6a0bc5ecfd4a5005f4d217175791cf524e691edd86e",
+      "seconds": 4.64
     },
     "rolly_intro_1": {
       "bot": "random",
       "event": "intro",
       "text": "Hey! Let's roll and see what happens!",
-      "voice": "Justin",
-      "file": "polly-dicechess-bots/rolly_intro_1.mp3",
-      "sha256": "19a4b35eb1d3898ed1e5f86c325cefee042ea81714da3c8545674d0278010cd8",
-      "seconds": 2.952
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots/rolly_intro_1.mp3",
+      "sha256": "2f018ba02a7d11ed2f7f1402fe40ceabd8025a4639b66d4f0e5c8f39a04b9d29",
+      "seconds": 3.04
     },
     "rolly_intro_2": {
       "bot": "random",
       "event": "intro",
       "text": "Dice ready, board ready! Let's have fun!",
-      "voice": "Justin",
-      "file": "polly-dicechess-bots/rolly_intro_2.mp3",
-      "sha256": "f0d0d59618df8e1fcff1f3345bdc47c82d8d29b741874ec649d4c1b01eb53266",
-      "seconds": 3.312
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots/rolly_intro_2.mp3",
+      "sha256": "39de5a8062259675c0514751fe5852b349678667f9721620dd66a77dc9886f81",
+      "seconds": 4.48
     },
     "rolly_intro_3": {
       "bot": "random",
       "event": "intro",
       "text": "I love rolling dice! Hope they're friendly today!",
-      "voice": "Justin",
-      "file": "polly-dicechess-bots/rolly_intro_3.mp3",
-      "sha256": "eeca9444aa9152c43dfa703ac851a29487400e52fbe3901f5f81242c264a28d6",
-      "seconds": 3.456
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots/rolly_intro_3.mp3",
+      "sha256": "474b5e68c5338982147cdeafbad5a70ddc147a44cce0df2468c332a5ac4e02fc",
+      "seconds": 4.24
     },
     "rolly_loss_1": {
       "bot": "random",
       "event": "loss",
       "text": "Aww, good game! You got me fair and square!",
-      "voice": "Justin",
-      "file": "polly-dicechess-bots/rolly_loss_1.mp3",
-      "sha256": "1cae99d4ad5c455903a90f398df0d61e7467f0cedd8a103dd0a3829cc08a3a8d",
-      "seconds": 3.576
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots/rolly_loss_1.mp3",
+      "sha256": "ff742ac16d86ec6400f5ff2a8a046777c2736ba95808d5bd3d2aa510167f5e3d",
+      "seconds": 4.8
     },
     "rolly_loss_2": {
       "bot": "random",
       "event": "loss",
       "text": "My king tripped! Nice catch!",
-      "voice": "Justin",
-      "file": "polly-dicechess-bots/rolly_loss_2.mp3",
-      "sha256": "c072874cf144cce029770224240f26c2a3b9e873ac660392a34fcbf20a237fd4",
-      "seconds": 2.688
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots/rolly_loss_2.mp3",
+      "sha256": "06acc1a99be24961d6427ef0b875a6649f1cfc5aa591940eddfe789439978342",
+      "seconds": 4.64
     },
     "rolly_loss_3": {
       "bot": "random",
       "event": "loss",
       "text": "You're too good! Let's play another round!",
-      "voice": "Justin",
-      "file": "polly-dicechess-bots/rolly_loss_3.mp3",
-      "sha256": "bda8fc653733844fa8c3238420a5dd1a8850a2902a9cab864812c465597810d0",
-      "seconds": 3
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots/rolly_loss_3.mp3",
+      "sha256": "6556af14e04873a9dd0e458f5bb50c1ff341ea642161f12a1d0eab3a7d010118",
+      "seconds": 4.32
     },
     "rolly_threat_1": {
       "bot": "random",
       "event": "threat",
       "text": "Ooh! Your king is right in my path!",
-      "voice": "Justin",
-      "file": "polly-dicechess-bots/rolly_threat_1.mp3",
-      "sha256": "fccb3fa331c8078adfc5093d1a9769670b109440b9c895054d5170997691f812",
-      "seconds": 2.712
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots/rolly_threat_1.mp3",
+      "sha256": "ed699f34935737e868509edecdb83eb95c7275e862ab1737a67ae9353658f602",
+      "seconds": 3.84
     },
     "rolly_threat_2": {
       "bot": "random",
       "event": "threat",
       "text": "One lucky roll and your king goes boop!",
-      "voice": "Justin",
-      "file": "polly-dicechess-bots/rolly_threat_2.mp3",
-      "sha256": "5519fe1e1fccc0cf84ca4162f3f7c207e2331cc9cdc17f524a67192937fbcc53",
-      "seconds": 2.4
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots/rolly_threat_2.mp3",
+      "sha256": "d549e1ec82da50b72f92380b6759639c7d6ec637e328fd84053d9348e94330fc",
+      "seconds": 4.4
     },
     "rolly_threat_3": {
       "bot": "random",
       "event": "threat",
       "text": "Psst... your king might want to hide!",
-      "voice": "Justin",
-      "file": "polly-dicechess-bots/rolly_threat_3.mp3",
-      "sha256": "d46637dbb0e5c191fef0e12170846a944326b006a638699896494190d8d767df",
-      "seconds": 3.216
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots/rolly_threat_3.mp3",
+      "sha256": "5074d049b964dbfd842c6d5ddacb8f813568862d848aa87c4e835147ef291996",
+      "seconds": 2.88
     },
     "rolly_win_1": {
       "bot": "random",
       "event": "win",
       "text": "Yay, I won! Can we roll again?!",
-      "voice": "Justin",
-      "file": "polly-dicechess-bots/rolly_win_1.mp3",
-      "sha256": "fa9564107b54285dcc60e45d8c83e5fff9fb1a6226334b368c250d2e3c3cab64",
-      "seconds": 3
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots/rolly_win_1.mp3",
+      "sha256": "83b26e84a19f39e8f16c716cff11b62aaceafca08e20c80b28d9b82c582d7b2a",
+      "seconds": 3.28
     },
     "rolly_win_2": {
       "bot": "random",
       "event": "win",
       "text": "Woohoo! The dice were super friendly today!",
-      "voice": "Justin",
-      "file": "polly-dicechess-bots/rolly_win_2.mp3",
-      "sha256": "aa45707fb16e6384ecb161af624cb03f58b44f5966795931d80be9513f250240",
-      "seconds": 3.312
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots/rolly_win_2.mp3",
+      "sha256": "429d461f49500383ca6dc4ab9835fae76e12d8055e7d0b8644368bf6f19d7ee2",
+      "seconds": 4.8
     },
     "rolly_win_3": {
       "bot": "random",
       "event": "win",
       "text": "High five! That was so much fun!",
-      "voice": "Justin",
-      "file": "polly-dicechess-bots/rolly_win_3.mp3",
-      "sha256": "d4f23a047a48dc792d78a072f1cd5c0cf756e246908e7fbcacb1441d25e17062",
-      "seconds": 2.88
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots/rolly_win_3.mp3",
+      "sha256": "8de85cd7cfa42d836942f07c0f93e9adf32b62252211b836e4877d7357e81c74",
+      "seconds": 4
     }
   },
   "files": {
-    "manifest.json": "7282d3988ae94bf47a28170d948cc376f39dab5efa8213c0fe88eb34bd23dbd3",
-    "LICENSE.txt": "115f1afafbad99ca8d2d599db331c971489de947bd2aba57bacfdb7ca2711869",
-    "grabby_capture_1.mp3": "e9cd5d45e5410f388f000d1fcaf8c76d9806edaf4cf023e50cbd1dbfc53522fd",
-    "grabby_capture_2.mp3": "ab52b787c4d1626c69f3676961ff777b64dce71692569ce6ac5323a419d732d0",
-    "grabby_capture_3.mp3": "43ba2bc8b8159a86aa5a73634518648dfb5379d15a6f10f4263aef2a62622e49",
-    "grabby_capture_heavy_1.mp3": "0129cb4f7837af4ac89bd8358f2e574f3263a4b34fff794c1f55aefa26af5f54",
-    "grabby_capture_heavy_2.mp3": "9eb17fe0aa18282c3883701f9fb8c3b2fe602df24bbcc4c8821cac59b66f3edd",
-    "grabby_capture_heavy_3.mp3": "e9067d6a593c59b0bdb5dcc44ed5263216f718e683e302e8da41e1477dc3aecb",
-    "grabby_empty_roll_1.mp3": "e0aaa39b0ee33207b751e373ef4f7bc8523cd9f4b5d412df561adad44b693270",
-    "grabby_empty_roll_2.mp3": "4ca8d3d71117d625522aeeffc88e60eb629c937db5e6b99f07e6e317fb9a6e1b",
-    "grabby_empty_roll_3.mp3": "dd6cf95f892497ee13594ae2680cccaa0c62cb70eb5580d2a641d3e420657d02",
-    "grabby_intro_1.mp3": "a3bfb3d8bf2ecbcefddffcdabd418eb56584bed5748cb9fbeafcd504d1e39b94",
-    "grabby_intro_2.mp3": "6311743f7095fb506d441ae59526794710cbf013895e1e64404558db9e1b8b86",
-    "grabby_intro_3.mp3": "62afd97f6ca596406f228752a4806e398d127b53c8fef46ee1c9f7c827093406",
-    "grabby_loss_1.mp3": "7393ad17422bbe9e287a4d32878411d3295cc609b107d98c6d0137447188d4d4",
-    "grabby_loss_2.mp3": "95ecb600942310932623b0d6352fa955e6b6bb299c40ccd476344f61db6c0fae",
-    "grabby_loss_3.mp3": "a01be692ee4c294391d0a2e7595f28fa23fbf5d07806aa01555016d1b7c5efed",
-    "grabby_threat_1.mp3": "886bc321ba71c1c6f2ac3ec4c08659454c1e97b5173720fd74eee9557be3cf1b",
-    "grabby_threat_2.mp3": "50f1d0f504b91b006652d078c80840844798470456b3bb6e4cf4956a4c9ba95f",
-    "grabby_threat_3.mp3": "baf70e7b055327b3d9b8dc65f35f508ca02fd601cc0ce07456e117bcd99724bf",
-    "grabby_win_1.mp3": "59e8b7db3641c3be0773d4a457a1998a631a8276b3e42cfffb1c82beba3b9469",
-    "grabby_win_2.mp3": "93971fe32baba1622f01997fd58a10259072476c5a6a34bc38af493532c4daf7",
-    "grabby_win_3.mp3": "76c5ebdf0a280fe5ceb71af8a0dac4db28b9778a533c7af23f9ba26d91964556",
-    "rampage_capture_1.mp3": "ffcf4321836504636d3ecfffbb681f54c0ecfdbac01dc7779a627e1cf34aa660",
-    "rampage_capture_2.mp3": "25b651fbe1e2b54315d8d0c8ad14be819583f90bc50d1f89a439e381179d4075",
-    "rampage_capture_3.mp3": "fe1f7e0e84b2584f9475919333b4a764c97adb023a97256b97965790180eed3d",
-    "rampage_capture_heavy_1.mp3": "725c4998b59d1761681f88f8ff258774cd1e870f4997c194b347e512e60f7159",
-    "rampage_capture_heavy_2.mp3": "983404dfc055d105f858378bd6e536f3f249760c598a8c699c625fee9e69cbac",
-    "rampage_capture_heavy_3.mp3": "a02143e02dcbe8ec34917690db7698305f92367a7e5b471d921280c10c57a5f0",
-    "rampage_empty_roll_1.mp3": "f78123c2cc5aa3e40ada54ed8260d033638ed26d159f97b10c2bed254f76f0b5",
-    "rampage_empty_roll_2.mp3": "758e7529ddab3638abb87a79e9480155d62e2e3b6f9a0bb7ae7e8c84bb89b6d5",
-    "rampage_empty_roll_3.mp3": "7c9d03c6a2589560997890e4cb27cf43747b008c2d871e9176fb3c02da90b2b2",
-    "rampage_intro_1.mp3": "8f9c834ad91548663f43d61acb8291497be86644b94f7a3e6e3c224e6a9ec377",
-    "rampage_intro_2.mp3": "d69c0d33f95fdf249a6f98e21bc54523ebe3dd038306d5775f4a89d09f679f2f",
-    "rampage_intro_3.mp3": "1576712e8ad662b34e77997a18324eef782b9f2c4cb60e9aa1d3ce642b47c5af",
-    "rampage_loss_1.mp3": "921c5139c9373f164654cba97de52b039c0412c59157f5f4841aeef88443fe46",
-    "rampage_loss_2.mp3": "595772c8eb87e69412b6fae172565ad8af42b9d2f7fb191384a158abc4f0fb95",
-    "rampage_loss_3.mp3": "833def77743c92b255c194887420ea05f948ae486f32d202ff6888f8c1e534d9",
-    "rampage_threat_1.mp3": "7a00d3d62b9b6a164a688e16c756b8c0139e405368d31fa6b0e3f2ea68ce09a5",
-    "rampage_threat_2.mp3": "f81652a74e6cd22e524683a0d5fb2eb0d6df0dc695e3ace5d33941672078bb22",
-    "rampage_threat_3.mp3": "03d64b3bfb78b3b47e0814e2ee4322bcbddf2377cac7422c397249c7cad8e1fb",
-    "rampage_win_1.mp3": "0110c820908717c46cb95e1fdb1ae5fb44193e5c760511c4ae0816ae66335870",
-    "rampage_win_2.mp3": "319387db5297d4ffa884e8599a9abcd52eff63892f8263d26f75fdbf71b753fe",
-    "rampage_win_3.mp3": "3a78b622538c1aaa80dd9e89ec396bd97dd23471f1431980de833a1ac84d8f9c",
-    "rolly_capture_1.mp3": "efa3d1ece608c0882ea41a1f0fd0c2d69b6806db53aeee63436078ce551b11a4",
-    "rolly_capture_2.mp3": "07c0700ffb46c2fc3c529d806740eefc5042985b15a1501ae6c7ec8d4f869c49",
-    "rolly_capture_3.mp3": "c48cc31d4b52a83f56f254ebc42e36326d4c18e72b8c58e6002eaf086fd582df",
-    "rolly_capture_heavy_1.mp3": "4102a5f988e8b28fdaddfd8cb95b33f556787ea809895461931771298c2d88a6",
-    "rolly_capture_heavy_2.mp3": "1a16ce62f038535ae9ace1d28ce6e5e45089f0a3bec674a4e39244f5600d2c62",
-    "rolly_capture_heavy_3.mp3": "4246714ffa2a931a3c230d00973f9c3eb86e22314b47250cd5465b339e3c6b46",
-    "rolly_empty_roll_1.mp3": "8855205fdf4618276f1e7f8bd3ff7c7144d0be9b27d2e310b87ce1a233ba06b1",
-    "rolly_empty_roll_2.mp3": "cb28c57b6558812675a09befc03f0e22694db4f8d9c41c07066627df53728310",
-    "rolly_empty_roll_3.mp3": "298aa4a970d50a3c72e11b8c9fc73e702e662eb0a213d0a4aef55f07712fb12b",
-    "rolly_intro_1.mp3": "19a4b35eb1d3898ed1e5f86c325cefee042ea81714da3c8545674d0278010cd8",
-    "rolly_intro_2.mp3": "f0d0d59618df8e1fcff1f3345bdc47c82d8d29b741874ec649d4c1b01eb53266",
-    "rolly_intro_3.mp3": "eeca9444aa9152c43dfa703ac851a29487400e52fbe3901f5f81242c264a28d6",
-    "rolly_loss_1.mp3": "1cae99d4ad5c455903a90f398df0d61e7467f0cedd8a103dd0a3829cc08a3a8d",
-    "rolly_loss_2.mp3": "c072874cf144cce029770224240f26c2a3b9e873ac660392a34fcbf20a237fd4",
-    "rolly_loss_3.mp3": "bda8fc653733844fa8c3238420a5dd1a8850a2902a9cab864812c465597810d0",
-    "rolly_threat_1.mp3": "fccb3fa331c8078adfc5093d1a9769670b109440b9c895054d5170997691f812",
-    "rolly_threat_2.mp3": "5519fe1e1fccc0cf84ca4162f3f7c207e2331cc9cdc17f524a67192937fbcc53",
-    "rolly_threat_3.mp3": "d46637dbb0e5c191fef0e12170846a944326b006a638699896494190d8d767df",
-    "rolly_win_1.mp3": "fa9564107b54285dcc60e45d8c83e5fff9fb1a6226334b368c250d2e3c3cab64",
-    "rolly_win_2.mp3": "aa45707fb16e6384ecb161af624cb03f58b44f5966795931d80be9513f250240",
-    "rolly_win_3.mp3": "d4f23a047a48dc792d78a072f1cd5c0cf756e246908e7fbcacb1441d25e17062"
+    "manifest.json": "b46a40a5968f1f1b45db51010f617b0166bdd6cd56749c495bec4fcdcf4d12e1",
+    "LICENSE.txt": "a4661efdeb8dbc7ac3929dede1d2748409cb04d564f5105647e1f6b655eb6cdd",
+    "grabby_capture_1.mp3": "b8875a2bccdc7fb0817d5499079fe1a411ec3a982ccd29627cc45c663325ff1d",
+    "grabby_capture_2.mp3": "07d740a55736bc1629c2d296fc6d7629f7e5a3d692c20d56ad6673c637aca535",
+    "grabby_capture_3.mp3": "6f3c02cc2c18ef1c3d7812add913bfa9bfbbbfa6c1b116cf7c4e91418b328466",
+    "grabby_capture_heavy_1.mp3": "380061d1620a49bdf8fbddfef5646b27af4326809263535a4f5d6db5a4e28607",
+    "grabby_capture_heavy_2.mp3": "dc96e7ad37b9178b5b0e3fc5eafb2199c3e022d095ab247718f6a09f5ef12b93",
+    "grabby_capture_heavy_3.mp3": "2cd781e0a408b6cfb7933f41f868881eb6b07e1281ed72e783bed20f2d019162",
+    "grabby_empty_roll_1.mp3": "bfb7924bc38a156baeb61eea2cd69022f4fadc3d5a59181fee77c3ca56cc19ea",
+    "grabby_empty_roll_2.mp3": "55bd093693b09e7a413694b074a45708be1bc48241c741922afabcd1abcbd203",
+    "grabby_empty_roll_3.mp3": "bfe974d2903d95db47eaa494bc0b313e00df7796ba72ea2e150031036be465fc",
+    "grabby_intro_1.mp3": "fbcfb104d45dbaad64df3a25d93b1b5ad6d98ee70e34f0f8c119672df1462563",
+    "grabby_intro_2.mp3": "50f5ea55d5ac8a27d30e4ea26399520e290a9d64ec1db7edee1f8ce4098bc5da",
+    "grabby_intro_3.mp3": "ff0fa1ae1310afc045f36d5d795a8cfeace0b5425e57bdcf27a4d8750cac8d31",
+    "grabby_loss_1.mp3": "7f358b285f5e6d8a75827c9ec1c56aeec13c624bc1449a9cac780368e5e67727",
+    "grabby_loss_2.mp3": "61b954c268f87334717871b5aa0d45cb695c1539315f9d75db6fdc54eebb184a",
+    "grabby_loss_3.mp3": "76d65c96cbb7821c866cbb52b2e865bc73786c3ec817276dfdf1c55f1c31198b",
+    "grabby_threat_1.mp3": "5ff23158b99f693205a0b01587c8128cecfd7f989ca1bf0073388c1229454c80",
+    "grabby_threat_2.mp3": "3a38796d9c8e4f2dde8327d88c481ef2a45eec45e630bc6f76154123029ee3a5",
+    "grabby_threat_3.mp3": "94fcada4c96c83d09737597411b4680ce5b54af28e1c44e06f3d9693f051f8dd",
+    "grabby_win_1.mp3": "4f2fc882511a382f39a1e0e7829ddb15aea13a99dacf67a9f76719d94661769e",
+    "grabby_win_2.mp3": "c2ba2602e59dbe9ec846d1b787d5f9ec2cd0700bf0bbe7b731c0db510765ade2",
+    "grabby_win_3.mp3": "dbe1ff168e0bf7d8f365fb88090409db9e0148f5666c28c670fbb8e3aface9cd",
+    "rampage_capture_1.mp3": "df36348dcc5b584bffc02f9c9a60f2c5150daf466f7f8e7c6ad70e9dc0a7840f",
+    "rampage_capture_2.mp3": "9a4884a2ab7b09997cbf133531f54d29b092c114285fd633369960a4e4b22436",
+    "rampage_capture_3.mp3": "31550ad8e76c03e2301336ae94f0bd46ede9b884929a21822d553a4cfdf5f80a",
+    "rampage_capture_heavy_1.mp3": "2bbfe93a4bd2b5e09b1864b8ab9fda60a0c99e520be31c26193db38e8524d9e1",
+    "rampage_capture_heavy_2.mp3": "ec447e8271130d74319b144c67ee0ebd862049a2d38d311968e74b01d0b0a3e6",
+    "rampage_capture_heavy_3.mp3": "2c45e069576f6c2bf7ef98128d96f76233e39e2eb39205bbcaad53f504825bc5",
+    "rampage_empty_roll_1.mp3": "832190283727b14ff81705b82437e7bbc8851a23f9605747056a025fa6ef9a65",
+    "rampage_empty_roll_2.mp3": "63bb49e721be87487c8df4e9d805f5fbe3608fddf25931e9b4bf50e930632fb9",
+    "rampage_empty_roll_3.mp3": "ac08e1b9d7890141027eb14e35deb1bf56328cc8bdbe9823a44b08edc9fb0ef9",
+    "rampage_intro_1.mp3": "ae7f48c7bf303d4bd3a8464bd115fe41e14fced812cddbe9165370639175169d",
+    "rampage_intro_2.mp3": "b3cb6f296d8bee2911f57f400dd3e457770bca60c36f41304cb330575e99b288",
+    "rampage_intro_3.mp3": "c61fb39ff037a9187d48e0efc10cd9804ebe94ca86a8fc2e5988963f71ac5455",
+    "rampage_loss_1.mp3": "8dc90046274b46cc4b7d8628e2932203860904db7ec00492a891db4091ea43de",
+    "rampage_loss_2.mp3": "37bb77ad74075123290f54d7454adae2db2d40ec3e1fbccc0e88c09a148fed28",
+    "rampage_loss_3.mp3": "dc44c3c9d943a37cb285d0a2a54fb4870da7ce6130311e391427f412605994b7",
+    "rampage_threat_1.mp3": "740d65f0ace3c5b7d376008b4add36f7289196d79bf5370a77e3005be7759b71",
+    "rampage_threat_2.mp3": "dfd91698a2f64711591e6e4125de6b25c5f7bf4b219e8b35cc3cbac9d9fe1244",
+    "rampage_threat_3.mp3": "3a17eb4a6ca2a56ea8ad742376ddcac5815c181b55eb6ec8620a13527affd807",
+    "rampage_win_1.mp3": "4b0083cb0ba6d38be1dbc69e7f2e86a81c62b8084a156d489393f7dd14acfc7b",
+    "rampage_win_2.mp3": "771b2f0ffe28ea59a69b24c04d741de61925826619431cdaf18f6152491c1d4e",
+    "rampage_win_3.mp3": "d9699983dbfda4d2ac3a553ce298d00aaa84f6fc462729ce604bfa377cc1da2d",
+    "rolly_capture_1.mp3": "98a09c8ecfe418f9644174feee658427ac38d31b6cf60d2fa1209b1656d26aef",
+    "rolly_capture_2.mp3": "4a049083d26cfc0844a5716358d9d022d1a6dfc4ab0b0fae6e0d56aa2f6ee97b",
+    "rolly_capture_3.mp3": "0d5cc8f6a8214e2f75b9bc3addec69eb07766b01178d6e5fd4508bf7d78809c5",
+    "rolly_capture_heavy_1.mp3": "744bad0077874ff78bdb8b52cdd203a5d171f576ef0d4d20707679f5b744346b",
+    "rolly_capture_heavy_2.mp3": "e3fa60512204e9d730ad85bb0fd4f8889fe6dc151626866d417ecfbed97f93f9",
+    "rolly_capture_heavy_3.mp3": "80e6d67ce59505e437846d197ce3a643e68136da8e654e9510a836d8601fd828",
+    "rolly_empty_roll_1.mp3": "00aeaa221b9f757de08a55fcc2a53a78fa166b345fafd78103ed517f2c0f3e31",
+    "rolly_empty_roll_2.mp3": "0c0380ab708b3a0f998dcb9114513361deeb0a1d8e5df1c9d04f7d376ea71dd7",
+    "rolly_empty_roll_3.mp3": "c26defaed3d02b87be08e6a0bc5ecfd4a5005f4d217175791cf524e691edd86e",
+    "rolly_intro_1.mp3": "2f018ba02a7d11ed2f7f1402fe40ceabd8025a4639b66d4f0e5c8f39a04b9d29",
+    "rolly_intro_2.mp3": "39de5a8062259675c0514751fe5852b349678667f9721620dd66a77dc9886f81",
+    "rolly_intro_3.mp3": "474b5e68c5338982147cdeafbad5a70ddc147a44cce0df2468c332a5ac4e02fc",
+    "rolly_loss_1.mp3": "ff742ac16d86ec6400f5ff2a8a046777c2736ba95808d5bd3d2aa510167f5e3d",
+    "rolly_loss_2.mp3": "06acc1a99be24961d6427ef0b875a6649f1cfc5aa591940eddfe789439978342",
+    "rolly_loss_3.mp3": "6556af14e04873a9dd0e458f5bb50c1ff341ea642161f12a1d0eab3a7d010118",
+    "rolly_threat_1.mp3": "ed699f34935737e868509edecdb83eb95c7275e862ab1737a67ae9353658f602",
+    "rolly_threat_2.mp3": "d549e1ec82da50b72f92380b6759639c7d6ec637e328fd84053d9348e94330fc",
+    "rolly_threat_3.mp3": "5074d049b964dbfd842c6d5ddacb8f813568862d848aa87c4e835147ef291996",
+    "rolly_win_1.mp3": "83b26e84a19f39e8f16c716cff11b62aaceafca08e20c80b28d9b82c582d7b2a",
+    "rolly_win_2.mp3": "429d461f49500383ca6dc4ab9835fae76e12d8055e7d0b8644368bf6f19d7ee2",
+    "rolly_win_3.mp3": "8de85cd7cfa42d836942f07c0f93e9adf32b62252211b836e4877d7357e81c74"
   }
 }

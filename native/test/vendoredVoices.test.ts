@@ -1,5 +1,5 @@
 // The vendored voices are what their catalogue says, and say what the game says
-// (#159).
+// (#159, #187).
 //
 // scripts/vendor-voices.mjs writes voices/voices.json: the pinned commit of
 // dicechess-assets, the pack's permission, and for every line of the game its
@@ -58,7 +58,7 @@ test('this repository may carry the pack, and its licence travels with it', () =
   assert.ok(allowed, `${catalogue.pack}: ${catalogue.distribution}`);
   assert.ok(catalogue.files[catalogue.licenseFile], 'licence not vendored');
   // About and THIRD_PARTY_NOTICES.md name the source of the voices.
-  assert.equal(catalogue.generator, 'Amazon Polly');
+  assert.equal(catalogue.generator, 'ElevenLabs');
 });
 
 test('every vendored file has the bytes the catalogue pinned, and nothing else is there', () => {

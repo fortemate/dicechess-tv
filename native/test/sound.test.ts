@@ -312,7 +312,7 @@ test('a line plays its clip on a player of its own, and the app hears it start a
   const [said] = plays();
   assert.equal(
     said.src,
-    '/pkg/assets/voices/polly-dicechess-bots/grabby_capture_1.mp3',
+    '/pkg/assets/voices/elevenlabs-dicechess-bots/grabby_capture_1.mp3',
   );
   assert.deepEqual(speech.heard, [true]);
   // It counts as said a little after the clip ends.

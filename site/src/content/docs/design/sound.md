@@ -53,7 +53,7 @@ The four themes are by pepka-prygni, made with Suno and used with his permission
 
 ## The bots speak
 
-Against the computer, each bot says its lines aloud as well as in its speech bubble ([#159](https://github.com/fortemate/dicechess-tv/issues/159)). The voices are synthetic, made ahead of time with Amazon Polly, so nothing is generated during play and the game stays offline. Each bot's voice was chosen by ear from an audition. The recordings are dedicated to the public domain.
+Against the computer, each bot says its lines aloud as well as in its speech bubble ([#159](https://github.com/fortemate/dicechess-tv/issues/159)). The voices are synthetic, made ahead of time with ElevenLabs, so nothing is generated during play and the game stays offline ([#187](https://github.com/fortemate/dicechess-tv/issues/187)). Each bot is a fairy-tale character: Rolly a pixie, Grabby a goblin, Rampage a little horned imp. Each has a voice designed for it, and every line has a direction of its own: a giggle, a whisper, a roar. The recordings are Fortemate's, for its Dice Chess apps only, and are not under this repository's open licence.
 
 - **A player of its own.** A line neither cuts nor is cut by the board, dice and result cues, and a new line replaces the one being said.
 - **Over the music.** The music ducks by 9 dB while a line is said, and comes back after it. A win or a loss is said after its jingle.
