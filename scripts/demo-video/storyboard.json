@@ -13,7 +13,7 @@
     "title": "Dice Chess for Fire TV",
     "tagline": "Free · no ads · no account · open source",
     "link": "github.com/fortemate/dicechess-tv",
-    "footer": "Recorded on the Vega Virtual Device on macOS · Music by pepka-prygni · Voices made with Amazon Polly"
+    "footer": "Recorded on the Vega Virtual Device on macOS · Music by pepka-prygni · Voices made with ElevenLabs"
   },
   "scenes": [
     {
@@ -67,8 +67,8 @@
       "clips": [
         {
           "take": "opponents",
-          "from": 4.3,
-          "to": 13.5
+          "from": 6.9,
+          "to": 15.2
         }
       ]
     },
@@ -79,8 +79,8 @@
         {
           "take": "rolly",
           "from": 11.0,
-          "to": 20.0,
-          "duck": [[11.5, 13.34]]
+          "to": 21.0,
+          "duck": [[11.4, 15.62]]
         }
       ]
     },
@@ -90,8 +90,9 @@
       "clips": [
         {
           "take": "grabby",
-          "from": 2.6,
-          "to": 9.6
+          "from": 12.4,
+          "to": 20.8,
+          "duck": [[15.86, 20.56]]
         }
       ]
     },
@@ -101,9 +102,9 @@
       "clips": [
         {
           "take": "grabby",
-          "from": 15.0,
-          "to": 25.0,
-          "duck": [[18.72, 22.6]]
+          "from": 28.5,
+          "to": 37.5,
+          "duck": [[29.16, 35.86]]
         }
       ]
     },
