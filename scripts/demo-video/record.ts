@@ -267,7 +267,9 @@ const takes: Record<string, () => Promise<void>> = {
       press(['down'], 1200); // White
       press(['ok'], 1200);
       if (focusInPanel() > 500) press(['down', 'ok'], 1200);
-      await sleep(4500); // the greeting, said in full
+      // The greeting, said in full: the longest lasts 4.2 s, and the voice
+      // starts about 0.45 s after the bubble (#187).
+      await sleep(5500);
       press(['ok', 'ok', 'ok'], PACE); // roll, pick up, put down
     });
   },
