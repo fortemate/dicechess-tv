@@ -10,7 +10,7 @@ Fortemate's code in this repository is licensed under AGPL-3.0-only (see [LICENS
 | Tabletop Games SFX Pack, JDSherbert                      | 1.1.0                    | Free with attribution    | https://jdsherbert.itch.io/tabletop-games-sfx-pack |
 | Casino Audio, Interface Sounds and Music Jingles, Kenney | 1.1, 1.0 and unversioned | CC0-1.0                  | https://kenney.nl                                  |
 | Dice Chess themes, pepka-prygni                          | 0.2.0 (four tracks)      | Permission for this game | https://www.youtube.com/@genreexplorer-h5o         |
-| Dice Chess bot voices, Fortemate, made with Amazon Polly | 63 lines                 | CC0-1.0                  | https://aws.amazon.com/polly                       |
+| Dice Chess bot voices, Fortemate, made with ElevenLabs   | 63 lines                 | Fortemate apps only      | https://elevenlabs.io                              |
 
 The engine and RhosGFX license texts are in [AGPL-3.0](licenses/AGPL-3.0.txt), [CC0-1.0](licenses/RhosGFX-CC0.txt) and, for the emojis, [CC0-1.0](licenses/RhosGFX-Emojis-CC0.txt). Full installed-package notices are retained in node_modules, and build-generated license comments must not be removed. The package locks record the exact dependency graph.
 
@@ -32,9 +32,9 @@ The tracks were made by pepka-prygni with Suno, on the author's paid plan. On 26
 
 ## Voices
 
-The bots' voices are vendored under `native/voices/` from the private asset repository `fortemate/dicechess-assets`, at the commit recorded in `native/voices/voices.json`, beside the pack's manifest and licence file (#159). There is one clip for each of the 63 lines in `src/core/botVoice.ts`, and the catalogue keeps the text each clip was recorded from.
+The bots' voices are vendored under `native/voices/` from the private asset repository `fortemate/dicechess-assets`, at the commit recorded in `native/voices/voices.json`, beside the pack's manifest and licence file (#159, #187). There is one clip for each of the 63 lines in `src/core/botVoice.ts`, and the catalogue keeps the text each clip was recorded from.
 
-They are synthetic voices, made for this game with Amazon Polly from a Fortemate team member's AWS account. The Amazon Polly FAQ, read on 30 September 2026, says that as between the account holder and AWS the output belongs to the account holder, and that it may be cached and replayed. The account holder dedicated the recordings to the public domain under CC0 1.0, recorded in `native/voices/polly-dicechess-bots/LICENSE.txt`. No credit is required; the About screen names Amazon Polly beside the engine, so that a player knows the voices are synthetic.
+They are synthetic voices, made for this game with ElevenLabs on a paid subscription. The owner designed a fairy-tale voice for each bot with Voice Design, and Eleven v4 read every line. The recordings are Fortemate's, licensed to Fortemate's Dice Chess applications only (`native/voices/elevenlabs-dicechess-bots/LICENSE.txt`). They are not covered by the AGPL or by any other open licence. A fork or copy of this repository may not use, publish or distribute them, and must replace them with audio of its own. ElevenLabs asks for no credit on a paid plan; the About screen names ElevenLabs beside the engine, so that a player knows the voices are synthetic.
 
 ## Amazon platform packages
 

@@ -1,13 +1,15 @@
-// Vendors the bots' voices (#159) from fortemate/dicechess-assets at one pinned
-// commit.
+// Vendors the bots' voices (#159, #187) from fortemate/dicechess-assets at one
+// pinned commit.
 //
 //   node scripts/vendor-voices.mjs <dicechess-assets checkout> <commit>
 //
 // Like vendor-sounds.mjs, files are read with `git show <commit>:<path>` and
 // checked against the digests the asset repository published. The pack has one
-// clip for each line of src/core/botVoice.ts, synthesized ahead of time with
-// Amazon Polly and levelled to the music's loudness; the owner chose the voices
-// by ear (dicechess-assets#23).
+// clip for each line of src/core/botVoice.ts, made ahead of time with ElevenLabs
+// and levelled to the music's loudness. The owner designed the fairy-tale voices
+// and picked each line's take by ear (dicechess-assets#29). The pack is for
+// Fortemate's Dice Chess apps only (dicechess-assets#27): a project permission
+// that names this repository, like the music's.
 //
 // Each clip keeps the text it was recorded from. test/vendoredVoices.test.ts
 // fails when a line of the game has no clip, or its clip says something else, so
@@ -18,7 +20,7 @@ import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const PACK = 'polly-dicechess-bots';
+const PACK = 'elevenlabs-dicechess-bots';
 const UPSTREAM = 'fortemate/dicechess-assets';
 const CLIENT = 'fortemate/dicechess-tv';
 const native = resolve(dirname(fileURLToPath(import.meta.url)), '..');
