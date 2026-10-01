@@ -89,9 +89,10 @@ mise run device:start   # the Vega Virtual Device, if it is not running
 mise run device:run     # build, install and launch
 ```
 
-The build takes the latest beta's build number, so it installs over a beta already on the
-device, which keeps its saved game. The device refuses a lower number with "Package version
-decrease". `BUILD_NUMBER=8 mise run device:run` sets the number by hand.
+The build takes the latest beta's build number. A build numbered like the installed beta
+installs over it and keeps its saved game, as one did over beta 6 on the Vega Virtual
+Device. The device refuses a lower number with "Package version decrease".
+`BUILD_NUMBER=8 mise run device:run` sets the number by hand.
 
 On the virtual device the Mac keyboard stands in for the remote: arrow keys for
 the D-pad, Enter for OK, Esc for Back, F1 for Home. The on-screen remote's OK
@@ -104,8 +105,10 @@ presses the remote's keys and `vvd screenshot` saves the screen, after
 [native/README.md](native/README.md#checking-from-a-script) shows a session and
 what it checked.
 
-A local build has build number 0, so the device refuses it over beta 4 or later
-with "Package version decrease". Removing the app first deletes its saved game.
+Without the task, `npm run build --prefix native` builds with number 0, which the device
+refuses over beta 4 or later. Add `-- --build-number <n>` with the latest beta's number.
+`mise run build` falls back to 0 only when it finds no beta tag. Removing the app instead
+deletes its saved game.
 
 Say in the pull request which kind of evidence a claim rests on — the virtual
 device, a Fire TV Stick, or a test — because they are not interchangeable.
