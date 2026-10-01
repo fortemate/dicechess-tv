@@ -89,6 +89,10 @@ mise run device:start   # the Vega Virtual Device, if it is not running
 mise run device:run     # build, install and launch
 ```
 
+The build takes the latest beta's build number, so it installs over a beta already on the
+device, which keeps its saved game. The device refuses a lower number with "Package version
+decrease". `BUILD_NUMBER=8 mise run device:run` sets the number by hand.
+
 On the virtual device the Mac keyboard stands in for the remote: arrow keys for
 the D-pad, Enter for OK, Esc for Back, F1 for Home. The on-screen remote's OK
 button works too.
