@@ -11,7 +11,8 @@
 //
 // The music is laid in here rather than recorded, so it runs on unbroken across
 // the cuts and under the cards; the takes are recorded with the game's music
-// off and carry only its sound effects.
+// off and carry only its sound effects and the bots' lines. The music ducks
+// under a line, as the game's own does (#159).
 import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -23,6 +24,9 @@ type Clip = {
   // Seconds to keep the clip's last frame up, for a screen the app leaves up
   // until a key is pressed but the take pressed on at once, such as a result.
   hold?: number;
+  // Where a bot speaks in the take, as [from, to] in the take's seconds. The
+  // music ducks under each stretch.
+  duck?: [number, number][];
 };
 type Scene = { kicker: string; title: string; seconds?: number; clips: Clip[] };
 type Storyboard = {
@@ -33,6 +37,8 @@ type Storyboard = {
     gainDb: number;
     // Raised this much while a card is up, where there are no effects.
     cardLiftDb: number;
+    // Lowered this much while a bot speaks: the game's own duck.
+    duckDb: number;
     fadeInSeconds: number;
     fadeOutSeconds: number;
   };
@@ -59,6 +65,10 @@ const FADE = 0.25;
 const LIMIT = 180;
 // YouTube ignores chapters shorter than this.
 const CHAPTER_MIN = 10;
+// How long the music takes to duck before a line and to come back after it,
+// as in the game (native/src/music.ts).
+const DUCK_IN = 0.2;
+const DUCK_OUT = 0.6;
 // Integrated loudness (LUFS) and the peak ceiling (dBFS) of the finished sound.
 const LOUDNESS = -16;
 const CEILING = -1.5;
@@ -177,6 +187,7 @@ function main(): void {
   // Every segment has the same codecs, so they join without a re-encode.
   const segments: string[] = [];
   const cardSpans: { start: number; end: number }[] = [];
+  const duckSpans: { start: number; end: number }[] = [];
   const chapters: { start: number; name: string }[] = [];
   let at = 0;
   const fades = (length: number) =>
@@ -255,6 +266,13 @@ function main(): void {
         ].flat(),
       );
       segments.push(out);
+      // The stretches where a bot speaks, moved from the take's time to the
+      // video's and kept inside the clip.
+      for (const [a, b] of clip.duck ?? [])
+        duckSpans.push({
+          start: at + Math.max(0, a - from),
+          end: at + Math.min(length + hold, b - from),
+        });
       at += probeDuration(out);
     }
   });
@@ -273,17 +291,26 @@ function main(): void {
   const total = probeDuration(joined);
 
   // One track of music under everything, lifted while a card is up. The lift
-  // ramps over RAMP seconds at each edge of a card.
+  // ramps over RAMP seconds at each edge of a card. Under a bot's line it
+  // ducks instead, down before the line starts and back after it ends.
   const { music } = board;
   const RAMP = 0.6;
   const gain = 10 ** (music.gainDb / 20);
   const lift = 10 ** (music.cardLiftDb / 20) - 1;
+  const dip = 1 - 10 ** (music.duckDb / 20);
   const up = cardSpans
     .map(
       ({ start, end }) =>
         `clip(min((t-${seconds(start)})/${RAMP},(${seconds(end)}-t)/${RAMP}),0,1)`,
     )
     .join('+');
+  const down =
+    duckSpans
+      .map(
+        ({ start, end }) =>
+          `clip(min((t-${seconds(start - DUCK_IN)})/${DUCK_IN},(${seconds(end + DUCK_OUT)}-t)/${DUCK_OUT}),0,1)`,
+      )
+      .join('+') || '0';
   // The effects and the music, mixed. The joins leave the segments'
   // timestamps a few milliseconds off, so the effects are laid on their own
   // timestamps, silence filling any gap.
@@ -295,7 +322,7 @@ function main(): void {
         '-filter_complex',
         `[0:a]aresample=48000:async=1:first_pts=0[fx];` +
           `[1:a]atrim=0:${seconds(total)},aresample=48000,` +
-          `volume='${gain.toFixed(4)}*(1+${lift.toFixed(4)}*(${up}))':eval=frame,` +
+          `volume='${gain.toFixed(4)}*(1+${lift.toFixed(4)}*(${up}))*(1-${dip.toFixed(4)}*clip(${down},0,1))':eval=frame,` +
           `afade=t=in:st=0:d=${music.fadeInSeconds},` +
           `afade=t=out:st=${seconds(total - music.fadeOutSeconds)}:d=${music.fadeOutSeconds}[m];` +
           `[fx][m]amix=inputs=2:normalize=0:duration=first[a]`,

@@ -5,14 +5,16 @@
 //
 // Before a run: the release build is installed and open on the Virtual
 // Device, its gRPC is on (`vvd enable-grpc`), and in the app's Settings music
-// is off, sound effects are on and "Turn board in hotseat" is on. The takes
-// carry the game's sound effects only; assemble.ts lays the music under the
-// whole video, so it does not break at the cuts.
+// is off, and sound effects, bot voices and "Turn board in hotseat" are on.
+// The takes carry the game's sound effects and the bots' lines only;
+// assemble.ts lays the music under the whole video, so it does not break at
+// the cuts, and ducks it where the storyboard says a bot speaks.
 //
 // The takes run in this order, and each leaves the app where the next begins:
-// home, hotseat, opponents, grabby, tutorial, rules. The dice are random, so a
-// take can miss what its scene needs, such as a dimmed die: look through it and
-// record that take again. Recording replaces the game saved on the device.
+// home, hotseat, opponents, grabby, rolly, tutorial, rules. The dice are
+// random, so a take can miss what its scene needs, such as a dimmed die or the
+// end of a game: look through it and record that take again. Recording
+// replaces the game saved on the device.
 //
 // VVD and VEGA name the two command-line tools when they are not on the PATH.
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
@@ -31,6 +33,8 @@ const PACE = 1150;
 const QUICK = 400;
 // The recorder needs a moment for its first frame; the cut drops this lead.
 const LEAD = 2000;
+// About how long focusInPanel takes, a screenshot and a crop.
+const PROBE = 300;
 
 const vvd = (...args: string[]): string =>
   execFileSync(VVD, args, { encoding: 'utf8' });
@@ -54,25 +58,51 @@ async function relaunch(): Promise<void> {
   await sleep(6000);
 }
 
-// Cyan pixels in the side panel: the frame of a focused option, as in a menu or
-// a confirmation. The board's own cursor is on the other side of the screen.
-function focusInPanel(): number {
+// Cyan pixels in each of the given areas of the screen, [x, y, width, height]:
+// the frame of whatever has the focus.
+function cyanIn(...areas: [number, number, number, number][]): number[] {
   const shot = join(TAKES, 'probe.png');
   vvd('screenshot', shot);
-  const pixels = execFileSync(
-    'ffmpeg',
-    [
-      ['-v', 'error', '-i', shot, '-vf', 'crop=820:900:1050:90,format=rgb24'],
-      ['-f', 'rawvideo', '-'],
-    ].flat(),
-    // The crop is 2.2 MB, over execFileSync's default of 1 MB.
-    { maxBuffer: 8 * 1024 * 1024 },
-  );
+  const counts = areas.map(([x, y, w, h]) => {
+    const pixels = execFileSync(
+      'ffmpeg',
+      [
+        [
+          '-v',
+          'error',
+          '-i',
+          shot,
+          '-vf',
+          `crop=${w}:${h}:${x}:${y},format=rgb24`,
+        ],
+        ['-f', 'rawvideo', '-'],
+      ].flat(),
+      // A crop of the panel is 2.2 MB, over execFileSync's default of 1 MB.
+      { maxBuffer: 8 * 1024 * 1024 },
+    );
+    let cyan = 0;
+    for (let i = 0; i < pixels.length; i += 3)
+      if (pixels[i] < 90 && pixels[i + 1] > 200 && pixels[i + 2] > 220) cyan++;
+    return cyan;
+  });
   rmSync(shot, { force: true });
-  let cyan = 0;
-  for (let i = 0; i < pixels.length; i += 3)
-    if (pixels[i] < 90 && pixels[i + 1] > 200 && pixels[i + 2] > 220) cyan++;
-  return cyan;
+  return counts;
+}
+
+// The frame of a focused option in the side panel, as in a menu, a
+// confirmation or a result. The board's own cursor is on the other side of the
+// screen, and nothing in the panel has a frame during play.
+const focusInPanel = (): number => cyanIn([1050, 90, 820, 900])[0];
+
+// Which of the three opponent cards has the focus: they open on the opponent
+// of the game in play.
+function focusedCard(): number {
+  const counts = cyanIn(
+    [96, 216, 544, 688],
+    [688, 216, 544, 688],
+    [1280, 216, 544, 688],
+  );
+  return counts.indexOf(Math.max(...counts));
 }
 
 // Records `seconds` of the screen with its sound while `act` plays.
@@ -181,11 +211,38 @@ const takes: Record<string, () => Promise<void>> = {
 
   // Grabby's turns, some way into the game so that there is something to take.
   // The first stretch is played quickly and not recorded; while Grabby plays,
-  // the board ignores OK. When a game ends, the next OK chooses Rematch, so a
-  // result screen shows only briefly: the storyboard's `hold` keeps it up.
+  // the board ignores OK. When the game ends the pressing stops, since the
+  // next OK would choose Rematch: the result stays up while Grabby says its
+  // last word, after the jingle.
   grabby: async () => {
     press(times('ok', 160), QUICK);
-    await record('grabby', 60, () => press(times('ok', 48)));
+    await record('grabby', 80, () => {
+      for (let step = 0; step < 56; step++) {
+        // Looking for the result takes about as long as the rest of a step.
+        press(['ok'], PACE - PROBE);
+        if (focusInPanel() > 500) return;
+      }
+    });
+  },
+
+  // A game against Rolly as White, from its first line: Rolly greets the
+  // person in its speech bubble and aloud (#159), then the person rolls and
+  // plays. After grabby, so that the board, seen from White's side before, does
+  // not turn at the start.
+  rolly: async () => {
+    await relaunch();
+    await record('rolly', 24, async () => {
+      press(times('up', 5), 300); // Play the computer
+      press(['ok'], 1800);
+      const card = focusedCard();
+      if (card) press(times('left', card), 900); // Rolly
+      press(['ok'], 1200); // the choice of colour
+      press(['down'], 1200); // White
+      press(['ok'], 1200);
+      if (focusInPanel() > 500) press(['down', 'ok'], 1200);
+      await sleep(4500); // the greeting, said in full
+      press(['ok', 'ok', 'ok'], PACE); // roll, pick up, put down
+    });
   },
 
   // The first lesson played through, and the start of the second.

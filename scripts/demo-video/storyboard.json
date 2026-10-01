@@ -3,6 +3,7 @@
     "file": "native/music/pepka-prygni-dicechess/warm_anticipation.mp3",
     "gainDb": -9.1,
     "cardLiftDb": 4,
+    "duckDb": -9,
     "fadeInSeconds": 1.5,
     "fadeOutSeconds": 4
   },
@@ -12,7 +13,7 @@
     "title": "Dice Chess for Fire TV",
     "tagline": "Free · no ads · no account · open source",
     "link": "github.com/fortemate/dicechess-tv",
-    "footer": "Recorded on the Vega Virtual Device on macOS · Music by pepka-prygni"
+    "footer": "Recorded on the Vega Virtual Device on macOS · Music by pepka-prygni · Voices made with Amazon Polly"
   },
   "scenes": [
     {
@@ -32,19 +33,20 @@
       "clips": [
         {
           "take": "hotseat",
-          "from": 8.1,
-          "to": 15.3
+          "from": 1.2,
+          "to": 8.4
         }
       ]
     },
     {
       "kicker": "The dice",
       "title": "A die that no move can use is dimmed",
+      "seconds": 4.2,
       "clips": [
         {
           "take": "hotseat",
-          "from": 20.1,
-          "to": 27.3
+          "from": 19.9,
+          "to": 25.7
         }
       ]
     },
@@ -54,8 +56,8 @@
       "clips": [
         {
           "take": "hotseat",
-          "from": 27.3,
-          "to": 34.0
+          "from": 35.3,
+          "to": 42.3
         }
       ]
     },
@@ -71,19 +73,37 @@
       ]
     },
     {
+      "kicker": "They talk",
+      "title": "Each opponent has a voice of its own",
+      "clips": [
+        {
+          "take": "rolly",
+          "from": 10.9,
+          "to": 19.8,
+          "duck": [[11.44, 14.82]]
+        }
+      ]
+    },
+    {
       "kicker": "The computer's turn",
       "title": "Every move slides, so you can follow it",
       "clips": [
         {
           "take": "grabby",
-          "from": 38.1,
-          "to": 41.3
-        },
+          "from": 4.4,
+          "to": 11.4
+        }
+      ]
+    },
+    {
+      "kicker": "The last word",
+      "title": "When the game ends, your opponent has the last word",
+      "clips": [
         {
           "take": "grabby",
-          "from": 49.6,
-          "to": 53.05,
-          "hold": 1.8
+          "from": 17.4,
+          "to": 26.8,
+          "duck": [[20.94, 24.62]]
         }
       ]
     },

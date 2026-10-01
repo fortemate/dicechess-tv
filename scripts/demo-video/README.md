@@ -6,12 +6,12 @@ one track of the game's music under the whole video, cards included. A card
 takes the place of a caption, which read as one more line of the app's own
 text over its menus.
 
-| File              | What it does                                                                                               |
-| ----------------- | ---------------------------------------------------------------------------------------------------------- |
-| `record.ts`       | Drives the Virtual Device through six takes with `vvd`: home, hotseat, opponents, grabby, tutorial, rules. |
-| `storyboard.json` | The cut: each card's kicker and title, the stretch of a take that follows it, the music and the end card.  |
-| `assemble.ts`     | Cuts the video from the takes and the storyboard, and checks it against the contest's rules.               |
-| `cards.swift`     | Draws the cards, the "Vega Virtual Device on macOS" badge and the end card, in the app's colours.          |
+| File              | What it does                                                                                                        |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `record.ts`       | Drives the Virtual Device through seven takes with `vvd`: home, hotseat, opponents, grabby, rolly, tutorial, rules. |
+| `storyboard.json` | The cut: each card's kicker and title, the stretch of a take that follows it, the music and the end card.           |
+| `assemble.ts`     | Cuts the video from the takes and the storyboard, and checks it against the contest's rules.                        |
+| `cards.swift`     | Draws the cards, the "Vega Virtual Device on macOS" badge and the end card, in the app's colours.                   |
 
 ## What it needs
 
@@ -21,10 +21,10 @@ text over its menus.
 - [`vvd`](https://github.com/fortemate/vega-vvd-driver) on the PATH with gRPC
   on (`vvd enable-grpc`), and `vega`, `ffmpeg`, `ffprobe` and `swift`. `VVD`
   and `VEGA` name the first two when they are elsewhere.
-- In the app's Settings: music off, sound effects on and "Turn board in
-  hotseat" on. The takes carry only the sound effects, and `record.ts` stops if
-  the home screen is not silent. The music is laid in afterwards, so it does not
-  break at the cuts.
+- In the app's Settings: music off, and sound effects, bot voices and "Turn
+  board in hotseat" on. The takes carry only the sound effects and the bots'
+  lines, and `record.ts` stops if the home screen is not silent. The music is
+  laid in afterwards, so it does not break at the cuts.
 
 ## Making the video
 
@@ -39,8 +39,10 @@ text over its menus.
 
 2. Look through each take and set where each clip starts and ends in
    `storyboard.json`. The dice are random, so a take can miss what its scene
-   needs, such as a die dimmed by the roll; record that take again. The times in
-   the file belong to the takes the last cut was made from.
+   needs, such as a die dimmed by the roll or the end of Grabby's game; record
+   that take again. With the music off, a bot's line is the only sound in a
+   take longer than a second, which is how to find the stretches for `duck`.
+   The times in the file belong to the takes the last cut was made from.
 
 3. Cut the video:
 
@@ -64,8 +66,12 @@ text over its menus.
   the default volume step. It is louder while a card is up, where there are
   no effects, and the finished mix is brought to a target loudness level.
 - A clip's `hold` keeps its last frame up. The takes press OK at a steady pace,
-  so a screen the app keeps up until a key is pressed, such as a result, closes
-  at once in the take.
+  so a screen the app keeps up until a key is pressed closes at once in the
+  take. The grabby take is the exception: it stops pressing at the result, so
+  Grabby's last word is heard.
+- A clip's `duck` lists where a bot speaks, as `[from, to]` in the take's
+  seconds. The music dips by `duckDb` under each stretch, as the game's own
+  music does: down in 0.2 s before the line, back in 0.6 s after it.
 - The music is pepka-prygni's. `native/music/pepka-prygni-dicechess/LICENSE.txt`
   grants it for the game only; the owner reports that the author also allowed it
   in the demo video. The end card credits it.
