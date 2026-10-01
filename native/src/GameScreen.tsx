@@ -26,7 +26,7 @@ import { Matchup } from './Matchup';
 import { SpeechBubble } from './SpeechBubble';
 import { DISMISS_DELAY_MS, useBotVoice } from './useBotVoice';
 import type { VoiceLine } from '../../src/core/botVoice';
-import { speechTiming, type Sounds } from './sound';
+import { LINE_START_MS, speechTiming, type Sounds } from './sound';
 import type { Music } from './music';
 import { MUSIC_STEPS, type MusicSetting } from './musicSetting';
 import { useDanger } from './useDanger';
@@ -115,10 +115,14 @@ export type GameScreenProps = {
 // heard on its own before the menu theme returns.
 export const RESULT_SILENCE_MS = 2500;
 
-// A bubble stays its usual time, or until its line has been said (#159).
+// A bubble stays its usual time, or until its line has been said (#159),
+// counting the moment the player takes to start the clip (#187).
 const bubbleHoldMs = (line: VoiceLine): number => {
   const timing = speechTiming(line);
-  return Math.max(DISMISS_DELAY_MS, timing ? timing.delayMs + timing.ms : 0);
+  return Math.max(
+    DISMISS_DELAY_MS,
+    timing ? timing.delayMs + LINE_START_MS + timing.ms : 0,
+  );
 };
 
 // The volume as rings, like an opponent's level: filled up to the setting. Small

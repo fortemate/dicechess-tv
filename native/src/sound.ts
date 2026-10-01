@@ -65,6 +65,10 @@ export const RESULT_LINE_DELAY_MS = 1200;
 // A line counts as said a little after its clip ends, so the music does not
 // swell back over its last syllable.
 export const LINE_TAIL_MS = 300;
+// A line is heard a moment after it is asked for, because the voice player
+// loads its clip first. On the Virtual Device each bot's voice began about
+// 0.45 s after its bubble showed (#187), so a bubble waits this much more.
+export const LINE_START_MS = 600;
 
 // When a line is heard and for how long, or null when it has no clip. The
 // speech bubble stays at least this long (#159).
