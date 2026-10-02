@@ -237,6 +237,11 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   `vega exec vda shell "touch /tmp/automation-toolkit.enable"`. We have not tried it. The three routes
   above still report success and deliver nothing, and the Vega CLI still has no command to send a
   key.
+- **Update, 2026-09-30:** we asked for `vega device press` and `vega device screenshot` commands,
+  for the Virtual Device and for devices in developer mode, in a
+  [feature request](https://community.amazondeveloper.com/t/vega-cli-commands-to-take-a-screenshot-and-press-remote-keys/29258)
+  on Amazon's developer forum. Amazon staff passed it to the team as a feature request for
+  consideration. No such command has shipped yet.
 
 ### FL-09 · The Vega CLI has no screenshot command, and the device's tool fails silently {#fl-09}
 
@@ -269,6 +274,11 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   fails silently where it is unsupported, instead of exiting with an error that says so. Suggested
   improvement: make it exit with that error on the Virtual Device, and link the Appium screenshot
   documentation from the note.
+- **Update, 2026-09-30:** we made both suggestions in reply, in the same forum topic, and Amazon
+  staff passed them to the team as feedback. We also asked for a `vega device screenshot` command,
+  with the key command from [FL-08](#fl-08), in a
+  [feature request](https://community.amazondeveloper.com/t/vega-cli-commands-to-take-a-screenshot-and-press-remote-keys/29258).
+  Amazon staff passed it to the team for consideration. No such command has shipped yet.
 
 ### FL-10 · Release builds send no `console.log` output to the log stream {#fl-10}
 
