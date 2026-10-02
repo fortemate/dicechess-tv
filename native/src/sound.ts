@@ -9,10 +9,11 @@
 // together, because they are on different channels; a new move on the same
 // channel cuts the last one short instead of piling sounds up.
 //
-// A fourth player speaks the bots' lines (#159). It has a setting of its own,
-// so turning the effects off leaves the voices, and the other way round; a new
-// line replaces the one being said, and neither cuts nor is cut by a cue. The
-// app is told when a line starts and ends, so the music can duck under it.
+// A fourth player speaks the lines: the bots' (#159), and the Hot Seat host's
+// (#202). It has a setting of its own, so turning the effects off leaves the
+// voices, and the other way round; a new line replaces the one being said, and
+// neither cuts nor is cut by a cue. The app is told when a line starts and
+// ends, so the music can duck under it.
 //
 // Nothing in here may break the game. Every failure is reported and swallowed:
 // a game that plays silently is a bug, a game that stops is a worse one.
@@ -23,6 +24,7 @@ import {
 } from '@amazon-devices/react-native-w3cmedia';
 import type { Cue } from '../../src/core/cues';
 import type { VoiceLine } from '../../src/core/botVoice';
+import type { HostLine } from '../../src/core/hostVoice';
 import { CUE_FILES } from './cueFiles';
 import { VOICE_FILES } from './voiceFiles';
 
@@ -60,8 +62,23 @@ const CHANNELS: readonly Channel[] = ['board', 'dice', 'result'];
 const PLAYERS: readonly Slot[] = [...CHANNELS, 'voice'];
 
 // A win or a loss is said after its jingle, which lasts about a second, rather
-// than over it. Every other line is said as it happens.
+// than over it, and so is the host's result. Every other line is said as it
+// happens.
 export const RESULT_LINE_DELAY_MS = 1200;
+// The events said after the jingle. The host's White or Black win may be one
+// of his lines that name no colour, whose event is 'win': it waits too.
+const AFTER_JINGLE: ReadonlySet<string> = new Set([
+  'win',
+  'loss',
+  'white_wins',
+  'black_wins',
+  'draw',
+]);
+
+// A line someone says: a bot's, or the Hot Seat host's.
+export type SpokenLine =
+  Pick<VoiceLine, 'id' | 'event'> | Pick<HostLine, 'id' | 'event'>;
+
 // A line counts as said a little after its clip ends, so the music does not
 // swell back over its last syllable.
 export const LINE_TAIL_MS = 300;
@@ -73,12 +90,11 @@ export const LINE_START_MS = 600;
 // When a line is heard and for how long, or null when it has no clip. The
 // speech bubble stays at least this long (#159).
 export const speechTiming = (
-  line: Pick<VoiceLine, 'id' | 'event'>,
+  line: SpokenLine,
 ): { delayMs: number; ms: number } | null => {
   const clip = VOICE_FILES[line.id];
   if (!clip) return null;
-  const delayMs =
-    line.event === 'win' || line.event === 'loss' ? RESULT_LINE_DELAY_MS : 0;
+  const delayMs = AFTER_JINGLE.has(line.event) ? RESULT_LINE_DELAY_MS : 0;
   return { delayMs, ms: Math.round(clip.seconds * 1000) + LINE_TAIL_MS };
 };
 
@@ -87,9 +103,14 @@ export type Sounds = {
   // to start is dropped once the game has moved on.
   play(cues: readonly Cue[]): void;
   setMuted(muted: boolean): void;
-  // Says a bot's line in its voice, replacing any line still being said.
-  say(line: Pick<VoiceLine, 'id' | 'event'>): void;
-  // The Bot voices setting. Off, nothing is said, and a line being said stops.
+  // Says a bot's or the host's line in its voice, replacing any line still
+  // being said.
+  say(line: SpokenLine): void;
+  // Stops the line being said, or waiting to be said, as a new line would, for
+  // a speaker who leaves mid-line: the Hot Seat host turned off (#202).
+  stopLine(): void;
+  // The Voices setting, for every spoken line, the host's included. Off,
+  // nothing is said, and a line being said stops.
   setVoices(on: boolean): void;
   // While the app is away from the foreground nothing plays, and anything
   // playing stops. The player's own sound setting is left alone.
@@ -234,6 +255,15 @@ export function createSounds({
     });
   };
 
+  // The line on the player is cut short whatever the settings say, and one
+  // waiting to start is dropped: for a line replaced by another, or stopped.
+  const cut = () => {
+    const turn = ++lines;
+    interrupt();
+    speech(false);
+    return turn;
+  };
+
   // A line stopped before its end: whatever was waiting to start is dropped.
   const hush = () => {
     lines++;
@@ -297,13 +327,14 @@ export function createSounds({
       const timing = speechTiming(line);
       // The line on the player now is cut short, whether or not this one can
       // be said.
-      const turn = ++lines;
-      interrupt();
-      speech(false);
+      const turn = cut();
       if (!timing) return report(`sound: line ${line.id} has no clip`);
       if (silent('voice')) return;
       if (!timing.delayMs) return void speak(line.id, turn, timing.ms);
       later(() => void speak(line.id, turn, timing.ms), timing.delayMs);
+    },
+    stopLine() {
+      cut();
     },
     setVoices(on) {
       voices = on;

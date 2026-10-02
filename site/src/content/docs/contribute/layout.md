@@ -50,26 +50,28 @@ Contains all platform-agnostic gameplay code. Enforced pure by `tsconfig.core.js
 
 Contains the TV presentation layer built with React Native for Vega:
 
-| Path                     | Purpose                                                                                     |
-| ------------------------ | ------------------------------------------------------------------------------------------- |
-| `src/App.tsx`            | Root component initializing MMKV storage, audio managers, and settings.                     |
-| `src/GameScreen.tsx`     | Main screen housing the board, side status panel, menus, and dialogs.                       |
-| `src/Matchup.tsx`        | Matchup HUD: a badge per side, placed as on the board; turn frame; speech zone.             |
-| `src/SpeechBubble.tsx`   | The bot's line under its badge: 20 dp text in at most two rows.                             |
-| `src/useBotVoice.ts`     | Picks the bot's lines as the game moves and how long each stays on screen.                  |
-| `src/screen.ts`          | Pure state reducer coordinating menu navigation, confirmations, and gameplay flow.          |
-| `src/Board.tsx`          | 8x8 chessboard grid rendering pieces, square tints, focus rings, and move animations.       |
-| `src/Dice.tsx`           | Three-dice tray with tumbling roll animations and dimmed unplayable dice.                   |
-| `src/OpponentScreen.tsx` | Three-card opponent selection screen showing bot faces, difficulty, and player record.      |
-| `src/TutorialScreen.tsx` | Interactive tutorial screen driving lessons on an isolated sandbox board.                   |
-| `src/RulesScreen.tsx`    | Dual-pane rules guide with topics on the left and explanations on the right.                |
-| `src/AboutScreen.tsx`    | Project credits and third-party license notices accessible via TV remote.                   |
-| `src/useRemoteInput.ts`  | Subscribes to Vega input events and normalizes keys (`enter`, `kpenter`, `select`, `back`). |
-| `src/mmkvStore.ts`       | Synchronous snapshot and preferences store backed by MMKV.                                  |
-| `src/sound.ts`           | Audio player managing sound effect playback across three concurrent audio sinks.            |
-| `src/music.ts`           | Adaptive music player managing crossfades between danger theme tracks.                      |
-| `src/pieces/`            | Generated SVG React components for all 12 chess pieces (RhosGFX CC0).                       |
-| `src/faces/`             | Generated SVG React components for opponent bot avatars (RhosGFX CC0).                      |
+| Path                     | Purpose                                                                                                          |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| `src/App.tsx`            | Root component initializing MMKV storage, audio managers, and settings.                                          |
+| `src/GameScreen.tsx`     | Main screen housing the board, side status panel, menus, and dialogs.                                            |
+| `src/Matchup.tsx`        | Matchup HUD: a badge per side, placed as on the board; turn frame; speech zone, and the host's face in Hot Seat. |
+| `src/SpeechBubble.tsx`   | A line in a bubble, 20 dp text in at most two rows: up at the bot's badge, or left at the host's face.           |
+| `src/useBotVoice.ts`     | Picks the bot's lines as the game moves and how long each stays on screen.                                       |
+| `src/useHostVoice.ts`    | Picks the Hot Seat host's lines at the pauses and queues a line behind the one being said.                       |
+| `src/hostSetting.ts`     | Hot Seat host toggle, on by default, remembered across launches.                                                 |
+| `src/screen.ts`          | Pure state reducer coordinating menu navigation, confirmations, and gameplay flow.                               |
+| `src/Board.tsx`          | 8x8 chessboard grid rendering pieces, square tints, focus rings, and move animations.                            |
+| `src/Dice.tsx`           | Three-dice tray with tumbling roll animations and dimmed unplayable dice.                                        |
+| `src/OpponentScreen.tsx` | Three-card opponent selection screen showing bot faces, difficulty, and player record.                           |
+| `src/TutorialScreen.tsx` | Interactive tutorial screen driving lessons on an isolated sandbox board.                                        |
+| `src/RulesScreen.tsx`    | Dual-pane rules guide with topics on the left and explanations on the right.                                     |
+| `src/AboutScreen.tsx`    | Project credits and third-party license notices accessible via TV remote.                                        |
+| `src/useRemoteInput.ts`  | Subscribes to Vega input events and normalizes keys (`enter`, `kpenter`, `select`, `back`).                      |
+| `src/mmkvStore.ts`       | Synchronous snapshot and preferences store backed by MMKV.                                                       |
+| `src/sound.ts`           | Audio player managing sound effect playback across three concurrent audio sinks.                                 |
+| `src/music.ts`           | Adaptive music player managing crossfades between danger theme tracks.                                           |
+| `src/pieces/`            | Generated SVG React components for all 12 chess pieces (RhosGFX CC0).                                            |
+| `src/faces/`             | Generated SVG React components for opponent bot avatars (RhosGFX CC0).                                           |
 
 ### 3. Build & Simulation Scripts
 
@@ -80,7 +82,7 @@ Automated tools for asset compilation and algorithmic measurement:
 - **`native/scripts/generate-faces.mjs`:** Compiles RhosGFX Vector Emoji SVGs into inline JSX components for bot opponent cards.
 - **`native/scripts/vendor-sounds.mjs`:** Copies pinned sound effects from `dicechess-assets` and verifies cryptographic SHA-256 hashes against `sounds.lock.json`.
 - **`native/scripts/vendor-music.mjs`:** Copies pinned music tracks from `dicechess-assets` and writes `music.json`.
-- **`native/scripts/vendor-voices.mjs`:** Copies the pinned bot voice pack from `dicechess-assets`, writes `voices.json` and `src/voiceFiles.ts`, and keeps the text each clip was recorded from, so a changed line fails `vendoredVoices.test.ts`.
+- **`native/scripts/vendor-voices.mjs`:** Copies both voice packs, the bots' and the Hot Seat host's, and `events.json` from one pinned commit of `dicechess-assets`, writes `voices.json`, `src/voiceFiles.ts` and `src/core/hostPacing.ts`, and keeps the text each clip was recorded from, so a changed line fails `vendoredVoices.test.ts`.
 - **`native/scripts/generate-assets.mjs`:** Rebuilds `native/assets/` afresh on each build, assembling `SplashScreenImages.zip`, launcher icons, sound files, music and voices.
 
 ### 4. Test Suites

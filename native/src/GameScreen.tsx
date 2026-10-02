@@ -25,8 +25,13 @@ import { OpponentScreen } from './OpponentScreen';
 import { Matchup } from './Matchup';
 import { SpeechBubble } from './SpeechBubble';
 import { DISMISS_DELAY_MS, useBotVoice } from './useBotVoice';
-import type { VoiceLine } from '../../src/core/botVoice';
-import { LINE_START_MS, speechTiming, type Sounds } from './sound';
+import { useHostVoice } from './useHostVoice';
+import {
+  LINE_START_MS,
+  speechTiming,
+  type Sounds,
+  type SpokenLine,
+} from './sound';
 import type { Music } from './music';
 import { MUSIC_STEPS, type MusicSetting } from './musicSetting';
 import { useDanger } from './useDanger';
@@ -99,9 +104,12 @@ export type GameScreenProps = {
   // Whether the board turns to the side to move in hotseat (#120).
   initialTurnBoard?: boolean;
   onTurnBoard?: (on: boolean) => void;
-  // Whether the bots speak their lines aloud (#159).
+  // Whether the lines are spoken aloud, the bots' and the host's (#159).
   initialVoices?: boolean;
   onVoices?: (on: boolean) => void;
+  // Whether Rolly hosts Hot Seat games (#202).
+  initialHost?: boolean;
+  onHost?: (on: boolean) => void;
   // The adaptive music (#76). The screen says which theme fits what it shows;
   // whether music is on and how loud is the app's to apply and save.
   music?: Music;
@@ -117,7 +125,7 @@ export const RESULT_SILENCE_MS = 2500;
 
 // A bubble stays its usual time, or until its line has been said (#159),
 // counting the moment the player takes to start the clip (#187).
-const bubbleHoldMs = (line: VoiceLine): number => {
+const bubbleHoldMs = (line: SpokenLine): number => {
   const timing = speechTiming(line);
   return Math.max(
     DISMISS_DELAY_MS,
@@ -248,8 +256,8 @@ const modeLine = (game: Game, overlayOpen: boolean): string => {
 // The mode and the turn. Over an open menu it is the only line: a menu, its
 // list and the record need the height to stay inside the safe area (#51), and
 // the board behind it already shows the game. During play it stands under the
-// top badge, at the foot of the bot's speech zone in a game against the bot,
-// and the badges name the opponent.
+// top badge, at the foot of the speech zone in a game against the bot or with
+// the Hot Seat host, and the badges name the opponent.
 const ModeLine = ({
   game,
   overlayOpen,
@@ -318,6 +326,7 @@ const Panel = ({
   hasMusic,
   turnHotseat,
   voices,
+  host,
   selected,
   pressed,
 }: {
@@ -328,6 +337,7 @@ const Panel = ({
   hasMusic: boolean;
   turnHotseat: boolean;
   voices: boolean;
+  host: boolean;
   selected: string | null;
   // OK is held: the focused option of an open menu shows it.
   pressed: boolean;
@@ -356,7 +366,14 @@ const Panel = ({
         <Choices
           title="Settings"
           note={hasMusic ? 'Left and Right change the volume.' : undefined}
-          options={settingsOptions(sound, music, hasMusic, turnHotseat, voices)}
+          options={settingsOptions(
+            sound,
+            music,
+            hasMusic,
+            turnHotseat,
+            voices,
+            host,
+          )}
           index={overlay.index}
           pressed={pressed}
           afters={
@@ -471,6 +488,8 @@ export const GameScreen = ({
   onTurnBoard,
   initialVoices = true,
   onVoices,
+  initialHost = true,
+  onHost,
   music,
   initialMusic,
   onMusic,
@@ -492,6 +511,7 @@ export const GameScreen = ({
       musicAvailable: hasMusic,
       turnHotseat,
       voices,
+      host,
       guarded,
     },
     dispatch,
@@ -504,6 +524,7 @@ export const GameScreen = ({
       musicAvailable,
       initialTurnBoard,
       initialVoices,
+      initialHost,
     ),
   );
   React.useEffect(() => {
@@ -621,6 +642,14 @@ export const GameScreen = ({
     onVoices?.(voices);
   }, [voices, onVoices]);
 
+  // Seeded like the sound, so opening the screen is not reported as a change.
+  const hostSetting = React.useRef(host);
+  React.useEffect(() => {
+    if (host === hostSetting.current) return;
+    hostSetting.current = host;
+    onHost?.(host);
+  }, [host, onHost]);
+
   // The theme for what the screen shows, and over a game the danger to the king
   // at the start of this turn (#76). When a game has just ended the music falls
   // silent first, so the result's jingle is heard on its own.
@@ -628,11 +657,27 @@ export const GameScreen = ({
   // Each line is said as it shows, and its bubble stays until it has been
   // said (#159).
   const say = React.useCallback(
-    (line: VoiceLine) => sounds?.say(line),
+    (line: SpokenLine) => sounds?.say(line),
     [sounds],
   );
+  const stopLine = React.useCallback(() => sounds?.stopLine(), [sounds]);
+  // Lines are picked only while the board is on screen (#202), so a game
+  // waiting behind the home screen says nothing. A bot's last word is said with
+  // the result over the board.
+  const live = overlay.kind === 'none';
   const voiceLine = useBotVoice(game, level, {
     onVoiceLine: say,
+    holdMs: bubbleHoldMs,
+    live: live || overlay.kind === 'result',
+  });
+  // The Hot Seat host. The bot's hook speaks only against the bot and this one
+  // only in hotseat, so at most one of them has a line. Turned off mid-line,
+  // his voice stops with his bubble.
+  const hostLine = useHostVoice(game, {
+    live,
+    on: host,
+    onVoiceLine: say,
+    onStop: stopLine,
     holdMs: bubbleHoldMs,
   });
   const role = musicRole(overlay, game, level);
@@ -711,6 +756,7 @@ export const GameScreen = ({
               hasMusic={hasMusic}
               turnHotseat={turnHotseat}
               voices={voices}
+              host={host}
               selected={focus.selected}
               pressed={pressed}
             />
@@ -723,8 +769,13 @@ export const GameScreen = ({
             side={state.side}
             flipped={isFlipped}
             thinking={botOwes(game)}
+            host={host && game.mode === 'hotseat'}
             speechBubble={
-              voiceLine ? <SpeechBubble text={voiceLine.text} /> : undefined
+              voiceLine ? (
+                <SpeechBubble text={voiceLine.text} />
+              ) : hostLine ? (
+                <SpeechBubble text={hostLine.text} tail="left" />
+              ) : undefined
             }
             header={<ModeLine game={game} overlayOpen={false} />}
           >
@@ -737,6 +788,7 @@ export const GameScreen = ({
               hasMusic={hasMusic}
               turnHotseat={turnHotseat}
               voices={voices}
+              host={host}
               selected={focus.selected}
               pressed={pressed}
             />

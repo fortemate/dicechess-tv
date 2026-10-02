@@ -276,3 +276,84 @@ test('cleans up active timers when unmounted', () => {
     mock.timers.reset();
   }
 });
+
+test('nothing is said while the board is not on screen (#202)', () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  try {
+    const { getLine, Harness } = setupHarness();
+    const calls: VoiceLine[] = [];
+    const game = newGame('random', 'game-behind-home');
+    let tree!: renderer.ReactTestRenderer;
+    act(() => {
+      tree = renderer.create(
+        <Harness
+          game={game}
+          options={{ live: false, onVoiceLine: (line) => calls.push(line) }}
+        />,
+      );
+    });
+    assert.equal(getLine(), null, 'no intro behind the home screen');
+    assert.equal(calls.length, 0);
+    act(() => tree.unmount());
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+test('a restored game in danger says its threat only once the board shows (#202)', () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  try {
+    const { getLine, Harness } = setupHarness();
+    const calls: VoiceLine[] = [];
+    const onVoiceLine = (line: VoiceLine) => calls.push(line);
+    const restored: Game = {
+      ...newGame('aggressive', 'game-restored'),
+      turn: 5,
+      revision: 9,
+    };
+    let tree!: renderer.ReactTestRenderer;
+    act(() => {
+      tree = renderer.create(
+        <Harness
+          game={restored}
+          dangerLevel="critical"
+          options={{ live: false, onVoiceLine }}
+        />,
+      );
+    });
+    assert.equal(getLine(), null);
+    assert.equal(calls.length, 0);
+    // Resumed: the board is on screen, and the threat is said as it was.
+    act(() => {
+      tree.update(
+        <Harness
+          game={restored}
+          dangerLevel="critical"
+          options={{ live: true, onVoiceLine }}
+        />,
+      );
+    });
+    assert.equal(getLine()?.event, 'threat');
+    assert.equal(calls.length, 1);
+    act(() => tree.unmount());
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+test('the board counts as on screen unless the caller says otherwise', () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  try {
+    const { getLine, Harness } = setupHarness();
+    let tree!: renderer.ReactTestRenderer;
+    act(() => {
+      tree = renderer.create(
+        <Harness game={newGame('greedy', 'game-default-live')} />,
+      );
+    });
+    assert.equal(getLine()?.event, 'intro');
+    act(() => tree.unmount());
+  } finally {
+    mock.timers.reset();
+  }
+});

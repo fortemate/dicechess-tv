@@ -41,7 +41,7 @@ The application has no network code, no accounts and no analytics. Games, result
 
 ## Product scope
 
-- Hotseat: two people take turns using one remote after each complete Dice Chess turn, with an optional living-room setting to turn the board to the active player's side.
+- Hotseat: two people take turns using one remote after each complete Dice Chess turn, with an optional living-room setting to turn the board to the active player's side, and Rolly as a neutral host who cheers both players at the pauses (#202), which a setting turns off.
 - Several entirely local bots, starting with Random and Aggressive. The interface must never stall: Random turned out to need no thread of its own, and a stronger bot's strength comes from a bounded work budget rather than from wall-clock time.
 - No stake doubling, coins, wallets or betting in the initial game.
 - Local win/draw/loss (W/D/L) statistics, separated by opponent and hotseat mode.

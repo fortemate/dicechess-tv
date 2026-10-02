@@ -1,6 +1,7 @@
 // The matchup in the game screen HUD (#156): a badge for each side, each where
-// that side sits on the board, the bot's speech zone under the top badge
-// (#158), and the game's own lines between them.
+// that side sits on the board, the speech zone under the top badge (#158) for
+// the bot's lines or, in Hot Seat, the host's beside his face (#202), and the
+// game's own lines between them.
 //
 // The side to move is framed in the turn colour, and the other side dims
 // (#168). Cyan belongs to the cursor and to a focused item, so a badge never
@@ -18,6 +19,7 @@ import { opponentOf, type Opponent } from '../../src/core/opponents';
 import { FACES } from './faces';
 import { FACE_OF } from './OpponentScreen';
 import { PIECES } from './pieces';
+import { BUBBLE_TAIL } from './SpeechBubble';
 import { THEME } from './theme';
 
 export type MatchupProps = {
@@ -30,16 +32,24 @@ export type MatchupProps = {
   flipped?: boolean;
   thinking?: boolean;
   speechBubble?: React.ReactNode;
+  // The Hot Seat host takes part (#202): the speech zone is reserved, with his
+  // face at its left. Ignored in a game against the bot.
+  host?: boolean;
   // The turn line, at the foot of the speech zone.
   header?: React.ReactNode;
   children?: React.ReactNode;
 };
 
 // Room under the top badge for the bot's line: two rows of the bubble at 20 dp
-// and its tail. The turn line stands at the foot of it and is left out while
-// the bot speaks, so the line covers nothing and nothing below it moves
-// (#168).
+// and its tail; or for the Hot Seat host's line, beside his face. The turn line
+// stands at the foot of it and is left out while a line shows, so the line
+// covers nothing and nothing below it moves (#168).
 export const SPEECH_ZONE = 76;
+// The host's face, Rolly's, at the left of the zone, and the gap to his
+// bubble's tail. Centred in the zone's height, it stays clear of the top badge,
+// so it never reads as a third player's avatar.
+export const HOST_FACE = 36;
+export const HOST_GAP = 4;
 
 const LEVELS = ['Easy', 'Medium', 'Hard'] as const;
 const PIP = 12;
@@ -217,11 +227,16 @@ export const Matchup = ({
   flipped = game.human === 'b',
   thinking = false,
   speechBubble,
+  host = false,
   header,
   children,
 }: MatchupProps) => {
   const bottom: Side = flipped ? 'b' : 'w';
   const withBot = isBotMode(game.mode);
+  const hosted = !withBot && host;
+  const HostFace = FACES[FACE_OF.random];
+  // The zone is always the second child, under whichever badge is on top, so
+  // the face and the bubble stay put when the board turns.
   return (
     <View testID="matchup-header" style={{ flex: 1 }}>
       <SideBadge
@@ -233,24 +248,61 @@ export const Matchup = ({
       <View
         testID="speech-zone"
         style={{
-          height: withBot ? SPEECH_ZONE : undefined,
+          height: withBot || hosted ? SPEECH_ZONE : undefined,
           justifyContent: 'flex-end',
           marginBottom: 4,
         }}
       >
+        {hosted ? (
+          <View
+            testID="host-face"
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: (SPEECH_ZONE - HOST_FACE) / 2,
+              width: HOST_FACE,
+              height: HOST_FACE,
+              // Dimmed while he is quiet, like a side waiting its turn.
+              opacity: speechBubble ? 1 : 0.5,
+            }}
+          >
+            <HostFace size={HOST_FACE} />
+          </View>
+        ) : null}
         {header && !speechBubble ? (
-          <View testID="turn-line">{header}</View>
+          <View
+            testID="turn-line"
+            style={
+              hosted
+                ? { marginLeft: HOST_FACE + HOST_GAP + BUBBLE_TAIL }
+                : undefined
+            }
+          >
+            {header}
+          </View>
         ) : null}
         {speechBubble ? (
           <View
             testID="speech-bubble-slot"
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              zIndex: 20,
-            }}
+            style={
+              hosted
+                ? {
+                    position: 'absolute',
+                    top: 0,
+                    bottom: 0,
+                    left: HOST_FACE + HOST_GAP,
+                    right: 0,
+                    justifyContent: 'center',
+                    zIndex: 20,
+                  }
+                : {
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    zIndex: 20,
+                  }
+            }
           >
             {speechBubble}
           </View>

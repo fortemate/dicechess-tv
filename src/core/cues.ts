@@ -57,9 +57,24 @@ export function cues(before: Game, after: Game, humanSide: Side = 'w'): Cue[] {
   return heard;
 }
 
+// A promotion names the piece the pawn becomes as a fifth letter.
+export const isPromotion = (move: string): boolean => move.length === 5;
+
+// En passant: a pawn changing file onto an empty square takes the pawn beside
+// it. `board` is the placement field of the position the move is played from.
+export function isEnPassant(board: string, move: string): boolean {
+  const from = move.slice(0, 2);
+  const to = move.slice(2, 4);
+  return (
+    pieceAt(board, from)?.toLowerCase() === 'p' &&
+    fileOf(from) !== fileOf(to) &&
+    !pieceAt(board, to)
+  );
+}
+
 function moveCue(before: Game, move: string): Cue {
   // A promotion that also captures is still, above all, a promotion.
-  if (move.length === 5) return 'promotion';
+  if (isPromotion(move)) return 'promotion';
   const board = viewGame(before).dfen.split(' ')[0];
   const from = move.slice(0, 2);
   const to = move.slice(2, 4);
@@ -70,8 +85,7 @@ function moveCue(before: Game, move: string): Cue {
   // The engine never offers a move onto a friendly piece, so anything on the
   // target square is an enemy one.
   if (pieceAt(board, to)) return 'piece_capture';
-  // En passant: a pawn changing file onto an empty square takes the pawn beside it.
-  if (piece === 'p' && fileOf(from) !== fileOf(to)) return 'piece_capture';
+  if (isEnPassant(board, move)) return 'piece_capture';
   return 'piece_move';
 }
 

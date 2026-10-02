@@ -7,8 +7,9 @@ import assert from 'node:assert/strict';
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 import { press, pressBack } from './stubs/react-native-kepler.mjs';
-import { reset } from './stubs/react-native-mmkv.mjs';
+import { MMKV, reset } from './stubs/react-native-mmkv.mjs';
 import { App } from '../src/App';
+import { saveHost } from '../src/hostSetting';
 import { NO_MOVE_LINE } from '../src/GameScreen';
 import { BOT_STEP_MS, OK_GUARD_MS, type ScreenOptions } from '../src/screen';
 import { DISMISS_DELAY_MS } from '../src/useBotVoice';
@@ -60,6 +61,7 @@ const recorder = () => {
       self.muted = value;
     },
     say() {},
+    stopLine() {},
     setVoices() {},
     setSuspended() {},
   };
@@ -106,6 +108,8 @@ const dimmedWithoutRing = (die: Style) =>
 
 test('a hotseat roll with nothing to play is announced and heard, and OK waits out the guard', () => {
   reset();
+  // Without the host, whose bubble would stand where the turn line is read.
+  saveHost(new MMKV(), false);
   const clock = scheduler();
   const sounds = recorder();
   const tree = launch(optionsFor([5, 4, 6], clock), sounds);
@@ -184,6 +188,8 @@ test('against the bot both sides’ empty rolls are announced, and the bot’s w
 
 test('a turn that ends with dice left dims them, with no notice, no cue and no guard', () => {
   reset();
+  // Without the host, whose bubble would stand where the turn line is read.
+  saveHost(new MMKV(), false);
   const clock = scheduler();
   const sounds = recorder();
   const tree = launch(optionsFor([2, 6, 6], clock), sounds);

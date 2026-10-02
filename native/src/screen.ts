@@ -120,8 +120,8 @@ export type Overlay =
   // starts. Back returns to the cards; `from` is where the cards return.
   | { kind: 'colour'; index: number; mode: BotMode; from: 'home' | 'menu' }
   | { kind: 'promotion'; moves: string[]; index: number }
-  // Music, its volume, the sound effects and the bot voices (#76, #159).
-  // `from` is where Back returns.
+  // Music, its volume, the sound effects, the voices, the Hot Seat host and
+  // turning the board (#76, #159, #202, #120). `from` is where Back returns.
   | { kind: 'settings'; index: number; from: 'home' | 'menu' }
   // After a game against the bot: a rematch, or back to the main menu.
   | { kind: 'result'; index: number }
@@ -159,15 +159,18 @@ export type ScreenState = {
   musicAvailable: boolean;
   // Whether the board turns to the side to move in hotseat (#120).
   turnHotseat: boolean;
-  // Whether the bots speak their lines aloud (#159).
+  // Whether the lines are spoken aloud, the bots' and the host's (#159).
   voices: boolean;
+  // Whether Rolly hosts Hot Seat games (#202).
+  host: boolean;
   // OK is ignored: a roll has just left nothing to play. The app clears it
   // after OK_GUARD_MS; the other keys work throughout.
   guarded: boolean;
 };
 
-// Sound effects, music and the bots' voices are set on a screen of their own,
-// opened from both menus. A label says what a setting is now, which is what a viewer checks.
+// Sound effects, music, the voices and the Hot Seat host are set on a screen of
+// their own, opened from both menus. A label says what a setting is now, which
+// is what a viewer checks.
 export const SETTINGS_OPTION = 'Settings';
 export const settingsOptions = (
   sound: boolean,
@@ -175,12 +178,14 @@ export const settingsOptions = (
   musicAvailable = true,
   turnHotseat = false,
   voices = true,
+  host = true,
 ): string[] => [
   ...(musicAvailable
     ? [`Music: ${music.on ? 'on' : 'off'}`, `Music volume: ${music.volume}`]
     : []),
   `Sound effects: ${sound ? 'on' : 'off'}`,
-  `Bot voices: ${voices ? 'on' : 'off'}`,
+  `Voices: ${voices ? 'on' : 'off'}`,
+  `Hot Seat host: ${host ? 'on' : 'off'}`,
   `Turn board in hotseat: ${turnHotseat ? 'on' : 'off'}`,
 ];
 
@@ -287,9 +292,10 @@ const board = (
     musicAvailable,
     turnHotseat,
     voices,
+    host,
   }: Pick<
     ScreenState,
-    'sound' | 'music' | 'musicAvailable' | 'turnHotseat' | 'voices'
+    'sound' | 'music' | 'musicAvailable' | 'turnHotseat' | 'voices' | 'host'
   >,
   cursor: Square = START,
 ): ScreenState => ({
@@ -302,6 +308,7 @@ const board = (
   musicAvailable,
   turnHotseat,
   voices,
+  host,
   guarded: false,
 });
 
@@ -321,6 +328,7 @@ const played = (
   musicAvailable: state.musicAvailable,
   turnHotseat: state.turnHotseat,
   voices: state.voices,
+  host: state.host,
   guarded: emptyRoll(game),
 });
 
@@ -339,6 +347,7 @@ export const initialState = (
   musicAvailable = false,
   turnHotseat = false,
   voices = true,
+  host = true,
 ): ScreenState => {
   const game = restored ?? newGame('hotseat', options.newId());
   const isFlipped = flipped(game, turnHotseat);
@@ -360,6 +369,7 @@ export const initialState = (
     musicAvailable,
     turnHotseat,
     voices,
+    host,
     guarded: false,
   };
 };
@@ -627,6 +637,7 @@ const onSettings: Handler<'settings'> = (state, overlay, key) => {
     state.musicAvailable,
     state.turnHotseat,
     state.voices,
+    state.host,
   );
   if (key === 'up' || key === 'down')
     return moved(state, overlay, key, rows.length);
@@ -644,8 +655,11 @@ const onSettings: Handler<'settings'> = (state, overlay, key) => {
     return { ...state, music: { ...state.music, on: !state.music.on } };
   if (row.startsWith('Sound effects:'))
     return { ...state, sound: !state.sound };
-  if (row.startsWith('Bot voices:')) return { ...state, voices: !state.voices };
-  return { ...state, turnHotseat: !state.turnHotseat };
+  if (row.startsWith('Voices:')) return { ...state, voices: !state.voices };
+  if (row.startsWith('Hot Seat host:')) return { ...state, host: !state.host };
+  if (row.startsWith('Turn board in hotseat:'))
+    return { ...state, turnHotseat: !state.turnHotseat };
+  return state;
 };
 
 const onPromotion: Handler<'promotion'> = (state, overlay, key) => {

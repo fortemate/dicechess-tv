@@ -37,6 +37,8 @@ type Recorder = Sounds & {
   muted: boolean | null;
   suspended: boolean | null;
   said: string[];
+  // How many times a line was stopped on its own (#202).
+  stopped: number;
   voices: boolean | null;
 };
 
@@ -46,6 +48,7 @@ const recorder = (): Recorder => {
     muted: null,
     suspended: null,
     said: [],
+    stopped: 0,
     voices: null,
     play(cues) {
       if (cues.length) self.played.push([...cues]);
@@ -55,6 +58,9 @@ const recorder = (): Recorder => {
     },
     say(line) {
       self.said.push(line.id);
+    },
+    stopLine() {
+      self.stopped++;
     },
     setVoices(on) {
       self.voices = on;
@@ -132,9 +138,9 @@ test('the bots speak by default, and turning their voices off is remembered (#15
   assert.equal(first.voices, true, 'voices start on');
   // Settings, then the row after the sound effects.
   send('down', 'down', 'down', 'down', 'enter');
-  assert.match(text(tree.root), /Bot voices: on/);
+  assert.match(text(tree.root), /Voices: on/);
   send('down', 'enter');
-  assert.match(text(tree.root), /Bot voices: off/);
+  assert.match(text(tree.root), /Voices: off/);
   assert.equal(first.voices, false);
   assert.equal(first.muted, false, 'the effects are left alone');
   act(() => tree.unmount());
@@ -142,6 +148,92 @@ test('the bots speak by default, and turning their voices off is remembered (#15
   const second = recorder();
   tree = launch(second);
   assert.equal(second.voices, false, 'a relaunch starts without voices');
+  act(() => tree.unmount());
+});
+
+test('the Hot Seat host is on by default, and turning him off is remembered (#202)', () => {
+  reset();
+  const first = recorder();
+  let tree = launch(first);
+  // Settings, then the row after the voices.
+  send('down', 'down', 'down', 'down', 'enter');
+  assert.match(text(tree.root), /Hot Seat host: on/);
+  send('down', 'down', 'enter');
+  assert.match(text(tree.root), /Hot Seat host: off/);
+  assert.match(text(tree.root), /Voices: on/, 'the voices are left alone');
+  assert.equal(first.voices, true);
+  act(() => tree.unmount());
+
+  const second = recorder();
+  tree = launch(second);
+  send('down', 'down', 'down', 'down', 'enter');
+  assert.match(text(tree.root), /Hot Seat host: off/);
+  // Back to the home screen, up to a new hotseat game: he says nothing.
+  send('back', 'up', 'up', 'up', 'up', 'enter');
+  assert.match(text(tree.root), /HOTSEAT · TURN 1/);
+  assert.deepEqual(second.said, []);
+  act(() => tree.unmount());
+});
+
+test('turning the host off while he speaks stops his voice, and only his (#202)', () => {
+  reset();
+  const sounds = recorder();
+  let tree = launch(sounds);
+  // A new hotseat game: he greets both players.
+  send('enter');
+  assert.match(sounds.said[0], /^host_intro_[1-5]$/);
+  // The game menu, up to its Settings, and down to his row.
+  send('back', 'up', 'enter', 'down', 'down');
+  assert.match(text(tree.root), /Hot Seat host: on/);
+  assert.equal(sounds.stopped, 0, 'a menu alone leaves the line alone');
+  send('enter');
+  assert.match(text(tree.root), /Hot Seat host: off/);
+  assert.equal(sounds.stopped, 1);
+  assert.equal(sounds.voices, true, 'the Voices setting is left alone');
+  act(() => tree.unmount());
+
+  // Against the computer the line is the bot's, which the host's setting
+  // never stops.
+  reset();
+  const bot = recorder();
+  tree = launch(bot);
+  send('down', 'enter', 'enter', 'enter');
+  assert.match(bot.said[0], /^rolly_intro_[123]$/);
+  send('back', 'up', 'enter', 'down', 'down', 'enter');
+  assert.match(text(tree.root), /Hot Seat host: off/);
+  assert.equal(bot.stopped, 0);
+  act(() => tree.unmount());
+});
+
+test('a fresh launch says nothing behind the home screen (#202)', () => {
+  const store = new MmkvSnapshotStore<Game>({
+    key: 'dicechess-tv.game.v2',
+    decode: decodeGame,
+  });
+  for (const saved of [
+    null,
+    newGame('hotseat', 'unstarted'),
+    // A game against the bot that was never rolled: it used to greet the
+    // home screen.
+    newGame('random', 'unrolled'),
+  ]) {
+    reset();
+    if (saved) store.save(saved);
+    const sounds = recorder();
+    const tree = launch(sounds);
+    assert.match(text(tree.root), /Dice Chess/);
+    assert.deepEqual(sounds.said, [], saved?.id ?? 'nothing saved');
+    act(() => tree.unmount());
+  }
+});
+
+test('a new hotseat game opens with the host greeting both players (#202)', () => {
+  reset();
+  const sounds = recorder();
+  const tree = launch(sounds);
+  send('enter');
+  assert.equal(sounds.said.length, 1);
+  assert.match(sounds.said[0], /^host_intro_[1-5]$/);
   act(() => tree.unmount());
 });
 

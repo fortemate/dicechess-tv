@@ -1,0 +1,266 @@
+{
+  "schemaVersion": 1,
+  "note": "How often a character speaks: the importance tier of every voice event and the pacing every client follows, so that Dice Chess TV, the web and the phone clients sound alike (fortemate/dicechess-assets#38; owner, 2026-10-02). docs/CHARACTERS.md explains the tiers and the measurements behind the numbers.",
+  "turns": "A turn is one side's turn, so 2 turns are one round. A step is a roll, an action or the end of a turn.",
+  "tiers": {
+    "always": "Rare or decisive: speaks without a cooldown, for the first alwaysPerEvent times an event happens in a game; later times follow the notable rules.",
+    "notable": "About once a game: speaks once notableCooldownTurns have passed since the last line, at most notablePerEvent times per event per game. An alert event (threat, danger) speaks once per critical episode and at most alertsPerGame times a game.",
+    "frequent": "Several times a game: speaks once frequentCooldownTurns have passed since the last line, with the chance frequentChance x repeatDecay^k, where k is how many times the event already spoke this game."
+  },
+  "rules": [
+    "At most one line per step. When events meet in one step, the lowest priority number wins: the result, then the rarer event (en passant, castling, promotion, the queen).",
+    "A line never cuts the one being said: the new line waits for it to end. A waiting line that is not always-tier is dropped when the next step comes.",
+    "Silence breaker: after silenceBreakerTurns turns without a line, the next event speaks whatever its tier, cap, alert limit or decay.",
+    "Within an event, lines come from a shuffled bag kept across games, so every line of the event is heard before any repeats.",
+    "The host speaks only at the start of a game and at the end of a turn, never while someone is thinking; threat and danger have no host lines."
+  ],
+  "pacing": {
+    "bot": {
+      "alwaysPerEvent": 2,
+      "notableCooldownTurns": 2,
+      "notablePerEvent": 1,
+      "alertsPerGame": 1,
+      "frequentCooldownTurns": 3,
+      "frequentChance": 1.0,
+      "repeatDecay": 0.5,
+      "silenceBreakerTurns": 10
+    },
+    "host": {
+      "alwaysPerEvent": 2,
+      "notableCooldownTurns": 2,
+      "notablePerEvent": 3,
+      "frequentCooldownTurns": 6,
+      "frequentChance": 0.7,
+      "repeatDecay": 0.5,
+      "silenceBreakerTurns": 8
+    }
+  },
+  "events": {
+    "bot": {
+      "win": {
+        "tier": "always",
+        "priority": 1,
+        "means": "The bot wins; the line does not say how."
+      },
+      "loss": {
+        "tier": "always",
+        "priority": 1,
+        "means": "The bot loses; the line does not say how."
+      },
+      "draw": {
+        "tier": "always",
+        "priority": 1,
+        "means": "The game ends drawn; the line does not say why."
+      },
+      "opponent_resigned": {
+        "tier": "always",
+        "priority": 1,
+        "means": "The person gives up the game; said instead of win."
+      },
+      "stake_win": {
+        "tier": "always",
+        "priority": 1,
+        "means": "The bot wins a game whose stakes were doubled; said instead of win."
+      },
+      "stake_loss": {
+        "tier": "always",
+        "priority": 1,
+        "means": "The bot loses a game whose stakes were doubled; said instead of loss."
+      },
+      "stake_decline": {
+        "tier": "always",
+        "priority": 1,
+        "means": "The bot declines the person's double and so gives up the game; said instead of loss."
+      },
+      "stake_declined": {
+        "tier": "always",
+        "priority": 1,
+        "means": "The person declines the bot's double and gives up, so the bot wins; said instead of win."
+      },
+      "intro": {
+        "tier": "always",
+        "priority": 2,
+        "means": "A game against the bot starts."
+      },
+      "rematch": {
+        "tier": "always",
+        "priority": 2,
+        "means": "The person asks for another game against the same bot; said instead of intro."
+      },
+      "stake_intro": {
+        "tier": "always",
+        "priority": 2,
+        "means": "A game with stakes starts; said instead of intro."
+      },
+      "stake_offer": {
+        "tier": "always",
+        "priority": 3,
+        "means": "The bot offers to double the stakes."
+      },
+      "stake_accept": {
+        "tier": "always",
+        "priority": 3,
+        "means": "The bot accepts the person's offer to double."
+      },
+      "stake_accepted": {
+        "tier": "always",
+        "priority": 3,
+        "means": "The person accepts the bot's offer to double."
+      },
+      "stake_max": {
+        "tier": "always",
+        "priority": 3,
+        "means": "The stakes reach the cap; no more doubling."
+      },
+      "capture_en_passant": {
+        "tier": "always",
+        "priority": 4,
+        "means": "The bot takes the person's pawn en passant; said instead of capture."
+      },
+      "lost_en_passant": {
+        "tier": "always",
+        "priority": 4,
+        "means": "The person takes the bot's pawn en passant; said instead of lost."
+      },
+      "castling": {
+        "tier": "always",
+        "priority": 5,
+        "means": "The bot castles."
+      },
+      "promotion": {
+        "tier": "always",
+        "priority": 6,
+        "means": "The bot's pawn becomes a stronger piece; the line does not say which."
+      },
+      "opponent_promotion": {
+        "tier": "always",
+        "priority": 6,
+        "means": "The person's pawn becomes a stronger piece."
+      },
+      "capture_queen": {
+        "tier": "always",
+        "priority": 7,
+        "means": "The bot takes the person's queen; said instead of capture_heavy."
+      },
+      "lost_queen": {
+        "tier": "always",
+        "priority": 7,
+        "means": "The person takes the bot's queen; said instead of lost_heavy."
+      },
+      "capture_heavy": {
+        "tier": "notable",
+        "priority": 8,
+        "means": "The bot takes a rook (a queen where the client has no capture_queen lines)."
+      },
+      "lost_heavy": {
+        "tier": "notable",
+        "priority": 8,
+        "means": "The person takes the bot's rook (or queen, where the client has no lost_queen lines)."
+      },
+      "threat": {
+        "tier": "notable",
+        "priority": 9,
+        "means": "The bot could take the person's king next turn with one right die.",
+        "alert": true
+      },
+      "danger": {
+        "tier": "notable",
+        "priority": 9,
+        "means": "The person could take the bot's king next turn with one right die.",
+        "alert": true
+      },
+      "empty_roll": {
+        "tier": "notable",
+        "priority": 10,
+        "means": "The bot's own roll leaves it no legal move."
+      },
+      "opponent_empty_roll": {
+        "tier": "notable",
+        "priority": 10,
+        "means": "The person's roll leaves no legal move."
+      },
+      "capture": {
+        "tier": "frequent",
+        "priority": 11,
+        "means": "The bot takes a pawn, a knight or a bishop."
+      },
+      "lost": {
+        "tier": "frequent",
+        "priority": 11,
+        "means": "The person takes one of the bot's pawns, knights or bishops."
+      },
+      "waiting": {
+        "tier": "frequent",
+        "priority": 12,
+        "means": "The person has not acted for a while; the client decides how long, and says it at most once per wait."
+      }
+    },
+    "host": {
+      "white_wins": {
+        "tier": "always",
+        "priority": 1,
+        "means": "White wins; the line names White and praises both players."
+      },
+      "black_wins": {
+        "tier": "always",
+        "priority": 1,
+        "means": "Black wins; the line names Black and praises both players."
+      },
+      "win": {
+        "tier": "always",
+        "priority": 1,
+        "means": "Either side wins; the line names no colour, so it can join either colour's lines."
+      },
+      "draw": {
+        "tier": "always",
+        "priority": 1,
+        "means": "The game ends drawn."
+      },
+      "intro": {
+        "tier": "always",
+        "priority": 2,
+        "means": "A new Hot Seat game starts."
+      },
+      "again": {
+        "tier": "always",
+        "priority": 2,
+        "means": "Another game starts in the same evening; said instead of intro."
+      },
+      "handoff": {
+        "tier": "always",
+        "priority": 3,
+        "means": "The remote is passed for the first time in a session; once a session."
+      },
+      "en_passant": {
+        "tier": "always",
+        "priority": 4,
+        "means": "A pawn of either side is taken en passant; said instead of capture."
+      },
+      "promotion": {
+        "tier": "always",
+        "priority": 6,
+        "means": "A pawn of either side becomes a stronger piece."
+      },
+      "capture_queen": {
+        "tier": "always",
+        "priority": 7,
+        "means": "A queen of either side is taken; said instead of capture_heavy. The line never says whose."
+      },
+      "capture_heavy": {
+        "tier": "notable",
+        "priority": 8,
+        "means": "A rook of either side is taken (a queen too, where the client has no capture_queen lines)."
+      },
+      "empty_roll": {
+        "tier": "notable",
+        "priority": 10,
+        "means": "Either side's roll leaves no legal move."
+      },
+      "capture": {
+        "tier": "frequent",
+        "priority": 11,
+        "means": "A pawn, a knight or a bishop of either side is taken."
+      }
+    }
+  }
+}

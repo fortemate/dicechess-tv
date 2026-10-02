@@ -3,7 +3,15 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
-import { SpeechBubble } from '../src/SpeechBubble';
+import {
+  BUBBLE_INSET,
+  BUBBLE_ROWS,
+  BUBBLE_TAIL,
+  SpeechBubble,
+} from '../src/SpeechBubble';
+import { HOST_FACE, HOST_GAP } from '../src/Matchup';
+import { BOARD_GAP, boardSide, safeInsets } from '../src/layout';
+import { HOST_CATALOGUE } from '../../src/core/hostVoice';
 
 type Instance = renderer.ReactTestInstance;
 type Style = Record<string, unknown>;
@@ -64,4 +72,59 @@ test('satisfies 10-foot UI high-contrast color and font standards', () => {
   assert.ok(Number(textStyle.fontSize) >= 20, 'bubble text is at least 20 dp');
   assert.equal(textStyle.fontWeight, '600');
   assert.equal(text.props.numberOfLines, 2);
+});
+
+// ── The Hot Seat host's bubble, pointing left at his face (#202) ──────────────
+
+test("the host's bubble points left, in the bot bubble's colours", () => {
+  let tree!: renderer.ReactTestRenderer;
+  act(() => {
+    tree = renderer.create(
+      <SpeechBubble text="Oho! The plot thickens!" tail="left" />,
+    );
+  });
+
+  const bubble = styleOf(byTestId(tree.root, 'speech-bubble'));
+  assert.equal(bubble.flexDirection, 'row');
+  assert.equal(bubble.alignItems, 'center');
+  const tail = styleOf(byTestId(tree.root, 'speech-bubble-tail'));
+  assert.equal(tail.borderRightColor, '#2b425b');
+  assert.equal(tail.borderRightWidth, BUBBLE_TAIL);
+  assert.equal(tail.borderTopColor, 'transparent');
+  assert.equal(tail.borderBottomColor, 'transparent');
+  assert.equal(tail.borderBottomWidth, BUBBLE_TAIL);
+  const body = styleOf(byTestId(tree.root, 'speech-bubble-body'));
+  assert.equal(body.backgroundColor, '#112233');
+  assert.equal(body.flexShrink, 1);
+  assert.equal(body.maxWidth, undefined);
+  const text = byTestId(tree.root, 'speech-bubble-text');
+  assert.equal(styleOf(text).fontSize, 20);
+  assert.equal(text.props.numberOfLines, 2);
+});
+
+// Rows filled word by word, at most `width` characters each.
+const rows = (text: string, width: number): string[] =>
+  text.split(' ').reduce<string[]>((filled, word) => {
+    const last = filled.at(-1);
+    if (last !== undefined && `${last} ${word}`.length <= width)
+      filled[filled.length - 1] = `${last} ${word}`;
+    else filled.push(word);
+    return filled;
+  }, []);
+
+test('every host line fits the two rows of his bubble, beside his face', () => {
+  // The panel beside the board on the 960 x 540 dp screen. A bubble its full
+  // width holds about 36 characters a row on the Virtual Device
+  // (test/botVoice.test.ts); the face, the gap and the tail take room from it.
+  const panel =
+    960 - 2 * safeInsets(960, 540).x - boardSide(960, 540) - BOARD_GAP;
+  const fullText = panel - BUBBLE_INSET;
+  const text = panel - (HOST_FACE + HOST_GAP) - BUBBLE_TAIL - BUBBLE_INSET;
+  const perRow = Math.floor(text / (fullText / 36));
+  assert.ok(perRow >= 30, `${perRow} characters a row`);
+  for (const line of HOST_CATALOGUE)
+    assert.ok(
+      rows(line.text, perRow).length <= BUBBLE_ROWS,
+      `${line.id}: ${rows(line.text, perRow).join(' / ')}`,
+    );
 });

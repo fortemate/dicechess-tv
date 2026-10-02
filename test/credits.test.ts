@@ -111,15 +111,37 @@ test('every vendored sound pack is credited as its manifest asks', () => {
   }
 });
 
-test('the vendored voices are named with their source', () => {
-  // The pack is Fortemate's, made with ElevenLabs and licensed to Fortemate's
-  // Dice Chess apps only (#187): the About screen says so beside the engine.
-  const catalogue = JSON.parse(
+// The voice packs vendored from one commit of dicechess-assets: the bots' and
+// the Hot Seat host's (#187, #202).
+const voicePacks = (
+  JSON.parse(
     readFileSync(
       new URL('../native/voices/voices.json', import.meta.url),
       'utf8',
     ),
-  ) as { generator: string; license: string };
-  assert.ok(VOICES.line.includes(catalogue.generator));
-  assert.equal(VOICES.licence, catalogue.license);
+  ) as {
+    packs: Record<
+      string,
+      { generator: string; license: string; licenseFile: string }
+    >;
+  }
+).packs;
+
+test('the vendored voices are named with their source', () => {
+  // Every pack is Fortemate's, made with ElevenLabs and licensed to
+  // Fortemate's Dice Chess apps only: the About screen says so beside the
+  // engine, once for all of them.
+  assert.ok(Object.keys(voicePacks).length > 0);
+  for (const [pack, { generator, license }] of Object.entries(voicePacks)) {
+    assert.ok(VOICES.line.includes(generator), pack);
+    assert.equal(VOICES.licence, license, pack);
+  }
+});
+
+test('the notices name the licence of every vendored voice pack', () => {
+  for (const [pack, { licenseFile }] of Object.entries(voicePacks))
+    assert.ok(
+      notices.includes(`native/voices/${pack}/${licenseFile}`),
+      `THIRD_PARTY_NOTICES.md does not name native/voices/${pack}/${licenseFile}`,
+    );
 });

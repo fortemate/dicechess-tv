@@ -1,8 +1,9 @@
-// Whether the bots speak their lines aloud, remembered across launches (#159).
+// The Voices setting: whether every line is spoken aloud, the bots' (#159) and
+// the Hot Seat host's (#202), remembered across launches.
 //
 // On unless the viewer turned it off, as the owner decided. Anything but an
-// explicit "off" reads as on, so a damaged value cannot silence the bots for
-// good. The speech bubble shows either way.
+// explicit "off" reads as on, so a damaged value cannot silence the voices for
+// good. The speech bubbles show either way.
 import type { KeyValueStore } from './mmkvStore';
 
 const KEY = 'dicechess-tv.voices.v1';
