@@ -95,17 +95,31 @@ Never execute `npm audit fix --force` in `native/`. The automated npm solver att
 
 The React Native packager configuration in `native/metro.config.js` differs from Amazon's default template.
 
-Because the TV app imports the shared core from `../src/core/` and the rules engine from the repository root's `node_modules/`, Metro must explicitly track paths outside `native/`:
+The screens import the shared core from `../src/core/`, and the core imports the rules engine from the repository root's `node_modules/`. Both live outside `native/`, so Metro must watch the repository root and look up packages in both `node_modules` directories:
 
 ```javascript
 // native/metro.config.js
-watchFolders: [
-  path.resolve(__dirname, '..', 'src', 'core'),
-  path.resolve(__dirname, '..', 'node_modules'),
-],
+const path = require('path');
+const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
+
+const repositoryRoot = path.resolve(__dirname, '..');
+
+const config = {
+  watchFolders: [repositoryRoot],
+  resolver: {
+    nodeModulesPaths: [
+      path.resolve(__dirname, 'node_modules'),
+      path.resolve(repositoryRoot, 'node_modules'),
+    ],
+  },
+};
+
+module.exports = mergeConfig(getDefaultConfig(__dirname), config);
 ```
 
-Without these directives, Metro fails with `Unable to resolve module ../../src/core/game`.
+Without `watchFolders`, Metro fails with `Unable to resolve module ../../src/core/game`.
+
+Without `resolver.nodeModulesPaths`, it fails with `Unable to resolve module @babel/runtime/helpers/interopRequireDefault` instead. Babel adds imports of its runtime helpers to the core's files as it compiles them, and `@babel/runtime` is installed only in `native/node_modules`. Metro looks for a package in the `node_modules` directories above the importing file, and `native/node_modules` is not above `src/core/`.
 
 ## Troubleshooting
 
