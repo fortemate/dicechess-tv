@@ -135,6 +135,12 @@ updates:
     assignees:
       - 'rabestro'
     rebase-strategy: 'auto'
+    ignore:
+      # mermaid 12 is a breaking release (ES2024, Node 22.12+, new default layout engine).
+      # astro-mermaid@2.1.0 declares peerDependencies mermaid ^10 || ^11 and has not been
+      # updated for mermaid 12 yet. Hold the major until astro-mermaid supports it.
+      - dependency-name: 'mermaid'
+        update-types: ['version-update:semver-major']
     groups:
       # One pull request a month for the whole site. Nothing here reaches the device, and the
       # site's workflow builds every pull request that touches site/, so a breaking update fails
