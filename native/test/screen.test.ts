@@ -632,16 +632,7 @@ test('a new game keeps the settings', () => {
 });
 
 test('the host setting starts as the app read it, and a move keeps it (#202)', () => {
-  const off = initialState(
-    options,
-    null,
-    true,
-    undefined,
-    false,
-    false,
-    true,
-    'off',
-  );
+  const off = initialState(options, null, { host: 'off' });
   assert.equal(off.host, 'off');
   assert.equal(fresh().host, 'rolly');
   // A new game, then a roll: both keep it.
@@ -1108,7 +1099,7 @@ test('a rematch keeps the opponent, and the cards open on it next time', () => {
 // ── Hotseat board turning (#120) ─────────────────────────────────────────────
 
 test('when Turn board in hotseat is on, the board turns for Black and cursor starts on Black side', () => {
-  let state = initialState(options, null, true, undefined, false, true);
+  let state = initialState(options, null, { turnHotseat: true });
   state = drive(state, 'select');
   assert.equal(state.game.mode, 'hotseat');
   assert.equal(state.game.turn, 1);
@@ -1149,7 +1140,7 @@ test('when Turn board in hotseat is on, the board turns for Black and cursor sta
 });
 
 test('when Turn board in hotseat is off, the board remains drawn from White side throughout hotseat', () => {
-  let state = initialState(options, null, true, undefined, false, false);
+  let state = initialState(options, null, { turnHotseat: false });
   state = drive(state, 'select');
   assert.equal(state.game.mode, 'hotseat');
   assert.equal(flipped(state.game, state.turnHotseat), false);
@@ -1170,7 +1161,7 @@ test('when Turn board in hotseat is off, the board remains drawn from White side
 
 test('a saved hotseat game resumes in the right orientation when Turn board in hotseat is on', () => {
   // A game handed to Black on turn 2
-  let state = initialState(options, null, true, undefined, false, true);
+  let state = initialState(options, null, { turnHotseat: true });
   state = drive(state, 'select', 'select');
   while (state.game.phase === 'move') {
     state = play(state, viewGame(state.game).legal[0]);
@@ -1180,25 +1171,13 @@ test('a saved hotseat game resumes in the right orientation when Turn board in h
   assert.equal(viewGame(state.game).side, 'b');
 
   // Resuming this saved game with turnHotseat on
-  const resumed = initialState(
-    options,
-    state.game,
-    true,
-    undefined,
-    false,
-    true,
-  );
+  const resumed = initialState(options, state.game, { turnHotseat: true });
   assert.equal(flipped(resumed.game, resumed.turnHotseat), true);
   assert.equal(resumed.focus.cursor, 'e7');
 
   // Resuming with turnHotseat off stays on White side
-  const resumedOff = initialState(
-    options,
-    state.game,
-    true,
-    undefined,
-    false,
-    false,
-  );
+  const resumedOff = initialState(options, state.game, {
+    turnHotseat: false,
+  });
   assert.equal(flipped(resumedOff.game, resumedOff.turnHotseat), false);
 });

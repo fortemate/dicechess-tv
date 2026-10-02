@@ -174,6 +174,12 @@ export type ScreenState = {
   guarded: boolean;
 };
 
+// What a new game keeps: the settings, and whether this build has music.
+export type ScreenSettings = Pick<
+  ScreenState,
+  'sound' | 'music' | 'musicAvailable' | 'turnHotseat' | 'voices' | 'host'
+>;
+
 // Sound effects, music, the voices and who hosts Hot Seat are set on a screen
 // of their own, opened from both menus. A label says what a setting is now,
 // which is what a viewer checks.
@@ -292,17 +298,7 @@ export const resultOptions = ['Rematch', 'Main menu'];
 // A new game keeps the settings, which are not about the game.
 const board = (
   game: Game,
-  {
-    sound,
-    music,
-    musicAvailable,
-    turnHotseat,
-    voices,
-    host,
-  }: Pick<
-    ScreenState,
-    'sound' | 'music' | 'musicAvailable' | 'turnHotseat' | 'voices' | 'host'
-  >,
+  { sound, music, musicAvailable, turnHotseat, voices, host }: ScreenSettings,
   cursor: Square = START,
 ): ScreenState => ({
   game,
@@ -345,15 +341,18 @@ const step = (key: BoardKey, index: number, length: number): number =>
 export const resumable = (game: Game): boolean =>
   game.phase !== 'ended' && (game.roll.length > 0 || game.turn > 1);
 
+// The settings as the app read them; any not given start at their defaults.
 export const initialState = (
   options: ScreenOptions,
   restored?: Game | null,
-  sound = true,
-  music: MusicSetting = DEFAULT_MUSIC,
-  musicAvailable = false,
-  turnHotseat = false,
-  voices = true,
-  host: HostChoice = DEFAULT_HOST,
+  {
+    sound = true,
+    music = DEFAULT_MUSIC,
+    musicAvailable = false,
+    turnHotseat = false,
+    voices = true,
+    host = DEFAULT_HOST,
+  }: Partial<ScreenSettings> = {},
 ): ScreenState => {
   const game = restored ?? newGame('hotseat', options.newId());
   const isFlipped = flipped(game, turnHotseat);
@@ -620,36 +619,25 @@ const onMenu: Handler<'menu'> = (state, overlay, key) => {
   });
 };
 
-// Up and Down walk the settings. The arrows sideways change the volume on its
-// row, step through the hosts on his, and flip a switch on the others, as OK
-// does, so either habit works.
-const onSettings: Handler<'settings'> = (state, overlay, key) => {
-  if (key === 'menu') return show(state, HOME);
-  if (key === 'back')
-    return show(
-      state,
-      overlay.from === 'home'
-        ? {
-            kind: 'home',
-            index: homeOptions(resumable(state.game)).indexOf(SETTINGS_OPTION),
-          }
-        : {
-            kind: 'menu',
-            index: menuOptions(state.game).indexOf(SETTINGS_OPTION),
-          },
-    );
-  const rows = settingsOptions(
-    state.sound,
-    state.music,
-    state.musicAvailable,
-    state.turnHotseat,
-    state.voices,
-    state.host,
-  );
-  if (key === 'up' || key === 'down')
-    return moved(state, overlay, key, rows.length);
-  // What a row is comes from its label: the rows differ with the build.
-  const row = rows[overlay.index] ?? '';
+// The option the settings were opened from, which Back returns to.
+const settingsOpener = (state: ScreenState, from: 'home' | 'menu'): Overlay =>
+  from === 'home'
+    ? {
+        kind: 'home',
+        index: homeOptions(resumable(state.game)).indexOf(SETTINGS_OPTION),
+      }
+    : {
+        kind: 'menu',
+        index: menuOptions(state.game).indexOf(SETTINGS_OPTION),
+      };
+
+// What a sideways arrow, or OK, does to a row. What a row is comes from its
+// label: the rows differ with the build.
+const changed = (
+  state: ScreenState,
+  row: string,
+  key: BoardKey,
+): ScreenState => {
   if (row.startsWith('Music volume')) {
     if (key === 'select') return state;
     const volume = Math.max(
@@ -668,6 +656,25 @@ const onSettings: Handler<'settings'> = (state, overlay, key) => {
   if (row.startsWith('Turn board in hotseat:'))
     return { ...state, turnHotseat: !state.turnHotseat };
   return state;
+};
+
+// Up and Down walk the settings. The arrows sideways change the volume on its
+// row, step through the hosts on his, and flip a switch on the others, as OK
+// does, so either habit works.
+const onSettings: Handler<'settings'> = (state, overlay, key) => {
+  if (key === 'menu') return show(state, HOME);
+  if (key === 'back') return show(state, settingsOpener(state, overlay.from));
+  const rows = settingsOptions(
+    state.sound,
+    state.music,
+    state.musicAvailable,
+    state.turnHotseat,
+    state.voices,
+    state.host,
+  );
+  if (key === 'up' || key === 'down')
+    return moved(state, overlay, key, rows.length);
+  return changed(state, rows[overlay.index] ?? '', key);
 };
 
 const onPromotion: Handler<'promotion'> = (state, overlay, key) => {

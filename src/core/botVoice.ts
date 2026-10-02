@@ -235,6 +235,26 @@ export type CaptureAnalysis = {
   promotion: boolean;
 };
 
+// An action between two games, with the board it was played on.
+type Played = { readonly move: string; readonly board: string };
+
+function playedOn(before: Game, after: Game): Played[] {
+  if (after.moves.length <= before.moves.length) return [];
+  const actions: Played[] = [];
+  let dfen = viewGame(before).dfen;
+  for (const move of after.moves.slice(before.moves.length)) {
+    actions.push({ move, board: dfen.split(' ')[0] });
+    const applied = DiceChess.applyMove(
+      dfen,
+      move.slice(0, 2),
+      move.slice(2, 4),
+      move.slice(4) || undefined,
+    );
+    if (applied) dfen = applied;
+  }
+  return actions;
+}
+
 export function analyzeCaptures(before: Game, after: Game): CaptureAnalysis {
   let queen = false;
   let rook = false;
@@ -242,29 +262,14 @@ export function analyzeCaptures(before: Game, after: Game): CaptureAnalysis {
   let enPassant = false;
   let promotion = false;
 
-  if (after.moves.length > before.moves.length) {
-    const newMoves = after.moves.slice(before.moves.length);
-    let dfen = viewGame(before).dfen;
-    for (const move of newMoves) {
-      const board = dfen.split(' ')[0];
-      const from = move.slice(0, 2);
-      const to = move.slice(2, 4);
-      const target = pieceAt(board, to)?.toLowerCase();
+  for (const { move, board } of playedOn(before, after)) {
+    const target = pieceAt(board, move.slice(2, 4))?.toLowerCase();
 
-      if (target === 'q') queen = true;
-      else if (target === 'r') rook = true;
-      else if (target && target !== 'k') minor = true;
-      else if (isEnPassant(board, move)) enPassant = true;
-      if (isPromotion(move)) promotion = true;
-
-      const applied = DiceChess.applyMove(
-        dfen,
-        from,
-        to,
-        move.slice(4) || undefined,
-      );
-      if (applied) dfen = applied;
-    }
+    if (target === 'q') queen = true;
+    else if (target === 'r') rook = true;
+    else if (target && target !== 'k') minor = true;
+    else if (isEnPassant(board, move)) enPassant = true;
+    if (isPromotion(move)) promotion = true;
   }
 
   return {

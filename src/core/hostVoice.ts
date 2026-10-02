@@ -20,7 +20,7 @@ import {
   isEmptyRollStep,
   isMatchStartStep,
 } from './botVoice.ts';
-import { viewGame, type Game } from './game.ts';
+import { viewGame, type Game, type Side } from './game.ts';
 import {
   HOST_EVENTS,
   HOST_PACING,
@@ -135,14 +135,14 @@ export function hostLineById(id: string): HostLine | undefined {
 }
 
 // The host's last word: it stays while the result shows.
-const RESULT_EVENTS: readonly HostEvent[] = [
+const RESULT_EVENTS: ReadonlySet<HostEvent> = new Set<HostEvent>([
   'white_wins',
   'black_wins',
   'win',
   'draw',
-];
+]);
 export const isResultLine = (line: Pick<HostLine, 'event'>): boolean =>
-  RESULT_EVENTS.includes(line.event);
+  RESULT_EVENTS.has(line.event);
 
 type Counts = Readonly<Partial<Record<HostEvent, number>>>;
 
@@ -193,11 +193,38 @@ const byPriority = (a: HostEvent, b: HostEvent): number =>
 
 // A game the host has not seen yet: the first one he hosts, another one, or the
 // same id started again (an ended game replaced by a new one).
-const startsHosting = (before: Game | null, after: Game): boolean =>
-  !before ||
-  before.id !== after.id ||
+export const startsHosting = (before: Game | null, after: Game): boolean =>
+  before?.id !== after.id ||
   after.revision < before.revision ||
   before.mode !== after.mode;
+
+// What a result is to the host: a colour's win, or a draw.
+const resultEvent = (winner: Side | null): HostEvent => {
+  if (winner === 'w') return 'white_wins';
+  if (winner === 'b') return 'black_wins';
+  return 'draw';
+};
+
+// The end of a turn: the roll left nothing to play, or its last action was
+// played, and the prompt says "OK: continue".
+const endsTurn = (before: Game, after: Game): boolean =>
+  after.phase === 'handoff' &&
+  before.phase !== 'handoff' &&
+  before.turn === after.turn;
+
+// What the turn that has just ended took or left, over all of its actions.
+function turnEvents(before: Game, after: Game): HostEvent[] {
+  // The whole turn, from its roll: the same game with no actions yet.
+  const turn = analyzeCaptures({ ...after, moves: [], lastMove: null }, after);
+  const events: HostEvent[] = [];
+  if (turn.queen) events.push('capture_queen');
+  if (turn.rook) events.push('capture_heavy');
+  if (turn.enPassant) events.push('en_passant');
+  if (turn.promotion) events.push('promotion');
+  if (turn.minor) events.push('capture');
+  if (isEmptyRollStep(before, after)) events.push('empty_roll');
+  return events;
+}
 
 // What a step of a hotseat game gives the host to speak about, the most
 // important first. Only the end of the game and the end of a turn count.
@@ -209,29 +236,10 @@ export function hostEvents(
   if (after.mode !== 'hotseat') return [];
   // The end of the game, which a turn's captures do not outweigh: a king
   // taken, a resignation, a draw agreed or reached.
-  if (before.phase !== 'ended' && after.phase === 'ended' && after.result) {
-    const { winner } = after.result;
-    return [
-      winner === 'w' ? 'white_wins' : winner === 'b' ? 'black_wins' : 'draw',
-    ];
-  }
-  // The end of a turn: the roll left nothing to play, or its last action was
-  // played, and the prompt says "OK: continue".
-  if (
-    after.phase !== 'handoff' ||
-    before.phase === 'handoff' ||
-    before.turn !== after.turn
-  )
-    return [];
-  // The whole turn, from its roll: the same game with no actions yet.
-  const turn = analyzeCaptures({ ...after, moves: [], lastMove: null }, after);
-  const events: HostEvent[] = [];
-  if (turn.queen) events.push('capture_queen');
-  if (turn.rook) events.push('capture_heavy');
-  if (turn.enPassant) events.push('en_passant');
-  if (turn.promotion) events.push('promotion');
-  if (turn.minor) events.push('capture');
-  if (isEmptyRollStep(before, after)) events.push('empty_roll');
+  if (before.phase !== 'ended' && after.phase === 'ended' && after.result)
+    return [resultEvent(after.result.winner)];
+  if (!endsTurn(before, after)) return [];
+  const events = turnEvents(before, after);
   // Until the next turn begins, the side in the position is still the one that
   // moved. Two of the three lines name Black's turn, so only the end of a
   // White turn teaches the pass.
@@ -256,12 +264,11 @@ const poolOf = (event: HostEvent): readonly string[] => {
 // end the next.
 const recencyOf = (event: HostEvent): HostEvent =>
   event === 'white_wins' || event === 'black_wins' ? 'win' : event;
-const otherColour = (event: HostEvent): HostEvent | null =>
-  event === 'white_wins'
-    ? 'black_wins'
-    : event === 'black_wins'
-      ? 'white_wins'
-      : null;
+const otherColour = (event: HostEvent): HostEvent | null => {
+  if (event === 'white_wins') return 'black_wins';
+  if (event === 'black_wins') return 'white_wins';
+  return null;
+};
 
 // A fresh bag for an event: its lines shuffled, never opening with the line
 // said last.

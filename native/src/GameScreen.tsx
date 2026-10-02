@@ -517,16 +517,14 @@ export const GameScreen = ({
     },
     dispatch,
   ] = React.useReducer(reduce, initial, (restored) =>
-    initialState(
-      options,
-      restored,
-      initialSound,
-      initialMusic,
+    initialState(options, restored, {
+      sound: initialSound,
+      music: initialMusic,
       musicAvailable,
-      initialTurnBoard,
-      initialVoices,
-      initialHost,
-    ),
+      turnHotseat: initialTurnBoard,
+      voices: initialVoices,
+      host: initialHost,
+    }),
   );
   React.useEffect(() => {
     dispatch({ kind: 'musicAvailable', available: musicAvailable });

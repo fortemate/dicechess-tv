@@ -24,6 +24,7 @@ import {
   hostVoiceCue,
   isResultLine,
   restoreLine,
+  startsHosting,
   type HostEvent,
   type HostLine,
   type HostState,
@@ -129,15 +130,31 @@ export function useHostVoice(game: Game, options: UseHostVoiceOptions): void {
     speaking.current = null;
   }, []);
 
+  // Not a Hot Seat game, or no host: a line that waits goes back, and one being
+  // said ends.
+  const standDown = React.useCallback(
+    (turnedOff: boolean) => {
+      restorePending(state, pending);
+      if (!speaking.current) return;
+      clear();
+      // Turned off mid-line, he stops talking. A new game against the bot has
+      // a line of its own, which this leaves alone.
+      if (turnedOff) optionsRef.current.onStop?.();
+    },
+    [clear],
+  );
+
+  // A line that waits is said, unless another is being said.
+  const sayWaiting = React.useCallback(() => {
+    const waiting = pending.current;
+    if (speaking.current || !waiting) return;
+    pending.current = null;
+    speak(waiting);
+  }, [speak]);
+
   React.useEffect(() => {
     if (game.mode !== 'hotseat' || !on) {
-      restorePending(state, pending);
-      if (speaking.current) {
-        clear();
-        // Turned off mid-line, he stops talking. A new game against the bot
-        // has a line of its own, which this leaves alone.
-        if (!on) optionsRef.current.onStop?.();
-      }
+      standDown(!on);
       lastGame.current = null;
       return;
     }
@@ -150,24 +167,17 @@ export function useHostVoice(game: Game, options: UseHostVoiceOptions): void {
     // Only the board coming back, or the host turned on: a line that waited
     // for it is said.
     if (prev === game) {
-      const waiting = pending.current;
-      if (!speaking.current && waiting) {
-        pending.current = null;
-        speak(waiting);
-      }
+      sayWaiting();
       return;
     }
 
-    const fresh =
-      !prev ||
-      prev.id !== game.id ||
-      game.revision < prev.revision ||
-      prev.mode !== game.mode;
-    if (fresh) {
+    // The game he saw last, unless this one is new to him.
+    const before = startsHosting(prev, game) ? null : prev;
+    if (!before) {
       // A new game replaces whatever was said or waiting.
       restorePending(state, pending);
       if (speaking.current) clear();
-    } else if (game.revision !== prev.revision) {
+    } else if (game.revision !== before.revision) {
       // The game moved on, past the pause a waiting line was picked at: it is
       // put back unheard, whatever its tier. A pass of the remote is then
       // taught at a later White turn end.
@@ -175,7 +185,7 @@ export function useHostVoice(game: Game, options: UseHostVoiceOptions): void {
     }
 
     const cue = hostVoiceCue(
-      fresh ? null : prev,
+      before,
       game,
       state.current,
       optionsRef.current.random,
@@ -196,7 +206,7 @@ export function useHostVoice(game: Game, options: UseHostVoiceOptions): void {
     // line waiting from an earlier step was put back above, so one waits at
     // most.
     pending.current = next;
-  }, [game, live, on, speak, clear]);
+  }, [game, live, on, speak, clear, standDown, sayWaiting]);
 
   React.useEffect(() => () => stopTimer(timer), []);
 }
