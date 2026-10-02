@@ -133,6 +133,14 @@ npm run build --prefix native -- --build-number 7
 
 `BUILD_NUMBER=8 mise run device:run` sets the number by hand. Removing the app (`vega device uninstall-app -d VirtualDevice -a com.fortemate.dicechesstv.main`) also works, but it deletes the saved game, the results and the settings.
 
+### The Vega SDK stops working after a macOS 27 upgrade
+
+Upgrading a Mac from macOS 26 to macOS 27 removes Rosetta, and several Vega SDK components depend on it ([Amazon's bulletin](https://community.amazondeveloper.com/t/developer-bulletin-issues-with-vega-devkit-after-mac-os-27-upgrade/29216)). A tool that needs it fails with "Bad CPU type in executable". Reinstall Rosetta:
+
+```bash
+softwareupdate --install-rosetta --agree-to-license
+```
+
 ### Missing Audio Output
 
 If no sound is heard on the virtual device, verify that the required audio services are declared in `native/manifest.toml`. Undeclared audio service connections fail silently with log warnings. See [Building on Vega](/dicechess-tv/technology/vega/#audio-subsystem--manifest-permissions).

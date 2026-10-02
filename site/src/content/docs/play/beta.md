@@ -13,9 +13,13 @@ Owners of a Fire TV Stick 4K Select or a Fire TV Stick HD (2nd generation) can i
 
 1. Write to [hello@fortemate.com](mailto:hello@fortemate.com) with the email address of the Amazon account your Stick is registered to. Amazon asks that testers be at least 18, so a child plays on a parent's Stick.
 2. Amazon sends an invitation to that address, and a notification to the Stick.
-3. Open the link in the email for your country's Appstore, choose your Stick under **Send to Device**, and the game installs like any other app.
+3. On the Stick, install **Appstore Beta Hub** from the Amazon Appstore, a free app of Amazon's for testers. Open it, choose Dice Chess under **Beta Apps Not Installed**, and select **Get**.
 
-If the game does not appear, open **Settings → My Account → Sync Amazon Content** on the Stick. The Stick is listed only if it is sold in your country's Amazon store.
+Without Beta Hub, open the link in the email for your country's Appstore instead, choose your Stick under **Send to Device**, and the game installs like any other app.
+
+When we publish a new beta, Beta Hub has it at once: highlight the game, press the menu button on the remote, and choose **Check for Update**. Amazon's [Beta Hub guide](https://developer.amazon.com/docs/app-testing/appstore-beta-hub.html) has the rest.
+
+If the game does not appear, open **Settings → My Account → Sync Amazon Content** on the Stick; Amazon's Beta Hub guide calls the menu **Account & Profile Settings**. The Stick is listed only if it is sold in your country's Amazon store.
 
 ## In developer mode or on the Virtual Device
 
