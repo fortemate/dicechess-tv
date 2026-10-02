@@ -58,6 +58,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 | [FL-26](#fl-26) | The docs call `volume` and `muted` unsupported, yet both take effect         | Audio, docs                       | Low      | Open          |
 | [FL-27](#fl-27) | MP3 encoder padding is played, not trimmed                                   | Audio                             | Low      | Worked around |
 | [FL-28](#fl-28) | `launch-app` restarts a background app, and the emulator's Home does nothing | CLI, Virtual Device               | Medium   | Worked around |
+| [FL-29](#fl-29) | Adaptive Display cannot be set on the Virtual Device, or VoiceView by `vdcm` | Virtual Device, docs              | Medium   | Open          |
 
 ## Entries
 
@@ -722,6 +723,60 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   - `launch-app` that foregrounds a running app, or a flag for it;
   - its output saying whether it started a process or resumed one.
 - **Current status:** worked around.
+
+### FL-29 · Adaptive Display cannot be set on the Virtual Device, or VoiceView by `vdcm` {#fl-29}
+
+- **Date and environment:** 2026-10-02 · SDK 0.24.12112, Vega CLI 1.3.4 · Virtual Device (OS 1.2,
+  release 21).
+- **Tool / SDK / component version:** `vdcm` and `a11y-tv-util` on the device, through
+  `vega device shell`, `vega exec vda shell` and `vega device run-cmd`; the Vega 0.24
+  [WebView accessibility guide](https://developer.amazon.com/docs/vega/0.24/webview-accessibility-guide)
+  and the React Native for Vega 0.83
+  [accessibility page](https://developer.amazon.com/docs/react-native-vega/0.83/accessibility).
+- **User task:** check every screen with Adaptive Display on, which
+  [Amazon's developer news](https://community.amazondeveloper.com/t/aug-17-2026-ring-dev-updates-phynd-on-fire-tv/28966)
+  says makes text and menus bigger on Vega devices, before a Fire TV Stick is at hand.
+- **Minimal reproduction steps:**
+  - open Settings on the Virtual Device's launcher;
+  - in `vega device shell`, run the command the WebView accessibility guide gives,
+    `vdcm set "com.amazon.devconf/system/accessibility/VoiceViewEnabled" "ENABLED"`;
+  - in the same shell, `vdcm get com.amazon.devconf/system/accessibility/UiScaleFactor`, then
+    `vdcm set` on that key;
+  - `a11y-tv-util settings list`.
+- **Expected result:**
+  - a way to turn on Adaptive Display, or to set a text scale, on the Virtual Device, or a note in the
+    documentation that it has none;
+  - the guide's command turning VoiceView on.
+- **Actual result and evidence:**
+  - Settings holds only Account Settings, and no accessibility settings app is installed: nothing in the
+    user interface turns Adaptive Display on.
+  - `vdcm set` fails with `No permission for operation`, for `VoiceViewEnabled` as documented and for
+    `UiScaleFactor` alike. All three shells run as `app_user` (uid 5000).
+  - `UiScaleFactor` reads `1`. No documentation names it. It is our best guess for Adaptive Display's
+    scale, and we could not find out whether it reaches an app as `fontScale`, as the dp scale, or not
+    at all.
+  - `a11y-tv-util settings list` fails with `Error obtaining user profile object`.
+  - The accessibility page's own route does work. Its `inputd-cli` script holds Back and Menu for 3 s,
+    and it turned VoiceView on (`VoiceViewEnabled` read `ENABLED`), although `inputd-cli`'s
+    `button_press` reaches no app ([FL-08](#fl-08)). Back on VoiceView's welcome screen turned it off.
+
+  Evidence: [#170](https://github.com/fortemate/dicechess-tv/issues/170#issuecomment-5953275572) and
+  [its VoiceView follow-up](https://github.com/fortemate/dicechess-tv/issues/170#issuecomment-5953586744).
+
+- **Severity and user impact:** Medium. It cost hours, and the app's layout still cannot be checked
+  against Adaptive Display before a Fire TV Stick is at hand.
+- **Workaround:**
+  - for VoiceView, the `inputd-cli` script from the React Native accessibility page;
+  - for Adaptive Display, none on the Virtual Device: the check waits for a Fire TV Stick
+    ([#10](https://github.com/fortemate/dicechess-tv/issues/10)).
+- **Suggested improvement:**
+  - Adaptive Display in the Virtual Device's Settings, or a documented way to set `UiScaleFactor` and
+    the other accessibility keys that the developer shell is allowed to use;
+  - a note on what Adaptive Display changes for a React Native for Vega app: `fontScale`, the dp scale
+    or a zoom of the picture;
+  - in the WebView accessibility guide, the `inputd-cli` route, or a note that its `vdcm` command needs
+    privileges that the developer shell lacks.
+- **Current status:** open.
 
 ## What worked well
 
