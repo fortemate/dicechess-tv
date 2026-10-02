@@ -176,6 +176,30 @@ test('OK on the board rolls the dice', () => {
   );
 });
 
+test('no cursor frame before the roll; after it the frame waits on a movable piece (#206)', () => {
+  const frames = (root: Instance) =>
+    overlays(root, (s) => s.borderColor === THEME.cursor).length;
+
+  // A hotseat turn: nothing to choose until the dice are rolled.
+  const { root, state } = mount();
+  assert.match(state(), /phase roll/);
+  assert.equal(frames(root), 0, 'no frame before the roll');
+  send(Select);
+  assert.match(state(), /phase move \| side w/);
+  assert.match(state(), /cursor g1/);
+  assert.equal(frames(root), 1, 'one frame, on the knight the cursor waits on');
+
+  // Against the bot, after its turn: the person's roll is next, with no frame.
+  const bot = mountHome();
+  // Play the computer, Rolly, then Random on the colour choice, which draws
+  // White; the person rolls and plays, and the bot answers at once.
+  send(Down, Select, Select, Select);
+  assert.match(bot.state(), /phase roll/);
+  assert.equal(frames(bot.root), 0, 'no frame before the first roll');
+  send(Select);
+  assert.equal(frames(bot.root), 1, 'a frame once the person chooses');
+});
+
 test('arrows move the focus, OK picks a piece up and marks its destinations', () => {
   const { root, state } = mount();
   send(Select);
