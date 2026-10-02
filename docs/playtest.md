@@ -22,7 +22,7 @@ On Linux, the command is `sha256sum` with the same arguments.
 
 ## Installing
 
-You need the `vega` command line from the Vega SDK, which installs on macOS or Ubuntu: see [Install the Vega SDK](https://developer.amazon.com/docs/vega/0.24/install-vega-sdk).
+You need the `vega` command line from the Vega SDK, which installs on macOS or Ubuntu: see [Install the Vega SDK](https://developer.amazon.com/docs/vega/0.24/install-vega-sdk). If it stopped working after you upgraded your Mac to macOS 27, the upgrade removed Rosetta, which the SDK needs: reinstall it with `softwareupdate --install-rosetta --agree-to-license`.
 
 - **A Fire TV Stick:** turn on developer mode first, as [Amazon's guide](https://developer.amazon.com/docs/vega/0.24/developer-mode) describes. It needs an Amazon Developer account, which `vega devmode login` signs in to, and the Stick on the same network as your computer.
 - **A computer:** start the Virtual Device with `vega virtual-device start`.
