@@ -125,12 +125,13 @@ Without `resolver.nodeModulesPaths`, it fails with `Unable to resolve module @ba
 
 ### "Package version decrease" Error
 
-When installing a local build over an existing pre-release beta package (e.g. installed from GitHub Releases or LAT), the device may reject installation because local development builds have build number 0:
+A device refuses a build numbered lower than the one installed, such as a beta from GitHub Releases or Live App Testing. `mise run build` and `mise run device:run` number a local build as the latest beta, so it installs over that beta and keeps its saved game. A direct `npm run build --prefix native` builds with number 0: give it the latest beta's number.
 
 ```bash
-# Solution: Uninstall the existing package before installing the local build
-vega device uninstall-app -d VirtualDevice -a com.fortemate.dicechesstv.main
+npm run build --prefix native -- --build-number 7
 ```
+
+`BUILD_NUMBER=8 mise run device:run` sets the number by hand. Removing the app (`vega device uninstall-app -d VirtualDevice -a com.fortemate.dicechesstv.main`) also works, but it deletes the saved game, the results and the settings.
 
 ### Missing Audio Output
 

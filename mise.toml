@@ -58,8 +58,16 @@ run = "npm run coverage"
 # --- The application on a Vega Virtual Device (needs the Vega SDK) ---
 
 [tasks.build]
-description = "🔨 Build the installable package (native/build/aarch64-release/)"
-run = "npm run build --prefix native"
+description = "🔨 Build the installable package (native/build/aarch64-release/), numbered as the latest beta"
+# A device refuses a build numbered lower than the one installed, so a plain local
+# build (number 0) will not install over a beta. This one takes the latest beta's
+# number from the tags, on GitHub or, offline, in the clone: it installs over that
+# beta, and the next beta, numbered higher, installs over it. BUILD_NUMBER overrides.
+run = '''
+n="${BUILD_NUMBER:-$( { git ls-remote --tags origin 'v*-beta.*' 2>/dev/null || git show-ref --tags; } | sed -nE 's#.*refs/tags/v[^[:space:]]*-beta\.([0-9]+)$#\1#p' | sort -n | tail -1)}"
+echo "build number ${n:-0}"
+npm run build --prefix native -- --build-number "${n:-0}"
+'''
 
 [tasks."device:start"]
 description = "📺 Start the Vega Virtual Device"
