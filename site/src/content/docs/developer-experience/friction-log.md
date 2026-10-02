@@ -777,6 +777,19 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   - in the WebView accessibility guide, the `inputd-cli` route, or a note that its `vdcm` command needs
     privileges that the developer shell lacks.
 - **Current status:** open.
+- **Update, 2026-10-02:** Amazon staff answered our
+  [forum question](https://community.amazondeveloper.com/t/adaptive-display-what-does-uiscalefactor-change-for-an-app-and-can-it-be-set-on-the-virtual-device/29682)
+  the same day. The `vdcm set` failures are expected, not a misconfiguration: the Vega SDK 0.24
+  [release notes](https://developer.amazon.com/docs/vega/0.24/vega-release-notes.html) say that apps
+  may read accessibility settings, but "setting accessibility values is gated by a runtime
+  privilege". There is no documented way to change Adaptive Display or the font scale on the current
+  Virtual Device, so large text is checked on a Fire TV Stick, under Settings → Accessibility →
+  Adaptive Display. An app should follow `fontScale` rather than read the config key; the
+  [density-independent pixels guide](https://developer.amazon.com/docs/vega/0.24/rn-migration-dip.html)
+  keeps it apart from the dp scale. What `UiScaleFactor` is, and which values it takes, Amazon is
+  still checking. The suggested improvements stand: the release notes explain the failures, but
+  nothing says so where a developer meets them, on the Virtual Device or in the WebView
+  accessibility guide.
 
 ## What worked well
 
