@@ -117,57 +117,57 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
   },
   rampage_capture_1: {
     file: 'elevenlabs-dicechess-bots/rampage_capture_1.mp3',
-    seconds: 4.56,
+    seconds: 4.24,
     text: 'Obliterated! One less obstacle in my path.',
   },
   rampage_capture_2: {
     file: 'elevenlabs-dicechess-bots/rampage_capture_2.mp3',
-    seconds: 4.16,
+    seconds: 3.92,
     text: 'Cut down! Your ranks crumble before me.',
   },
   rampage_capture_3: {
     file: 'elevenlabs-dicechess-bots/rampage_capture_3.mp3',
-    seconds: 3.6,
+    seconds: 3.36,
     text: 'Pathetic defense! Smashed aside!',
   },
   rampage_capture_heavy_1: {
     file: 'elevenlabs-dicechess-bots/rampage_capture_heavy_1.mp3',
-    seconds: 4.8,
+    seconds: 4.16,
     text: 'Crushed! Your mightiest defender falls into dust!',
   },
   rampage_capture_heavy_2: {
     file: 'elevenlabs-dicechess-bots/rampage_capture_heavy_2.mp3',
-    seconds: 5.68,
+    seconds: 5.52,
     text: 'Devastating strike! You cannot withstand my assault!',
   },
   rampage_capture_heavy_3: {
     file: 'elevenlabs-dicechess-bots/rampage_capture_heavy_3.mp3',
-    seconds: 4.56,
+    seconds: 4.24,
     text: 'Your high command is broken! Smashed to pieces!',
   },
   rampage_empty_roll_1: {
     file: 'elevenlabs-dicechess-bots/rampage_empty_roll_1.mp3',
-    seconds: 5.04,
+    seconds: 4.72,
     text: 'The dice stall my fury. Savor your brief respite.',
   },
   rampage_empty_roll_2: {
     file: 'elevenlabs-dicechess-bots/rampage_empty_roll_2.mp3',
-    seconds: 5.12,
+    seconds: 4.88,
     text: 'No targets?! Unacceptable! Next turn you fall.',
   },
   rampage_empty_roll_3: {
     file: 'elevenlabs-dicechess-bots/rampage_empty_roll_3.mp3',
-    seconds: 3.52,
+    seconds: 3.36,
     text: 'A momentary pause before the storm resumes.',
   },
   rampage_intro_1: {
     file: 'elevenlabs-dicechess-bots/rampage_intro_1.mp3',
-    seconds: 5.36,
+    seconds: 4.56,
     text: 'Step forward. Your king will not survive this day.',
   },
   rampage_intro_2: {
     file: 'elevenlabs-dicechess-bots/rampage_intro_2.mp3',
-    seconds: 5.28,
+    seconds: 4.72,
     text: 'No mercy. No retreat. Let the battle begin.',
   },
   rampage_intro_3: {
@@ -177,27 +177,27 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
   },
   rampage_loss_1: {
     file: 'elevenlabs-dicechess-bots/rampage_loss_1.mp3',
-    seconds: 3.84,
+    seconds: 3.68,
     text: 'Impossible! How could my onslaught fail?!',
   },
   rampage_loss_2: {
     file: 'elevenlabs-dicechess-bots/rampage_loss_2.mp3',
-    seconds: 5.44,
+    seconds: 5.2,
     text: 'You fought fiercely... I acknowledge your triumph.',
   },
   rampage_loss_3: {
     file: 'elevenlabs-dicechess-bots/rampage_loss_3.mp3',
-    seconds: 4.88,
+    seconds: 4.72,
     text: 'Downed, but not broken! We will battle again!',
   },
   rampage_threat_1: {
     file: 'elevenlabs-dicechess-bots/rampage_threat_1.mp3',
-    seconds: 2.8,
+    seconds: 2.56,
     text: 'Your king is in my sights!',
   },
   rampage_threat_2: {
     file: 'elevenlabs-dicechess-bots/rampage_threat_2.mp3',
-    seconds: 3.28,
+    seconds: 3.2,
     text: 'The right roll, and your king falls!',
   },
   rampage_threat_3: {
@@ -207,17 +207,17 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
   },
   rampage_win_1: {
     file: 'elevenlabs-dicechess-bots/rampage_win_1.mp3',
-    seconds: 5.44,
+    seconds: 5.04,
     text: 'Total annihilation! Kneel before the conqueror!',
   },
   rampage_win_2: {
     file: 'elevenlabs-dicechess-bots/rampage_win_2.mp3',
-    seconds: 4.88,
+    seconds: 4.64,
     text: 'Your army is crushed beneath my heel!',
   },
   rampage_win_3: {
     file: 'elevenlabs-dicechess-bots/rampage_win_3.mp3',
-    seconds: 4.64,
+    seconds: 4.4,
     text: 'Victory was inevitable! You were completely outmatched!',
   },
   rolly_capture_1: {

@@ -1,6 +1,6 @@
 {
   "upstream": "fortemate/dicechess-assets",
-  "commit": "ef1e4a328e755d607030c28682911b1ee2177eaf",
+  "commit": "a5ae39e64c22ba55a83c9a1ed7283d9485eecd02",
   "pack": "elevenlabs-dicechess-bots",
   "title": "Dice Chess bot voices (ElevenLabs)",
   "license": "Fortemate apps only",
@@ -213,8 +213,8 @@
       "text": "Obliterated! One less obstacle in my path.",
       "voice": "Rampage",
       "file": "elevenlabs-dicechess-bots/rampage_capture_1.mp3",
-      "sha256": "df36348dcc5b584bffc02f9c9a60f2c5150daf466f7f8e7c6ad70e9dc0a7840f",
-      "seconds": 4.56
+      "sha256": "14026b356ae833de5a36f9501b517bc0be1ee76cdecd6239e4d5e0b3cf6dc36f",
+      "seconds": 4.24
     },
     "rampage_capture_2": {
       "bot": "aggressive",
@@ -222,8 +222,8 @@
       "text": "Cut down! Your ranks crumble before me.",
       "voice": "Rampage",
       "file": "elevenlabs-dicechess-bots/rampage_capture_2.mp3",
-      "sha256": "9a4884a2ab7b09997cbf133531f54d29b092c114285fd633369960a4e4b22436",
-      "seconds": 4.16
+      "sha256": "16821f9ea28a8d213cd12dc2b2f726d301719563fe309e4a6b8ac83f99bb8aef",
+      "seconds": 3.92
     },
     "rampage_capture_3": {
       "bot": "aggressive",
@@ -231,8 +231,8 @@
       "text": "Pathetic defense! Smashed aside!",
       "voice": "Rampage",
       "file": "elevenlabs-dicechess-bots/rampage_capture_3.mp3",
-      "sha256": "31550ad8e76c03e2301336ae94f0bd46ede9b884929a21822d553a4cfdf5f80a",
-      "seconds": 3.6
+      "sha256": "616b897ab54627d182016d026206b94316bd40c9778fbfd96a584b9366e2dae8",
+      "seconds": 3.36
     },
     "rampage_capture_heavy_1": {
       "bot": "aggressive",
@@ -240,8 +240,8 @@
       "text": "Crushed! Your mightiest defender falls into dust!",
       "voice": "Rampage",
       "file": "elevenlabs-dicechess-bots/rampage_capture_heavy_1.mp3",
-      "sha256": "2bbfe93a4bd2b5e09b1864b8ab9fda60a0c99e520be31c26193db38e8524d9e1",
-      "seconds": 4.8
+      "sha256": "8845df6ca85e2fb2fa74f3878f3795e211e7619d3e0e5e0ca5dc77ce744bb760",
+      "seconds": 4.16
     },
     "rampage_capture_heavy_2": {
       "bot": "aggressive",
@@ -249,8 +249,8 @@
       "text": "Devastating strike! You cannot withstand my assault!",
       "voice": "Rampage",
       "file": "elevenlabs-dicechess-bots/rampage_capture_heavy_2.mp3",
-      "sha256": "ec447e8271130d74319b144c67ee0ebd862049a2d38d311968e74b01d0b0a3e6",
-      "seconds": 5.68
+      "sha256": "9f6aaf938746de5885687e2948746a71021806f67392c34580679a749ff680df",
+      "seconds": 5.52
     },
     "rampage_capture_heavy_3": {
       "bot": "aggressive",
@@ -258,8 +258,8 @@
       "text": "Your high command is broken! Smashed to pieces!",
       "voice": "Rampage",
       "file": "elevenlabs-dicechess-bots/rampage_capture_heavy_3.mp3",
-      "sha256": "2c45e069576f6c2bf7ef98128d96f76233e39e2eb39205bbcaad53f504825bc5",
-      "seconds": 4.56
+      "sha256": "9017ff23d24fc497eacee6420a697ad4b55c1a6e616803f9d686e647a9fb75d4",
+      "seconds": 4.24
     },
     "rampage_empty_roll_1": {
       "bot": "aggressive",
@@ -267,8 +267,8 @@
       "text": "The dice stall my fury. Savor your brief respite.",
       "voice": "Rampage",
       "file": "elevenlabs-dicechess-bots/rampage_empty_roll_1.mp3",
-      "sha256": "832190283727b14ff81705b82437e7bbc8851a23f9605747056a025fa6ef9a65",
-      "seconds": 5.04
+      "sha256": "e9a3dbe531abd55d36bc04092d70fbfedb29aa9c3a7eac68d9c256fc249e91fe",
+      "seconds": 4.72
     },
     "rampage_empty_roll_2": {
       "bot": "aggressive",
@@ -276,8 +276,8 @@
       "text": "No targets?! Unacceptable! Next turn you fall.",
       "voice": "Rampage",
       "file": "elevenlabs-dicechess-bots/rampage_empty_roll_2.mp3",
-      "sha256": "63bb49e721be87487c8df4e9d805f5fbe3608fddf25931e9b4bf50e930632fb9",
-      "seconds": 5.12
+      "sha256": "876befc96a43959cf253dd471fccd240554374d71f1f5b52b85649daa603ef17",
+      "seconds": 4.88
     },
     "rampage_empty_roll_3": {
       "bot": "aggressive",
@@ -285,8 +285,8 @@
       "text": "A momentary pause before the storm resumes.",
       "voice": "Rampage",
       "file": "elevenlabs-dicechess-bots/rampage_empty_roll_3.mp3",
-      "sha256": "ac08e1b9d7890141027eb14e35deb1bf56328cc8bdbe9823a44b08edc9fb0ef9",
-      "seconds": 3.52
+      "sha256": "fbc0411891450fea3d4acd08e8270364c1d43d2b488f18918587cfd63d70ad5e",
+      "seconds": 3.36
     },
     "rampage_intro_1": {
       "bot": "aggressive",
@@ -294,8 +294,8 @@
       "text": "Step forward. Your king will not survive this day.",
       "voice": "Rampage",
       "file": "elevenlabs-dicechess-bots/rampage_intro_1.mp3",
-      "sha256": "ae7f48c7bf303d4bd3a8464bd115fe41e14fced812cddbe9165370639175169d",
-      "seconds": 5.36
+      "sha256": "54f491291d70f18ccc44b8e590ee4c2af1cb8999d28843446bd98a015baba7af",
+      "seconds": 4.56
     },
     "rampage_intro_2": {
       "bot": "aggressive",
@@ -303,8 +303,8 @@
       "text": "No mercy. No retreat. Let the battle begin.",
       "voice": "Rampage",
       "file": "elevenlabs-dicechess-bots/rampage_intro_2.mp3",
-      "sha256": "b3cb6f296d8bee2911f57f400dd3e457770bca60c36f41304cb330575e99b288",
-      "seconds": 5.28
+      "sha256": "ed88236c46203f5e44f4582fc0f707a84beb06ea92a3ee20a2a561eeca6ba0ba",
+      "seconds": 4.72
     },
     "rampage_intro_3": {
       "bot": "aggressive",
@@ -312,7 +312,7 @@
       "text": "Prepare yourself! I strike without hesitation.",
       "voice": "Rampage",
       "file": "elevenlabs-dicechess-bots/rampage_intro_3.mp3",
-      "sha256": "c61fb39ff037a9187d48e0efc10cd9804ebe94ca86a8fc2e5988963f71ac5455",
+      "sha256": "e9b58db818650e5e4b0e34d38b786afeaabb798e214d400f0aae43783c70b092",
       "seconds": 4.24
     },
     "rampage_loss_1": {
@@ -321,8 +321,8 @@
       "text": "Impossible! How could my onslaught fail?!",
       "voice": "Rampage",
       "file": "elevenlabs-dicechess-bots/rampage_loss_1.mp3",
-      "sha256": "8dc90046274b46cc4b7d8628e2932203860904db7ec00492a891db4091ea43de",
-      "seconds": 3.84
+      "sha256": "9ada739ea4e56dd58b4dc16318675920b660ebb766de96b5323865402b713dbf",
+      "seconds": 3.68
     },
     "rampage_loss_2": {
       "bot": "aggressive",
@@ -330,8 +330,8 @@
       "text": "You fought fiercely... I acknowledge your triumph.",
       "voice": "Rampage",
       "file": "elevenlabs-dicechess-bots/rampage_loss_2.mp3",
-      "sha256": "37bb77ad74075123290f54d7454adae2db2d40ec3e1fbccc0e88c09a148fed28",
-      "seconds": 5.44
+      "sha256": "c3e1bdd13158409e4f58a939b74be2e0f770a12d433c66ebf118943f9d74e874",
+      "seconds": 5.2
     },
     "rampage_loss_3": {
       "bot": "aggressive",
@@ -339,8 +339,8 @@
       "text": "Downed, but not broken! We will battle again!",
       "voice": "Rampage",
       "file": "elevenlabs-dicechess-bots/rampage_loss_3.mp3",
-      "sha256": "dc44c3c9d943a37cb285d0a2a54fb4870da7ce6130311e391427f412605994b7",
-      "seconds": 4.88
+      "sha256": "5c11a5575e68f3df67e52f32b97dca1242263b362ffd9805600e23a2af1eebd2",
+      "seconds": 4.72
     },
     "rampage_threat_1": {
       "bot": "aggressive",
@@ -348,8 +348,8 @@
       "text": "Your king is in my sights!",
       "voice": "Rampage",
       "file": "elevenlabs-dicechess-bots/rampage_threat_1.mp3",
-      "sha256": "740d65f0ace3c5b7d376008b4add36f7289196d79bf5370a77e3005be7759b71",
-      "seconds": 2.8
+      "sha256": "650d5a52db616d668ce9049760d025f819e4858531ecc67e59281ed931e40d70",
+      "seconds": 2.56
     },
     "rampage_threat_2": {
       "bot": "aggressive",
@@ -357,8 +357,8 @@
       "text": "The right roll, and your king falls!",
       "voice": "Rampage",
       "file": "elevenlabs-dicechess-bots/rampage_threat_2.mp3",
-      "sha256": "dfd91698a2f64711591e6e4125de6b25c5f7bf4b219e8b35cc3cbac9d9fe1244",
-      "seconds": 3.28
+      "sha256": "0da017b10d010bdbd4d6529c05cff3a281860c49d4e8f5be83616b23f7dd70c7",
+      "seconds": 3.2
     },
     "rampage_threat_3": {
       "bot": "aggressive",
@@ -366,7 +366,7 @@
       "text": "I can smell your king's fear!",
       "voice": "Rampage",
       "file": "elevenlabs-dicechess-bots/rampage_threat_3.mp3",
-      "sha256": "3a17eb4a6ca2a56ea8ad742376ddcac5815c181b55eb6ec8620a13527affd807",
+      "sha256": "dd164714eeb3e4418f803104ecd0f772054feca91ca118e61bd248a348a633f4",
       "seconds": 4.16
     },
     "rampage_win_1": {
@@ -375,8 +375,8 @@
       "text": "Total annihilation! Kneel before the conqueror!",
       "voice": "Rampage",
       "file": "elevenlabs-dicechess-bots/rampage_win_1.mp3",
-      "sha256": "4b0083cb0ba6d38be1dbc69e7f2e86a81c62b8084a156d489393f7dd14acfc7b",
-      "seconds": 5.44
+      "sha256": "d907ce5d3eeaa4942c8cdfafff54e208cd48dd848ceece4e51955818b8d94da2",
+      "seconds": 5.04
     },
     "rampage_win_2": {
       "bot": "aggressive",
@@ -384,8 +384,8 @@
       "text": "Your army is crushed beneath my heel!",
       "voice": "Rampage",
       "file": "elevenlabs-dicechess-bots/rampage_win_2.mp3",
-      "sha256": "771b2f0ffe28ea59a69b24c04d741de61925826619431cdaf18f6152491c1d4e",
-      "seconds": 4.88
+      "sha256": "9bb932d6ce5b7b5162d10f1270b616414d22e5b11b2fe94e9a999a49eaab7e30",
+      "seconds": 4.64
     },
     "rampage_win_3": {
       "bot": "aggressive",
@@ -393,8 +393,8 @@
       "text": "Victory was inevitable! You were completely outmatched!",
       "voice": "Rampage",
       "file": "elevenlabs-dicechess-bots/rampage_win_3.mp3",
-      "sha256": "d9699983dbfda4d2ac3a553ce298d00aaa84f6fc462729ce604bfa377cc1da2d",
-      "seconds": 4.64
+      "sha256": "179fd11944427908903585784f38a6b6fd090d79bbab7a5693fc4160bebbbf21",
+      "seconds": 4.4
     },
     "rolly_capture_1": {
       "bot": "random",
@@ -587,7 +587,7 @@
     }
   },
   "files": {
-    "manifest.json": "b46a40a5968f1f1b45db51010f617b0166bdd6cd56749c495bec4fcdcf4d12e1",
+    "manifest.json": "fdca944806051c91994d7071c67397a4fb424f03a3e0524bc61f429917f8058b",
     "LICENSE.txt": "a4661efdeb8dbc7ac3929dede1d2748409cb04d564f5105647e1f6b655eb6cdd",
     "grabby_capture_1.mp3": "b8875a2bccdc7fb0817d5499079fe1a411ec3a982ccd29627cc45c663325ff1d",
     "grabby_capture_2.mp3": "07d740a55736bc1629c2d296fc6d7629f7e5a3d692c20d56ad6673c637aca535",
@@ -610,27 +610,27 @@
     "grabby_win_1.mp3": "4f2fc882511a382f39a1e0e7829ddb15aea13a99dacf67a9f76719d94661769e",
     "grabby_win_2.mp3": "c2ba2602e59dbe9ec846d1b787d5f9ec2cd0700bf0bbe7b731c0db510765ade2",
     "grabby_win_3.mp3": "dbe1ff168e0bf7d8f365fb88090409db9e0148f5666c28c670fbb8e3aface9cd",
-    "rampage_capture_1.mp3": "df36348dcc5b584bffc02f9c9a60f2c5150daf466f7f8e7c6ad70e9dc0a7840f",
-    "rampage_capture_2.mp3": "9a4884a2ab7b09997cbf133531f54d29b092c114285fd633369960a4e4b22436",
-    "rampage_capture_3.mp3": "31550ad8e76c03e2301336ae94f0bd46ede9b884929a21822d553a4cfdf5f80a",
-    "rampage_capture_heavy_1.mp3": "2bbfe93a4bd2b5e09b1864b8ab9fda60a0c99e520be31c26193db38e8524d9e1",
-    "rampage_capture_heavy_2.mp3": "ec447e8271130d74319b144c67ee0ebd862049a2d38d311968e74b01d0b0a3e6",
-    "rampage_capture_heavy_3.mp3": "2c45e069576f6c2bf7ef98128d96f76233e39e2eb39205bbcaad53f504825bc5",
-    "rampage_empty_roll_1.mp3": "832190283727b14ff81705b82437e7bbc8851a23f9605747056a025fa6ef9a65",
-    "rampage_empty_roll_2.mp3": "63bb49e721be87487c8df4e9d805f5fbe3608fddf25931e9b4bf50e930632fb9",
-    "rampage_empty_roll_3.mp3": "ac08e1b9d7890141027eb14e35deb1bf56328cc8bdbe9823a44b08edc9fb0ef9",
-    "rampage_intro_1.mp3": "ae7f48c7bf303d4bd3a8464bd115fe41e14fced812cddbe9165370639175169d",
-    "rampage_intro_2.mp3": "b3cb6f296d8bee2911f57f400dd3e457770bca60c36f41304cb330575e99b288",
-    "rampage_intro_3.mp3": "c61fb39ff037a9187d48e0efc10cd9804ebe94ca86a8fc2e5988963f71ac5455",
-    "rampage_loss_1.mp3": "8dc90046274b46cc4b7d8628e2932203860904db7ec00492a891db4091ea43de",
-    "rampage_loss_2.mp3": "37bb77ad74075123290f54d7454adae2db2d40ec3e1fbccc0e88c09a148fed28",
-    "rampage_loss_3.mp3": "dc44c3c9d943a37cb285d0a2a54fb4870da7ce6130311e391427f412605994b7",
-    "rampage_threat_1.mp3": "740d65f0ace3c5b7d376008b4add36f7289196d79bf5370a77e3005be7759b71",
-    "rampage_threat_2.mp3": "dfd91698a2f64711591e6e4125de6b25c5f7bf4b219e8b35cc3cbac9d9fe1244",
-    "rampage_threat_3.mp3": "3a17eb4a6ca2a56ea8ad742376ddcac5815c181b55eb6ec8620a13527affd807",
-    "rampage_win_1.mp3": "4b0083cb0ba6d38be1dbc69e7f2e86a81c62b8084a156d489393f7dd14acfc7b",
-    "rampage_win_2.mp3": "771b2f0ffe28ea59a69b24c04d741de61925826619431cdaf18f6152491c1d4e",
-    "rampage_win_3.mp3": "d9699983dbfda4d2ac3a553ce298d00aaa84f6fc462729ce604bfa377cc1da2d",
+    "rampage_capture_1.mp3": "14026b356ae833de5a36f9501b517bc0be1ee76cdecd6239e4d5e0b3cf6dc36f",
+    "rampage_capture_2.mp3": "16821f9ea28a8d213cd12dc2b2f726d301719563fe309e4a6b8ac83f99bb8aef",
+    "rampage_capture_3.mp3": "616b897ab54627d182016d026206b94316bd40c9778fbfd96a584b9366e2dae8",
+    "rampage_capture_heavy_1.mp3": "8845df6ca85e2fb2fa74f3878f3795e211e7619d3e0e5e0ca5dc77ce744bb760",
+    "rampage_capture_heavy_2.mp3": "9f6aaf938746de5885687e2948746a71021806f67392c34580679a749ff680df",
+    "rampage_capture_heavy_3.mp3": "9017ff23d24fc497eacee6420a697ad4b55c1a6e616803f9d686e647a9fb75d4",
+    "rampage_empty_roll_1.mp3": "e9a3dbe531abd55d36bc04092d70fbfedb29aa9c3a7eac68d9c256fc249e91fe",
+    "rampage_empty_roll_2.mp3": "876befc96a43959cf253dd471fccd240554374d71f1f5b52b85649daa603ef17",
+    "rampage_empty_roll_3.mp3": "fbc0411891450fea3d4acd08e8270364c1d43d2b488f18918587cfd63d70ad5e",
+    "rampage_intro_1.mp3": "54f491291d70f18ccc44b8e590ee4c2af1cb8999d28843446bd98a015baba7af",
+    "rampage_intro_2.mp3": "ed88236c46203f5e44f4582fc0f707a84beb06ea92a3ee20a2a561eeca6ba0ba",
+    "rampage_intro_3.mp3": "e9b58db818650e5e4b0e34d38b786afeaabb798e214d400f0aae43783c70b092",
+    "rampage_loss_1.mp3": "9ada739ea4e56dd58b4dc16318675920b660ebb766de96b5323865402b713dbf",
+    "rampage_loss_2.mp3": "c3e1bdd13158409e4f58a939b74be2e0f770a12d433c66ebf118943f9d74e874",
+    "rampage_loss_3.mp3": "5c11a5575e68f3df67e52f32b97dca1242263b362ffd9805600e23a2af1eebd2",
+    "rampage_threat_1.mp3": "650d5a52db616d668ce9049760d025f819e4858531ecc67e59281ed931e40d70",
+    "rampage_threat_2.mp3": "0da017b10d010bdbd4d6529c05cff3a281860c49d4e8f5be83616b23f7dd70c7",
+    "rampage_threat_3.mp3": "dd164714eeb3e4418f803104ecd0f772054feca91ca118e61bd248a348a633f4",
+    "rampage_win_1.mp3": "d907ce5d3eeaa4942c8cdfafff54e208cd48dd848ceece4e51955818b8d94da2",
+    "rampage_win_2.mp3": "9bb932d6ce5b7b5162d10f1270b616414d22e5b11b2fe94e9a999a49eaab7e30",
+    "rampage_win_3.mp3": "179fd11944427908903585784f38a6b6fd090d79bbab7a5693fc4160bebbbf21",
     "rolly_capture_1.mp3": "98a09c8ecfe418f9644174feee658427ac38d31b6cf60d2fa1209b1656d26aef",
     "rolly_capture_2.mp3": "4a049083d26cfc0844a5716358d9d022d1a6dfc4ab0b0fae6e0d56aa2f6ee97b",
     "rolly_capture_3.mp3": "0d5cc8f6a8214e2f75b9bc3addec69eb07766b01178d6e5fd4508bf7d78809c5",
