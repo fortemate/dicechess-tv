@@ -27,7 +27,7 @@ import { createSounds, type Sounds } from './sound';
 import { readSound, saveSound } from './soundSetting';
 import { readTurnBoard, saveTurnBoard } from './turnSetting';
 import { readVoices, saveVoices } from './voiceSetting';
-import { readHost, saveHost } from './hostSetting';
+import { readHost, saveHost, type HostChoice } from './hostSetting';
 import { createMusic, loadCatalogue, type Music } from './music';
 import {
   readMusic,
@@ -147,8 +147,8 @@ export const App = ({
   const settings = React.useMemo(() => new MMKV(), []);
   const [initialSound] = React.useState(() => readSound(settings));
   const [initialVoices] = React.useState(() => readVoices(settings));
-  // Whether Rolly hosts Hot Seat games (#202). His voice obeys the Voices
-  // setting like the bots'.
+  // Who hosts Hot Seat games, Rolly or no one (#202). His voice obeys the
+  // Voices setting like the bots'.
   const [initialHost] = React.useState(() => readHost(settings));
   // The adaptive music (#76), made before the sounds so that a bot's line can
   // duck it (#159).
@@ -191,7 +191,7 @@ export const App = ({
     [settings, sounds],
   );
   const onHost = React.useCallback(
-    (on: boolean) => saveHost(settings, on),
+    (host: HostChoice) => saveHost(settings, host),
     [settings],
   );
 

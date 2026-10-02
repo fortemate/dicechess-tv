@@ -58,7 +58,7 @@ Against the computer, each bot says its lines aloud as well as in its speech bub
 - **A player of its own.** A line neither cuts nor is cut by the board, dice and result cues, and a new line replaces the one being said.
 - **Over the music.** The music ducks by 9 dB while a line is said, and comes back after it. A win or a loss is said after its jingle.
 - **No repeats.** The same line is never said twice in a row for an event, including at the start of a rematch. The bubble stays until its line has been said.
-- **A setting of its own.** **Voices** in Settings switches every spoken line on or off, the bots' and the Hot Seat host's, apart from the sound effects. The bubbles stay either way. The voices are on by default, and they stop when the app leaves the screen.
+- **A setting of its own.** **Voices** in Settings switches every spoken line on or off, the bots' and the Hot Seat host's, apart from the sound effects. A bot's bubble stays either way. The voices are on by default, and they stop when the app leaves the screen.
 
 On the Virtual Device the voice was measured at about 14 dB above the music, with the music lower between the words and back after the line.
 
@@ -66,13 +66,15 @@ On the Virtual Device the voice was measured at about 14 dB above the music, wit
 
 In Hot Seat, two people sharing one remote, Rolly is the host ([#202](https://github.com/fortemate/dicechess-tv/issues/202)): a neutral party host who cheers the moment, never a side. He has 45 lines of his own, in Rolly's voice.
 
+For now he is a voice over the game, heard and not seen. Unlike a bot's lines, his have no speech bubble yet: Hot Seat shows no face or bubble of his, keeps no room for one, and looks as it did before him. The game screen is to be redesigned once the new character portraits exist; how he appears on it waits for that.
+
 - **Only at the pauses.** He speaks as a game starts, when a turn ends and the prompt says "OK: continue", and when the game ends. That is at most one line a turn, and never while someone is thinking.
 - **A turn as a whole.** At a turn's end he picks the biggest moment of the whole turn: a queen taken, a rook, an en passant capture, a promotion, a roll with nothing to play, or a smaller capture. The first time the remote changes hands in a session, he says to pass it. At the end he cheers the winner and the other player too, or both of them for a draw.
 - **Paced like every Dice Chess client.** The start, the result, en passant, a promotion and a queen are said the first two times they happen in a game. A rook or an empty roll waits a round after his last line, three times a game at most. A smaller capture waits three rounds, with a chance that halves each time it has been said. After eight quiet turns, whatever happens next is said. The numbers come from the table every Dice Chess client shares, so the TV, the web and the phone sound alike.
 - **Never over himself.** A new line waits for the one being said, as long as the game waits too: once the next turn begins it is put back unheard, so a waiting line is never said while someone is thinking. Each event's lines come from a shuffled bag, so all of them are heard before any repeats, and a game never ends on the line that ended the one before, whichever side won.
-- **Apart from the players.** His face sits at the left of the speech zone, away from the players' badges, and his bubble points at it, also when the board turns for the side to move.
+- **Over the music.** His lines are said on the bots' voice player: the music ducks under them, and his result waits for its jingle.
 - **Only with the board on screen.** He says nothing behind the home screen or a menu, so a game waiting at launch is quiet. The same rule keeps a bot's game restored at launch from speaking behind the home screen.
-- **A setting of his own.** **Hot Seat host** in Settings turns his face, bubble and voice off, and a line he is saying stops. Hot Seat is then as it was before him. It is on by default.
+- **A setting of his own.** **Hot Seat host** in Settings chooses who hosts, or no one: it reads "Hot Seat host: Rolly" or "Hot Seat host: off", and OK or Left and Right step through the choices. Rolly is the default, and so far the only host. Off, he says nothing, and a line he is saying stops. **Voices** off silences him too.
 
 Hearing him on the Virtual Device, in a full Hot Seat game with the board turned and not, is still to be done.
 

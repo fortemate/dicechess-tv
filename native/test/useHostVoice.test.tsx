@@ -1,6 +1,9 @@
 // The Hot Seat host in the game screen (#202): he speaks only while the board
-// is on screen and the host is on, a line waits for the one being said as long
-// as the game waits too, and his last word stays with the result.
+// is on screen and a host is chosen, a line waits for the one being said as
+// long as the game waits too, and his last word holds with the result. The hook
+// returns nothing, as the screen shows nothing of his yet: what he says, and
+// when, is read from `onVoiceLine`, and whether a line of his still holds from
+// `onStop` when he is turned off.
 import { test, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
@@ -28,11 +31,10 @@ const HOLD = 5000;
 type Props = { game: Game; options: UseHostVoiceOptions };
 
 const harness = () => {
-  let latest: HostLine | null = null;
   const said: HostLine[] = [];
   let stops = 0;
   const Harness = ({ game, options }: Props) => {
-    latest = useHostVoice(game, options);
+    useHostVoice(game, options);
     return null;
   };
   const base: UseHostVoiceOptions = {
@@ -54,7 +56,6 @@ const harness = () => {
     });
   return {
     show,
-    line: () => latest,
     said: () => said.map((line) => line.event),
     stopped: () => stops,
     unmount: () => act(() => tree?.unmount()),
@@ -80,12 +81,10 @@ const withTimers = (name: string, body: () => void) =>
 withTimers('an unstarted game behind the home screen says nothing', () => {
   const host = harness();
   host.show(newGame('hotseat', 'behind'), { live: false });
-  assert.equal(host.line(), null);
   assert.deepEqual(host.said(), []);
   // A new game on the board is greeted, once.
   const game = newGame('hotseat', 'started');
   host.show(game);
-  assert.equal(host.line()?.event, 'intro');
   assert.deepEqual(host.said(), ['intro']);
   // A menu opened and closed over it adds nothing.
   host.show(game, { live: false });
@@ -94,75 +93,72 @@ withTimers('an unstarted game behind the home screen says nothing', () => {
   host.unmount();
 });
 
-withTimers('turned off mid-line, his voice stops with his bubble', () => {
+withTimers('turned off mid-line, his voice stops', () => {
   const host = harness();
   const game = newGame('hotseat', 'stop');
   host.show(game);
-  assert.equal(host.line()?.event, 'intro');
+  assert.deepEqual(host.said(), ['intro']);
   host.show(game, { on: false });
-  assert.equal(host.line(), null);
   assert.equal(host.stopped(), 1);
-  // With no line of his showing, there is nothing to stop.
+  // With no line of his being said, there is nothing to stop.
   const rolled = rollGame(game, [2, 2, 2]);
   host.show(rolled, { on: false });
   host.show(rolled);
   host.show(rolled, { on: false });
   assert.equal(host.stopped(), 1);
+  assert.deepEqual(host.said(), ['intro']);
   host.unmount();
 });
 
 withTimers("a new game against the bot leaves the bot's line alone", () => {
   const host = harness();
   host.show(newGame('hotseat', 'before'));
-  assert.ok(host.line());
+  assert.deepEqual(host.said(), ['intro']);
   host.show(newGame('random', 'bot'));
-  assert.equal(host.line(), null);
   assert.equal(host.stopped(), 0);
+  assert.deepEqual(host.said(), ['intro']);
   host.unmount();
 });
 
-withTimers(
-  'off, he shows and says nothing; turned on mid-game, he greets no one',
-  () => {
-    const host = harness();
-    const game = newGame('hotseat', 'switch');
-    host.show(game, { on: false });
-    assert.equal(host.line(), null);
-    const rolled = rollGame(game, [2, 2, 2]);
-    host.show(rolled, { on: false });
-    assert.deepEqual(host.said(), []);
-    host.show(rolled);
-    assert.equal(host.line(), null, 'no intro for a game under way');
-    // The first White turn end of the session teaches the pass.
-    const ended = moveGame(moveGame(moveGame(rolled, 'b1c3'), 'c3b5'), 'b5a7');
-    assert.equal(ended.phase, 'handoff');
-    host.show(ended);
-    assert.equal(host.line()?.event, 'handoff');
-    // Turned off, his bubble goes at once.
-    host.show(ended, { on: false });
-    assert.equal(host.line(), null);
-    host.unmount();
-  },
-);
+withTimers('off, he says nothing; turned on mid-game, he greets no one', () => {
+  const host = harness();
+  const game = newGame('hotseat', 'switch');
+  host.show(game, { on: false });
+  const rolled = rollGame(game, [2, 2, 2]);
+  host.show(rolled, { on: false });
+  assert.deepEqual(host.said(), []);
+  host.show(rolled);
+  assert.deepEqual(host.said(), [], 'no intro for a game under way');
+  // The first White turn end of the session teaches the pass.
+  const ended = moveGame(moveGame(moveGame(rolled, 'b1c3'), 'c3b5'), 'b5a7');
+  assert.equal(ended.phase, 'handoff');
+  host.show(ended);
+  assert.deepEqual(host.said(), ['handoff']);
+  // Turned off, his line ends at once.
+  host.show(ended, { on: false });
+  assert.equal(host.stopped(), 1);
+  host.unmount();
+});
 
 withTimers('a line waits for the one being said', () => {
   const host = harness();
   const game = newGame('hotseat', 'queue');
   host.show(game);
-  const intro = host.line();
-  assert.equal(intro?.event, 'intro');
+  assert.deepEqual(host.said(), ['intro']);
   // White's roll leaves nothing to play: the pass is taught, after the intro.
   const empty = rollGame(game, EMPTY);
   host.show(empty);
-  assert.equal(host.line(), intro);
   assert.deepEqual(host.said(), ['intro']);
   tick(HOLD - 1);
-  assert.equal(host.line(), intro);
+  assert.deepEqual(host.said(), ['intro']);
   tick(1);
-  assert.equal(host.line()?.event, 'handoff');
   assert.deepEqual(host.said(), ['intro', 'handoff']);
+  // Once the pass has been said, he is saying nothing: turned off, nothing
+  // is stopped.
   tick(HOLD);
-  assert.equal(host.line(), null);
+  host.show(empty, { on: false });
+  assert.equal(host.stopped(), 0);
+  assert.deepEqual(host.said(), ['intro', 'handoff']);
   host.unmount();
 });
 
@@ -182,7 +178,7 @@ withTimers(
     assert.equal(thinking.phase, 'move');
     host.show(thinking);
     tick(HOLD);
-    assert.equal(host.line(), null, 'nothing while Black is thinking');
+    assert.deepEqual(host.said(), ['intro'], 'nothing while Black is thinking');
     tick(HOLD);
     assert.deepEqual(host.said(), ['intro']);
     host.unmount();
@@ -206,7 +202,6 @@ withTimers(
     const again = nextTurn(blackEmpty);
     host.show(again);
     host.show(rollGame(again, EMPTY));
-    assert.equal(host.line()?.event, 'handoff');
     assert.deepEqual(host.said(), ['intro', 'handoff']);
     host.unmount();
   },
@@ -218,7 +213,7 @@ withTimers('a waiting rook is dropped when the next turn begins', () => {
   host.show(resumed, { holdMs: () => 60_000 });
   // The end of White's turn 5 teaches the pass, which stays a minute.
   host.show(rollGame(resumed, EMPTY), { holdMs: () => 60_000 });
-  assert.equal(host.line()?.event, 'handoff');
+  assert.deepEqual(host.said(), ['handoff']);
   // Two turns later White's rook takes a rook while he is still talking.
   const rook = {
     ...rollGame(
@@ -231,16 +226,15 @@ withTimers('a waiting rook is dropped when the next turn begins', () => {
   host.show(rook, { holdMs: () => 60_000 });
   const taken = moveGame(rook, 'a1a5');
   host.show(taken, { holdMs: () => 60_000 });
-  assert.equal(host.line()?.event, 'handoff', 'the rook waits');
+  assert.deepEqual(host.said(), ['handoff'], 'the rook waits');
   host.show(nextTurn(taken), { holdMs: () => 60_000 });
   tick(60_000);
-  assert.equal(host.line(), null, 'and is never said');
-  assert.deepEqual(host.said(), ['handoff']);
+  assert.deepEqual(host.said(), ['handoff'], 'and is never said');
   host.unmount();
 });
 
 withTimers(
-  'a line that waits while a menu is up shows when the board returns',
+  'a line that waits while a menu is up is said when the board returns',
   () => {
     const host = harness();
     const game = newGame('hotseat', 'menu');
@@ -249,10 +243,9 @@ withTimers(
     host.show(empty);
     host.show(empty, { live: false });
     tick(HOLD);
-    assert.equal(host.line(), null, 'not behind the menu');
-    assert.deepEqual(host.said(), ['intro']);
+    assert.deepEqual(host.said(), ['intro'], 'not behind the menu');
     host.show(empty);
-    assert.equal(host.line()?.event, 'handoff');
+    assert.deepEqual(host.said(), ['intro', 'handoff']);
     host.unmount();
   },
 );
@@ -274,35 +267,36 @@ withTimers(
     };
     host.show(rook);
     host.show(moveGame(rook, 'a1a5'));
+    assert.deepEqual(host.said(), ['handoff'], 'the rook waits');
     tick(HOLD);
-    assert.equal(host.line()?.event, 'capture_heavy');
     assert.deepEqual(host.said(), ['handoff', 'capture_heavy']);
     host.unmount();
   },
 );
 
-withTimers('his last word stays until a new game replaces it', () => {
+withTimers('his last word holds until a new game replaces it', () => {
   const host = harness();
   const game = newGame('hotseat', 'result');
   host.show(game);
   tick(HOLD);
   const rolled = rollGame(game, [2, 2, 2]);
   host.show(rolled);
-  host.show(resignGame(rolled));
-  const last = host.line();
-  assert.ok(last);
-  assert.ok(['black_wins', 'win'].includes(last.event), last.event);
+  const resigned = resignGame(rolled);
+  host.show(resigned);
+  const [, last] = host.said();
+  assert.ok(['black_wins', 'win'].includes(last), last);
+  // A minute on he is still saying it: turned off, it is stopped.
   tick(60_000);
-  assert.equal(host.line(), last);
+  host.show(resigned, { on: false });
+  assert.equal(host.stopped(), 1);
   host.show(newGame('hotseat', 'next'));
-  assert.equal(host.line()?.event, 'again');
+  assert.deepEqual(host.said(), ['intro', last, 'again']);
   host.unmount();
 });
 
 withTimers('a game against the bot is not his', () => {
   const host = harness();
   host.show(newGame('random', 'bot'));
-  assert.equal(host.line(), null);
   assert.deepEqual(host.said(), []);
   host.unmount();
 });
@@ -310,7 +304,7 @@ withTimers('a game against the bot is not his', () => {
 withTimers('unmounting cancels his timer', () => {
   const host = harness();
   host.show(newGame('hotseat', 'unmount'), { holdMs: undefined });
-  assert.ok(host.line());
+  assert.deepEqual(host.said(), ['intro']);
   const cleared = mock.method(globalThis, 'clearTimeout');
   host.unmount();
   assert.equal(cleared.mock.callCount(), 1);

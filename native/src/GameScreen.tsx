@@ -26,6 +26,7 @@ import { Matchup } from './Matchup';
 import { SpeechBubble } from './SpeechBubble';
 import { DISMISS_DELAY_MS, useBotVoice } from './useBotVoice';
 import { useHostVoice } from './useHostVoice';
+import { DEFAULT_HOST, type HostChoice } from './hostSetting';
 import {
   LINE_START_MS,
   speechTiming,
@@ -107,9 +108,9 @@ export type GameScreenProps = {
   // Whether the lines are spoken aloud, the bots' and the host's (#159).
   initialVoices?: boolean;
   onVoices?: (on: boolean) => void;
-  // Whether Rolly hosts Hot Seat games (#202).
-  initialHost?: boolean;
-  onHost?: (on: boolean) => void;
+  // Who hosts Hot Seat games, or 'off' (#202).
+  initialHost?: HostChoice;
+  onHost?: (host: HostChoice) => void;
   // The adaptive music (#76). The screen says which theme fits what it shows;
   // whether music is on and how loud is the app's to apply and save.
   music?: Music;
@@ -256,8 +257,8 @@ const modeLine = (game: Game, overlayOpen: boolean): string => {
 // The mode and the turn. Over an open menu it is the only line: a menu, its
 // list and the record need the height to stay inside the safe area (#51), and
 // the board behind it already shows the game. During play it stands under the
-// top badge, at the foot of the speech zone in a game against the bot or with
-// the Hot Seat host, and the badges name the opponent.
+// top badge, at the foot of the bot's speech zone in a game against the bot,
+// and the badges name the opponent.
 const ModeLine = ({
   game,
   overlayOpen,
@@ -337,7 +338,7 @@ const Panel = ({
   hasMusic: boolean;
   turnHotseat: boolean;
   voices: boolean;
-  host: boolean;
+  host: HostChoice;
   selected: string | null;
   // OK is held: the focused option of an open menu shows it.
   pressed: boolean;
@@ -488,7 +489,7 @@ export const GameScreen = ({
   onTurnBoard,
   initialVoices = true,
   onVoices,
-  initialHost = true,
+  initialHost = DEFAULT_HOST,
   onHost,
   music,
   initialMusic,
@@ -654,8 +655,8 @@ export const GameScreen = ({
   // at the start of this turn (#76). When a game has just ended the music falls
   // silent first, so the result's jingle is heard on its own.
   const level = useDanger(game, options.background, onState);
-  // Each line is said as it shows, and its bubble stays until it has been
-  // said (#159).
+  // A bot's line is said as it shows, and its bubble stays until it has been
+  // said (#159). The host's is only said (#202).
   const say = React.useCallback(
     (line: SpokenLine) => sounds?.say(line),
     [sounds],
@@ -670,12 +671,15 @@ export const GameScreen = ({
     holdMs: bubbleHoldMs,
     live: live || overlay.kind === 'result',
   });
-  // The Hot Seat host. The bot's hook speaks only against the bot and this one
-  // only in hotseat, so at most one of them has a line. Turned off mid-line,
-  // his voice stops with his bubble.
-  const hostLine = useHostVoice(game, {
+  // The Hot Seat host, for now a voice over the game: his lines are said, not
+  // shown, so Hot Seat looks as it did before him (#202). The bot's hook speaks
+  // only against the bot and this one only in hotseat, so at most one of them
+  // has a line. A line of his holds as long as a bot's bubble would, until it
+  // has been said, and the next one waits for it. Turned off mid-line, he
+  // stops talking.
+  useHostVoice(game, {
     live,
-    on: host,
+    on: host !== 'off',
     onVoiceLine: say,
     onStop: stopLine,
     holdMs: bubbleHoldMs,
@@ -769,13 +773,8 @@ export const GameScreen = ({
             side={state.side}
             flipped={isFlipped}
             thinking={botOwes(game)}
-            host={host && game.mode === 'hotseat'}
             speechBubble={
-              voiceLine ? (
-                <SpeechBubble text={voiceLine.text} />
-              ) : hostLine ? (
-                <SpeechBubble text={hostLine.text} tail="left" />
-              ) : undefined
+              voiceLine ? <SpeechBubble text={voiceLine.text} /> : undefined
             }
             header={<ModeLine game={game} overlayOpen={false} />}
           >

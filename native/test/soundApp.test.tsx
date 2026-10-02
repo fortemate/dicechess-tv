@@ -1,7 +1,7 @@
 // Sound through the whole app: a step of a real game reaches the players, and
 // turning sound off survives a relaunch. A test cannot hear, so what is checked
 // is what was asked for; hearing it is checked on the virtual device.
-import { test } from 'node:test';
+import { test, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
@@ -10,7 +10,7 @@ import {
   fullyDrawnReports,
   resetFullyDrawnReports,
 } from './stubs/kepler-performance-api.mjs';
-import { reset } from './stubs/react-native-mmkv.mjs';
+import { MMKV, reset } from './stubs/react-native-mmkv.mjs';
 import { App } from '../src/App';
 import type { ScreenOptions } from '../src/screen';
 import type { Sounds } from '../src/sound';
@@ -98,6 +98,13 @@ const text = (root: Instance) =>
     .map((node) => String(node.props.children))
     .join('\n');
 
+// Elements drawn with a testID, counted once: the stubs pass it on to the host
+// element they render.
+const drawn = (root: Instance, id: string) =>
+  root.findAll(
+    (node) => typeof node.type === 'string' && node.props?.testID === id,
+  );
+
 test('a real game step reaches the sounds as the cue it is', () => {
   reset();
   const sounds = recorder();
@@ -151,17 +158,19 @@ test('the bots speak by default, and turning their voices off is remembered (#15
   act(() => tree.unmount());
 });
 
-test('the Hot Seat host is on by default, and turning him off is remembered (#202)', () => {
+test('Rolly hosts Hot Seat by default, and turning the host off is remembered (#202)', () => {
   reset();
   const first = recorder();
   let tree = launch(first);
   // Settings, then the row after the voices.
   send('down', 'down', 'down', 'down', 'enter');
-  assert.match(text(tree.root), /Hot Seat host: on/);
+  assert.match(text(tree.root), /Hot Seat host: Rolly/);
   send('down', 'down', 'enter');
   assert.match(text(tree.root), /Hot Seat host: off/);
   assert.match(text(tree.root), /Voices: on/, 'the voices are left alone');
   assert.equal(first.voices, true);
+  // Stored as the choice itself, which a later host's id would replace.
+  assert.equal(new MMKV().getString('dicechess-tv.host.v1'), 'off');
   act(() => tree.unmount());
 
   const second = recorder();
@@ -184,7 +193,7 @@ test('turning the host off while he speaks stops his voice, and only his (#202)'
   assert.match(sounds.said[0], /^host_intro_[1-5]$/);
   // The game menu, up to its Settings, and down to his row.
   send('back', 'up', 'enter', 'down', 'down');
-  assert.match(text(tree.root), /Hot Seat host: on/);
+  assert.match(text(tree.root), /Hot Seat host: Rolly/);
   assert.equal(sounds.stopped, 0, 'a menu alone leaves the line alone');
   send('enter');
   assert.match(text(tree.root), /Hot Seat host: off/);
@@ -235,6 +244,47 @@ test('a new hotseat game opens with the host greeting both players (#202)', () =
   assert.equal(sounds.said.length, 1);
   assert.match(sounds.said[0], /^host_intro_[1-5]$/);
   act(() => tree.unmount());
+});
+
+test('the Hot Seat host is heard, not seen: no face, no bubble, and the turn line stays (#202)', () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  reset();
+  const sounds = recorder();
+  const tree = launch(sounds);
+  try {
+    // The game screen looks as it did before him: no face or bubble of his, no
+    // room kept for one, and the turn line where it always stood.
+    const asBefore = (turn: RegExp) => {
+      assert.equal(drawn(tree.root, 'host-face').length, 0);
+      assert.equal(drawn(tree.root, 'speech-bubble').length, 0);
+      assert.equal(drawn(tree.root, 'speech-bubble-text').length, 0);
+      const [zone] = drawn(tree.root, 'speech-zone');
+      assert.ok(zone, 'the matchup is up');
+      assert.equal(zone.props.style?.height, undefined);
+      const [line] = drawn(zone, 'turn-line');
+      assert.ok(line, 'the turn line shows while he speaks');
+      assert.equal(line.props.style, undefined);
+      assert.match(text(line), turn);
+    };
+    // A new hotseat game: he greets both players aloud, and only aloud.
+    send('enter');
+    assert.equal(sounds.said.length, 1);
+    assert.match(sounds.said[0], /^host_intro_[1-5]$/);
+    asBefore(/HOTSEAT · TURN 1/);
+    // His greeting said, White rolls and resigns: his last word is heard, and
+    // nothing of him shows with the result either.
+    act(() => {
+      mock.timers.tick(10_000);
+    });
+    send('enter', 'back', 'down', 'select', 'down', 'select');
+    assert.match(text(tree.root), /Black wins/);
+    assert.equal(sounds.said.length, 2);
+    assert.match(sounds.said[1], /^host_(black_wins|win)_\d$/);
+    asBefore(/HOTSEAT · TURN 1/);
+  } finally {
+    act(() => tree.unmount());
+    mock.timers.reset();
+  }
 });
 
 test('a line the bot says is handed to the voice', () => {

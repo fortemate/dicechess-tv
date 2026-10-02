@@ -35,6 +35,12 @@ import { botReply, botToAct } from '../../src/core/bot';
 import type { Square } from '../../src/core/board';
 import type { Level } from '../../src/core/danger';
 import { DEFAULT_MUSIC, MUSIC_STEPS, type MusicSetting } from './musicSetting';
+import {
+  DEFAULT_HOST,
+  cycleHost,
+  hostName,
+  type HostChoice,
+} from './hostSetting';
 
 export const START: Square = 'e2';
 
@@ -161,16 +167,16 @@ export type ScreenState = {
   turnHotseat: boolean;
   // Whether the lines are spoken aloud, the bots' and the host's (#159).
   voices: boolean;
-  // Whether Rolly hosts Hot Seat games (#202).
-  host: boolean;
+  // Who hosts Hot Seat games, or 'off' (#202).
+  host: HostChoice;
   // OK is ignored: a roll has just left nothing to play. The app clears it
   // after OK_GUARD_MS; the other keys work throughout.
   guarded: boolean;
 };
 
-// Sound effects, music, the voices and the Hot Seat host are set on a screen of
-// their own, opened from both menus. A label says what a setting is now, which
-// is what a viewer checks.
+// Sound effects, music, the voices and who hosts Hot Seat are set on a screen
+// of their own, opened from both menus. A label says what a setting is now,
+// which is what a viewer checks.
 export const SETTINGS_OPTION = 'Settings';
 export const settingsOptions = (
   sound: boolean,
@@ -178,14 +184,14 @@ export const settingsOptions = (
   musicAvailable = true,
   turnHotseat = false,
   voices = true,
-  host = true,
+  host: HostChoice = DEFAULT_HOST,
 ): string[] => [
   ...(musicAvailable
     ? [`Music: ${music.on ? 'on' : 'off'}`, `Music volume: ${music.volume}`]
     : []),
   `Sound effects: ${sound ? 'on' : 'off'}`,
   `Voices: ${voices ? 'on' : 'off'}`,
-  `Hot Seat host: ${host ? 'on' : 'off'}`,
+  `Hot Seat host: ${hostName(host)}`,
   `Turn board in hotseat: ${turnHotseat ? 'on' : 'off'}`,
 ];
 
@@ -347,7 +353,7 @@ export const initialState = (
   musicAvailable = false,
   turnHotseat = false,
   voices = true,
-  host = true,
+  host: HostChoice = DEFAULT_HOST,
 ): ScreenState => {
   const game = restored ?? newGame('hotseat', options.newId());
   const isFlipped = flipped(game, turnHotseat);
@@ -615,7 +621,8 @@ const onMenu: Handler<'menu'> = (state, overlay, key) => {
 };
 
 // Up and Down walk the settings. The arrows sideways change the volume on its
-// row and flip a switch on the others, as OK does, so either habit works.
+// row, step through the hosts on his, and flip a switch on the others, as OK
+// does, so either habit works.
 const onSettings: Handler<'settings'> = (state, overlay, key) => {
   if (key === 'menu') return show(state, HOME);
   if (key === 'back')
@@ -656,7 +663,8 @@ const onSettings: Handler<'settings'> = (state, overlay, key) => {
   if (row.startsWith('Sound effects:'))
     return { ...state, sound: !state.sound };
   if (row.startsWith('Voices:')) return { ...state, voices: !state.voices };
-  if (row.startsWith('Hot Seat host:')) return { ...state, host: !state.host };
+  if (row.startsWith('Hot Seat host:'))
+    return { ...state, host: cycleHost(state.host, key === 'left' ? -1 : 1) };
   if (row.startsWith('Turn board in hotseat:'))
     return { ...state, turnHotseat: !state.turnHotseat };
   return state;

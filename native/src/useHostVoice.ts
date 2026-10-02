@@ -1,17 +1,22 @@
 // The Hot Seat host in the game screen (#202): picks Rolly's lines at the
-// pauses of a hotseat game, shows each until it has been said, and queues a
+// pauses of a hotseat game, holds each until it has been said, and queues a
 // line behind the one being said, so a line never cuts another. A line that
 // waits belongs to the pause it was picked at: once the game takes another
 // step it is put back unheard, whatever its tier. events.json lets a bot's
 // always-tier line outlast the next step; the host never speaks while someone
 // is thinking, so his does not.
 //
+// For now he is a voice over the game, heard and not seen: the game screen
+// shows no face or bubble of his until it is redesigned around the new
+// character portraits. So the hook returns nothing and renders nothing: what
+// he says goes to `onVoiceLine`, and the timing runs on refs alone.
+//
 // The host's state lasts the session: the game screen stays mounted from launch
 // to exit, so his shuffled bags and whether he has taught the pass carry from
 // one game to the next. He picks nothing while the board is not on screen
 // (`live`): an unstarted game behind the home screen says nothing, and a line
-// that waits is shown when the board returns. Off (`on`), Hot Seat is as it was
-// before him: no bubble, no voice, and a line he is saying stops.
+// that waits is said when the board returns. Off (`on`), Hot Seat is as it was
+// before him: he says nothing, and a line he is saying stops.
 import React from 'react';
 import type { Game } from '../../src/core/game';
 import {
@@ -28,14 +33,14 @@ import { DISMISS_DELAY_MS } from './useBotVoice';
 export type UseHostVoiceOptions = {
   // The board is on screen with nothing over it.
   live: boolean;
-  // The Hot Seat host setting.
+  // A host is chosen in Settings, rather than off.
   on: boolean;
-  // How long a line's bubble stays, when it should outlast `timeoutMs`: until
-  // it has been said.
+  // How long a line holds, when it should outlast `timeoutMs`: until it has
+  // been said. The next line waits for it.
   holdMs?: (line: HostLine) => number;
   onVoiceLine?: (line: HostLine) => void;
-  // Told when the host is turned off while his bubble shows, so the line he
-  // is saying stops with it.
+  // Told when the host is turned off while a line of his holds, so the line
+  // he is saying stops.
   onStop?: () => void;
   timeoutMs?: number;
   // Injected so a test knows which line is picked.
@@ -63,7 +68,7 @@ const stopTimer = (timer: Box<ReturnType<typeof setTimeout> | null>) => {
   timer.current = null;
 };
 
-// A line picked but never shown goes back to the front of its bag.
+// A line picked but never said goes back to the front of its bag.
 const restorePending = (state: Box<HostState>, pending: Box<Picked | null>) => {
   const waiting = pending.current;
   pending.current = null;
@@ -71,15 +76,11 @@ const restorePending = (state: Box<HostState>, pending: Box<Picked | null>) => {
     state.current = restoreLine(state.current, waiting.event, waiting.line.id);
 };
 
-export function useHostVoice(
-  game: Game,
-  options: UseHostVoiceOptions,
-): HostLine | null {
-  const [active, setActive] = React.useState<HostLine | null>(null);
+export function useHostVoice(game: Game, options: UseHostVoiceOptions): void {
   const state = React.useRef<HostState>(INITIAL_HOST_STATE);
   // The last game seen while the board was on screen and the host on.
   const lastGame = React.useRef<Game | null>(null);
-  const showing = React.useRef<Picked | null>(null);
+  const speaking = React.useRef<Picked | null>(null);
   const pending = React.useRef<Picked | null>(null);
   const timer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -95,20 +96,18 @@ export function useHostVoice(
     optionsRef.current = options;
   });
 
-  const show = React.useCallback((first: Picked) => {
-    function display(next: Picked): void {
-      showing.current = next;
-      setActive(next.line);
+  const speak = React.useCallback((first: Picked) => {
+    function begin(next: Picked): void {
+      speaking.current = next;
       optionsRef.current.onVoiceLine?.(next.line);
       stopTimer(timer);
-      // The last word stays while the result shows; a new game replaces it.
+      // The last word holds while the result shows; a new game replaces it.
       if (isResultLine(next.line)) return;
       const hold = optionsRef.current.holdMs?.(next.line) ?? 0;
       timer.current = setTimeout(
         () => {
           timer.current = null;
-          showing.current = null;
-          setActive(null);
+          speaking.current = null;
           const waiting = pending.current;
           if (!waiting || !liveRef.current || !onRef.current) return;
           // The game moved on, and the effect below has not seen it yet.
@@ -117,27 +116,26 @@ export function useHostVoice(
             return;
           }
           pending.current = null;
-          display(waiting);
+          begin(waiting);
         },
         Math.max(optionsRef.current.timeoutMs ?? DISMISS_DELAY_MS, hold),
       );
     }
-    display(first);
+    begin(first);
   }, []);
 
   const clear = React.useCallback(() => {
     stopTimer(timer);
-    showing.current = null;
-    setActive(null);
+    speaking.current = null;
   }, []);
 
   React.useEffect(() => {
     if (game.mode !== 'hotseat' || !on) {
       restorePending(state, pending);
-      if (showing.current) {
+      if (speaking.current) {
         clear();
-        // Turned off mid-line, he stops talking too. A new game against the
-        // bot has a line of its own, which this leaves alone.
+        // Turned off mid-line, he stops talking. A new game against the bot
+        // has a line of its own, which this leaves alone.
         if (!on) optionsRef.current.onStop?.();
       }
       lastGame.current = null;
@@ -150,12 +148,12 @@ export function useHostVoice(
     const prev = lastGame.current;
     lastGame.current = game;
     // Only the board coming back, or the host turned on: a line that waited
-    // for it is shown.
+    // for it is said.
     if (prev === game) {
       const waiting = pending.current;
-      if (!showing.current && waiting) {
+      if (!speaking.current && waiting) {
         pending.current = null;
-        show(waiting);
+        speak(waiting);
       }
       return;
     }
@@ -168,7 +166,7 @@ export function useHostVoice(
     if (fresh) {
       // A new game replaces whatever was said or waiting.
       restorePending(state, pending);
-      if (showing.current) clear();
+      if (speaking.current) clear();
     } else if (game.revision !== prev.revision) {
       // The game moved on, past the pause a waiting line was picked at: it is
       // put back unheard, whatever its tier. A pass of the remote is then
@@ -190,17 +188,15 @@ export function useHostVoice(
       gameId: game.id,
       revision: game.revision,
     };
-    if (!showing.current) {
-      show(next);
+    if (!speaking.current) {
+      speak(next);
       return;
     }
     // It waits for the line being said. A step picks one line at most, and any
     // line waiting from an earlier step was put back above, so one waits at
     // most.
     pending.current = next;
-  }, [game, live, on, show, clear]);
+  }, [game, live, on, speak, clear]);
 
   React.useEffect(() => () => stopTimer(timer), []);
-
-  return on && game.mode === 'hotseat' ? active : null;
 }

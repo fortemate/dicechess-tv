@@ -5,13 +5,11 @@ import assert from 'node:assert/strict';
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 import { press, pressBack } from './stubs/react-native-kepler.mjs';
-import { MMKV, reset } from './stubs/react-native-mmkv.mjs';
+import { reset } from './stubs/react-native-mmkv.mjs';
 import { App } from '../src/App';
-import { saveHost } from '../src/hostSetting';
 import { MmkvSnapshotStore } from '../src/mmkvStore';
 import { DISMISS_DELAY_MS } from '../src/useBotVoice';
 import { voiceLinesFor, type VoiceEvent } from '../../src/core/botVoice';
-import { hostLinesFor } from '../../src/core/hostVoice';
 import {
   decodeGame,
   newGame,
@@ -185,9 +183,9 @@ test('a king taken from the bot is the result, with the bot conceding', () => {
   assert.ok(said && linesOf('loss').includes(said), `not a loss: ${said}`);
 });
 
-test('a hotseat result stays on the board, with no one to have the last word with the host off', () => {
+// The Hot Seat host's last word is heard, not shown (#202): soundApp.test.tsx.
+test('a hotseat result stays on the board, with no bubble for a last word', () => {
   reset();
-  saveHost(new MMKV(), false);
   const root = launch();
   // A new hotseat game, and its first roll.
   send('enter', 'enter');
@@ -200,34 +198,4 @@ test('a hotseat result stays on the board, with no one to have the last word wit
   assert.match(shown, /OK: back to the menu/);
   assert.doesNotMatch(shown, /What next\?/);
   assert.equal(bubble(root), null);
-});
-
-test('with the host on, he has the last word of a hotseat game, beside his face (#202)', () => {
-  mock.timers.enable({ apis: ['setTimeout'] });
-  try {
-    reset();
-    const root = launch();
-    // A new hotseat game, and its greeting said in full.
-    send('enter');
-    act(() => {
-      mock.timers.tick(10_000);
-    });
-    // White rolls and resigns: Black wins.
-    send('enter');
-    resign();
-    assert.match(text(root), /Black wins/);
-    const said = bubble(root);
-    const lines = [...hostLinesFor('black_wins'), ...hostLinesFor('win')].map(
-      (line) => line.text,
-    );
-    assert.ok(said && lines.includes(said), `not Black's win: ${said}`);
-    assert.equal(drawn(root, 'host-face').length, 1);
-    // It stays while the result shows.
-    act(() => {
-      mock.timers.tick(20_000);
-    });
-    assert.equal(bubble(root), said);
-  } finally {
-    mock.timers.reset();
-  }
 });

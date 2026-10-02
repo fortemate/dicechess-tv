@@ -24,7 +24,7 @@ Every feature here was played on the Vega Virtual Device, and the app's automate
 - **The tester round:** people who have never seen the game play it, on the Vega Virtual Device and, through Live App Testing, on their own Fire TV Sticks. See [Play the beta](/dicechess-tv/play/beta/).
 - **Testing on a physical Fire TV Stick**, including how fast the game runs there.
 - **A demo video** of a whole game.
-- **Rolly as the Hot Seat host** ([#202](https://github.com/fortemate/dicechess-tv/issues/202)): he cheers both players at the pauses of a game, with a Settings switch of his own. It is built and tested; playing it on the Vega Virtual Device is next.
+- **Rolly as the Hot Seat host** ([#202](https://github.com/fortemate/dicechess-tv/issues/202)): he cheers both players at the pauses of a game, heard but not yet seen, and Settings chooses him or no host. It is built and tested; playing it on the Vega Virtual Device is next.
 
 ## Next
 

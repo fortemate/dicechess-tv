@@ -3,7 +3,7 @@
 //
 // On unless the viewer turned it off, as the owner decided. Anything but an
 // explicit "off" reads as on, so a damaged value cannot silence the voices for
-// good. The speech bubbles show either way.
+// good. A bot's speech bubble shows either way; the host has none yet.
 import type { KeyValueStore } from './mmkvStore';
 
 const KEY = 'dicechess-tv.voices.v1';
