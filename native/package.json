@@ -26,6 +26,7 @@
     "@amazon-devices/eslint-plugin-kepler": "0.1.15",
     "@amazon-devices/kepler-cli-platform": "^0",
     "@eslint/js": "9.39.5",
+    "@jridgewell/sourcemap-codec": "1.6.0",
     "@react-native-community/cli": "20.0.2",
     "@react-native/babel-preset": "0.83.10",
     "@react-native/metro-config": "0.83.10",
