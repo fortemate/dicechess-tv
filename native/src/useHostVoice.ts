@@ -6,10 +6,10 @@
 // always-tier line outlast the next step; the host never speaks while someone
 // is thinking, so hers does not.
 //
-// For now she is a voice over the game, heard and not seen: the game screen
-// shows no face or bubble of hers until it is redesigned around the new
-// character portraits. So the hook returns nothing and renders nothing: what
-// she says goes to `onVoiceLine`, and the timing runs on refs alone.
+// She is heard and seen (#213): what she says goes to `onVoiceLine`, and the
+// hook returns the line being said, which the game screen shows with her
+// portrait above the bottom badge for as long as it holds. The timing runs on
+// refs; the returned line only mirrors the one being said.
 //
 // The host's state lasts the session: the game screen stays mounted from launch
 // to exit, so her shuffled bags and whether she has taught the pass carry from
@@ -77,13 +77,18 @@ const restorePending = (state: Box<HostState>, pending: Box<Picked | null>) => {
     state.current = restoreLine(state.current, waiting.event, waiting.line.id);
 };
 
-export function useHostVoice(game: Game, options: UseHostVoiceOptions): void {
+export function useHostVoice(
+  game: Game,
+  options: UseHostVoiceOptions,
+): HostLine | null {
   const state = React.useRef<HostState>(INITIAL_HOST_STATE);
   // The last game seen while the board was on screen and the host on.
   const lastGame = React.useRef<Game | null>(null);
   const speaking = React.useRef<Picked | null>(null);
   const pending = React.useRef<Picked | null>(null);
   const timer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  // The line being said, for the screen to show.
+  const [shown, setShown] = React.useState<HostLine | null>(null);
 
   const { live, on } = options;
   const liveRef = React.useRef(live);
@@ -100,6 +105,7 @@ export function useHostVoice(game: Game, options: UseHostVoiceOptions): void {
   const speak = React.useCallback((first: Picked) => {
     function begin(next: Picked): void {
       speaking.current = next;
+      setShown(next.line);
       optionsRef.current.onVoiceLine?.(next.line);
       stopTimer(timer);
       // The last word holds while the result shows; a new game replaces it.
@@ -109,6 +115,7 @@ export function useHostVoice(game: Game, options: UseHostVoiceOptions): void {
         () => {
           timer.current = null;
           speaking.current = null;
+          setShown(null);
           const waiting = pending.current;
           if (!waiting || !liveRef.current || !onRef.current) return;
           // The game moved on, and the effect below has not seen it yet.
@@ -128,6 +135,7 @@ export function useHostVoice(game: Game, options: UseHostVoiceOptions): void {
   const clear = React.useCallback(() => {
     stopTimer(timer);
     speaking.current = null;
+    setShown(null);
   }, []);
 
   // Not a Hot Seat game, or no host: a line that waits goes back, and one being
@@ -211,4 +219,5 @@ export function useHostVoice(game: Game, options: UseHostVoiceOptions): void {
   }, [game, live, on, speak, clear, standDown, sayWaiting]);
 
   React.useEffect(() => () => stopTimer(timer), []);
+  return shown;
 }

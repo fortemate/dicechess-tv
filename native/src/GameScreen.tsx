@@ -23,7 +23,7 @@ import { RulesScreen } from './RulesScreen';
 import { AboutScreen } from './AboutScreen';
 import { OpponentScreen } from './OpponentScreen';
 import { Matchup } from './Matchup';
-import { SpeechBubble } from './SpeechBubble';
+import { HOST_BUBBLE_ROWS, SpeechBubble } from './SpeechBubble';
 import { DISMISS_DELAY_MS, useBotVoice } from './useBotVoice';
 import { useHostVoice } from './useHostVoice';
 import { DEFAULT_HOST, type HostChoice } from './hostSetting';
@@ -243,7 +243,11 @@ const HEADLINE = { color: '#f0f4f8', fontSize: 38, marginBottom: 16 };
 const STATUS_LINE = { color: '#aab8c9', fontSize: 24, marginBottom: 12 };
 
 // Under the dice after a roll with nothing to play, in the rules guide's words.
+// It is a caption, 20 dp like the others (#168), which keeps it to one line of
+// the panel: at 24 dp it took two, and the prompt under it ran into the bottom
+// badge (#213).
 export const NO_MOVE_LINE = 'No die can be used — the turn passes';
+const REASON_LINE = { color: '#aab8c9', fontSize: 20, marginBottom: 12 };
 
 // The single line above the status or menu: mode and turn.
 const modeLine = (game: Game, overlayOpen: boolean): string => {
@@ -257,8 +261,8 @@ const modeLine = (game: Game, overlayOpen: boolean): string => {
 // The mode and the turn. Over an open menu it is the only line: a menu, its
 // list and the record need the height to stay inside the safe area (#51), and
 // the board behind it already shows the game. During play it stands under the
-// top badge, at the foot of the bot's speech zone in a game against the bot,
-// and the badges name the opponent.
+// top of the panel, the bot's dialogue block or the top badge, and those name
+// the opponent.
 const ModeLine = ({
   game,
   overlayOpen,
@@ -290,7 +294,7 @@ const Status = ({ game, view }: { game: Game; view: GameView }) => {
         />
       )}
       {!result && emptyRoll(game) ? (
-        <Text style={STATUS_LINE}>{NO_MOVE_LINE}</Text>
+        <Text style={REASON_LINE}>{NO_MOVE_LINE}</Text>
       ) : null}
     </>
   );
@@ -675,13 +679,13 @@ export const GameScreen = ({
     holdMs: bubbleHoldMs,
     live: live || overlay.kind === 'result',
   });
-  // The Hot Seat host, for now a voice over the game: her lines are said, not
-  // shown, so Hot Seat looks as it did before her (#202). The bot's hook speaks
-  // only against the bot and this one only in hotseat, so at most one of them
-  // has a line. A line of hers holds as long as a bot's bubble would, until it
-  // has been said, and the next one waits for it. Turned off mid-line, she
-  // stops talking.
-  useHostVoice(game, {
+  // The Hot Seat host (#202): her line is said, and shown with her portrait
+  // above the bottom badge while it lasts (#213). The bot's hook speaks only
+  // against the bot and this one only in hotseat, so at most one of them has a
+  // line. A line of hers holds as long as a bot's bubble would, until it has
+  // been said, and the next one waits for it. Turned off mid-line, she stops
+  // talking and leaves the screen.
+  const hostLine = useHostVoice(game, {
     live,
     on: host !== 'off',
     onVoiceLine: say,
@@ -779,6 +783,11 @@ export const GameScreen = ({
             thinking={botOwes(game)}
             speechBubble={
               voiceLine ? <SpeechBubble text={voiceLine.text} /> : undefined
+            }
+            hostBubble={
+              hostLine ? (
+                <SpeechBubble text={hostLine.text} rows={HOST_BUBBLE_ROWS} />
+              ) : undefined
             }
             header={<ModeLine game={game} overlayOpen={false} />}
           >

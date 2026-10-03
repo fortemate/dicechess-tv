@@ -19,6 +19,7 @@ import {
 } from '../src/core/hostVoice.ts';
 import { analyzeCaptures } from '../src/core/botVoice.ts';
 import { cues } from '../src/core/cues.ts';
+import { rowsOf } from './rows.ts';
 import {
   agreeDraw,
   moveGame,
@@ -161,6 +162,19 @@ test('the host has 45 lines, numbered by event from 1', () => {
   }
   for (const line of HOST_CATALOGUE)
     assert.ok(Object.hasOwn(HOST_EVENTS, line.event), line.id);
+});
+
+// Her bubble, above the bottom badge (#213), shows at most two rows of 20 dp
+// text. It is about 30 dp wider than the one beside a bot's portrait, whose
+// rows held 23 characters on the Virtual Device (2026-10-03) when it was
+// narrower still, so rows of 25 leave room.
+const HOST_ROW_CHARACTERS = 25;
+
+test('every host line fits the two rows of her bubble', () => {
+  const long = HOST_CATALOGUE.filter(
+    (line) => rowsOf(line.text, HOST_ROW_CHARACTERS) > 2,
+  ).map((line) => `${line.id} (${line.text})`);
+  assert.deepEqual(long, []);
 });
 
 test('every host line is short, plain ASCII, and names no chess check', () => {

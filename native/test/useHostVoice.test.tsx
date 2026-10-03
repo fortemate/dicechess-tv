@@ -33,8 +33,10 @@ type Props = { game: Game; options: UseHostVoiceOptions };
 const harness = () => {
   const said: HostLine[] = [];
   let stops = 0;
+  // What the hook returned on its last render: the line the screen shows.
+  let shown: HostLine | null = null;
   const Harness = ({ game, options }: Props) => {
-    useHostVoice(game, options);
+    shown = useHostVoice(game, options);
     return null;
   };
   const base: UseHostVoiceOptions = {
@@ -57,6 +59,7 @@ const harness = () => {
   return {
     show,
     said: () => said.map((line) => line.event),
+    shown: () => shown?.event ?? null,
     stopped: () => stops,
     unmount: () => act(() => tree?.unmount()),
   };
@@ -321,4 +324,27 @@ test('unmounting cancels her timer', () => {
   assert.equal(cleared.mock.callCount(), 1);
   cleared.mock.restore();
   tick(DISMISS_DELAY_MS);
+});
+
+test('the line being said is the one to show: while it holds, until a new game for the last word, and not once she is off (#213)', () => {
+  const host = harness();
+  const game = newGame('hotseat', 'shown');
+  host.show(game);
+  assert.equal(host.shown(), 'intro');
+  // Said, it leaves the screen.
+  tick(HOLD);
+  assert.equal(host.shown(), null);
+  // The last word holds with the result, however long it stays up.
+  const resigned = resignGame(rollGame(game, EMPTY));
+  host.show(resigned);
+  assert.match(String(host.shown()), /win/);
+  tick(10 * HOLD);
+  assert.match(String(host.shown()), /win/);
+  // A new game replaces it with a greeting; turned off, she leaves at once.
+  const next = newGame('hotseat', 'shown-again');
+  host.show(next);
+  assert.equal(host.shown(), 'again');
+  host.show(next, { on: false });
+  assert.equal(host.shown(), null);
+  host.unmount();
 });

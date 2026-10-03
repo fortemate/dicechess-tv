@@ -54,10 +54,10 @@ Contains the TV presentation layer built with React Native for Vega:
 | ------------------------ | ------------------------------------------------------------------------------------------- |
 | `src/App.tsx`            | Root component initializing MMKV storage, audio managers, and settings.                     |
 | `src/GameScreen.tsx`     | Main screen housing the board, side status panel, menus, and dialogs.                       |
-| `src/Matchup.tsx`        | Matchup HUD: a badge per side, placed as on the board; turn frame; speech zone.             |
-| `src/SpeechBubble.tsx`   | The bot's line under its badge: 20 dp text in at most two rows.                             |
+| `src/Matchup.tsx`        | Matchup HUD: the bot's dialogue block or a badge per side; turn frame; the Hot Seat host.   |
+| `src/SpeechBubble.tsx`   | A line beside its speaker's portrait: 20 dp text, three rows for a bot, two for the host.   |
 | `src/useBotVoice.ts`     | Picks the bot's lines as the game moves and how long each stays on screen.                  |
-| `src/useHostVoice.ts`    | Picks the Hot Seat host's lines at the pauses and says them, with no bubble for now.        |
+| `src/useHostVoice.ts`    | Picks the Hot Seat host's lines at the pauses, says them, and returns the one to show.      |
 | `src/hostSetting.ts`     | Who hosts Hot Seat, Rolly (the default) or off, remembered across launches.                 |
 | `src/screen.ts`          | Pure state reducer coordinating menu navigation, confirmations, and gameplay flow.          |
 | `src/Board.tsx`          | 8x8 chessboard grid rendering pieces, square tints, focus rings, and move animations.       |

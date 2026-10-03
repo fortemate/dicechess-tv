@@ -10,6 +10,7 @@ import { App } from '../src/App';
 import { MmkvSnapshotStore } from '../src/mmkvStore';
 import { DISMISS_DELAY_MS } from '../src/useBotVoice';
 import { voiceLinesFor, type VoiceEvent } from '../../src/core/botVoice';
+import { HOST_CATALOGUE } from '../../src/core/hostVoice';
 import {
   decodeGame,
   newGame,
@@ -184,18 +185,36 @@ test('a king taken from the bot is the result, with the bot conceding', () => {
 });
 
 // The Hot Seat host's last word is heard, not shown (#202): soundApp.test.tsx.
-test('a hotseat result stays on the board, with no bubble for a last word', () => {
-  reset();
-  const root = launch();
-  // A new hotseat game, and its first roll.
-  send('enter', 'enter');
-  resign();
+test('a hotseat result stays on the board, with the host’s last word beside her (#213)', () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  try {
+    reset();
+    const root = launch();
+    // A new hotseat game, and its first roll.
+    send('enter', 'enter');
+    resign();
+    // Her result waits for her greeting to be said: she never talks over
+    // herself (#202).
+    act(() => {
+      mock.timers.tick(10_000);
+    });
 
-  const shown = text(root);
-  assert.match(shown, /HOTSEAT · TURN 1/);
-  assert.match(shown, /Resigned/);
-  assert.match(shown, /Black wins/);
-  assert.match(shown, /OK: back to the menu/);
-  assert.doesNotMatch(shown, /What next\?/);
-  assert.equal(bubble(root), null);
+    const shown = text(root);
+    assert.match(shown, /HOTSEAT · TURN 1/);
+    assert.match(shown, /Resigned/);
+    assert.match(shown, /Black wins/);
+    assert.match(shown, /OK: back to the menu/);
+    assert.doesNotMatch(shown, /What next\?/);
+    // No bot speaks in hotseat: the one bubble is the host's, with the result.
+    const lastWord = bubble(root);
+    assert.ok(
+      HOST_CATALOGUE.some(
+        (line) =>
+          line.text === lastWord && /^host_(black_wins|win)_/.test(line.id),
+      ),
+      `the host cheers the result: ${lastWord}`,
+    );
+  } finally {
+    mock.timers.reset();
+  }
 });

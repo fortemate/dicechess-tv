@@ -3,7 +3,11 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
-import { SpeechBubble } from '../src/SpeechBubble';
+import {
+  BUBBLE_ROWS,
+  HOST_BUBBLE_ROWS,
+  SpeechBubble,
+} from '../src/SpeechBubble';
 
 type Instance = renderer.ReactTestInstance;
 type Style = Record<string, unknown>;
@@ -53,15 +57,28 @@ test('satisfies 10-foot UI high-contrast color and font standards', () => {
   const textStyle = styleOf(text);
   const tailStyle = styleOf(tail);
 
-  // Background and border contrast
+  // Background and border contrast; the tail points left, back at the
+  // speaker's portrait (#213).
   assert.equal(bodyStyle.backgroundColor, '#112233');
   assert.equal(bodyStyle.borderColor, '#2b425b');
-  assert.equal(tailStyle.borderBottomColor, '#2b425b');
+  assert.equal(tailStyle.borderRightColor, '#2b425b');
+  assert.equal(tailStyle.borderTopColor, 'transparent');
 
   // Text legibility on TV screens: no smaller than any other caption (#168),
-  // in at most the two rows the speech zone has room for.
+  // in at most the three rows the dialogue block has room for.
   assert.equal(textStyle.color, '#f0f4f8');
   assert.ok(Number(textStyle.fontSize) >= 20, 'bubble text is at least 20 dp');
   assert.equal(textStyle.fontWeight, '600');
+  assert.equal(text.props.numberOfLines, BUBBLE_ROWS);
+});
+
+test('the host’s bubble takes the rows it is given', () => {
+  let tree!: renderer.ReactTestRenderer;
+  act(() => {
+    tree = renderer.create(
+      <SpeechBubble text="Now pass the remote over!" rows={HOST_BUBBLE_ROWS} />,
+    );
+  });
+  const text = byTestId(tree.root, 'speech-bubble-text');
   assert.equal(text.props.numberOfLines, 2);
 });
