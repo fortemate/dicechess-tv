@@ -28,7 +28,7 @@ text over its menus.
   up to 0.1.0 beta 7) and "Turn board in hotseat" on. The takes carry only the
   sound effects and the bots' lines, and `record.ts` stops if the home screen
   is not silent. The storyboard predates the Hot Seat host (#202): in a build
-  that has him, turn "Hot Seat host" off, or plan his lines into the hotseat
+  that has her, turn "Hot Seat host" off, or plan her lines into the hotseat
   take. The music is
   laid in afterwards, so it does not break at the cuts.
 

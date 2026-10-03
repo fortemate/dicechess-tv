@@ -1,11 +1,11 @@
 // Who hosts Hot Seat games, or no one, remembered across launches (#202).
 //
-// For now the host is a voice over the game: he is heard, not seen, until the
+// For now the host is a voice over the game: she is heard, not seen, until the
 // game screen is redesigned around the new character portraits. Only Rolly
-// hosts so far; HOSTS is where another character would join him.
+// hosts so far; HOSTS is where another character would join her.
 //
 // Rolly unless the viewer turned the host off. Anything but an explicit "off"
-// reads as Rolly, like the voices, so a damaged value cannot dismiss him for
+// reads as Rolly, like the voices, so a damaged value cannot dismiss her for
 // good, and the "on" an early build stored still means Rolly.
 import type { KeyValueStore } from './mmkvStore';
 

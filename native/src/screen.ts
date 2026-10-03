@@ -659,7 +659,7 @@ const changed = (
 };
 
 // Up and Down walk the settings. The arrows sideways change the volume on its
-// row, step through the hosts on his, and flip a switch on the others, as OK
+// row, step through the hosts on hers, and flip a switch on the others, as OK
 // does, so either habit works.
 const onSettings: Handler<'settings'> = (state, overlay, key) => {
   if (key === 'menu') return show(state, HOME);

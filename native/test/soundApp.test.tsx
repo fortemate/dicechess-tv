@@ -177,21 +177,21 @@ test('Rolly hosts Hot Seat by default, and turning the host off is remembered (#
   tree = launch(second);
   send('down', 'down', 'down', 'down', 'enter');
   assert.match(text(tree.root), /Hot Seat host: off/);
-  // Back to the home screen, up to a new hotseat game: he says nothing.
+  // Back to the home screen, up to a new hotseat game: she says nothing.
   send('back', 'up', 'up', 'up', 'up', 'enter');
   assert.match(text(tree.root), /HOTSEAT · TURN 1/);
   assert.deepEqual(second.said, []);
   act(() => tree.unmount());
 });
 
-test('turning the host off while he speaks stops his voice, and only his (#202)', () => {
+test('turning the host off while she speaks stops her voice, and only hers (#202)', () => {
   reset();
   const sounds = recorder();
   let tree = launch(sounds);
-  // A new hotseat game: he greets both players.
+  // A new hotseat game: she greets both players.
   send('enter');
   assert.match(sounds.said[0], /^host_intro_[1-5]$/);
-  // The game menu, up to its Settings, and down to his row.
+  // The game menu, up to its Settings, and down to her row.
   send('back', 'up', 'enter', 'down', 'down');
   assert.match(text(tree.root), /Hot Seat host: Rolly/);
   assert.equal(sounds.stopped, 0, 'a menu alone leaves the line alone');
@@ -252,7 +252,7 @@ test('the Hot Seat host is heard, not seen: no face, no bubble, and the turn lin
   const sounds = recorder();
   const tree = launch(sounds);
   try {
-    // The game screen looks as it did before him: no face or bubble of his, no
+    // The game screen looks as it did before her: no face or bubble of hers, no
     // room kept for one, and the turn line where it always stood.
     const asBefore = (turn: RegExp) => {
       assert.equal(drawn(tree.root, 'host-face').length, 0);
@@ -262,17 +262,17 @@ test('the Hot Seat host is heard, not seen: no face, no bubble, and the turn lin
       assert.ok(zone, 'the matchup is up');
       assert.equal(zone.props.style?.height, undefined);
       const [line] = drawn(zone, 'turn-line');
-      assert.ok(line, 'the turn line shows while he speaks');
+      assert.ok(line, 'the turn line shows while she speaks');
       assert.equal(line.props.style, undefined);
       assert.match(text(line), turn);
     };
-    // A new hotseat game: he greets both players aloud, and only aloud.
+    // A new hotseat game: she greets both players aloud, and only aloud.
     send('enter');
     assert.equal(sounds.said.length, 1);
     assert.match(sounds.said[0], /^host_intro_[1-5]$/);
     asBefore(/HOTSEAT · TURN 1/);
-    // His greeting said, White rolls and resigns: his last word is heard, and
-    // nothing of him shows with the result either.
+    // Her greeting said, White rolls and resigns: her last word is heard, and
+    // nothing of her shows with the result either.
     act(() => {
       mock.timers.tick(10_000);
     });

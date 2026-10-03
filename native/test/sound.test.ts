@@ -412,7 +412,7 @@ test("the Hot Seat host's result waits for the jingle, like a bot's (#202)", () 
   });
 });
 
-test("the host's line plays his clip on the voice player (#202)", async () => {
+test("the host's line plays her clip on the voice player (#202)", async () => {
   resetAudio();
   const sounds = createSounds({ later: () => undefined });
   sounds.say({ id: 'host_intro_1', event: 'intro' });

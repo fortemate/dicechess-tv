@@ -539,7 +539,7 @@ test('OK or the arrows sideways flip music, sound effects, voices and hotseat bo
   assert.equal(drive(voices, 'select', 'left').voices, true);
   // Once more, the Hot Seat host, Rolly by default. OK and Right step to the
   // next choice and Left to the one before; with Rolly the only host, each
-  // goes between him and off.
+  // goes between her and off.
   const host = drive(voices, 'down');
   assert.equal(host.host, 'rolly');
   assert.equal(drive(host, 'select').host, 'off');

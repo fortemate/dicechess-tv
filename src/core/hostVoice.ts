@@ -1,11 +1,11 @@
 // The Hot Seat host (#202): Rolly hosts games between two people at one
 // television, a neutral party host who cheers the moment and never a side.
 //
-// He speaks only at the pauses: as a game starts, when a turn ends and the
+// She speaks only at the pauses: as a game starts, when a turn ends and the
 // prompt says "OK: continue", and when the game ends. A turn is judged as a
 // whole, over all of its actions, and one step says at most one line. How often
-// he speaks is the host pacing of voices/events.json in dicechess-assets, which
-// every Dice Chess client shares, generated into hostPacing.ts.
+// she speaks is the host pacing of voices/events.json in dicechess-assets,
+// which every Dice Chess client shares, generated into hostPacing.ts.
 //
 // The lines are written in dicechess-assets
 // (voices/elevenlabs-dicechess-host/catalogue.json) and copied here word for
@@ -191,8 +191,8 @@ const quiet = (state: HostState): HostCue => ({
 const byPriority = (a: HostEvent, b: HostEvent): number =>
   HOST_EVENTS[a].priority - HOST_EVENTS[b].priority;
 
-// A game the host has not seen yet: the first one he hosts, another one, or the
-// same id started again (an ended game replaced by a new one).
+// A game the host has not seen yet: the first one she hosts, another one, or
+// the same id started again (an ended game replaced by a new one).
 export const startsHosting = (before: Game | null, after: Game): boolean =>
   before?.id !== after.id ||
   after.revision < before.revision ||
@@ -353,9 +353,9 @@ function maySpeak(
   );
 }
 
-// The host's line for one step of the game, if any, and his state after it.
-// `before` is the game he saw last, or null when he has not seen one: then this
-// is the start of hosting `after`.
+// The host's line for one step of the game, if any, and her state after it.
+// `before` is the game she saw last, or null when she has not seen one: then
+// this is the start of hosting `after`.
 export function hostVoiceCue(
   before: Game | null,
   after: Game,
