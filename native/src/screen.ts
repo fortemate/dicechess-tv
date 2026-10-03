@@ -699,11 +699,13 @@ const onResult: Handler<'result'> = (state, overlay, key, options) => {
 // cancel, which is the behaviour the web probe already ships.
 const onMove = (state: ScreenState, key: BoardKey): ScreenState => {
   const { game } = state;
+  const { legal, dfen } = viewGame(game);
   const result = boardInput(
     state.focus,
     key,
-    viewGame(game).legal,
+    legal,
     flipped(game, state.turnHotseat),
+    dfen.split(' ')[0],
   );
   const focused = { ...state, focus: result.focus };
   switch (result.action.type) {

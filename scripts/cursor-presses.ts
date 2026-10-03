@@ -143,7 +143,8 @@ for (let g = 0; g < GAMES; g++) {
     const turn = MODES.map(() => STRATEGIES.map(() => 0));
     let acted = false;
     while (game.phase === 'move') {
-      const { legal } = viewGame(game);
+      const { legal, dfen } = viewGame(game);
+      const board = dfen.split(' ')[0];
       const move = legal[Math.floor(random() * legal.length)];
       MODES.forEach((mode, m) => {
         if (!mode.scores(side)) return;
@@ -154,6 +155,7 @@ for (let g = 0; g < GAMES; g++) {
             legal,
             move,
             mode.flipped,
+            board,
           );
           const tally = tallies[m][s];
           tally.presses += cost.presses;

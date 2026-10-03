@@ -74,7 +74,8 @@ export function tutorialReducer(
   }
 
   const current = step(state);
-  const result = boardInput(state.focus, key, viewGame(state.game).legal);
+  const { legal, dfen } = viewGame(state.game);
+  const result = boardInput(state.focus, key, legal, false, dfen.split(' ')[0]);
   // Back cancels a selection first and only then leaves, exactly as in a game.
   if (result.action.type === 'exit') return { ...state, exit: true };
   if (result.action.type === 'move') {

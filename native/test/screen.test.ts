@@ -974,6 +974,19 @@ test('the cursor stays on its piece while that piece can move again', () => {
   assert.equal(state.focus.cursor, 'e4');
 });
 
+test('OK on a pawn on its starting rank lands on the two-square push', () => {
+  const pawns: ScreenOptions = { ...options, roll: () => [1, 1, 1] };
+  let state = initialState(pawns);
+  state = screenReducer(state, { kind: 'key', key: 'select' }, pawns);
+  state = screenReducer(state, { kind: 'key', key: 'select' }, pawns);
+  // The cursor waits on e2; OK picks the pawn up and lands on e4, not e3.
+  state = screenReducer(state, { kind: 'key', key: 'select' }, pawns);
+  assert.deepEqual(state.focus, { cursor: 'e4', selected: 'e2' });
+  // A second OK plays the push.
+  state = screenReducer(state, { kind: 'key', key: 'select' }, pawns);
+  assert.equal(state.game.lastMove, 'e2e4');
+});
+
 // Queen, rook, king: from the opening nothing can move, for either side.
 const nothing: ScreenOptions = { ...options, roll: () => [5, 4, 6] };
 

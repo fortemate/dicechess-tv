@@ -5,7 +5,7 @@
 // arrow presses that reach it plus one OK, and a promotion adds one OK more.
 
 import { central, pressesFrom, steps, type JumpRule } from './cursor.ts';
-import { movableSquares } from './boardInput.ts';
+import { landing, movableSquares } from './boardInput.ts';
 
 export type Strategy = {
   // While choosing a piece, a press moves one square, or jumps to the next
@@ -16,7 +16,8 @@ export type Strategy = {
   // the central one otherwise.
   start: 'stay' | 'central' | 'sticky';
   // While choosing a destination, a press moves one square from the piece, or
-  // the cursor lands on the central destination and jumps between destinations.
+  // the cursor lands where the board lands it (`landing`) and jumps between
+  // destinations.
   destinations: 'step' | 'jump';
   rule: JumpRule;
 };
@@ -43,6 +44,8 @@ export function actionCost(
   legal: readonly string[],
   move: string,
   flipped = false,
+  // The FEN board field. Without it a picked-up pawn lands as any piece does.
+  board: string | null = null,
 ): Cost {
   const layout = { rule: strategy.rule, flipped };
   const from = move.slice(0, 2);
@@ -74,7 +77,7 @@ export function actionCost(
           .map((action) => action.slice(2, 4)),
       ),
     ];
-    presses += reach(central(targets, from, layout) ?? from, targets, to);
+    presses += reach(landing(legal, from, layout, board) ?? from, targets, to);
   }
   return { presses: presses + 2 + (move.length > 4 ? 1 : 0), reachable };
 }
