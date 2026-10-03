@@ -5,7 +5,7 @@ sidebar:
   order: 2
 ---
 
-Every screenshot here comes from the Vega Virtual Device, captured with scripted presses of the remote. Each feature was also played there, and the app's automated tests cover it; where a check is still open, the section says so. Nothing has run on a physical Fire TV Stick yet.
+Every screenshot here comes from the Vega Virtual Device, captured with scripted presses of the remote on beta 8 with the opponents' portraits. A test build set the first rolls, so that a roll with nothing to play and a knight with a capture came up when they were needed; apart from the dice, each screen is the app as it ships. Each feature was also played there, and the app's automated tests cover it; where a check is still open, the section says so. Nothing has run on a physical Fire TV Stick yet.
 
 ## Hotseat on one remote
 
@@ -13,13 +13,15 @@ Two players share the remote and take turns. OK rolls three dice; the pieces the
 
 For living-room sofa play where players prefer to view the board from their own side, a switch in **Settings** allows turning the board so the mover's pieces sit at the bottom. When enabled, the board fades out and back in over 200 ms as the turn passes to Black or back to White, while D-pad arrow directions remain locked to the physical television screen.
 
-![A hotseat game: Black's knight is picked up, its destinations are dotted, a capture is ringed, and three dice sit beside the board](../../../assets/screenshots/hotseat.png)
+![A hotseat game: Black's knight is picked up, its destinations are dotted, the capture of White's knight is ringed, and three dice sit beside the board](../../../assets/screenshots/hotseat.png)
 
 Rolly, the friendliest of the computer opponents, hosts Hot Seat games. She greets you both as a game starts, cheers the big moments when a turn ends, and at the end cheers the winner and the other player too. She never takes a side and speaks only at those pauses, never while someone is thinking. While she speaks, her face and her line show above the bottom badge, and nothing else on the screen moves. **Hot Seat host** in Settings chooses Rolly or off. The tests cover her, and the virtual device has shown her and played her lines.
 
+![Rolly hosting a new Hot Seat game: her portrait and her greeting show above the bottom badge](../../../assets/screenshots/host.png)
+
 ## Three opponents, as either colour
 
-![The choice of opponent: three cards, Rolly, Grabby and Rampage, each with a face, a level, a line on how it plays and your record against it](../../../assets/screenshots/opponents.png)
+![The choice of opponent: three cards, Rolly, Grabby and Rampage, each with a portrait, a level, a line on how it plays and your record against it](../../../assets/screenshots/opponents.png)
 
 A person alone plays one of three opponents that run on the TV. They are chosen on cards:
 
@@ -27,19 +29,19 @@ A person alone plays one of three opponents that run on the TV. They are chosen 
 - **Grabby** (Medium) takes the most valuable piece it can;
 - **Rampage** (Hard) hunts your pieces and goes for your king.
 
-Each is an algorithm of the Dice Chess rules engine, and each card shows your record against it. The faces are RhosGFX's Vector Emojis, by the artist of the pieces. Every opponent shows its turn one action at a time, and each piece slides to its new square, the opponent's and yours alike, so a turn can be followed from the sofa. Frames recorded on the virtual device show Grabby's knight sliding onto a queen it took in under a quarter of a second, and the tests cover captures, castling, en passant and promotion.
+Each is an algorithm of the Dice Chess rules engine, and each card shows your record against it. Each has a portrait drawn for the game, and in a game it talks from beside it at the top of the screen. A build without the portraits shows RhosGFX's Vector Emojis, by the artist of the pieces, in their place. Every opponent shows its turn one action at a time, and each piece slides to its new square, the opponent's and yours alike, so a turn can be followed from the sofa. Frames recorded on the virtual device show Grabby's knight sliding onto a queen it took in under a quarter of a second, and the tests cover captures, castling, en passant and promotion.
 
 Before the game you choose White or Black, or let the app pick a colour. Playing Black turns the board so that your pieces are at the bottom.
 
 ![The colour choice before a game against Grabby: Random, White or Black](../../../assets/screenshots/play-as.png)
 
-![Playing Black against Grabby, with the board turned so that Black is at the bottom](../../../assets/screenshots/play-black.png)
+![Playing Black against Grabby, with the board turned so that Black is at the bottom and Grabby's portrait, name and level at the top](../../../assets/screenshots/play-black.png)
 
 ## A roll with nothing to play
 
 About one roll in twelve leaves nothing to play, and so do nearly a third of first rolls, measured over 300 simulated games. The screen says so instead of passing the turn silently: the headline reads "No legal moves", the dice dim, and a line under them gives the reason.
 
-![A roll with nothing to play: the headline reads No legal moves, the three dice are dimmed, and the reason is written under them](../../../assets/screenshots/empty-roll.png)
+![A roll with nothing to play against Rolly: the headline reads No legal moves, the three dice are dimmed, and the reason is written under them](../../../assets/screenshots/empty-roll.png)
 
 ## The tutorial
 
@@ -88,4 +90,4 @@ Sound stops when the app leaves the screen. The tests check that the players pau
 
 A game against the computer ends on a choice: a rematch or the main menu. A rematch keeps your colour choice; if you chose Random, it picks again. In hotseat, a finished game stays on the board, and OK returns to the main menu.
 
-![After resigning against Grabby: Resigned, White wins, and the choice of Rematch or Main menu](../../../assets/screenshots/rematch.png)
+![After resigning against Grabby: Resigned, White wins, Grabby's last word beside its portrait, and the choice of Rematch or Main menu](../../../assets/screenshots/rematch.png)

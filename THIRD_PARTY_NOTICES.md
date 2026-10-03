@@ -44,7 +44,9 @@ Beside the packs, `native/voices/events.json` is copied from the same commit: Fo
 
 The opponents' portraits, Rolly, Grabby and Rampage, were drawn for this game with Recraft on a paid plan (fortemate/dicechess-assets#31). They are Fortemate's, licensed to Fortemate's Dice Chess applications only, as the `NOTICE.txt` that comes with them says. They are not covered by the AGPL or by any other open licence. A fork or copy of this repository may not use, publish or distribute them.
 
-While this repository is public they are not in it. `native/scripts/vendor-portraits.mjs` copies them, with that notice and a lock, from the private asset repository `fortemate/dicechess-assets` into `native/portraits/`, which git ignores, and a build without them shows the RhosGFX faces in their place. In a build that has them, the About screen shows them beside Recraft's name, with the engine and the voices, so that a player knows they are AI-generated, and its RhosGFX card names only the pieces. In a build without them it credits the RhosGFX faces with the pieces.
+While this repository is public the portrait files are not in it. `native/scripts/vendor-portraits.mjs` copies them, with that notice and a lock, from the private asset repository `fortemate/dicechess-assets` into `native/portraits/`, which git ignores, and a build without them shows the RhosGFX faces in their place. In a build that has them, the About screen shows them beside Recraft's name, with the engine and the voices, so that a player knows they are AI-generated, and its RhosGFX card names only the pieces. In a build without them it credits the RhosGFX faces with the pieces.
+
+The screenshots in `site/src/assets/screenshots/` show the portraits as the app draws them, and so does the demo video's picture there. Those pictures are Fortemate's as well and are not covered by the AGPL.
 
 ## Amazon platform packages
 

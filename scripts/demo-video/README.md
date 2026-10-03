@@ -33,8 +33,7 @@ text over its menus.
   so it does not break at the cuts.
 - A build with the opponents' portraits shows them in the takes (see
   "Portraits" in `native/README.md`). The takes and the video stay in `dist/`,
-  which git ignores: the portraits do not go into this repository while it is
-  public.
+  which git ignores.
 
 ## Making the video
 
