@@ -159,7 +159,9 @@ export function useHostVoice(game: Game, options: UseHostVoiceOptions): void {
       return;
     }
     // Behind the home screen or a menu: nothing is picked or recorded, and a
-    // line that waits goes on waiting.
+    // line that waits goes on waiting. A line being said is left to finish, as
+    // a bot's is: OK on a finished game goes to the home screen, and his last
+    // word may still be waiting for its jingle.
     if (!live) return;
 
     const prev = lastGame.current;

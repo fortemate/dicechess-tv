@@ -1,9 +1,9 @@
-// The Hot Seat host in the game screen (#202): he speaks only while the board
-// is on screen and a host is chosen, a line waits for the one being said as
-// long as the game waits too, and his last word holds with the result. The hook
-// returns nothing, as the screen shows nothing of his yet: what he says, and
-// when, is read from `onVoiceLine`, and whether a line of his still holds from
-// `onStop` when he is turned off.
+// The Hot Seat host in the game screen (#202): he picks lines only while the
+// board is on screen and a host is chosen, a line waits for the one being said
+// as long as the game waits too, and his last word holds with the result. The
+// hook returns nothing, as the screen shows nothing of his yet: what he says,
+// and when, is read from `onVoiceLine`, and whether a line of his still holds
+// from `onStop` when he is turned off.
 import { test, mock, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
@@ -235,6 +235,32 @@ test('a line that waits while a menu is up is said when the board returns', () =
   assert.deepEqual(host.said(), ['intro'], 'not behind the menu');
   host.show(empty);
   assert.deepEqual(host.said(), ['intro', 'handoff']);
+  host.unmount();
+});
+
+test('a line he has begun is left to finish behind a menu or the home screen', () => {
+  const host = harness();
+  const game = newGame('hotseat', 'covered');
+  host.show(game);
+  assert.deepEqual(host.said(), ['intro']);
+  // The game menu opens while he greets the players: his line is left to
+  // finish.
+  host.show(game, { live: false });
+  assert.equal(host.stopped(), 0, 'a menu alone leaves the line alone');
+  host.show(game);
+  tick(HOLD);
+  // White rolls and resigns. OK on the finished board goes to the home
+  // screen, which leaves his last word alone too: it may still be waiting
+  // for its jingle.
+  const rolled = rollGame(game, [2, 2, 2]);
+  host.show(rolled);
+  const resigned = resignGame(rolled);
+  host.show(resigned);
+  const [, last] = host.said();
+  assert.ok(['black_wins', 'win'].includes(last), last);
+  host.show(resigned, { live: false });
+  assert.equal(host.stopped(), 0, 'the home screen leaves his last word alone');
+  assert.deepEqual(host.said(), ['intro', last]);
   host.unmount();
 });
 
