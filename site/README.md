@@ -1,11 +1,11 @@
 # The project site
 
-The public site of Dice Chess TV, <https://fortemate.github.io/dicechess-tv/>. It
+The public site of Dice Chess TV, <https://dicechess-tv.jegors-cemisovs.workers.dev/>. It
 presents the project to players and judges and documents it for developers. It is
 an [Astro Starlight](https://starlight.astro.build/) project, and its own npm
 package with its own lockfile; `mise run setup` does not install it.
 [`deploy-site.yaml`](../.github/workflows/deploy-site.yaml) builds it on every
-pull request that touches `site/` and deploys it to GitHub Pages from `main`. The
+pull request that touches `site/` and deploys it to a Cloudflare Worker from `main`. The
 browser test bench in [`web/`](../web/README.md) is built and deployed with it,
 at `/bench/`.
 
@@ -14,7 +14,7 @@ at `/bench/`.
 ```bash
 cd site
 npm ci
-npm run dev     # http://localhost:4321/dicechess-tv/, reloading as you edit
+npm run dev     # http://localhost:4321/, reloading as you edit
 npm run build   # into dist/, as CI builds it
 ```
 
@@ -124,6 +124,19 @@ catalogue. [`scripts/voice-results.mjs`](scripts/voice-results.mjs) counts the
 picks from the `voices` tab. The page was checked in a browser at phone width:
 the lines play one at a time, a pick is needed to send, and the request is the
 one the script's tests accept; the live script is the owner's to update.
+
+## Deployment
+
+A Cloudflare Worker with static assets only, configured in
+[`wrangler.jsonc`](wrangler.jsonc), serves `dist/` from the root of its
+workers.dev address. The workflow deploys it with two repository secrets, set
+once under **Settings → Secrets and variables → Actions → Secrets**:
+
+- `CLOUDFLARE_API_TOKEN`: an API token made from the **Edit Cloudflare Workers**
+  template, limited to the account that owns the Worker;
+- `CLOUDFLARE_ACCOUNT_ID`: that account's ID, from the Cloudflare dashboard.
+
+Without them the build still runs and the deployment fails.
 
 ## The icon
 

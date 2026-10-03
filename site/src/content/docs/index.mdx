@@ -9,19 +9,15 @@ hero:
     alt: The app icon, two dice mid-roll in front of a knight and a rook
   actions:
     - text: Play the beta
-      link: /dicechess-tv/play/beta/
+      link: /play/beta/
       icon: right-arrow
     - text: Watch the demo
       link: https://youtu.be/9PLg7yWx-mY
       icon: external
       variant: secondary
     - text: What it does
-      link: /dicechess-tv/project/features/
+      link: /project/features/
       variant: secondary
-    - text: Get the code
-      link: https://github.com/fortemate/dicechess-tv
-      icon: github
-      variant: minimal
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
@@ -39,9 +35,8 @@ import demo from '../../assets/screenshots/demo.png';
   </Card>
   <Card title="Made for the remote" icon="rocket">
     The arrows jump between the pieces that can move, then between the chosen
-    piece's destinations. Over [200 simulated
-    games](https://github.com/fortemate/dicechess-tv/blob/main/scripts/cursor-presses.ts),
-    a turn takes 8.7 presses instead of 22.6 square by square.
+    piece's destinations. Over 200 simulated games, a turn takes 8.7 presses
+    instead of 22.6 square by square.
   </Card>
   <Card title="Three opponents on the TV" icon="puzzle">
     Rolly plays any legal turn at random, Grabby takes the most valuable piece
@@ -106,8 +101,8 @@ import demo from '../../assets/screenshots/demo.png';
   Testing on a physical Fire TV Stick is still to come.
 </p>
 
-[Why Dice Chess on TV](/dicechess-tv/project/why/) tells the story, [What it does](/dicechess-tv/project/features/) tours every feature, [How to play](/dicechess-tv/play/how-to-play/) explains the rules, and [Controls](/dicechess-tv/play/controls/) walks through the remote navigation. Try it with [Play the beta](/dicechess-tv/play/beta/). Explore our [Architecture](/dicechess-tv/technology/architecture/), [Platform findings on Vega](/dicechess-tv/technology/vega/), [Performance](/dicechess-tv/technology/performance/), and [Quality & review](/dicechess-tv/quality/). Developers can follow the [Build & run guide](/dicechess-tv/contribute/build/) and check the [Roadmap](/dicechess-tv/roadmap/).
+[Why Dice Chess on TV](/project/why/) tells the story, [What it does](/project/features/) tours every feature, [How to play](/play/how-to-play/) explains the rules, and [Controls](/play/controls/) walks through the remote navigation. Try it with [Play the beta](/play/beta/). Explore our [Architecture](/technology/architecture/), [Platform findings on Vega](/technology/vega/), [Performance](/technology/performance/), and [Quality & review](/quality/). Developers can follow the [Build & run guide](/contribute/build/) and check the [Roadmap](/roadmap/).
 
-The TV app was built during [Build, Ship, Shape: Amazon Developer Hackathon 2026](https://amazonappdev2026.devpost.com/), in a repository started on 21 September 2026. It plays by the rules of Fortemate's open-source engine, [`@fortemate/dicechess-engine`](https://github.com/fortemate/dicechess-engine), which existed before. The [friction log](/dicechess-tv/friction-log/) records the obstacles we met in Amazon's Vega SDK along the way.
+The TV app was built during [Build, Ship, Shape: Amazon Developer Hackathon 2026](https://amazonappdev2026.devpost.com/), in a repository started on 21 September 2026. It plays by the rules of Fortemate's open-source engine, [`@fortemate/dicechess-engine`](https://github.com/fortemate/dicechess-engine), which existed before. The [friction log](/friction-log/) records the obstacles we met in Amazon's Vega SDK along the way.
 
-The code is licensed under AGPL-3.0-only. The app icon and the Fortemate name and logo are not; see [Licensing](https://github.com/fortemate/dicechess-tv#licensing).
+The code is licensed under AGPL-3.0-only. The app icon and the Fortemate name and logo are not; see [Credits & licences](/contribute/credits/).

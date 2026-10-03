@@ -9,11 +9,11 @@ We welcome contributions to Dice Chess TV. Because this project is public, open 
 
 ## Contributor License Agreement (CLA)
 
-All contributors must agree to the project's [Contributor License Agreement](https://github.com/fortemate/dicechess-tv/blob/main/CLA.md) before contributions can be merged:
+All contributors must agree to the project's Contributor License Agreement before contributions can be merged:
 
 - You confirm that you have the right to submit your contribution under the GNU Affero General Public License v3.0 only (AGPL-3.0-only).
 - You grant Fortemate the permissions necessary to distribute, publish, and relicense the project.
-- Third-party assets or libraries must have compatible licenses (e.g. CC0, MIT, Apache 2.0) and be explicitly documented in [`THIRD_PARTY_NOTICES.md`](https://github.com/fortemate/dicechess-tv/blob/main/THIRD_PARTY_NOTICES.md).
+- Third-party assets or libraries must have compatible licenses (e.g. CC0, MIT, Apache 2.0) and be explicitly documented in `THIRD_PARTY_NOTICES.md`.
 
 ## Branch and Pull Request Conventions
 

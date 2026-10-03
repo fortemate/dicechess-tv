@@ -77,7 +77,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   `SIGSEGV`, program counter `0x0`, and the next frame in `libkeplerscript-webview-lib-2.so.2.0` at
   offset `0x2471ba`; with WebView 4.0.2 a lifecycle crash. A full emulator restart did not help. The
   same inline-HTML control installs and stays running on SDK 0.23.9221 (OS 1.1). Evidence:
-  [docs/vega-sdk-experiment.md](https://github.com/fortemate/dicechess-tv/blob/5bc2357dd9489380a1f46f0e48b9d3be9ed1d498/docs/vega-sdk-experiment.md).
+  `docs/vega-sdk-experiment.md`.
 - **Severity and user impact:** Blocker. No WebView app could ship on that image, so the web board
   was abandoned and the game was rewritten as a native React Native app.
 - **Workaround:** none for WebView. The native React Native path runs on SDK 0.24.
@@ -117,8 +117,8 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   remote skins do the same). The keyboard sends `enter`. `select` is what the documentation says a
   physical remote sends; we have not had a device to confirm it. We found `kpenter` nowhere in the
   documentation, and the app ignored OK from the on-screen remote until a person pressed it. Evidence:
-  [native/README.md, Remote input](https://github.com/fortemate/dicechess-tv/blob/5bc2357dd9489380a1f46f0e48b9d3be9ed1d498/native/README.md#remote-input),
-  [PR #50](https://github.com/fortemate/dicechess-tv/pull/50).
+  `native/README.md`, Remote input,
+  PR #50.
 - **Severity and user impact:** High. The remote's main button looked dead in the emulator, with no
   error. A developer who tests with the keyboard alone would never notice.
 - **Workaround:** treat `select`, `enter` and `kpenter` alike.
@@ -138,7 +138,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 - **Actual result and evidence:** `useAddUserInputListenerCallback()` delivers nothing at all while
   `useTVEventHandler` is also mounted. Alone, it works. The silence looks exactly like nobody pressing
   a key, which is why a diagnostic had to subscribe to one API at a time. Evidence:
-  [native/README.md, Remote input](https://github.com/fortemate/dicechess-tv/blob/5bc2357dd9489380a1f46f0e48b9d3be9ed1d498/native/README.md#remote-input).
+  `native/README.md`, Remote input.
 - **Severity and user impact:** High. It cost a day.
 - **Workaround:** use `useTVEventHandler` for directions and OK, and nothing else alongside it.
 - **Suggested improvement:** document that the two are exclusive, and warn in development builds when
@@ -154,7 +154,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 - **Minimal reproduction steps:** call the static `UserInputManager.addListener` at startup.
 - **Expected result:** a listener, or a documented error.
 - **Actual result and evidence:** the JS thread aborts with `SIGABRT`. Evidence:
-  [native/README.md, Remote input](https://github.com/fortemate/dicechess-tv/blob/5bc2357dd9489380a1f46f0e48b9d3be9ed1d498/native/README.md#remote-input).
+  `native/README.md`, Remote input.
 - **Severity and user impact:** Medium. The app dies on startup.
 - **Workaround:** the hooks instead.
 - **Suggested improvement:** make the static call work on 0.24, or have it throw a JavaScript error
@@ -172,7 +172,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 - **Actual result and evidence:** the handler sees Back, but it cannot claim the event, so the app
   closes as well. Only `useKeplerBackHandler` can claim Back; it calls `exitApp()` itself when no
   handler returns true. Evidence:
-  [native/README.md, Remote input](https://github.com/fortemate/dicechess-tv/blob/5bc2357dd9489380a1f46f0e48b9d3be9ed1d498/native/README.md#remote-input).
+  `native/README.md`, Remote input.
 - **Severity and user impact:** Medium. Back quit the game instead of cancelling.
 - **Workaround:** handle Back in `useKeplerBackHandler` and every other key in `useTVEventHandler`.
 - **Suggested improvement:** say in the `useTVEventHandler` documentation that it cannot claim an
@@ -191,7 +191,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 - **Actual result and evidence:** it never receives any. Every key press is lost, with nothing in any
   log and no crash. Rendering the board in the first render fixed it. We did not isolate the
   mechanism. Evidence:
-  [native/README.md, Saving](https://github.com/fortemate/dicechess-tv/blob/5bc2357dd9489380a1f46f0e48b9d3be9ed1d498/native/README.md#saving).
+  `native/README.md`, Saving.
 - **Severity and user impact:** High. A common React pattern produces an app that looks frozen.
 - **Workaround:** read storage synchronously (MMKV makes this easy) and render on the first frame.
 - **Suggested improvement:** deliver input to a view tree that mounts after the first frame, or
@@ -219,7 +219,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   Back, although Esc typed on the host keyboard does, through the emulator's keyboard mapping. And OK
   cannot be sent as `select`: the virtual keyboard does not declare `KEY_SELECT` or `KEY_OK`.
   Evidence:
-  [native/README.md, Remote input](https://github.com/fortemate/dicechess-tv/blob/5bc2357dd9489380a1f46f0e48b9d3be9ed1d498/native/README.md#remote-input).
+  `native/README.md`, Remote input.
 - **Severity and user impact:** Medium. Hours went into routes that fail silently, and until the gRPC
   route worked, every input check needed a person at the emulator.
 - **Workaround:** gRPC `sendKey` with the port and token from the running emulator's discovery file;
@@ -254,7 +254,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 - **Expected result:** a PNG of the screen.
 - **Actual result and evidence:** the CLI has no screenshot command. `screenshooter` fails its capture
   call, even once its buffer-permission problem is worked around. Evidence:
-  [native/README.md, Verification](https://github.com/fortemate/dicechess-tv/blob/5bc2357dd9489380a1f46f0e48b9d3be9ed1d498/native/README.md#verification).
+  `native/README.md`, Verification.
 - **Severity and user impact:** Medium. For two days, every visual check needed a person at the
   emulator.
 - **Workaround:** the Android emulator console's `screenrecord screenshot <directory>`, and later the
@@ -290,7 +290,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   `vega device start-log-stream`.
 - **Expected result:** the app's lines in the stream.
 - **Actual result and evidence:** only system and graphics lines appear. Evidence:
-  [docs/vega-native-runtime-gate.md, Reading the result off the device](https://github.com/fortemate/dicechess-tv/blob/5bc2357dd9489380a1f46f0e48b9d3be9ed1d498/docs/vega-native-runtime-gate.md#reading-the-result-off-the-device).
+  `docs/vega-native-runtime-gate.md`, Reading the result off the device.
 - **Severity and user impact:** Medium. The first on-device check could not read its results from the
   log stream and needed a reporting channel of its own.
 - **Workaround:** a loopback-only HTTP receiver on the development machine, reached through
@@ -310,7 +310,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 - **Actual result and evidence:** MP3 and WAV reach `playing` in 3 to 7 ms. OGG and M4A fail with
   error 4, identically in each of three runs. `canPlayType` answered "probably" for OGG and "" for WAV,
   the reverse of what happens; the package's README lists it among unsupported members. Evidence:
-  [native/README.md, What the probe established](https://github.com/fortemate/dicechess-tv/blob/5bc2357dd9489380a1f46f0e48b9d3be9ed1d498/native/README.md#what-the-probe-established).
+  `native/README.md`, What the probe established.
 - **Severity and user impact:** Medium. The sound pack we had prepared was OGG only and could not be
   played as it stood.
 - **Workaround:** MP3 exports.
@@ -333,7 +333,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   `addEventListener`), and the `Audio` component on its music and media defaults filled the log with
   `could not connect to audioserver`, while an `AudioPlayer` created as `CONTENT_TYPE_SONIFICATION` /
   `USAGE_GAME` played. Evidence:
-  [native/README.md, What the probe established](https://github.com/fortemate/dicechess-tv/blob/5bc2357dd9489380a1f46f0e48b9d3be9ed1d498/native/README.md#what-the-probe-established).
+  `native/README.md`, What the probe established.
 - **Severity and user impact:** Low. It cost a probe run.
 - **Workaround:** plain paths for audio, `file://` for `fetch`.
 - **Suggested improvement:** accept both forms in both places, and a short guide to sound effects in a
@@ -356,7 +356,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   are all system-driven (programme guide sync, install updates). React Native has no Web Worker.
   Worklets are documented for heavy computation, but we have not proved them with a pure JavaScript
   library. Evidence:
-  [native/README.md, The local opponent](https://github.com/fortemate/dicechess-tv/blob/5bc2357dd9489380a1f46f0e48b9d3be9ed1d498/native/README.md#the-local-opponent).
+  `native/README.md`, The local opponent.
 - **Severity and user impact:** Medium. A stronger opponent than the random one needs this; the random
   one runs on the JS thread without a visible pause.
 - **Workaround:** none yet for heavy work.
@@ -379,8 +379,8 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   system-distributed library ("This is not an error"). The
   [plugin page](https://developer.amazon.com/docs/vega/0.24/eslint-plugin.html) documents 7 of its
   17 rules and 2 of its 6 presets, and only eslintrc configuration (checked on 2026-09-26). Evidence:
-  [native/eslint.config.mjs](https://github.com/fortemate/dicechess-tv/blob/5bc2357dd9489380a1f46f0e48b9d3be9ed1d498/native/eslint.config.mjs),
-  [PR #47](https://github.com/fortemate/dicechess-tv/pull/47).
+  `native/eslint.config.mjs`,
+  PR #47.
 - **Severity and user impact:** Medium. ESLint is held at 9, and the advisories are easy to miss.
 - **Workaround:** ESLint 9, the rules spread into the flat config by hand, the informational rule off.
 - **Suggested improvement:** use `context.sourceCode`, publish a flat-config preset, report
@@ -404,8 +404,8 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   `minimatch`, `ajv`, `toml`, `uuid` and `fast-xml-parser`. None of them reaches the device package.
   Its remedy, `npm audit fix --force`, installs `@amazon-devices/react-native-kepler@2.1.0`, the SDK
   0.23 line. Evidence:
-  [.github/dependabot.yaml](https://github.com/fortemate/dicechess-tv/blob/5bc2357dd9489380a1f46f0e48b9d3be9ed1d498/.github/dependabot.yaml),
-  [native/README.md, What `npm audit` reports](https://github.com/fortemate/dicechess-tv/blob/5bc2357dd9489380a1f46f0e48b9d3be9ed1d498/native/README.md#what-npm-audit-reports-and-why-it-is-not-shipped).
+  `.github/dependabot.yaml`,
+  `native/README.md`, What `npm audit` reports.
 - **Severity and user impact:** Medium. A broken main branch, and security advice that would downgrade
   the platform.
 - **Workaround:** Dependabot allows only patch updates for SDK-matched packages; `npm audit fix` is
@@ -429,13 +429,13 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   304x200 on a 1080p screen, and crops the top and bottom: only the band from y 100 to y 412 of the
   512-pixel icon survives. A bare mark on transparency came out visibly distorted there, and a first
   round of concepts for the game's icon lost the tops and bottoms of their dice. Measured on the
-  Virtual Device while the icon was designed ([#83](https://github.com/fortemate/dicechess-tv/issues/83)).
+  Virtual Device while the icon was designed.
   Evidence:
-  [native/README.md, Icon and splash](https://github.com/fortemate/dicechess-tv/blob/5bc2357dd9489380a1f46f0e48b9d3be9ed1d498/native/README.md#icon-and-splash).
+  `native/README.md`, Icon and splash.
 - **Severity and user impact:** Low. The first icon looked distorted on the Virtual Device's home
   screen.
 - **Workaround:** an opaque icon whose artwork stays within that band, with even side margins; a test,
-  [native/test/splash.test.ts](https://github.com/fortemate/dicechess-tv/blob/5bc2357dd9489380a1f46f0e48b9d3be9ed1d498/native/test/splash.test.ts),
+  `native/test/splash.test.ts`,
   fails if any of it leaves the band.
 - **Suggested improvement:** document the launcher's use of the field, its tile shape and the band
   that stays visible, and recommend a safe zone; or add a separate launcher icon field.
@@ -474,7 +474,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   player's audio-focus client also needed `com.amazon.audio.control`, refused at start-up until it was
   declared. In our check, the Vega ESLint plugin's API-privilege rules did not report the missing
   declarations. Evidence:
-  [native/manifest.toml](https://github.com/fortemate/dicechess-tv/blob/5bc2357dd9489380a1f46f0e48b9d3be9ed1d498/native/manifest.toml).
+  `native/manifest.toml`.
 - **Severity and user impact:** High. No sound at all, and nothing in the app says why.
 - **Workaround:** declare all five services.
 - **Suggested improvement:** raise a refused connection as a JavaScript error; list the services each
@@ -495,7 +495,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 - **Actual result and evidence:** the process exits with code 255 at start-up, right after
   `Inputd-client: requestPriority ... WRITE_TO_UDEV`. Without the declaration the remote works. This was
   measured by adding and removing that one entry. Evidence:
-  [native/manifest.toml](https://github.com/fortemate/dicechess-tv/blob/5bc2357dd9489380a1f46f0e48b9d3be9ed1d498/native/manifest.toml).
+  `native/manifest.toml`.
 - **Severity and user impact:** Medium. Following the documented step stopped our app at launch, and
   the only clue was one log line. Amazon's own sample does not stop with the same entry (see the
   update below), so this is not general 0.24 behaviour. It was High until 2026-09-30.
@@ -526,7 +526,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 - **Actual result and evidence:** first frame (309 ms) and fully drawn (748 ms) are reported, but the
   run ends in `VALUE VALIDATION FAILED` with `-1 != Network calls time P100`: the validator treats the
   absence of network calls as a failure. Evidence:
-  [native/README.md, Launch time](https://github.com/fortemate/dicechess-tv/blob/5bc2357dd9489380a1f46f0e48b9d3be9ed1d498/native/README.md#launch-time).
+  `native/README.md`, Launch time.
 - **Severity and user impact:** Low. The report looks like a failure until each line is read, and
   certification mode would presumably report the same.
 - **Workaround:** read the individual KPIs and ignore that one.
@@ -549,7 +549,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   `CLI Send Error for URI: pkg://com.amazon.smplighthouse.launcher.main: []: Failed to send message, remote error`
   (exit 255). The Virtual Device's launcher is `com.amazon.keplerlauncherapp.main`, and sending that
   one works. The tool offers no option to name the launcher. Evidence:
-  [native/README.md, Launch time](https://github.com/fortemate/dicechess-tv/blob/5bc2357dd9489380a1f46f0e48b9d3be9ed1d498/native/README.md#launch-time).
+  `native/README.md`, Launch time.
 - **Severity and user impact:** Medium. A warm-start KPI that Amazon measures cannot be checked before
   a physical device is at hand.
 - **Workaround:** test the warm-start report in unit tests, and measure on a Fire TV Stick.
@@ -570,7 +570,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   settings" but names no setting, and the README does not mention telemetry. The package's code reads
   `optIn` from `~/vega/telemetry/config.json`, the Vega SDK's own telemetry file, which the Vega CLI
   reads too and has no command for. On our development machine it said `"optIn": true`. Evidence: the
-  telemetry note in [CONTRIBUTING.md](https://github.com/fortemate/dicechess-tv/blob/6b67670fe2e2544bb6ead686d38856b66c27a733/CONTRIBUTING.md#amazons-tools-for-coding-agents).
+  telemetry note in `CONTRIBUTING.md`.
 - **Severity and user impact:** Medium. A developer who wants telemetry off cannot find the switch, and
   turning it off for the server also turns it off for the SDK, which no page says.
 - **Workaround:** set `"optIn": false` in `~/vega/telemetry/config.json`.
@@ -594,7 +594,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   project has reviewed, with the agent's permissions. The entry is also user-wide, for every project.
   There is no skills-only mode: skipping both the context document and the server entry stops with
   "Nothing to do", so the skills always come with one of them. Evidence: the pinned
-  [.mcp.json](https://github.com/fortemate/dicechess-tv/blob/6b67670fe2e2544bb6ead686d38856b66c27a733/.mcp.json) and the setup steps in [CONTRIBUTING.md](https://github.com/fortemate/dicechess-tv/blob/6b67670fe2e2544bb6ead686d38856b66c27a733/CONTRIBUTING.md#amazons-tools-for-coding-agents).
+  `.mcp.json` and the setup steps in `CONTRIBUTING.md`.
 - **Severity and user impact:** Medium. Unreviewed updates run silently in a tool with wide access.
 - **Workaround:** register the server again at a fixed version (`claude mcp add … @1.0.13`), or remove
   the user-wide entry and pin the version in the project's `.mcp.json`.
@@ -638,12 +638,12 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
     JavaScript, by calling `play()` when `ended` arrives, which explains both.
   - The package README lists `loop` among the unsupported members, yet it is implemented.
 
-  Evidence: the probe build ([`MusicProbe.tsx`](https://github.com/fortemate/dicechess-tv/blob/360be078d7297f1683670101ec2b10fe94790a6c/native/src/MusicProbe.tsx)) and its results in
-  [#76](https://github.com/fortemate/dicechess-tv/issues/76#issuecomment-5848979409).
+  Evidence: the probe build (`MusicProbe.tsx`) and its results, recorded in
+  issue #76.
 
 - **Severity and user impact:** Medium. A looping track would stall on every pass.
 - **Workaround:** two players taking turns. The next pass starts on the other player before the loop
-  ends, and the two crossfade ([native/README.md, Music](https://github.com/fortemate/dicechess-tv/blob/def2271cc2a63d019928bd7142a32835809f8497/native/README.md#music)).
+  ends, and the two crossfade (`native/README.md`, Music).
 - **Suggested improvement:** loop natively, as a media element does in a browser. At least fire
   `ended` when the position reaches the end, and document what `loop` does.
 - **Current status:** worked around.
@@ -664,7 +664,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
     each call took at most 1.2 ms, and `muted` read back too. Its effect on what is heard has not yet
     been checked by ear.
 
-  Evidence: [#76](https://github.com/fortemate/dicechess-tv/issues/76#issuecomment-5848979409).
+  Evidence: the probe results recorded in issue #76.
 
 - **Severity and user impact:** Low. It cost a probe run to find out.
 - **Workaround:** none needed; the app uses `volume` for its fades and its setting.
@@ -682,7 +682,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   `duration` and the final `currentTime`.
 - **Expected result:** 4.000 s for both, as browsers report for an MP3 with a LAME header.
 - **Actual result and evidence:** the WAV reported 4.000 s. The MP3 reported 4.048 s and ended at
-  4.075 s, so every pass carries the encoder's silence. Evidence: [#76](https://github.com/fortemate/dicechess-tv/issues/76#issuecomment-5848979409).
+  4.075 s, so every pass carries the encoder's silence. Evidence: the probe results recorded in issue #76.
 - **Severity and user impact:** Low. It adds a short gap to any MP3 loop.
 - **Workaround:** the overlapping crossfade of [FL-25](#fl-25) covers it. WAV is exact but about ten
   times larger.
@@ -711,7 +711,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   - `launch-app` of the backgrounded app started a new process. Earlier, a saved game restored at that
     start had made a restart look like a resume.
 
-  Evidence: [#76](https://github.com/fortemate/dicechess-tv/issues/76#issuecomment-5848979409).
+  Evidence: the probe results recorded in issue #76.
 
 - **Severity and user impact:** Medium. It cost hours, and led to a wrong conclusion that had to be
   corrected.
@@ -760,15 +760,13 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
     and it turned VoiceView on (`VoiceViewEnabled` read `ENABLED`), although `inputd-cli`'s
     `button_press` reaches no app ([FL-08](#fl-08)). Back on VoiceView's welcome screen turned it off.
 
-  Evidence: [#170](https://github.com/fortemate/dicechess-tv/issues/170#issuecomment-5953275572) and
-  [its VoiceView follow-up](https://github.com/fortemate/dicechess-tv/issues/170#issuecomment-5953586744).
+  Evidence: the probe report in issue #170 and its VoiceView follow-up.
 
 - **Severity and user impact:** Medium. It cost hours, and the app's layout still cannot be checked
   against Adaptive Display before a Fire TV Stick is at hand.
 - **Workaround:**
   - for VoiceView, the `inputd-cli` script from the React Native accessibility page;
-  - for Adaptive Display, none on the Virtual Device: the check waits for a Fire TV Stick
-    ([#10](https://github.com/fortemate/dicechess-tv/issues/10)).
+  - for Adaptive Display, none on the Virtual Device: the check waits for a Fire TV Stick.
 - **Suggested improvement:**
   - Adaptive Display in the Virtual Device's Settings, or a documented way to set `UiScaleFactor` and
     the other accessibility keys that the developer shell is allowed to use;
@@ -804,12 +802,10 @@ Amazon asks for the whole experience, so the good parts belong here too:
   compiled it cleanly.
 - The SDK installed on Linux as well as macOS, so builds are not tied to one machine.
 - HTTPS requests and a WebSocket worked without any manifest entry: unlike the audio services in
-  [FL-18](#fl-18), no connection was refused
-  ([#80](https://github.com/fortemate/dicechess-tv/issues/80)).
+  [FL-18](#fl-18), no connection was refused.
 - Amazon's Builder Tools MCP installed with one command and started under Node 26, offering a coding
   agent documentation search, trace analysis and crash symbolication.
 - Two music players and three effect players ran at once without an error, and effects never paused
-  the music. A released player was re-created and playing again within about 50 ms
-  ([#76](https://github.com/fortemate/dicechess-tv/issues/76#issuecomment-5848979409)).
+  the music. A released player was re-created and playing again within about 50 ms.
 - `blur` and the change to background arrived on every trip to the launcher, so the app can stop its
   music before the launcher is on screen.

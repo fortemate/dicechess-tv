@@ -39,7 +39,7 @@ The app lays out a 960 x 540 dp screen, which is how a 1920 x 1080 television re
 
 - **Text.** The headline is 38 dp, and no text is smaller than 20 dp: that is the minimum the React Native TV guide by Amazon and Callstack recommends, above Amazon's own 14sp.
 - **The safe area.** Nothing sits in the outer 5 % of any edge (48 dp across, 27 dp down), where a television may crop. The board is 460 dp, and it leaves a 372 dp panel beside it, wide enough for the longest headline on one line.
-- **Evidence.** Each screen was checked on the Vega Virtual Device: a script counted anything but the background inside that margin, and found nothing ([#51](https://github.com/fortemate/dicechess-tv/issues/51)).
+- **Evidence.** Each screen was checked on the Vega Virtual Device: a script counted anything but the background inside that margin, and found nothing.
 
 ## Focus
 
@@ -64,11 +64,8 @@ The marks were checked by simulating colour-vision deficiency on the board's own
 | Green fill vs last-move tint, light |           8.6 |        5.0 |          7.4 |       10.7 |
 | Green fill vs last-move tint, dark  |           8.1 |        4.2 |          6.1 |       10.5 |
 
-Most marks already have a second cue: destinations are dots or rings, the dice differ by ring and size, and the cursor and the focus are frames. The green fill for a piece that can move is the exception. For a deuteranope it all but disappears on dark squares, and even with normal vision it sits close to the last-move tint. [#105](https://github.com/fortemate/dicechess-tv/issues/105) gives it a shape of its own. The same concern retired an earlier amber mark ([Designing for the remote](/dicechess-tv/design/remote/)).
+Most marks already have a second cue: destinations are dots or rings, the dice differ by ring and size, and the cursor and the focus are frames. The green fill for a piece that can move is the exception. For a deuteranope it all but disappears on dark squares, and even with normal vision it sits close to the last-move tint. A planned change gives it a shape of its own ([Roadmap](/roadmap/)). The same concern retired an earlier amber mark ([Designing for the remote](/design/remote/)).
 
 ## Sources
 
-- [#51](https://github.com/fortemate/dicechess-tv/issues/51): Amazon's TV guidance applied, with the safe-area check.
-- [#66](https://github.com/fortemate/dicechess-tv/issues/66): the dice faces.
-- [#105](https://github.com/fortemate/dicechess-tv/issues/105): the colour-blind measurement and the change it asks for.
-- [`native/src/theme.ts`](https://github.com/fortemate/dicechess-tv/blob/main/native/src/theme.ts): the colours.
+- `native/src/theme.ts`: the colours.

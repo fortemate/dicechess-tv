@@ -6,8 +6,6 @@ import sitemap from '@astrojs/sitemap';
 import starlight from '@astrojs/starlight';
 import mermaid from 'astro-mermaid';
 
-const REPOSITORY = 'https://github.com/fortemate/dicechess-tv';
-
 // The site map agreed in #63: one sidebar group per directory of
 // src/content/docs, in this order. A group appears once its directory holds a
 // page, so the sidebar never lists a page that does not exist, and adding a
@@ -62,11 +60,10 @@ function hasPages(directory) {
 }
 
 export default defineConfig({
-  // GitHub Pages serves the site at fortemate.github.io/dicechess-tv/. `site`
-  // is what canonical links and the sitemap point at, so it names the address
-  // that actually serves the pages.
-  site: 'https://fortemate.github.io',
-  base: '/dicechess-tv',
+  // A Cloudflare Worker serves the site from the root of its workers.dev
+  // address (wrangler.jsonc). `site` is what canonical links and the sitemap
+  // point at, so it names the address that actually serves the pages.
+  site: 'https://dicechess-tv.jegors-cemisovs.workers.dev',
   markdown: {
     // Heading attributes, `### Title {#id}`, give a heading an anchor of its
     // own choosing. The friction log's entries are cited from outside by
@@ -85,8 +82,6 @@ export default defineConfig({
       // follows it.
       logo: { src: '../native/icon/icon-512.png', alt: '' },
       customCss: ['./src/styles/theme.css'],
-      social: [{ icon: 'github', label: 'GitHub', href: REPOSITORY }],
-      editLink: { baseUrl: `${REPOSITORY}/edit/main/site/` },
       lastUpdated: true,
       // Points the favicon at the same icon; see the file.
       routeMiddleware: './src/routeData.ts',
