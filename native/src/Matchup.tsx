@@ -59,10 +59,10 @@ const AVATAR = 40;
 
 // The dialogue block: the portrait, and beside it the name row over a bubble
 // of up to three rows. Its height fits the taller of the two, so a line of any
-// length, or none, leaves it the same. With no frame around it, the portrait
-// takes the width a frame would, and the bubble keeps the 23 characters a row
-// measured on the Virtual Device.
-export const PORTRAIT = 112;
+// length, or none, leaves it the same. The owner kept the portrait at 96 dp
+// when the frame went, so the bubble has the frame's width as well, wider than
+// the 23 characters a row measured on the Virtual Device.
+export const PORTRAIT = 96;
 const NAME_ROW = 26;
 const NAME_GAP = 6;
 export const DIALOGUE_HEIGHT = Math.max(

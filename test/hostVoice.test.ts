@@ -165,9 +165,9 @@ test('the host has 45 lines, numbered by event from 1', () => {
 });
 
 // Her bubble, above the bottom badge (#213), shows at most two rows of 20 dp
-// text. It is about 50 dp wider than the one beside a bot's portrait, whose
-// rows held 23 characters on the Virtual Device (2026-10-03), so rows of 25
-// leave room.
+// text. It is about 30 dp wider than the one beside a bot's portrait, whose
+// rows held 23 characters on the Virtual Device (2026-10-03) when it was
+// narrower still, so rows of 25 leave room.
 const HOST_ROW_CHARACTERS = 25;
 
 test('every host line fits the two rows of her bubble', () => {
