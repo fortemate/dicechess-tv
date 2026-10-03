@@ -243,7 +243,11 @@ const HEADLINE = { color: '#f0f4f8', fontSize: 38, marginBottom: 16 };
 const STATUS_LINE = { color: '#aab8c9', fontSize: 24, marginBottom: 12 };
 
 // Under the dice after a roll with nothing to play, in the rules guide's words.
+// It is a caption, 20 dp like the others (#168), which keeps it to one line of
+// the panel: at 24 dp it took two, and the prompt under it ran into the bottom
+// badge (#213).
 export const NO_MOVE_LINE = 'No die can be used — the turn passes';
+const REASON_LINE = { color: '#aab8c9', fontSize: 20, marginBottom: 12 };
 
 // The single line above the status or menu: mode and turn.
 const modeLine = (game: Game, overlayOpen: boolean): string => {
@@ -290,7 +294,7 @@ const Status = ({ game, view }: { game: Game; view: GameView }) => {
         />
       )}
       {!result && emptyRoll(game) ? (
-        <Text style={STATUS_LINE}>{NO_MOVE_LINE}</Text>
+        <Text style={REASON_LINE}>{NO_MOVE_LINE}</Text>
       ) : null}
     </>
   );

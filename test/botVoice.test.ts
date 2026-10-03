@@ -74,8 +74,9 @@ test('catalogue contains exactly 63 lines (3 lines per event for all 3 bots)', (
 
 // The bubble beside the bot's portrait shows at most three rows of 20 dp text
 // (#213). On the Virtual Device a row held 23 characters of the longest lines
-// and not 24 (2026-10-03), so the lines are wrapped at word breaks into rows
-// of 22, one character to spare for wide letters.
+// and not 24 (2026-10-03), and the bubble has not narrowed since, so the lines
+// are wrapped at word breaks into rows of 22, one character to spare for wide
+// letters.
 const BUBBLE_ROW_CHARACTERS = 22;
 
 test('every voice line fits the three rows of the bubble beside the portrait', () => {

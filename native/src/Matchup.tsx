@@ -8,9 +8,13 @@
 // starts or ends. In Hot Seat each player has a badge, and the host, while she
 // says a line, shows with it in the free space above the bottom badge.
 //
-// The side to move is framed in the turn colour, and the other side dims
-// (#168). Cyan belongs to the cursor and to a focused item, so a badge never
-// wears it: a frame in the focus style read as one more thing to select.
+// A badge for the side to move is framed in the turn colour, and the other
+// side's badge dims (#168). The bot's dialogue block does neither: it has no
+// frame, the bubble being the only box in it, and it stays in full colour, as
+// the bot moves in a moment and would otherwise sit dimmed for nearly the whole
+// game. The person's badge still marks their turn. Cyan belongs to the cursor
+// and to a focused item, so a badge never wears it: a frame in the focus style
+// read as one more thing to select.
 import React from 'react';
 import { View, Text } from 'react-native';
 import {
@@ -55,21 +59,22 @@ const AVATAR = 40;
 
 // The dialogue block: the portrait, and beside it the name row over a bubble
 // of up to three rows. Its height fits the taller of the two, so a line of any
-// length, or none, leaves it the same.
-export const PORTRAIT = 96;
+// length, or none, leaves it the same. With no frame around it, the portrait
+// takes the width a frame would, and the bubble keeps the 23 characters a row
+// measured on the Virtual Device.
+export const PORTRAIT = 112;
 const NAME_ROW = 26;
 const NAME_GAP = 6;
-const BLOCK_PADDING = 8;
-const BLOCK_BORDER = 2;
-export const DIALOGUE_HEIGHT =
-  2 * (BLOCK_PADDING + BLOCK_BORDER) +
-  Math.max(
-    PORTRAIT,
-    NAME_ROW + NAME_GAP + BUBBLE_ROWS * BUBBLE_LINE + BUBBLE_CHROME,
-  );
+export const DIALOGUE_HEIGHT = Math.max(
+  PORTRAIT,
+  NAME_ROW + NAME_GAP + BUBBLE_ROWS * BUBBLE_LINE + BUBBLE_CHROME,
+);
 
-// The host above the bottom badge: her portrait and two rows of her line.
-export const HOST_PORTRAIT = 76;
+// The host above the bottom badge: her portrait and two rows of her line, no
+// taller than the bubble. The tallest centre she can speak over is a result
+// with its menu, and on the Virtual Device a 76 dp portrait touched its last
+// item.
+export const HOST_PORTRAIT = 64;
 export const HOST_HEIGHT = Math.max(
   HOST_PORTRAIT,
   HOST_BUBBLE_ROWS * BUBBLE_LINE + BUBBLE_CHROME,
@@ -112,24 +117,18 @@ export const MatchupPips = ({ level }: { level: Opponent['level'] }) => {
   );
 };
 
-// The turn colour around the side to move, and the quiet frame of the other.
-const ring = (active: boolean) =>
-  ({
-    borderRadius: 12,
-    borderWidth: BLOCK_BORDER,
-    borderColor: active ? THEME.turn : '#22384f',
-    backgroundColor: active ? THEME.turnFill : 'rgba(15, 23, 42, 0.55)',
-  }) as const;
-
-// A badge's frame: the ring, at full strength for the side to move while the
-// other side dims, so colour is not the only sign.
+// A badge's frame: the turn colour around the side to move, which also stays
+// at full strength while the other side dims, so colour is not the only sign.
 const frame = (active: boolean) =>
   ({
-    ...ring(active),
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 6,
     paddingHorizontal: 10,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: active ? THEME.turn : '#22384f',
+    backgroundColor: active ? THEME.turnFill : 'rgba(15, 23, 42, 0.55)',
     opacity: active ? 1 : 0.6,
   }) as const;
 
@@ -248,8 +247,7 @@ const SideBadge = ({
 };
 
 // The bot as a character (#213): its portrait, its name and level, and the
-// line it says. The portrait and the name dim with the side when the bot is not
-// to move, unless it is speaking: a line is said at full strength.
+// line it says, on the panel itself.
 const DialogueBlock = ({
   opponent,
   side,
@@ -262,56 +260,49 @@ const DialogueBlock = ({
   active: boolean;
   thinking: boolean;
   speechBubble?: React.ReactNode;
-}) => {
-  const dim = active || speechBubble ? 1 : 0.6;
-  return (
-    <View
-      testID="opponent-badge"
-      style={{
-        ...ring(active),
-        height: DIALOGUE_HEIGHT,
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        paddingVertical: BLOCK_PADDING,
-        paddingHorizontal: BLOCK_PADDING,
-      }}
-    >
-      <View testID="opponent-portrait" style={{ opacity: dim }}>
-        <Portrait mode={opponent.mode} kind="card" size={PORTRAIT} />
-      </View>
-      <View style={{ flex: 1, marginLeft: 8 }}>
-        <View
-          style={{
-            height: NAME_ROW,
-            marginBottom: NAME_GAP,
-            marginLeft: 8,
-            flexDirection: 'row',
-            alignItems: 'center',
-            opacity: dim,
-          }}
+}) => (
+  <View
+    testID="opponent-badge"
+    style={{
+      height: DIALOGUE_HEIGHT,
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+    }}
+  >
+    <View testID="opponent-portrait">
+      <Portrait mode={opponent.mode} kind="card" size={PORTRAIT} />
+    </View>
+    <View style={{ flex: 1, marginLeft: 8 }}>
+      <View
+        style={{
+          height: NAME_ROW,
+          marginBottom: NAME_GAP,
+          marginLeft: 8,
+          flexDirection: 'row',
+          alignItems: 'center',
+        }}
+      >
+        <Text
+          testID="opponent-name"
+          style={{ ...NAME, flex: 1 }}
+          numberOfLines={1}
         >
-          <Text
-            testID="opponent-name"
-            style={{ ...NAME, flex: 1 }}
-            numberOfLines={1}
-          >
-            {opponent.name.toUpperCase()}
-          </Text>
-          <Meta
-            seat={{ kind: 'bot', opponent }}
-            side={side}
-            id="opponent"
-            active={active}
-            thinking={thinking}
-          />
-        </View>
-        <View testID="speech-zone" style={{ flex: 1 }}>
-          {speechBubble}
-        </View>
+          {opponent.name.toUpperCase()}
+        </Text>
+        <Meta
+          seat={{ kind: 'bot', opponent }}
+          side={side}
+          id="opponent"
+          active={active}
+          thinking={thinking}
+        />
+      </View>
+      <View testID="speech-zone" style={{ flex: 1 }}>
+        {speechBubble}
       </View>
     </View>
-  );
-};
+  </View>
+);
 
 // The Hot Seat host while she says a line (#213): Rolly's portrait and the
 // line, in the free space above the bottom badge, over nothing and moving

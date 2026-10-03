@@ -1,7 +1,7 @@
-// The matchup header in the gameplay HUD (#156, #168, #213): a badge for each side
-// where that side sits on the board, the side to move framed in the turn colour
-// rather than the focus style, the bot's level and thinking status, and the
-// speech zone under the top badge.
+// The matchup header in the gameplay HUD (#156, #168, #213): each side where it
+// sits on the board, a badge for the side to move framed in the turn colour
+// rather than the focus style, the bot's block with no frame and never dimmed,
+// its level and thinking status, and where the bot and the host speak.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
@@ -60,21 +60,26 @@ const badges = (root: Instance): string[] =>
     )
     .map((node) => texts(node)[0]);
 
-// How strongly a side is drawn: a badge as a whole, the bot's dialogue block
-// in its portrait and name, so that a line the bot says keeps full strength.
-const strength = (badge: Instance): number => {
-  const [portrait] = badge.findAll(
-    (node) => isHost(node, 'View') && node.props.testID === 'opponent-portrait',
-  );
-  return Number(styleOf(portrait ?? badge).opacity ?? 1);
-};
+// Whether anything in a badge or block, itself included, is drawn dimmed.
+const dimmed = (node: Instance): boolean =>
+  node.findAll(
+    (each) => isHost(each, 'View') && Number(styleOf(each).opacity ?? 1) < 1,
+  ).length > 0;
 const assertToMove = (badge: Instance) => {
   assert.equal(styleOf(badge).borderColor, THEME.turn);
-  assert.equal(strength(badge), 1);
+  assert.ok(!dimmed(badge));
 };
 const assertWaiting = (badge: Instance) => {
   assert.notEqual(styleOf(badge).borderColor, THEME.turn);
-  assert.ok(strength(badge) < 1, 'the waiting side dims');
+  assert.ok(dimmed(badge), 'the waiting side dims');
+};
+// The bot's dialogue block stands on the panel as it is (#213): no frame, and
+// in full colour whoever is to move.
+const assertPlain = (block: Instance) => {
+  const style = styleOf(block);
+  assert.equal(style.borderWidth, undefined);
+  assert.equal(style.backgroundColor, undefined);
+  assert.ok(!dimmed(block), 'the bot never dims');
 };
 
 test('renders player and opponent badges with initial turn on White', () => {
@@ -85,7 +90,7 @@ test('renders player and opponent badges with initial turn on White', () => {
   assert.deepEqual(texts(player), ['YOU', 'White']);
   assert.deepEqual(texts(opponent), ['RAMPAGE', 'Hard']);
   assertToMove(player);
-  assertWaiting(opponent);
+  assertPlain(opponent);
   assert.deepEqual(badges(tree.root), ['RAMPAGE', 'YOU']);
 });
 
@@ -103,11 +108,11 @@ test('the bot’s block shows its portrait, or its emoji face when the build has
   assert.equal(player.findAll((node) => isHost(node, 'Image')).length, 0);
 });
 
-test('active turn shifts to opponent on Black turn', () => {
+test('on the bot’s turn the person’s badge waits, and the bot looks the same (#213)', () => {
   const tree = mount({ game: newGame('aggressive', 'game-2'), side: 'b' });
 
   assertWaiting(byTestId(tree.root, 'player-badge'));
-  assertToMove(byTestId(tree.root, 'opponent-badge'));
+  assertPlain(byTestId(tree.root, 'opponent-badge'));
 });
 
 test('no badge wears the focus style, which is the cursor and menu items', () => {
@@ -188,15 +193,18 @@ test('in hotseat the badges follow the turned board', () => {
 });
 
 test('neither badge is highlighted when the game has ended', () => {
-  const game: Game = {
-    ...newGame('random', 'game-ended'),
+  const ended = (mode: 'random' | 'hotseat'): Game => ({
+    ...newGame(mode, 'game-ended'),
     phase: 'ended',
     result: { reason: 'king-captured', winner: 'w' },
-  };
-  const tree = mount({ game, side: 'w' });
-
-  assertWaiting(byTestId(tree.root, 'player-badge'));
-  assertWaiting(byTestId(tree.root, 'opponent-badge'));
+  });
+  const hotseat = mount({ game: ended('hotseat'), side: 'w' });
+  assertWaiting(byTestId(hotseat.root, 'player-badge'));
+  assertWaiting(byTestId(hotseat.root, 'opponent-badge'));
+  // Against the bot the person's badge waits, and the bot looks the same.
+  const bot = mount({ game: ended('random'), side: 'w' });
+  assertWaiting(byTestId(bot.root, 'player-badge'));
+  assertPlain(byTestId(bot.root, 'opponent-badge'));
 });
 
 const bubbleNode = (line: string) =>
@@ -239,15 +247,17 @@ test('the dialogue block keeps its height whether the bot speaks or not (#213)',
   assert.deepEqual(heights, [DIALOGUE_HEIGHT, DIALOGUE_HEIGHT]);
 });
 
-test('a line is said at full strength, even when the bot is not to move (#213)', () => {
-  const quiet = mount({ game: newGame('random', 'game-dim'), side: 'w' });
-  assert.ok(strength(byTestId(quiet.root, 'opponent-badge')) < 1);
-  const speaking = mount({
-    game: newGame('random', 'game-dim'),
-    side: 'w',
-    speechBubble: bubbleNode('Boop! Mine now!'),
-  });
-  assert.equal(strength(byTestId(speaking.root, 'opponent-badge')), 1);
+test('the bot keeps its look whoever is to move, speaking or not, and thinking (#213)', () => {
+  for (const side of ['w', 'b'] as const)
+    for (const speechBubble of [undefined, bubbleNode('Boop! Mine now!')]) {
+      const tree = mount({
+        game: newGame('random', 'game-plain'),
+        side,
+        thinking: side === 'b',
+        speechBubble,
+      });
+      assertPlain(byTestId(tree.root, 'opponent-badge'));
+    }
 });
 
 test('hotseat has no dialogue block: the turn line stands under the top badge', () => {
