@@ -24,7 +24,7 @@ Dice Chess TV combines open-source code with public domain and permitted creativ
 
 - **Source:** Rolly, Grabby and Rampage, drawn for Dice Chess by Fortemate with [Recraft](https://www.recraft.ai) on a paid plan.
 - **Licence:** Fortemate's own, for Fortemate's Dice Chess apps only. Not covered by the AGPL or by any other open licence.
-- **Usage:** The opponent cards and the game screen show them. While the repository is public they are kept out of it, and a build without them shows the emoji faces below instead. The About screen shows the portraits beside Recraft's name, so that a player knows they are AI-generated.
+- **Usage:** The opponent cards and the game screen show them. While the repository is public the portrait files are kept out of it, and a build without them shows the emoji faces below instead. The About screen shows the portraits beside Recraft's name, so that a player knows they are AI-generated. The screenshots on this site show them as the app draws them, and those pictures are not under the AGPL either.
 
 ### Opponent Bot Avatars
 

@@ -31,7 +31,7 @@ Each lesson is a position, a roll and a goal, and the tests check each one again
 
 ## A roll with nothing to play
 
-![A roll with nothing to play: the headline reads No legal moves, the three dice are dimmed, and the reason is written under them](../../../assets/screenshots/empty-roll.png)
+![A roll with nothing to play against Rolly: the headline reads No legal moves, the three dice are dimmed, and the reason is written under them](../../../assets/screenshots/empty-roll.png)
 
 The rule that surprises new players most is that a roll can leave nothing to play. It is common:
 
