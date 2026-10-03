@@ -51,9 +51,9 @@ Removing the app deletes its saved game, results and settings. They never leave 
 
 1. Start with **How to play**, the five-lesson tutorial, before reading anything else about the game.
 2. Play a game against the computer: **Play the computer**, then pick Rolly (easy), Grabby (medium) or Rampage (hard). In 0.1.0 beta 1 there is one opponent, under **Play Random**. From beta 6 the computer opponents talk: each has a face, speech bubbles and a voice of its own. From beta 7 they are fairy-tale characters, a pixie, a goblin and a little horned imp, whose voices act their lines.
-3. If someone is with you, start a **New hotseat game** and pass the remote.
+3. If someone is with you, start a **New hotseat game** and pass the remote. In builds after beta 7, Rolly hosts it: he greets you both, cheers the big moments when a turn ends, and cheers you both at the end. For now you only hear him: he has no face or speech bubble on the screen yet.
 4. Look something up in **Rules**.
-5. Listen to the music follow the game: calm, then tense when a roll could take a king, then critical when a king is attacked. **Settings**, in the home menu and in the game menu, turns the music, the sound effects and the bot voices on or off and sets the music volume. Builds before 0.1.0 beta 3 have no music, and builds before beta 6 have no voices.
+5. Listen to the music follow the game: calm, then tense when a roll could take a king, then critical when a king is attacked. **Settings**, in the home menu and in the game menu, turns the music, the sound effects and the voices on or off, sets the music volume, and chooses the Hot Seat host, Rolly or off. Builds before 0.1.0 beta 3 have no music, builds before beta 6 have no voices, builds up to beta 7 call the voices **Bot voices**, and builds after beta 7 add the Hot Seat host.
 
 The whole game uses the D-pad, OK and Back; on the Virtual Device, those are the arrow keys, Enter and Esc. Keep the sound and the music on if you can.
 

@@ -27,6 +27,7 @@ import { createSounds, type Sounds } from './sound';
 import { readSound, saveSound } from './soundSetting';
 import { readTurnBoard, saveTurnBoard } from './turnSetting';
 import { readVoices, saveVoices } from './voiceSetting';
+import { readHost, saveHost, type HostChoice } from './hostSetting';
 import { createMusic, loadCatalogue, type Music } from './music';
 import {
   readMusic,
@@ -146,6 +147,9 @@ export const App = ({
   const settings = React.useMemo(() => new MMKV(), []);
   const [initialSound] = React.useState(() => readSound(settings));
   const [initialVoices] = React.useState(() => readVoices(settings));
+  // Who hosts Hot Seat games, Rolly or no one (#202). His voice obeys the
+  // Voices setting like the bots'.
+  const [initialHost] = React.useState(() => readHost(settings));
   // The adaptive music (#76), made before the sounds so that a bot's line can
   // duck it (#159).
   const music = React.useMemo(
@@ -185,6 +189,10 @@ export const App = ({
       sounds.setVoices(on);
     },
     [settings, sounds],
+  );
+  const onHost = React.useCallback(
+    (host: HostChoice) => saveHost(settings, host),
+    [settings],
   );
 
   // The adaptive music (#76). The build ships a catalogue beside the tracks, or
@@ -300,6 +308,8 @@ export const App = ({
       onTurnBoard={onTurnBoard}
       initialVoices={initialVoices}
       onVoices={onVoices}
+      initialHost={initialHost}
+      onHost={onHost}
       music={music}
       initialMusic={initialMusic}
       onMusic={onMusic}

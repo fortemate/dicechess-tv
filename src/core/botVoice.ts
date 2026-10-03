@@ -6,9 +6,13 @@
 //
 // The trigger engine is pure and platform-independent with zero React or DOM
 // dependencies, compiled under tsconfig.core.json (types: []).
+//
+// The Hot Seat host's lines and pacing are in hostVoice.ts (#202), which reads
+// the turn with the same capture analysis.
 
 import { DiceChess } from '@fortemate/dicechess-engine';
-import { fileOf, pieceAt } from './board.ts';
+import { pieceAt } from './board.ts';
+import { isEnPassant, isPromotion } from './cues.ts';
 import type { Level } from './danger.ts';
 import {
   emptyRoll,
@@ -217,46 +221,66 @@ export function voiceLineById(id: string): VoiceLine | undefined {
   return VOICE_CATALOGUE.find((line) => line.id === id);
 }
 
-type CaptureAnalysis = {
+// What the actions between two games took. `heavy` and `standard` are what a
+// bot's line reacts to: a queen or a rook, and any smaller piece, en passant
+// included. The rest tell the Hot Seat host which piece it was (#202).
+export type CaptureAnalysis = {
   heavy: boolean;
   standard: boolean;
+  queen: boolean;
+  rook: boolean;
+  // A pawn, a knight or a bishop, taken by an ordinary capture.
+  minor: boolean;
+  enPassant: boolean;
+  promotion: boolean;
 };
 
-function analyzeCaptures(before: Game, after: Game): CaptureAnalysis {
-  if (after.moves.length <= before.moves.length) {
-    return { heavy: false, standard: false };
-  }
-  const newMoves = after.moves.slice(before.moves.length);
+// An action between two games, with the board it was played on.
+type Played = { readonly move: string; readonly board: string };
+
+function playedOn(before: Game, after: Game): Played[] {
+  if (after.moves.length <= before.moves.length) return [];
+  const actions: Played[] = [];
   let dfen = viewGame(before).dfen;
-  let heavy = false;
-  let standard = false;
-
-  for (const move of newMoves) {
-    const board = dfen.split(' ')[0];
-    const from = move.slice(0, 2);
-    const to = move.slice(2, 4);
-    const target = pieceAt(board, to)?.toLowerCase();
-    const mover = pieceAt(board, from)?.toLowerCase();
-
-    if (target === 'q' || target === 'r') {
-      heavy = true;
-    } else if (target && target !== 'k') {
-      standard = true;
-    } else if (mover === 'p' && fileOf(from) !== fileOf(to) && !target) {
-      // En passant
-      standard = true;
-    }
-
+  for (const move of after.moves.slice(before.moves.length)) {
+    actions.push({ move, board: dfen.split(' ')[0] });
     const applied = DiceChess.applyMove(
       dfen,
-      from,
-      to,
+      move.slice(0, 2),
+      move.slice(2, 4),
       move.slice(4) || undefined,
     );
     if (applied) dfen = applied;
   }
+  return actions;
+}
 
-  return { heavy, standard };
+export function analyzeCaptures(before: Game, after: Game): CaptureAnalysis {
+  let queen = false;
+  let rook = false;
+  let minor = false;
+  let enPassant = false;
+  let promotion = false;
+
+  for (const { move, board } of playedOn(before, after)) {
+    const target = pieceAt(board, move.slice(2, 4))?.toLowerCase();
+
+    if (target === 'q') queen = true;
+    else if (target === 'r') rook = true;
+    else if (target && target !== 'k') minor = true;
+    else if (isEnPassant(board, move)) enPassant = true;
+    if (isPromotion(move)) promotion = true;
+  }
+
+  return {
+    heavy: queen || rook,
+    standard: minor || enPassant,
+    queen,
+    rook,
+    minor,
+    enPassant,
+    promotion,
+  };
 }
 
 function resultEvent(before: Game, after: Game): VoiceEvent | null {
@@ -266,13 +290,13 @@ function resultEvent(before: Game, after: Game): VoiceEvent | null {
   return after.result.winner === botSide ? 'win' : 'loss';
 }
 
-function isEmptyRollStep(before: Game, after: Game): boolean {
+export function isEmptyRollStep(before: Game, after: Game): boolean {
   return (
     emptyRoll(after) && before.phase === 'roll' && after.phase === 'handoff'
   );
 }
 
-function isMatchStartStep(before: Game, after: Game): boolean {
+export function isMatchStartStep(before: Game, after: Game): boolean {
   if (after.turn !== 1) return false;
   return (
     before.revision === 0 ||

@@ -183,7 +183,8 @@ test('a king taken from the bot is the result, with the bot conceding', () => {
   assert.ok(said && linesOf('loss').includes(said), `not a loss: ${said}`);
 });
 
-test('a hotseat result stays on the board, with no one to have the last word', () => {
+// The Hot Seat host's last word is heard, not shown (#202): soundApp.test.tsx.
+test('a hotseat result stays on the board, with no bubble for a last word', () => {
   reset();
   const root = launch();
   // A new hotseat game, and its first roll.

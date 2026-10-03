@@ -1,6 +1,6 @@
 ---
 title: What it does
-description: 'A tour of Dice Chess for Fire TV: hotseat on one remote, three computer opponents as either colour, the tutorial and the rules guide, saving, your record against each opponent, sound, music that follows the danger to the king, and rematch.'
+description: 'A tour of Dice Chess for Fire TV: hotseat on one remote with Rolly as host, three computer opponents as either colour, the tutorial and the rules guide, saving, your record against each opponent, sound, music that follows the danger to the king, and rematch.'
 sidebar:
   order: 2
 ---
@@ -14,6 +14,8 @@ Two players share the remote and take turns. OK rolls three dice; the pieces the
 For living-room sofa play where players prefer to view the board from their own side, a switch in **Settings** allows turning the board so the mover's pieces sit at the bottom. When enabled, the board fades out and back in over 200 ms as the turn passes to Black or back to White, while D-pad arrow directions remain locked to the physical television screen ([#120](https://github.com/fortemate/dicechess-tv/issues/120)).
 
 ![A hotseat game: Black's knight is picked up, its destinations are dotted, a capture is ringed, and three dice sit beside the board](../../../assets/screenshots/hotseat.png)
+
+Rolly, the friendliest of the computer opponents, hosts Hot Seat games ([#202](https://github.com/fortemate/dicechess-tv/issues/202)). He greets you both as a game starts, cheers the big moments when a turn ends, and at the end cheers the winner and the other player too. He never takes a side and speaks only at those pauses, never while someone is thinking. For now he is a voice over the game: you hear him, but unlike the computer opponents he has no speech bubble yet, and no face on the screen, so Hot Seat looks as it did before him. The game screen will be redesigned once the new character portraits exist. **Hot Seat host** in Settings chooses Rolly or off. The tests cover him; hearing him in a full game on the virtual device is still open.
 
 ## Three opponents, as either colour
 

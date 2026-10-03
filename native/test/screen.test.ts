@@ -440,7 +440,8 @@ test('rolling the dice clears last move until the next action is played', () => 
   assert.equal(rolled.game.lastMove, null);
 });
 
-// ── Settings: music, its volume, the sound effects and the voices (#76, #159) ──
+// ── Settings: music, its volume, the sound effects, the voices and the host ──
+// (#76, #159, #202)
 
 const toSettings = (state: ScreenState): ScreenState => {
   const at = homeOptions(resumable(state.game)).indexOf('Settings');
@@ -451,7 +452,7 @@ const toSettings = (state: ScreenState): ScreenState => {
 const withMusic = (state: ScreenState): ScreenState =>
   screenReducer(state, { kind: 'musicAvailable', available: true }, options);
 
-test('without music in the build, Settings offers sound effects, bot voices and hotseat board turning', () => {
+test('without music in the build, Settings offers sound effects, voices, the host and hotseat board turning', () => {
   const settings = toSettings(fresh());
   assert.equal(settings.musicAvailable, false);
   assert.deepEqual(
@@ -461,16 +462,26 @@ test('without music in the build, Settings offers sound effects, bot voices and 
       settings.musicAvailable,
       settings.turnHotseat,
       settings.voices,
+      settings.host,
     ),
-    ['Sound effects: on', 'Bot voices: on', 'Turn board in hotseat: off'],
+    [
+      'Sound effects: on',
+      'Voices: on',
+      'Hot Seat host: Rolly',
+      'Turn board in hotseat: off',
+    ],
   );
-  // Down moves from the sound effects to the voices, and on to hotseat board
-  // turning.
+  // Down moves from the sound effects to the voices, on to the host, and on
+  // to hotseat board turning.
   assert.equal(drive(settings, 'select').sound, false);
   const voices = drive(settings, 'down');
   assert.equal(drive(voices, 'select').voices, false);
   assert.equal(drive(voices, 'select').sound, true);
-  const hotseat = drive(voices, 'down');
+  const host = drive(voices, 'down');
+  assert.equal(drive(host, 'select').host, 'off');
+  assert.equal(drive(host, 'select').voices, true);
+  assert.equal(drive(host, 'select').turnHotseat, false);
+  const hotseat = drive(host, 'down');
   assert.equal(hotseat.overlay.kind, 'settings');
   assert.equal(drive(hotseat, 'select').turnHotseat, true);
   // When the catalogue turns up, the rows grow and the cursor starts at the top.
@@ -493,12 +504,14 @@ test('Settings opens from the home menu on music, and Back returns to it', () =>
       true,
       settings.turnHotseat,
       settings.voices,
+      settings.host,
     ),
     [
       'Music: on',
       'Music volume: 7',
       'Sound effects: on',
-      'Bot voices: on',
+      'Voices: on',
+      'Hot Seat host: Rolly',
       'Turn board in hotseat: off',
     ],
   );
@@ -510,7 +523,7 @@ test('Settings opens from the home menu on music, and Back returns to it', () =>
   );
 });
 
-test('OK or the arrows sideways flip music, sound effects, bot voices and hotseat board turning', () => {
+test('OK or the arrows sideways flip music, sound effects, voices and hotseat board turning, and step through the hosts', () => {
   const settings = toSettings(withMusic(fresh()));
   const musicOff = drive(settings, 'select');
   assert.equal(musicOff.music.on, false);
@@ -524,13 +537,36 @@ test('OK or the arrows sideways flip music, sound effects, bot voices and hotsea
   assert.equal(drive(voices, 'select').voices, false);
   assert.equal(drive(voices, 'right').voices, false);
   assert.equal(drive(voices, 'select', 'left').voices, true);
+  // Once more, the Hot Seat host, Rolly by default. OK and Right step to the
+  // next choice and Left to the one before; with Rolly the only host, each
+  // goes between him and off.
+  const host = drive(voices, 'down');
+  assert.equal(host.host, 'rolly');
+  assert.equal(drive(host, 'select').host, 'off');
+  assert.equal(drive(host, 'right').host, 'off');
+  assert.equal(drive(host, 'left').host, 'off');
+  assert.equal(drive(host, 'select', 'select').host, 'rolly');
+  assert.equal(drive(host, 'right', 'left').host, 'rolly');
+  const hostOff = drive(host, 'left');
+  assert.equal(
+    settingsOptions(
+      hostOff.sound,
+      hostOff.music,
+      hostOff.musicAvailable,
+      hostOff.turnHotseat,
+      hostOff.voices,
+      hostOff.host,
+    )[4],
+    'Hot Seat host: off',
+  );
   // And once more, hotseat board turning.
-  const hotseat = drive(voices, 'down');
+  const hotseat = drive(host, 'down');
   assert.equal(drive(hotseat, 'select').turnHotseat, true);
   assert.equal(drive(hotseat, 'right').turnHotseat, true);
   // None touches another, nor leaves the screen.
   assert.equal(drive(hotseat, 'select').music.on, true);
   assert.equal(drive(hotseat, 'select').voices, true);
+  assert.equal(drive(hotseat, 'select').host, 'rolly');
   assert.equal(drive(hotseat, 'select').overlay.kind, 'settings');
 });
 
@@ -577,10 +613,13 @@ test('a new game keeps the settings', () => {
     'select',
     'down',
     'select',
+    'down',
+    'select',
   );
   assert.deepEqual(changed.music, { on: false, volume: 8 });
   assert.equal(changed.sound, false);
   assert.equal(changed.voices, false);
+  assert.equal(changed.host, 'off');
   // Back to the home menu, on Settings, then up to a new hotseat game.
   const home = drive(changed, 'back');
   const at = homeOptions(false).indexOf('Settings');
@@ -589,6 +628,18 @@ test('a new game keeps the settings', () => {
   assert.deepEqual(game.music, { on: false, volume: 8 });
   assert.equal(game.sound, false);
   assert.equal(game.voices, false);
+  assert.equal(game.host, 'off');
+});
+
+test('the host setting starts as the app read it, and a move keeps it (#202)', () => {
+  const off = initialState(options, null, { host: 'off' });
+  assert.equal(off.host, 'off');
+  assert.equal(fresh().host, 'rolly');
+  // A new game, then a roll: both keep it.
+  const board = drive(off, 'select');
+  assert.equal(board.overlay.kind, 'none');
+  assert.equal(board.host, 'off');
+  assert.equal(drive(board, 'select').host, 'off');
 });
 
 // ── Which music plays where (#76) ──────────────────────────────────────────────
@@ -1048,7 +1099,7 @@ test('a rematch keeps the opponent, and the cards open on it next time', () => {
 // ── Hotseat board turning (#120) ─────────────────────────────────────────────
 
 test('when Turn board in hotseat is on, the board turns for Black and cursor starts on Black side', () => {
-  let state = initialState(options, null, true, undefined, false, true);
+  let state = initialState(options, null, { turnHotseat: true });
   state = drive(state, 'select');
   assert.equal(state.game.mode, 'hotseat');
   assert.equal(state.game.turn, 1);
@@ -1089,7 +1140,7 @@ test('when Turn board in hotseat is on, the board turns for Black and cursor sta
 });
 
 test('when Turn board in hotseat is off, the board remains drawn from White side throughout hotseat', () => {
-  let state = initialState(options, null, true, undefined, false, false);
+  let state = initialState(options, null, { turnHotseat: false });
   state = drive(state, 'select');
   assert.equal(state.game.mode, 'hotseat');
   assert.equal(flipped(state.game, state.turnHotseat), false);
@@ -1110,7 +1161,7 @@ test('when Turn board in hotseat is off, the board remains drawn from White side
 
 test('a saved hotseat game resumes in the right orientation when Turn board in hotseat is on', () => {
   // A game handed to Black on turn 2
-  let state = initialState(options, null, true, undefined, false, true);
+  let state = initialState(options, null, { turnHotseat: true });
   state = drive(state, 'select', 'select');
   while (state.game.phase === 'move') {
     state = play(state, viewGame(state.game).legal[0]);
@@ -1120,25 +1171,13 @@ test('a saved hotseat game resumes in the right orientation when Turn board in h
   assert.equal(viewGame(state.game).side, 'b');
 
   // Resuming this saved game with turnHotseat on
-  const resumed = initialState(
-    options,
-    state.game,
-    true,
-    undefined,
-    false,
-    true,
-  );
+  const resumed = initialState(options, state.game, { turnHotseat: true });
   assert.equal(flipped(resumed.game, resumed.turnHotseat), true);
   assert.equal(resumed.focus.cursor, 'e7');
 
   // Resuming with turnHotseat off stays on White side
-  const resumedOff = initialState(
-    options,
-    state.game,
-    true,
-    undefined,
-    false,
-    false,
-  );
+  const resumedOff = initialState(options, state.game, {
+    turnHotseat: false,
+  });
   assert.equal(flipped(resumedOff.game, resumedOff.turnHotseat), false);
 });

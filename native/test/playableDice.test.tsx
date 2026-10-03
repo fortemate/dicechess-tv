@@ -51,6 +51,7 @@ const silent: Sounds = {
   play() {},
   setMuted() {},
   say() {},
+  stopLine() {},
   setVoices() {},
   setSuspended() {},
 };

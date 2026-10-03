@@ -25,8 +25,14 @@ import { OpponentScreen } from './OpponentScreen';
 import { Matchup } from './Matchup';
 import { SpeechBubble } from './SpeechBubble';
 import { DISMISS_DELAY_MS, useBotVoice } from './useBotVoice';
-import type { VoiceLine } from '../../src/core/botVoice';
-import { LINE_START_MS, speechTiming, type Sounds } from './sound';
+import { useHostVoice } from './useHostVoice';
+import { DEFAULT_HOST, type HostChoice } from './hostSetting';
+import {
+  LINE_START_MS,
+  speechTiming,
+  type Sounds,
+  type SpokenLine,
+} from './sound';
 import type { Music } from './music';
 import { MUSIC_STEPS, type MusicSetting } from './musicSetting';
 import { useDanger } from './useDanger';
@@ -99,9 +105,12 @@ export type GameScreenProps = {
   // Whether the board turns to the side to move in hotseat (#120).
   initialTurnBoard?: boolean;
   onTurnBoard?: (on: boolean) => void;
-  // Whether the bots speak their lines aloud (#159).
+  // Whether the lines are spoken aloud, the bots' and the host's (#159).
   initialVoices?: boolean;
   onVoices?: (on: boolean) => void;
+  // Who hosts Hot Seat games, or 'off' (#202).
+  initialHost?: HostChoice;
+  onHost?: (host: HostChoice) => void;
   // The adaptive music (#76). The screen says which theme fits what it shows;
   // whether music is on and how loud is the app's to apply and save.
   music?: Music;
@@ -117,7 +126,7 @@ export const RESULT_SILENCE_MS = 2500;
 
 // A bubble stays its usual time, or until its line has been said (#159),
 // counting the moment the player takes to start the clip (#187).
-const bubbleHoldMs = (line: VoiceLine): number => {
+const bubbleHoldMs = (line: SpokenLine): number => {
   const timing = speechTiming(line);
   return Math.max(
     DISMISS_DELAY_MS,
@@ -318,6 +327,7 @@ const Panel = ({
   hasMusic,
   turnHotseat,
   voices,
+  host,
   selected,
   pressed,
 }: {
@@ -328,6 +338,7 @@ const Panel = ({
   hasMusic: boolean;
   turnHotseat: boolean;
   voices: boolean;
+  host: HostChoice;
   selected: string | null;
   // OK is held: the focused option of an open menu shows it.
   pressed: boolean;
@@ -356,7 +367,14 @@ const Panel = ({
         <Choices
           title="Settings"
           note={hasMusic ? 'Left and Right change the volume.' : undefined}
-          options={settingsOptions(sound, music, hasMusic, turnHotseat, voices)}
+          options={settingsOptions(
+            sound,
+            music,
+            hasMusic,
+            turnHotseat,
+            voices,
+            host,
+          )}
           index={overlay.index}
           pressed={pressed}
           afters={
@@ -471,6 +489,8 @@ export const GameScreen = ({
   onTurnBoard,
   initialVoices = true,
   onVoices,
+  initialHost = DEFAULT_HOST,
+  onHost,
   music,
   initialMusic,
   onMusic,
@@ -492,19 +512,19 @@ export const GameScreen = ({
       musicAvailable: hasMusic,
       turnHotseat,
       voices,
+      host,
       guarded,
     },
     dispatch,
   ] = React.useReducer(reduce, initial, (restored) =>
-    initialState(
-      options,
-      restored,
-      initialSound,
-      initialMusic,
+    initialState(options, restored, {
+      sound: initialSound,
+      music: initialMusic,
       musicAvailable,
-      initialTurnBoard,
-      initialVoices,
-    ),
+      turnHotseat: initialTurnBoard,
+      voices: initialVoices,
+      host: initialHost,
+    }),
   );
   React.useEffect(() => {
     dispatch({ kind: 'musicAvailable', available: musicAvailable });
@@ -621,18 +641,45 @@ export const GameScreen = ({
     onVoices?.(voices);
   }, [voices, onVoices]);
 
+  // Seeded like the sound, so opening the screen is not reported as a change.
+  const hostSetting = React.useRef(host);
+  React.useEffect(() => {
+    if (host === hostSetting.current) return;
+    hostSetting.current = host;
+    onHost?.(host);
+  }, [host, onHost]);
+
   // The theme for what the screen shows, and over a game the danger to the king
   // at the start of this turn (#76). When a game has just ended the music falls
   // silent first, so the result's jingle is heard on its own.
   const level = useDanger(game, options.background, onState);
-  // Each line is said as it shows, and its bubble stays until it has been
-  // said (#159).
+  // A bot's line is said as it shows, and its bubble stays until it has been
+  // said (#159). The host's is only said (#202).
   const say = React.useCallback(
-    (line: VoiceLine) => sounds?.say(line),
+    (line: SpokenLine) => sounds?.say(line),
     [sounds],
   );
+  const stopLine = React.useCallback(() => sounds?.stopLine(), [sounds]);
+  // Lines are picked only while the board is on screen (#202), so a game
+  // waiting behind the home screen says nothing. A bot's last word is said with
+  // the result over the board.
+  const live = overlay.kind === 'none';
   const voiceLine = useBotVoice(game, level, {
     onVoiceLine: say,
+    holdMs: bubbleHoldMs,
+    live: live || overlay.kind === 'result',
+  });
+  // The Hot Seat host, for now a voice over the game: his lines are said, not
+  // shown, so Hot Seat looks as it did before him (#202). The bot's hook speaks
+  // only against the bot and this one only in hotseat, so at most one of them
+  // has a line. A line of his holds as long as a bot's bubble would, until it
+  // has been said, and the next one waits for it. Turned off mid-line, he
+  // stops talking.
+  useHostVoice(game, {
+    live,
+    on: host !== 'off',
+    onVoiceLine: say,
+    onStop: stopLine,
     holdMs: bubbleHoldMs,
   });
   const role = musicRole(overlay, game, level);
@@ -711,6 +758,7 @@ export const GameScreen = ({
               hasMusic={hasMusic}
               turnHotseat={turnHotseat}
               voices={voices}
+              host={host}
               selected={focus.selected}
               pressed={pressed}
             />
@@ -737,6 +785,7 @@ export const GameScreen = ({
               hasMusic={hasMusic}
               turnHotseat={turnHotseat}
               voices={voices}
+              host={host}
               selected={focus.selected}
               pressed={pressed}
             />

@@ -16,7 +16,7 @@ Every feature here was played on the Vega Virtual Device, and the app's automate
 - **Three computer opponents**, Rolly, Grabby and Rampage, as either colour, each with a face, speech bubbles and a synthetic voice ([#155](https://github.com/fortemate/dicechess-tv/issues/155)). They are fairy-tale characters, a pixie, a goblin and a little horned imp, and their voices act their lines ([#187](https://github.com/fortemate/dicechess-tv/issues/187)).
 - **Moves that slide** to their squares, so an opponent's turn can be followed.
 - **Dice that tumble in** on a roll, and dim when no legal turn can use them.
-- **Music that follows the game**, and **Settings** for music, sound effects, bot voices, and turning the board in hotseat ([#120](https://github.com/fortemate/dicechess-tv/issues/120)).
+- **Music that follows the game**, and **Settings** for music, sound effects, voices, and turning the board in hotseat ([#120](https://github.com/fortemate/dicechess-tv/issues/120)).
 - **Seven public pre-releases**, with a playtest guide.
 
 ## Now
@@ -24,6 +24,7 @@ Every feature here was played on the Vega Virtual Device, and the app's automate
 - **The tester round:** people who have never seen the game play it, on the Vega Virtual Device and, through Live App Testing, on their own Fire TV Sticks. See [Play the beta](/dicechess-tv/play/beta/).
 - **Testing on a physical Fire TV Stick**, including how fast the game runs there.
 - **A demo video** of a whole game.
+- **Rolly as the Hot Seat host** ([#202](https://github.com/fortemate/dicechess-tv/issues/202)): he cheers both players at the pauses of a game, heard but not yet seen, and Settings chooses him or no host. It is built and tested; playing it on the Vega Virtual Device is next.
 
 ## Next
 

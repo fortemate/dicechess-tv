@@ -24,9 +24,12 @@ text over its menus.
   fortemate/vega-vvd-driver#14: earlier versions record long sounds, such as
   the bots' lines, with a hole every few packets, heard as a rattle
   (fortemate/vega-vvd-driver#13).
-- In the app's Settings: music off, and sound effects, bot voices and "Turn
-  board in hotseat" on. The takes carry only the sound effects and the bots'
-  lines, and `record.ts` stops if the home screen is not silent. The music is
+- In the app's Settings: music off, and sound effects, voices ("Bot voices"
+  up to 0.1.0 beta 7) and "Turn board in hotseat" on. The takes carry only the
+  sound effects and the bots' lines, and `record.ts` stops if the home screen
+  is not silent. The storyboard predates the Hot Seat host (#202): in a build
+  that has him, turn "Hot Seat host" off, or plan his lines into the hotseat
+  take. The music is
   laid in afterwards, so it does not break at the cuts.
 
 ## Making the video

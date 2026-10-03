@@ -24,6 +24,11 @@ export type UseBotVoiceOptions = {
   // spoken line stays until it has been said (#159).
   holdMs?: (line: VoiceLine) => number;
   onVoiceLine?: (line: VoiceLine) => void;
+  // The board is on screen, with nothing over it but a result (#202). While it
+  // is not, nothing is said and no step is counted: a game restored at launch
+  // says nothing behind the home screen, and a step taken behind an overlay is
+  // judged when the board returns. On by default.
+  live?: boolean;
 };
 
 export function useBotVoice(
@@ -37,6 +42,7 @@ export function useBotVoice(
   const timer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const timeoutMs = options?.timeoutMs ?? DISMISS_DELAY_MS;
+  const live = options?.live ?? true;
   const timeoutMsRef = React.useRef(timeoutMs);
   const holdMsRef = React.useRef(options?.holdMs);
   const onVoiceLineRef = React.useRef(options?.onVoiceLine);
@@ -72,6 +78,9 @@ export function useBotVoice(
       lastGame.current = game;
       return;
     }
+    // Behind the home screen or a menu: nothing is evaluated, and the game is
+    // not recorded, so the next step seen is judged from the last one seen.
+    if (!live) return;
 
     const opponent = opponentOf(game.mode);
     const prev = lastGame.current;
@@ -117,7 +126,7 @@ export function useBotVoice(
       voiceState.current = cue.state;
       showLine(cue.line);
     }
-  }, [game, dangerLevel, showLine]);
+  }, [game, dangerLevel, live, showLine]);
 
   React.useEffect(() => {
     return () => {

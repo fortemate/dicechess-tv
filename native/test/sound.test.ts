@@ -398,6 +398,74 @@ test('the bubble of a line stays until it has been said', () => {
   assert.equal(speechTiming(line('nobody_capture_1')), null);
 });
 
+test("the Hot Seat host's result waits for the jingle, like a bot's (#202)", () => {
+  // A colourless win line picked for White's win still has the event 'win'.
+  for (const line of [
+    { id: 'host_white_wins_1', event: 'white_wins' },
+    { id: 'host_win_1', event: 'win' },
+    { id: 'host_draw_2', event: 'draw' },
+  ] as const)
+    assert.equal(speechTiming(line)?.delayMs, RESULT_LINE_DELAY_MS, line.id);
+  assert.deepEqual(speechTiming({ id: 'host_intro_1', event: 'intro' }), {
+    delayMs: 0,
+    ms: Math.round(VOICE_FILES.host_intro_1.seconds * 1000) + LINE_TAIL_MS,
+  });
+});
+
+test("the host's line plays his clip on the voice player (#202)", async () => {
+  resetAudio();
+  const sounds = createSounds({ later: () => undefined });
+  sounds.say({ id: 'host_intro_1', event: 'intro' });
+  await settle();
+  assert.equal(
+    plays()[0]?.src,
+    '/pkg/assets/voices/elevenlabs-dicechess-host/host_intro_1.mp3',
+  );
+});
+
+test('a line stopped on its own goes quiet, the next is said, and the settings stay (#202)', async () => {
+  resetAudio();
+  const speech = speaking();
+  const sounds = createSounds({
+    later: () => undefined,
+    onSpeech: speech.onSpeech,
+  });
+  sounds.say({ id: 'host_again_3', event: 'again' });
+  await settle();
+  sounds.stopLine();
+  await settle();
+  const voice = plays()[0].player;
+  assert.equal(log().at(-1)?.event, 'pause');
+  assert.equal(log().at(-1)?.player, voice);
+  // The music comes back at once.
+  assert.deepEqual(speech.heard, [true, false]);
+  // The voices are still on: the next line is said.
+  sounds.say(line('grabby_capture_2'));
+  await settle();
+  assert.equal(plays().length, 2);
+
+  // A result still waiting for its jingle is never said.
+  resetAudio();
+  const time = clock();
+  const waiting = createSounds({ later: time.later });
+  waiting.say({ id: 'host_white_wins_2', event: 'white_wins' });
+  waiting.stopLine();
+  time.elapse();
+  await settle();
+  assert.equal(plays().length, 0);
+
+  // Nor is one asked for while the voice player was still starting up.
+  resetAudio();
+  holdAudio();
+  const loading = createSounds({ later: () => undefined });
+  loading.say({ id: 'host_capture_1', event: 'capture' });
+  loading.stopLine();
+  releaseAudio();
+  await settle();
+  await settle();
+  assert.equal(plays().length, 0);
+});
+
 test('with the voices off nothing is said, and a line being said stops; the effects are another setting', async () => {
   resetAudio();
   const speech = speaking();

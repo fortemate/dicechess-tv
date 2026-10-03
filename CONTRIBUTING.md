@@ -117,13 +117,13 @@ device, a Fire TV Stick, or a test — because they are not interchangeable.
 
 Never edit these by hand. Change the script, rerun it, and commit what it writes:
 
-| Path                                                   | Written by                                                                     |
-| ------------------------------------------------------ | ------------------------------------------------------------------------------ |
-| `native/src/pieces/*.tsx`                              | `native/scripts/generate-pieces.mjs`, from `src/assets/pieces/rhosgfx/`        |
-| `native/sounds/`, `native/src/cueFiles.ts`             | `native/scripts/vendor-sounds.mjs`, from one pinned commit of dicechess-assets |
-| `native/voices/`, `native/src/voiceFiles.ts`           | `native/scripts/vendor-voices.mjs`, from one pinned commit of dicechess-assets |
-| `site/public/voices/`, `site/src/voices/audition.json` | `site/scripts/vendor-voices.mjs`, from one pinned commit of dicechess-assets   |
-| `native/assets/` (not committed)                       | `native/scripts/generate-assets.mjs`, which every build runs                   |
+| Path                                                                   | Written by                                                                     |
+| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `native/src/pieces/*.tsx`                                              | `native/scripts/generate-pieces.mjs`, from `src/assets/pieces/rhosgfx/`        |
+| `native/sounds/`, `native/src/cueFiles.ts`                             | `native/scripts/vendor-sounds.mjs`, from one pinned commit of dicechess-assets |
+| `native/voices/`, `native/src/voiceFiles.ts`, `src/core/hostPacing.ts` | `native/scripts/vendor-voices.mjs`, from one pinned commit of dicechess-assets |
+| `site/public/voices/`, `site/src/voices/audition.json`                 | `site/scripts/vendor-voices.mjs`, from one pinned commit of dicechess-assets   |
+| `native/assets/` (not committed)                                       | `native/scripts/generate-assets.mjs`, which every build runs                   |
 
 Third-party files — the RhosGFX pieces, the brand images in `native/brand/`, the
 vendored sounds and the licence texts in `licenses/` — are kept byte for byte, and
@@ -131,12 +131,15 @@ vendored sounds and the licence texts in `licenses/` — are kept byte for byte,
 licence recorded in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and, when the
 licence asks for credit, a line on the About screen (`src/core/credits.ts`).
 
-## The bots' voices
+## The voices
 
-The bots' lines live in `src/core/botVoice.ts`. Their voices are synthesized from
-those lines in fortemate/dicechess-assets, which keeps the voice pack for every
-client. Whenever a line changes, commit it, export the catalogue, and have the pack
-synthesized again there before it is vendored here:
+Two voice packs are vendored from fortemate/dicechess-assets, which keeps them for
+every client: the bots' and the Hot Seat host's (#202).
+
+The bots' lines are written here, in `src/core/botVoice.ts`, and their voices are
+synthesized from those lines in dicechess-assets. Whenever a line changes, commit
+it, export the catalogue, and have the pack synthesized again there before it is
+vendored here:
 
 ```bash
 npm run -s voices:catalogue > catalogue.json
@@ -145,6 +148,14 @@ npm run -s voices:catalogue > catalogue.json
 `-s` keeps npm's own header out of the JSON. The document names the commit its
 lines come from; an export taken while `src/core/botVoice.ts` has changes that are
 not committed is marked `dirty`, because no commit holds its texts.
+
+The host's lines go the other way: they are written in dicechess-assets
+(`voices/elevenlabs-dicechess-host/catalogue.json`) and copied word for word into
+`src/core/hostVoice.ts`, so `native/test/vendoredVoices.test.ts` fails when the two
+drift apart. When and how often the host speaks comes from `voices/events.json` in
+dicechess-assets, which the vendor script copies beside the packs and turns into
+`src/core/hostPacing.ts`; never edit that file, change `events.json` there and
+vendor it again.
 
 ## Releases
 

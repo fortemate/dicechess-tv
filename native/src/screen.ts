@@ -35,6 +35,12 @@ import { botReply, botToAct } from '../../src/core/bot';
 import type { Square } from '../../src/core/board';
 import type { Level } from '../../src/core/danger';
 import { DEFAULT_MUSIC, MUSIC_STEPS, type MusicSetting } from './musicSetting';
+import {
+  DEFAULT_HOST,
+  cycleHost,
+  hostName,
+  type HostChoice,
+} from './hostSetting';
 
 export const START: Square = 'e2';
 
@@ -120,8 +126,8 @@ export type Overlay =
   // starts. Back returns to the cards; `from` is where the cards return.
   | { kind: 'colour'; index: number; mode: BotMode; from: 'home' | 'menu' }
   | { kind: 'promotion'; moves: string[]; index: number }
-  // Music, its volume, the sound effects and the bot voices (#76, #159).
-  // `from` is where Back returns.
+  // Music, its volume, the sound effects, the voices, the Hot Seat host and
+  // turning the board (#76, #159, #202, #120). `from` is where Back returns.
   | { kind: 'settings'; index: number; from: 'home' | 'menu' }
   // After a game against the bot: a rematch, or back to the main menu.
   | { kind: 'result'; index: number }
@@ -159,15 +165,24 @@ export type ScreenState = {
   musicAvailable: boolean;
   // Whether the board turns to the side to move in hotseat (#120).
   turnHotseat: boolean;
-  // Whether the bots speak their lines aloud (#159).
+  // Whether the lines are spoken aloud, the bots' and the host's (#159).
   voices: boolean;
+  // Who hosts Hot Seat games, or 'off' (#202).
+  host: HostChoice;
   // OK is ignored: a roll has just left nothing to play. The app clears it
   // after OK_GUARD_MS; the other keys work throughout.
   guarded: boolean;
 };
 
-// Sound effects, music and the bots' voices are set on a screen of their own,
-// opened from both menus. A label says what a setting is now, which is what a viewer checks.
+// What a new game keeps: the settings, and whether this build has music.
+export type ScreenSettings = Pick<
+  ScreenState,
+  'sound' | 'music' | 'musicAvailable' | 'turnHotseat' | 'voices' | 'host'
+>;
+
+// Sound effects, music, the voices and who hosts Hot Seat are set on a screen
+// of their own, opened from both menus. A label says what a setting is now,
+// which is what a viewer checks.
 export const SETTINGS_OPTION = 'Settings';
 export const settingsOptions = (
   sound: boolean,
@@ -175,12 +190,14 @@ export const settingsOptions = (
   musicAvailable = true,
   turnHotseat = false,
   voices = true,
+  host: HostChoice = DEFAULT_HOST,
 ): string[] => [
   ...(musicAvailable
     ? [`Music: ${music.on ? 'on' : 'off'}`, `Music volume: ${music.volume}`]
     : []),
   `Sound effects: ${sound ? 'on' : 'off'}`,
-  `Bot voices: ${voices ? 'on' : 'off'}`,
+  `Voices: ${voices ? 'on' : 'off'}`,
+  `Hot Seat host: ${hostName(host)}`,
   `Turn board in hotseat: ${turnHotseat ? 'on' : 'off'}`,
 ];
 
@@ -281,16 +298,7 @@ export const resultOptions = ['Rematch', 'Main menu'];
 // A new game keeps the settings, which are not about the game.
 const board = (
   game: Game,
-  {
-    sound,
-    music,
-    musicAvailable,
-    turnHotseat,
-    voices,
-  }: Pick<
-    ScreenState,
-    'sound' | 'music' | 'musicAvailable' | 'turnHotseat' | 'voices'
-  >,
+  { sound, music, musicAvailable, turnHotseat, voices, host }: ScreenSettings,
   cursor: Square = START,
 ): ScreenState => ({
   game,
@@ -302,6 +310,7 @@ const board = (
   musicAvailable,
   turnHotseat,
   voices,
+  host,
   guarded: false,
 });
 
@@ -321,6 +330,7 @@ const played = (
   musicAvailable: state.musicAvailable,
   turnHotseat: state.turnHotseat,
   voices: state.voices,
+  host: state.host,
   guarded: emptyRoll(game),
 });
 
@@ -331,14 +341,18 @@ const step = (key: BoardKey, index: number, length: number): number =>
 export const resumable = (game: Game): boolean =>
   game.phase !== 'ended' && (game.roll.length > 0 || game.turn > 1);
 
+// The settings as the app read them; any not given start at their defaults.
 export const initialState = (
   options: ScreenOptions,
   restored?: Game | null,
-  sound = true,
-  music: MusicSetting = DEFAULT_MUSIC,
-  musicAvailable = false,
-  turnHotseat = false,
-  voices = true,
+  {
+    sound = true,
+    music = DEFAULT_MUSIC,
+    musicAvailable = false,
+    turnHotseat = false,
+    voices = true,
+    host = DEFAULT_HOST,
+  }: Partial<ScreenSettings> = {},
 ): ScreenState => {
   const game = restored ?? newGame('hotseat', options.newId());
   const isFlipped = flipped(game, turnHotseat);
@@ -360,6 +374,7 @@ export const initialState = (
     musicAvailable,
     turnHotseat,
     voices,
+    host,
     guarded: false,
   };
 };
@@ -604,34 +619,25 @@ const onMenu: Handler<'menu'> = (state, overlay, key) => {
   });
 };
 
-// Up and Down walk the settings. The arrows sideways change the volume on its
-// row and flip a switch on the others, as OK does, so either habit works.
-const onSettings: Handler<'settings'> = (state, overlay, key) => {
-  if (key === 'menu') return show(state, HOME);
-  if (key === 'back')
-    return show(
-      state,
-      overlay.from === 'home'
-        ? {
-            kind: 'home',
-            index: homeOptions(resumable(state.game)).indexOf(SETTINGS_OPTION),
-          }
-        : {
-            kind: 'menu',
-            index: menuOptions(state.game).indexOf(SETTINGS_OPTION),
-          },
-    );
-  const rows = settingsOptions(
-    state.sound,
-    state.music,
-    state.musicAvailable,
-    state.turnHotseat,
-    state.voices,
-  );
-  if (key === 'up' || key === 'down')
-    return moved(state, overlay, key, rows.length);
-  // What a row is comes from its label: the rows differ with the build.
-  const row = rows[overlay.index] ?? '';
+// The option the settings were opened from, which Back returns to.
+const settingsOpener = (state: ScreenState, from: 'home' | 'menu'): Overlay =>
+  from === 'home'
+    ? {
+        kind: 'home',
+        index: homeOptions(resumable(state.game)).indexOf(SETTINGS_OPTION),
+      }
+    : {
+        kind: 'menu',
+        index: menuOptions(state.game).indexOf(SETTINGS_OPTION),
+      };
+
+// What a sideways arrow, or OK, does to a row. What a row is comes from its
+// label: the rows differ with the build.
+const changed = (
+  state: ScreenState,
+  row: string,
+  key: BoardKey,
+): ScreenState => {
   if (row.startsWith('Music volume')) {
     if (key === 'select') return state;
     const volume = Math.max(
@@ -644,8 +650,31 @@ const onSettings: Handler<'settings'> = (state, overlay, key) => {
     return { ...state, music: { ...state.music, on: !state.music.on } };
   if (row.startsWith('Sound effects:'))
     return { ...state, sound: !state.sound };
-  if (row.startsWith('Bot voices:')) return { ...state, voices: !state.voices };
-  return { ...state, turnHotseat: !state.turnHotseat };
+  if (row.startsWith('Voices:')) return { ...state, voices: !state.voices };
+  if (row.startsWith('Hot Seat host:'))
+    return { ...state, host: cycleHost(state.host, key === 'left' ? -1 : 1) };
+  if (row.startsWith('Turn board in hotseat:'))
+    return { ...state, turnHotseat: !state.turnHotseat };
+  return state;
+};
+
+// Up and Down walk the settings. The arrows sideways change the volume on its
+// row, step through the hosts on his, and flip a switch on the others, as OK
+// does, so either habit works.
+const onSettings: Handler<'settings'> = (state, overlay, key) => {
+  if (key === 'menu') return show(state, HOME);
+  if (key === 'back') return show(state, settingsOpener(state, overlay.from));
+  const rows = settingsOptions(
+    state.sound,
+    state.music,
+    state.musicAvailable,
+    state.turnHotseat,
+    state.voices,
+    state.host,
+  );
+  if (key === 'up' || key === 'down')
+    return moved(state, overlay, key, rows.length);
+  return changed(state, rows[overlay.index] ?? '', key);
 };
 
 const onPromotion: Handler<'promotion'> = (state, overlay, key) => {
