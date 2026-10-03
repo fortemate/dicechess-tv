@@ -8,6 +8,8 @@ import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 import { Matchup, SPEECH_ZONE, type MatchupProps } from '../src/Matchup';
 import { THEME } from '../src/theme';
+import { FACES } from '../src/faces';
+import { FACE_OF, portraitPath } from '../src/Portrait';
 import { newGame, type Game } from '../../src/core/game';
 
 type Instance = renderer.ReactTestInstance;
@@ -71,6 +73,20 @@ test('renders player and opponent badges with initial turn on White', () => {
   assertToMove(player);
   assertWaiting(opponent);
   assert.deepEqual(badges(tree.root), ['RAMPAGE', 'YOU']);
+});
+
+test('the bot’s badge shows its portrait, or its emoji face when the build has none (dicechess-assets#31)', () => {
+  const tree = mount({ game: newGame('greedy', 'game-1'), side: 'w' });
+  const opponent = byTestId(tree.root, 'opponent-badge');
+  const [portrait] = opponent.findAll((node) => isHost(node, 'Image'));
+  assert.equal(portrait.props.source.uri, portraitPath('greedy', 'badge'));
+  assert.deepEqual(portrait.props.style, { width: 38, height: 38 });
+  act(() => portrait.props.onError());
+  assert.equal(opponent.findAll((node) => isHost(node, 'Image')).length, 0);
+  assert.equal(opponent.findAllByType(FACES[FACE_OF.greedy]).length, 1);
+  // The person's badge keeps its king.
+  const player = byTestId(tree.root, 'player-badge');
+  assert.equal(player.findAll((node) => isHost(node, 'Image')).length, 0);
 });
 
 test('active turn shifts to opponent on Black turn', () => {

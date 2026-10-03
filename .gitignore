@@ -14,6 +14,10 @@ buildinfo.json
 # Built by native/scripts/generate-assets.mjs, which deletes and rebuilds it on
 # every build. Everything the package ships as artwork is built, not committed.
 native/assets/
+# The opponents' portraits (fortemate/dicechess-assets#31) are for Fortemate's
+# apps only and stay out of this repository while it is public. Vendor them with
+# native/scripts/vendor-portraits.mjs; without them the game shows emoji faces.
+native/portraits/
 coverage/
 # Written by Amazon's Vega ESLint plugin on every lint run.
 native/generated/

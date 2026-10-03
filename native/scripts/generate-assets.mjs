@@ -1,7 +1,8 @@
 // Builds what the package ships under assets/: the application icon, the native
-// splash screen, the game's sounds, its music and the bots' voices. The build
-// packages the whole directory, so it belongs to this script alone: every run
-// deletes it and writes it afresh (#122).
+// splash screen, the game's sounds, its music, the bots' voices and, when the
+// checkout has them, the opponents' portraits. The build packages the whole
+// directory, so it belongs to this script alone: every run deletes it and writes
+// it afresh (#122).
 //
 // Vega wants `assets/raw/SplashScreenImages.zip`, and inside it a `desc.txt`
 // naming the frame size and rate, plus a `_loop` directory of PNG frames. Ours
@@ -253,6 +254,7 @@ export const main = (root = native) => {
     sounds: copySounds(root),
     music: copyMusic(root),
     voices: copyVoices(root),
+    portraits: copyPortraits(root),
   };
 };
 
@@ -307,6 +309,35 @@ export const copyMusic = (root = native) => {
     copied.push(file);
   }
   writeFileSync(join(target, 'music.json'), bytes);
+  return copied;
+};
+
+// The opponents' portraits (dicechess-assets#31), when this checkout has them:
+// scripts/vendor-portraits.mjs puts them in portraits/ with a lock, and git
+// ignores that directory while the repository is public. They go to
+// assets/portraits/<pack version>/, which is /pkg/assets/portraits/ on the
+// device, and only if each still has the bytes the lock pinned. A checkout
+// without them builds a game that shows the RhosGFX emoji faces
+// (src/Portrait.tsx).
+export const copyPortraits = (root = native) => {
+  rmSync(join(root, 'assets/portraits'), { recursive: true, force: true });
+  const lockPath = join(root, 'portraits/portraits.lock.json');
+  if (!existsSync(lockPath)) return [];
+  const { files, source } = JSON.parse(readFileSync(lockPath, 'utf8'));
+  if (!/^\d+\.\d+\.\d+$/.test(source?.version ?? ''))
+    throw new Error('portraits/portraits.lock.json names no pack version');
+  const target = join(root, 'assets/portraits', source.version);
+  const copied = [];
+  for (const [name, { sha256 }] of Object.entries(files)) {
+    const data = readFileSync(join(root, 'portraits', name));
+    if (createHash('sha256').update(data).digest('hex') !== sha256)
+      throw new Error(
+        `portraits/${name} no longer matches portraits/portraits.lock.json`,
+      );
+    mkdirSync(target, { recursive: true });
+    writeFileSync(join(target, name), data);
+    copied.push(name);
+  }
   return copied;
 };
 
