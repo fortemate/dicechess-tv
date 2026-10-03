@@ -4,7 +4,7 @@ Thank you for trying the game. This page says which package to install and how, 
 
 ## Which package
 
-Each pre-release on the [Releases page](https://github.com/fortemate/dicechess-tv/releases) carries three packages: the same app, built for three processors.
+Each pre-release on the [Releases page](https://github.com/fortemate/dicechess-tv/releases) carries three packages: the same app, built for three processors. From beta 8 the computer opponents have portraits drawn for the game. They are Fortemate's and stay out of this public repository for now, so the packages here show the opponents' emoji faces in their place, and the build on the Appstore Beta Hub, below, has the portraits. The two are otherwise the same app.
 
 | File                               | Install it on                                         |
 | ---------------------------------- | ----------------------------------------------------- |
@@ -37,7 +37,7 @@ vega device launch-app -a com.fortemate.dicechesstv.main
 
 For the Virtual Device, install `dicechess-tv-native_aarch64.vpkg` on a Mac with Apple silicon, or `dicechess-tv-native_x86_64.vpkg` on Linux or an Intel Mac, instead. With more than one device connected, add `-d` and the device's serial number, as `vega device list` shows it.
 
-A newer beta installs over the one you have and keeps its saved game, results and settings. On the Virtual Device, beta 3 installed over beta 2 kept all three, beta 4 over beta 3 kept the last game and the results, beta 5 over beta 4 kept the game in progress and the record against the computer, beta 6 over beta 5 kept the game in progress with its dice, and so did beta 7 over beta 6. An older beta does not install over a newer one: from beta 4 on, every build carries a higher build number, and the device refuses a lower one with "Package version decrease". To go back, remove the app first, which deletes its saved game.
+A newer beta installs over the one you have and keeps its saved game, results and settings. On the Virtual Device, beta 3 installed over beta 2 kept all three, beta 4 over beta 3 kept the last game and the results, beta 5 over beta 4 kept the game in progress and the record against the computer, beta 6 over beta 5 kept the game in progress with its dice, and so did beta 7 over beta 6 and beta 8 over beta 7. An older beta does not install over a newer one: from beta 4 on, every build carries a higher build number, and the device refuses a lower one with "Package version decrease". To go back, remove the app first, which deletes its saved game.
 
 To remove the app:
 
@@ -50,10 +50,10 @@ Removing the app deletes its saved game, results and settings. They never leave 
 ## What to try
 
 1. Start with **How to play**, the five-lesson tutorial, before reading anything else about the game.
-2. Play a game against the computer: **Play the computer**, then pick Rolly (easy), Grabby (medium) or Rampage (hard). In 0.1.0 beta 1 there is one opponent, under **Play Random**. From beta 6 the computer opponents talk: each has a face, speech bubbles and a voice of its own. From beta 7 they are fairy-tale characters, a pixie, a goblin and a little horned imp, whose voices act their lines.
-3. If someone is with you, start a **New hotseat game** and pass the remote. In builds after beta 7, Rolly hosts it: she greets you both, cheers the big moments when a turn ends, and cheers you both at the end. While she speaks, she shows with her line above the bottom badge.
+2. Play a game against the computer: **Play the computer**, then pick Rolly (easy), Grabby (medium) or Rampage (hard). In 0.1.0 beta 1 there is one opponent, under **Play Random**. From beta 6 the computer opponents talk: each has a face, speech bubbles and a voice of its own. From beta 7 they are fairy-tale characters, a pixie, a goblin and a little horned imp, whose voices act their lines. From beta 8 the opponent talks from beside its face at the top of the screen, and stays in full colour the whole game.
+3. If someone is with you, start a **New hotseat game** and pass the remote. From beta 8, Rolly hosts it: she greets you both, cheers the big moments when a turn ends, and cheers you both at the end. While she speaks, she shows with her line above the bottom badge.
 4. Look something up in **Rules**.
-5. Listen to the music follow the game: calm, then tense when a roll could take a king, then critical when a king is attacked. **Settings**, in the home menu and in the game menu, turns the music, the sound effects and the voices on or off, sets the music volume, and chooses the Hot Seat host, Rolly or off. Builds before 0.1.0 beta 3 have no music, builds before beta 6 have no voices, builds up to beta 7 call the voices **Bot voices**, and builds after beta 7 add the Hot Seat host.
+5. Listen to the music follow the game: calm, then tense when a roll could take a king, then critical when a king is attacked. **Settings**, in the home menu and in the game menu, turns the music, the sound effects and the voices on or off, sets the music volume, and chooses the Hot Seat host, Rolly or off. Builds before 0.1.0 beta 3 have no music, builds before beta 6 have no voices, builds up to beta 7 call the voices **Bot voices**, and beta 8 adds the Hot Seat host.
 
 The whole game uses the D-pad, OK and Back; on the Virtual Device, those are the arrow keys, Enter and Esc. Keep the sound and the music on if you can.
 

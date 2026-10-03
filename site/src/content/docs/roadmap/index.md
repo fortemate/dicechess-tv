@@ -13,18 +13,18 @@ Every feature here was played on the Vega Virtual Device, and the app's automate
 - **Hotseat** on one remote, **saving** after every action, and the record of results.
 - **A five-lesson tutorial** and a **rules guide**.
 - **Sound** for every step of the game.
-- **Three computer opponents**, Rolly, Grabby and Rampage, as either colour, each with a face, speech bubbles and a synthetic voice. They are fairy-tale characters, a pixie, a goblin and a little horned imp, and their voices act their lines.
+- **Three computer opponents**, Rolly, Grabby and Rampage, as either colour, each with a portrait drawn for the game, speech bubbles and a synthetic voice. They are fairy-tale characters, a pixie, a goblin and a little horned imp, and their voices act their lines. An opponent talks from beside its portrait at the top of the screen. The portraits are in the build on the Appstore Beta Hub; the public packages show emoji faces in their place for now.
+- **Rolly hosts Hot Seat games**: she cheers both players at the pauses of a game, and shows with her line while she speaks. Settings chooses her or no host.
 - **Moves that slide** to their squares, so an opponent's turn can be followed.
 - **Dice that tumble in** on a roll, and dim when no legal turn can use them.
 - **Music that follows the game**, and **Settings** for music, sound effects, voices, and turning the board in hotseat.
-- **Seven public pre-releases**, with a playtest guide.
+- **Eight public pre-releases**, with a playtest guide.
 
 ## Now
 
 - **The tester round:** people who have never seen the game play it, on the Vega Virtual Device and, through Live App Testing, on their own Fire TV Sticks. See [Play the beta](/play/beta/).
 - **Testing on a physical Fire TV Stick**, including how fast the game runs there.
 - **A demo video** of a whole game.
-- **Rolly as the Hot Seat host**: she cheers both players at the pauses of a game, heard but not yet seen, and Settings chooses her or no host. It is built and tested; playing it on the Vega Virtual Device is next.
 
 ## Next
 
