@@ -34,4 +34,4 @@ This Fire TV app is new. Its repository started on 21 September 2026, during [Bu
 
 It takes the rules from the engine's npm package, so the TV app and the web game play by the same rules.
 
-[What it does](/dicechess-tv/project/features/) shows each feature on the screen.
+[What it does](/project/features/) shows each feature on the screen.

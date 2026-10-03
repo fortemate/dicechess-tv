@@ -4,7 +4,7 @@
   "private": true,
   "license": "AGPL-3.0-only",
   "type": "module",
-  "description": "The project site of Dice Chess TV: an Astro Starlight site, deployed to GitHub Pages by .github/workflows/deploy-site.yaml.",
+  "description": "The project site of Dice Chess TV: an Astro Starlight site, deployed to a Cloudflare Worker by .github/workflows/deploy-site.yaml.",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build && node scripts/check-friction-log.mjs",

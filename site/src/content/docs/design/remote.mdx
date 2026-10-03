@@ -15,7 +15,7 @@ A TV remote has four arrows, OK and Back. On a chessboard that is a long way fro
 
 ## Measured before it was built
 
-`npm run presses`, the evaluator in [`scripts/cursor-presses.ts`](https://github.com/fortemate/dicechess-tv/blob/main/scripts/cursor-presses.ts), replays 200 seeded random games through the app's own core. For every action it counts the presses each candidate design needs. No design left a piece or a destination out of reach.
+`npm run presses`, the evaluator in `scripts/cursor-presses.ts`, replays 200 seeded random games through the app's own core. For every action it counts the presses each candidate design needs. No design left a piece or a destination out of reach.
 
 <figure class="bars">
   <figcaption>
@@ -69,7 +69,7 @@ Both sides of 200 hotseat games, 9,102 turns, seed 68. The shipped row uses the 
 - **The cursor waits where it helps.** It stays on its square while that piece can still move, and otherwise moves to the central piece, the one fewest presses from all the others.
 - **OK lands on a destination.** Picking a piece up puts the cursor on its central destination, so a piece with a single destination plays with OK, then OK. A pawn that can advance two squares lands on that push instead of the nearer single step, because the longer push is the usual choice. Back puts the piece down, with the cursor back on it.
 
-The rules live in the app's core ([`src/core/cursor.ts`](https://github.com/fortemate/dicechess-tv/blob/main/src/core/cursor.ts), [`src/core/boardInput.ts`](https://github.com/fortemate/dicechess-tv/blob/main/src/core/boardInput.ts)), are covered by its tests, and were played on the Vega Virtual Device. Nothing here has run on a Fire TV Stick yet.
+The rules live in the app's core (`src/core/cursor.ts`, `src/core/boardInput.ts`), are covered by its tests, and were played on the Vega Virtual Device. Nothing here has run on a Fire TV Stick yet.
 
 ## A mark that was dropped
 
@@ -83,6 +83,5 @@ The green fill comes from the legal list the screen already has, at no extra cos
 
 ## Sources
 
-- [#68](https://github.com/fortemate/dicechess-tv/issues/68): the design discussion and the owner's decisions.
-- [`native/README.md`, "Choosing a move"](https://github.com/fortemate/dicechess-tv/blob/main/native/README.md#choosing-a-move): the rules and the measurements.
-- [`scripts/cursor-presses.ts`](https://github.com/fortemate/dicechess-tv/blob/main/scripts/cursor-presses.ts): the evaluator. `npm run presses` prints the table above.
+- `native/README.md`, "Choosing a move": the rules and the measurements.
+- `scripts/cursor-presses.ts`: the evaluator. `npm run presses` prints the table above.
