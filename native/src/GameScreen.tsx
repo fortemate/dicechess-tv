@@ -558,6 +558,12 @@ export const GameScreen = ({
         : null,
     [game, state],
   );
+  // The cursor frame shows only while the person chooses on the board (#206).
+  // Before the roll, at the handoff, on an ended board, on the bot's turn and
+  // behind a menu there is nothing to choose, and a frame would suggest a piece
+  // is picked before the dice say which may move. After the roll the cursor is
+  // already waiting on a movable piece (#68).
+  const choosing = overlay.kind === 'none' && movable !== null;
 
   // Back at the home screen has nowhere to go, so the app agrees to close —
   // what a viewer expects at the top of a TV app. Anywhere else it is ours.
@@ -742,7 +748,7 @@ export const GameScreen = ({
         legal={state.legal}
         lastMove={game.lastMove}
         selected={focus.selected}
-        cursor={focus.cursor}
+        cursor={choosing ? focus.cursor : null}
         flipped={isFlipped}
         movable={movable}
       />
