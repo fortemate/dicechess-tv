@@ -24,13 +24,17 @@ text over its menus.
   fortemate/vega-vvd-driver#14: earlier versions record long sounds, such as
   the bots' lines, with a hole every few packets, heard as a rattle
   (fortemate/vega-vvd-driver#13).
-- In the app's Settings: music off, and sound effects, voices ("Bot voices"
-  up to 0.1.0 beta 7) and "Turn board in hotseat" on. The takes carry only the
-  sound effects and the bots' lines, and `record.ts` stops if the home screen
-  is not silent. The storyboard predates the Hot Seat host (#202): in a build
-  that has her, turn "Hot Seat host" off, or plan her lines into the hotseat
-  take. The music is
-  laid in afterwards, so it does not break at the cuts.
+- In the app's Settings: music off; sound effects, voices ("Bot voices" up to
+  0.1.0 beta 7) and "Turn board in hotseat" on; and Rolly as the Hot Seat host
+  (#202, from beta 8). The takes carry only the sound effects and the
+  characters' lines, and `record.ts` stops if the home screen is not silent.
+  The home take goes on while Rolly greets the two players at the start of the
+  hotseat game, which is the scene about her. The music is laid in afterwards,
+  so it does not break at the cuts.
+- A build with the opponents' portraits shows them in the takes (see
+  "Portraits" in `native/README.md`). The takes and the video stay in `dist/`,
+  which git ignores: the portraits do not go into this repository while it is
+  public.
 
 ## Making the video
 
