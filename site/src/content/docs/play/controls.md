@@ -31,7 +31,7 @@ Moving square-by-square across an 8x8 chessboard is frustrating on a remote. Dic
 The primary action button handles roll initiation, piece selection, and move execution:
 
 - **Roll the dice:** When a turn begins, pressing OK rolls the three dice, tumbling them onto the tray in 260 ms. The board shows no cursor until then: the cyan frame appears after the roll, on a piece the dice let you move. This was seen on the Vega Virtual Device in a game against Rolly, and `native/test/input.test.tsx` checks it in Hot Seat and against Rolly.
-- **Pick up a piece:** Pressing OK on an active piece picks it up and automatically positions the cursor on its most central destination square. A pawn that can still advance two squares is the exception: the cursor lands on the two-square push, and one press back reaches the single step.
+- **Pick up a piece:** Pressing OK on an active piece picks it up and automatically positions the cursor on its most central destination square. A pawn that can still advance two squares is the exception: the cursor lands on the two-square push, and one arrow press towards the pawn reaches the single step. This was seen on the Vega Virtual Device in the tutorial's first step, and `native/test/screen.test.ts` checks it.
 - **Play a move:** Pressing OK on a destination square executes the action. The piece smoothly slides to its new square in 220 ms on the native driver.
 - **Single-destination shortcut:** If a piece has only one legal destination, pressing **OK then OK** immediately plays the move.
 - **Confirm menu items:** Selects the focused menu row. OK acts on release (`eventKeyAction === 1`), with a distinct 97% scale compression and highlight while held.
