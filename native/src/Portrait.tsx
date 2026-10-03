@@ -54,10 +54,13 @@ export function Portrait({
   mode,
   kind,
   size,
+  onMissing,
 }: {
   mode: BotMode;
   kind: PortraitKind;
   size: number;
+  // Told when the portrait does not load, which means the build has none.
+  onMissing?: () => void;
 }) {
   const [missing, setMissing] = React.useState(false);
   if (missing) {
@@ -70,7 +73,10 @@ export function Portrait({
       source={{ uri: portraitPath(mode, kind) }}
       style={{ width: size, height: size }}
       fadeDuration={0}
-      onError={() => setMissing(true)}
+      onError={() => {
+        setMissing(true);
+        onMissing?.();
+      }}
     />
   );
 }

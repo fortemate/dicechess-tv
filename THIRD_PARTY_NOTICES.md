@@ -2,22 +2,23 @@
 
 Fortemate's code in this repository is licensed under AGPL-3.0-only (see [LICENSE](LICENSE)). The third-party material below keeps its own licence and is not covered by the AGPL.
 
-| Component                                                 | Pinned version           | License                  | Source                                             |
-| --------------------------------------------------------- | ------------------------ | ------------------------ | -------------------------------------------------- |
-| Dice Chess engine                                         | 0.14.0                   | AGPL-3.0-only            | https://github.com/fortemate/dicechess-engine      |
-| Vector Chess Pieces Pack, RhosGFX                         | 1.0.0                    | CC0-1.0                  | https://rhosgfx.itch.io/vector-chess-pieces        |
-| Vector Emojis, RhosGFX                                    | downloaded 2026-09-26    | CC0-1.0                  | https://rhosgfx.itch.io/vector-emojis              |
-| Tabletop Games SFX Pack, JDSherbert                       | 1.1.0                    | Free with attribution    | https://jdsherbert.itch.io/tabletop-games-sfx-pack |
-| Casino Audio, Interface Sounds and Music Jingles, Kenney  | 1.1, 1.0 and unversioned | CC0-1.0                  | https://kenney.nl                                  |
-| Dice Chess themes, pepka-prygni                           | 0.2.0 (four tracks)      | Permission for this game | https://www.youtube.com/@genreexplorer-h5o         |
-| Dice Chess bot voices, Fortemate, made with ElevenLabs    | 63 lines                 | Fortemate apps only      | https://elevenlabs.io                              |
-| Dice Chess Hot Seat host, Fortemate, made with ElevenLabs | 45 lines                 | Fortemate apps only      | https://elevenlabs.io                              |
+| Component                                                   | Pinned version           | License                  | Source                                             |
+| ----------------------------------------------------------- | ------------------------ | ------------------------ | -------------------------------------------------- |
+| Dice Chess engine                                           | 0.14.0                   | AGPL-3.0-only            | https://github.com/fortemate/dicechess-engine      |
+| Vector Chess Pieces Pack, RhosGFX                           | 1.0.0                    | CC0-1.0                  | https://rhosgfx.itch.io/vector-chess-pieces        |
+| Vector Emojis, RhosGFX                                      | downloaded 2026-09-26    | CC0-1.0                  | https://rhosgfx.itch.io/vector-emojis              |
+| Tabletop Games SFX Pack, JDSherbert                         | 1.1.0                    | Free with attribution    | https://jdsherbert.itch.io/tabletop-games-sfx-pack |
+| Casino Audio, Interface Sounds and Music Jingles, Kenney    | 1.1, 1.0 and unversioned | CC0-1.0                  | https://kenney.nl                                  |
+| Dice Chess themes, pepka-prygni                             | 0.2.0 (four tracks)      | Permission for this game | https://www.youtube.com/@genreexplorer-h5o         |
+| Dice Chess bot voices, Fortemate, made with ElevenLabs      | 63 lines                 | Fortemate apps only      | https://elevenlabs.io                              |
+| Dice Chess Hot Seat host, Fortemate, made with ElevenLabs   | 45 lines                 | Fortemate apps only      | https://elevenlabs.io                              |
+| Dice Chess opponent portraits, Fortemate, made with Recraft | 1.0.0 (three portraits)  | Fortemate apps only      | https://recraft.ai                                 |
 
 The engine and RhosGFX license texts are in [AGPL-3.0](licenses/AGPL-3.0.txt), [CC0-1.0](licenses/RhosGFX-CC0.txt) and, for the emojis, [CC0-1.0](licenses/RhosGFX-Emojis-CC0.txt). Full installed-package notices are retained in node_modules, and build-generated license comments must not be removed. The package locks record the exact dependency graph.
 
 Chess pieces use 12 vector SVG pieces (White and Black Outline variants) from the RhosGFX Vector Chess Pieces Pack, dedicated to the public domain under Creative Commons CC0 1.0 Universal and bundled locally. No cburnett artwork, opening book, private model or server implementation is bundled.
 
-The faces of the three local opponents are three SVGs from the RhosGFX Vector Emojis pack, Outline set: `Zany face.svg`, `Money mouth face.svg` and `Smiling face with horns.svg`. They are bundled unchanged, under shorter names, in `src/assets/faces/rhosgfx/`, and drawn by the components `native/scripts/generate-faces.mjs` writes to `native/src/faces/`. The pack is dedicated to the public domain under CC0 1.0. Its notice, in `licenses/RhosGFX-Emojis-CC0.txt` with LF line endings, is the one RhosGFX ships with the pack: it names the Vector Ranks Pack, whose notice it copies, and the pack's own page states the same terms. The whole pack is kept, with the download's SHA-256, in the private asset repository.
+The faces of the three local opponents are three SVGs from the RhosGFX Vector Emojis pack, Outline set: `Zany face.svg`, `Money mouth face.svg` and `Smiling face with horns.svg`. They are bundled unchanged, under shorter names, in `src/assets/faces/rhosgfx/`, and drawn by the components `native/scripts/generate-faces.mjs` writes to `native/src/faces/`. The pack is dedicated to the public domain under CC0 1.0. Its notice, in `licenses/RhosGFX-Emojis-CC0.txt` with LF line endings, is the one RhosGFX ships with the pack: it names the Vector Ranks Pack, whose notice it copies, and the pack's own page states the same terms. The whole pack is kept, with the download's SHA-256, in the private asset repository. A build with the opponents' portraits, below, draws a face only where a portrait does not load.
 
 ## Sounds
 
@@ -38,6 +39,12 @@ Two voice packs are vendored under `native/voices/` from the private asset repos
 They are synthetic voices, made for this game with ElevenLabs on a paid subscription. The owner designed a fairy-tale voice for each bot with Voice Design, and Eleven v4 read every line; the host's lines are read in Rolly's voice. The recordings are Fortemate's, licensed to Fortemate's Dice Chess applications only, on the same terms for both packs (`native/voices/elevenlabs-dicechess-bots/LICENSE.txt` and `native/voices/elevenlabs-dicechess-host/LICENSE.txt`). They are not covered by the AGPL or by any other open licence. A fork or copy of this repository may not use, publish or distribute them, and must replace them with audio of its own. ElevenLabs asks for no credit on a paid plan; the About screen names ElevenLabs beside the engine, so that a player knows the voices are synthetic.
 
 Beside the packs, `native/voices/events.json` is copied from the same commit: Fortemate's own table of when a character speaks, the tiers and the pacing every Dice Chess client shares. `src/core/hostPacing.ts` is generated from it. It holds no audio, and its digest is recorded in `native/voices/voices.json`.
+
+## Portraits
+
+The opponents' portraits, Rolly, Grabby and Rampage, were drawn for this game with Recraft on a paid plan (fortemate/dicechess-assets#31). They are Fortemate's, licensed to Fortemate's Dice Chess applications only, as the `NOTICE.txt` that comes with them says. They are not covered by the AGPL or by any other open licence. A fork or copy of this repository may not use, publish or distribute them.
+
+While this repository is public they are not in it. `native/scripts/vendor-portraits.mjs` copies them, with that notice and a lock, from the private asset repository `fortemate/dicechess-assets` into `native/portraits/`, which git ignores, and a build without them shows the RhosGFX faces in their place. In a build that has them, the About screen shows them beside Recraft's name, with the engine and the voices, so that a player knows they are AI-generated, and its RhosGFX card names only the pieces. In a build without them it credits the RhosGFX faces with the pieces.
 
 ## Amazon platform packages
 

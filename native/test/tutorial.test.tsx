@@ -304,8 +304,11 @@ test('the About screen shows the credits and returns on Back or OK', () => {
   // however many items are added above.
   send('up', 'enter');
   assert.match(text(root), /ABOUT/);
-  // The credit a licence requires is only met if it is on the screen.
-  assert.match(text(root), /Pieces and faces by RhosGFX/);
+  // The credit a licence requires is only met if it is on the screen. No
+  // portrait failed to load here, so the screen credits the portraits and the
+  // pieces alone to RhosGFX; test/about.test.tsx covers a build without them.
+  assert.match(text(root), /Pieces by RhosGFX/);
+  assert.match(text(root), /Portraits made with Recraft/);
   assert.match(text(root), /Dice Chess engine by Fortemate/);
   assert.match(text(root), /CC0 1\.0/);
 
