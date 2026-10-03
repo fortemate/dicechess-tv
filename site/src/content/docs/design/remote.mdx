@@ -67,7 +67,7 @@ Both sides of 200 hotseat games, 9,102 turns, seed 68. The shipped row uses the 
 - **What can move is marked.** After every roll and every action, a green fill marks the pieces that can move. They are the starts of the engine's legal actions, so they already follow the rule that a turn uses as many dice as it can.
 - **Arrows jump.** A press lands on the nearest choice within 45 degrees of the arrow. Failing that, it lands on the choice least far ahead, counting sideways distance twice. With nothing ahead the cursor stays. On the board turned for Black, the arrows follow the screen.
 - **The cursor waits where it helps.** It stays on its square while that piece can still move, and otherwise moves to the central piece, the one fewest presses from all the others.
-- **OK lands on a destination.** Picking a piece up puts the cursor on its central destination, so a piece with a single destination plays with OK, then OK. Back puts the piece down, with the cursor back on it.
+- **OK lands on a destination.** Picking a piece up puts the cursor on its central destination, so a piece with a single destination plays with OK, then OK. A pawn that can advance two squares lands on that push instead of the nearer single step, because the longer push is the usual choice. Back puts the piece down, with the cursor back on it.
 
 The rules live in the app's core ([`src/core/cursor.ts`](https://github.com/fortemate/dicechess-tv/blob/main/src/core/cursor.ts), [`src/core/boardInput.ts`](https://github.com/fortemate/dicechess-tv/blob/main/src/core/boardInput.ts)), are covered by its tests, and were played on the Vega Virtual Device. Nothing here has run on a Fire TV Stick yet.
 

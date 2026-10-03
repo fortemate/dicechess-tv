@@ -40,6 +40,21 @@ test('jumping between destinations as well makes b2b4 four presses', () => {
   assert.equal(cost(both, 'b2b3'), 3);
 });
 
+test('with the board, a picked-up pawn lands on its two-square push', () => {
+  const tv = strategy({
+    pieces: 'jump',
+    start: 'sticky',
+    destinations: 'jump',
+  });
+  const board = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
+  const withBoard = (move: string) =>
+    actionCost(tv, 'b2', LEGAL, move, false, board).presses;
+  // OK on b2, then OK on b4 where the cursor lands.
+  assert.equal(withBoard('b2b4'), 2);
+  // The single step is now the one that takes an arrow.
+  assert.equal(withBoard('b2b3'), 3);
+});
+
 test('staying put jumps from wherever the cursor was left', () => {
   // e2 holds a movable pawn: two jumps left, through d2, reach b2.
   assert.equal(cost(strategy({ pieces: 'jump' })), 6);

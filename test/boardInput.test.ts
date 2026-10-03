@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   boardInput,
+  landing,
   movableSquares,
   movesFrom,
   waitingFocus,
@@ -146,6 +147,44 @@ test('on the board turned for Black, the arrows follow the screen', () => {
     boardInput(at('b8'), 'select', black, true).focus,
     at('c6', 'b8'),
   );
+});
+
+const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
+
+test('a pawn that can advance two squares lands on the two-square push', () => {
+  const pawns = ['d2d3', 'd2d4', 'e2e3', 'e2e4'];
+  // With the board, e2 is known to hold a pawn on its starting rank.
+  assert.deepEqual(
+    boardInput(at('e2'), 'select', pawns, false, START).focus,
+    at('e4', 'e2'),
+  );
+  // Without it, the landing is the central destination, the nearer e3.
+  assert.deepEqual(boardInput(at('e2'), 'select', pawns).focus, at('e3', 'e2'));
+  // One press back reaches the single step.
+  const back = boardInput(at('e4', 'e2'), 'down', pawns, false, START);
+  assert.equal(back.focus.cursor, 'e3');
+});
+
+test("Black's pawn lands on its two-square push on the turned board", () => {
+  const pawns = ['e7e6', 'e7e5'];
+  const board = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR';
+  assert.deepEqual(
+    boardInput(at('e7'), 'select', pawns, true, board).focus,
+    at('e5', 'e7'),
+  );
+});
+
+test('the two-square landing applies only to a pawn whose push is legal', () => {
+  const layout = { flipped: false };
+  // A pawn whose two-square push is not legal lands as before.
+  assert.equal(landing(['e2e3', 'e2d3'], 'e2', layout, START), 'e3');
+  // A pawn that has left its starting rank has no two-square push.
+  const advanced = 'rnbqkbnr/pppppppp/8/8/8/4P3/PPPP1PPP/RNBQKBNR';
+  assert.equal(landing(['e3e4'], 'e3', layout, advanced), 'e4');
+  // A rook on the second rank moving two squares up is not a pawn push: the
+  // central destination of a2-a3-a4 is a3.
+  const rook = '4k3/8/8/8/8/8/R7/4K3';
+  assert.equal(landing(['a2a3', 'a2a4', 'a2a1'], 'a2', layout, rook), 'a3');
 });
 
 test('movesFrom and movableSquares report what the squares can do', () => {
