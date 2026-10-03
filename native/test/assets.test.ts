@@ -21,7 +21,10 @@ import { tmpdir } from 'node:os';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 // @ts-expect-error — a build script, deliberately plain JavaScript.
-import { main } from '../scripts/generate-assets.mjs';
+import { main, copyPortraits } from '../scripts/generate-assets.mjs';
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { PORTRAITS_VERSION } from '../src/Portrait';
 
 const NATIVE = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -77,3 +80,46 @@ test('a run leaves nothing under assets/ that it did not write', (t) => {
     'the stray folder was emptied but not removed',
   );
 });
+
+// The portraits (dicechess-assets#31) stay out of the public repository, so a
+// checkout may have none: then nothing ships and the game shows the emoji
+// faces. When scripts/vendor-portraits.mjs has put them in portraits/, they
+// ship exactly as its lock pinned them.
+test('portraits ship as the lock pinned them, and not at all without one', (t) => {
+  const root = mkdtempSync(join(tmpdir(), 'dicechess-tv-portraits-'));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const target = join(root, 'assets/portraits');
+
+  assert.deepEqual(copyPortraits(root), []);
+  assert.equal(existsSync(target), false);
+
+  const bytes = Buffer.from('a portrait');
+  const sha256 = createHash('sha256').update(bytes).digest('hex');
+  mkdirSync(join(root, 'portraits'));
+  writeFileSync(join(root, 'portraits/rolly-card-336.png'), bytes);
+  writeFileSync(
+    join(root, 'portraits/portraits.lock.json'),
+    JSON.stringify({
+      source: { version: PORTRAITS_VERSION },
+      files: { 'rolly-card-336.png': { sha256 } },
+    }),
+  );
+  assert.deepEqual(copyPortraits(root), ['rolly-card-336.png']);
+  assert.deepEqual(files(target), [`${PORTRAITS_VERSION}/rolly-card-336.png`]);
+
+  writeFileSync(join(root, 'portraits/rolly-card-336.png'), 'edited by hand');
+  assert.throws(() => copyPortraits(root), /no longer matches/);
+});
+
+// The app looks for the portraits under the version src/Portrait.tsx names, so
+// that version has to be the one vendored. Only a checkout with portraits can
+// tell; the public repository has none.
+const LOCK = join(NATIVE, 'portraits/portraits.lock.json');
+test(
+  'the app looks for the portraits of the version the lock pins',
+  { skip: !existsSync(LOCK) && 'no portraits in this checkout' },
+  () => {
+    const { source } = JSON.parse(readFileSync(LOCK, 'utf8'));
+    assert.equal(source.version, PORTRAITS_VERSION);
+  },
+);

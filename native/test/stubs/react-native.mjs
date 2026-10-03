@@ -5,6 +5,7 @@ import React from 'react';
 
 export const View = (props) => React.createElement('View', props);
 export const Text = (props) => React.createElement('Text', props);
+export const Image = (props) => React.createElement('Image', props);
 export const StyleSheet = {
   create: (styles) => styles,
 };

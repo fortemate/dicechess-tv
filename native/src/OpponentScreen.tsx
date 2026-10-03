@@ -8,18 +8,11 @@ import React from 'react';
 import { View, Text, useWindowDimensions } from 'react-native';
 import { OPPONENTS, recordAgainst } from '../../src/core/opponents';
 import type { Opponent } from '../../src/core/opponents';
-import type { BotMode, Side } from '../../src/core/game';
+import type { Side } from '../../src/core/game';
 import type { BotRecord, Ledger } from '../../src/core/ledger';
-import { FACES, type FaceId } from './faces';
+import { Portrait } from './Portrait';
 import { THEME } from './theme';
 import { safeInsets } from './layout';
-
-// Each opponent's face, from RhosGFX's Vector Emojis (CC0).
-export const FACE_OF: Readonly<Record<BotMode, FaceId>> = {
-  random: 'zany-face',
-  greedy: 'money-mouth-face',
-  aggressive: 'smiling-face-with-horns',
-};
 
 const LEVELS = ['Easy', 'Medium', 'Hard'] as const;
 const GAP = 24;
@@ -76,7 +69,6 @@ const Card = ({
   pressed: boolean;
   ledger?: Ledger;
 }) => {
-  const Face = FACES[FACE_OF[opponent.mode]];
   const fill = pressed ? THEME.pressedFill : THEME.focusFill;
   return (
     <View
@@ -93,7 +85,7 @@ const Card = ({
         transform: [{ scale: focused && pressed ? 0.97 : 1 }],
       }}
     >
-      <Face size={112} />
+      <Portrait mode={opponent.mode} kind="card" size={112} />
       <Text style={{ color: '#f0f4f8', fontSize: 32, marginTop: 10 }}>
         {opponent.name}
       </Text>

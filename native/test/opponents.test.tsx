@@ -4,7 +4,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
-import { OpponentScreen, FACE_OF, recordLines } from '../src/OpponentScreen';
+import { OpponentScreen, recordLines } from '../src/OpponentScreen';
+import { FACE_OF, portraitPath } from '../src/Portrait';
 import { FACES } from '../src/faces';
 import { THEME } from '../src/theme';
 import { OPPONENTS } from '../../src/core/opponents';
@@ -71,14 +72,26 @@ test('the level shows as filled rings as well as in words', () => {
   }
 });
 
-test('each card draws its opponent’s face', () => {
+test('each card draws its opponent’s portrait, or the emoji face when the build has none (dicechess-assets#31)', () => {
   assert.deepEqual(
     OPPONENTS.map((opponent) => FACE_OF[opponent.mode]),
     ['zany-face', 'money-mouth-face', 'smiling-face-with-horns'],
   );
   for (const [i, card] of cards(mount()).entries()) {
-    const Face = FACES[FACE_OF[OPPONENTS[i].mode]];
-    assert.equal(card.findAllByType(Face).length, 1);
+    const { mode } = OPPONENTS[i];
+    const Face = FACES[FACE_OF[mode]];
+    const [portrait] = card.findAll((node) => isHost(node, 'Image'));
+    assert.equal(portrait.props.source.uri, portraitPath(mode, 'card'));
+    assert.deepEqual(portrait.props.style, { width: 112, height: 112 });
+    assert.equal(
+      card.findAllByType(Face).length,
+      0,
+      'the portrait, not the face',
+    );
+    // A checkout without the portraits ships none: the file fails to load.
+    act(() => portrait.props.onError());
+    assert.equal(card.findAll((node) => isHost(node, 'Image')).length, 0);
+    assert.equal(card.findAllByType(Face).length, 1, 'the face instead');
   }
 });
 

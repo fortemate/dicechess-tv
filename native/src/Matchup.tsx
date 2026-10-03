@@ -15,8 +15,7 @@ import {
   type Side,
 } from '../../src/core/game';
 import { opponentOf, type Opponent } from '../../src/core/opponents';
-import { FACES } from './faces';
-import { FACE_OF } from './OpponentScreen';
+import { Portrait } from './Portrait';
 import { PIECES } from './pieces';
 import { THEME } from './theme';
 
@@ -154,10 +153,8 @@ const Meta = ({
 };
 
 const Avatar = ({ seat, side }: { seat: Seat; side: Side }) => {
-  if (seat.kind === 'bot') {
-    const Face = FACES[FACE_OF[seat.opponent.mode]];
-    return <Face size={38} />;
-  }
+  if (seat.kind === 'bot')
+    return <Portrait mode={seat.opponent.mode} kind="badge" size={38} />;
   const King = PIECES[side === 'w' ? 'K' : 'k'];
   return <King size={32} />;
 };

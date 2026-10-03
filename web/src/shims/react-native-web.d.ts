@@ -13,6 +13,7 @@ declare module 'react-native-web' {
 
   export const View: ComponentType<Props>;
   export const Text: ComponentType<Props>;
+  export const Image: ComponentType<Props>;
 
   class AnimatedValue {
     constructor(value: number);
