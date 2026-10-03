@@ -30,7 +30,7 @@ Moving square-by-square across an 8x8 chessboard is frustrating on a remote. Dic
 
 The primary action button handles roll initiation, piece selection, and move execution:
 
-- **Roll the dice:** When a turn begins, pressing OK rolls the three dice, tumbling them onto the tray in 260 ms. The board shows no cursor until then: the cyan frame appears after the roll, on a piece the dice let you move.
+- **Roll the dice:** When a turn begins, pressing OK rolls the three dice, tumbling them onto the tray in 260 ms. The board shows no cursor until then: the cyan frame appears after the roll, on a piece the dice let you move. This was seen on the Vega Virtual Device in a game against Rolly, and `native/test/input.test.tsx` checks it in Hot Seat and against Rolly.
 - **Pick up a piece:** Pressing OK on an active piece picks it up and automatically positions the cursor on its most central destination square.
 - **Play a move:** Pressing OK on a destination square executes the action. The piece smoothly slides to its new square in 220 ms on the native driver.
 - **Single-destination shortcut:** If a piece has only one legal destination, pressing **OK then OK** immediately plays the move.
@@ -76,7 +76,7 @@ When two players share a sofa or sit opposite each other, looking at an upside-d
 
 - The board smoothly turns to the side to move at turn boundaries (fading out for 100 ms and back in for 100 ms in the new orientation).
 - Arrow navigation naturally follows the television screen (Up moves towards the top of the TV regardless of board orientation).
-- After the roll, the cursor appears on a piece of the active player that can move, on their side of the board.
+- After the roll, the cursor appears on a piece of the active player that can move, on their side of the board. Two tests check this: `native/test/screen.test.ts`, that the cursor starts on Black's side when the board turns, and `native/test/input.test.tsx`, that its frame appears only after the roll.
 - The setting is saved to device storage via MMKV and persists across application restarts.
 
 ### Reduced Motion Support
