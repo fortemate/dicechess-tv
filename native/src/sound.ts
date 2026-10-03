@@ -66,7 +66,7 @@ const PLAYERS: readonly Slot[] = [...CHANNELS, 'voice'];
 // happens.
 export const RESULT_LINE_DELAY_MS = 1200;
 // The events said after the jingle. The host's White or Black win may be one
-// of his lines that name no colour, whose event is 'win': it waits too.
+// of her lines that name no colour, whose event is 'win': it waits too.
 const AFTER_JINGLE: ReadonlySet<string> = new Set([
   'win',
   'loss',

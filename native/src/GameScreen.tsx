@@ -675,11 +675,11 @@ export const GameScreen = ({
     holdMs: bubbleHoldMs,
     live: live || overlay.kind === 'result',
   });
-  // The Hot Seat host, for now a voice over the game: his lines are said, not
-  // shown, so Hot Seat looks as it did before him (#202). The bot's hook speaks
+  // The Hot Seat host, for now a voice over the game: her lines are said, not
+  // shown, so Hot Seat looks as it did before her (#202). The bot's hook speaks
   // only against the bot and this one only in hotseat, so at most one of them
-  // has a line. A line of his holds as long as a bot's bubble would, until it
-  // has been said, and the next one waits for it. Turned off mid-line, he
+  // has a line. A line of hers holds as long as a bot's bubble would, until it
+  // has been said, and the next one waits for it. Turned off mid-line, she
   // stops talking.
   useHostVoice(game, {
     live,

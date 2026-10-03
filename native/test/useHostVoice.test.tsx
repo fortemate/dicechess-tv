@@ -1,9 +1,9 @@
-// The Hot Seat host in the game screen (#202): he picks lines only while the
+// The Hot Seat host in the game screen (#202): she picks lines only while the
 // board is on screen and a host is chosen, a line waits for the one being said
-// as long as the game waits too, and his last word holds with the result. The
-// hook returns nothing, as the screen shows nothing of his yet: what he says,
-// and when, is read from `onVoiceLine`, and whether a line of his still holds
-// from `onStop` when he is turned off.
+// as long as the game waits too, and her last word holds with the result. The
+// hook returns nothing, as the screen shows nothing of hers yet: what she says,
+// and when, is read from `onVoiceLine`, and whether a line of hers still holds
+// from `onStop` when she is turned off.
 import { test, mock, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
@@ -90,14 +90,14 @@ test('an unstarted game behind the home screen says nothing', () => {
   host.unmount();
 });
 
-test('turned off mid-line, his voice stops', () => {
+test('turned off mid-line, her voice stops', () => {
   const host = harness();
   const game = newGame('hotseat', 'stop');
   host.show(game);
   assert.deepEqual(host.said(), ['intro']);
   host.show(game, { on: false });
   assert.equal(host.stopped(), 1);
-  // With no line of his being said, there is nothing to stop.
+  // With no line of hers being said, there is nothing to stop.
   const rolled = rollGame(game, [2, 2, 2]);
   host.show(rolled, { on: false });
   host.show(rolled);
@@ -117,7 +117,7 @@ test("a new game against the bot leaves the bot's line alone", () => {
   host.unmount();
 });
 
-test('off, he says nothing; turned on mid-game, he greets no one', () => {
+test('off, she says nothing; turned on mid-game, she greets no one', () => {
   const host = harness();
   const game = newGame('hotseat', 'switch');
   host.show(game, { on: false });
@@ -131,7 +131,7 @@ test('off, he says nothing; turned on mid-game, he greets no one', () => {
   assert.equal(ended.phase, 'handoff');
   host.show(ended);
   assert.deepEqual(host.said(), ['handoff']);
-  // Turned off, his line ends at once.
+  // Turned off, her line ends at once.
   host.show(ended, { on: false });
   assert.equal(host.stopped(), 1);
   host.unmount();
@@ -150,7 +150,7 @@ test('a line waits for the one being said', () => {
   assert.deepEqual(host.said(), ['intro']);
   tick(1);
   assert.deepEqual(host.said(), ['intro', 'handoff']);
-  // Once the pass has been said, he is saying nothing: turned off, nothing
+  // Once the pass has been said, she is saying nothing: turned off, nothing
   // is stopped.
   tick(HOLD);
   host.show(empty, { on: false });
@@ -205,7 +205,7 @@ test('a waiting rook is dropped when the next turn begins', () => {
   // The end of White's turn 5 teaches the pass, which stays a minute.
   host.show(rollGame(resumed, EMPTY), { holdMs: () => 60_000 });
   assert.deepEqual(host.said(), ['handoff']);
-  // Two turns later White's rook takes a rook while he is still talking.
+  // Two turns later White's rook takes a rook while she is still talking.
   const rook = {
     ...rollGame(
       newGame('hotseat', 'drop', '4k3/8/8/r7/8/8/8/R3K3 w - - 0 1'),
@@ -238,19 +238,19 @@ test('a line that waits while a menu is up is said when the board returns', () =
   host.unmount();
 });
 
-test('a line he has begun is left to finish behind a menu or the home screen', () => {
+test('a line she has begun is left to finish behind a menu or the home screen', () => {
   const host = harness();
   const game = newGame('hotseat', 'covered');
   host.show(game);
   assert.deepEqual(host.said(), ['intro']);
-  // The game menu opens while he greets the players: his line is left to
+  // The game menu opens while she greets the players: her line is left to
   // finish.
   host.show(game, { live: false });
   assert.equal(host.stopped(), 0, 'a menu alone leaves the line alone');
   host.show(game);
   tick(HOLD);
   // White rolls and resigns. OK on the finished board goes to the home
-  // screen, which leaves his last word alone too: it may still be waiting
+  // screen, which leaves her last word alone too: it may still be waiting
   // for its jingle.
   const rolled = rollGame(game, [2, 2, 2]);
   host.show(rolled);
@@ -259,7 +259,7 @@ test('a line he has begun is left to finish behind a menu or the home screen', (
   const [, last] = host.said();
   assert.ok(['black_wins', 'win'].includes(last), last);
   host.show(resigned, { live: false });
-  assert.equal(host.stopped(), 0, 'the home screen leaves his last word alone');
+  assert.equal(host.stopped(), 0, 'the home screen leaves her last word alone');
   assert.deepEqual(host.said(), ['intro', last]);
   host.unmount();
 });
@@ -285,7 +285,7 @@ test('a waiting rook is said once the line before it ends, if the game waits too
   host.unmount();
 });
 
-test('his last word holds until a new game replaces it', () => {
+test('her last word holds until a new game replaces it', () => {
   const host = harness();
   const game = newGame('hotseat', 'result');
   host.show(game);
@@ -296,7 +296,7 @@ test('his last word holds until a new game replaces it', () => {
   host.show(resigned);
   const [, last] = host.said();
   assert.ok(['black_wins', 'win'].includes(last), last);
-  // A minute on he is still saying it: turned off, it is stopped.
+  // A minute on she is still saying it: turned off, it is stopped.
   tick(60_000);
   host.show(resigned, { on: false });
   assert.equal(host.stopped(), 1);
@@ -305,14 +305,14 @@ test('his last word holds until a new game replaces it', () => {
   host.unmount();
 });
 
-test('a game against the bot is not his', () => {
+test('a game against the bot is not hers', () => {
   const host = harness();
   host.show(newGame('random', 'bot'));
   assert.deepEqual(host.said(), []);
   host.unmount();
 });
 
-test('unmounting cancels his timer', () => {
+test('unmounting cancels her timer', () => {
   const host = harness();
   host.show(newGame('hotseat', 'unmount'), { holdMs: undefined });
   assert.deepEqual(host.said(), ['intro']);

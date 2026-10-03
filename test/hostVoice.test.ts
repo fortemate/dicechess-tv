@@ -1,4 +1,4 @@
-// The Hot Seat host (#202): what he speaks about at the pauses of a game, and
+// The Hot Seat host (#202): what she speaks about at the pauses of a game, and
 // how often, by the host pacing of voices/events.json. Every step is played on
 // the engine, so the events are the ones a real game gives.
 import { test } from 'node:test';
@@ -104,7 +104,7 @@ const BLACK_TAKES_KING = (turn = 1, id = 'host') =>
   );
 
 // The host in the middle of a game: the pass already taught, and `since` turns
-// after his last line at `turn`.
+// after her last line at `turn`.
 const midGame = (
   turn: number,
   since: number,
@@ -226,7 +226,7 @@ test('the same game again, or the same id started again, starts nothing new', ()
 
 // ── Steps that are not pauses ─────────────────────────────────────────────────
 
-test('he says nothing while a turn is being played, nor as the next begins', () => {
+test('she says nothing while a turn is being played, nor as the next begins', () => {
   const state = midGame(9, 8);
   const start = { ...newGame('hotseat', 'quiet'), turn: 9, revision: 3 };
   const roll = rollGame(start, [2, 2, 2]);
@@ -263,7 +263,7 @@ test('a capture early in the turn is said at its end', () => {
   assert.equal(cueOf([before, after], midGame(5, 6)).event, 'capture');
 });
 
-// ── What a turn's end gives him to say ────────────────────────────────────────
+// ── What a turn's end gives her to say ────────────────────────────────────────
 
 test('each moment of a turn is named at its end', () => {
   const state = midGame(1, 0);

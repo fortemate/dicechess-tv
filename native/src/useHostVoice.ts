@@ -4,19 +4,19 @@
 // waits belongs to the pause it was picked at: once the game takes another
 // step it is put back unheard, whatever its tier. events.json lets a bot's
 // always-tier line outlast the next step; the host never speaks while someone
-// is thinking, so his does not.
+// is thinking, so hers does not.
 //
-// For now he is a voice over the game, heard and not seen: the game screen
-// shows no face or bubble of his until it is redesigned around the new
+// For now she is a voice over the game, heard and not seen: the game screen
+// shows no face or bubble of hers until it is redesigned around the new
 // character portraits. So the hook returns nothing and renders nothing: what
-// he says goes to `onVoiceLine`, and the timing runs on refs alone.
+// she says goes to `onVoiceLine`, and the timing runs on refs alone.
 //
 // The host's state lasts the session: the game screen stays mounted from launch
-// to exit, so his shuffled bags and whether he has taught the pass carry from
-// one game to the next. He picks nothing while the board is not on screen
+// to exit, so her shuffled bags and whether she has taught the pass carry from
+// one game to the next. She picks nothing while the board is not on screen
 // (`live`): an unstarted game behind the home screen says nothing, and a line
 // that waits is said when the board returns. Off (`on`), Hot Seat is as it was
-// before him: he says nothing, and a line he is saying stops.
+// before her: she says nothing, and a line she is saying stops.
 import React from 'react';
 import type { Game } from '../../src/core/game';
 import {
@@ -40,8 +40,8 @@ export type UseHostVoiceOptions = {
   // been said. The next line waits for it.
   holdMs?: (line: HostLine) => number;
   onVoiceLine?: (line: HostLine) => void;
-  // Told when the host is turned off while a line of his holds, so the line
-  // he is saying stops.
+  // Told when the host is turned off while a line of hers holds, so the line
+  // she is saying stops.
   onStop?: () => void;
   timeoutMs?: number;
   // Injected so a test knows which line is picked.
@@ -137,7 +137,7 @@ export function useHostVoice(game: Game, options: UseHostVoiceOptions): void {
       restorePending(state, pending);
       if (!speaking.current) return;
       clear();
-      // Turned off mid-line, he stops talking. A new game against the bot has
+      // Turned off mid-line, she stops talking. A new game against the bot has
       // a line of its own, which this leaves alone.
       if (turnedOff) optionsRef.current.onStop?.();
     },
@@ -160,7 +160,7 @@ export function useHostVoice(game: Game, options: UseHostVoiceOptions): void {
     }
     // Behind the home screen or a menu: nothing is picked or recorded, and a
     // line that waits goes on waiting. A line being said is left to finish, as
-    // a bot's is: OK on a finished game goes to the home screen, and his last
+    // a bot's is: OK on a finished game goes to the home screen, and her last
     // word may still be waiting for its jingle.
     if (!live) return;
 
@@ -173,7 +173,7 @@ export function useHostVoice(game: Game, options: UseHostVoiceOptions): void {
       return;
     }
 
-    // The game he saw last, unless this one is new to him.
+    // The game she saw last, unless this one is new to her.
     const before = startsHosting(prev, game) ? null : prev;
     if (!before) {
       // A new game replaces whatever was said or waiting.

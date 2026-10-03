@@ -147,7 +147,7 @@ export const App = ({
   const settings = React.useMemo(() => new MMKV(), []);
   const [initialSound] = React.useState(() => readSound(settings));
   const [initialVoices] = React.useState(() => readVoices(settings));
-  // Who hosts Hot Seat games, Rolly or no one (#202). His voice obeys the
+  // Who hosts Hot Seat games, Rolly or no one (#202). Her voice obeys the
   // Voices setting like the bots'.
   const [initialHost] = React.useState(() => readHost(settings));
   // The adaptive music (#76), made before the sounds so that a bot's line can
