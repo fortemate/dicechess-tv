@@ -2,7 +2,7 @@
 
 Agreed with the owner on 21 September 2026. This is planned work, not a completion claim.
 
-Minimum success is **M1 + M2 + M3**: a reliable, polished, understandable offline TV game and a reviewable contest submission. Multiple themes and advanced bots are stretch goals. The existing full-game prototype is the starting point; see [verified behavior](full-game.md).
+Minimum success is **M1 + M2 + M3**: a reliable, polished, understandable offline TV game and a reviewable contest submission. Multiple themes and advanced bots are stretch goals. M7, more TV platforms, comes after the hackathon. The existing full-game prototype is the starting point; see [verified behavior](full-game.md).
 
 [GitHub milestones](https://github.com/fortemate/dicechess-tv/milestones) track these delivery gates. Dates are internal targets in Europe/Riga, not promises. Do not close a milestone solely because its date has arrived.
 
@@ -41,6 +41,19 @@ Stretch goal. Target two piece sets, three board themes and two sound sets with 
 Target: unscheduled.
 
 Optional; no committed deadline. Consider Hunter, advanced castling/promotion/tactics lessons or additional restrained animations only when M1–M5 are complete and verification time remains before feature freeze. Hunter requires local inference, acceptable device resource use and cleared model/distribution rights; availability is not assumed. No purchases, coins, stake doubling, accounts, online play or cloud bots in the hackathon scope. Done is feature-specific and must be defined before starting; do not delay submission for this milestone.
+
+## M7 – Multi-platform TV
+
+Target: after the hackathon, unscheduled.
+
+Not part of the hackathon scope, and it never takes time from M1–M5. Ship Dice Chess TV beyond Vega from one codebase:
+
+- **Fire OS first.** Most Fire TV devices run it, and it shares the Amazon Appstore.
+- **Android TV and Google TV next, then Apple TV.** They come from a shared workspace with Expo TV, the approach Amazon describes for Vega apps.
+- **Samsung (Tizen) and LG (webOS) later**, through the web build.
+- **Not Roku**, which runs no JavaScript.
+
+The plan and the measured starting point are in [#223](https://github.com/fortemate/dicechess-tv/issues/223). Done is defined per platform before work on it starts: a store-ready build that passes the same checks as the Vega one, tested on a real device.
 
 ## Delivery order and cutoff
 
