@@ -36,7 +36,7 @@ Each lesson is a position, a roll and a goal, and the tests check each one again
 The rule that surprises new players most is that a roll can leave nothing to play. It is common:
 
 - about one roll in twelve;
-- nearly a third of first rolls, because at the start only pawns and knights can move (measured over 300 simulated games, [#85](https://github.com/fortemate/dicechess-tv/issues/85)).
+- nearly a third of first rolls, because at the start only pawns and knights can move (measured over 300 simulated games).
 
 So the app teaches the rule where it happens. The headline reads "No legal moves", the dice dim, and a line under them gives the rules guide's reason: "No die can be used — the turn passes". When it is the computer's roll, the headline names it instead: "Rampage can't move". The notice stays until OK, whoever rolled: on your own roll OK passes the turn, and on the computer's it passes the turn and throws your dice, so reading it costs no extra press. OK is ignored for the first 0.7 seconds, so that a double press on the remote cannot skip the notice.
 
@@ -44,6 +44,5 @@ These behaviours are covered by the app's tests and were played on the Vega Virt
 
 ## Sources
 
-- [`src/core/tutorial.ts`](https://github.com/fortemate/dicechess-tv/blob/main/src/core/tutorial.ts) and [`src/core/rules.ts`](https://github.com/fortemate/dicechess-tv/blob/main/src/core/rules.ts): the lessons and the guide, as data the tests check.
-- [`native/README.md`, "The rules guide"](https://github.com/fortemate/dicechess-tv/blob/main/native/README.md#the-rules-guide): the guide's shape and the corrected claim.
-- [#85](https://github.com/fortemate/dicechess-tv/issues/85): the empty-roll notice and its measurements.
+- `src/core/tutorial.ts` and `src/core/rules.ts`: the lessons and the guide, as data the tests check.
+- `native/README.md`, "The rules guide": the guide's shape and the corrected claim.

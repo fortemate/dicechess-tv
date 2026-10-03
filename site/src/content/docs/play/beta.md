@@ -23,7 +23,7 @@ If the game does not appear, open **Settings → My Account → Sync Amazon Cont
 
 ## In developer mode or on the Virtual Device
 
-Each [pre-release on GitHub](https://github.com/fortemate/dicechess-tv/releases) carries three packages: one for a Fire TV Stick in developer mode, and two for the Vega Virtual Device, on a Mac with Apple silicon and on Linux or an Intel Mac. Installing them needs the `vega` command line from Amazon's Vega SDK. The [playtest guide](https://github.com/fortemate/dicechess-tv/blob/main/docs/playtest.md) has the steps.
+Each pre-release has three packages: one for a Fire TV Stick in developer mode, and two for the Vega Virtual Device, on a Mac with Apple silicon and on Linux or an Intel Mac. Installing them needs the `vega` command line from Amazon's Vega SDK. Write to [hello@fortemate.com](mailto:hello@fortemate.com) for them and for the steps.
 
 ## What to try
 
@@ -35,8 +35,7 @@ Each [pre-release on GitHub](https://github.com/fortemate/dicechess-tv/releases)
 
 ## Tell us what you found
 
-- **Without an account:** the [anonymous form](/dicechess-tv/feedback/).
-- **With a GitHub account:** [Discussions](https://github.com/fortemate/dicechess-tv/discussions). Tell us what happened in a game under **General**, share an idea under **Ideas**, and ask for help with installing under **Q&A**.
+Use the [anonymous form](/feedback/), or write to [hello@fortemate.com](mailto:hello@fortemate.com).
 
 Say which build you played, and whether on a Fire TV Stick or on the Virtual Device. What confused you is as useful as what broke.
 

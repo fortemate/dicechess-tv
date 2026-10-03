@@ -26,7 +26,7 @@ The roll, a move and a capture each have two or three takes, one picked at rando
 
 The dice, promotion and result cues come from [Kenney](https://kenney.nl)'s CC0 sound packs. The move and capture sounds are [JDSherbert](https://jdsherbert.itch.io)'s, shown with credit on the About screen as the licence asks. Every cue was chosen by listening to the candidates. The result cues are one family of pizzicato stings, so that a win, a loss and a draw sound related but different.
 
-The cue for a roll with nothing to play was added last ([#85](https://github.com/fortemate/dicechess-tv/issues/85)). It had to sound like bad luck rather than an error, and unlike the loss. It plays half a second after the roll, so that it follows the dice landing instead of covering them.
+The cue for a roll with nothing to play was added last. It had to sound like bad luck rather than an error, and unlike the loss. It plays half a second after the roll, so that it follows the dice landing instead of covering them.
 
 ## Heard together, cut short where it matters
 
@@ -39,7 +39,7 @@ The app plays on three players: board, dice and result. A capture and the win it
 
 ## Music that follows the danger
 
-The game has adaptive music ([#76](https://github.com/fortemate/dicechess-tv/issues/76)). The menus have their own theme. Over a game the theme follows the danger to a king, and changes at the start of each turn:
+The game has adaptive music. The menus have their own theme. Over a game the theme follows the danger to a king, and changes at the start of each turn:
 
 - **Calm** while neither king can be taken soon.
 - **Tense** when at least a tenth of the rolls would let the side about to roll take the king within its turn.
@@ -53,7 +53,7 @@ The four themes are by pepka-prygni, made with Suno and used with his permission
 
 ## The bots speak
 
-Against the computer, each bot says its lines aloud as well as in its speech bubble ([#159](https://github.com/fortemate/dicechess-tv/issues/159)). The bubble stands beside the bot's portrait at the top of the panel, in a block that keeps one height whether the bot speaks or not, so nothing else on the screen moves when a line starts or ends ([#213](https://github.com/fortemate/dicechess-tv/issues/213)). The block has no frame, the bubble being the only box in it, and the bot is never dimmed: it moves in a moment, so a dimmed bot would stay dark for nearly the whole game. The person's badge alone marks their turn. The voices are synthetic, made ahead of time with ElevenLabs, so nothing is generated during play and the game stays offline ([#187](https://github.com/fortemate/dicechess-tv/issues/187)). Each bot is a fairy-tale character: Rolly a pixie, Grabby a goblin, Rampage a little horned imp. Each has a voice designed for it, and every line has a direction of its own: a giggle, a whisper, a roar. The recordings are Fortemate's, for its Dice Chess apps only, and are not under this repository's open licence.
+Against the computer, each bot says its lines aloud as well as in its speech bubble. The bubble stands beside the bot's portrait at the top of the panel, in a block that keeps one height whether the bot speaks or not, so nothing else on the screen moves when a line starts or ends. The block has no frame, the bubble being the only box in it, and the bot is never dimmed: it moves in a moment, so a dimmed bot would stay dark for nearly the whole game. The person's badge alone marks their turn. The voices are synthetic, made ahead of time with ElevenLabs, so nothing is generated during play and the game stays offline. Each bot is a fairy-tale character: Rolly a pixie, Grabby a goblin, Rampage a little horned imp. Each has a voice designed for it, and every line has a direction of its own: a giggle, a whisper, a roar. The recordings are Fortemate's, for its Dice Chess apps only, and are not under this repository's open licence.
 
 - **A player of its own.** A line neither cuts nor is cut by the board, dice and result cues, and a new line replaces the one being said.
 - **Over the music.** The music ducks by 9 dB while a line is said, and comes back after it. A win or a loss is said after its jingle.
@@ -64,9 +64,9 @@ On the Virtual Device the voice was measured at about 14 dB above the music, wit
 
 ## The Hot Seat host
 
-In Hot Seat, two people sharing one remote, Rolly is the host ([#202](https://github.com/fortemate/dicechess-tv/issues/202)): a neutral party host who cheers the moment, never a side. She has 45 lines of her own, in Rolly's voice.
+In Hot Seat, two people sharing one remote, Rolly is the host: a neutral party host who cheers the moment, never a side. She has 45 lines of her own, in Rolly's voice.
 
-She is seen while she speaks ([#213](https://github.com/fortemate/dicechess-tv/issues/213)). Her portrait and her line show in the free space above the bottom badge for as long as the line holds, and leave when it ends. They are placed over that space, so nothing else on the screen moves, and her last word stays with the result. A build without the portraits shows Rolly's emoji face in their place.
+She is seen while she speaks. Her portrait and her line show in the free space above the bottom badge for as long as the line holds, and leave when it ends. They are placed over that space, so nothing else on the screen moves, and her last word stays with the result. A build without the portraits shows Rolly's emoji face in their place.
 
 - **Only at the pauses.** She speaks as a game starts, when a turn ends and the prompt says "OK: continue", and when the game ends. That is at most one line a turn, and never while someone is thinking.
 - **A turn as a whole.** At a turn's end she picks the biggest moment of the whole turn: a queen taken, a rook, an en passant capture, a promotion, a roll with nothing to play, or a smaller capture. The first time the remote changes hands in a session, she says to pass it. At the end she cheers the winner and the other player too, or both of them for a draw.
@@ -88,6 +88,5 @@ The cues have been heard from the Vega Virtual Device through a computer's speak
 
 ## Sources
 
-- [`native/README.md`, "Sound"](https://github.com/fortemate/dicechess-tv/blob/main/native/README.md#sound): the route that plays on Vega, and what the probes found.
-- [`src/core/cues.ts`](https://github.com/fortemate/dicechess-tv/blob/main/src/core/cues.ts): which cue each step of the game plays, checked against the engine in its tests.
-- [#85](https://github.com/fortemate/dicechess-tv/issues/85): the empty-roll cue.
+- `native/README.md`, "Sound": the route that plays on Vega, and what the probes found.
+- `src/core/cues.ts`: which cue each step of the game plays, checked against the engine in its tests.

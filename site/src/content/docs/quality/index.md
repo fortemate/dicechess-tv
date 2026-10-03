@@ -83,4 +83,4 @@ End-to-end device testing is automated through [`vega-vvd-driver`](https://githu
 
 - **Scripted Headless Execution:** The driver launches the Vega Virtual Device in `--no-gui` mode, activates gRPC, installs package builds, and drives full game sessions via evdev key codes.
 - **Screenshot Diffing & Safe Area Checks:** Captures 1080p framebuffers and validates that no text or UI elements encroach on the outer 5% television overscan boundary (`vvd safe-area`).
-- **Physical Hardware Track:** Live App Testing (LAT) on Amazon Developer Console is configured for 32-bit `armv7` Fire TV Sticks (AFTCA002 and AFTCL001), preparing for final submission verification ([#10](https://github.com/fortemate/dicechess-tv/issues/10)).
+- **Physical Hardware Track:** Live App Testing (LAT) on Amazon Developer Console is configured for 32-bit `armv7` Fire TV Sticks (AFTCA002 and AFTCL001), preparing for final submission verification.

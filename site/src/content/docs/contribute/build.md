@@ -143,7 +143,7 @@ softwareupdate --install-rosetta --agree-to-license
 
 ### Missing Audio Output
 
-If no sound is heard on the virtual device, verify that the required audio services are declared in `native/manifest.toml`. Undeclared audio service connections fail silently with log warnings. See [Building on Vega](/dicechess-tv/technology/vega/#audio-subsystem--manifest-permissions).
+If no sound is heard on the virtual device, verify that the required audio services are declared in `native/manifest.toml`. Undeclared audio service connections fail silently with log warnings. See [Building on Vega](/technology/vega/#audio-subsystem--manifest-permissions).
 
 ### `buildinfo.json`
 

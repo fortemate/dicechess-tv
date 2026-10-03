@@ -43,7 +43,7 @@ To ensure the remote never feels laggy, bot decisions were measured across multi
 
 Bot turns are paced with a 600 ms delay between individual actions (`BOT_STEP_MS`), allowing the human player to follow each move from the sofa. Even Rampage's worst-case decision time (339 ms on a complex first-turn branching tree) completes well within the 600 ms step window, requiring no background worker threads for these heuristics.
 
-If deeper minimax or neural network engines are introduced in the future, candidate off-thread architectures include `@amazon-devices/react-native-worklets` ([#115](https://github.com/fortemate/dicechess-tv/issues/115)).
+If deeper minimax or neural network engines are introduced in the future, candidate off-thread architectures include `@amazon-devices/react-native-worklets`.
 
 ## Danger Evaluation & Threat Analysis
 
@@ -68,9 +68,9 @@ All visual animations run entirely on the native UI thread via React Native's na
 
 The application checks `AccessibilityInfo.isReduceMotionEnabled` via `useReducedMotion.ts`. When reduced motion is requested by the system or user, sliding animations and tumbling dice are instantly disabled, drawing pieces directly at their destinations.
 
-## Physical Device Verification Roadmap (#10)
+## Physical Device Verification Roadmap
 
-All measurements above reflect performance on the Vega Virtual Device. Physical testing on a Fire TV Stick (32-bit `armv7` architecture, models AFTCA002 and AFTCL001) is tracked under issue [#10](https://github.com/fortemate/dicechess-tv/issues/10):
+All measurements above reflect performance on the Vega Virtual Device. Physical testing on a Fire TV Stick (32-bit `armv7` architecture, models AFTCA002 and AFTCL001) is still to come:
 
 - Verifying warm-start resume latency when returning from the Fire TV home launcher.
 - Measuring CPU thermals and sustained 60 fps rendering during extended play sessions.

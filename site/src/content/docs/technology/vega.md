@@ -28,7 +28,7 @@ OK does not arrive under a single identifier. Depending on where the key origina
 
 Dice Chess TV maps all three names into the single `ok` action in `useRemoteInput.ts`.
 
-_Verification:_ `enter` and `kpenter` were verified on the Vega Virtual Device using scripted evdev key injection and on-screen remote clicks. `select` is covered by automated unit tests and awaits confirmation on physical Fire TV Stick hardware ([#10](https://github.com/fortemate/dicechess-tv/issues/10)).
+_Verification:_ `enter` and `kpenter` were verified on the Vega Virtual Device using scripted evdev key injection and on-screen remote clicks. `select` is covered by automated unit tests and awaits confirmation on physical Fire TV Stick hardware.
 
 ### Handling the Back Button
 

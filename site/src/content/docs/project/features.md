@@ -11,11 +11,11 @@ Every screenshot here comes from the Vega Virtual Device, captured with scripted
 
 Two players share the remote and take turns. OK rolls three dice; the pieces the dice let you move are marked green, and a die that no legal turn can use dims at once. The arrows jump between those pieces. OK picks one up and lands on one of its destinations, the arrows jump between those, and OK plays the move. Back puts a piece down again.
 
-For living-room sofa play where players prefer to view the board from their own side, a switch in **Settings** allows turning the board so the mover's pieces sit at the bottom. When enabled, the board fades out and back in over 200 ms as the turn passes to Black or back to White, while D-pad arrow directions remain locked to the physical television screen ([#120](https://github.com/fortemate/dicechess-tv/issues/120)).
+For living-room sofa play where players prefer to view the board from their own side, a switch in **Settings** allows turning the board so the mover's pieces sit at the bottom. When enabled, the board fades out and back in over 200 ms as the turn passes to Black or back to White, while D-pad arrow directions remain locked to the physical television screen.
 
 ![A hotseat game: Black's knight is picked up, its destinations are dotted, a capture is ringed, and three dice sit beside the board](../../../assets/screenshots/hotseat.png)
 
-Rolly, the friendliest of the computer opponents, hosts Hot Seat games ([#202](https://github.com/fortemate/dicechess-tv/issues/202)). She greets you both as a game starts, cheers the big moments when a turn ends, and at the end cheers the winner and the other player too. She never takes a side and speaks only at those pauses, never while someone is thinking. While she speaks, her face and her line show above the bottom badge, and nothing else on the screen moves ([#213](https://github.com/fortemate/dicechess-tv/issues/213)). **Hot Seat host** in Settings chooses Rolly or off. The tests cover her, and the virtual device has shown her and played her lines.
+Rolly, the friendliest of the computer opponents, hosts Hot Seat games. She greets you both as a game starts, cheers the big moments when a turn ends, and at the end cheers the winner and the other player too. She never takes a side and speaks only at those pauses, never while someone is thinking. While she speaks, her face and her line show above the bottom badge, and nothing else on the screen moves. **Hot Seat host** in Settings chooses Rolly or off. The tests cover her, and the virtual device has shown her and played her lines.
 
 ## Three opponents, as either colour
 
@@ -78,7 +78,7 @@ Short cues mark each step:
 
 Each was chosen by ear, and they have been heard from the virtual device through a computer's speakers, not yet from a television. Every cue also has something to see on the screen, and the Settings screen, opened from both menus, turns them all off.
 
-Music follows the danger to your king: calm, tense when a roll could take it within a turn, and critical when it is attacked. The four themes are by pepka-prygni, used with his permission ([#76](https://github.com/fortemate/dicechess-tv/issues/76)). The Settings screen switches music on or off and sets its volume.
+Music follows the danger to your king: calm, tense when a roll could take it within a turn, and critical when it is attacked. The four themes are by pepka-prygni, used with his permission. The Settings screen switches music on or off and sets its volume.
 
 Sound stops when the app leaves the screen. The tests check that the players pause, and on the virtual device the app came back from the launcher as it left; that nothing plays over the launcher is still to be confirmed by ear.
 
