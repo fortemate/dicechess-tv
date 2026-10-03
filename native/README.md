@@ -132,7 +132,7 @@ The three opponents have portraits of their own, drawn for Dice Chess: Rolly, Gr
 node native/scripts/vendor-portraits.mjs ../dicechess-assets <commit>
 ```
 
-The script checks every file against the digest the asset repository published, and writes them with their notice and a lock to `native/portraits/`, which git ignores. The build ships them under `assets/portraits/<pack version>/`, and `src/Portrait.tsx` draws them in the header badge and on the opponent cards. A checkout without them, such as this public one, builds a game that shows the RhosGFX emoji faces: a portrait that does not load gives way to the face.
+The script checks every file against the digest the asset repository published, and writes them with their notice and a lock to `native/portraits/`, which git ignores. The build ships them under `assets/portraits/<pack version>/`, and `src/Portrait.tsx` draws them in the header badge and on the opponent cards. A checkout without them, such as this public one, builds a game that shows the RhosGFX emoji faces: a portrait that does not load gives way to the face. The About screen credits them the same way: with the portraits it names Recraft and shows them, and without them it credits the RhosGFX faces (#212).
 
 What the Vega Virtual Device showed on 2026-10-03:
 

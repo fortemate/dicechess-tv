@@ -8,8 +8,16 @@
 // One page, nothing to navigate. OK or Back leaves.
 import React from 'react';
 import { View, Text } from 'react-native';
-import { APP, CREDITS, ENGINE, VOICES } from '../../src/core/credits';
+import {
+  APP,
+  ENGINE,
+  PORTRAITS,
+  VOICES,
+  creditsFor,
+} from '../../src/core/credits';
 import type { BoardKey } from '../../src/core/boardInput';
+import { BOT_MODES } from '../../src/core/game';
+import { Portrait } from './Portrait';
 import { useRemoteInput } from './useRemoteInput';
 import { THEME } from './theme';
 
@@ -38,9 +46,17 @@ export const AboutScreen = ({ onExit, onState }: AboutScreenProps) => {
     if (leaving) onExit();
   }, [leaving, onExit]);
 
+  // Whether this build has the opponents' portraits, found as the game finds
+  // it: by loading them. The screen starts with them, as every build made for
+  // players has them, and credits the RhosGFX faces instead if one does not
+  // load (#212).
+  const [portraits, setPortraits] = React.useState(true);
+  const noPortraits = React.useCallback(() => setPortraits(false), []);
+  const credits = creditsFor(portraits);
+
   React.useEffect(() => {
-    onState?.(`about | credits ${CREDITS.length}`);
-  }, [onState]);
+    onState?.(`about | credits ${credits.length} | portraits ${portraits}`);
+  }, [onState, credits.length, portraits]);
 
   return (
     <View
@@ -63,22 +79,44 @@ export const AboutScreen = ({ onExit, onState }: AboutScreenProps) => {
       </Text>
       <Text style={{ color: '#f0f4f8', fontSize: 36 }}>{APP.title}</Text>
       <Text style={{ color: '#aab8c9', fontSize: 22 }}>{APP.maker}</Text>
-      {/* The engine and the voices are Fortemate's own too, so they are named
-          with the maker. */}
-      <Text style={{ color: '#aab8c9', fontSize: 20 }}>
-        {`${ENGINE.line} · ${ENGINE.licence} · ${ENGINE.source}`}
-      </Text>
-      <Text style={{ color: '#aab8c9', fontSize: 20, marginBottom: 24 }}>
-        {`${VOICES.line} · ${VOICES.licence} · ${VOICES.source}`}
-      </Text>
+      {/* The engine, the voices and the portraits are Fortemate's own too, so
+          they are named with the maker. The portraits' line shows them. */}
+      <View style={{ marginBottom: 18 }}>
+        <Text style={{ color: '#aab8c9', fontSize: 20 }}>
+          {`${ENGINE.line} · ${ENGINE.licence} · ${ENGINE.source}`}
+        </Text>
+        <Text style={{ color: '#aab8c9', fontSize: 20 }}>
+          {`${VOICES.line} · ${VOICES.licence} · ${VOICES.source}`}
+        </Text>
+        {portraits ? (
+          <View
+            testID="portraits-credit"
+            style={{ flexDirection: 'row', alignItems: 'center' }}
+          >
+            {BOT_MODES.map((mode) => (
+              <View key={mode} style={{ marginRight: 4 }}>
+                <Portrait
+                  mode={mode}
+                  kind="badge"
+                  size={24}
+                  onMissing={noPortraits}
+                />
+              </View>
+            ))}
+            <Text style={{ color: '#aab8c9', fontSize: 20, marginLeft: 4 }}>
+              {`${PORTRAITS.line} · ${PORTRAITS.licence} · ${PORTRAITS.source}`}
+            </Text>
+          </View>
+        ) : null}
+      </View>
 
       {/* Two columns: four credits in one column would not fit a television
           screen, and a TV page has no scrolling a remote can be trusted with. */}
       <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-        {CREDITS.map((credit) => (
+        {credits.map((credit) => (
           <View
             key={credit.subject}
-            style={{ width: '50%', paddingRight: 32, marginBottom: 22 }}
+            style={{ width: '50%', paddingRight: 32, marginBottom: 18 }}
           >
             <Text style={{ color: '#8dc9b6', fontSize: 20, letterSpacing: 1 }}>
               {credit.subject}

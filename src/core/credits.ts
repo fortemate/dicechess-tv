@@ -49,17 +49,39 @@ export const VOICES: Credit = {
   source: 'elevenlabs.io',
 };
 
+// The opponents' portraits are Fortemate's own as well: Rolly, Grabby and
+// Rampage, drawn for this game with Recraft on a paid plan
+// (fortemate/dicechess-assets#31) and licensed to Fortemate's Dice Chess apps
+// only. Like the voices' line, theirs says they are AI-generated, and made with
+// what. They are named with the voices, and only in a build that has them
+// (#212).
+export const PORTRAITS: Credit = {
+  subject: 'Opponent portraits',
+  line: 'Portraits made with Recraft',
+  licence: 'Fortemate apps only',
+  source: 'recraft.ai',
+};
+
+// Two packs by one artist, the chess pieces and the opponents' faces. A build
+// with the portraits shows no face, so its card names only the pieces.
+// Public domain: no credit is required. It is given anyway, with a link to the
+// artist's page, which both packs ask for.
+export const PIECES: Credit = {
+  subject: 'Pieces',
+  line: 'Pieces by RhosGFX',
+  licence: 'CC0 1.0',
+  source: 'rhosgfx.itch.io',
+};
+export const PIECES_AND_FACES: Credit = {
+  ...PIECES,
+  subject: 'Pieces and opponent faces',
+  line: 'Pieces and faces by RhosGFX',
+};
+
+// The four cards of a build with the portraits: the About screen has room for
+// four, in two columns.
 export const CREDITS: readonly Credit[] = [
-  {
-    // Two packs by one artist, the chess pieces and the opponents' faces, on
-    // one card: the About screen has room for four, in two columns.
-    subject: 'Pieces and opponent faces',
-    line: 'Pieces and faces by RhosGFX',
-    // Public domain: no credit is required. It is given anyway, with a link to
-    // the artist's page, which both packs ask for.
-    licence: 'CC0 1.0',
-    source: 'rhosgfx.itch.io',
-  },
+  PIECES,
   {
     subject: 'Piece sounds',
     // The licence requires visible credit and gives this wording as its
@@ -85,3 +107,10 @@ export const CREDITS: readonly Credit[] = [
     source: 'youtube.com/@genreexplorer-h5o',
   },
 ];
+
+// The cards a build shows. One without the portraits shows the RhosGFX faces in
+// their place, and credits them with the pieces.
+export const creditsFor = (portraits: boolean): readonly Credit[] =>
+  portraits
+    ? CREDITS
+    : CREDITS.map((credit) => (credit === PIECES ? PIECES_AND_FACES : credit));

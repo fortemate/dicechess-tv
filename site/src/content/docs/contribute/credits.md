@@ -20,11 +20,17 @@ Dice Chess TV combines open-source code with public domain and permitted creativ
 - **Licence:** Dedicated to the public domain under Creative Commons [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
 - **Usage:** 12 vector SVG pieces (White and Black Outline variants) are compiled into inline JSX components (`native/src/pieces/`) for rendering via `@amazon-devices/react-native-svg`.
 
+### Opponent portraits
+
+- **Source:** Rolly, Grabby and Rampage, drawn for Dice Chess by Fortemate with [Recraft](https://www.recraft.ai) on a paid plan.
+- **Licence:** Fortemate's own, for Fortemate's Dice Chess apps only. Not covered by the AGPL or by any other open licence.
+- **Usage:** The opponent cards and the game screen show them. While the repository is public they are kept out of it, and a build without them shows the emoji faces below instead. The About screen shows the portraits beside Recraft's name, so that a player knows they are AI-generated.
+
 ### Opponent Bot Avatars
 
 - **Source:** [Vector Emojis](https://rhosgfx.itch.io/vector-emojis) by **RhosGFX** (Outline set).
 - **Licence:** Creative Commons [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
-- **Usage:** Three emojis represent the local computer opponents: _Zany face_ for Rolly (Easy), _Money mouth face_ for Grabby (Medium), and _Smiling face with horns_ for Rampage (Hard).
+- **Usage:** In a build without the portraits, three emojis represent the local computer opponents: _Zany face_ for Rolly (Easy), _Money mouth face_ for Grabby (Medium), and _Smiling face with horns_ for Rampage (Hard). The About screen then credits them with the pieces.
 
 ### Brand & App Icon
 

@@ -1,17 +1,35 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { APP, CREDITS, ENGINE, VOICES } from '../src/core/credits.ts';
+import {
+  APP,
+  CREDITS,
+  ENGINE,
+  PIECES,
+  PIECES_AND_FACES,
+  PORTRAITS,
+  VOICES,
+  creditsFor,
+} from '../src/core/credits.ts';
 
 const notices = readFileSync(
   new URL('../THIRD_PARTY_NOTICES.md', import.meta.url),
   'utf8',
 );
 
+// Every credit the About screen can show, with the portraits or without them.
+const SHOWN = [
+  ...creditsFor(true),
+  ...creditsFor(false),
+  ENGINE,
+  VOICES,
+  PORTRAITS,
+];
+
 test('every credit on the screen is also in the notices', () => {
   // The About screen and THIRD_PARTY_NOTICES.md say the same thing to two
   // audiences. If they disagree, one of them is wrong about a licence.
-  for (const credit of [...CREDITS, ENGINE, VOICES]) {
+  for (const credit of SHOWN) {
     assert.ok(
       notices.includes(credit.source),
       `${credit.subject}: ${credit.source} is not in THIRD_PARTY_NOTICES.md`,
@@ -26,7 +44,7 @@ test('every credit on the screen is also in the notices', () => {
 
 test('every credit is complete and readable from a sofa', () => {
   assert.ok(CREDITS.length > 0);
-  for (const credit of [...CREDITS, ENGINE, VOICES]) {
+  for (const credit of SHOWN) {
     for (const [field, value] of Object.entries(credit))
       assert.ok(value.trim().length > 0, `${credit.subject}: empty ${field}`);
     // A source is read off a television, not followed, so no scheme.
@@ -44,15 +62,27 @@ test('every credit is complete and readable from a sofa', () => {
   assert.ok(APP.title.length > 0 && APP.maker.length > 0);
 });
 
-test('the pieces and the faces are credited to their author even though CC0 asks for nothing', () => {
-  const rhosgfx = CREDITS.find(
-    (credit) => credit.subject === 'Pieces and opponent faces',
-  );
-  assert.ok(rhosgfx, 'the pieces and the faces must be credited');
-  assert.match(rhosgfx.line, /RhosGFX/);
+test('the pieces, and the faces where they show, are credited to their author even though CC0 asks for nothing', () => {
+  // A build with the portraits shows no RhosGFX face, and one without them
+  // shows the faces in their place (#212).
+  assert.deepEqual(creditsFor(true), CREDITS);
+  assert.ok(CREDITS.includes(PIECES));
+  assert.ok(creditsFor(false).includes(PIECES_AND_FACES));
+  assert.ok(!creditsFor(false).includes(PIECES));
+  for (const credit of [PIECES, PIECES_AND_FACES])
+    assert.match(credit.line, /RhosGFX/);
+  assert.doesNotMatch(`${PIECES.subject} ${PIECES.line}`, /face/);
+  assert.match(PIECES_AND_FACES.line, /faces/);
   // Four cards fill the About screen's two columns without leaving the
   // television's safe area.
-  assert.equal(CREDITS.length, 4);
+  for (const portraits of [true, false])
+    assert.equal(creditsFor(portraits).length, 4);
+});
+
+test('the portraits are named as Fortemate’s own and AI-generated, as the voices are', () => {
+  assert.match(PORTRAITS.line, /made with Recraft/);
+  assert.equal(PORTRAITS.licence, VOICES.licence);
+  assert.ok(!CREDITS.includes(PORTRAITS), 'not on a card of other authors');
 });
 
 test('the vendored music is credited as its permission asks', () => {
