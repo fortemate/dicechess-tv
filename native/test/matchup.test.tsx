@@ -1,4 +1,4 @@
-// The matchup header in the gameplay HUD (#156, #168): a badge for each side
+// The matchup header in the gameplay HUD (#156, #168, #213): a badge for each side
 // where that side sits on the board, the side to move framed in the turn colour
 // rather than the focus style, the bot's level and thinking status, and the
 // speech zone under the top badge.
@@ -6,7 +6,13 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
-import { Matchup, SPEECH_ZONE, type MatchupProps } from '../src/Matchup';
+import {
+  DIALOGUE_HEIGHT,
+  HOST_HEIGHT,
+  Matchup,
+  PORTRAIT,
+  type MatchupProps,
+} from '../src/Matchup';
 import { THEME } from '../src/theme';
 import { FACES } from '../src/faces';
 import { FACE_OF, portraitPath } from '../src/Portrait';
@@ -54,13 +60,21 @@ const badges = (root: Instance): string[] =>
     )
     .map((node) => texts(node)[0]);
 
+// How strongly a side is drawn: a badge as a whole, the bot's dialogue block
+// in its portrait and name, so that a line the bot says keeps full strength.
+const strength = (badge: Instance): number => {
+  const [portrait] = badge.findAll(
+    (node) => isHost(node, 'View') && node.props.testID === 'opponent-portrait',
+  );
+  return Number(styleOf(portrait ?? badge).opacity ?? 1);
+};
 const assertToMove = (badge: Instance) => {
   assert.equal(styleOf(badge).borderColor, THEME.turn);
-  assert.equal(styleOf(badge).opacity, 1);
+  assert.equal(strength(badge), 1);
 };
 const assertWaiting = (badge: Instance) => {
   assert.notEqual(styleOf(badge).borderColor, THEME.turn);
-  assert.ok(Number(styleOf(badge).opacity) < 1, 'the waiting side dims');
+  assert.ok(strength(badge) < 1, 'the waiting side dims');
 };
 
 test('renders player and opponent badges with initial turn on White', () => {
@@ -75,12 +89,12 @@ test('renders player and opponent badges with initial turn on White', () => {
   assert.deepEqual(badges(tree.root), ['RAMPAGE', 'YOU']);
 });
 
-test('the bot’s badge shows its portrait, or its emoji face when the build has none (dicechess-assets#31)', () => {
+test('the bot’s block shows its portrait, or its emoji face when the build has none (dicechess-assets#31, #213)', () => {
   const tree = mount({ game: newGame('greedy', 'game-1'), side: 'w' });
   const opponent = byTestId(tree.root, 'opponent-badge');
   const [portrait] = opponent.findAll((node) => isHost(node, 'Image'));
-  assert.equal(portrait.props.source.uri, portraitPath('greedy', 'badge'));
-  assert.deepEqual(portrait.props.style, { width: 38, height: 38 });
+  assert.equal(portrait.props.source.uri, portraitPath('greedy', 'card'));
+  assert.deepEqual(portrait.props.style, { width: PORTRAIT, height: PORTRAIT });
   act(() => portrait.props.onError());
   assert.equal(opponent.findAll((node) => isHost(node, 'Image')).length, 0);
   assert.equal(opponent.findAllByType(FACES[FACE_OF.greedy]).length, 1);
@@ -185,53 +199,102 @@ test('neither badge is highlighted when the game has ended', () => {
   assertWaiting(byTestId(tree.root, 'opponent-badge'));
 });
 
-test('the bot speaks in a zone of its own, in place of the turn line', () => {
+const bubbleNode = (line: string) =>
+  React.createElement('Text', { testID: 'test-bubble' }, line);
+const turnLine = (line: string) => React.createElement('Text', null, line);
+
+test('the bot speaks beside its portrait, and the turn line stays under the block (#213)', () => {
   const tree = mount({
     game: newGame('aggressive', 'game-bubble'),
     side: 'b',
-    header: React.createElement('Text', { testID: 'turn-line' }, 'TURN 3'),
-    speechBubble: React.createElement(
-      'Text',
-      { testID: 'test-bubble' },
-      'Your king is in my sights!',
-    ),
+    header: turnLine('TURN 3'),
+    speechBubble: bubbleNode('Your king is in my sights!'),
   });
 
-  const zone = byTestId(tree.root, 'speech-zone');
-  assert.equal(styleOf(zone).height, SPEECH_ZONE);
-  assert.equal(styleOf(zone).justifyContent, 'flex-end');
-  const slot = byTestId(zone, 'speech-bubble-slot');
-  assert.equal(styleOf(slot).position, 'absolute');
-  assert.equal(styleOf(slot).top, 0);
-  assert.deepEqual(texts(slot), ['Your king is in my sights!']);
-  // The turn line is left out while the bot speaks, from the screen and from
-  // a screen reader, and the zone keeps its height.
+  const block = byTestId(tree.root, 'opponent-badge');
+  const zone = byTestId(block, 'speech-zone');
+  assert.deepEqual(texts(zone), ['Your king is in my sights!']);
+  // The turn line is not hidden while the bot speaks: it stands under the
+  // block, outside it.
+  assert.deepEqual(texts(byTestId(tree.root, 'turn-line')), ['TURN 3']);
   assert.equal(
-    zone.findAll((node) => node.props?.testID === 'turn-line').length,
+    block.findAll((node) => node.props?.testID === 'turn-line').length,
     0,
   );
-  assert.ok(!texts(zone).includes('TURN 3'));
 });
 
-test('the turn line shows while the bot is quiet', () => {
-  const tree = mount({
-    game: newGame('aggressive', 'game-quiet-bot'),
-    side: 'w',
-    header: React.createElement('Text', null, 'TURN 3'),
+test('the dialogue block keeps its height whether the bot speaks or not (#213)', () => {
+  const heights = [
+    undefined,
+    bubbleNode('Mine! I’ll take that, thank you.'),
+  ].map((speechBubble) => {
+    const tree = mount({
+      game: newGame('greedy', 'game-height'),
+      side: 'w',
+      header: turnLine('TURN 2'),
+      speechBubble,
+    });
+    return styleOf(byTestId(tree.root, 'opponent-badge')).height;
   });
-
-  const zone = byTestId(tree.root, 'speech-zone');
-  assert.deepEqual(texts(byTestId(zone, 'turn-line')), ['TURN 3']);
+  assert.deepEqual(heights, [DIALOGUE_HEIGHT, DIALOGUE_HEIGHT]);
 });
 
-test('hotseat has no speech zone to leave empty', () => {
+test('a line is said at full strength, even when the bot is not to move (#213)', () => {
+  const quiet = mount({ game: newGame('random', 'game-dim'), side: 'w' });
+  assert.ok(strength(byTestId(quiet.root, 'opponent-badge')) < 1);
+  const speaking = mount({
+    game: newGame('random', 'game-dim'),
+    side: 'w',
+    speechBubble: bubbleNode('Boop! Mine now!'),
+  });
+  assert.equal(strength(byTestId(speaking.root, 'opponent-badge')), 1);
+});
+
+test('hotseat has no dialogue block: the turn line stands under the top badge', () => {
   const tree = mount({
     game: newGame('hotseat', 'game-quiet'),
     side: 'w',
-    header: React.createElement('Text', null, 'HOTSEAT · TURN 1'),
+    header: turnLine('HOTSEAT · TURN 1'),
   });
 
-  assert.equal(styleOf(byTestId(tree.root, 'speech-zone')).height, undefined);
+  assert.equal(
+    tree.root.findAll((node) => node.props?.testID === 'speech-zone').length,
+    0,
+  );
+  assert.deepEqual(texts(byTestId(tree.root, 'turn-line')), [
+    'HOTSEAT · TURN 1',
+  ]);
+});
+
+test('the host shows above the bottom badge while she speaks, over the free space (#213)', () => {
+  const quiet = mount({
+    game: newGame('hotseat', 'game-host'),
+    side: 'w',
+    children: turnLine('White to play'),
+  });
+  assert.equal(
+    quiet.root.findAll((node) => node.props?.testID === 'host-block').length,
+    0,
+  );
+
+  const tree = mount({
+    game: newGame('hotseat', 'game-host'),
+    side: 'w',
+    children: turnLine('White to play'),
+    hostBubble: bubbleNode('Now pass the remote over!'),
+  });
+  const center = byTestId(tree.root, 'matchup-center');
+  const block = byTestId(center, 'host-block');
+  // Placed over the foot of the centre, so nothing in it moves.
+  assert.equal(styleOf(block).position, 'absolute');
+  assert.equal(styleOf(block).height, HOST_HEIGHT);
+  const [portrait] = block.findAll((node) => isHost(node, 'Image'));
+  assert.equal(portrait.props.source.uri, portraitPath('random', 'card'));
+  assert.deepEqual(texts(block), ['Now pass the remote over!']);
+  assert.deepEqual(texts(center), [
+    'White to play',
+    'Now pass the remote over!',
+  ]);
 });
 
 test('renders center children between the badges, anchored at the top', () => {

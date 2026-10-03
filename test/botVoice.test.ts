@@ -23,6 +23,7 @@ import {
   type Game,
 } from '../src/core/game.ts';
 import { opponentOf } from '../src/core/opponents.ts';
+import { rowsOf } from './rows.ts';
 
 const PAWN = 1;
 const KNIGHT = 2;
@@ -71,15 +72,16 @@ test('catalogue contains exactly 63 lines (3 lines per event for all 3 bots)', (
   }
 });
 
-// The bubble shows at most two rows of 20 dp text (#168), and a row holds
-// about 36 characters on the Virtual Device, so a line is kept well inside two
-// rows, with room for wide letters and for where the words break.
-const BUBBLE_CHARACTERS = 64;
+// The bubble beside the bot's portrait shows at most three rows of 20 dp text
+// (#213). On the Virtual Device a row held 23 characters of the longest lines
+// and not 24 (2026-10-03), so the lines are wrapped at word breaks into rows
+// of 22, one character to spare for wide letters.
+const BUBBLE_ROW_CHARACTERS = 22;
 
-test('every voice line fits the two rows of the speech bubble', () => {
+test('every voice line fits the three rows of the bubble beside the portrait', () => {
   const long = VOICE_CATALOGUE.filter(
-    (line) => line.text.length > BUBBLE_CHARACTERS,
-  ).map((line) => `${line.id} (${line.text.length})`);
+    (line) => rowsOf(line.text, BUBBLE_ROW_CHARACTERS) > 3,
+  ).map((line) => `${line.id} (${line.text})`);
   assert.deepEqual(long, []);
 });
 

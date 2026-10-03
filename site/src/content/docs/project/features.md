@@ -15,7 +15,7 @@ For living-room sofa play where players prefer to view the board from their own 
 
 ![A hotseat game: Black's knight is picked up, its destinations are dotted, a capture is ringed, and three dice sit beside the board](../../../assets/screenshots/hotseat.png)
 
-Rolly, the friendliest of the computer opponents, hosts Hot Seat games ([#202](https://github.com/fortemate/dicechess-tv/issues/202)). She greets you both as a game starts, cheers the big moments when a turn ends, and at the end cheers the winner and the other player too. She never takes a side and speaks only at those pauses, never while someone is thinking. For now she is a voice over the game: you hear her, but unlike the computer opponents she has no speech bubble yet, and no face on the screen, so Hot Seat looks as it did before her. The game screen will be redesigned once the new character portraits exist. **Hot Seat host** in Settings chooses Rolly or off. The tests cover her; hearing her in a full game on the virtual device is still open.
+Rolly, the friendliest of the computer opponents, hosts Hot Seat games ([#202](https://github.com/fortemate/dicechess-tv/issues/202)). She greets you both as a game starts, cheers the big moments when a turn ends, and at the end cheers the winner and the other player too. She never takes a side and speaks only at those pauses, never while someone is thinking. While she speaks, her face and her line show above the bottom badge, and nothing else on the screen moves ([#213](https://github.com/fortemate/dicechess-tv/issues/213)). **Hot Seat host** in Settings chooses Rolly or off. The tests cover her, and the virtual device has shown her and played her lines.
 
 ## Three opponents, as either colour
 

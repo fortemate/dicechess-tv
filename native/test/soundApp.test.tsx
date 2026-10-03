@@ -17,6 +17,7 @@ import type { Sounds } from '../src/sound';
 import type { Cue } from '../../src/core/cues';
 import { MmkvSnapshotStore } from '../src/mmkvStore';
 import { decodeGame, newGame, rollGame, type Game } from '../../src/core/game';
+import { HOST_CATALOGUE } from '../../src/core/hostVoice';
 
 type Instance = renderer.ReactTestInstance;
 
@@ -246,41 +247,47 @@ test('a new hotseat game opens with the host greeting both players (#202)', () =
   act(() => tree.unmount());
 });
 
-test('the Hot Seat host is heard, not seen: no face, no bubble, and the turn line stays (#202)', () => {
+test('the Hot Seat host is seen while she speaks, above the bottom badge, and nothing else moves (#213)', () => {
   mock.timers.enable({ apis: ['setTimeout'] });
   reset();
   const sounds = recorder();
   const tree = launch(sounds);
+  const textOf = (id: string) =>
+    HOST_CATALOGUE.find((line) => line.id === id)?.text;
   try {
-    // The game screen looks as it did before her: no face or bubble of hers, no
-    // room kept for one, and the turn line where it always stood.
-    const asBefore = (turn: RegExp) => {
-      assert.equal(drawn(tree.root, 'host-face').length, 0);
-      assert.equal(drawn(tree.root, 'speech-bubble').length, 0);
-      assert.equal(drawn(tree.root, 'speech-bubble-text').length, 0);
-      const [zone] = drawn(tree.root, 'speech-zone');
-      assert.ok(zone, 'the matchup is up');
-      assert.equal(zone.props.style?.height, undefined);
-      const [line] = drawn(zone, 'turn-line');
-      assert.ok(line, 'the turn line shows while she speaks');
-      assert.equal(line.props.style, undefined);
+    // Her portrait and her line stand in the free space above the bottom
+    // badge, placed over it rather than in the flow, so the dice and the
+    // prompt keep their place; the turn line stands where it always does.
+    const speaking = (id: string, turn: RegExp) => {
+      const [block] = drawn(tree.root, 'host-block');
+      assert.ok(block, 'she shows while she speaks');
+      assert.equal(block.props.style.position, 'absolute');
+      assert.equal(drawn(block, 'portrait-rolly').length, 1);
+      assert.equal(text(block), textOf(id));
+      const [line] = drawn(tree.root, 'turn-line');
       assert.match(text(line), turn);
     };
-    // A new hotseat game: she greets both players aloud, and only aloud.
+    // A new hotseat game: she greets both players.
     send('enter');
     assert.equal(sounds.said.length, 1);
     assert.match(sounds.said[0], /^host_intro_[1-5]$/);
-    asBefore(/HOTSEAT · TURN 1/);
-    // Her greeting said, White rolls and resigns: her last word is heard, and
-    // nothing of her shows with the result either.
+    speaking(sounds.said[0], /HOTSEAT · TURN 1/);
+    // Her greeting said, she leaves the screen; the turn line stays.
     act(() => {
       mock.timers.tick(10_000);
     });
+    assert.equal(drawn(tree.root, 'host-block').length, 0);
+    assert.match(text(drawn(tree.root, 'turn-line')[0]), /HOTSEAT · TURN 1/);
+    // White rolls and resigns: her last word shows with the result, and holds.
     send('enter', 'back', 'down', 'select', 'down', 'select');
     assert.match(text(tree.root), /Black wins/);
     assert.equal(sounds.said.length, 2);
     assert.match(sounds.said[1], /^host_(black_wins|win)_\d$/);
-    asBefore(/HOTSEAT · TURN 1/);
+    speaking(sounds.said[1], /HOTSEAT · TURN 1/);
+    act(() => {
+      mock.timers.tick(10_000);
+    });
+    speaking(sounds.said[1], /HOTSEAT · TURN 1/);
   } finally {
     act(() => tree.unmount());
     mock.timers.reset();

@@ -1,6 +1,12 @@
-// The matchup in the game screen HUD (#156): a badge for each side, each where
-// that side sits on the board, the bot's speech zone under the top badge
-// (#158), and the game's own lines between them.
+// The matchup in the game screen HUD (#156): each side where it sits on the
+// board, and the game's own lines between them.
+//
+// Against the bot, the top of the panel is a dialogue (#213): the bot's
+// portrait, its name and level, and beside them the line it says, in a bubble
+// that points at its face. The block keeps one height whether the bot speaks
+// or not, and the turn line stands under it, so nothing moves when a line
+// starts or ends. In Hot Seat each player has a badge, and the host, while she
+// says a line, shows with it in the free space above the bottom badge.
 //
 // The side to move is framed in the turn colour, and the other side dims
 // (#168). Cyan belongs to the cursor and to a focused item, so a badge never
@@ -17,6 +23,12 @@ import {
 import { opponentOf, type Opponent } from '../../src/core/opponents';
 import { Portrait } from './Portrait';
 import { PIECES } from './pieces';
+import {
+  BUBBLE_CHROME,
+  BUBBLE_LINE,
+  BUBBLE_ROWS,
+  HOST_BUBBLE_ROWS,
+} from './SpeechBubble';
 import { THEME } from './theme';
 
 export type MatchupProps = {
@@ -28,21 +40,40 @@ export type MatchupProps = {
   // follows the turned board (#120). Defaults to the person's side.
   flipped?: boolean;
   thinking?: boolean;
+  // The bot's line, beside its portrait.
   speechBubble?: React.ReactNode;
-  // The turn line, at the foot of the speech zone.
+  // The Hot Seat host's line, beside hers above the bottom badge.
+  hostBubble?: React.ReactNode;
+  // The turn line, under the top of the panel.
   header?: React.ReactNode;
   children?: React.ReactNode;
 };
 
-// Room under the top badge for the bot's line: two rows of the bubble at 20 dp
-// and its tail. The turn line stands at the foot of it and is left out while
-// the bot speaks, so the line covers nothing and nothing below it moves
-// (#168).
-export const SPEECH_ZONE = 76;
-
 const LEVELS = ['Easy', 'Medium', 'Hard'] as const;
 const PIP = 12;
 const AVATAR = 40;
+
+// The dialogue block: the portrait, and beside it the name row over a bubble
+// of up to three rows. Its height fits the taller of the two, so a line of any
+// length, or none, leaves it the same.
+export const PORTRAIT = 96;
+const NAME_ROW = 26;
+const NAME_GAP = 6;
+const BLOCK_PADDING = 8;
+const BLOCK_BORDER = 2;
+export const DIALOGUE_HEIGHT =
+  2 * (BLOCK_PADDING + BLOCK_BORDER) +
+  Math.max(
+    PORTRAIT,
+    NAME_ROW + NAME_GAP + BUBBLE_ROWS * BUBBLE_LINE + BUBBLE_CHROME,
+  );
+
+// The host above the bottom badge: her portrait and two rows of her line.
+export const HOST_PORTRAIT = 76;
+export const HOST_HEIGHT = Math.max(
+  HOST_PORTRAIT,
+  HOST_BUBBLE_ROWS * BUBBLE_LINE + BUBBLE_CHROME,
+);
 
 const NAME = {
   color: '#f0f4f8',
@@ -81,18 +112,24 @@ export const MatchupPips = ({ level }: { level: Opponent['level'] }) => {
   );
 };
 
-// A badge's frame: the turn colour around the side to move, which also stays
-// at full strength while the other side dims, so colour is not the only sign.
+// The turn colour around the side to move, and the quiet frame of the other.
+const ring = (active: boolean) =>
+  ({
+    borderRadius: 12,
+    borderWidth: BLOCK_BORDER,
+    borderColor: active ? THEME.turn : '#22384f',
+    backgroundColor: active ? THEME.turnFill : 'rgba(15, 23, 42, 0.55)',
+  }) as const;
+
+// A badge's frame: the ring, at full strength for the side to move while the
+// other side dims, so colour is not the only sign.
 const frame = (active: boolean) =>
   ({
+    ...ring(active),
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 6,
     paddingHorizontal: 10,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: active ? THEME.turn : '#22384f',
-    backgroundColor: active ? THEME.turnFill : 'rgba(15, 23, 42, 0.55)',
     opacity: active ? 1 : 0.6,
   }) as const;
 
@@ -152,6 +189,8 @@ const Meta = ({
   );
 };
 
+// A side's badge: a person's king, or a bot's face where the dialogue block
+// does not stand, its name, and its colour or level.
 const Avatar = ({ seat, side }: { seat: Seat; side: Side }) => {
   if (seat.kind === 'bot')
     return <Portrait mode={seat.opponent.mode} kind="badge" size={38} />;
@@ -208,53 +247,127 @@ const SideBadge = ({
   );
 };
 
+// The bot as a character (#213): its portrait, its name and level, and the
+// line it says. The portrait and the name dim with the side when the bot is not
+// to move, unless it is speaking: a line is said at full strength.
+const DialogueBlock = ({
+  opponent,
+  side,
+  active,
+  thinking,
+  speechBubble,
+}: {
+  opponent: Opponent;
+  side: Side;
+  active: boolean;
+  thinking: boolean;
+  speechBubble?: React.ReactNode;
+}) => {
+  const dim = active || speechBubble ? 1 : 0.6;
+  return (
+    <View
+      testID="opponent-badge"
+      style={{
+        ...ring(active),
+        height: DIALOGUE_HEIGHT,
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        paddingVertical: BLOCK_PADDING,
+        paddingHorizontal: BLOCK_PADDING,
+      }}
+    >
+      <View testID="opponent-portrait" style={{ opacity: dim }}>
+        <Portrait mode={opponent.mode} kind="card" size={PORTRAIT} />
+      </View>
+      <View style={{ flex: 1, marginLeft: 8 }}>
+        <View
+          style={{
+            height: NAME_ROW,
+            marginBottom: NAME_GAP,
+            marginLeft: 8,
+            flexDirection: 'row',
+            alignItems: 'center',
+            opacity: dim,
+          }}
+        >
+          <Text
+            testID="opponent-name"
+            style={{ ...NAME, flex: 1 }}
+            numberOfLines={1}
+          >
+            {opponent.name.toUpperCase()}
+          </Text>
+          <Meta
+            seat={{ kind: 'bot', opponent }}
+            side={side}
+            id="opponent"
+            active={active}
+            thinking={thinking}
+          />
+        </View>
+        <View testID="speech-zone" style={{ flex: 1 }}>
+          {speechBubble}
+        </View>
+      </View>
+    </View>
+  );
+};
+
+// The Hot Seat host while she says a line (#213): Rolly's portrait and the
+// line, in the free space above the bottom badge, over nothing and moving
+// nothing.
+const HostBlock = ({ bubble }: { bubble: React.ReactNode }) => (
+  <View
+    testID="host-block"
+    style={{
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      bottom: 10,
+      height: HOST_HEIGHT,
+      flexDirection: 'row',
+      alignItems: 'center',
+    }}
+  >
+    <Portrait mode="random" kind="card" size={HOST_PORTRAIT} />
+    <View style={{ flex: 1, marginLeft: 8 }}>{bubble}</View>
+  </View>
+);
+
 export const Matchup = ({
   game,
   side,
   flipped = game.human === 'b',
   thinking = false,
   speechBubble,
+  hostBubble,
   header,
   children,
 }: MatchupProps) => {
   const bottom: Side = flipped ? 'b' : 'w';
-  const withBot = isBotMode(game.mode);
+  const top = opposite(bottom);
+  const topSeat = seatOf(game, top);
   return (
     <View testID="matchup-header" style={{ flex: 1 }}>
-      <SideBadge
-        game={game}
-        side={opposite(bottom)}
-        toMove={side}
-        thinking={thinking}
-      />
-      <View
-        testID="speech-zone"
-        style={{
-          height: withBot ? SPEECH_ZONE : undefined,
-          justifyContent: 'flex-end',
-          marginBottom: 4,
-        }}
-      >
-        {header && !speechBubble ? (
-          <View testID="turn-line">{header}</View>
-        ) : null}
-        {speechBubble ? (
-          <View
-            testID="speech-bubble-slot"
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              zIndex: 20,
-            }}
-          >
-            {speechBubble}
-          </View>
-        ) : null}
-      </View>
+      {topSeat.kind === 'bot' ? (
+        <DialogueBlock
+          opponent={topSeat.opponent}
+          side={top}
+          active={game.phase !== 'ended' && side === top}
+          thinking={thinking}
+          speechBubble={speechBubble}
+        />
+      ) : (
+        <SideBadge game={game} side={top} toMove={side} thinking={thinking} />
+      )}
+      {header ? (
+        <View testID="turn-line" style={{ marginTop: 6, marginBottom: 4 }}>
+          {header}
+        </View>
+      ) : null}
       <View testID="matchup-center" style={{ flex: 1 }}>
         {children}
+        {hostBubble ? <HostBlock bubble={hostBubble} /> : null}
       </View>
       <SideBadge game={game} side={bottom} toMove={side} thinking={thinking} />
     </View>
