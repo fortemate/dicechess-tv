@@ -5,8 +5,8 @@
 //
 // Before a run: the release build is installed and open on the Virtual
 // Device, its gRPC is on (`vvd enable-grpc`), and in the app's Settings music
-// is off, and sound effects, voices and "Turn board in hotseat" are on (see
-// README.md for the Hot Seat host).
+// is off, sound effects, voices and "Turn board in hotseat" are on, and the
+// Hot Seat host is Rolly.
 // The takes carry the game's sound effects and the bots' lines only;
 // assemble.ts lays the music under the whole video, so it does not break at
 // the cuts, and ducks it where the storyboard says a bot speaks.
@@ -188,12 +188,16 @@ async function freshHotseat(): Promise<void> {
 }
 
 const takes: Record<string, () => Promise<void>> = {
-  // The home screen: the cursor walks the options and starts a hotseat game.
+  // The home screen: the cursor walks the options and starts a hotseat game,
+  // and the take goes on while Rolly greets the two players as their host
+  // (#202): the longest greeting lasts about 4 s, and starts about 0.45 s
+  // after her bubble (#187).
   home: async () => {
     await freshHotseat();
-    await record('home', 11, () => {
+    await record('home', 18, async () => {
       press(['down', 'down', 'down', 'up', 'up', 'up'], 800);
       press(['ok'], 2000);
+      await sleep(5500);
     });
   },
 
