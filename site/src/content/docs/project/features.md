@@ -13,7 +13,7 @@ Two players share the remote and take turns. OK rolls three dice; the pieces the
 
 For living-room sofa play where players prefer to view the board from their own side, a switch in **Settings** allows turning the board so the mover's pieces sit at the bottom. When enabled, the board fades out and back in over 200 ms as the turn passes to Black or back to White, while D-pad arrow directions remain locked to the physical television screen.
 
-![A hotseat game: Black's knight is picked up, its destinations are dotted, the capture of White's knight is ringed, and three dice sit beside the board](../../../assets/screenshots/hotseat.png)
+![A hotseat game: Black's knight is picked up, its destinations are dotted, the cursor rests on the ringed capture of White's knight, and three dice sit beside the board](../../../assets/screenshots/hotseat.png)
 
 Rolly, the friendliest of the computer opponents, hosts Hot Seat games. She greets you both as a game starts, cheers the big moments when a turn ends, and at the end cheers the winner and the other player too. She never takes a side and speaks only at those pauses, never while someone is thinking. While she speaks, her face and her line show above the bottom badge, and nothing else on the screen moves. **Hot Seat host** in Settings chooses Rolly or off. The tests cover her, and the virtual device has shown her and played her lines.
 
