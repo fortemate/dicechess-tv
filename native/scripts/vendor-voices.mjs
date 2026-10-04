@@ -9,7 +9,7 @@
 // clip for each of its lines, made ahead of time with ElevenLabs and levelled to
 // the music's loudness: the bots' for the lines of src/core/botVoice.ts, which
 // the owner designed and picked by ear (dicechess-assets#29), and the hosts' for
-// the lines of src/core/hostVoice.ts, said by Rolly (#202) and by Prowla the cat
+// the lines of src/core/hostScripts.ts, said by Rolly (#202) and by Prowla the cat
 // (#258) as the Hot Seat host. Every pack is for Fortemate's Dice Chess apps only (dicechess-assets#27): a
 // project permission that names this repository, like the music's.
 //

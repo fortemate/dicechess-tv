@@ -153,7 +153,7 @@ not committed is marked `dirty`, because no commit holds its texts.
 The hosts' lines go the other way: they are written in dicechess-assets (the
 `catalogue.json` of `voices/elevenlabs-dicechess-host` and of
 `voices/elevenlabs-dicechess-host-prowla`) and copied word for word into
-`src/core/hostVoice.ts`, so `native/test/vendoredVoices.test.ts` fails when the two
+`src/core/hostScripts.ts`, so `native/test/vendoredVoices.test.ts` fails when the two
 drift apart. When and how often the host speaks comes from `voices/events.json` in
 dicechess-assets, which the vendor script copies beside the packs and turns into
 `src/core/hostPacing.ts`; never edit that file, change `events.json` there and
