@@ -1,5 +1,6 @@
 // The Hot Seat host in the game screen (#202): she picks lines only while the
-// board is on screen and a host is chosen, a line waits for the one being said
+// board is on screen and a host is chosen, a big moment is said as it happens
+// (#227), a line waits for the one being said
 // as long as the game waits too, and her last word holds with the result. The
 // hook returns nothing, as the screen shows nothing of hers yet: what she says,
 // and when, is read from `onVoiceLine`, and whether a line of hers still holds
@@ -76,6 +77,34 @@ beforeEach(() => {
 });
 afterEach(() => {
   mock.timers.reset();
+});
+
+test('a queen taken mid-turn is said at once, and the turn goes on under her line (#227)', () => {
+  const host = harness();
+  // A game part of the way through, hosted quietly from its turn.
+  const start = {
+    ...newGame('hotseat', 'moment', '4k3/8/8/q7/8/8/8/R3K3 w - - 0 1'),
+    turn: 5,
+  };
+  host.show(start);
+  const rolled = rollGame(start, [4, 6, 6]);
+  host.show(rolled);
+  assert.deepEqual(host.said(), []);
+  const took = moveGame(rolled, 'a1a5');
+  host.show(took);
+  assert.deepEqual(host.said(), ['capture_queen']);
+  // The next action does not cut her line.
+  const stepped = moveGame(took, 'e1d1');
+  host.show(stepped);
+  assert.equal(host.shown(), 'capture_queen');
+  tick(HOLD);
+  assert.equal(host.shown(), null);
+  // The turn had its line: its end says nothing more.
+  const ended = moveGame(stepped, 'd1c1');
+  assert.equal(ended.phase, 'handoff');
+  host.show(ended);
+  assert.deepEqual(host.said(), ['capture_queen']);
+  host.unmount();
 });
 
 test('an unstarted game behind the home screen says nothing', () => {
