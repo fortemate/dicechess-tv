@@ -1,10 +1,11 @@
 // The Hot Seat host in the game screen (#202): picks Rolly's lines at the
-// pauses of a hotseat game, holds each until it has been said, and queues a
-// line behind the one being said, so a line never cuts another. A line that
-// waits belongs to the pause it was picked at: once the game takes another
-// step it is put back unheard, whatever its tier. events.json lets a bot's
-// always-tier line outlast the next step; the host never speaks while someone
-// is thinking, so hers does not.
+// pauses of a hotseat game and at its big moments (#227), holds each until it
+// has been said, and queues a line behind the one being said, so a line never
+// cuts another. A line being said goes on while the turn does: a queen taken
+// mid-turn is still being cheered as the next action is played. A line that
+// waits belongs to the step it was picked at: once the game takes another step
+// it is put back unheard, whatever its tier, so a waiting line is never said
+// late, after the moment it was about.
 //
 // She is heard and seen (#213): what she says goes to `onVoiceLine`, and the
 // hook returns the line being said, which the game screen shows with her

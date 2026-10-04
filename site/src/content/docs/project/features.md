@@ -15,7 +15,7 @@ For living-room sofa play where players prefer to view the board from their own 
 
 ![A hotseat game: Black's knight is picked up, its destinations are dotted, the capture of White's knight is ringed, and three dice sit beside the board](../../../assets/screenshots/hotseat.png)
 
-Rolly, the friendliest of the computer opponents, hosts Hot Seat games. She greets you both as a game starts, cheers the big moments when a turn ends, and at the end cheers the winner and the other player too. She never takes a side and speaks only at those pauses, never while someone is thinking. While she speaks, her face and her line show above the bottom badge, and nothing else on the screen moves. **Hot Seat host** in Settings chooses Rolly or off. The tests cover her, and the virtual device has shown her and played her lines.
+Rolly, the friendliest of the computer opponents, hosts Hot Seat games. She greets you both as a game starts, cries out the moment a queen or a rook is taken, a pawn is caught en passant or a pawn is promoted, names the rest of a turn when it ends, and at the end cheers the winner and the other player too. She never takes a side, and says one line a turn at most. While she speaks, her face and her line show above the bottom badge, and nothing else on the screen moves. **Hot Seat host** in Settings chooses Rolly or off. The tests cover her, and the virtual device has shown her and played her lines.
 
 ![Rolly hosting a new Hot Seat game: her portrait and her greeting show above the bottom badge](../../../assets/screenshots/host.png)
 

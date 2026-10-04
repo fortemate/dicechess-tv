@@ -1,11 +1,15 @@
 // The Hot Seat host (#202): Rolly hosts games between two people at one
 // television, a neutral party host who cheers the moment and never a side.
 //
-// She speaks only at the pauses: as a game starts, when a turn ends and the
-// prompt says "OK: continue", and when the game ends. A turn is judged as a
-// whole, over all of its actions, and one step says at most one line. How often
-// she speaks is the host pacing of voices/events.json in dicechess-assets,
-// which every Dice Chess client shares, generated into hostPacing.ts.
+// She speaks as a game starts, when a turn ends and the prompt says "OK:
+// continue", and when the game ends. A big moment is said at once, at the
+// action that makes it (#227): a queen or a rook taken, en passant, a
+// promotion. Her lines for those are cries of the moment, and by the turn's
+// end the board marks another move. Everything else waits for the turn's end,
+// which judges the turn as a whole. One step says at most one line, and a turn
+// at most one besides the result. How often she speaks is the host pacing of
+// voices/events.json in dicechess-assets, which every Dice Chess client shares,
+// generated into hostPacing.ts.
 //
 // The lines are written in dicechess-assets
 // (voices/elevenlabs-dicechess-host/catalogue.json) and copied here word for
@@ -164,6 +168,9 @@ export type HostState = {
   // How many times each event happened this game, and was said.
   readonly happened: Counts;
   readonly spoken: Counts;
+  // The game turn that has had its line, said at a moment or at its end: a
+  // turn says one line at most, besides the result.
+  readonly turnSpoken?: number;
 };
 
 export const INITIAL_HOST_STATE: HostState = {
@@ -212,22 +219,44 @@ const endsTurn = (before: Game, after: Game): boolean =>
   before.phase !== 'handoff' &&
   before.turn === after.turn;
 
-// What the turn that has just ended took or left, over all of its actions.
+// The moments said at once (#227), at the action that makes them.
+export const AT_ONCE: ReadonlySet<HostEvent> = new Set<HostEvent>([
+  'capture_queen',
+  'capture_heavy',
+  'en_passant',
+  'promotion',
+]);
+
+// The big moments of the actions from `before` to `after`.
+function moments(before: Game, after: Game): HostEvent[] {
+  const step = analyzeCaptures(before, after);
+  const events: HostEvent[] = [];
+  if (step.queen) events.push('capture_queen');
+  if (step.rook) events.push('capture_heavy');
+  if (step.enPassant) events.push('en_passant');
+  if (step.promotion) events.push('promotion');
+  return events;
+}
+
+// What the turn that has just ended gives: the big moments of its last action,
+// since the earlier ones were judged as they happened, and what is judged over
+// the whole turn, a smaller capture or a roll with nothing to play.
 function turnEvents(before: Game, after: Game): HostEvent[] {
+  const events = moments(before, after);
   // The whole turn, from its roll: the same game with no actions yet.
   const turn = analyzeCaptures({ ...after, moves: [], lastMove: null }, after);
-  const events: HostEvent[] = [];
-  if (turn.queen) events.push('capture_queen');
-  if (turn.rook) events.push('capture_heavy');
-  if (turn.enPassant) events.push('en_passant');
-  if (turn.promotion) events.push('promotion');
   if (turn.minor) events.push('capture');
   if (isEmptyRollStep(before, after)) events.push('empty_roll');
   return events;
 }
 
+// A step of a turn that goes on: an action played, with more to come.
+const withinTurn = (before: Game, after: Game): boolean =>
+  after.phase === 'move' && before.turn === after.turn;
+
 // What a step of a hotseat game gives the host to speak about, the most
-// important first. Only the end of the game and the end of a turn count.
+// important first: the end of the game, a big moment as it happens, and the
+// end of a turn.
 export function hostEvents(
   before: Game,
   after: Game,
@@ -238,6 +267,7 @@ export function hostEvents(
   // taken, a resignation, a draw agreed or reached.
   if (before.phase !== 'ended' && after.phase === 'ended' && after.result)
     return [resultEvent(after.result.winner)];
+  if (withinTurn(before, after)) return moments(before, after).sort(byPriority);
   if (!endsTurn(before, after)) return [];
   const events = turnEvents(before, after);
   // Until the next turn begins, the side in the position is still the one that
@@ -371,6 +401,7 @@ export function hostVoiceCue(
       lastSpokenTurn: after.turn,
       happened: {},
       spoken: {},
+      turnSpoken: undefined,
     };
     // A game resumed part of the way through is hosted from here, quietly.
     if (!isMatchStartStep(after, after)) return quiet(fresh);
@@ -384,6 +415,9 @@ export function hostVoiceCue(
   const events = hostEvents(before, after, played);
   const seen = counted(played, events);
   if (!events.length) return quiet(seen);
+  // The turn has had its line, at a moment of it. Only the result is said.
+  const result = RESULT_EVENTS.has(events[0]);
+  if (!result && seen.turnSpoken === after.turn) return quiet(seen);
 
   const since = after.turn - seen.lastSpokenTurn;
   // After a long silence, whatever happened is said.
@@ -392,12 +426,15 @@ export function hostVoiceCue(
       ? events[0]
       : events.find((event) => maySpeak(seen, event, since, random, pacing));
   if (!pick) return quiet(seen);
-  return speak(seen, pick, after.turn, random);
+  const cue = speak(seen, pick, after.turn, random);
+  if (result) return cue;
+  return { ...cue, state: { ...cue.state, turnSpoken: after.turn } };
 }
 
 // Puts back a line that was picked but never heard, at the front of its bag,
 // so it is the next one of its event. The counts stay: it still spent the
-// cooldown. A pass of the remote that was never taught is taught later.
+// cooldown. A pass of the remote that was never taught is taught later, and a
+// turn whose line was never heard may still have one at its end.
 export function restoreLine(
   state: HostState,
   event: HostEvent,
@@ -405,6 +442,7 @@ export function restoreLine(
 ): HostState {
   return {
     ...state,
+    turnSpoken: undefined,
     handoffSaid: event === 'handoff' ? false : state.handoffSaid,
     bags: { ...state.bags, [event]: [id, ...(state.bags[event] ?? [])] },
   };
