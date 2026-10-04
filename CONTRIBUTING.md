@@ -133,8 +133,9 @@ licence asks for credit, a line on the About screen (`src/core/credits.ts`).
 
 ## The voices
 
-Two voice packs are vendored from fortemate/dicechess-assets, which keeps them for
-every client: the bots' and the Hot Seat host's (#202).
+Three voice packs are vendored from fortemate/dicechess-assets, which keeps them for
+every client: the bots' and one for each Hot Seat host, Rolly (#202) and Prowla
+(#258).
 
 The bots' lines are written here, in `src/core/botVoice.ts`, and their voices are
 synthesized from those lines in dicechess-assets. Whenever a line changes, commit
@@ -149,9 +150,10 @@ npm run -s voices:catalogue > catalogue.json
 lines come from; an export taken while `src/core/botVoice.ts` has changes that are
 not committed is marked `dirty`, because no commit holds its texts.
 
-The host's lines go the other way: they are written in dicechess-assets
-(`voices/elevenlabs-dicechess-host/catalogue.json`) and copied word for word into
-`src/core/hostVoice.ts`, so `native/test/vendoredVoices.test.ts` fails when the two
+The hosts' lines go the other way: they are written in dicechess-assets (the
+`catalogue.json` of `voices/elevenlabs-dicechess-host` and of
+`voices/elevenlabs-dicechess-host-prowla`) and copied word for word into
+`src/core/hostScripts.ts`, so `native/test/vendoredVoices.test.ts` fails when the two
 drift apart. When and how often the host speaks comes from `voices/events.json` in
 dicechess-assets, which the vendor script copies beside the packs and turns into
 `src/core/hostPacing.ts`; never edit that file, change `events.json` there and

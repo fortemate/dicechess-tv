@@ -1,5 +1,5 @@
 // The vendored voices are what their catalogue says, and say what the game says
-// (#159, #187, #202).
+// (#159, #187, #202, #258).
 //
 // scripts/vendor-voices.mjs writes voices/voices.json: the pinned commit of
 // dicechess-assets, the digest of events.json, each pack's permission and files,
@@ -26,6 +26,9 @@ const sha256 = (bytes: Buffer) =>
 
 const BOTS = 'elevenlabs-dicechess-bots';
 const HOST = 'elevenlabs-dicechess-host';
+const PROWLA = 'elevenlabs-dicechess-host-prowla';
+// Each host's lines are in her own pack.
+const HOST_PACK = { rolly: HOST, prowla: PROWLA } as const;
 
 type Pack = {
   title: string;
@@ -61,7 +64,7 @@ const catalogue = JSON.parse(read('voices.json').toString('utf8')) as Catalogue;
 test('the catalogue pins one full commit of the asset repository', () => {
   assert.equal(catalogue.upstream, 'fortemate/dicechess-assets');
   assert.match(catalogue.commit, /^[0-9a-f]{40}$/);
-  assert.deepEqual(Object.keys(catalogue.packs).sort(), [BOTS, HOST]);
+  assert.deepEqual(Object.keys(catalogue.packs).sort(), [BOTS, HOST, PROWLA]);
 });
 
 test('this repository may carry every pack, and its licence travels with it', () => {
@@ -82,6 +85,7 @@ test('every vendored file has the bytes the catalogue pinned, and nothing else i
   assert.deepEqual(readdirSync(VOICES).sort(), [
     BOTS,
     HOST,
+    PROWLA,
     'events.json',
     'voices.json',
   ]);
@@ -107,7 +111,7 @@ test('every vendored file has the bytes the catalogue pinned, and nothing else i
 test('every line of the game has a clip recorded from its own text, in its own pack', () => {
   const said = [
     ...VOICE_CATALOGUE.map((line) => ({ ...line, pack: BOTS })),
-    ...HOST_CATALOGUE.map((line) => ({ ...line, pack: HOST })),
+    ...HOST_CATALOGUE.map((line) => ({ ...line, pack: HOST_PACK[line.host] })),
   ];
   for (const line of said) {
     const clip = catalogue.lines[line.id];

@@ -9,6 +9,7 @@ import renderer, { act } from 'react-test-renderer';
 import {
   DIALOGUE_HEIGHT,
   HOST_HEIGHT,
+  HOST_PORTRAIT,
   Matchup,
   PORTRAIT,
   type MatchupProps,
@@ -98,7 +99,7 @@ test('the bot’s block shows its portrait, or its emoji face when the build has
   const tree = mount({ game: newGame('greedy', 'game-1'), side: 'w' });
   const opponent = byTestId(tree.root, 'opponent-badge');
   const [portrait] = opponent.findAll((node) => isHost(node, 'Image'));
-  assert.equal(portrait.props.source.uri, portraitPath('greedy', 'card'));
+  assert.equal(portrait.props.source.uri, portraitPath('grabby', 'card'));
   assert.deepEqual(portrait.props.style, { width: PORTRAIT, height: PORTRAIT });
   act(() => portrait.props.onError());
   assert.equal(opponent.findAll((node) => isHost(node, 'Image')).length, 0);
@@ -299,12 +300,33 @@ test('the host shows above the bottom badge while she speaks, over the free spac
   assert.equal(styleOf(block).position, 'absolute');
   assert.equal(styleOf(block).height, HOST_HEIGHT);
   const [portrait] = block.findAll((node) => isHost(node, 'Image'));
-  assert.equal(portrait.props.source.uri, portraitPath('random', 'card'));
+  assert.equal(portrait.props.source.uri, portraitPath('rolly', 'card'));
   assert.deepEqual(texts(block), ['Now pass the remote over!']);
   assert.deepEqual(texts(center), [
     'White to play',
     'Now pass the remote over!',
   ]);
+});
+
+test('Prowla, hosting, shows her own portrait, and keeps its place in a build without the portraits (#258)', () => {
+  const tree = mount({
+    game: newGame('hotseat', 'game-prowla'),
+    side: 'w',
+    children: turnLine('White to play'),
+    hostBubble: bubbleNode('Paw it over.'),
+    host: 'prowla',
+  });
+  const block = byTestId(tree.root, 'host-block');
+  const [portrait] = block.findAll((node) => isHost(node, 'Image'));
+  assert.equal(portrait.props.source.uri, portraitPath('cat', 'card'));
+  // She has no emoji face: the place stays empty, the size of her portrait,
+  // so the bubble does not move.
+  act(() => portrait.props.onError());
+  assert.equal(block.findAll((node) => isHost(node, 'Image')).length, 0);
+  const empty = byTestId(block, 'portrait-missing-cat');
+  assert.equal(styleOf(empty).width, HOST_PORTRAIT);
+  assert.equal(styleOf(empty).height, HOST_PORTRAIT);
+  assert.deepEqual(texts(block), ['Paw it over.']);
 });
 
 test('renders center children between the badges, anchored at the top', () => {

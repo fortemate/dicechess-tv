@@ -60,6 +60,7 @@ const harness = () => {
   return {
     show,
     said: () => said.map((line) => line.event),
+    ids: () => said.map((line) => line.id),
     shown: () => shown?.event ?? null,
     stopped: () => stops,
     unmount: () => act(() => tree?.unmount()),
@@ -267,6 +268,31 @@ test('a line that waits while a menu is up is said when the board returns', () =
   assert.deepEqual(host.said(), ['intro'], 'not behind the menu');
   host.show(empty);
   assert.deepEqual(host.said(), ['intro', 'handoff']);
+  host.unmount();
+});
+
+test('another host chosen in Settings lets the line being said finish, and drops the one Rolly left waiting (#258)', () => {
+  const host = harness();
+  const game = newGame('hotseat', 'switch');
+  host.show(game);
+  assert.deepEqual(host.ids(), ['host_intro_2']);
+  // White's roll leaves nothing to play while Rolly greets: the pass waits.
+  const empty = rollGame(game, EMPTY);
+  host.show(empty);
+  // Settings opens, and Prowla is chosen.
+  host.show(empty, { live: false });
+  host.show(empty, { live: false, host: 'prowla' });
+  host.show(empty, { host: 'prowla' });
+  tick(HOLD * 2);
+  assert.deepEqual(host.ids(), ['host_intro_2'], "Rolly's pass is not said");
+  assert.equal(host.stopped(), 0, "Rolly's greeting was left to finish");
+  // The next game is Prowla's, and the pass is still to be taught.
+  const next = rollGame(newGame('hotseat', 'next'), EMPTY);
+  host.show(newGame('hotseat', 'next'), { host: 'prowla' });
+  assert.match(host.ids()[1], /^prowla_host_again_[1-4]$/);
+  tick(HOLD);
+  host.show(next, { host: 'prowla' });
+  assert.match(host.ids()[2], /^prowla_host_handoff_[1-3]$/);
   host.unmount();
 });
 

@@ -688,6 +688,7 @@ export const GameScreen = ({
   const hostLine = useHostVoice(game, {
     live,
     on: host !== 'off',
+    host: host === 'off' ? DEFAULT_HOST : host,
     onVoiceLine: say,
     onStop: stopLine,
     holdMs: bubbleHoldMs,
@@ -789,6 +790,7 @@ export const GameScreen = ({
                 <SpeechBubble text={hostLine.text} rows={HOST_BUBBLE_ROWS} />
               ) : undefined
             }
+            host={hostLine?.host}
             header={<ModeLine game={game} overlayOpen={false} />}
           >
             <Status game={game} view={state} />

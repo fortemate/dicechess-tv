@@ -7,6 +7,7 @@ import {
   HOST_CATALOGUE,
   HOST_EVENTS,
   HOST_PACING,
+  HOST_IDS,
   INITIAL_HOST_STATE,
   AT_ONCE,
   hostEvents,
@@ -15,7 +16,9 @@ import {
   hostVoiceCue,
   isResultLine,
   restoreLine,
+  withHost,
   type HostEvent,
+  type HostId,
   type HostState,
 } from '../src/core/hostVoice.ts';
 import { analyzeCaptures } from '../src/core/botVoice.ts';
@@ -134,34 +137,61 @@ const cueOf = (
 
 // ── The lines ──────────────────────────────────────────────────────────────────
 
-test('the host has 45 lines, numbered by event from 1', () => {
-  assert.equal(HOST_CATALOGUE.length, 45);
+test('each host has her own lines, numbered by event from 1: Rolly 45, Prowla 51 (#258)', () => {
+  assert.equal(HOST_CATALOGUE.length, 96);
   const ids = HOST_CATALOGUE.map((line) => line.id);
   assert.equal(new Set(ids).size, ids.length);
-  const counts: Record<HostEvent, number> = {
-    intro: 5,
-    again: 3,
-    handoff: 3,
-    empty_roll: 4,
-    capture_heavy: 5,
-    capture_queen: 4,
-    capture: 4,
-    en_passant: 3,
-    promotion: 3,
-    white_wins: 3,
-    black_wins: 3,
-    win: 2,
-    draw: 3,
+  const prefix: Record<HostId, string> = {
+    rolly: 'host',
+    prowla: 'prowla_host',
   };
-  for (const event of Object.keys(HOST_EVENTS) as HostEvent[]) {
-    const lines = hostLinesFor(event);
-    assert.equal(lines.length, counts[event], event);
-    lines.forEach((line, index) => {
-      assert.equal(line.id, `host_${event}_${index + 1}`);
-      assert.equal(line.bot, 'host');
-      assert.equal(hostLineById(line.id), line);
-    });
+  const counts: Record<HostId, Record<HostEvent, number>> = {
+    rolly: {
+      intro: 5,
+      again: 3,
+      handoff: 3,
+      empty_roll: 4,
+      capture_heavy: 5,
+      capture_queen: 4,
+      capture: 4,
+      en_passant: 3,
+      promotion: 3,
+      white_wins: 3,
+      black_wins: 3,
+      win: 2,
+      draw: 3,
+    },
+    prowla: {
+      intro: 5,
+      again: 4,
+      handoff: 3,
+      empty_roll: 5,
+      capture_heavy: 5,
+      capture_queen: 4,
+      capture: 6,
+      en_passant: 3,
+      promotion: 4,
+      white_wins: 3,
+      black_wins: 3,
+      win: 3,
+      draw: 3,
+    },
+  };
+  assert.deepEqual(HOST_IDS, ['rolly', 'prowla']);
+  for (const host of HOST_IDS) {
+    for (const event of Object.keys(HOST_EVENTS) as HostEvent[]) {
+      const lines = hostLinesFor(event, host);
+      assert.equal(lines.length, counts[host][event], `${host} ${event}`);
+      lines.forEach((line, index) => {
+        assert.equal(line.id, `${prefix[host]}_${event}_${index + 1}`);
+        assert.equal(line.bot, 'host');
+        assert.equal(line.host, host);
+        assert.equal(hostLineById(line.id), line);
+      });
+    }
   }
+  // Rolly's, unless another host is named.
+  assert.deepEqual(hostLinesFor('intro'), hostLinesFor('intro', 'rolly'));
   for (const line of HOST_CATALOGUE)
     assert.ok(Object.hasOwn(HOST_EVENTS, line.event), line.id);
 });
@@ -238,6 +268,46 @@ test('the same game again, or the same id started again, starts nothing new', ()
   const [, ended] = WHITE_TAKES_KING(4, 'same');
   const fresh = hostVoiceCue(ended, game, midGame(4, 0));
   assert.equal(fresh.event, 'again');
+});
+
+// ── Another host (#258) ─────────────────────────────────────────────────────
+
+test('Prowla, hosting, says only her own lines', () => {
+  const state = withHost(INITIAL_HOST_STATE, 'prowla');
+  const first = hostVoiceCue(null, newGame('hotseat', 'one'), state);
+  assert.equal(first.line?.host, 'prowla');
+  assert.match(first.line?.id ?? '', /^prowla_host_intro_[1-5]$/);
+  // A colour's win draws her colourless lines too, never Rolly's.
+  const [before, after] = BLACK_TAKES_KING(4);
+  for (const random of [() => 0, () => 0.99]) {
+    const won = hostVoiceCue(
+      before,
+      after,
+      withHost(midGame(4, 0), 'prowla'),
+      random,
+    );
+    assert.equal(won.line?.host, 'prowla');
+    assert.match(won.line?.id ?? '', /^prowla_host_(black_wins|win)_\d$/);
+  }
+});
+
+test('another host starts with full bags, and keeps what the session has seen', () => {
+  const rolly = hostVoiceCue(null, newGame('hotseat', 'one'));
+  const said = { ...rolly.state, handoffSaid: true, played: true };
+  assert.ok(said.bags.intro?.length, 'Rolly has an intro bag under way');
+  const prowla = withHost(said, 'prowla');
+  assert.equal(prowla.host, 'prowla');
+  assert.deepEqual(prowla.bags, {});
+  assert.deepEqual(prowla.lastLines, {});
+  assert.equal(prowla.played, true);
+  assert.equal(prowla.handoffSaid, true);
+  assert.equal(prowla.lastSpokenTurn, said.lastSpokenTurn);
+  // The same host again changes nothing.
+  assert.equal(withHost(prowla, 'prowla'), prowla);
+  // Her next game opens with her own 'again'.
+  const again = hostVoiceCue(null, newGame('hotseat', 'two'), prowla);
+  assert.equal(again.event, 'again');
+  assert.match(again.line?.id ?? '', /^prowla_host_again_[1-4]$/);
 });
 
 // ── Steps that are not pauses ─────────────────────────────────────────────────

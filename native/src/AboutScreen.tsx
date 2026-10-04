@@ -17,9 +17,19 @@ import {
 } from '../../src/core/credits';
 import type { BoardKey } from '../../src/core/boardInput';
 import { BOT_MODES } from '../../src/core/game';
-import { Portrait } from './Portrait';
+import { PORTRAIT_OF, Portrait, type CharacterId } from './Portrait';
+import { HOSTS } from './hostSetting';
 import { useRemoteInput } from './useRemoteInput';
 import { THEME } from './theme';
+
+// The faces beside the portraits' credit: every character the game shows, the
+// opponents and then the hosts who are not one of them.
+const CREDITED: readonly CharacterId[] = [
+  ...new Set<CharacterId>([
+    ...BOT_MODES.map((mode) => PORTRAIT_OF[mode]),
+    ...HOSTS.map((host) => host.portrait),
+  ]),
+];
 
 export type AboutScreenProps = {
   onExit: () => void;
@@ -93,10 +103,10 @@ export const AboutScreen = ({ onExit, onState }: AboutScreenProps) => {
             testID="portraits-credit"
             style={{ flexDirection: 'row', alignItems: 'center' }}
           >
-            {BOT_MODES.map((mode) => (
-              <View key={mode} style={{ marginRight: 4 }}>
+            {CREDITED.map((character) => (
+              <View key={character} style={{ marginRight: 4 }}>
                 <Portrait
-                  mode={mode}
+                  character={character}
                   kind="badge"
                   size={24}
                   onMissing={noPortraits}

@@ -25,7 +25,8 @@ import {
   type Side,
 } from '../../src/core/game';
 import { opponentOf, type Opponent } from '../../src/core/opponents';
-import { Portrait } from './Portrait';
+import { PORTRAIT_OF, Portrait } from './Portrait';
+import { DEFAULT_HOST, hostPortrait, type HostId } from './hostSetting';
 import { PIECES } from './pieces';
 import {
   BUBBLE_CHROME,
@@ -48,6 +49,8 @@ export type MatchupProps = {
   speechBubble?: React.ReactNode;
   // The Hot Seat host's line, beside hers above the bottom badge.
   hostBubble?: React.ReactNode;
+  // Who says it, whose portrait shows with it.
+  host?: HostId;
   // The turn line, under the top of the panel.
   header?: React.ReactNode;
   children?: React.ReactNode;
@@ -192,7 +195,13 @@ const Meta = ({
 // does not stand, its name, and its colour or level.
 const Avatar = ({ seat, side }: { seat: Seat; side: Side }) => {
   if (seat.kind === 'bot')
-    return <Portrait mode={seat.opponent.mode} kind="badge" size={38} />;
+    return (
+      <Portrait
+        character={PORTRAIT_OF[seat.opponent.mode]}
+        kind="badge"
+        size={38}
+      />
+    );
   const King = PIECES[side === 'w' ? 'K' : 'k'];
   return <King size={32} />;
 };
@@ -270,7 +279,11 @@ const DialogueBlock = ({
     }}
   >
     <View testID="opponent-portrait">
-      <Portrait mode={opponent.mode} kind="card" size={PORTRAIT} />
+      <Portrait
+        character={PORTRAIT_OF[opponent.mode]}
+        kind="card"
+        size={PORTRAIT}
+      />
     </View>
     <View style={{ flex: 1, marginLeft: 8 }}>
       <View
@@ -304,10 +317,17 @@ const DialogueBlock = ({
   </View>
 );
 
-// The Hot Seat host while she says a line (#213): Rolly's portrait and the
-// line, in the free space above the bottom badge, over nothing and moving
-// nothing.
-const HostBlock = ({ bubble }: { bubble: React.ReactNode }) => (
+// The Hot Seat host while she says a line (#213): her portrait, Rolly's or
+// Prowla's (#258), and the line, in the free space above the bottom badge, over
+// nothing and moving nothing. Without the portraits Prowla's place stays
+// empty, so the bubble keeps its place.
+const HostBlock = ({
+  bubble,
+  host,
+}: {
+  bubble: React.ReactNode;
+  host: HostId;
+}) => (
   <View
     testID="host-block"
     style={{
@@ -320,7 +340,7 @@ const HostBlock = ({ bubble }: { bubble: React.ReactNode }) => (
       alignItems: 'center',
     }}
   >
-    <Portrait mode="random" kind="card" size={HOST_PORTRAIT} />
+    <Portrait character={hostPortrait(host)} kind="card" size={HOST_PORTRAIT} />
     <View style={{ flex: 1, marginLeft: 8 }}>{bubble}</View>
   </View>
 );
@@ -332,6 +352,7 @@ export const Matchup = ({
   thinking = false,
   speechBubble,
   hostBubble,
+  host = DEFAULT_HOST,
   header,
   children,
 }: MatchupProps) => {
@@ -358,7 +379,7 @@ export const Matchup = ({
       ) : null}
       <View testID="matchup-center" style={{ flex: 1 }}>
         {children}
-        {hostBubble ? <HostBlock bubble={hostBubble} /> : null}
+        {hostBubble ? <HostBlock bubble={hostBubble} host={host} /> : null}
       </View>
       <SideBadge game={game} side={bottom} toMove={side} thinking={thinking} />
     </View>
