@@ -319,13 +319,23 @@ export const copyMusic = (root = native) => {
 // device, and only if each still has the bytes the lock pinned. A checkout
 // without them builds a game that shows the RhosGFX emoji faces
 // (src/Portrait.tsx).
-export const copyPortraits = (root = native) => {
+//
+// The app looks for them only under the version src/Portrait.tsx names
+// (`portraitsVersion`). A pack of any other version would ship and never load,
+// and the game would show the emoji faces without a word, so the build refuses
+// it instead.
+export const copyPortraits = (root = native, expected = portraitsVersion()) => {
   rmSync(join(root, 'assets/portraits'), { recursive: true, force: true });
   const lockPath = join(root, 'portraits/portraits.lock.json');
   if (!existsSync(lockPath)) return [];
   const { files, source } = JSON.parse(readFileSync(lockPath, 'utf8'));
   if (!/^\d+\.\d+\.\d+$/.test(source?.version ?? ''))
     throw new Error('portraits/portraits.lock.json names no pack version');
+  if (source.version !== expected)
+    throw new Error(
+      `portraits/ holds portrait pack ${source.version}, but src/Portrait.tsx ` +
+        `looks for ${expected}: vendor that pack, or change PORTRAITS_VERSION`,
+    );
   const target = join(root, 'assets/portraits', source.version);
   const copied = [];
   for (const [name, { sha256 }] of Object.entries(files)) {
@@ -339,6 +349,18 @@ export const copyPortraits = (root = native) => {
     copied.push(name);
   }
   return copied;
+};
+
+// The portrait pack version the app looks for: PORTRAITS_VERSION in
+// src/Portrait.tsx, read from the source so the app and the build cannot hold
+// two different numbers.
+export const portraitsVersion = (root = native) => {
+  const source = readFileSync(join(root, 'src/Portrait.tsx'), 'utf8');
+  const match = /export const PORTRAITS_VERSION = '(\d+\.\d+\.\d+)';/.exec(
+    source,
+  );
+  if (!match) throw new Error('src/Portrait.tsx names no PORTRAITS_VERSION');
+  return match[1];
 };
 
 // The bots' voices (#159), vendored by scripts/vendor-voices.mjs into voices/.

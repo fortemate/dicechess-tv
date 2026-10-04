@@ -138,7 +138,7 @@ What the Vega Virtual Device showed on 2026-10-03:
 
 - **The URL.** An `Image` needs the `file:///pkg/assets/...` URL. With the bare `/pkg/assets/...` path that the sound players use, the badge fell back to the emoji face.
 - **The fallback.** A build that looked in a folder that does not exist showed the three emoji faces on the opponent cards.
-- **The version.** A package update left the earlier package's portraits in place, so the pack's version is part of the path. A changed portrait therefore never shows the old one. `test/assets.test.ts` checks that version against the lock.
+- **The version.** A package update left the earlier package's portraits in place, so the pack's version is part of the path. A changed portrait therefore never shows the old one. The app looks only under `PORTRAITS_VERSION` in `src/Portrait.tsx`, so a vendored pack of another version would ship and never load, and the game would show the emoji faces without a word. `scripts/generate-assets.mjs` therefore refuses to build with it: vendor the pack that `PORTRAITS_VERSION` names, or change the constant with the pack.
 
 ---
 
