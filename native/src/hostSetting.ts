@@ -1,22 +1,32 @@
-// Who hosts Hot Seat games, or no one, remembered across launches (#202).
+// Who hosts Hot Seat games, or no one, remembered across launches (#202):
+// Rolly, or Prowla the cat (#258), who hosts though no bot plays her yet.
 //
-// For now the host is a voice over the game: she is heard, not seen, until the
-// game screen is redesigned around the new character portraits. Only Rolly
-// hosts so far; HOSTS is where another character would join her.
-//
-// Rolly unless the viewer turned the host off. Anything but an explicit "off"
-// reads as Rolly, like the voices, so a damaged value cannot dismiss her for
-// good, and the "on" an early build stored still means Rolly.
+// Rolly unless the viewer turned the host off or chose another. Anything but
+// an explicit "off" or a host's id reads as Rolly, like the voices, so a
+// damaged value cannot dismiss her for good, and the "on" an early build stored
+// still means Rolly.
+import { DEFAULT_HOST, HOST_IDS, type HostId } from '../../src/core/hostVoice';
+import type { CharacterId } from './Portrait';
 import type { KeyValueStore } from './mmkvStore';
 
-// The characters who can host, as Settings names them.
-export const HOSTS = [{ id: 'rolly', name: 'Rolly' }] as const;
+export { DEFAULT_HOST, type HostId };
 
-export type HostId = (typeof HOSTS)[number]['id'];
+// The characters who can host, as Settings names them, and the portrait each
+// shows beside her line.
+const HOST_INFO: Readonly<
+  Record<HostId, { readonly name: string; readonly portrait: CharacterId }>
+> = {
+  rolly: { name: 'Rolly', portrait: 'rolly' },
+  prowla: { name: 'Prowla', portrait: 'cat' },
+};
+
+export const HOSTS = HOST_IDS.map((id) => ({ id, ...HOST_INFO[id] }));
+
 // Who hosts: one of the characters, or no one.
 export type HostChoice = HostId | 'off';
 
-export const DEFAULT_HOST: HostId = 'rolly';
+export const hostPortrait = (host: HostId): CharacterId =>
+  HOST_INFO[host].portrait;
 
 // The order Settings steps through: each host, then off.
 export const HOST_CHOICES: readonly HostChoice[] = [

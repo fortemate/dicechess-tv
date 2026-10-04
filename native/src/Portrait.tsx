@@ -1,6 +1,8 @@
-// The opponents' faces: Rolly, Grabby and Rampage drawn for Dice Chess
-// (fortemate/dicechess-assets#31), each a circle in an ivory rim, or the
-// RhosGFX emoji face the game showed before them.
+// The characters' faces: Rolly, Grabby and Rampage, the opponents, and Prowla
+// the cat, a Hot Seat host (#258), drawn for Dice Chess
+// (fortemate/dicechess-assets#31), each a circle in an ivory rim. An opponent
+// without its portrait shows the RhosGFX emoji face the game showed before
+// them; Prowla, who has no such face, leaves her place empty.
 //
 // The portraits are for Fortemate's Dice Chess apps only and stay out of this
 // repository while it is public. scripts/vendor-portraits.mjs copies them from
@@ -10,9 +12,12 @@
 // A checkout without them builds a game that shows the emoji faces: a portrait
 // that does not load gives way to the face, so nothing else has to know.
 import React from 'react';
-import { Image } from 'react-native';
+import { Image, View } from 'react-native';
 import type { BotMode } from '../../src/core/game';
 import { FACES, type FaceId } from './faces';
+
+// The characters the game shows, by their ids in the asset pack.
+export type CharacterId = 'rolly' | 'grabby' | 'rampage' | 'cat';
 
 // Each opponent's emoji face, from RhosGFX's Vector Emojis (CC0).
 export const FACE_OF: Readonly<Record<BotMode, FaceId>> = {
@@ -21,12 +26,21 @@ export const FACE_OF: Readonly<Record<BotMode, FaceId>> = {
   aggressive: 'smiling-face-with-horns',
 };
 
-// Each opponent's portrait, by the character's id in the asset pack.
-export const PORTRAIT_OF: Readonly<Record<BotMode, string>> = {
+// Each opponent's portrait.
+export const PORTRAIT_OF: Readonly<Record<BotMode, CharacterId>> = {
   random: 'rolly',
   greedy: 'grabby',
   aggressive: 'rampage',
 };
+
+// The face a character shows when the build has no portraits.
+const FALLBACK_FACE: Readonly<Partial<Record<CharacterId, FaceId>>> =
+  Object.fromEntries(
+    (Object.keys(PORTRAIT_OF) as BotMode[]).map((mode) => [
+      PORTRAIT_OF[mode],
+      FACE_OF[mode],
+    ]),
+  );
 
 // The badge in the game's header and the opponent card have a file each, drawn
 // for their size: 38 and 112 dp are 76 and 224 pixels at 1080p, and the files
@@ -40,24 +54,26 @@ const FILE: Readonly<Record<PortraitKind, string>> = {
 // puts in the path. A changed portrait therefore never shows the old one: on the
 // Vega Virtual Device an update left the earlier package's portraits in place
 // (2026-10-03). The build refuses a vendored pack of any other version, since
-// its portraits would never load. 1.0.1 draws Rolly's die as a real die.
-export const PORTRAITS_VERSION = '1.0.1';
+// its portraits would never load. 1.3.1 adds Prowla the cat.
+export const PORTRAITS_VERSION = '1.3.1';
 
 // An image needs the file:// URL. The bare /pkg/ path the sound players use
 // fails to load in Image: on the Vega Virtual Device on 2026-10-03 the badge
 // fell back to the emoji face with it, and showed the portrait with this one.
 const ROOT = `file:///pkg/assets/portraits/${PORTRAITS_VERSION}`;
 
-export const portraitPath = (mode: BotMode, kind: PortraitKind): string =>
-  `${ROOT}/${PORTRAIT_OF[mode]}-${FILE[kind]}.png`;
+export const portraitPath = (
+  character: CharacterId,
+  kind: PortraitKind,
+): string => `${ROOT}/${character}-${FILE[kind]}.png`;
 
 export function Portrait({
-  mode,
+  character,
   kind,
   size,
   onMissing,
 }: {
-  mode: BotMode;
+  character: CharacterId;
   kind: PortraitKind;
   size: number;
   // Told when the portrait does not load, which means the build has none.
@@ -65,13 +81,21 @@ export function Portrait({
 }) {
   const [missing, setMissing] = React.useState(false);
   if (missing) {
-    const Face = FACES[FACE_OF[mode]];
+    const face = FALLBACK_FACE[character];
+    if (!face)
+      return (
+        <View
+          testID={`portrait-missing-${character}`}
+          style={{ width: size, height: size }}
+        />
+      );
+    const Face = FACES[face];
     return <Face size={size} />;
   }
   return (
     <Image
-      testID={`portrait-${PORTRAIT_OF[mode]}`}
-      source={{ uri: portraitPath(mode, kind) }}
+      testID={`portrait-${character}`}
+      source={{ uri: portraitPath(character, kind) }}
       style={{ width: size, height: size }}
       fadeDuration={0}
       onError={() => {

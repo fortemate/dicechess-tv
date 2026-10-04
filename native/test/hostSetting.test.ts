@@ -46,23 +46,37 @@ test('the character is stored by its id', () => {
   assert.equal(store.getString(KEY), 'off');
 });
 
-test('anything but "off" reads as Rolly: an early build\'s "on", or a damaged value', () => {
+test('anything but "off" or a host\'s id reads as Rolly: an early build\'s "on", or a damaged value', () => {
   for (const stored of ['on', 'garbled', '', 'Rolly'])
     assert.equal(readHost(memoryStore({ [KEY]: stored })), 'rolly', stored);
 });
 
 test('Settings steps through the hosts, then off, and round again', () => {
   assert.deepEqual(
-    HOSTS.map((host) => [host.id, host.name]),
-    [['rolly', 'Rolly']],
+    HOSTS.map((host) => [host.id, host.name, host.portrait]),
+    [
+      ['rolly', 'Rolly', 'rolly'],
+      ['prowla', 'Prowla', 'cat'],
+    ],
   );
-  assert.deepEqual(HOST_CHOICES, ['rolly', 'off']);
+  assert.deepEqual(HOST_CHOICES, ['rolly', 'prowla', 'off']);
   assert.equal(hostName('rolly'), 'Rolly');
+  assert.equal(hostName('prowla'), 'Prowla');
   assert.equal(hostName('off'), 'off');
-  assert.equal(cycleHost('rolly'), 'off');
+  assert.equal(cycleHost('rolly'), 'prowla');
+  assert.equal(cycleHost('prowla'), 'off');
   assert.equal(cycleHost('off'), 'rolly');
   assert.equal(cycleHost('rolly', -1), 'off');
-  assert.equal(cycleHost('off', -1), 'rolly');
+  assert.equal(cycleHost('off', -1), 'prowla');
+  assert.equal(cycleHost('prowla', -1), 'rolly');
+});
+
+test('Prowla, chosen, is remembered by her id (#258)', () => {
+  const store = memoryStore();
+  saveHost(store, 'prowla');
+  assert.equal(store.getString(KEY), 'prowla');
+  assert.equal(readHost(store), 'prowla');
+  assert.equal(readHost(memoryStore({ [KEY]: 'Prowla' })), 'rolly');
 });
 
 test('the host and the voices are settings of their own', () => {

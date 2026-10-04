@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 import { OpponentScreen, recordLines } from '../src/OpponentScreen';
-import { FACE_OF, portraitPath } from '../src/Portrait';
+import { FACE_OF, PORTRAIT_OF, portraitPath } from '../src/Portrait';
 import { FACES } from '../src/faces';
 import { THEME } from '../src/theme';
 import { OPPONENTS } from '../../src/core/opponents';
@@ -81,7 +81,10 @@ test('each card draws its opponent’s portrait, or the emoji face when the buil
     const { mode } = OPPONENTS[i];
     const Face = FACES[FACE_OF[mode]];
     const [portrait] = card.findAll((node) => isHost(node, 'Image'));
-    assert.equal(portrait.props.source.uri, portraitPath(mode, 'card'));
+    assert.equal(
+      portrait.props.source.uri,
+      portraitPath(PORTRAIT_OF[mode], 'card'),
+    );
     assert.deepEqual(portrait.props.style, { width: 112, height: 112 });
     assert.equal(
       card.findAllByType(Face).length,

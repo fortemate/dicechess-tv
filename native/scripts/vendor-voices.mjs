@@ -1,6 +1,6 @@
-// Vendors the voices (#159, #187, #202) from fortemate/dicechess-assets at one
-// pinned commit: the bots' pack, the Hot Seat host's pack, and events.json, the
-// table of when a character speaks.
+// Vendors the voices (#159, #187, #202, #258) from fortemate/dicechess-assets at
+// one pinned commit: the bots' pack, the Hot Seat hosts' packs, and events.json,
+// the table of when a character speaks.
 //
 //   node scripts/vendor-voices.mjs <dicechess-assets checkout> <commit>
 //
@@ -8,9 +8,9 @@
 // checked against the digests the asset repository published. Each pack has one
 // clip for each of its lines, made ahead of time with ElevenLabs and levelled to
 // the music's loudness: the bots' for the lines of src/core/botVoice.ts, which
-// the owner designed and picked by ear (dicechess-assets#29), and the host's for
-// the lines of src/core/hostVoice.ts, said by Rolly as the Hot Seat host (#202).
-// Both packs are for Fortemate's Dice Chess apps only (dicechess-assets#27): a
+// the owner designed and picked by ear (dicechess-assets#29), and the hosts' for
+// the lines of src/core/hostVoice.ts, said by Rolly (#202) and by Prowla the cat
+// (#258) as the Hot Seat host. Every pack is for Fortemate's Dice Chess apps only (dicechess-assets#27): a
 // project permission that names this repository, like the music's.
 //
 // events.json is not in a pack and has no published digest: the commit pins it,
@@ -27,7 +27,11 @@ import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const PACKS = ['elevenlabs-dicechess-bots', 'elevenlabs-dicechess-host'];
+const PACKS = [
+  'elevenlabs-dicechess-bots',
+  'elevenlabs-dicechess-host',
+  'elevenlabs-dicechess-host-prowla',
+];
 const UPSTREAM = 'fortemate/dicechess-assets';
 const CLIENT = 'fortemate/dicechess-tv';
 const native = resolve(dirname(fileURLToPath(import.meta.url)), '..');

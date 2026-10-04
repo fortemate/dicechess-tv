@@ -28,7 +28,7 @@ Long-form technical documentation, platform findings, performance benchmarks and
 | `src/useHostVoice.ts`          | Picks the host's lines at the pauses, says them, and returns the one to show.        |
 | `src/screen.ts`                | The screen's whole flow, as a pure reducer over state and one action.                |
 | `src/OpponentScreen.tsx`       | Opponent selection: three cards with bot faces, difficulty, and player records.      |
-| `src/Portrait.tsx`             | An opponent's portrait, or its emoji face when the build has no portraits.           |
+| `src/Portrait.tsx`             | A character's portrait, or its emoji face when the build has no portraits.           |
 | `src/TutorialScreen.tsx`       | Five-lesson interactive tutorial running on an isolated sandbox board.               |
 | `src/tutorial.ts`              | The tutorial's flow, as a pure reducer over state and one key.                       |
 | `src/RulesScreen.tsx`          | Dual-pane rules guide: topics on the left, selected explanation on the right.        |
@@ -126,13 +126,13 @@ Regenerating and formatting reproduces the checked-in files byte for byte.
 
 ## Portraits
 
-The three opponents have portraits of their own, drawn for Dice Chess: Rolly, Grabby and Rampage (fortemate/dicechess-assets#31). They are for Fortemate's Dice Chess apps only, so they stay out of this repository while it is public. A local build vendors them from the private asset repository at a pinned commit:
+The three opponents have portraits of their own, drawn for Dice Chess: Rolly, Grabby and Rampage (fortemate/dicechess-assets#31). So does Prowla the cat, who hosts Hot Seat games (#258). They are for Fortemate's Dice Chess apps only, so they stay out of this repository while it is public. A local build vendors them from the private asset repository at a pinned commit:
 
 ```bash
 node native/scripts/vendor-portraits.mjs ../dicechess-assets <commit>
 ```
 
-The script checks every file against the digest the asset repository published, and writes them with their notice and a lock to `native/portraits/`, which git ignores. The build ships them under `assets/portraits/<pack version>/`, and `src/Portrait.tsx` draws them in the header badge and on the opponent cards. A checkout without them, such as this public one, builds a game that shows the RhosGFX emoji faces: a portrait that does not load gives way to the face. The About screen credits them the same way: with the portraits it names Recraft and shows them, and without them it credits the RhosGFX faces (#212).
+The script checks every file against the digest the asset repository published, and writes them with their notice and a lock to `native/portraits/`, which git ignores. The build ships them under `assets/portraits/<pack version>/`, and `src/Portrait.tsx` draws them in the header badge, on the opponent cards and beside the Hot Seat host's line. A checkout without them, such as this public one, builds a game that shows the RhosGFX emoji faces: a portrait that does not load gives way to the face. Prowla has no such face, so her place stays empty, the size of her portrait. The About screen credits them the same way: with the portraits it names Recraft and shows them, and without them it credits the RhosGFX faces (#212).
 
 What the Vega Virtual Device showed on 2026-10-03:
 

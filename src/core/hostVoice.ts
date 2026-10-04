@@ -1,5 +1,7 @@
-// The Hot Seat host (#202): Rolly hosts games between two people at one
-// television, a neutral party host who cheers the moment and never a side.
+// The Hot Seat host (#202): Rolly, or Prowla the cat (#258), hosts games
+// between two people at one television, a neutral party host who cheers the
+// moment and never a side. Each host has her own lines for the same events,
+// and the same pacing.
 //
 // She speaks as a game starts, when a turn ends and the prompt says "OK:
 // continue", and when the game ends. A big moment is said at once, at the
@@ -11,9 +13,10 @@
 // voices/events.json in dicechess-assets, which every Dice Chess client shares,
 // generated into hostPacing.ts.
 //
-// The lines are written in dicechess-assets
-// (voices/elevenlabs-dicechess-host/catalogue.json) and copied here word for
-// word: native/test/vendoredVoices.test.ts fails when a line here and the clip
+// The lines are written in dicechess-assets, in the catalogue.json of
+// voices/elevenlabs-dicechess-host (Rolly's) and of
+// voices/elevenlabs-dicechess-host-prowla, and copied here word for word:
+// native/test/vendoredVoices.test.ts fails when a line here and the clip
 // recorded from it say different things.
 //
 // Pure, like the bots' voices in botVoice.ts, and compiled under
@@ -35,15 +38,24 @@ import {
 export { HOST_EVENTS, HOST_PACING };
 export type { HostEvent, HostPacing };
 
+// The characters who can host, in the order Settings offers them.
+export const HOST_IDS = ['rolly', 'prowla'] as const;
+export type HostId = (typeof HOST_IDS)[number];
+export const DEFAULT_HOST: HostId = 'rolly';
+
 export type HostLine = {
   readonly id: string;
   readonly bot: 'host';
+  // Who says it.
+  readonly host: HostId;
   readonly event: HostEvent;
   readonly text: string;
 };
 
+type Script = Readonly<Record<HostEvent, readonly string[]>>;
+
 // Every event of events.json has its lines, or this does not compile.
-const SCRIPT: Readonly<Record<HostEvent, readonly string[]>> = {
+const ROLLY: Script = {
   white_wins: [
     'White wins! What a game, both of you!',
     'Victory for White! You both played great!',
@@ -117,21 +129,120 @@ const SCRIPT: Readonly<Record<HostEvent, readonly string[]>> = {
   ],
 };
 
-// The 45 lines, with the ids their clips are recorded under: host_<event>_<n>,
-// numbered from 1.
-export const HOST_CATALOGUE: readonly HostLine[] = (
-  Object.keys(SCRIPT) as HostEvent[]
-).flatMap((event) =>
-  SCRIPT[event].map((text, index) => ({
-    id: `host_${event}_${index + 1}`,
-    bot: 'host' as const,
-    event,
-    text,
-  })),
+// Prowla's: a warm, unhurried cat who purrs at the drama (dicechess-assets#56).
+const PROWLA: Script = {
+  white_wins: [
+    'White wins! Bravo, both of you.',
+    'The game goes to White. Well played, Black.',
+    'White takes it. What a chase, you two.',
+  ],
+  black_wins: [
+    'Black takes the game! Lovely, you two.',
+    'The game goes to Black. Well played, White.',
+    'Black pounces last. What a chase, darlings.',
+  ],
+  win: [
+    'And the game is caught. Bravo, you two.',
+    'A winner! Purrr... beautifully done.',
+    "That's the game, darlings. What fun.",
+  ],
+  draw: [
+    'A draw! Two paws, perfectly matched.',
+    'All even, darlings. Shake paws.',
+    'A draw! You two are far too well matched.',
+  ],
+  intro: [
+    'Two players, one board. How delicious.',
+    "Mmm, a game for two. I'll watch from here.",
+    'Welcome, darlings. White rolls first.',
+    "Don't mind me... I'm only here to purr.",
+    'No dice for me, darlings. I only watch.',
+  ],
+  again: [
+    "Another round? Oh, I hoped you'd say that.",
+    'Again? My tail is twitching already.',
+    'Fresh board, fresh chase. Off you go.',
+    'Back so soon? I adore a rematch.',
+  ],
+  handoff: [
+    "Now pass the remote, darling. Black's turn.",
+    'Paw it over. The remote moves every turn.',
+    'Remote to Black, please. Gently now.',
+  ],
+  en_passant: [
+    'En passant! Caught in passing, darlings.',
+    'Sneaky! A pawn caught en passant.',
+    'Psst... that sideways catch is en passant.',
+  ],
+  promotion: [
+    'A pawn crossed the board! How bold.',
+    'Look who grew up. A brand new piece!',
+    'From little pawn to something grand.',
+    'All the way across? Well done, little one.',
+  ],
+  capture_queen: [
+    'A queen falls! Oh, I adore drama.',
+    'A queen... gone. Breathe, darlings.',
+    'The queen! Now we have a game.',
+    'Farewell, Your Majesty. What a moment.',
+  ],
+  capture_heavy: [
+    'Oh my! A big piece leaves the board.',
+    'Now that was a proper pounce.',
+    'My whiskers felt that one, darlings.',
+    'What a catch! The whole board shivers.',
+    'A grand piece gone. Now it gets serious.',
+  ],
+  empty_roll: [
+    'The dice say no. Pass it along, darling.',
+    'No move at all? The dice are teasing.',
+    'Nothing to play? Even a cat must wait.',
+    'The dice took a catnap. Next turn.',
+    'No move... patience, darlings, patience.',
+  ],
+  capture: [
+    'Caught! One piece leaves the board.',
+    'Pounce! Someone was paying attention.',
+    'Mmm, a capture. Things are warming up.',
+    'Off it goes. The board breathes a little.',
+    'Shh... a piece just slipped away.',
+    'A tidy little catch. Purrr...',
+  ],
+};
+
+const SCRIPTS: Readonly<Record<HostId, Script>> = {
+  rolly: ROLLY,
+  prowla: PROWLA,
+};
+
+// The prefix of each host's line ids, the names their clips are recorded under.
+const ID_PREFIX: Readonly<Record<HostId, string>> = {
+  rolly: 'host',
+  prowla: 'prowla_host',
+};
+
+// Every host's lines, with the ids their clips are recorded under: Rolly's 45
+// as host_<event>_<n> and Prowla's 51 as prowla_host_<event>_<n>, numbered
+// from 1.
+export const HOST_CATALOGUE: readonly HostLine[] = HOST_IDS.flatMap((host) =>
+  (Object.keys(SCRIPTS[host]) as HostEvent[]).flatMap((event) =>
+    SCRIPTS[host][event].map((text, index) => ({
+      id: `${ID_PREFIX[host]}_${event}_${index + 1}`,
+      bot: 'host' as const,
+      host,
+      event,
+      text,
+    })),
+  ),
 );
 
-export function hostLinesFor(event: HostEvent): readonly HostLine[] {
-  return HOST_CATALOGUE.filter((line) => line.event === event);
+export function hostLinesFor(
+  event: HostEvent,
+  host: HostId = DEFAULT_HOST,
+): readonly HostLine[] {
+  return HOST_CATALOGUE.filter(
+    (line) => line.event === event && line.host === host,
+  );
 }
 
 export function hostLineById(id: string): HostLine | undefined {
@@ -151,6 +262,8 @@ export const isResultLine = (line: Pick<HostLine, 'event'>): boolean =>
 type Counts = Readonly<Partial<Record<HostEvent, number>>>;
 
 export type HostState = {
+  // Who hosts, chosen in Settings. Her lines fill the bags.
+  readonly host: HostId;
   // Kept from game to game for the session.
   // A game was played this session, so the next one starts with 'again'.
   readonly played: boolean;
@@ -174,6 +287,7 @@ export type HostState = {
 };
 
 export const INITIAL_HOST_STATE: HostState = {
+  host: DEFAULT_HOST,
   played: false,
   handoffSaid: false,
   bags: {},
@@ -271,17 +385,17 @@ export function hostEvents(
   if (!endsTurn(before, after)) return [];
   const events = turnEvents(before, after);
   // Until the next turn begins, the side in the position is still the one that
-  // moved. Two of the three lines name Black's turn, so only the end of a
+  // moved. Each host has lines that name Black's turn, so only the end of a
   // White turn teaches the pass.
   if (!state.handoffSaid && viewGame(after).side === 'w')
     events.push('handoff');
   return events.sort(byPriority);
 }
 
-// The lines an event draws from: a colour's win joins the lines that name no
-// colour.
-const poolOf = (event: HostEvent): readonly string[] => {
-  const ids = (of: HostEvent) => hostLinesFor(of).map((line) => line.id);
+// The lines an event draws from, the host's own: a colour's win joins the
+// lines that name no colour.
+const poolOf = (event: HostEvent, host: HostId): readonly string[] => {
+  const ids = (of: HostEvent) => hostLinesFor(of, host).map((line) => line.id);
   if (event === 'white_wins' || event === 'black_wins')
     return [...ids(event), ...ids('win')];
   return ids(event);
@@ -304,10 +418,11 @@ const otherColour = (event: HostEvent): HostEvent | null => {
 // said last.
 function refill(
   event: HostEvent,
+  host: HostId,
   last: string | undefined,
   random: () => number,
 ): string[] {
-  const bag = [...poolOf(event)];
+  const bag = [...poolOf(event, host)];
   for (let i = bag.length - 1; i > 0; i--) {
     const j = Math.min(i, Math.floor(random() * (i + 1)));
     [bag[i], bag[j]] = [bag[j], bag[i]];
@@ -326,7 +441,7 @@ function speak(
   const left = state.bags[event];
   const bag = left?.length
     ? left
-    : refill(event, state.lastLines[recency], random);
+    : refill(event, state.host, state.lastLines[recency], random);
   const [id, ...rest] = bag;
   const line = hostLineById(id);
   if (!line) throw new Error(`No host line ${id} for ${event}`);
@@ -429,6 +544,14 @@ export function hostVoiceCue(
   const cue = speak(seen, pick, after.turn, random);
   if (result) return cue;
   return { ...cue, state: { ...cue.state, turnSpoken: after.turn } };
+}
+
+// Another host takes over: her bags start full, and what the last one said
+// does not bind her. The session's facts stay, a game played and the pass of
+// the remote taught, and so does the game being hosted.
+export function withHost(state: HostState, host: HostId): HostState {
+  if (state.host === host) return state;
+  return { ...state, host, bags: {}, lastLines: {} };
 }
 
 // Puts back a line that was picked but never heard, at the front of its bag,

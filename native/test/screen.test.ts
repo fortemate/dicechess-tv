@@ -478,7 +478,7 @@ test('without music in the build, Settings offers sound effects, voices, the hos
   assert.equal(drive(voices, 'select').voices, false);
   assert.equal(drive(voices, 'select').sound, true);
   const host = drive(voices, 'down');
-  assert.equal(drive(host, 'select').host, 'off');
+  assert.equal(drive(host, 'select').host, 'prowla');
   assert.equal(drive(host, 'select').voices, true);
   assert.equal(drive(host, 'select').turnHotseat, false);
   const hotseat = drive(host, 'down');
@@ -538,15 +538,27 @@ test('OK or the arrows sideways flip music, sound effects, voices and hotseat bo
   assert.equal(drive(voices, 'right').voices, false);
   assert.equal(drive(voices, 'select', 'left').voices, true);
   // Once more, the Hot Seat host, Rolly by default. OK and Right step to the
-  // next choice and Left to the one before; with Rolly the only host, each
-  // goes between her and off.
+  // next choice, Prowla (#258) and then off, and Left to the one before.
   const host = drive(voices, 'down');
   assert.equal(host.host, 'rolly');
-  assert.equal(drive(host, 'select').host, 'off');
-  assert.equal(drive(host, 'right').host, 'off');
+  assert.equal(drive(host, 'select').host, 'prowla');
+  assert.equal(drive(host, 'right').host, 'prowla');
+  assert.equal(drive(host, 'select', 'select').host, 'off');
   assert.equal(drive(host, 'left').host, 'off');
-  assert.equal(drive(host, 'select', 'select').host, 'rolly');
+  assert.equal(drive(host, 'left', 'left').host, 'prowla');
+  assert.equal(drive(host, 'select', 'select', 'select').host, 'rolly');
   assert.equal(drive(host, 'right', 'left').host, 'rolly');
+  assert.equal(
+    settingsOptions(
+      host.sound,
+      host.music,
+      host.musicAvailable,
+      host.turnHotseat,
+      host.voices,
+      'prowla',
+    )[4],
+    'Hot Seat host: Prowla',
+  );
   const hostOff = drive(host, 'left');
   assert.equal(
     settingsOptions(
@@ -619,7 +631,7 @@ test('a new game keeps the settings', () => {
   assert.deepEqual(changed.music, { on: false, volume: 8 });
   assert.equal(changed.sound, false);
   assert.equal(changed.voices, false);
-  assert.equal(changed.host, 'off');
+  assert.equal(changed.host, 'prowla');
   // Back to the home menu, on Settings, then up to a new hotseat game.
   const home = drive(changed, 'back');
   const at = homeOptions(false).indexOf('Settings');
@@ -628,7 +640,7 @@ test('a new game keeps the settings', () => {
   assert.deepEqual(game.music, { on: false, volume: 8 });
   assert.equal(game.sound, false);
   assert.equal(game.voices, false);
-  assert.equal(game.host, 'off');
+  assert.equal(game.host, 'prowla');
 });
 
 test('the host setting starts as the app read it, and a move keeps it (#202)', () => {

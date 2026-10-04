@@ -1,0 +1,1980 @@
+{
+  "attributionRequired": false,
+  "casting": "casting.json",
+  "clients": [
+    "fortemate/dicechess-tv"
+  ],
+  "derivation": {
+    "arguments": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+    "note": "Each export is its source with the gain that brings it to the target loudness, measured by ffmpeg's ebur128 filter, then a limiter, as mono MP3 without metadata. Where the limiter takes more than 0.5 LU, the gain is raised by the difference and the conversion made again, up to 3 conversions in all.",
+    "target": {
+      "bitrate": "64k",
+      "integratedLufs": -16,
+      "limitDbfs": -1.5
+    },
+    "tool": "ffmpeg version 9.0.1 Copyright (c) 2000-2026 the FFmpeg developers"
+  },
+  "directions": "directions.json",
+  "distribution": "project",
+  "generator": {
+    "kind": "voices",
+    "note": "Voices designed, or to be designed, with ElevenLabs Voice Design and read by Eleven v4 on a paid plan; nothing made on the free plan ships. The ElevenLabs Terms of Service for the EEA (last updated 31 March 2026) say that as between the user and ElevenLabs the user retains all rights in the Output. The Prohibited Use Policy (17 August 2026) forbids using it in datasets for AI training, so the pack has no open licence: it is for Fortemate's Dice Chess applications only (fortemate/dicechess-assets#27).",
+    "tool": "ElevenLabs",
+    "via": "POST /v1/text-to-speech/{voice_id} with model eleven_v4, run by tools/elevenlabs_audio.py with the owner's API key"
+  },
+  "id": "elevenlabs-dicechess-host-prowla",
+  "license": "Fortemate apps only",
+  "licenseFile": "LICENSE.txt",
+  "lines": {
+    "prowla_host_again_1": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[laughs] Another round? Oh, I hoped you'd say that.",
+      "durationSeconds": 4.56,
+      "event": "again",
+      "export": "exports/mp3/prowla_host_again_1.mp3",
+      "generated": "2026-10-04T17:16:55Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 3.3,
+        "passes": 2,
+        "sourceLufs": -18.4
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "64Jw9GZ0gSDRSUQEBFgq",
+      "seed": 1114869867,
+      "sha256": "4c896cd95f86a6f064c910b72bb5b1da6ebc4ded85949a41142c2503a897bfdd",
+      "source": "source/mp3/prowla_host_again_1.mp3",
+      "sourceSha256": "c36df36a3dba0271722d17a216a5a66bff927020c1d4647fafc05a367af617ec",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Another round? Oh, I hoped you'd say that.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_again_2": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[mischievously] Again? My tail is twitching already.",
+      "durationSeconds": 3.84,
+      "event": "again",
+      "export": "exports/mp3/prowla_host_again_2.mp3",
+      "generated": "2026-10-04T17:16:56Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 9.2,
+        "passes": 2,
+        "sourceLufs": -23.9
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "ADlhirTS5psLzfre5nQm",
+      "seed": 3267635808,
+      "sha256": "b0c3c8c821bf86a469046ecf35dcd737c99dea0251614cfcf0a32a7d8ac29d8d",
+      "source": "source/mp3/prowla_host_again_2.mp3",
+      "sourceSha256": "cdcd31ce6cb1cfd63513f12dd5384e3a03ee13fd97c202fd65a872a865165c5e",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Again? My tail is twitching already.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_again_3": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] Fresh board, fresh chase. Off you go.",
+      "durationSeconds": 3.52,
+      "event": "again",
+      "export": "exports/mp3/prowla_host_again_3.mp3",
+      "generated": "2026-10-04T17:16:57Z",
+      "loudness": {
+        "exportLufs": -16.0,
+        "gainDb": 0.6,
+        "passes": 2,
+        "sourceLufs": -16.0
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "PPFOD9vbfklbpCOFpw1f",
+      "seed": 413451138,
+      "sha256": "370555f158f1c63a30ba6e00bedf3db14cae463a98e7c4d7ee550b0f53bfecd7",
+      "source": "source/mp3/prowla_host_again_3.mp3",
+      "sourceSha256": "9d4971e7928ed0adba64117391d5886f997f26d0fc4f58f93100d6adc234578e",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Fresh board, fresh chase. Off you go.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_again_4": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] Back so soon? I adore a rematch.",
+      "durationSeconds": 3.76,
+      "event": "again",
+      "export": "exports/mp3/prowla_host_again_4.mp3",
+      "generated": "2026-10-04T17:16:59Z",
+      "loudness": {
+        "exportLufs": -16.1,
+        "gainDb": 5.2,
+        "passes": 2,
+        "sourceLufs": -20.6
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "Cxbe6GcYrPMlt1Kpa3C4",
+      "seed": 3859389374,
+      "sha256": "f4b0bd52b588a6dc9860c986c6172337cb2d3b91e0f47a5d6227c44c8185dbb7",
+      "source": "source/mp3/prowla_host_again_4.mp3",
+      "sourceSha256": "aa5e8385b74e8d34566e22f769c3eec090190b54a7b71c264806a69ebca88749",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Back so soon? I adore a rematch.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_black_wins_1": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[triumphant] Black takes the game! Lovely, you two.",
+      "durationSeconds": 3.92,
+      "event": "black_wins",
+      "export": "exports/mp3/prowla_host_black_wins_1.mp3",
+      "generated": "2026-10-04T17:17:00Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 1.0,
+        "passes": 2,
+        "sourceLufs": -16.4
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "MftXDw0cqiH2EjNVd2I9",
+      "seed": 158913614,
+      "sha256": "01d0a59e4fd3b50b622ed2c8f2b52015f363ec2f506fb7ac41f71b453fe6f230",
+      "source": "source/mp3/prowla_host_black_wins_1.mp3",
+      "sourceSha256": "2abf545b211c65332dc0e3d01dbe706e12c199a47c9ade51fd8b94a92fb502de",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Black takes the game! Lovely, you two.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_black_wins_2": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] The game goes to Black. Well played, White.",
+      "durationSeconds": 3.28,
+      "event": "black_wins",
+      "export": "exports/mp3/prowla_host_black_wins_2.mp3",
+      "generated": "2026-10-04T17:17:01Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 0.2,
+        "passes": 1,
+        "sourceLufs": -16.2
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "J25CJ9M8kpfrvqXWCuro",
+      "seed": 765353405,
+      "sha256": "de9965a9a662fa32ea468636abb2f7cf10848cbfd39bdf889c50c79523cee53a",
+      "source": "source/mp3/prowla_host_black_wins_2.mp3",
+      "sourceSha256": "c5fe31e173a6d3ba1f563639b618830efdd5fb9e58ec84d29b004208d87dd7cb",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "The game goes to Black. Well played, White.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_black_wins_3": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[mischievously] Black pounces last. What a chase, darlings.",
+      "durationSeconds": 4.56,
+      "event": "black_wins",
+      "export": "exports/mp3/prowla_host_black_wins_3.mp3",
+      "generated": "2026-10-04T17:17:03Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 5.8,
+        "passes": 2,
+        "sourceLufs": -20.6
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "XFHhfEw4oJ3ElxqIqLbd",
+      "seed": 3086251816,
+      "sha256": "9df2698b5073bb69b1da86d1222b42e25a78983a541ab6558f20575177297332",
+      "source": "source/mp3/prowla_host_black_wins_3.mp3",
+      "sourceSha256": "02e0d8e3dba225b5b1cadc1d6b2bb5b3feedf07ca42b854bb38b95f8b6a40d52",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Black pounces last. What a chase, darlings.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_capture_1": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[mischievously] Caught! One piece leaves the board.",
+      "durationSeconds": 3.44,
+      "event": "capture",
+      "export": "exports/mp3/prowla_host_capture_1.mp3",
+      "generated": "2026-10-04T17:17:04Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 8.7,
+        "passes": 3,
+        "sourceLufs": -20.7
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "WUSixYMba1f12Bd1oyvL",
+      "seed": 3614233398,
+      "sha256": "a2b2c00f953378971a768928e1939a97485a232a76c263b677971aebf73a9732",
+      "source": "source/mp3/prowla_host_capture_1.mp3",
+      "sourceSha256": "076d543b28555c4580925b09cdd24269c5f499e9d85ea60c65f0ebc3afa6592b",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Caught! One piece leaves the board.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_capture_2": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[laughs] Pounce! Someone was paying attention.",
+      "durationSeconds": 4.24,
+      "event": "capture",
+      "export": "exports/mp3/prowla_host_capture_2.mp3",
+      "generated": "2026-10-04T17:17:05Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 2.5,
+        "passes": 2,
+        "sourceLufs": -17.6
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "aLqrEFJWR0a39YWv345E",
+      "seed": 557767851,
+      "sha256": "0a487b538966ff4f331a477e3d0f9b1e3a7f5fb0cfc5025baa22e405ea3b01c7",
+      "source": "source/mp3/prowla_host_capture_2.mp3",
+      "sourceSha256": "67e48327afc1edfb38b0d8f1abbe5c53b7388badc474cfd1f41963bc5ecf564a",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Pounce! Someone was paying attention.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_capture_3": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] Mmm, a capture. Things are warming up.",
+      "durationSeconds": 4.08,
+      "event": "capture",
+      "export": "exports/mp3/prowla_host_capture_3.mp3",
+      "generated": "2026-10-04T17:17:06Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 4.1,
+        "passes": 2,
+        "sourceLufs": -19.4
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "DfCnm4Amy48srGWYuz29",
+      "seed": 2589500211,
+      "sha256": "d4998613db27c660454c237f1d3f9665fb40a35623422a7390187b1407aea1be",
+      "source": "source/mp3/prowla_host_capture_3.mp3",
+      "sourceSha256": "b4de3275861642a670108aa6b8bd82f6e3d8d1ec1ae683083ef3196daa62872f",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Mmm, a capture. Things are warming up.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_capture_4": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] Off it goes. The board breathes a little.",
+      "durationSeconds": 3.44,
+      "event": "capture",
+      "export": "exports/mp3/prowla_host_capture_4.mp3",
+      "generated": "2026-10-04T17:17:08Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 2.2,
+        "passes": 2,
+        "sourceLufs": -17.5
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "6kuBMejShOsrGKXgC1je",
+      "seed": 1139574027,
+      "sha256": "bda08ac77510c07102dcfb142faeb47b6c333aa068d58ecddddbaf63d0a72e51",
+      "source": "source/mp3/prowla_host_capture_4.mp3",
+      "sourceSha256": "497704cc159332ac80581553ff174aa489b0f3c07385e6d15cdddb8bf5876b77",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Off it goes. The board breathes a little.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_capture_5": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[whispers] Shh... a piece just slipped away.",
+      "durationSeconds": 3.04,
+      "event": "capture",
+      "export": "exports/mp3/prowla_host_capture_5.mp3",
+      "generated": "2026-10-04T17:17:09Z",
+      "loudness": {
+        "exportLufs": -16.0,
+        "gainDb": 10.7,
+        "passes": 2,
+        "sourceLufs": -26.1
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "WQgGRN8TSYrbu6B5K82Z",
+      "seed": 814238275,
+      "sha256": "33820fdfa79c83da96bfd340230a1e5812031705d4762440b416dd8595d1f2f2",
+      "source": "source/mp3/prowla_host_capture_5.mp3",
+      "sourceSha256": "935002d20971f71eb100993179a9f8e5dcab8a8d271d944ac50fce390bac3b03",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Shh... a piece just slipped away.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_capture_6": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[smug] A tidy little catch. Purrr...",
+      "durationSeconds": 3.28,
+      "event": "capture",
+      "export": "exports/mp3/prowla_host_capture_6.mp3",
+      "generated": "2026-10-04T17:17:10Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 8.0,
+        "passes": 2,
+        "sourceLufs": -23.3
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "8Ny7ZqMYFfvfhLkmSD5t",
+      "seed": 2109539342,
+      "sha256": "22669e53730ae13e7688910bec854c7ecf037c3eece0321bbfe2f0a8438e5e22",
+      "source": "source/mp3/prowla_host_capture_6.mp3",
+      "sourceSha256": "fcb98984511f11c069065cb283d756e04ffec557b75993e7fd573ed0b659e996",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "A tidy little catch. Purrr...",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_capture_heavy_1": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[gasps] Oh my! A big piece leaves the board.",
+      "durationSeconds": 4.24,
+      "event": "capture_heavy",
+      "export": "exports/mp3/prowla_host_capture_heavy_1.mp3",
+      "generated": "2026-10-04T17:17:11Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 2.3,
+        "passes": 1,
+        "sourceLufs": -18.3
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "xwwnqzt3fUTQBk1kSHn3",
+      "seed": 4108233809,
+      "sha256": "f9e967ccf336a8b686123cf28b4778d91e81260d91cfcae4e5020764a0677a12",
+      "source": "source/mp3/prowla_host_capture_heavy_1.mp3",
+      "sourceSha256": "05100a805b20e0296384ecd348d4c4ab0f741e4e418938301212c2a3189f4770",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Oh my! A big piece leaves the board.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_capture_heavy_2": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[mischievously] Now that was a proper pounce.",
+      "durationSeconds": 3.2,
+      "event": "capture_heavy",
+      "export": "exports/mp3/prowla_host_capture_heavy_2.mp3",
+      "generated": "2026-10-04T17:17:13Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 6.4,
+        "passes": 2,
+        "sourceLufs": -21.1
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "VUDaGSceN42sWyEnQqm7",
+      "seed": 3717705844,
+      "sha256": "d71635fc89e15d4662fcd82bbeee88d714318546334d2acb0ddc6694aeb51512",
+      "source": "source/mp3/prowla_host_capture_heavy_2.mp3",
+      "sourceSha256": "c5db87b2f2c81d3f71bd998d3ea81dfea503a3cafa94bcadf3d6fce54de1e605",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Now that was a proper pounce.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_capture_heavy_3": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[gasps] My whiskers felt that one, darlings.",
+      "durationSeconds": 3.6,
+      "event": "capture_heavy",
+      "export": "exports/mp3/prowla_host_capture_heavy_3.mp3",
+      "generated": "2026-10-04T17:17:14Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 4.1,
+        "passes": 2,
+        "sourceLufs": -19.4
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "noxYZYMdJTGa6d81rHKQ",
+      "seed": 184248770,
+      "sha256": "c76d3ccf5738342591d3cb72bee98d2249423744de1c146f98dbbf05c55aec51",
+      "source": "source/mp3/prowla_host_capture_heavy_3.mp3",
+      "sourceSha256": "3116a3113825f4b847008725510f4829ccfa940917090f2e5416656517b1fa2a",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "My whiskers felt that one, darlings.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_capture_heavy_4": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[triumphant] What a catch! The whole board shivers.",
+      "durationSeconds": 4.0,
+      "event": "capture_heavy",
+      "export": "exports/mp3/prowla_host_capture_heavy_4.mp3",
+      "generated": "2026-10-04T17:17:15Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 1.9,
+        "passes": 1,
+        "sourceLufs": -17.9
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "l5WvW1INlxt6sJ1CM216",
+      "seed": 844807418,
+      "sha256": "41353f1498c493e57892a7418375c3ddc5690567a819e220534cfe65d89f0267",
+      "source": "source/mp3/prowla_host_capture_heavy_4.mp3",
+      "sourceSha256": "ec7984a078ec78ed0703bb0cd26fa9d126fa739837e1cf7dec214927c5f8ecd1",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "What a catch! The whole board shivers.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_capture_heavy_5": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] A grand piece gone. Now it gets serious.",
+      "durationSeconds": 4.08,
+      "event": "capture_heavy",
+      "export": "exports/mp3/prowla_host_capture_heavy_5.mp3",
+      "generated": "2026-10-04T17:17:16Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 6.8,
+        "passes": 2,
+        "sourceLufs": -21.7
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "irKbgged4RaRQTQUV1Hs",
+      "seed": 766294390,
+      "sha256": "5edca0fd4e0411a3614fc05460506daea700900f72c523d34c3c9616e2df05a1",
+      "source": "source/mp3/prowla_host_capture_heavy_5.mp3",
+      "sourceSha256": "06a133876cc253e656b2b9887d9cca0338dc55709019e162c499db2e3795c4da",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "A grand piece gone. Now it gets serious.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_capture_queen_1": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[gasps] A queen falls! [laughs] Oh, I adore drama.",
+      "durationSeconds": 6.0,
+      "event": "capture_queen",
+      "export": "exports/mp3/prowla_host_capture_queen_1.mp3",
+      "generated": "2026-10-04T17:17:18Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 2.2,
+        "passes": 2,
+        "sourceLufs": -17.6
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "GJbZ76G5L1mhMguUV4j2",
+      "seed": 911565443,
+      "sha256": "0de465ebc44e19fc588d3d448cf0451d595ed689ac24152d72e148eaf7a45c65",
+      "source": "source/mp3/prowla_host_capture_queen_1.mp3",
+      "sourceSha256": "5cfb8c5a3ba316de39b1c4675af371609992bb7523644692ae10f0bd68048fd3",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "A queen falls! Oh, I adore drama.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_capture_queen_2": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[whispers] A queen... gone. Breathe, darlings.",
+      "durationSeconds": 4.4,
+      "event": "capture_queen",
+      "export": "exports/mp3/prowla_host_capture_queen_2.mp3",
+      "generated": "2026-10-04T17:17:20Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 11.6,
+        "passes": 2,
+        "sourceLufs": -26.2
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "RwPQz6p16n2IpEQeBmgT",
+      "seed": 468723680,
+      "sha256": "699711e14ec87e4ebf619f49b2fe750c10a33206af0a721bdd637c94f8025bbe",
+      "source": "source/mp3/prowla_host_capture_queen_2.mp3",
+      "sourceSha256": "4e3718ad81c77f9150a6447dd9f08d583d8b5559a278e057fa83d458ae663d44",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "A queen... gone. Breathe, darlings.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_capture_queen_3": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[gasps] The queen! [mischievously] Now we have a game.",
+      "durationSeconds": 4.08,
+      "event": "capture_queen",
+      "export": "exports/mp3/prowla_host_capture_queen_3.mp3",
+      "generated": "2026-10-04T17:17:21Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 4.4,
+        "passes": 2,
+        "sourceLufs": -19.5
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "ytrSPUeUIqRmiK3OV3A4",
+      "seed": 3187910166,
+      "sha256": "7195b3f3e924af1b8f56bae31a82ec05fdb225cad3c6bae2d49d1f64d92fb472",
+      "source": "source/mp3/prowla_host_capture_queen_3.mp3",
+      "sourceSha256": "85866ec8cb0e0083ad61f92a2c59461ba5711aad430a3d9a038da19fd38c8373",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "The queen! Now we have a game.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_capture_queen_4": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[sighs] Farewell, Your Majesty. What a moment.",
+      "durationSeconds": 4.64,
+      "event": "capture_queen",
+      "export": "exports/mp3/prowla_host_capture_queen_4.mp3",
+      "generated": "2026-10-04T17:17:22Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 6.3,
+        "passes": 3,
+        "sourceLufs": -20.3
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "gDzIgS2yKJK4VCWk3HbC",
+      "seed": 3683540685,
+      "sha256": "bb7afa055f4104e4f407bd795ad7ec42a4ae23faf08c302f09763825d81ba0e8",
+      "source": "source/mp3/prowla_host_capture_queen_4.mp3",
+      "sourceSha256": "1dd0879f5e77ad51ad906abb7b7a304bbad1850d56117500fd4419318760735a",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Farewell, Your Majesty. What a moment.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_draw_1": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] A draw! Two paws, perfectly matched.",
+      "durationSeconds": 4.08,
+      "event": "draw",
+      "export": "exports/mp3/prowla_host_draw_1.mp3",
+      "generated": "2026-10-04T17:17:24Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 4.7,
+        "passes": 2,
+        "sourceLufs": -19.9
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "h0Z4FBtKdmCMawaPdpZB",
+      "seed": 4198668473,
+      "sha256": "254efe70bf966efc960f9d21bf579124bf924c9e474942ef1cd1082757f5e6bd",
+      "source": "source/mp3/prowla_host_draw_1.mp3",
+      "sourceSha256": "161e10a49371b9a876e08bdf552a3b6d2c35522285ff57bca9f7ed1ed86a8ab9",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "A draw! Two paws, perfectly matched.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_draw_2": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] All even, darlings. Shake paws.",
+      "durationSeconds": 2.96,
+      "event": "draw",
+      "export": "exports/mp3/prowla_host_draw_2.mp3",
+      "generated": "2026-10-04T17:17:25Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": -0.9,
+        "passes": 1,
+        "sourceLufs": -15.1
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "BiiSOgFBSixcJ2da3Umt",
+      "seed": 3251068791,
+      "sha256": "28a5969a75f8c6e2bce8d9415163d4ae73a42ad549df322abd914115e0a6da03",
+      "source": "source/mp3/prowla_host_draw_2.mp3",
+      "sourceSha256": "d5a0c6d44ee82c4dfafcb667c75b409b14a94a210d96cf6b3696cb15bb8c02d8",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "All even, darlings. Shake paws.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_draw_3": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[laughs] A draw! You two are far too well matched.",
+      "durationSeconds": 4.56,
+      "event": "draw",
+      "export": "exports/mp3/prowla_host_draw_3.mp3",
+      "generated": "2026-10-04T17:17:26Z",
+      "loudness": {
+        "exportLufs": -16.1,
+        "gainDb": 1.6,
+        "passes": 2,
+        "sourceLufs": -17.0
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "wvsZ1GdTzIKtSSmG6vZw",
+      "seed": 2569907589,
+      "sha256": "f68fc591578adba6b75b70bb7757ed24a44eadff031589ed042f6976d166348a",
+      "source": "source/mp3/prowla_host_draw_3.mp3",
+      "sourceSha256": "dfa69135319f75325f5ba9ad601cf028d2076d09b594b09557bf4212ca740371",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "A draw! You two are far too well matched.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_empty_roll_1": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[sighs] The dice say no. Pass it along, darling.",
+      "durationSeconds": 4.32,
+      "event": "empty_roll",
+      "export": "exports/mp3/prowla_host_empty_roll_1.mp3",
+      "generated": "2026-10-04T17:17:28Z",
+      "loudness": {
+        "exportLufs": -16.1,
+        "gainDb": 4.9,
+        "passes": 2,
+        "sourceLufs": -20.3
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "cY7JaTiLZaAaMM9471aP",
+      "seed": 2455104218,
+      "sha256": "90a24656965cf6917733d290accc32412cbbfbeb529270e74b70fb2c16547faa",
+      "source": "source/mp3/prowla_host_empty_roll_1.mp3",
+      "sourceSha256": "4d53d13e394521d1c5e42f9f0be08410f848812119f02f217706cbe1730eebab",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "The dice say no. Pass it along, darling.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_empty_roll_2": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[laughs] No move at all? The dice are teasing.",
+      "durationSeconds": 4.64,
+      "event": "empty_roll",
+      "export": "exports/mp3/prowla_host_empty_roll_2.mp3",
+      "generated": "2026-10-04T17:17:29Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 4.5,
+        "passes": 2,
+        "sourceLufs": -19.6
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "YNaDWLGYvzWgSpLPRWbT",
+      "seed": 1664018246,
+      "sha256": "b6ca0af269f0cc3428b14aa7909752149b45f92df7b6ab9c8d56c1381a0f577a",
+      "source": "source/mp3/prowla_host_empty_roll_2.mp3",
+      "sourceSha256": "8f2b37480c582400d9ec07e1c988330187fde009c2c70aa1ff5144207b9b0999",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "No move at all? The dice are teasing.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_empty_roll_3": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] Nothing to play? Even a cat must wait.",
+      "durationSeconds": 3.52,
+      "event": "empty_roll",
+      "export": "exports/mp3/prowla_host_empty_roll_3.mp3",
+      "generated": "2026-10-04T17:17:31Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 6.4,
+        "passes": 2,
+        "sourceLufs": -21.5
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "tq24aOG5Ec8hMsDBbVJ2",
+      "seed": 3852111168,
+      "sha256": "fca7854d9f38a012d39189e4cbe16ae0f37c73a55f89e4515882dd243f3bfda7",
+      "source": "source/mp3/prowla_host_empty_roll_3.mp3",
+      "sourceSha256": "ba4c48990924232a26414cd5f8ff725468ef971b91ee6e229a057b7eb67ceb17",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Nothing to play? Even a cat must wait.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_empty_roll_4": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[mischievously] The dice took a catnap. Next turn.",
+      "durationSeconds": 3.52,
+      "event": "empty_roll",
+      "export": "exports/mp3/prowla_host_empty_roll_4.mp3",
+      "generated": "2026-10-04T17:17:32Z",
+      "loudness": {
+        "exportLufs": -16.1,
+        "gainDb": 8.4,
+        "passes": 3,
+        "sourceLufs": -22.1
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "jYIeW4piDCsJJo0CfbxA",
+      "seed": 4147500470,
+      "sha256": "8c2bdcad7b54aaeceb42186678f85565c787696c84d34a5da468e56f8ef1aa61",
+      "source": "source/mp3/prowla_host_empty_roll_4.mp3",
+      "sourceSha256": "e12478a61b9181206798c9d4a5bfb00b8469cce6fe97ecdd47a87a377be11df1",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "The dice took a catnap. Next turn.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_empty_roll_5": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[whispers] No move... patience, darlings, patience.",
+      "durationSeconds": 4.16,
+      "event": "empty_roll",
+      "export": "exports/mp3/prowla_host_empty_roll_5.mp3",
+      "generated": "2026-10-04T17:17:33Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 12.0,
+        "passes": 2,
+        "sourceLufs": -27.2
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "vKdUHFS5fnFAkWKkWRTy",
+      "seed": 2168732094,
+      "sha256": "1d88e4ccbe4c892045737e4b69e72fecb9c0ed04ee3bb089328d4724a0608825",
+      "source": "source/mp3/prowla_host_empty_roll_5.mp3",
+      "sourceSha256": "d0c7438792f1bc950a330c279a1c83168d47087fa40d7b7707a6ade6192e054b",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "No move... patience, darlings, patience.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_en_passant_1": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] En passant! Caught in passing, darlings.",
+      "durationSeconds": 3.36,
+      "event": "en_passant",
+      "export": "exports/mp3/prowla_host_en_passant_1.mp3",
+      "generated": "2026-10-04T17:17:35Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 5.2,
+        "passes": 2,
+        "sourceLufs": -20.5
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "lW2oz6R3go05ym2yomKu",
+      "seed": 149367293,
+      "sha256": "3db999e80e711e8a0dd160cc161879cbcc84c04a562b4f5d167568a012eacf16",
+      "source": "source/mp3/prowla_host_en_passant_1.mp3",
+      "sourceSha256": "568b8771ea4ac565c7aada2256210ef3df8afb2fab1190e4a5b1780964c0fbbf",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "En passant! Caught in passing, darlings.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_en_passant_2": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[mischievously] Sneaky! A pawn caught en passant.",
+      "durationSeconds": 4.0,
+      "event": "en_passant",
+      "export": "exports/mp3/prowla_host_en_passant_2.mp3",
+      "generated": "2026-10-04T17:17:36Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 9.0,
+        "passes": 2,
+        "sourceLufs": -24.3
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "umd4Gt01vFRXZK1W2ZiN",
+      "seed": 1933497790,
+      "sha256": "3f3b340f3560b2391b6c02b02fdd0ecd6e954c169d150b4a83612bde3854d326",
+      "source": "source/mp3/prowla_host_en_passant_2.mp3",
+      "sourceSha256": "35219a5aae8a2e90a4131c76d66b08f6a6000899201a1a14ad20fcc8cfb1b20d",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Sneaky! A pawn caught en passant.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_en_passant_3": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[whispers] Psst... that sideways catch is en passant.",
+      "durationSeconds": 3.44,
+      "event": "en_passant",
+      "export": "exports/mp3/prowla_host_en_passant_3.mp3",
+      "generated": "2026-10-04T17:17:37Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 10.1,
+        "passes": 2,
+        "sourceLufs": -25.3
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "VJ3Kn15XqIHH0he0z4V1",
+      "seed": 3130769664,
+      "sha256": "d680c93d5f1a839004984227f88aad4dc8103693b739d506396a9a8da56ead06",
+      "source": "source/mp3/prowla_host_en_passant_3.mp3",
+      "sourceSha256": "bccf874d0680e796b9f0f4fae42112a4a568af559a68c9f90aa02302dd162c6f",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Psst... that sideways catch is en passant.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_handoff_1": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] Now pass the remote, darling. Black's turn.",
+      "durationSeconds": 3.28,
+      "event": "handoff",
+      "export": "exports/mp3/prowla_host_handoff_1.mp3",
+      "generated": "2026-10-04T17:17:38Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": -0.1,
+        "passes": 1,
+        "sourceLufs": -15.9
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "88QwyByJwWCooZqDMGr7",
+      "seed": 1267283355,
+      "sha256": "de2bc1259dc4891051b6f54e154c8d674c404dfd4ad0334e5e3f8ae7f2b017ba",
+      "source": "source/mp3/prowla_host_handoff_1.mp3",
+      "sourceSha256": "202df8a7a78304500eca83460df674400f4f02effbb0bd26694ac09a2100883c",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Now pass the remote, darling. Black's turn.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_handoff_2": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[mischievously] Paw it over. The remote moves every turn.",
+      "durationSeconds": 4.08,
+      "event": "handoff",
+      "export": "exports/mp3/prowla_host_handoff_2.mp3",
+      "generated": "2026-10-04T17:17:40Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 5.7,
+        "passes": 2,
+        "sourceLufs": -20.7
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "latbrIy3lDmTsSYGE1hb",
+      "seed": 794941619,
+      "sha256": "17dabab397116710d7928a9f16507d8659bbc72065bc7003782a74e11ad478f6",
+      "source": "source/mp3/prowla_host_handoff_2.mp3",
+      "sourceSha256": "1eff9cd1091b054b579f64a590f8e0fa273cbc3bad1d146d71b381a1488917ad",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Paw it over. The remote moves every turn.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_handoff_3": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[whispers] Remote to Black, please. Gently now.",
+      "durationSeconds": 3.28,
+      "event": "handoff",
+      "export": "exports/mp3/prowla_host_handoff_3.mp3",
+      "generated": "2026-10-04T17:17:41Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 13.2,
+        "passes": 2,
+        "sourceLufs": -28.3
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "r8vfw2KTwASVvHaDbzVI",
+      "seed": 4289149160,
+      "sha256": "3e0f442ea218839d91c0d621f2d83d4bf167fbaefaf25976d9971615c7348824",
+      "source": "source/mp3/prowla_host_handoff_3.mp3",
+      "sourceSha256": "5aed8f7f5c4c6f208eae095ddddbfb21cfb1ba2d9b4093badc603439e2e8781b",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Remote to Black, please. Gently now.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_intro_1": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[mischievously] Two players, one board. How delicious.",
+      "durationSeconds": 4.48,
+      "event": "intro",
+      "export": "exports/mp3/prowla_host_intro_1.mp3",
+      "generated": "2026-10-04T17:17:42Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 7.9,
+        "passes": 1,
+        "sourceLufs": -23.9
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "PlCriauffPdG9eeOeTNh",
+      "seed": 4198388281,
+      "sha256": "b8990315b4ed2a34174d52b34f3960fa5ed760b2500f088de3f6e156ef5ba64a",
+      "source": "source/mp3/prowla_host_intro_1.mp3",
+      "sourceSha256": "13c1934ad5a5a34f05a3520f263e942f14ac07da4b7cb25915c2fe826fc53963",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Two players, one board. How delicious.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_intro_2": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] Mmm, a game for two. I'll watch from here.",
+      "durationSeconds": 4.32,
+      "event": "intro",
+      "export": "exports/mp3/prowla_host_intro_2.mp3",
+      "generated": "2026-10-04T17:17:44Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 6.1,
+        "passes": 3,
+        "sourceLufs": -19.4
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "JgEatLxkdvkIwBviEGHI",
+      "seed": 2300116378,
+      "sha256": "0906397b79c9903ceb91f104c6c264a789111de389dcbf0919294292e62e4a0c",
+      "source": "source/mp3/prowla_host_intro_2.mp3",
+      "sourceSha256": "a7aab26786ea50774aa8a066e62155e35f870a7767a49d92c3f143946b82cb88",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Mmm, a game for two. I'll watch from here.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_intro_3": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] Welcome, darlings. White rolls first.",
+      "durationSeconds": 3.36,
+      "event": "intro",
+      "export": "exports/mp3/prowla_host_intro_3.mp3",
+      "generated": "2026-10-04T17:17:45Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 0.6,
+        "passes": 1,
+        "sourceLufs": -16.6
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "6KHgh379KdlMMeCxyCjt",
+      "seed": 400934696,
+      "sha256": "d47da3681e94cff8291517e6ee2fad27c8124347f7f885d2b74a33165cca75f8",
+      "source": "source/mp3/prowla_host_intro_3.mp3",
+      "sourceSha256": "94f0b47d6d0bf10f1f44633c6d3cbe6a784518e5d66b63ff44d9cca63b74c306",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Welcome, darlings. White rolls first.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_intro_4": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[whispers] Don't mind me... I'm only here to purr.",
+      "durationSeconds": 3.44,
+      "event": "intro",
+      "export": "exports/mp3/prowla_host_intro_4.mp3",
+      "generated": "2026-10-04T17:17:47Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 15.0,
+        "passes": 2,
+        "sourceLufs": -30.4
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "lGkFDX1HZtEg4zahMqO4",
+      "seed": 1885518983,
+      "sha256": "5199173265f402b3a515784606b9252952fb714e4c80180fc141914e422016e1",
+      "source": "source/mp3/prowla_host_intro_4.mp3",
+      "sourceSha256": "626532fdbfeb5775c5d4d9c10441d314eb2cae77384ba5a85cefc2b3d0fc50bc",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Don't mind me... I'm only here to purr.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_intro_5": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[smug] No dice for me, darlings. I only watch.",
+      "durationSeconds": 3.76,
+      "event": "intro",
+      "export": "exports/mp3/prowla_host_intro_5.mp3",
+      "generated": "2026-10-04T17:17:48Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 3.0,
+        "passes": 2,
+        "sourceLufs": -18.4
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "64Sn0gMgWqNnIgUgjVEu",
+      "seed": 260649599,
+      "sha256": "8df7795bb069e6138a89bae74eca30f5705f312ade9ff6891fa27fcaf7f9152c",
+      "source": "source/mp3/prowla_host_intro_5.mp3",
+      "sourceSha256": "dd1503f074558d22a221c2a2061183b2369aba475844439a7d39909ecba7e90c",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "No dice for me, darlings. I only watch.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_promotion_1": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[gasps] A pawn crossed the board! How bold.",
+      "durationSeconds": 4.08,
+      "event": "promotion",
+      "export": "exports/mp3/prowla_host_promotion_1.mp3",
+      "generated": "2026-10-04T17:17:49Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 2.0,
+        "passes": 1,
+        "sourceLufs": -18.0
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "Ab89D4Lu3kUGmOyvzhNv",
+      "seed": 838096855,
+      "sha256": "f68522ad0df3c6e6e06fdb0a8d61def1bd154123495abcf0b2ed30fa1e0911e6",
+      "source": "source/mp3/prowla_host_promotion_1.mp3",
+      "sourceSha256": "fd054821fda487bd57e506ba742e4a10f3399069fcc9de3fae48791b6f0f8e16",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "A pawn crossed the board! How bold.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_promotion_2": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] Look who grew up. A brand new piece!",
+      "durationSeconds": 3.68,
+      "event": "promotion",
+      "export": "exports/mp3/prowla_host_promotion_2.mp3",
+      "generated": "2026-10-04T17:17:51Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 0.1,
+        "passes": 1,
+        "sourceLufs": -16.1
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "PwcT8oTCa2iHbmJzwbUG",
+      "seed": 2644302277,
+      "sha256": "6284a5f82365599ab32900f7c7192afdc8e8475fa6ac576ea365e75aafbc501c",
+      "source": "source/mp3/prowla_host_promotion_2.mp3",
+      "sourceSha256": "f45e3a622ed538d5a7790a0c63c324c6745b8cfa9e4467ef3702eaaa9517cada",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Look who grew up. A brand new piece!",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_promotion_3": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[mischievously] From little pawn to something grand.",
+      "durationSeconds": 3.68,
+      "event": "promotion",
+      "export": "exports/mp3/prowla_host_promotion_3.mp3",
+      "generated": "2026-10-04T17:17:52Z",
+      "loudness": {
+        "exportLufs": -16.0,
+        "gainDb": 8.4,
+        "passes": 2,
+        "sourceLufs": -23.8
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "RFY8ok6aJUPAWPDrcYW3",
+      "seed": 3473194858,
+      "sha256": "953f9aa4549e1252e5d347db957496ae54ebfcb54950ca43cf2c1596d8d19521",
+      "source": "source/mp3/prowla_host_promotion_3.mp3",
+      "sourceSha256": "edb8431d7442294cc5f56a6fc68742452a18696ab788ddcbf1685ed5504e64b7",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "From little pawn to something grand.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_promotion_4": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] All the way across? Well done, little one.",
+      "durationSeconds": 3.76,
+      "event": "promotion",
+      "export": "exports/mp3/prowla_host_promotion_4.mp3",
+      "generated": "2026-10-04T17:17:53Z",
+      "loudness": {
+        "exportLufs": -16.1,
+        "gainDb": 4.4,
+        "passes": 2,
+        "sourceLufs": -19.6
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "E1yMr9GZODv89ZKReLW7",
+      "seed": 2436156384,
+      "sha256": "8c20a114841003bc6988093eed5d0915aafe4ac52b0e0dada2ae45bd57774fc0",
+      "source": "source/mp3/prowla_host_promotion_4.mp3",
+      "sourceSha256": "86f505dc62d08a878bf8c483c930013306df7c6c9ad754ec007f6499db5c6610",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "All the way across? Well done, little one.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_white_wins_1": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[triumphant] White wins! Bravo, both of you.",
+      "durationSeconds": 4.08,
+      "event": "white_wins",
+      "export": "exports/mp3/prowla_host_white_wins_1.mp3",
+      "generated": "2026-10-04T17:17:55Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": -0.8,
+        "passes": 1,
+        "sourceLufs": -15.2
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "0oV23IXywrAynlKo1Yvb",
+      "seed": 3974416833,
+      "sha256": "b5e765d0b96daf1a17929b2368fc4e2927e568c080da080c0f1178858610c83c",
+      "source": "source/mp3/prowla_host_white_wins_1.mp3",
+      "sourceSha256": "3536cadb0b972323f6f73f86776905fdb6544bd7c06751d7dc5eed7a8f43d1ec",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "White wins! Bravo, both of you.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_white_wins_2": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] The game goes to White. Well played, Black.",
+      "durationSeconds": 3.44,
+      "event": "white_wins",
+      "export": "exports/mp3/prowla_host_white_wins_2.mp3",
+      "generated": "2026-10-04T17:17:56Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 0.8,
+        "passes": 1,
+        "sourceLufs": -16.8
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "TKqw8ZBILp4jzAlaJcXK",
+      "seed": 547446724,
+      "sha256": "352244aaa6a4568e261af535b11fda1ef6529d1c725daf444a57c80fe77df8d9",
+      "source": "source/mp3/prowla_host_white_wins_2.mp3",
+      "sourceSha256": "34b4c7811b18d047514436b09b29bd2a1356f200385d66428ae9fa5b46e1955a",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "The game goes to White. Well played, Black.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_white_wins_3": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[mischievously] White takes it. What a chase, you two.",
+      "durationSeconds": 4.0,
+      "event": "white_wins",
+      "export": "exports/mp3/prowla_host_white_wins_3.mp3",
+      "generated": "2026-10-04T17:17:58Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 4.1,
+        "passes": 1,
+        "sourceLufs": -20.1
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "GZZ8KIcBReUtTNTOVzy8",
+      "seed": 4174751872,
+      "sha256": "11f0b7bcb2829f8edf08b6847bdff2f043698ecf57ef3093f40d6150faabcaac",
+      "source": "source/mp3/prowla_host_white_wins_3.mp3",
+      "sourceSha256": "30587df4805c4940cf191ebaf05e817ebe2d1251ac216cd56e2ac57eb43b2c5e",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "White takes it. What a chase, you two.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_win_1": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[triumphant] And the game is caught. Bravo, you two.",
+      "durationSeconds": 3.92,
+      "event": "win",
+      "export": "exports/mp3/prowla_host_win_1.mp3",
+      "generated": "2026-10-04T17:17:59Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": -1.4,
+        "passes": 1,
+        "sourceLufs": -14.6
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "yBZJJPJxdIMYUOC03Pnq",
+      "seed": 3712991758,
+      "sha256": "3249b0077853084688b2068d59e7253190ab8b41a15c531e2adbc3c5a3a2e184",
+      "source": "source/mp3/prowla_host_win_1.mp3",
+      "sourceSha256": "5a1ab7881db3ee3d6266dfd870da29f89e0ffa9fbf63a8a48ca13d360123fc25",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "And the game is caught. Bravo, you two.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_win_2": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] We have a winner. Purrr... beautifully done.",
+      "durationSeconds": 4.88,
+      "event": "win",
+      "export": "exports/mp3/prowla_host_win_2.mp3",
+      "generated": "2026-10-04T17:18:01Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 0.7,
+        "passes": 1,
+        "sourceLufs": -16.7
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "l8wQpTLJCwnBezw9rei8",
+      "seed": 3179271729,
+      "sha256": "ee9c48d9b1ea2807f60c511c78839309a64d86b64cc944470251959c1cbbce77",
+      "source": "source/mp3/prowla_host_win_2.mp3",
+      "sourceSha256": "4e1a15b9762277e8c48bc4e15330bc707b8c8355c30bb26cb6942d6e310a0564",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "We have a winner. Purrr... beautifully done.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_win_3": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[laughs] That's the game, darlings. What fun.",
+      "durationSeconds": 4.32,
+      "event": "win",
+      "export": "exports/mp3/prowla_host_win_3.mp3",
+      "generated": "2026-10-04T17:18:02Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 1.8,
+        "passes": 2,
+        "sourceLufs": -17.0
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "T4jakxQJQkijYI3D9UPn",
+      "seed": 147469522,
+      "sha256": "413f02081b44f402072e06385a18147805ce58cee5bee12f8e93fdb699d64dfc",
+      "source": "source/mp3/prowla_host_win_3.mp3",
+      "sourceSha256": "fb769462f71ccd4905c0b0ea0925a1df19ee411f6b46ea225461836de917e3ca",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "That's the game, darlings. What fun.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    }
+  },
+  "pack": {
+    "picks": "picks.json",
+    "texts": {
+      "path": "voices/elevenlabs-dicechess-host-prowla/catalogue.json",
+      "repository": "fortemate/dicechess-assets"
+    }
+  },
+  "picks": "picks.json",
+  "schemaVersion": 1,
+  "status": "generated",
+  "texts": "catalogue.json",
+  "title": "Dice Chess Hot Seat host Prowla (ElevenLabs)"
+}

@@ -1,4 +1,4 @@
-// The Hot Seat host in the game screen (#202): picks Rolly's lines at the
+// The Hot Seat host in the game screen (#202): picks the host's lines at the
 // pauses of a hotseat game and at its big moments (#227), holds each until it
 // has been said, and queues a line behind the one being said, so a line never
 // cuts another. A line being said goes on while the turn does: a queen taken
@@ -17,16 +17,21 @@
 // one game to the next. She picks nothing while the board is not on screen
 // (`live`): an unstarted game behind the home screen says nothing, and a line
 // that waits is said when the board returns. Off (`on`), Hot Seat is as it was
-// before her: she says nothing, and a line she is saying stops.
+// before her: she says nothing, and a line she is saying stops. Another host
+// chosen (#258) takes over with her own lines: a line the last one left
+// waiting is dropped, and the one being said finishes.
 import React from 'react';
 import type { Game } from '../../src/core/game';
 import {
+  DEFAULT_HOST,
   INITIAL_HOST_STATE,
   hostVoiceCue,
   isResultLine,
   restoreLine,
   startsHosting,
+  withHost,
   type HostEvent,
+  type HostId,
   type HostLine,
   type HostState,
 } from '../../src/core/hostVoice';
@@ -37,6 +42,8 @@ export type UseHostVoiceOptions = {
   live: boolean;
   // A host is chosen in Settings, rather than off.
   on: boolean;
+  // Who hosts; Rolly when not given.
+  host?: HostId;
   // How long a line holds, when it should outlast `timeoutMs`: until it has
   // been said. The next line waits for it.
   holdMs?: (line: HostLine) => number;
@@ -91,7 +98,7 @@ export function useHostVoice(
   // The line being said, for the screen to show.
   const [shown, setShown] = React.useState<HostLine | null>(null);
 
-  const { live, on } = options;
+  const { live, on, host = DEFAULT_HOST } = options;
   const liveRef = React.useRef(live);
   const onRef = React.useRef(on);
   const gameRef = React.useRef(game);
@@ -173,6 +180,14 @@ export function useHostVoice(
     // word may still be waiting for its jingle.
     if (!live) return;
 
+    // Another host took over in Settings: the line the last one left waiting
+    // is never said, and the bags start again with hers. Put back first, so a
+    // pass of the remote it would have taught is still taught.
+    if (host !== state.current.host) {
+      restorePending(state, pending);
+      state.current = withHost(state.current, host);
+    }
+
     const prev = lastGame.current;
     lastGame.current = game;
     // Only the board coming back, or the host turned on: a line that waited
@@ -217,7 +232,7 @@ export function useHostVoice(
     // line waiting from an earlier step was put back above, so one waits at
     // most.
     pending.current = next;
-  }, [game, live, on, speak, clear, standDown, sayWaiting]);
+  }, [game, live, on, host, speak, clear, standDown, sayWaiting]);
 
   React.useEffect(() => () => stopTimer(timer), []);
   return shown;

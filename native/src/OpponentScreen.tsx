@@ -10,7 +10,7 @@ import { OPPONENTS, recordAgainst } from '../../src/core/opponents';
 import type { Opponent } from '../../src/core/opponents';
 import type { Side } from '../../src/core/game';
 import type { BotRecord, Ledger } from '../../src/core/ledger';
-import { Portrait } from './Portrait';
+import { PORTRAIT_OF, Portrait } from './Portrait';
 import { THEME } from './theme';
 import { safeInsets } from './layout';
 
@@ -85,7 +85,7 @@ const Card = ({
         transform: [{ scale: focused && pressed ? 0.97 : 1 }],
       }}
     >
-      <Portrait mode={opponent.mode} kind="card" size={112} />
+      <Portrait character={PORTRAIT_OF[opponent.mode]} kind="card" size={112} />
       <Text style={{ color: '#f0f4f8', fontSize: 32, marginTop: 10 }}>
         {opponent.name}
       </Text>
