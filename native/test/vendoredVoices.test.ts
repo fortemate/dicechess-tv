@@ -1,9 +1,9 @@
 // The vendored voices are what their catalogue says, and say what the game says
-// (#159, #187, #202, #258).
+// (#159, #187, #202, #258, #264).
 //
 // scripts/vendor-voices.mjs writes voices/voices.json: the pinned commit of
 // dicechess-assets, the digest of events.json, each pack's permission and files,
-// and for every line of the game, a bot's or the Hot Seat host's, its clip, the
+// and for every line of the game, a bot's, the Hot Seat host's or the tutor's, its clip, the
 // clip's digest and the text it was recorded from. These checks make a
 // hand-edited file, a stray one, a regenerated table that drifted from the
 // catalogue, pacing that drifted from events.json, or a line changed in the game
@@ -16,6 +16,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { VOICE_CATALOGUE } from '../../src/core/botVoice';
 import { HOST_CATALOGUE } from '../../src/core/hostVoice';
+import { TUTOR_CATALOGUE } from '../../src/core/tutorial';
 import { HOST_EVENTS, HOST_PACING } from '../../src/core/hostPacing';
 import { VOICE_FILES } from '../src/voiceFiles';
 
@@ -27,6 +28,7 @@ const sha256 = (bytes: Buffer) =>
 const BOTS = 'elevenlabs-dicechess-bots';
 const HOST = 'elevenlabs-dicechess-host';
 const PROWLA = 'elevenlabs-dicechess-host-prowla';
+const TUTOR = 'elevenlabs-dicechess-tutorial-thinkle';
 // Each host's lines are in her own pack.
 const HOST_PACK = { rolly: HOST, prowla: PROWLA } as const;
 
@@ -64,7 +66,12 @@ const catalogue = JSON.parse(read('voices.json').toString('utf8')) as Catalogue;
 test('the catalogue pins one full commit of the asset repository', () => {
   assert.equal(catalogue.upstream, 'fortemate/dicechess-assets');
   assert.match(catalogue.commit, /^[0-9a-f]{40}$/);
-  assert.deepEqual(Object.keys(catalogue.packs).sort(), [BOTS, HOST, PROWLA]);
+  assert.deepEqual(Object.keys(catalogue.packs).sort(), [
+    BOTS,
+    HOST,
+    PROWLA,
+    TUTOR,
+  ]);
 });
 
 test('this repository may carry every pack, and its licence travels with it', () => {
@@ -86,6 +93,7 @@ test('every vendored file has the bytes the catalogue pinned, and nothing else i
     BOTS,
     HOST,
     PROWLA,
+    TUTOR,
     'events.json',
     'voices.json',
   ]);
@@ -112,6 +120,7 @@ test('every line of the game has a clip recorded from its own text, in its own p
   const said = [
     ...VOICE_CATALOGUE.map((line) => ({ ...line, pack: BOTS })),
     ...HOST_CATALOGUE.map((line) => ({ ...line, pack: HOST_PACK[line.host] })),
+    ...TUTOR_CATALOGUE.map((line) => ({ ...line, bot: 'tutor', pack: TUTOR })),
   ];
   for (const line of said) {
     const clip = catalogue.lines[line.id];
@@ -172,4 +181,18 @@ test("the host's pacing is the one events.json sets", () => {
   );
   // In the same order, which the generated union keeps.
   assert.deepEqual(Object.keys(HOST_EVENTS), Object.keys(events.events.host));
+});
+
+test("the tutor's lines are said in order: each point's clips number from 1", () => {
+  // useTutorialVoice says an event's lines one after another, by their ids.
+  const byEvent = new Map<string, string[]>();
+  for (const line of TUTOR_CATALOGUE)
+    byEvent.set(line.event, [...(byEvent.get(line.event) ?? []), line.id]);
+  for (const [event, ids] of byEvent)
+    assert.deepEqual(
+      ids,
+      ids.map((_, i) => `thinkle_tutor_${event}_${i + 1}`),
+      event,
+    );
+  assert.equal(TUTOR_CATALOGUE.length, 46);
 });

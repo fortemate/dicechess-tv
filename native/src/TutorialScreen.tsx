@@ -12,11 +12,11 @@ import React from 'react';
 import { View, Text, useWindowDimensions } from 'react-native';
 import { emptyRoll, viewGame } from '../../src/core/game';
 import {
-  CLOSING_SPEECH,
+  CLOSING_LINES,
   TUTORIAL,
   isMissed,
-  speechAt,
   taskAt,
+  tutorLinesAt,
 } from '../../src/core/tutorial';
 import { movableSquares, type BoardKey } from '../../src/core/boardInput';
 import { Board } from './Board';
@@ -26,6 +26,7 @@ import { useRemoteInput } from './useRemoteInput';
 import { THEME } from './theme';
 import { Portrait } from './Portrait';
 import { SpeechBubble } from './SpeechBubble';
+import { useTutorialVoice, type TutorialVoice } from './useTutorialVoice';
 import { BOARD_GAP, boardSide, safeInsets } from './layout';
 import {
   initialTutorial,
@@ -38,6 +39,9 @@ export type TutorialScreenProps = {
   onExit: () => void;
   // Diagnostic seam for device checks, as on the game screen.
   onState?: (report: string) => void;
+  // Where Thinkle's lines are said: the game's sounds, which honour the Voices
+  // setting. Without it the tutorial is silent and his bubble still shows.
+  voice?: TutorialVoice;
 };
 
 // Thinkle's portrait, and the rows his bubble may take: about 170 characters,
@@ -68,7 +72,11 @@ const hint = (state: TutorialState): string => {
     : 'Back: leave the tutorial';
 };
 
-export const TutorialScreen = ({ onExit, onState }: TutorialScreenProps) => {
+export const TutorialScreen = ({
+  onExit,
+  onState,
+  voice,
+}: TutorialScreenProps) => {
   const { width, height } = useWindowDimensions();
   const [state, onKey] = React.useReducer(
     tutorialReducer,
@@ -115,9 +123,10 @@ export const TutorialScreen = ({ onExit, onState }: TutorialScreenProps) => {
   const insets = safeInsets(width, height);
 
   const lesson = `Lesson ${state.index + 1} of ${TUTORIAL.length}`;
-  const speech = state.finished
-    ? CLOSING_SPEECH
-    : speechAt(current, state.game, state.complete);
+  const lines = state.finished
+    ? CLOSING_LINES
+    : tutorLinesAt(current, state.game, state.complete);
+  useTutorialVoice(voice, lines);
 
   return (
     <View
@@ -180,7 +189,7 @@ export const TutorialScreen = ({ onExit, onState }: TutorialScreenProps) => {
             </View>
           </View>
           <SpeechBubble
-            text={speech.join(' ')}
+            text={lines.map((line) => line.text).join(' ')}
             rows={TEACHER_BUBBLE_ROWS}
             tail="up"
             tailAt={TEACHER_PORTRAIT / 2}

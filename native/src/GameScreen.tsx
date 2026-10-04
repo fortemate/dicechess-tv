@@ -468,6 +468,8 @@ const report = (
 type OwnScreenProps = {
   onExit: () => void;
   onState?: (report: string) => void;
+  // The game's sounds, for a screen that speaks: Thinkle in the tutorial.
+  voice?: Sounds;
 };
 
 // The screens that take over entirely, each given only a way back. They get no
@@ -753,6 +755,7 @@ export const GameScreen = ({
       <Screen
         onExit={() => dispatch({ kind: 'key', key: 'back' })}
         onState={onState}
+        voice={sounds}
       />
     );
   }

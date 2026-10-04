@@ -9,8 +9,8 @@
 // together, because they are on different channels; a new move on the same
 // channel cuts the last one short instead of piling sounds up.
 //
-// A fourth player speaks the lines: the bots' (#159), and the Hot Seat host's
-// (#202). It has a setting of its own, so turning the effects off leaves the
+// A fourth player speaks the lines: the bots' (#159), the Hot Seat host's
+// (#202), and Thinkle's as he teaches the tutorial (#264). It has a setting of its own, so turning the effects off leaves the
 // voices, and the other way round; a new line replaces the one being said, and
 // neither cuts nor is cut by a cue. The app is told when a line starts and
 // ends, so the music can duck under it.
@@ -25,6 +25,7 @@ import {
 import type { Cue } from '../../src/core/cues';
 import type { VoiceLine } from '../../src/core/botVoice';
 import type { HostLine } from '../../src/core/hostVoice';
+import type { TutorLine } from '../../src/core/tutorial';
 import { CUE_FILES } from './cueFiles';
 import { VOICE_FILES } from './voiceFiles';
 
@@ -75,9 +76,11 @@ const AFTER_JINGLE: ReadonlySet<string> = new Set([
   'draw',
 ]);
 
-// A line someone says: a bot's, or the Hot Seat host's.
+// A line someone says: a bot's, the Hot Seat host's, or the tutor's.
 export type SpokenLine =
-  Pick<VoiceLine, 'id' | 'event'> | Pick<HostLine, 'id' | 'event'>;
+  | Pick<VoiceLine, 'id' | 'event'>
+  | Pick<HostLine, 'id' | 'event'>
+  | Pick<TutorLine, 'id' | 'event'>;
 
 // A line counts as said a little after its clip ends, so the music does not
 // swell back over its last syllable.

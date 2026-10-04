@@ -50,8 +50,15 @@ test('a build with the portraits shows them in their credit, and the RhosGFX car
   );
   assert.deepEqual(
     images(tree.root).map((image) => image.props.testID),
-    // The opponents, then Prowla, who hosts (#258).
-    ['portrait-rolly', 'portrait-grabby', 'portrait-rampage', 'portrait-cat'],
+    // The opponents, then Prowla, who hosts (#258), then Thinkle, who teaches
+    // the tutorial (#264).
+    [
+      'portrait-rolly',
+      'portrait-grabby',
+      'portrait-rampage',
+      'portrait-cat',
+      'portrait-thinkle',
+    ],
   );
   assert.ok(shown.includes(PIECES.line));
   assert.ok(!shown.includes(PIECES_AND_FACES.line));

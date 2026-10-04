@@ -538,3 +538,28 @@ test('a line without a clip, or one that refuses to play, is reported, and nothi
   ]);
   assert.deepEqual(speech.heard, []);
 });
+
+test("Thinkle's tutorial lines play from his own clips, and Voices off silences them", async () => {
+  resetAudio();
+  const sounds = createSounds({ later: () => undefined });
+  sounds.say({ id: 'thinkle_tutor_move_opening_1', event: 'move_opening' });
+  await settle();
+  assert.deepEqual(
+    plays().map((entry) => entry.src),
+    [
+      '/pkg/assets/voices/elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_move_opening_1.mp3',
+    ],
+  );
+  // Said as it comes, not held for a jingle as a result line is.
+  assert.equal(
+    speechTiming({ id: 'thinkle_tutor_move_done_1', event: 'move_done' })
+      ?.delayMs,
+    0,
+  );
+
+  resetAudio();
+  const voicesOff = createSounds({ voices: false, later: () => undefined });
+  voicesOff.say({ id: 'thinkle_tutor_move_opening_1', event: 'move_opening' });
+  await settle();
+  assert.equal(plays().length, 0);
+});
