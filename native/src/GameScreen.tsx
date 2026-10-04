@@ -41,7 +41,7 @@ import { useRemoteInput } from './useRemoteInput';
 import { THEME } from './theme';
 import { Option } from './Option';
 import { BOARD_GAP, boardSide, safeInsets } from './layout';
-import { botToAct } from '../../src/core/bot';
+import { botReply, botToAct, type BotReply } from '../../src/core/bot';
 import {
   screenReducer,
   initialState,
@@ -518,6 +518,7 @@ export const GameScreen = ({
       voices,
       host,
       guarded,
+      pending,
     },
     dispatch,
   ] = React.useReducer(reduce, initial, (restored) =>
@@ -583,16 +584,49 @@ export const GameScreen = ({
   // The opponent takes one step at a time, scheduled rather than looped, so the
   // player watches it roll and move instead of the board jumping. It is paused
   // while an overlay is up, which is also how leaving play stops it.
+  //
+  // The first step of a turn needs the whole reply, which the engine works out
+  // in one piece. That search starts with the wait, between frames so the roll
+  // is already on screen, and counts against it: the first action shows
+  // BOT_STEP_MS after the roll, or as soon as the reply is ready if that is
+  // later (#253). Nothing about the search changes, only when it runs.
+  // The reply is kept with the game it was worked out for, together with how
+  // much of the wait has gone, so a menu opened meanwhile neither loses it nor
+  // asks again, and what resumes is the rest of the wait, not a new one.
+  const thinking = React.useRef<{
+    game: Game;
+    reply: BotReply | null;
+    used: number;
+  } | null>(null);
   React.useEffect(() => {
     if (overlay.kind !== 'none' || !botOwes(game)) return;
     let cancelled = false;
-    options.schedule(() => {
-      if (!cancelled) dispatch({ kind: 'bot' });
-    }, BOT_STEP_MS);
+    if (game.phase !== 'move' || pending.length) {
+      options.schedule(() => {
+        if (!cancelled) dispatch({ kind: 'bot' });
+      }, BOT_STEP_MS);
+      return () => {
+        cancelled = true;
+      };
+    }
+    if (thinking.current?.game !== game)
+      thinking.current = { game, reply: null, used: 0 };
+    const hold = thinking.current;
+    const clock = options.now ?? (() => 0);
+    const began = clock();
+    (options.background ?? ((step) => step()))(() => {
+      if (cancelled) return;
+      const reply = (hold.reply ??= botReply(game));
+      const wait = Math.max(0, BOT_STEP_MS - hold.used - (clock() - began));
+      options.schedule(() => {
+        if (!cancelled) dispatch({ kind: 'bot', reply });
+      }, wait);
+    });
     return () => {
       cancelled = true;
+      hold.used += clock() - began;
     };
-  }, [game, overlay.kind, options]);
+  }, [game, pending, overlay.kind, options]);
 
   // After a roll with nothing to play, OK comes back once the guard
   // has run out (#85). A menu opened meanwhile does not stop the clock.

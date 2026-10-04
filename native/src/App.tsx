@@ -87,6 +87,8 @@ export const App = ({
       background: (step) => {
         setTimeout(step, 0);
       },
+      // The opponent's search counts against its step wait (#253).
+      now: () => Date.now(),
     };
   }, [injected]);
 

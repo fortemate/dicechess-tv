@@ -24,6 +24,17 @@ export function botToAct(game: Game): boolean {
   return game.phase !== 'ended' && viewGame(game).bot;
 }
 
+// Whether a reply, possibly worked out earlier, belongs to this very game and
+// position. applyBotReply rejects one that does not; this lets a caller discard
+// it and ask again instead.
+export function replyFits(game: Game, reply: BotReply): boolean {
+  return (
+    reply.gameId === game.id &&
+    reply.revision === game.revision &&
+    reply.dfen === viewGame(game).dfen
+  );
+}
+
 export function botReply(game: Game): BotReply {
   if (!isBotMode(game.mode)) throw new Error('No opponent in a hotseat game');
   const state = viewGame(game);
