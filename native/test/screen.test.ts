@@ -987,6 +987,24 @@ test('OK on a pawn on its starting rank lands on the two-square push', () => {
   assert.equal(state.game.lastMove, 'e2e4');
 });
 
+test('OK on a piece that can take lands on its capture', () => {
+  // White's e4 pawn can push to e5 or take the pawn on d5.
+  const fen = 'rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1';
+  const game = rollGame(newGame('hotseat', 'capture', fen), [1, 1, 1]);
+  // Resume the saved game, then reach the e4 pawn and pick it up.
+  let state = drive(initialState(options, game), 'select');
+  assert.equal(state.overlay.kind, 'none');
+  const layout = { rule: RULE, flipped: false };
+  const pieces = movableSquares(viewGame(state.game).legal);
+  const toPawn = route(state.focus.cursor, 'e4', pieces, layout);
+  assert.ok(toPawn, 'e4 is out of reach');
+  state = drive(state, ...toPawn, 'select');
+  assert.deepEqual(state.focus, { cursor: 'd5', selected: 'e4' });
+  // A second OK takes.
+  state = drive(state, 'select');
+  assert.equal(state.game.lastMove, 'e4d5');
+});
+
 // Queen, rook, king: from the opening nothing can move, for either side.
 const nothing: ScreenOptions = { ...options, roll: () => [5, 4, 6] };
 

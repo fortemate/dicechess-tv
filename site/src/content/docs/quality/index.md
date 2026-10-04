@@ -71,14 +71,16 @@ To catch issues before they enter git history, lefthook runs these jobs on each 
 
 The way the cursor moves was chosen by counting presses.
 
-Moving a cursor across the board one square at a time takes many presses on a TV remote. A script, `scripts/cursor-presses.ts` (`npm run presses`), plays **200 seeded random games** through the app's shared core, with random legal actions for both sides, and counts the arrow and OK presses each way of moving the cursor would need. Random moves are not a person's moves, but every way is scored on the same ones. The figures are from the run recorded in [#68](https://github.com/fortemate/dicechess-tv/issues/68):
+Moving a cursor across the board one square at a time takes many presses on a TV remote. A script, `scripts/cursor-presses.ts` (`npm run presses`), plays **200 seeded random games** through the app's shared core, with random legal actions for both sides, and counts the arrow and OK presses each way of moving the cursor would need. Random moves are not a person's moves, but every way is scored on the same ones. [#68](https://github.com/fortemate/dicechess-tv/issues/68) recorded the first run; the figures below are from the run of 4 October 2026, seed 68, 8,346 turns:
 
 | Navigation Model                          | Presses per Hotseat Turn | Change                |
 | ----------------------------------------- | ------------------------ | --------------------- |
-| **Square by square**                      | **22.6 presses**         | Baseline              |
-| **Jumps between pieces and destinations** | **8.7 presses**          | **61% fewer presses** |
+| **Square by square**                      | **23.0 presses**         | Baseline              |
+| **Jumps between pieces and destinations** | **9.2 presses**          | **60% fewer presses** |
 
-Jumps must not leave a piece or destination out of reach. Over **20,000 random sets of squares**, of 3 to 8 squares each, also recorded in #68, the jump rule the board uses (the cone rule) left no square out of reach. The two other rules it was compared with, axis and nearest, each left a square out of reach in some sets. That is a sample, not a proof; a unit test (`test/cursor.test.ts`) pins one set where the axis rule fails and the cone rule does not.
+Random movers take no more often than they make any other move, so this count cannot credit where the cursor lands once a piece is picked up. Landing on captures costs them 0.29 presses a turn: 9.21 against 8.92 with the cursor always landing on the central destination. The landing follows people, who take far more often than not.
+
+Jumps must not leave a piece or destination out of reach. Over **20,000 random sets of squares**, of 3 to 8 squares each, also recorded in #68, the jump rule the board uses (the cone rule) left no square out of reach. The two other rules it was compared with, axis and nearest, each left a square out of reach in some sets. That is a sample, not a proof; a unit test (`test/cursor.test.ts`) pins one set where the axis rule fails and the cone rule does not. The sample does not cover larger sets or every starting square: in the 200 simulated games, a queen with fifteen destinations had one that the arrows reach only from the central destination. So the cursor lands anywhere else only when every destination stays in reach from there, and `test/boardInput.test.ts` checks that position.
 
 ## Virtual Device & Emulator Automation
 
