@@ -278,6 +278,13 @@ export function speechAt(
 const MOMENTS = ['opening', 'rolled', 'moved', 'done'] as const;
 type Moment = (typeof MOMENTS)[number];
 
+// The point a step is at: before its roll, rolled, after an action, or done.
+const momentAt = (game: Game, complete: boolean): Moment => {
+  if (complete) return 'done';
+  if (game.moves.length > 0) return 'moved';
+  return game.phase === 'roll' ? 'opening' : 'rolled';
+};
+
 // What Thinkle says now and the tutorial event it is recorded under in his
 // voice pack (fortemate/dicechess-assets, voices/events.json): the step's id and
 // the point whose lines are said, as `move_rolled`, or `missed`.
@@ -288,13 +295,7 @@ const spoken = (
 ): { event: TutorEvent; lines: readonly string[] } => {
   if (!complete && isMissed(step, game))
     return { event: 'missed', lines: MISSED_SPEECH };
-  const at: Moment = complete
-    ? 'done'
-    : game.moves.length > 0
-      ? 'moved'
-      : game.phase === 'roll'
-        ? 'opening'
-        : 'rolled';
+  const at = momentAt(game, complete);
   const moment =
     MOMENTS.slice(0, MOMENTS.indexOf(at) + 1)
       .reverse()
