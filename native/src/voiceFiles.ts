@@ -588,8 +588,8 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
   },
   prowla_host_win_2: {
     file: 'elevenlabs-dicechess-host-prowla/prowla_host_win_2.mp3',
-    seconds: 4.88,
-    text: 'We have a winner. Purrr... beautifully done.',
+    seconds: 4,
+    text: 'A winner! Purrr... beautifully done.',
   },
   prowla_host_win_3: {
     file: 'elevenlabs-dicechess-host-prowla/prowla_host_win_3.mp3',

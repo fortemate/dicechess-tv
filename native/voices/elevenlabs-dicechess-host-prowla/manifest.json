@@ -1891,31 +1891,31 @@
     "prowla_host_win_2": {
       "bot": "host",
       "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
-      "direction": "[cheerful] We have a winner. Purrr... beautifully done.",
-      "durationSeconds": 4.88,
+      "direction": "[cheerful] A winner! Purrr... beautifully done.",
+      "durationSeconds": 4.0,
       "event": "win",
       "export": "exports/mp3/prowla_host_win_2.mp3",
-      "generated": "2026-10-04T17:18:01Z",
+      "generated": "2026-10-04T18:54:27Z",
       "loudness": {
-        "exportLufs": -16.4,
-        "gainDb": 0.7,
-        "passes": 1,
-        "sourceLufs": -16.7
+        "exportLufs": -16.0,
+        "gainDb": 2.4,
+        "passes": 2,
+        "sourceLufs": -17.8
       },
       "model": "eleven_v4",
       "outputFormat": "mp3_44100_192",
-      "requestId": "l8wQpTLJCwnBezw9rei8",
-      "seed": 3179271729,
-      "sha256": "ee9c48d9b1ea2807f60c511c78839309a64d86b64cc944470251959c1cbbce77",
+      "requestId": "iwiEqhLZAI79T4XaflPq",
+      "seed": 4266688100,
+      "sha256": "d361d33ec30d10f97160fdd9ec39644b54537d1016e517267487f4a19cf56e5b",
       "source": "source/mp3/prowla_host_win_2.mp3",
-      "sourceSha256": "4e1a15b9762277e8c48bc4e15330bc707b8c8355c30bb26cb6942d6e310a0564",
+      "sourceSha256": "ace6e2d8bc911e07f472aa85f4a8f1f53c598fd9268da6e4cae9f4219c02cbe8",
       "take": 1,
       "target": {
         "bitrate": "64k",
         "integratedLufs": -16,
         "limitDbfs": -1.5
       },
-      "text": "We have a winner. Purrr... beautifully done.",
+      "text": "A winner! Purrr... beautifully done.",
       "voice": "Prowla",
       "voiceId": "EvT9FdUBSQImfVRTPse6",
       "voiceSettings": {

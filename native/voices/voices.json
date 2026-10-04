@@ -1,6 +1,6 @@
 {
   "upstream": "fortemate/dicechess-assets",
-  "commit": "e012e9a436a4d19fd17a0a9fc813c257dc0b8bf3",
+  "commit": "1a78ae81deda02b1fb40594c693f30dd92205bd1",
   "events": {
     "file": "events.json",
     "sha256": "713d2580a534ce4b6a980e8e4380dc7af0232832d796cbcd73850c36635cf9aa"
@@ -169,7 +169,7 @@
         "repository": "fortemate/dicechess-assets"
       },
       "files": {
-        "manifest.json": "a6247f4d9c83cd3150d62afe46af597d28271e4424ab581051919906550075c7",
+        "manifest.json": "3991283dd561b50c7ba310c9603c60235ef5be0f5a8d6c09dadddc1521824add",
         "LICENSE.txt": "1073728dca9d772c4cb14072808e59840269bc3934157f7a8a8b07d4ba1cd552",
         "prowla_host_again_1.mp3": "4c896cd95f86a6f064c910b72bb5b1da6ebc4ded85949a41142c2503a897bfdd",
         "prowla_host_again_2.mp3": "b0c3c8c821bf86a469046ecf35dcd737c99dea0251614cfcf0a32a7d8ac29d8d",
@@ -220,7 +220,7 @@
         "prowla_host_white_wins_2.mp3": "352244aaa6a4568e261af535b11fda1ef6529d1c725daf444a57c80fe77df8d9",
         "prowla_host_white_wins_3.mp3": "11f0b7bcb2829f8edf08b6847bdff2f043698ecf57ef3093f40d6150faabcaac",
         "prowla_host_win_1.mp3": "3249b0077853084688b2068d59e7253190ab8b41a15c531e2adbc3c5a3a2e184",
-        "prowla_host_win_2.mp3": "ee9c48d9b1ea2807f60c511c78839309a64d86b64cc944470251959c1cbbce77",
+        "prowla_host_win_2.mp3": "d361d33ec30d10f97160fdd9ec39644b54537d1016e517267487f4a19cf56e5b",
         "prowla_host_win_3.mp3": "413f02081b44f402072e06385a18147805ce58cee5bee12f8e93fdb699d64dfc"
       }
     }
@@ -1380,11 +1380,11 @@
       "pack": "elevenlabs-dicechess-host-prowla",
       "bot": "host",
       "event": "win",
-      "text": "We have a winner. Purrr... beautifully done.",
+      "text": "A winner! Purrr... beautifully done.",
       "voice": "Prowla",
       "file": "elevenlabs-dicechess-host-prowla/prowla_host_win_2.mp3",
-      "sha256": "ee9c48d9b1ea2807f60c511c78839309a64d86b64cc944470251959c1cbbce77",
-      "seconds": 4.88
+      "sha256": "d361d33ec30d10f97160fdd9ec39644b54537d1016e517267487f4a19cf56e5b",
+      "seconds": 4
     },
     "prowla_host_win_3": {
       "pack": "elevenlabs-dicechess-host-prowla",
