@@ -1,5 +1,5 @@
-// The Hot Seat host (#202): what she speaks about at the pauses of a game, and
-// how often, by the host pacing of voices/events.json. Every step is played on
+// The Hot Seat host (#202): what she speaks about at the pauses of a game and
+// at its big moments (#227), and how often, by the host pacing of voices/events.json. Every step is played on
 // the engine, so the events are the ones a real game gives.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -8,6 +8,7 @@ import {
   HOST_EVENTS,
   HOST_PACING,
   INITIAL_HOST_STATE,
+  AT_ONCE,
   hostEvents,
   hostLineById,
   hostLinesFor,
@@ -86,12 +87,13 @@ const PROMOTION_TAKING_QUEEN = (turn = 1) =>
     rolled('1q2k3/P7/8/8/8/8/8/4K3 w - - 0 1', [PAWN, PAWN, PAWN], turn),
     'a7b8q',
   );
-// A rook and a bishop take a rook and a knight in one turn.
+// A bishop and a rook take a knight and a rook in one turn, the rook last: a
+// big moment of an earlier action was judged as it happened (#227).
 const ROOK_AND_KNIGHT = (turn = 1) =>
   lastAction(
     rolled('4k3/8/8/r7/8/8/1n6/R1B1K3 w - - 0 1', [ROOK, BISHOP, PAWN], turn),
-    'a1a5',
     'c1b2',
+    'a1a5',
   );
 const WHITE_TAKES_KING = (turn = 1, id = 'host') =>
   lastAction(
@@ -240,14 +242,14 @@ test('the same game again, or the same id started again, starts nothing new', ()
 
 // ── Steps that are not pauses ─────────────────────────────────────────────────
 
-test('she says nothing while a turn is being played, nor as the next begins', () => {
+test('she says nothing while a turn is being played, but for a big moment, nor as the next begins', () => {
   const state = midGame(9, 8);
   const start = { ...newGame('hotseat', 'quiet'), turn: 9, revision: 3 };
   const roll = rollGame(start, [2, 2, 2]);
   assert.equal(hostVoiceCue(start, roll, state).line, null, 'a roll');
   const one = moveGame(roll, 'b1c3');
   assert.equal(hostVoiceCue(roll, one, state).line, null, 'an action');
-  // A capture with actions still to come is judged at the end of the turn.
+  // A small capture with actions still to come is judged at the end of the turn.
   const taking = rolled(
     '4k3/8/8/b7/8/8/8/R3K3 w - - 0 1',
     [ROOK, KING, KING],
@@ -275,6 +277,90 @@ test('a capture early in the turn is said at its end', () => {
   assert.equal(after.phase, 'handoff');
   assert.deepEqual(hostEvents(before, after, midGame(5, 6)), ['capture']);
   assert.equal(cueOf([before, after], midGame(5, 6)).event, 'capture');
+});
+
+// ── A big moment, said at once (#227) ────────────────────────────────────────
+
+// White's rook takes on a5 with two kings still to play.
+const takesMidTurn = (piece: string, turn = 5): [Game, Game] => {
+  const taking = rolled(
+    `4k3/8/8/${piece}7/8/8/8/R3K3 w - - 0 1`,
+    [ROOK, KING, KING],
+    turn,
+  );
+  return [taking, moveGame(taking, 'a1a5')];
+};
+
+test('the big moments are a queen, a rook, en passant and a promotion', () => {
+  assert.deepEqual([...AT_ONCE].sort(), [
+    'capture_heavy',
+    'capture_queen',
+    'en_passant',
+    'promotion',
+  ]);
+  for (const event of AT_ONCE)
+    assert.notEqual(HOST_EVENTS[event].tier, 'frequent', event);
+});
+
+test('a queen taken with actions still to come is said at once', () => {
+  const [before, after] = takesMidTurn('q');
+  assert.equal(after.phase, 'move');
+  assert.deepEqual(hostEvents(before, after, midGame(5, 6)), ['capture_queen']);
+  const cue = cueOf([before, after], midGame(5, 6));
+  assert.equal(cue.event, 'capture_queen');
+  assert.equal(cue.state.turnSpoken, 5);
+});
+
+test('a rook taken mid-turn waits for its pacing like at a turn end', () => {
+  const step = takesMidTurn('r');
+  assert.equal(cueOf(step, midGame(5, 6)).event, 'capture_heavy');
+  assert.equal(cueOf(step, midGame(5, 1)).line, null, 'a round has not passed');
+});
+
+test('a turn that had its line at a moment says nothing more at its end', () => {
+  const [, took] = takesMidTurn('q');
+  const said = cueOf(takesMidTurn('q'), midGame(5, 6)).state;
+  const [before, after] = lastAction(took, 'e1d1', 'd1c1');
+  assert.equal(after.phase, 'handoff');
+  // The queen was judged as it was taken, so the turn's end does not name it.
+  assert.deepEqual(hostEvents(before, after, said), []);
+  // Nor anything else, the pass of the remote included: it waits for a later
+  // White turn.
+  const fresh = { ...said, handoffSaid: false };
+  assert.deepEqual(hostEvents(before, after, fresh), ['handoff']);
+  const cue = cueOf([before, after], fresh);
+  assert.equal(cue.line, null);
+  assert.equal(cue.state.handoffSaid, false);
+});
+
+test('a moment that did not speak is not said again at the turn end', () => {
+  const [, took] = takesMidTurn('r');
+  // A round has not passed: the rook goes unsaid.
+  const quietState = cueOf(takesMidTurn('r'), midGame(5, 1)).state;
+  assert.equal(quietState.happened.capture_heavy, 1);
+  const [before, after] = lastAction(took, 'e1d1', 'd1c1');
+  assert.deepEqual(hostEvents(before, after, quietState), []);
+});
+
+test('the result is said even after a line earlier in its turn', () => {
+  // The rook takes the queen, then the king.
+  const start = rolled(
+    '4k3/8/8/8/8/8/4q3/4RK2 w - - 0 1',
+    [ROOK, ROOK, PAWN],
+    6,
+  );
+  const took = moveGame(start, 'e1e2');
+  const cue = cueOf([start, took], midGame(6, 6));
+  assert.equal(cue.event, 'capture_queen');
+  const won = moveGame(took, 'e2e8');
+  assert.equal(won.result?.winner, 'w');
+  assert.equal(cueOf([took, won], cue.state).event, 'white_wins');
+});
+
+test('a moment never heard leaves its turn free for a line at the end', () => {
+  const cue = cueOf(takesMidTurn('q'), midGame(5, 6));
+  const restored = restoreLine(cue.state, 'capture_queen', cue.line!.id);
+  assert.equal(restored.turnSpoken, undefined);
 });
 
 // ── What a turn's end gives her to say ────────────────────────────────────────

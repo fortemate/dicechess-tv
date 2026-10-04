@@ -50,28 +50,28 @@ Contains all platform-agnostic gameplay code. Enforced pure by `tsconfig.core.js
 
 Contains the TV presentation layer built with React Native for Vega:
 
-| Path                     | Purpose                                                                                     |
-| ------------------------ | ------------------------------------------------------------------------------------------- |
-| `src/App.tsx`            | Root component initializing MMKV storage, audio managers, and settings.                     |
-| `src/GameScreen.tsx`     | Main screen housing the board, side status panel, menus, and dialogs.                       |
-| `src/Matchup.tsx`        | Matchup HUD: the bot's dialogue block or a badge per side; turn frame; the Hot Seat host.   |
-| `src/SpeechBubble.tsx`   | A line beside its speaker's portrait: 20 dp text, three rows for a bot, two for the host.   |
-| `src/useBotVoice.ts`     | Picks the bot's lines as the game moves and how long each stays on screen.                  |
-| `src/useHostVoice.ts`    | Picks the Hot Seat host's lines at the pauses, says them, and returns the one to show.      |
-| `src/hostSetting.ts`     | Who hosts Hot Seat, Rolly (the default) or off, remembered across launches.                 |
-| `src/screen.ts`          | Pure state reducer coordinating menu navigation, confirmations, and gameplay flow.          |
-| `src/Board.tsx`          | 8x8 chessboard grid rendering pieces, square tints, focus rings, and move animations.       |
-| `src/Dice.tsx`           | Three-dice tray with tumbling roll animations and dimmed unplayable dice.                   |
-| `src/OpponentScreen.tsx` | Three-card opponent selection screen showing bot faces, difficulty, and player record.      |
-| `src/TutorialScreen.tsx` | Interactive tutorial screen driving lessons on an isolated sandbox board.                   |
-| `src/RulesScreen.tsx`    | Dual-pane rules guide with topics on the left and explanations on the right.                |
-| `src/AboutScreen.tsx`    | Project credits and third-party license notices accessible via TV remote.                   |
-| `src/useRemoteInput.ts`  | Subscribes to Vega input events and normalizes keys (`enter`, `kpenter`, `select`, `back`). |
-| `src/mmkvStore.ts`       | Synchronous snapshot and preferences store backed by MMKV.                                  |
-| `src/sound.ts`           | Audio player managing sound effect playback across three concurrent audio sinks.            |
-| `src/music.ts`           | Adaptive music player managing crossfades between danger theme tracks.                      |
-| `src/pieces/`            | Generated SVG React components for all 12 chess pieces (RhosGFX CC0).                       |
-| `src/faces/`             | Generated SVG React components for opponent bot avatars (RhosGFX CC0).                      |
+| Path                     | Purpose                                                                                                |
+| ------------------------ | ------------------------------------------------------------------------------------------------------ |
+| `src/App.tsx`            | Root component initializing MMKV storage, audio managers, and settings.                                |
+| `src/GameScreen.tsx`     | Main screen housing the board, side status panel, menus, and dialogs.                                  |
+| `src/Matchup.tsx`        | Matchup HUD: the bot's dialogue block or a badge per side; turn frame; the Hot Seat host.              |
+| `src/SpeechBubble.tsx`   | A line beside its speaker's portrait: 20 dp text, three rows for a bot, two for the host.              |
+| `src/useBotVoice.ts`     | Picks the bot's lines as the game moves and how long each stays on screen.                             |
+| `src/useHostVoice.ts`    | Picks the Hot Seat host's lines at the pauses and big moments, says them, and returns the one to show. |
+| `src/hostSetting.ts`     | Who hosts Hot Seat, Rolly (the default) or off, remembered across launches.                            |
+| `src/screen.ts`          | Pure state reducer coordinating menu navigation, confirmations, and gameplay flow.                     |
+| `src/Board.tsx`          | 8x8 chessboard grid rendering pieces, square tints, focus rings, and move animations.                  |
+| `src/Dice.tsx`           | Three-dice tray with tumbling roll animations and dimmed unplayable dice.                              |
+| `src/OpponentScreen.tsx` | Three-card opponent selection screen showing bot faces, difficulty, and player record.                 |
+| `src/TutorialScreen.tsx` | Interactive tutorial screen driving lessons on an isolated sandbox board.                              |
+| `src/RulesScreen.tsx`    | Dual-pane rules guide with topics on the left and explanations on the right.                           |
+| `src/AboutScreen.tsx`    | Project credits and third-party license notices accessible via TV remote.                              |
+| `src/useRemoteInput.ts`  | Subscribes to Vega input events and normalizes keys (`enter`, `kpenter`, `select`, `back`).            |
+| `src/mmkvStore.ts`       | Synchronous snapshot and preferences store backed by MMKV.                                             |
+| `src/sound.ts`           | Audio player managing sound effect playback across three concurrent audio sinks.                       |
+| `src/music.ts`           | Adaptive music player managing crossfades between danger theme tracks.                                 |
+| `src/pieces/`            | Generated SVG React components for all 12 chess pieces (RhosGFX CC0).                                  |
+| `src/faces/`             | Generated SVG React components for opponent bot avatars (RhosGFX CC0).                                 |
 
 ### 3. Build & Simulation Scripts
 
