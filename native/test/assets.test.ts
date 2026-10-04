@@ -20,8 +20,12 @@ import {
 import { tmpdir } from 'node:os';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-// @ts-expect-error — a build script, deliberately plain JavaScript.
-import { main, copyPortraits } from '../scripts/generate-assets.mjs';
+import {
+  main,
+  copyPortraits,
+  portraitsVersion,
+  // @ts-expect-error — a build script, deliberately plain JavaScript.
+} from '../scripts/generate-assets.mjs';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { PORTRAITS_VERSION } from '../src/Portrait';
@@ -109,6 +113,35 @@ test('portraits ship as the lock pinned them, and not at all without one', (t) =
 
   writeFileSync(join(root, 'portraits/rolly-card-336.png'), 'edited by hand');
   assert.throws(() => copyPortraits(root), /no longer matches/);
+});
+
+// A pack the app does not look for would ship and never load, and the game
+// would show the emoji faces without a word: the build stops instead.
+test('the build refuses a portrait pack of another version than the app looks for', (t) => {
+  const root = mkdtempSync(join(tmpdir(), 'dicechess-tv-portraits-'));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const bytes = Buffer.from('a portrait');
+  const sha256 = createHash('sha256').update(bytes).digest('hex');
+  mkdirSync(join(root, 'portraits'));
+  writeFileSync(join(root, 'portraits/rolly-card-336.png'), bytes);
+  writeFileSync(
+    join(root, 'portraits/portraits.lock.json'),
+    JSON.stringify({
+      source: { version: '0.9.0' },
+      files: { 'rolly-card-336.png': { sha256 } },
+    }),
+  );
+  assert.throws(
+    () => copyPortraits(root),
+    new RegExp(
+      `pack 0\\.9\\.0, but src/Portrait\\.tsx looks for ${PORTRAITS_VERSION}`,
+    ),
+  );
+  assert.equal(existsSync(join(root, 'assets/portraits')), false);
+});
+
+test('the build reads the portrait version the app looks for', () => {
+  assert.equal(portraitsVersion(), PORTRAITS_VERSION);
 });
 
 // The app looks for the portraits under the version src/Portrait.tsx names, so

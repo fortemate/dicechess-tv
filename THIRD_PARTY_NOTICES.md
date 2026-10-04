@@ -12,7 +12,7 @@ Fortemate's code in this repository is licensed under AGPL-3.0-only (see [LICENS
 | Dice Chess themes, pepka-prygni                             | 0.2.0 (four tracks)      | Permission for this game | https://www.youtube.com/@genreexplorer-h5o         |
 | Dice Chess bot voices, Fortemate, made with ElevenLabs      | 63 lines                 | Fortemate apps only      | https://elevenlabs.io                              |
 | Dice Chess Hot Seat host, Fortemate, made with ElevenLabs   | 45 lines                 | Fortemate apps only      | https://elevenlabs.io                              |
-| Dice Chess opponent portraits, Fortemate, made with Recraft | 1.0.0 (three portraits)  | Fortemate apps only      | https://recraft.ai                                 |
+| Dice Chess opponent portraits, Fortemate, made with Recraft | 1.0.1 (three portraits)  | Fortemate apps only      | https://recraft.ai                                 |
 
 The engine and RhosGFX license texts are in [AGPL-3.0](licenses/AGPL-3.0.txt), [CC0-1.0](licenses/RhosGFX-CC0.txt) and, for the emojis, [CC0-1.0](licenses/RhosGFX-Emojis-CC0.txt). Full installed-package notices are retained in node_modules, and build-generated license comments must not be removed. The package locks record the exact dependency graph.
 
