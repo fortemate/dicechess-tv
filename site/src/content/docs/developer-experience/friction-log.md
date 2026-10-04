@@ -117,7 +117,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   remote skins do the same). The keyboard sends `enter`. `select` is what the documentation says a
   physical remote sends; we have not had a device to confirm it. We found `kpenter` nowhere in the
   documentation, and the app ignored OK from the on-screen remote until a person pressed it. Evidence:
-  `native/README.md` at commit `5bc2357`, Remote input,
+  `native/README.md` at commit `04b0a88`, Remote input,
   PR #50.
 - **Severity and user impact:** High. The remote's main button looked dead in the emulator, with no
   error. A developer who tests with the keyboard alone would never notice.
