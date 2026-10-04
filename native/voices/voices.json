@@ -1,9 +1,9 @@
 {
   "upstream": "fortemate/dicechess-assets",
-  "commit": "1a78ae81deda02b1fb40594c693f30dd92205bd1",
+  "commit": "9044904c29830101127f3a9a2958aeca1d51479d",
   "events": {
     "file": "events.json",
-    "sha256": "713d2580a534ce4b6a980e8e4380dc7af0232832d796cbcd73850c36635cf9aa"
+    "sha256": "be8a7840abd757af69c76c66b5155ffe7449f2aec15ba46af04752ce075d6170"
   },
   "packs": {
     "elevenlabs-dicechess-bots": {
@@ -222,6 +222,71 @@
         "prowla_host_win_1.mp3": "3249b0077853084688b2068d59e7253190ab8b41a15c531e2adbc3c5a3a2e184",
         "prowla_host_win_2.mp3": "d361d33ec30d10f97160fdd9ec39644b54537d1016e517267487f4a19cf56e5b",
         "prowla_host_win_3.mp3": "413f02081b44f402072e06385a18147805ce58cee5bee12f8e93fdb699d64dfc"
+      }
+    },
+    "elevenlabs-dicechess-tutorial-thinkle": {
+      "title": "Dice Chess TV tutorial, taught by Thinkle (ElevenLabs)",
+      "license": "Fortemate apps only",
+      "licenseFile": "LICENSE.txt",
+      "distribution": "project",
+      "clients": [
+        "fortemate/dicechess-tv"
+      ],
+      "attributionRequired": false,
+      "generator": "ElevenLabs",
+      "texts": {
+        "path": "voices/elevenlabs-dicechess-tutorial-thinkle/catalogue.json",
+        "repository": "fortemate/dicechess-assets"
+      },
+      "files": {
+        "manifest.json": "ffc404814c9ece41877cbbb3a87738d3782c448506d33f3e6edb0ecdc7219803",
+        "LICENSE.txt": "074df40ab83e76af5bbaf967a6d174451df520cc2f5f40f865f25c00f2274659",
+        "thinkle_tutor_capture_done_1.mp3": "e26d2acb421099552e83ba3721cd4ceb603f897efdbf8279318d5e43eb0e372f",
+        "thinkle_tutor_capture_opening_1.mp3": "e57d1c6d7ef8bd354680f167ebcc64b6c0f202ac90d4a78770a7edeaf85db78e",
+        "thinkle_tutor_capture_opening_2.mp3": "3b2fc8037b92286a8c7d25fae0d7a65b0327ff988c859db0637c0385915b339b",
+        "thinkle_tutor_capture_opening_3.mp3": "a40dc2024e2dd3aaa1066a0f3e83c496b4a82406f1e0dd14ea70edb9582970fa",
+        "thinkle_tutor_capture_rolled_1.mp3": "53d49fbeb88797b6e90e940353d82fb644b01d210f9c929da144dbeb7bcef04b",
+        "thinkle_tutor_capture_rolled_2.mp3": "ec9b516cc4564cdc5ccfbf1d3fcacd90a9349a0d3379386aaaa4a1411720654b",
+        "thinkle_tutor_capture_rolled_3.mp3": "d7d12008c11b15837ddb7c5009b7480f0aab0e0219dc59fd98d1df27eb43a41d",
+        "thinkle_tutor_clear_done_1.mp3": "c565a8a0f5cfd41b232c44b71c784661abd676f8b46fbf18f16cb342ccb2f221",
+        "thinkle_tutor_clear_moved_1.mp3": "4ad8e43865385b79e19bf91eaef64de81b0c40dab0028d637dc21e4f393d842b",
+        "thinkle_tutor_clear_opening_1.mp3": "f74de3c64c8377d8d4ee55164557386f5cd96ee9b164c3f130af297ad6636768",
+        "thinkle_tutor_clear_opening_2.mp3": "33aeb4efa2136e0aaa445d49b07a2620648c9431506b9864c974e3a72a9f12e0",
+        "thinkle_tutor_clear_opening_3.mp3": "be033596ac85ac72f84c939d612cfeb2563da8f74e8f4c9461cfffde8cf00413",
+        "thinkle_tutor_clear_rolled_1.mp3": "8dbaa254c0a12464dcad61564feb5e2f1538fa5c3892702d65b95c8c309a037f",
+        "thinkle_tutor_clear_rolled_2.mp3": "06f7d28e46c1fc755fe3e74f6805e1f18beb88d0851e296db1b05284b87dc072",
+        "thinkle_tutor_clear_rolled_3.mp3": "2a2bd682529b4a32c794dc282dc56c7234a79b5a76ad658c42ab8ba4e7306c07",
+        "thinkle_tutor_closing_1.mp3": "660c249164284e5a0bd91b48e0332e2d08b61a3f3889fecc135251dba7afa923",
+        "thinkle_tutor_closing_2.mp3": "d33718d834851a68d8cd7864e3085c788d6d20a4e4fe0944df74b595620e682e",
+        "thinkle_tutor_closing_3.mp3": "eec4a9d268de20175c81dd9c1e394d0dc42cffdf474171c2a3b905974619685c",
+        "thinkle_tutor_dice_done_1.mp3": "2871d74e60b5089c3779f7796234b7aacd9e097f8d4e77c7cae71bb2e259feca",
+        "thinkle_tutor_dice_opening_1.mp3": "68359839a3d802e4b7f83cbbec396cd015eafbe0af0ed75e296d43e777353407",
+        "thinkle_tutor_dice_opening_2.mp3": "0d7d0fac14da22f1548473d65bc2b0fd3c8a82a54887e16b59d20a8c60478a7b",
+        "thinkle_tutor_dice_opening_3.mp3": "19bb2bb3a01746f108d453606013689fa0ab5548471ec2defaf0df55e2d495b4",
+        "thinkle_tutor_dice_rolled_1.mp3": "deb10511d80210f541a3ef1f00aa22e4d0b1ee60b299e9ae910ab58efd3461f7",
+        "thinkle_tutor_dice_rolled_2.mp3": "2d0ac786f15eeed1c0587e55d09a95432bf838e7c3836407796fc974a3af542a",
+        "thinkle_tutor_dice_rolled_3.mp3": "61ae0c31b2de4cb54a8c95ba1dfb5639bcfbd5ba18478c8e6c4fa14459558429",
+        "thinkle_tutor_king_done_1.mp3": "be4f61ca428ccdd923aa5db18c4ed0097e5a27bc1e4b14dd9a6d07db4ea74e0b",
+        "thinkle_tutor_king_done_2.mp3": "1a1f4e659b2be375a50f827599bdd5bb0c7434fae4ade6cf78a31cd3614436fc",
+        "thinkle_tutor_king_opening_1.mp3": "0ae70d33b2dbc35f257e94add3f864f55cef1c92a12be49e04a74db08fee2b7c",
+        "thinkle_tutor_king_opening_2.mp3": "c9a7a72787404f3e7c74d0d5c7bfc743f495757c384c5ff458a708b905cd94db",
+        "thinkle_tutor_king_opening_3.mp3": "fda5f74c49c8171abedf723cedefb2089c16c0cdf72b50e4b343f264957a3ce2",
+        "thinkle_tutor_king_rolled_1.mp3": "3de53a7a7d6a75e5eccbb411149b43a6e5fbc9639fc0713504282485523dac1d",
+        "thinkle_tutor_king_rolled_2.mp3": "b393a57553cd0cb226fa2746dfa21586e5b6cdd519feb18bed4d506bf5803571",
+        "thinkle_tutor_missed_1.mp3": "0d6c1dd82d739ebf6bdccef8c98af28c67c8de676b27fb06c8aa1eef0f5ac623",
+        "thinkle_tutor_move_done_1.mp3": "49846637e23caeea14fdf48bd89d43687c35189184b3b97faa8f67929a854462",
+        "thinkle_tutor_move_moved_1.mp3": "8f11cc676aa25f9da6e93a6978b8a38e67495f714be4ef887e042906b0a6b222",
+        "thinkle_tutor_move_opening_1.mp3": "b42cf4ef69e2f598961dffe375d6397317b395fe7d74ac3b774906cbaf052d3a",
+        "thinkle_tutor_move_opening_2.mp3": "3faa949d50398b3da2b70caebd0761305ff0bbb37389a29568599261c537a3a4",
+        "thinkle_tutor_move_opening_3.mp3": "8885d3b297ea14c95059cefca3ae2736c968173ec34c62542b06b08cec9df537",
+        "thinkle_tutor_move_rolled_1.mp3": "7415ab9e9146ec9b85641492742d67f42f76578a7ebf7ba5c21f0d582de21fd5",
+        "thinkle_tutor_move_rolled_2.mp3": "fd1a60e1b5450aa1f028eeb7062187064a53c1aeb431c4f389c60816b90ef549",
+        "thinkle_tutor_pass_done_1.mp3": "fa6286a0de0b2fdf79a2ff38e0a46c7a4379df10a90332180a385359ad499ab4",
+        "thinkle_tutor_pass_opening_1.mp3": "17e8c9e58fed7986b93f412b5b9293af0cc546debc866b1b86f8db18f4bf06e0",
+        "thinkle_tutor_pass_opening_2.mp3": "7ee7e6264e2ac10eb02ebe48901c6e69adbbe24d6beaa1055a6f63a02470c45c",
+        "thinkle_tutor_pass_rolled_1.mp3": "1e4313215997a1123c972fb8e97ad6610406a49910887a200c7c34290b38fb90",
+        "thinkle_tutor_pass_rolled_2.mp3": "a2435ccbd3820529f8160e5091363e88017b55421cce7bf5ff0ad831600f8144",
+        "thinkle_tutor_pass_rolled_3.mp3": "6edeff9248c7eedcd1c4af1c54a41a960982d9b6a70d49a5aaf2ada6e62572c8"
       }
     }
   },
@@ -1814,6 +1879,466 @@
       "voice": "Rolly",
       "file": "elevenlabs-dicechess-bots/rolly_win_3.mp3",
       "sha256": "8de85cd7cfa42d836942f07c0f93e9adf32b62252211b836e4877d7357e81c74",
+      "seconds": 4
+    },
+    "thinkle_tutor_capture_done_1": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "capture_done",
+      "text": "Splendid! The dice chose the rook; you chose the target.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_capture_done_1.mp3",
+      "sha256": "e26d2acb421099552e83ba3721cd4ceb603f897efdbf8279318d5e43eb0e372f",
+      "seconds": 5.36
+    },
+    "thinkle_tutor_capture_opening_1": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "capture_opening",
+      "text": "Now for the fun part: taking pieces!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_capture_opening_1.mp3",
+      "sha256": "e57d1c6d7ef8bd354680f167ebcc64b6c0f202ac90d4a78770a7edeaf85db78e",
+      "seconds": 3.52
+    },
+    "thinkle_tutor_capture_opening_2": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "capture_opening",
+      "text": "Land on an enemy piece, and it leaves the board.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_capture_opening_2.mp3",
+      "sha256": "3b2fc8037b92286a8c7d25fae0d7a65b0327ff988c859db0637c0385915b339b",
+      "seconds": 4.08
+    },
+    "thinkle_tutor_capture_opening_3": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "capture_opening",
+      "text": "Roll, my friend.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_capture_opening_3.mp3",
+      "sha256": "a40dc2024e2dd3aaa1066a0f3e83c496b4a82406f1e0dd14ea70edb9582970fa",
+      "seconds": 1.84
+    },
+    "thinkle_tutor_capture_rolled_1": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "capture_rolled",
+      "text": "A rook, a queen and a bishop.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_capture_rolled_1.mp3",
+      "sha256": "53d49fbeb88797b6e90e940353d82fb644b01d210f9c929da144dbeb7bcef04b",
+      "seconds": 3.36
+    },
+    "thinkle_tutor_capture_rolled_2": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "capture_rolled",
+      "text": "You have no queen or bishop here, so those dice go grey.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_capture_rolled_2.mp3",
+      "sha256": "ec9b516cc4564cdc5ccfbf1d3fcacd90a9349a0d3379386aaaa4a1411720654b",
+      "seconds": 6.08
+    },
+    "thinkle_tutor_capture_rolled_3": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "capture_rolled",
+      "text": "The rook will do nicely. See that black pawn?",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_capture_rolled_3.mp3",
+      "sha256": "d7d12008c11b15837ddb7c5009b7480f0aab0e0219dc59fd98d1df27eb43a41d",
+      "seconds": 3.84
+    },
+    "thinkle_tutor_clear_done_1": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "clear_done",
+      "text": "All three used! Use every die you can: that is the rule.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_clear_done_1.mp3",
+      "sha256": "c565a8a0f5cfd41b232c44b71c784661abd676f8b46fbf18f16cb342ccb2f221",
+      "seconds": 6.08
+    },
+    "thinkle_tutor_clear_moved_1": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "clear_moved",
+      "text": "The way is open! Use the dice that are left.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_clear_moved_1.mp3",
+      "sha256": "4ad8e43865385b79e19bf91eaef64de81b0c40dab0028d637dc21e4f393d842b",
+      "seconds": 3.36
+    },
+    "thinkle_tutor_clear_opening_1": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "clear_opening",
+      "text": "Sometimes a piece is stuck behind its own pawns.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_clear_opening_1.mp3",
+      "sha256": "f74de3c64c8377d8d4ee55164557386f5cd96ee9b164c3f130af297ad6636768",
+      "seconds": 3.92
+    },
+    "thinkle_tutor_clear_opening_2": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "clear_opening",
+      "text": "Then move a pawn first, and set it free!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_clear_opening_2.mp3",
+      "sha256": "33aeb4efa2136e0aaa445d49b07a2620648c9431506b9864c974e3a72a9f12e0",
+      "seconds": 4
+    },
+    "thinkle_tutor_clear_opening_3": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "clear_opening",
+      "text": "Roll the dice, my friend.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_clear_opening_3.mp3",
+      "sha256": "be033596ac85ac72f84c939d612cfeb2563da8f74e8f4c9461cfffde8cf00413",
+      "seconds": 2.24
+    },
+    "thinkle_tutor_clear_rolled_1": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "clear_rolled",
+      "text": "A pawn, a bishop and a queen.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_clear_rolled_1.mp3",
+      "sha256": "8dbaa254c0a12464dcad61564feb5e2f1538fa5c3892702d65b95c8c309a037f",
+      "seconds": 3.44
+    },
+    "thinkle_tutor_clear_rolled_2": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "clear_rolled",
+      "text": "The bishop and queen are stuck, yet their dice are lit.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_clear_rolled_2.mp3",
+      "sha256": "06f7d28e46c1fc755fe3e74f6805e1f18beb88d0851e296db1b05284b87dc072",
+      "seconds": 4.16
+    },
+    "thinkle_tutor_clear_rolled_3": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "clear_rolled",
+      "text": "Only pawns that open the way glow. Move one first!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_clear_rolled_3.mp3",
+      "sha256": "2a2bd682529b4a32c794dc282dc56c7234a79b5a76ad658c42ab8ba4e7306c07",
+      "seconds": 4.48
+    },
+    "thinkle_tutor_closing_1": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "closing",
+      "text": "Castling, promotion and en passant use dice too.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_closing_1.mp3",
+      "sha256": "660c249164284e5a0bd91b48e0332e2d08b61a3f3889fecc135251dba7afa923",
+      "seconds": 4.48
+    },
+    "thinkle_tutor_closing_2": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "closing",
+      "text": "Rules, on the home screen, has every detail.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_closing_2.mp3",
+      "sha256": "d33718d834851a68d8cd7864e3085c788d6d20a4e4fe0944df74b595620e682e",
+      "seconds": 3.76
+    },
+    "thinkle_tutor_closing_3": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "closing",
+      "text": "May the stars and the dice be kind to you!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_closing_3.mp3",
+      "sha256": "eec4a9d268de20175c81dd9c1e394d0dc42cffdf474171c2a3b905974619685c",
+      "seconds": 3.44
+    },
+    "thinkle_tutor_dice_done_1": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "dice_done",
+      "text": "Well leapt! The grey dice go unused, and the turn ends.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_dice_done_1.mp3",
+      "sha256": "2871d74e60b5089c3779f7796234b7aacd9e097f8d4e77c7cae71bb2e259feca",
+      "seconds": 6.4
+    },
+    "thinkle_tutor_dice_opening_1": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "dice_opening",
+      "text": "Now, a little secret of the dice.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_dice_opening_1.mp3",
+      "sha256": "68359839a3d802e4b7f83cbbec396cd015eafbe0af0ed75e296d43e777353407",
+      "seconds": 2.96
+    },
+    "thinkle_tutor_dice_opening_2": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "dice_opening",
+      "text": "Each die shows a piece, and only that piece may move.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_dice_opening_2.mp3",
+      "sha256": "0d7d0fac14da22f1548473d65bc2b0fd3c8a82a54887e16b59d20a8c60478a7b",
+      "seconds": 4.64
+    },
+    "thinkle_tutor_dice_opening_3": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "dice_opening",
+      "text": "Roll, and let us see what they choose.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_dice_opening_3.mp3",
+      "sha256": "19bb2bb3a01746f108d453606013689fa0ab5548471ec2defaf0df55e2d495b4",
+      "seconds": 3.12
+    },
+    "thinkle_tutor_dice_rolled_1": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "dice_rolled",
+      "text": "Hmm... a queen, a bishop and a knight.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_dice_rolled_1.mp3",
+      "sha256": "deb10511d80210f541a3ef1f00aa22e4d0b1ee60b299e9ae910ab58efd3461f7",
+      "seconds": 4.4
+    },
+    "thinkle_tutor_dice_rolled_2": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "dice_rolled",
+      "text": "The queen and bishop are boxed in. Their dice go grey.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_dice_rolled_2.mp3",
+      "sha256": "2d0ac786f15eeed1c0587e55d09a95432bf838e7c3836407796fc974a3af542a",
+      "seconds": 5.92
+    },
+    "thinkle_tutor_dice_rolled_3": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "dice_rolled",
+      "text": "But a knight can leap over pieces!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_dice_rolled_3.mp3",
+      "sha256": "61ae0c31b2de4cb54a8c95ba1dfb5639bcfbd5ba18478c8e6c4fa14459558429",
+      "seconds": 2.64
+    },
+    "thinkle_tutor_king_done_1": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "king_done",
+      "text": "Victory! Taking the king wins at once.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_king_done_1.mp3",
+      "sha256": "be4f61ca428ccdd923aa5db18c4ed0097e5a27bc1e4b14dd9a6d07db4ea74e0b",
+      "seconds": 4
+    },
+    "thinkle_tutor_king_done_2": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "king_done",
+      "text": "Nothing warns you when a king is attacked. Guard yours!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_king_done_2.mp3",
+      "sha256": "1a1f4e659b2be375a50f827599bdd5bb0c7434fae4ade6cf78a31cd3614436fc",
+      "seconds": 4.56
+    },
+    "thinkle_tutor_king_opening_1": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "king_opening",
+      "text": "Now, the most important rule of all.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_king_opening_1.mp3",
+      "sha256": "0ae70d33b2dbc35f257e94add3f864f55cef1c92a12be49e04a74db08fee2b7c",
+      "seconds": 3.04
+    },
+    "thinkle_tutor_king_opening_2": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "king_opening",
+      "text": "Whoever takes the other king wins, there and then.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_king_opening_2.mp3",
+      "sha256": "c9a7a72787404f3e7c74d0d5c7bfc743f495757c384c5ff458a708b905cd94db",
+      "seconds": 4.08
+    },
+    "thinkle_tutor_king_opening_3": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "king_opening",
+      "text": "Roll the dice!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_king_opening_3.mp3",
+      "sha256": "fda5f74c49c8171abedf723cedefb2089c16c0cdf72b50e4b343f264957a3ce2",
+      "seconds": 1.6
+    },
+    "thinkle_tutor_king_rolled_1": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "king_rolled",
+      "text": "A rook, and nothing between it and the king.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_king_rolled_1.mp3",
+      "sha256": "3de53a7a7d6a75e5eccbb411149b43a6e5fbc9639fc0713504282485523dac1d",
+      "seconds": 4.24
+    },
+    "thinkle_tutor_king_rolled_2": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "king_rolled",
+      "text": "Go on, take him!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_king_rolled_2.mp3",
+      "sha256": "b393a57553cd0cb226fa2746dfa21586e5b6cdd519feb18bed4d506bf5803571",
+      "seconds": 1.84
+    },
+    "thinkle_tutor_missed_1": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "missed",
+      "text": "Not quite, my friend. Let us try that again.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_missed_1.mp3",
+      "sha256": "0d6c1dd82d739ebf6bdccef8c98af28c67c8de676b27fb06c8aa1eef0f5ac623",
+      "seconds": 4.88
+    },
+    "thinkle_tutor_move_done_1": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "move_done",
+      "text": "There! Three dice, three moves: your first turn.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_move_done_1.mp3",
+      "sha256": "49846637e23caeea14fdf48bd89d43687c35189184b3b97faa8f67929a854462",
+      "seconds": 5.04
+    },
+    "thinkle_tutor_move_moved_1": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "move_moved",
+      "text": "Well done! Each die is one move. Use them all.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_move_moved_1.mp3",
+      "sha256": "8f11cc676aa25f9da6e93a6978b8a38e67495f714be4ef887e042906b0a6b222",
+      "seconds": 4.88
+    },
+    "thinkle_tutor_move_opening_1": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "move_opening",
+      "text": "Welcome, my friend!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_move_opening_1.mp3",
+      "sha256": "b42cf4ef69e2f598961dffe375d6397317b395fe7d74ac3b774906cbaf052d3a",
+      "seconds": 2
+    },
+    "thinkle_tutor_move_opening_2": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "move_opening",
+      "text": "I am Thinkle, and I shall teach you Dice Chess.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_move_opening_2.mp3",
+      "sha256": "3faa949d50398b3da2b70caebd0761305ff0bbb37389a29568599261c537a3a4",
+      "seconds": 4.08
+    },
+    "thinkle_tutor_move_opening_3": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "move_opening",
+      "text": "Every turn begins with a roll of the dice.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_move_opening_3.mp3",
+      "sha256": "8885d3b297ea14c95059cefca3ae2736c968173ec34c62542b06b08cec9df537",
+      "seconds": 3.28
+    },
+    "thinkle_tutor_move_rolled_1": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "move_rolled",
+      "text": "Three pawns! So your pawns may move, and they glow.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_move_rolled_1.mp3",
+      "sha256": "7415ab9e9146ec9b85641492742d67f42f76578a7ebf7ba5c21f0d582de21fd5",
+      "seconds": 5.2
+    },
+    "thinkle_tutor_move_rolled_2": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "move_rolled",
+      "text": "Pick one, and the dots show where it may go.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_move_rolled_2.mp3",
+      "sha256": "fd1a60e1b5450aa1f028eeb7062187064a53c1aeb431c4f389c60816b90ef549",
+      "seconds": 3.52
+    },
+    "thinkle_tutor_pass_done_1": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "pass_done",
+      "text": "No harm done! At the start of a game, it happens often.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_pass_done_1.mp3",
+      "sha256": "fa6286a0de0b2fdf79a2ff38e0a46c7a4379df10a90332180a385359ad499ab4",
+      "seconds": 5.28
+    },
+    "thinkle_tutor_pass_opening_1": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "pass_opening",
+      "text": "Now and then, the dice play a little trick.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_pass_opening_1.mp3",
+      "sha256": "17e8c9e58fed7986b93f412b5b9293af0cc546debc866b1b86f8db18f4bf06e0",
+      "seconds": 3.84
+    },
+    "thinkle_tutor_pass_opening_2": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "pass_opening",
+      "text": "Roll, and you will see what I mean.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_pass_opening_2.mp3",
+      "sha256": "7ee7e6264e2ac10eb02ebe48901c6e69adbbe24d6beaa1055a6f63a02470c45c",
+      "seconds": 4
+    },
+    "thinkle_tutor_pass_rolled_1": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "pass_rolled",
+      "text": "Hmm... a queen, a rook and a king.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_pass_rolled_1.mp3",
+      "sha256": "1e4313215997a1123c972fb8e97ad6610406a49910887a200c7c34290b38fb90",
+      "seconds": 4.4
+    },
+    "thinkle_tutor_pass_rolled_2": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "pass_rolled",
+      "text": "All three are boxed in, so every die goes grey.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_pass_rolled_2.mp3",
+      "sha256": "a2435ccbd3820529f8160e5091363e88017b55421cce7bf5ff0ad831600f8144",
+      "seconds": 5.6
+    },
+    "thinkle_tutor_pass_rolled_3": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "pass_rolled",
+      "text": "When no die can be used, your turn simply passes.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_pass_rolled_3.mp3",
+      "sha256": "6edeff9248c7eedcd1c4af1c54a41a960982d9b6a70d49a5aaf2ada6e62572c8",
       "seconds": 4
     }
   }

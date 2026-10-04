@@ -10,6 +10,8 @@ import {
   isMissed,
   MISSED_SPEECH,
   CLOSING_SPEECH,
+  TUTOR_CATALOGUE,
+  tutorLinesAt,
   ROLL_TASK,
   isComplete,
   type TutorialStep,
@@ -389,4 +391,45 @@ test('Thinkle never says check or checkmate, and never names a die by number', (
       );
       assert.doesNotMatch(line, /\d/, line);
     }
+});
+
+test("each point of a lesson names the event and clips of Thinkle's voice pack", () => {
+  const [move] = TUTORIAL;
+  const game = rolled(move);
+  assert.deepEqual(
+    tutorLinesAt(move, stepGame(move), false).map((line) => line.id),
+    [
+      'thinkle_tutor_move_opening_1',
+      'thinkle_tutor_move_opening_2',
+      'thinkle_tutor_move_opening_3',
+    ],
+  );
+  assert.equal(tutorLinesAt(move, game, false)[0].event, 'move_rolled');
+  const once = moveGame(game, viewGame(game).legal[0]);
+  assert.equal(tutorLinesAt(move, once, false)[0].event, 'move_moved');
+
+  // A lesson with no lines of its own at a point says the last point's, under
+  // that point's event, so a clip is never asked for that the pack lacks.
+  const step = { ...TUTORIAL[1], speech: { opening: ['Only this.'] } };
+  assert.deepEqual(
+    tutorLinesAt(step, rolled(step), false).map((line) => line.id),
+    ['thinkle_tutor_dice_opening_1'],
+  );
+
+  // A miss has its own event.
+  const capture = TUTORIAL.find((s) => s.id === 'capture')!;
+  const missed = moveGame(rolled(capture), 'd1d2');
+  assert.deepEqual(
+    tutorLinesAt(capture, missed, false).map((line) => line.id),
+    ['thinkle_tutor_missed_1'],
+  );
+
+  // Every line has an id of its own, and the speech and the lines agree.
+  const ids = TUTOR_CATALOGUE.map((line) => line.id);
+  assert.equal(new Set(ids).size, ids.length);
+  for (const s of TUTORIAL)
+    assert.deepEqual(
+      tutorLinesAt(s, rolled(s), false).map((line) => line.text),
+      speechAt(s, rolled(s), false),
+    );
 });

@@ -270,17 +270,93 @@ export function speechAt(
   game: Game,
   complete: boolean,
 ): readonly string[] {
-  const {
-    opening,
-    rolled = opening,
-    moved = rolled,
-    done = moved,
-  } = step.speech;
-  if (complete) return done;
-  if (isMissed(step, game)) return MISSED_SPEECH;
-  if (game.moves.length > 0) return moved;
-  return game.phase === 'roll' ? opening : rolled;
+  return spoken(step, game, complete).lines;
 }
+
+// The points of a step in order. A point with no lines of its own keeps the
+// lines of the last one before it that has some.
+const MOMENTS = ['opening', 'rolled', 'moved', 'done'] as const;
+type Moment = (typeof MOMENTS)[number];
+
+// The point a step is at: before its roll, rolled, after an action, or done.
+const momentAt = (game: Game, complete: boolean): Moment => {
+  if (complete) return 'done';
+  if (game.moves.length > 0) return 'moved';
+  return game.phase === 'roll' ? 'opening' : 'rolled';
+};
+
+// What Thinkle says now and the tutorial event it is recorded under in his
+// voice pack (fortemate/dicechess-assets, voices/events.json): the step's id and
+// the point whose lines are said, as `move_rolled`, or `missed`.
+const spoken = (
+  step: TutorialStep,
+  game: Game,
+  complete: boolean,
+): { event: TutorEvent; lines: readonly string[] } => {
+  if (!complete && isMissed(step, game))
+    return { event: 'missed', lines: MISSED_SPEECH };
+  const at = momentAt(game, complete);
+  const moment =
+    MOMENTS.slice(0, MOMENTS.indexOf(at) + 1)
+      .reverse()
+      .find((point) => step.speech[point]) ?? 'opening';
+  return {
+    event: `${step.id}_${moment}`,
+    lines: step.speech[moment] ?? step.speech.opening,
+  };
+};
+
+// A tutorial event: a point of a lesson, a miss, or the closing words.
+export type TutorEvent = `${string}_${Moment}` | 'missed' | 'closing';
+
+// A line Thinkle says, as his voice pack records it: the clip's id, the event
+// it belongs to, and its text. An event's lines are said one after another, in
+// order (#264).
+export type TutorLine = {
+  readonly id: string;
+  readonly event: TutorEvent;
+  readonly text: string;
+};
+
+// The lines' ids in the pack: `thinkle_tutor_<event>_<n>`, n counting from 1.
+const TUTOR_PREFIX = 'thinkle_tutor';
+const tutorLines = (
+  event: TutorEvent,
+  lines: readonly string[],
+): readonly TutorLine[] =>
+  lines.map((text, i) => ({
+    id: `${TUTOR_PREFIX}_${event}_${i + 1}`,
+    event,
+    text,
+  }));
+
+// What Thinkle says at this point of a step, line by line, with each line's
+// clip.
+export const tutorLinesAt = (
+  step: TutorialStep,
+  game: Game,
+  complete: boolean,
+): readonly TutorLine[] => {
+  const { event, lines } = spoken(step, game, complete);
+  return tutorLines(event, lines);
+};
+
+// What he says after the last lesson.
+export const CLOSING_LINES: readonly TutorLine[] = tutorLines(
+  'closing',
+  CLOSING_SPEECH,
+);
+
+// Every line he may say, once each: what his voice pack must hold.
+export const TUTOR_CATALOGUE: readonly TutorLine[] = [
+  ...TUTORIAL.flatMap((step) =>
+    MOMENTS.flatMap((moment) =>
+      tutorLines(`${step.id}_${moment}`, step.speech[moment] ?? []),
+    ),
+  ),
+  ...tutorLines('missed', MISSED_SPEECH),
+  ...CLOSING_LINES,
+];
 
 export function isComplete(step: TutorialStep, game: Game): boolean {
   switch (step.goal.kind) {

@@ -9,7 +9,9 @@ Most people who pick up the remote know chess, or some of it, and have never pla
 
 ## The tutorial
 
-![The first tutorial lesson, Moving a piece, with the pawns that can move marked](../../../assets/screenshots/tutorial.png)
+[![Play the tutorial video on YouTube: the first tutorial lesson, Roll and move, after the roll: Thinkle speaks from beside his portrait and the pawns that can move are marked](../../../assets/screenshots/tutorial.png)](https://youtu.be/KK8BBICjaBQ)
+
+The whole tutorial, 4:52 on YouTube, recorded in one take on the Vega Virtual Device: [roll and move](https://youtu.be/KK8BBICjaBQ?t=0), [dice choose the pieces](https://youtu.be/KK8BBICjaBQ?t=52), [clear the way](https://youtu.be/KK8BBICjaBQ?t=97), [when nothing can move](https://youtu.be/KK8BBICjaBQ?t=153), [taking a piece](https://youtu.be/KK8BBICjaBQ?t=193), [taking the king](https://youtu.be/KK8BBICjaBQ?t=236) and [the closing words](https://youtu.be/KK8BBICjaBQ?t=275).
 
 Six short lessons, taught by Thinkle the wizard. Each is a real position with a fixed roll, and each opens on that roll, which the player makes with OK, as every turn of a game begins:
 

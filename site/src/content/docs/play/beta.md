@@ -27,7 +27,7 @@ Each pre-release has three packages: one for a Fire TV Stick in developer mode, 
 
 ## What to try
 
-- **How to play**, the five-lesson tutorial, before anything else.
+- **How to play**, the six-lesson tutorial, before anything else.
 - A game against the computer: Rolly (easy), Grabby (medium) or Rampage (hard).
 - A hotseat game with someone else in the room, passing the remote.
 - **Rules**, to look something up.

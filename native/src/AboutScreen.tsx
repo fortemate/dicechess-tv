@@ -23,11 +23,13 @@ import { useRemoteInput } from './useRemoteInput';
 import { THEME } from './theme';
 
 // The faces beside the portraits' credit: every character the game shows, the
-// opponents and then the hosts who are not one of them.
+// opponents, then the hosts who are not one of them, then Thinkle, who teaches
+// the tutorial (#264).
 const CREDITED: readonly CharacterId[] = [
   ...new Set<CharacterId>([
     ...BOT_MODES.map((mode) => PORTRAIT_OF[mode]),
     ...HOSTS.map((host) => host.portrait),
+    'thinkle',
   ]),
 ];
 

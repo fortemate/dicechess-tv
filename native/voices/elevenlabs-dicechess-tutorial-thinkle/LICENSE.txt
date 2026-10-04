@@ -1,0 +1,26 @@
+Dice Chess TV tutorial, taught by Thinkle (ElevenLabs) - for Fortemate's Dice Chess applications only
+
+Copyright 2026 Fortemate, to the extent any rights in this material exist.
+All rights reserved.
+
+These audio files were generated with ElevenLabs, on the paid subscription of
+Fortemate's owner, for Fortemate.
+
+Only Fortemate may use, copy and distribute them. They may be used only as part
+of the Dice Chess applications that Fortemate publishes, on any platform, and of
+the source repositories of those applications.
+
+No licence is granted to anyone else. The files are not covered by the
+AGPL-3.0 licence of the applications' source code or by any other open
+licence. A fork or copy of a Fortemate repository may not use, publish or
+distribute them: remove them, and generate audio of your own.
+
+Not permitted, to anyone:
+- using the files in a product that is not a Dice Chess application;
+- distributing them on their own, as sound libraries, sample packs or other
+  collections;
+- using them, in whole or in part, in any dataset for training, fine-tuning,
+  testing or improving machine learning or artificial intelligence.
+
+Their use is also subject to the ElevenLabs Terms of Service and Prohibited Use
+Policy.

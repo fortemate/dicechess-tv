@@ -45,17 +45,18 @@ About one roll in twelve leaves nothing to play, and so do nearly a third of fir
 
 ## The tutorial
 
-Five short lessons, each on a real position with a fixed roll, teach the game by playing it:
+Six short lessons, taught aloud by Thinkle the wizard, each on a real position with a fixed roll, teach the game by playing it:
 
-1. moving a piece;
+1. roll and move;
 2. the dice choose the pieces;
-3. three actions in one turn;
-4. taking a piece;
-5. taking the king ends it.
+3. clear the way;
+4. when nothing can move;
+5. taking a piece;
+6. taking the king ends it.
 
 A lesson never touches a saved game or the record.
 
-![The first tutorial lesson, Moving a piece, with the pawns that can move marked](../../../assets/screenshots/tutorial.png)
+[![Play the tutorial video on YouTube: the first tutorial lesson, Roll and move, after the roll: Thinkle speaks from beside his portrait and the pawns that can move are marked](../../../assets/screenshots/tutorial.png)](https://youtu.be/KK8BBICjaBQ)
 
 ## The rules guide
 

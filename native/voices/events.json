@@ -12,7 +12,8 @@
     "A line never cuts the one being said: the new line waits for it to end. A waiting line that is not always-tier is dropped when the next step comes.",
     "Silence breaker: after silenceBreakerTurns turns without a line, the next event speaks whatever its tier, cap, alert limit or decay.",
     "Within an event, lines come from a shuffled bag kept across games, so every line of the event is heard before any repeats.",
-    "The host speaks only at the start of a game and at the end of a turn, never while someone is thinking; threat and danger have no host lines."
+    "The host speaks only at the start of a game and at the end of a turn, never while someone is thinking; threat and danger have no host lines.",
+    "The tutor speaks at every point of a lesson, with no pacing: the lines of an event are said one after another, in the order of their ids, and together are what he says there. A line stops when the player leaves the lesson."
   ],
   "pacing": {
     "bot": {
@@ -33,7 +34,8 @@
       "frequentChance": 0.7,
       "repeatDecay": 0.5,
       "silenceBreakerTurns": 8
-    }
+    },
+    "tutor": {}
   },
   "events": {
     "bot": {
@@ -260,6 +262,118 @@
         "tier": "frequent",
         "priority": 11,
         "means": "A pawn, a knight or a bishop of either side is taken."
+      }
+    },
+    "tutor": {
+      "move_opening": {
+        "tier": "always",
+        "priority": 1,
+        "means": "Tutorial lesson 1, \"Roll and move\", opens, before its roll."
+      },
+      "move_rolled": {
+        "tier": "always",
+        "priority": 1,
+        "means": "Tutorial lesson 1, \"Roll and move\", has its roll made."
+      },
+      "move_moved": {
+        "tier": "always",
+        "priority": 1,
+        "means": "Tutorial lesson 1, \"Roll and move\", has had an action and is not done yet."
+      },
+      "move_done": {
+        "tier": "always",
+        "priority": 1,
+        "means": "Tutorial lesson 1, \"Roll and move\", is done."
+      },
+      "dice_opening": {
+        "tier": "always",
+        "priority": 1,
+        "means": "Tutorial lesson 2, \"Dice choose the pieces\", opens, before its roll."
+      },
+      "dice_rolled": {
+        "tier": "always",
+        "priority": 1,
+        "means": "Tutorial lesson 2, \"Dice choose the pieces\", has its roll made."
+      },
+      "dice_done": {
+        "tier": "always",
+        "priority": 1,
+        "means": "Tutorial lesson 2, \"Dice choose the pieces\", is done."
+      },
+      "clear_opening": {
+        "tier": "always",
+        "priority": 1,
+        "means": "Tutorial lesson 3, \"Clear the way\", opens, before its roll."
+      },
+      "clear_rolled": {
+        "tier": "always",
+        "priority": 1,
+        "means": "Tutorial lesson 3, \"Clear the way\", has its roll made."
+      },
+      "clear_moved": {
+        "tier": "always",
+        "priority": 1,
+        "means": "Tutorial lesson 3, \"Clear the way\", has had an action and is not done yet."
+      },
+      "clear_done": {
+        "tier": "always",
+        "priority": 1,
+        "means": "Tutorial lesson 3, \"Clear the way\", is done."
+      },
+      "pass_opening": {
+        "tier": "always",
+        "priority": 1,
+        "means": "Tutorial lesson 4, \"When nothing can move\", opens, before its roll."
+      },
+      "pass_rolled": {
+        "tier": "always",
+        "priority": 1,
+        "means": "Tutorial lesson 4, \"When nothing can move\", has its roll made."
+      },
+      "pass_done": {
+        "tier": "always",
+        "priority": 1,
+        "means": "Tutorial lesson 4, \"When nothing can move\", is done."
+      },
+      "capture_opening": {
+        "tier": "always",
+        "priority": 1,
+        "means": "Tutorial lesson 5, \"Taking a piece\", opens, before its roll."
+      },
+      "capture_rolled": {
+        "tier": "always",
+        "priority": 1,
+        "means": "Tutorial lesson 5, \"Taking a piece\", has its roll made."
+      },
+      "capture_done": {
+        "tier": "always",
+        "priority": 1,
+        "means": "Tutorial lesson 5, \"Taking a piece\", is done."
+      },
+      "king_opening": {
+        "tier": "always",
+        "priority": 1,
+        "means": "Tutorial lesson 6, \"Taking the king ends it\", opens, before its roll."
+      },
+      "king_rolled": {
+        "tier": "always",
+        "priority": 1,
+        "means": "Tutorial lesson 6, \"Taking the king ends it\", has its roll made."
+      },
+      "king_done": {
+        "tier": "always",
+        "priority": 1,
+        "means": "Tutorial lesson 6, \"Taking the king ends it\", is done."
+      },
+      "missed": {
+        "tier": "always",
+        "priority": 1,
+        "means": "A lesson's dice are spent without its goal, and OK tries it again."
+      },
+      "closing": {
+        "tier": "always",
+        "priority": 1,
+        "means": "Every lesson is done: the closing screen."
       }
     }
   }

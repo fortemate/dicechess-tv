@@ -37,8 +37,9 @@ export const ENGINE: Credit = {
   source: 'github.com/fortemate/dicechess-engine',
 };
 
-// The voices, the bots' and the Hot Seat host's, are Fortemate's own too, made
-// for this game with ElevenLabs (#187, #202) and licensed to Fortemate's Dice
+// The voices, the bots', the Hot Seat hosts' and Thinkle's in the tutorial, are
+// Fortemate's own too, made for this game with ElevenLabs (#187, #202, #258,
+// #264) and licensed to Fortemate's Dice
 // Chess apps only. They are named with the engine, which leaves the four cards
 // to other authors. ElevenLabs asks for no credit on a paid plan; the line says
 // the voices are synthetic, and made with what.
