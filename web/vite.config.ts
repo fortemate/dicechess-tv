@@ -24,6 +24,11 @@ const benchSquare = (): Plugin => ({
 export default defineConfig({
   // Served from wherever it is published, e.g. under the project site.
   base: './',
+  // React Native has a `global` object and browsers do not. react-native-web's
+  // Animated still calls global.cancelAnimationFrame when an animation is
+  // stopped before it ends, as native/src/Board.tsx does with a slide the next
+  // move interrupts, and without this the bench went black on the bot's turn.
+  define: { global: 'globalThis' },
   plugins: [benchSquare(), react()],
   resolve: {
     alias: [
