@@ -9,7 +9,7 @@ sidebar:
 
 This is the friction log of Dice Chess for Fire TV, kept while we built the app for [Build, Ship, Shape: Amazon Developer Hackathon 2026](https://amazonappdev2026.devpost.com/). It records the reproducible obstacles we met in Amazon's Vega SDK, its tools and its documentation. Our own bugs are not here.
 
-Each entry has the fields the [rules](https://amazonappdev2026.devpost.com/rules) ask for: the task attempted, the steps taken, the expected and actual results, a severity, the workaround and an actionable suggestion. Entries were written when the obstacle happened, while the versions, steps and workaround were still known. Evidence links point at this project's public repository, so each finding can be checked there. Where an entry involves a device, it is the Vega Virtual Device: nothing here has been checked on a Fire TV Stick yet.
+Each entry has the fields the [rules](https://amazonappdev2026.devpost.com/rules) ask for: the task attempted, the steps taken, the expected and actual results, a severity, the workaround and an actionable suggestion. Entries were written when the obstacle happened, while the versions, steps and workaround were still known. Where an entry gives evidence, it names where the finding is recorded: a file, commit, pull request or issue of this project's repository, or a thread on Amazon's developer forum. Pointers into `native/README.md` name commit `04b0a88`, the last version that held its long-form platform records, before they were condensed into this site's Technology and Build and run pages. Where an entry involves a device, it is the Vega Virtual Device: nothing here has been checked on a Fire TV Stick yet.
 
 Severity: **Blocker** stopped the chosen approach; **High** cost a day or would break the app for users; **Medium** cost hours or needed a workaround; **Low** is friction without lasting cost.
 
@@ -117,7 +117,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   remote skins do the same). The keyboard sends `enter`. `select` is what the documentation says a
   physical remote sends; we have not had a device to confirm it. We found `kpenter` nowhere in the
   documentation, and the app ignored OK from the on-screen remote until a person pressed it. Evidence:
-  `native/README.md`, Remote input,
+  `native/README.md` at commit `04b0a88`, Remote input,
   PR #50.
 - **Severity and user impact:** High. The remote's main button looked dead in the emulator, with no
   error. A developer who tests with the keyboard alone would never notice.
@@ -138,7 +138,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 - **Actual result and evidence:** `useAddUserInputListenerCallback()` delivers nothing at all while
   `useTVEventHandler` is also mounted. Alone, it works. The silence looks exactly like nobody pressing
   a key, which is why a diagnostic had to subscribe to one API at a time. Evidence:
-  `native/README.md`, Remote input.
+  `native/README.md` at commit `04b0a88`, Remote input.
 - **Severity and user impact:** High. It cost a day.
 - **Workaround:** use `useTVEventHandler` for directions and OK, and nothing else alongside it.
 - **Suggested improvement:** document that the two are exclusive, and warn in development builds when
@@ -154,7 +154,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 - **Minimal reproduction steps:** call the static `UserInputManager.addListener` at startup.
 - **Expected result:** a listener, or a documented error.
 - **Actual result and evidence:** the JS thread aborts with `SIGABRT`. Evidence:
-  `native/README.md`, Remote input.
+  `native/README.md` at commit `04b0a88`, Remote input.
 - **Severity and user impact:** Medium. The app dies on startup.
 - **Workaround:** the hooks instead.
 - **Suggested improvement:** make the static call work on 0.24, or have it throw a JavaScript error
@@ -172,7 +172,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 - **Actual result and evidence:** the handler sees Back, but it cannot claim the event, so the app
   closes as well. Only `useKeplerBackHandler` can claim Back; it calls `exitApp()` itself when no
   handler returns true. Evidence:
-  `native/README.md`, Remote input.
+  `native/README.md` at commit `04b0a88`, Remote input.
 - **Severity and user impact:** Medium. Back quit the game instead of cancelling.
 - **Workaround:** handle Back in `useKeplerBackHandler` and every other key in `useTVEventHandler`.
 - **Suggested improvement:** say in the `useTVEventHandler` documentation that it cannot claim an
@@ -191,7 +191,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 - **Actual result and evidence:** it never receives any. Every key press is lost, with nothing in any
   log and no crash. Rendering the board in the first render fixed it. We did not isolate the
   mechanism. Evidence:
-  `native/README.md`, Saving.
+  `native/README.md` at commit `04b0a88`, Saving.
 - **Severity and user impact:** High. A common React pattern produces an app that looks frozen.
 - **Workaround:** read storage synchronously (MMKV makes this easy) and render on the first frame.
 - **Suggested improvement:** deliver input to a view tree that mounts after the first frame, or
@@ -219,7 +219,9 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   Back, although Esc typed on the host keyboard does, through the emulator's keyboard mapping. And OK
   cannot be sent as `select`: the virtual keyboard does not declare `KEY_SELECT` or `KEY_OK`.
   Evidence:
-  `native/README.md`, Remote input.
+  `native/README.md` at commit `04b0a88`, Remote input; PR #17 (`inputd-cli`); the
+  [vega-vvd-driver README](https://github.com/fortemate/vega-vvd-driver#what-works-and-what-silently-does-not),
+  What works, and what silently does not.
 - **Severity and user impact:** Medium. Hours went into routes that fail silently, and until the gRPC
   route worked, every input check needed a person at the emulator.
 - **Workaround:** gRPC `sendKey` with the port and token from the running emulator's discovery file;
@@ -254,7 +256,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 - **Expected result:** a PNG of the screen.
 - **Actual result and evidence:** the CLI has no screenshot command. `screenshooter` fails its capture
   call, even once its buffer-permission problem is worked around. Evidence:
-  `native/README.md`, Verification.
+  `native/README.md` at commit `04b0a88`, Verification.
 - **Severity and user impact:** Medium. For two days, every visual check needed a person at the
   emulator.
 - **Workaround:** the Android emulator console's `screenrecord screenshot <directory>`, and later the
@@ -310,7 +312,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 - **Actual result and evidence:** MP3 and WAV reach `playing` in 3 to 7 ms. OGG and M4A fail with
   error 4, identically in each of three runs. `canPlayType` answered "probably" for OGG and "" for WAV,
   the reverse of what happens; the package's README lists it among unsupported members. Evidence:
-  `native/README.md`, What the probe established.
+  `native/README.md` at commit `04b0a88`, What the probe established.
 - **Severity and user impact:** Medium. The sound pack we had prepared was OGG only and could not be
   played as it stood.
 - **Workaround:** MP3 exports.
@@ -333,7 +335,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   `addEventListener`), and the `Audio` component on its music and media defaults filled the log with
   `could not connect to audioserver`, while an `AudioPlayer` created as `CONTENT_TYPE_SONIFICATION` /
   `USAGE_GAME` played. Evidence:
-  `native/README.md`, What the probe established.
+  `native/README.md` at commit `04b0a88`, What the probe established.
 - **Severity and user impact:** Low. It cost a probe run.
 - **Workaround:** plain paths for audio, `file://` for `fetch`.
 - **Suggested improvement:** accept both forms in both places, and a short guide to sound effects in a
@@ -356,7 +358,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   are all system-driven (programme guide sync, install updates). React Native has no Web Worker.
   Worklets are documented for heavy computation, but we have not proved them with a pure JavaScript
   library. Evidence:
-  `native/README.md`, The local opponent.
+  `native/README.md` at commit `04b0a88`, The local opponents; PR #21.
 - **Severity and user impact:** Medium. A stronger opponent than the random one needs this; the random
   one runs on the JS thread without a visible pause.
 - **Workaround:** none yet for heavy work.
@@ -389,7 +391,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 
 ### FL-15 · Routine dependency updates break the build or downgrade the SDK {#fl-15}
 
-- **Date and environment:** 2026-09-23 and 2026-09-24 · SDK 0.24.12112 · GitHub Dependabot, npm.
+- **Date and environment:** 2026-09-23 to 2026-09-26 · SDK 0.24.12112 · GitHub Dependabot, npm.
 - **Tool / SDK / component version:** `@amazon-devices/kepler-cli-platform`; `npm audit`.
 - **User task:** keep dependencies patched without breaking the Vega build.
 - **Minimal reproduction steps:** let Dependabot, with its usual rule of ignoring major updates, bump
@@ -399,13 +401,13 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   update and passed the rule. The build then stopped with
   `Current version of @amazon-devices/kepler-cli-platform does not support react native version: 0.87`,
   and our main branch stayed broken until the version was put back. `npm audit` reports 22 findings
-  (2026-09-24), all in the development toolchain: `kepler-cli-platform`, `react-native-kepler`,
+  (2026-09-26), all in the development toolchain: `kepler-cli-platform`, `react-native-kepler`,
   `eslint-plugin-kepler`, the manifest builder and the React Native CLI pull in vulnerable `lodash`,
   `minimatch`, `ajv`, `toml`, `uuid` and `fast-xml-parser`. None of them reaches the device package.
   Its remedy, `npm audit fix --force`, installs `@amazon-devices/react-native-kepler@2.1.0`, the SDK
   0.23 line. Evidence:
   `.github/dependabot.yaml`,
-  `native/README.md`, What `npm audit` reports.
+  `native/README.md` at commit `04b0a88`, What `npm audit` reports, and why it is not shipped.
 - **Severity and user impact:** Medium. A broken main branch, and security advice that would downgrade
   the platform.
 - **Workaround:** Dependabot allows only patch updates for SDK-matched packages; `npm audit fix` is
@@ -431,7 +433,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   round of concepts for the game's icon lost the tops and bottoms of their dice. Measured on the
   Virtual Device while the icon was designed.
   Evidence:
-  `native/README.md`, Icon and splash.
+  `native/README.md` at commit `04b0a88`, Icon and splash.
 - **Severity and user impact:** Low. The first icon looked distorted on the Virtual Device's home
   screen.
 - **Workaround:** an opaque icon whose artwork stays within that band, with even side margins; a test,
@@ -526,7 +528,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 - **Actual result and evidence:** first frame (309 ms) and fully drawn (748 ms) are reported, but the
   run ends in `VALUE VALIDATION FAILED` with `-1 != Network calls time P100`: the validator treats the
   absence of network calls as a failure. Evidence:
-  `native/README.md`, Launch time.
+  `native/README.md` at commit `04b0a88`, Launch time.
 - **Severity and user impact:** Low. The report looks like a failure until each line is read, and
   certification mode would presumably report the same.
 - **Workaround:** read the individual KPIs and ignore that one.
@@ -549,7 +551,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   `CLI Send Error for URI: pkg://com.amazon.smplighthouse.launcher.main: []: Failed to send message, remote error`
   (exit 255). The Virtual Device's launcher is `com.amazon.keplerlauncherapp.main`, and sending that
   one works. The tool offers no option to name the launcher. Evidence:
-  `native/README.md`, Launch time.
+  `native/README.md` at commit `04b0a88`, Launch time; PR #81.
 - **Severity and user impact:** Medium. A warm-start KPI that Amazon measures cannot be checked before
   a physical device is at hand.
 - **Workaround:** test the warm-start report in unit tests, and measure on a Fire TV Stick.
@@ -563,8 +565,9 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   0.24.12112.
 - **User task:** install Amazon's MCP server for a coding agent with telemetry turned off.
 - **Minimal reproduction steps:** read the
-  [MCP server page](https://developer.amazon.com/docs/vega/0.24/mcp-server.html) and the package README
-  for a way to turn telemetry off.
+  [MCP server page](https://developer.amazon.com/docs/adbt/get-started.html) (formerly
+  `docs/vega/0.24/mcp-server.html`, which now redirects there) and the package README for a way to
+  turn telemetry off.
 - **Expected result:** a documented switch: a flag, an environment variable or a setting.
 - **Actual result and evidence:** the page says "You can disable telemetry collection in the
   settings" but names no setting, and the README does not mention telemetry. The package's code reads
@@ -606,7 +609,8 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 
 - **Date and environment:** 2026-09-26 · MacBook Air · Node 26.8.
 - **Tool / SDK / component version:** `@amazon-devices/amazon-devices-buildertools-mcp` 1.0.13; the
-  [MCP server page](https://developer.amazon.com/docs/vega/0.24/mcp-server.html) for SDK 0.24.
+  [MCP server page](https://developer.amazon.com/docs/adbt/get-started.html), formerly the SDK 0.24
+  page `docs/vega/0.24/mcp-server.html`.
 - **User task:** set the server up for Claude Code in its desktop app, as the page describes.
 - **Minimal reproduction steps:** look for the `claude-code-desktop` agent the page lists in the
   package's own list of agents; compare the page's list of tools with the server's answer to
@@ -638,12 +642,12 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
     JavaScript, by calling `play()` when `ended` arrives, which explains both.
   - The package README lists `loop` among the unsupported members, yet it is implemented.
 
-  Evidence: the probe build (`MusicProbe.tsx`) and its results, recorded in
-  issue #76.
+  Evidence: the results of a probe build (`MusicProbe.tsx`, on a branch that was never merged and has since
+  been deleted), recorded in issue #76.
 
 - **Severity and user impact:** Medium. A looping track would stall on every pass.
 - **Workaround:** two players taking turns. The next pass starts on the other player before the loop
-  ends, and the two crossfade (`native/README.md`, Music).
+  ends, and the two crossfade (`native/src/music.ts`; `native/README.md` at commit `04b0a88`, Music).
 - **Suggested improvement:** loop natively, as a media element does in a browser. At least fire
   `ended` when the position reaches the end, and document what `loop` does.
 - **Current status:** worked around.
