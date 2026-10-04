@@ -7,7 +7,7 @@
 //
 // There is no store here and no ledger. The screen that runs this is given
 // neither, so a lesson cannot touch a saved game or a record.
-import { moveGame, viewGame, type Game } from '../../src/core/game';
+import { emptyRoll, moveGame, viewGame, type Game } from '../../src/core/game';
 import {
   boardInput,
   waitingFocus,
@@ -17,7 +17,11 @@ import {
 import {
   TUTORIAL,
   stepGame,
+  rollStep,
+  passStep,
+  closingGame,
   isComplete,
+  isMissed,
   type TutorialStep,
 } from '../../src/core/tutorial';
 import { START } from './screen';
@@ -37,7 +41,8 @@ export type TutorialState = {
 export const step = (state: TutorialState): TutorialStep =>
   TUTORIAL[state.index];
 
-// As in a game, the cursor waits on a piece that can move.
+// As in a game, the cursor waits on a piece that can move, or, before the roll,
+// where a game's would.
 const atStep = (index: number): TutorialState => {
   const game = stepGame(TUTORIAL[index]);
   return {
@@ -70,10 +75,44 @@ export function tutorialReducer(
     if (key !== 'select') return state;
     return state.index + 1 < TUTORIAL.length
       ? atStep(state.index + 1)
-      : { ...state, finished: true };
+      : {
+          ...state,
+          finished: true,
+          game: closingGame(),
+          focus: { ...state.focus, selected: null },
+        };
   }
 
   const current = step(state);
+
+  // The dice are spent and the goal was missed: OK tries the lesson again from
+  // its roll, and Back leaves.
+  if (isMissed(current, state.game)) {
+    if (key === 'back' || key === 'menu') return { ...state, exit: true };
+    return key === 'select' ? atStep(state.index) : state;
+  }
+
+  // Before the roll the board takes no input either: OK rolls the step's dice,
+  // Back leaves.
+  if (state.game.phase === 'roll') {
+    if (key === 'back' || key === 'menu') return { ...state, exit: true };
+    if (key !== 'select') return state;
+    const game = rollStep(current, state.game);
+    return {
+      ...state,
+      game,
+      focus: waitingFocus(state.focus.cursor, viewGame(game).legal),
+    };
+  }
+
+  // A roll no die can use: OK passes the turn, as in a game, and Back leaves.
+  if (emptyRoll(state.game)) {
+    if (key === 'back' || key === 'menu') return { ...state, exit: true };
+    if (key !== 'select') return state;
+    const game = passStep(state.game);
+    return { ...state, game, complete: isComplete(current, game) };
+  }
+
   const { legal, dfen } = viewGame(state.game);
   const result = boardInput(state.focus, key, legal, false, dfen.split(' ')[0]);
   // Back cancels a selection first and only then leaves, exactly as in a game.

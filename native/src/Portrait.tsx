@@ -1,8 +1,9 @@
-// The characters' faces: Rolly, Grabby and Rampage, the opponents, and Prowla
-// the cat, a Hot Seat host (#258), drawn for Dice Chess
-// (fortemate/dicechess-assets#31), each a circle in an ivory rim. An opponent
-// without its portrait shows the RhosGFX emoji face the game showed before
-// them; Prowla, who has no such face, leaves her place empty.
+// The characters' faces: Rolly, Grabby and Rampage, the opponents, Prowla
+// the cat, a Hot Seat host (#258), and Thinkle the wizard, who teaches the
+// tutorial (#264), drawn for Dice Chess (fortemate/dicechess-assets#31), each a
+// circle in an ivory rim. An opponent without its portrait shows the RhosGFX
+// emoji face the game showed before them; Prowla and Thinkle, who have no such
+// face, leave their place empty.
 //
 // The portraits are for Fortemate's Dice Chess apps only and stay out of this
 // repository while it is public. scripts/vendor-portraits.mjs copies them from
@@ -17,7 +18,7 @@ import type { BotMode } from '../../src/core/game';
 import { FACES, type FaceId } from './faces';
 
 // The characters the game shows, by their ids in the asset pack.
-export type CharacterId = 'rolly' | 'grabby' | 'rampage' | 'cat';
+export type CharacterId = 'rolly' | 'grabby' | 'rampage' | 'cat' | 'thinkle';
 
 // Each opponent's emoji face, from RhosGFX's Vector Emojis (CC0).
 export const FACE_OF: Readonly<Record<BotMode, FaceId>> = {
