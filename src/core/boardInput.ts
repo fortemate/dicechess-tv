@@ -13,7 +13,7 @@
 // The key names are Vega's own remote vocabulary, so the native layer passes
 // them through unchanged.
 
-import { pieceAt, rankOf, type Square } from './board.ts';
+import { fileOf, pieceAt, rankOf, type Square } from './board.ts';
 import { central, jump, pressesFrom, RULE, type Layout } from './cursor.ts';
 
 export type BoardKey =
@@ -95,7 +95,9 @@ function takes(board: string, square: string, to: string): number {
   const target = pieceAt(board, to);
   if (target !== null)
     return isWhite(target) === isWhite(piece) ? 0 : WORTH[target.toLowerCase()];
-  return piece.toLowerCase() === 'p' && to[0] !== square[0] ? WORTH.p : 0;
+  return piece.toLowerCase() === 'p' && fileOf(to) !== fileOf(square)
+    ? WORTH.p
+    : 0;
 }
 
 // The destination players usually choose, when the board makes one likely:
