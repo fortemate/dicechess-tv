@@ -2,17 +2,18 @@
 
 Fortemate's code in this repository is licensed under AGPL-3.0-only (see [LICENSE](LICENSE)). The third-party material below keeps its own licence and is not covered by the AGPL.
 
-| Component                                                   | Pinned version           | License                  | Source                                             |
-| ----------------------------------------------------------- | ------------------------ | ------------------------ | -------------------------------------------------- |
-| Dice Chess engine                                           | 0.14.0                   | AGPL-3.0-only            | https://github.com/fortemate/dicechess-engine      |
-| Vector Chess Pieces Pack, RhosGFX                           | 1.0.0                    | CC0-1.0                  | https://rhosgfx.itch.io/vector-chess-pieces        |
-| Vector Emojis, RhosGFX                                      | downloaded 2026-09-26    | CC0-1.0                  | https://rhosgfx.itch.io/vector-emojis              |
-| Tabletop Games SFX Pack, JDSherbert                         | 1.1.0                    | Free with attribution    | https://jdsherbert.itch.io/tabletop-games-sfx-pack |
-| Casino Audio, Interface Sounds and Music Jingles, Kenney    | 1.1, 1.0 and unversioned | CC0-1.0                  | https://kenney.nl                                  |
-| Dice Chess themes, pepka-prygni                             | 0.2.0 (four tracks)      | Permission for this game | https://www.youtube.com/@genreexplorer-h5o         |
-| Dice Chess bot voices, Fortemate, made with ElevenLabs      | 63 lines                 | Fortemate apps only      | https://elevenlabs.io                              |
-| Dice Chess Hot Seat host, Fortemate, made with ElevenLabs   | 45 lines                 | Fortemate apps only      | https://elevenlabs.io                              |
-| Dice Chess opponent portraits, Fortemate, made with Recraft | 1.0.1 (three portraits)  | Fortemate apps only      | https://recraft.ai                                 |
+| Component                                                        | Pinned version                | License                  | Source                                             |
+| ---------------------------------------------------------------- | ----------------------------- | ------------------------ | -------------------------------------------------- |
+| Dice Chess engine                                                | 0.14.0                        | AGPL-3.0-only            | https://github.com/fortemate/dicechess-engine      |
+| Vector Chess Pieces Pack, RhosGFX                                | 1.0.0                         | CC0-1.0                  | https://rhosgfx.itch.io/vector-chess-pieces        |
+| Vector Emojis, RhosGFX                                           | downloaded 2026-09-26         | CC0-1.0                  | https://rhosgfx.itch.io/vector-emojis              |
+| Tabletop Games SFX Pack, JDSherbert                              | 1.1.0                         | Free with attribution    | https://jdsherbert.itch.io/tabletop-games-sfx-pack |
+| Casino Audio, Interface Sounds and Music Jingles, Kenney         | 1.1, 1.0 and unversioned      | CC0-1.0                  | https://kenney.nl                                  |
+| Dice Chess themes, pepka-prygni                                  | 0.2.0 (four tracks)           | Permission for this game | https://www.youtube.com/@genreexplorer-h5o         |
+| Dice Chess bot voices, Fortemate, made with ElevenLabs           | 63 lines                      | Fortemate apps only      | https://elevenlabs.io                              |
+| Dice Chess Hot Seat host Rolly, Fortemate, made with ElevenLabs  | 45 lines                      | Fortemate apps only      | https://elevenlabs.io                              |
+| Dice Chess Hot Seat host Prowla, Fortemate, made with ElevenLabs | 51 lines                      | Fortemate apps only      | https://elevenlabs.io                              |
+| Dice Chess character portraits, Fortemate, made with Recraft     | 1.3.1 (four characters shown) | Fortemate apps only      | https://recraft.ai                                 |
 
 The engine and RhosGFX license texts are in [AGPL-3.0](licenses/AGPL-3.0.txt), [CC0-1.0](licenses/RhosGFX-CC0.txt) and, for the emojis, [CC0-1.0](licenses/RhosGFX-Emojis-CC0.txt). Full installed-package notices are retained in node_modules, and build-generated license comments must not be removed. The package locks record the exact dependency graph.
 
@@ -44,7 +45,7 @@ Beside the packs, `native/voices/events.json` is copied from the same commit: Fo
 
 The characters' portraits, the opponents Rolly, Grabby and Rampage and Prowla the cat, who hosts Hot Seat games, were drawn for this game with Recraft on a paid plan (fortemate/dicechess-assets#31). They are Fortemate's, licensed to Fortemate's Dice Chess applications only, as the `NOTICE.txt` that comes with them says. They are not covered by the AGPL or by any other open licence. A fork or copy of this repository may not use, publish or distribute them.
 
-While this repository is public the portrait files are not in it. `native/scripts/vendor-portraits.mjs` copies them, with that notice and a lock, from the private asset repository `fortemate/dicechess-assets` into `native/portraits/`, which git ignores, and a build without them shows the RhosGFX faces in their place, and nothing in Prowla's, who has no such face. In a build that has them, the About screen shows them beside Recraft's name, with the engine and the voices, so that a player knows they are AI-generated, and its RhosGFX card names only the pieces. In a build without them it credits the RhosGFX faces with the pieces.
+While this repository is public the portrait files are not in it. `native/scripts/vendor-portraits.mjs` copies them, with that notice and a lock, from the private asset repository `fortemate/dicechess-assets` into `native/portraits/`, which git ignores, and a build without them shows the RhosGFX faces in their place, and nothing in Prowla's, who has no such face (`native/test/matchup.test.tsx`: Prowla's place stays empty at her portrait's size when it does not load). In a build that has them, the About screen shows them beside Recraft's name, with the engine and the voices, so that a player knows they are AI-generated, and its RhosGFX card names only the pieces. In a build without them it credits the RhosGFX faces with the pieces.
 
 The screenshots in `site/src/assets/screenshots/` show the portraits as the app draws them, and so does the demo video's picture there. Those pictures are Fortemate's as well and are not covered by the AGPL.
 
