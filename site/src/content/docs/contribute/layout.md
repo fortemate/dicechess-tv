@@ -87,5 +87,8 @@ Automated tools for asset compilation and algorithmic measurement:
 
 ### 4. Test Suites
 
-- **`test/` (Root Suite):** 172 tests covering pure game rules, engine contracts, dice math, danger search, ledger persistence, and the English-only repository check (`test/english.test.ts`).
-- **`native/test/` (Native Suite):** 21 tests exercising component rendering, focus rings, safe area padding, motion reduction, and audio state transitions.
+- **`test/` (Root Suite):** tests of the pure game rules, engine contracts, dice math, the danger search, the ledger and the English-only repository check (`test/english.test.ts`).
+- **`native/test/` (Native Suite):** tests of component rendering, focus, safe area padding, reduced motion, and the sound, music and voice players, against stubs of the Vega packages.
+- **`web/test/` (Web Bench):** tests of the browser test bench's configuration and board marks.
+
+Current counts are on [How we test and review](/quality/).

@@ -1,134 +1,147 @@
 ---
 title: Building on Vega
-description: Platform findings and integration lessons from building Dice Chess on Amazon Vega OS, tested on device and emulator.
+description: 'How Amazon Vega OS behaved for Dice Chess on the Vega Virtual Device (SDK 0.24): remote input, sound, the icon and splash, and scripted checks. Nothing here has been checked on a Fire TV Stick yet.'
 sidebar:
   order: 2
 ---
 
-This page records how Amazon Vega OS behaves in practice. Every finding documented here was measured directly on a Vega Virtual Device (SDK 0.24.12112) or verified by targeted automated tests. Items awaiting physical Fire TV Stick confirmation are explicitly noted.
+This page records how Vega OS behaved for Dice Chess on the Vega Virtual Device (SDK 0.24.12112, OS 1.2). Where a statement rests on something else, such as unit tests, Amazon's documentation or Amazon's developer forum, it says so. Nothing here has been checked on a Fire TV Stick yet. The [friction log](/friction-log/) has the steps and evidence for the obstacles linked from this page.
 
 ## Remote Input & Navigation
 
-Vega separates remote input across multiple event channels. Getting the D-pad, OK, and Back buttons to work reliably revealed subtle platform behaviors:
+Vega delivers remote keys through several APIs. On SDK 0.24 one of them aborts the app, and two cannot be used together. What each one did on the Virtual Device:
 
-| Channel / API                           | Behavior on Vega OS                                                             | Outcome in Dice Chess TV                       |
-| --------------------------------------- | ------------------------------------------------------------------------------- | ---------------------------------------------- |
-| `UserInputManager.addListener` (static) | Aborts the JavaScript thread with `SIGABRT` on SDK 0.24.                        | Unusable.                                      |
-| `useAddUserInputListenerCallback`       | Delivers events **only** when `useTVEventHandler` is not registered.            | Unusable when combined with standard TV hooks. |
-| `useTVEventHandler`                     | Delivers directional arrows and OK reliably, but **cannot claim** events.       | Used for D-pad and OK buttons.                 |
-| `useKeplerBackHandler`                  | Intercepts hardware Back events and allows the app to consume or delegate them. | Used exclusively for the Back button.          |
+| Channel / API                           | Behavior on Vega OS                                                                                           | Outcome in Dice Chess TV          |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| `UserInputManager.addListener` (static) | Aborts the JavaScript thread with `SIGABRT` on SDK 0.24.                                                      | Unusable.                         |
+| `useAddUserInputListenerCallback`       | Subscribed to every key, it delivers nothing while `useTVEventHandler` is also mounted, and reports no error. | Not used.                         |
+| `useTVEventHandler`                     | Delivers the arrows, OK and Back, but **cannot claim** an event.                                              | Used for the arrows, OK and Menu. |
+| `useKeplerBackHandler`                  | Claims Back. When no handler returns true, it calls `exitApp()` itself.                                       | Used for Back only.               |
 
 ### The Three Names of OK
 
 OK does not arrive under a single identifier. Depending on where the key originates, it is reported under three distinct names:
 
-1. **`enter`**: Delivered when running in the Vega Virtual Device and pressing Return on a Mac or PC keyboard.
-2. **`kpenter`**: Delivered by the virtual device's on-screen remote skin (`KEY_KPENTER`). On-screen remote clicks were completely ignored until this mapping was added.
-3. **`select`**: The standard key name emitted by a physical Fire TV remote's center D-pad button (`HWEvent`).
+1. **`enter`**: Sent by the Virtual Device when Return is pressed on the computer's keyboard (measured with a Mac).
+2. **`kpenter`**: Delivered by the Virtual Device's on-screen remote skin (`KEY_KPENTER`). On-screen remote clicks were ignored until this mapping was added.
+3. **`select`**: The name Amazon's `HWEvent` documentation gives for OK. We found no way to make the Virtual Device send it: its virtual keyboard does not declare `KEY_SELECT` ([FL-08](/friction-log/#fl-08)).
 
-Dice Chess TV maps all three names into the single `ok` action in `useRemoteInput.ts`.
+Amazon staff said on Amazon's developer forum on 31 August 2026, in [another developer's bug report](https://community.amazondeveloper.com/t/0-24-rn-0-83-remote-select-never-invokes-onpress-focus-works/28945), that for React Native 0.83 apps Vega OS 1.2 delivers the raw, lower-case key name, so a remote's OK arrives as `enter`, and that a future Vega OS release will normalise it to `select`. Neither that answer nor the documentation mentions `kpenter` ([FL-03](/friction-log/#fl-03)).
 
-_Verification:_ `enter` and `kpenter` were verified on the Vega Virtual Device using scripted evdev key injection and on-screen remote clicks. `select` is covered by automated unit tests and awaits confirmation on physical Fire TV Stick hardware.
+`native/src/useRemoteInput.ts` treats all three names as OK, so the app acts on OK under any of them.
+
+_Verification:_ on the Virtual Device, `enter` from a Mac keyboard drove a whole turn on 22 September 2026, and on 24 September a diagnostic build that printed raw events showed `kpenter` from the on-screen remote. `kpenter` was also checked with `KEY_KPENTER` sent through the emulator's gRPC API. A unit test (`native/test/input.test.tsx`) checks that all three names act as OK; it runs against stand-ins for the Vega packages, so it checks the mapping, not what Vega sends. What a Fire TV Stick's remote sends has not been checked.
 
 ### Handling the Back Button
 
-Because `useTVEventHandler` cannot claim an event, an unconsumed Back press causes the underlying Vega system to immediately terminate the application.
+`useTVEventHandler` sees Back but cannot claim it, and a Back that nothing claims closes the app. Handled only there, Back would cancel nothing and quit ([FL-06](/friction-log/#fl-06)).
 
-To prevent accidental app termination when a player simply wants to deselect a piece or open a game menu, the application uses `useKeplerBackHandler`:
+To keep Back from closing the app when a player wants to put a piece down or open the game menu, the app uses `useKeplerBackHandler`:
 
 - When a piece is selected: Back deselects the piece.
-- During active play: Back opens the in-game pause menu.
-- Inside a submenu or rules guide: Back returns to the previous menu.
-- On the home screen: Back returns `false`, agreeing to let Vega close the app naturally.
+- During a game, with nothing selected or while the opponent plays: Back opens the game menu, and Back again closes it.
+- In the rules guide, the tutorial or About: Back returns to the home screen, with its first item focused. In the tutorial, Back first puts down a selected piece.
+- In Settings and in the choice of opponent and colour: Back returns to the screen that opened it. On a confirmation, Back does what Cancel does.
+- On the home screen: the handler returns `false`, and `useKeplerBackHandler` closes the app.
 
-_Verification:_ Verified on the Vega Virtual Device via gRPC key injection and manual testing.
+_Verification:_ on the Virtual Device, with Back sent as `KEY_BACK` through the emulator's gRPC API on 24 and 28 September 2026, Back put a selected knight down, opened the game menu and closed it, returned from Settings to the home screen with Settings focused, left the rules guide and the tutorial for the home screen, and closed the app from the home screen. Unit tests (`native/test/screen.test.ts`, `native/test/input.test.tsx`, `native/test/tutorial.test.tsx`) cover the other paths.
 
 ### Event Timing: Press vs Release
 
 Hardware events arrive with `eventKeyAction`: `0` on press (and repeat while held), and `1` on release.
 
-- **Directional navigation** acts on press (`0`), allowing smooth and responsive cursor movement when holding down an arrow.
-- **Selections and Back** act on release (`1`), ensuring a single press never triggers unintended double-activations.
+- **Arrows** act on the press (`0`), so holding one repeats it.
+- **OK and Menu** act on the release (`1`), so holding OK plays one action, not one per repeat. **Back** acts on the release too, because `useKeplerBackHandler`, as its npm package implements it, calls the app's handler only when Back is released.
 
 ## Audio Subsystem & Manifest Permissions
 
-Dice Chess TV incorporates 10 sound cues and 4 adaptive background music themes using `@amazon-devices/react-native-w3cmedia` (2.3.2). Several platform constraints were uncovered:
+Dice Chess TV plays ten sound cues, spoken lines for the opponents and the Hot Seat host, and four music themes (one for the menus, three that follow the danger to a king), all through `@amazon-devices/react-native-w3cmedia` 2.3.2. What we found on the Virtual Device:
 
 ### Service Declarations in `manifest.toml`
 
-Vega's service manager strictly enforces capability sandboxing. Any attempt to connect to an undeclared system service is rejected silently at runtime, manifesting as dead audio sinks with the log message:
+Vega's service manager refused the media player's connections to audio services that the manifest did not declare. The app got no error: every cue failed at the sink, and only the device log said why:
 
 ```text
 missing permission for connection attempt
 ```
 
-To enable audio playback, `manifest.toml` must explicitly declare the required services:
+One probe run without the declarations logged 13 refused connections to `com.amazon.audio.stream` ([FL-18](/friction-log/#fl-18)). `native/manifest.toml` declares five services as `[[wants.service]]` entries: the four that Amazon's audio sample declares, and `com.amazon.audio.control`, which the player's audio-focus client also needed and which only the device log revealed:
 
 ```toml
-[services]
-needed = [
-  "com.amazon.audio.playback",
-  "com.amazon.audio.focus",
-  "com.amazon.audio.policy",
-  "com.amazon.audio.device",
-  "com.amazon.audio.control",
-]
+[wants]
+
+[[wants.service]]
+id = "com.amazon.audio.stream"
+
+[[wants.service]]
+id = "com.amazon.media.server"
+
+[[wants.service]]
+id = "com.amazon.media.playersession.service"
+
+[[wants.service]]
+id = "com.amazon.mediametrics.service"
+
+[[wants.service]]
+id = "com.amazon.audio.control"
 ```
+
+`com.amazon.inputd.service` is deliberately not declared: on the Virtual Device, declaring it made this app exit at start-up ([FL-19](/friction-log/#fl-19)).
 
 ### The `AudioPlayer` Class & Game Usage
 
-- **Audio component vs player:** The declarative `<Audio>` JSX component repeatedly failed to connect to the Vega audio server. Playback must be initiated imperatively using the `AudioPlayer` class.
-- **Usage types:** Sound effects must be initialized with `CONTENT_TYPE_SONIFICATION` and `USAGE_GAME`. Music is initialized with `CONTENT_TYPE_MUSIC` and `USAGE_GAME`. This ensures proper audio ducking when system notifications occur.
-- **Bare file paths:** Sources must be specified as absolute package filesystem paths (e.g. `/pkg/assets/sfx/move.mp3`). URLs using `file:///` fail with playback error 4, and `http://` is rejected as insecure.
-- **Event listeners:** Playback events only trigger callbacks attached via `addEventListener('ended', ...)`. Property assignment (`audio.onended = ...`) is silently ignored.
+- **`AudioPlayer`, not `Audio`:** in the first probe, the `Audio` component on its default music and media types filled the device log with `could not connect to audioserver`, while an `AudioPlayer` reached `playing` ([FL-12](/friction-log/#fl-12)). That probe ran before the audio services were declared, so it does not show that `Audio` cannot work. The app uses `AudioPlayer` only.
+- **Content and usage types:** sound effects and spoken lines use `CONTENT_TYPE_SONIFICATION` with `USAGE_GAME`; music uses `CONTENT_TYPE_MUSIC` with `USAGE_GAME`. Both play on the Virtual Device. How these types affect ducking under system sounds has not been tested.
+- **Bare file paths:** a file packaged with the app plays from its plain path (e.g. `/pkg/assets/sfx/move.mp3`). The same file as a `file:///` URL fails with error 4, and an `http://` source is refused as insecure.
+- **Event listeners:** events arrive only through `addEventListener`. Assigning a handler property such as `audio.onplaying` is silently ignored.
 
 ### Container & Codec Compatibility
 
-Benchmarked on the Vega Virtual Device across repeated test runs:
+Measured on the Virtual Device. The results and the times both come from the first audio probe, three runs per format, with the same result each time ([FL-11](/friction-log/#fl-11)). That probe ran before the audio services were declared, while the sink was failing, so the times are how long each file took to report `playing`, not the time to audible sound. MP3 and WAV have played since, in the music probe of 26 September ([FL-25](/friction-log/#fl-25)), and MP3 in the game:
 
-| Audio Format     | Virtual Device Result | Playback Latency |
-| ---------------- | --------------------- | ---------------- |
-| **MP3**          | Supported             | 3–7 ms           |
-| **WAV**          | Supported             | ~3 ms            |
-| **OGG (Vorbis)** | Fails (Error 4)       | N/A              |
-| **M4A (AAC)**    | Fails (Error 4)       | N/A              |
+| Audio format | Result on the Virtual Device | Time to `playing` (first probe) |
+| ------------ | ---------------------------- | ------------------------------- |
+| **MP3**      | Plays                        | 3–7 ms                          |
+| **WAV**      | Plays                        | about 3 ms                      |
+| **OGG**      | Fails with error 4           | –                               |
+| **M4A**      | Fails with error 4           | –                               |
 
-_Note:_ `canPlayType()` cannot be relied upon on Vega; it returns `"probably"` for OGG (which fails) and `""` for WAV (which succeeds). All assets in Dice Chess TV are compiled to MP3.
+_Note:_ `canPlayType()` cannot be relied upon on Vega; it returns `"probably"` for OGG (which fails) and `""` for WAV (which plays). Every sound the app ships is an MP3 file, and MP3 has since been heard from the Virtual Device through a computer's speakers.
 
-### Foreground Lifecycle Compliance
+### Leaving the Foreground
 
-Amazon Appstore certification requires that an application must never play audio in the background or over the system launcher. The app binds to `useKeplerAppStateManager` and immediately suspends all audio players upon receiving `background`, `inactive`, or `blur` events.
+Amazon's pre-submission test cases ask for no audio from the app on the Fire TV launcher or over the screensaver, and none overlapping another app when switching apps ([Test before submission](https://developer.amazon.com/docs/vega/0.24/test-before-submission.html)). The app listens to `useKeplerAppStateManager`. On `blur` the music stops. On `background` or `inactive` the sound effects and spoken lines stop as well, and none starts again until the app is `active` (`native/src/App.tsx`). Music comes back 300 ms after the app is both active and focused. On the Virtual Device, bringing the launcher to the front delivered `blur` and then `background` on each of four trips, and the music stopped ([FL-28](/friction-log/#fl-28)). That nothing is heard over the launcher has not yet been confirmed by ear, and none of this has run on a Fire TV Stick.
 
 ## Icon & Splash Screen Traps
 
-Packaging visual assets for Vega OS involves specific requirements that differ from standard Android TV:
+Two packaging details on Vega were easy to get wrong:
 
 ### The Launcher Icon (3:2 Crop)
 
-The application manifest accepts a single icon reference (`icon = "@image/icon.png"`, 512x512 PNG).
+The manifest has one icon field. Ours names a 512x512 PNG: `icon = "@image/icon.png"`. On the Virtual Device:
 
 - In system **Settings**, the entire 1:1 square is displayed.
-- On the **Fire TV Launcher**, Vega crops the top and bottom to fit a 3:2 banner tile (approximately 304x200 on 1080p).
-- Only the middle two-thirds of the icon are visible on the home screen.
+- On the launcher, the icon is scaled to fill a 3:2 tile, about 304x200 on a 1080p screen, and its top and bottom are cropped.
+- Only about the middle two thirds of the icon's height stay visible there.
 
-To prevent distortion and clipping, all critical artwork must remain within a vertical band of y: 100–412 pixels. The icon must also have an opaque background, as transparent PNGs rendered with black artifacts on earlier builds.
+So everything that matters in our icon stays between y 100 and y 412 of its 512 pixels, with even side margins. The icon is also opaque: an earlier bare mark on transparency came out distorted on the launcher ([FL-16](/friction-log/#fl-16)). The launcher on a Fire TV Stick has not been checked.
 
-_Verification:_ Automated by `test/splash.test.ts`, which scans PNG pixel bounds and validates that artwork does not bleed outside the safe area.
+_Verification:_ `native/test/splash.test.ts` fails if any artwork in the icon lies outside that band or any of its pixels is transparent. It was checked by enlarging the dice until the test failed.
 
 ### The Splash Archive (`SplashScreenImages.zip`)
 
-Vega's boot loader renders a splash animation directly from `assets/raw/SplashScreenImages.zip`:
+Vega's animation service reads `assets/raw/SplashScreenImages.zip` directly when the app launches; nothing in the manifest points at it:
 
-- The ZIP archive must contain a `desc.txt` file (specifying resolution and frame rate, e.g. `1920 1080 30`) and a `_loop` directory containing PNG frames.
-- **Archive root trap:** The files must be zipped directly at the root of the archive without an intermediate enclosing directory. If a parent folder is present, the Vega boot loader fails silently and displays a black screen.
-- **Deterministic builds:** `scripts/generate-assets.mjs` sets fixed ZIP entry timestamps to guarantee byte-for-byte reproducible package builds.
+- As Amazon's [splash screen documentation](https://developer.amazon.com/docs/react-native-vega/0.83/splashscreenmanager) describes, the archive holds a `desc.txt` file (width, height and frame rate, e.g. `1920 1080 30`, then `c 0 0 _loop`) and a `_loop` directory of PNG frames.
+- **Archive root trap:** `desc.txt` and `_loop` must sit at the root of the archive, as that page warns. With a wrapping folder, the animation service on the Virtual Device silently showed nothing.
+- **Deterministic archive:** `native/scripts/generate-assets.mjs` stamps every entry of the archive with a fixed time, so two builds write byte-identical archives.
 
 ## Scripted Virtual Device Automation
 
-To enable fully automated verification in continuous integration without requiring manual remote clicks, Fortemate developed [`vega-vvd-driver`](https://github.com/fortemate/vega-vvd-driver) (`vvd`).
+To drive the Virtual Device from scripts and coding agents, with nobody at the emulator, Fortemate wrote [`vega-vvd-driver`](https://github.com/fortemate/vega-vvd-driver) (`vvd`), an MIT-licensed tool. It runs on a developer's machine against a running Virtual Device; CI does not run it.
 
-Key capabilities utilized during development:
+What we used it for:
 
-- **gRPC input injection:** Direct injection of `KEY_KPENTER`, `KEY_BACK`, and D-pad arrows directly into the QEMU emulator instance. (Standard QEMU `send-key` and console `event send` commands fail to reach Vega React Native apps).
-- **Synchronized UI assertions:** `vvd wait-change` watches the framebuffer and exits once a render transition completes, eliminating arbitrary `sleep` timeouts in automated test scripts.
-- **Frame streaming:** `vvd frames` streams individual rendered frames via gRPC, verifying that piece slides and dice tumbles render smoothly without frame drops.
+- **Key presses:** `vvd press` sends `KEY_KPENTER`, `KEY_BACK` and the arrows through the Android emulator's gRPC `EmulatorController.sendKey`, the route the on-screen remote uses. QEMU's `send-key`, the emulator console's `event send` and the device's `inputd-cli` report success and reach no app ([FL-08](/friction-log/#fl-08)).
+- **Waiting for the screen:** `vvd wait-change` compares screenshots and exits 0 as soon as the screen differs from how it looked when the command started, or 1 on timeout, so a script can tell that a press did something.
+- **Frames:** `vvd frames` polls the emulator's `getScreenshot` and saves each distinct frame it catches; while the screen changes, each screenshot takes 23 to 61 ms. It showed a 220 ms piece slide in flight in 4 to 6 frames, and the dice tumbling in. It is too coarse to count dropped frames, and smoothness on a Fire TV Stick has not been checked.
