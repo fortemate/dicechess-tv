@@ -31,7 +31,12 @@ import {
   type BoardFocus,
   type BoardKey,
 } from '../../src/core/boardInput';
-import { botReply, botToAct } from '../../src/core/bot';
+import {
+  botReply,
+  botToAct,
+  replyFits,
+  type BotReply,
+} from '../../src/core/bot';
 import type { Square } from '../../src/core/board';
 import type { Level } from '../../src/core/danger';
 import { DEFAULT_MUSIC, MUSIC_STEPS, type MusicSetting } from './musicSetting';
@@ -78,11 +83,13 @@ const settled = (
 
 // The screen advances on a key, on the local opponent taking its turn, or on
 // the guard after a roll with nothing to play running out.
+// The opponent's step may carry the reply the screen worked out while it waited;
+// without one the reducer asks for it.
 // It also learns whether the build has music at all, which the app finds out
 // after launch.
 export type ScreenAction =
   | { kind: 'key'; key: BoardKey }
-  | { kind: 'bot' }
+  | { kind: 'bot'; reply?: BotReply }
   | { kind: 'unguard' }
   | { kind: 'musicAvailable'; available: boolean };
 
@@ -218,6 +225,10 @@ export type ScreenOptions = {
   // measuring the danger to a king (#76). Without it the work runs at once,
   // which is what a test wants.
   background?: (step: () => void) => void;
+  // The time in milliseconds, to measure how much of the opponent's step wait
+  // its search has already used. Without it no time counts as used, which is
+  // what a test that does not look at the clock wants.
+  now?: () => number;
 };
 
 // The home options that start a game: a hotseat game at once, a game against
@@ -383,7 +394,11 @@ export const initialState = (
 // or end the turn. A three-dice turn is three visible steps rather than a board
 // that changes by three moves at once, because a player who cannot see what the
 // opponent did cannot read the game.
-function botStep(state: ScreenState, options: ScreenOptions): ScreenState {
+function botStep(
+  state: ScreenState,
+  options: ScreenOptions,
+  given?: BotReply,
+): ScreenState {
   const { game, pending } = state;
   if (!botOwes(game)) return state;
 
@@ -415,7 +430,9 @@ function botStep(state: ScreenState, options: ScreenOptions): ScreenState {
   // Decide the whole turn at once and check it as a whole: applyBotReply
   // rejects a stale or incomplete path. Its result is discarded and the path is
   // replayed a move at a time, so the check covers what is about to be shown.
-  const reply = botReply(game);
+  // A reply worked out while the step waited is the same question asked sooner;
+  // one that no longer fits the position is not trusted, and is asked for again.
+  const reply = given && replyFits(game, given) ? given : botReply(game);
   applyBotReply(game, reply);
   const next = moveGame(game, reply.moves[0]);
   return {
@@ -762,7 +779,7 @@ export function screenReducer(
   action: ScreenAction,
   options: ScreenOptions,
 ): ScreenState {
-  if (action.kind === 'bot') return botStep(state, options);
+  if (action.kind === 'bot') return botStep(state, options, action.reply);
   if (action.kind === 'unguard')
     return state.guarded ? { ...state, guarded: false } : state;
   if (action.kind === 'musicAvailable') {

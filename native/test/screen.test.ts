@@ -29,7 +29,7 @@ import {
   viewGame,
   type Side,
 } from '../../src/core/game';
-import { botToAct } from '../../src/core/bot';
+import { botReply, botToAct } from '../../src/core/bot';
 import { OPPONENTS } from '../../src/core/opponents';
 
 let ids = 0;
@@ -424,6 +424,33 @@ test('an interrupted turn is recomputed rather than resumed half-played', () => 
   const finished = settle(resumed, pawns);
   assert.equal(viewGame(finished.game).side, 'w');
   assert.equal(finished.game.turn, 3);
+});
+
+test('a reply worked out ahead is played exactly as given', () => {
+  const pawns: ScreenOptions = { ...options, roll: () => [1, 1, 1] };
+  const rolled = screenReducer(handedToBot(), { kind: 'bot' }, pawns);
+  const ahead = botReply(rolled.game);
+  const first = screenReducer(rolled, { kind: 'bot', reply: ahead }, pawns);
+  // Its first action is shown and the rest wait to be revealed, as when the
+  // reducer asks for the reply itself.
+  assert.equal(first.game.moves.length, 1);
+  assert.equal(first.game.lastMove, ahead.moves[0]);
+  assert.deepEqual(first.pending, ahead.moves.slice(1));
+});
+
+test('a reply that no longer fits the position is not trusted: it is asked for again', () => {
+  const pawns: ScreenOptions = { ...options, roll: () => [1, 1, 1] };
+  const rolled = screenReducer(handedToBot(), { kind: 'bot' }, pawns);
+  const ahead = botReply(rolled.game);
+  for (const stale of [
+    { ...ahead, revision: ahead.revision + 1 },
+    { ...ahead, gameId: 'another' },
+    { ...ahead, dfen: ahead.dfen.replace(' w ', ' b ') },
+  ]) {
+    const first = screenReducer(rolled, { kind: 'bot', reply: stale }, pawns);
+    assert.equal(first.game.moves.length, 1);
+    assert.equal(first.pending.length, 2);
+  }
 });
 
 test('rolling the dice clears last move until the next action is played', () => {
