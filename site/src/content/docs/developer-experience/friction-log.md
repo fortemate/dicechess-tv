@@ -117,7 +117,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   remote skins do the same). The keyboard sends `enter`. `select` is what the documentation says a
   physical remote sends; we have not had a device to confirm it. We found `kpenter` nowhere in the
   documentation, and the app ignored OK from the on-screen remote until a person pressed it. Evidence:
-  `native/README.md`, Remote input,
+  `native/README.md` at commit `5bc2357`, Remote input,
   PR #50.
 - **Severity and user impact:** High. The remote's main button looked dead in the emulator, with no
   error. A developer who tests with the keyboard alone would never notice.
@@ -125,6 +125,19 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 - **Suggested improvement:** list every `eventType` that the Virtual Device and devices emit in the
   `HWEvent` documentation, or normalise the OK button to `select` before it reaches the app.
 - **Current status:** worked around.
+- **Update, 2026-10-04:** Amazon staff had answered which name a remote's OK sends on 2026-08-31, in
+  [another developer's bug report](https://community.amazondeveloper.com/t/0-24-rn-0-83-remote-select-never-invokes-onpress-focus-works/28945)
+  on Amazon's developer forum. For React Native 0.83 apps, Vega OS 1.2 delivers the raw, lower-case
+  key name, so OK arrives as `enter`, and "a future Vega OS release" will normalise it to `select`,
+  the name React Native 0.72 apps received. So on OS 1.2 a remote's OK should arrive as `enter`, as
+  the Virtual Device's keyboard sends it, and an app that handles only `select`, the name the
+  documentation gives, would have a dead OK there. The answer does not mention `kpenter`, which stays
+  undocumented, and the `HWEvent` page still gives only `select`. Before that answer, the developer
+  who asked had reported in the same topic that on a Fire TV Stick with OS 1.2, OK did not reach even
+  a `useTVEventHandler` callback that matched both `select` and `enter`; nobody replied after the
+  answer, and the topic closed on 2026-09-14. The app treats all three names alike, so it does not
+  depend on the change, but what a Stick's remote sends is still unchecked. The suggested improvement
+  stands.
 
 ### FL-04 · Two input APIs cancel each other out without an error {#fl-04}
 

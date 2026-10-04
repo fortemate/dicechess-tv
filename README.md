@@ -13,7 +13,7 @@ Dice Chess for Amazon Fire TV: two players sharing one screen and remote, or a g
 
 **Demo video:** <https://youtu.be/DZOp3GAahlU>, 2:18, recorded on the Vega Virtual Device.
 
-**Status: a React Native for Vega application that builds and runs from this repository.** `npm run build --prefix native` produces an installable package; it launches on the Vega Virtual Device in 227 ms and plays. Hotseat and three local opponents, from easy to hard, three-die turns, promotion, king capture, resignation, draw agreement, save and resume mid-turn, a completed-game ledger, an interactive tutorial and a rules guide are all implemented on the native board, driven entirely by D-pad, OK and Back.
+**Status: a React Native for Vega application that builds and runs from this repository.** `npm run build --prefix native` produces an installable package that installs, launches and plays on the Vega Virtual Device. There, Amazon's KPI Visualizer measured a cool start of a Release build at 309 ms to first frame and 748 ms to fully drawn, on average (25 September 2026, 3 iterations, not in certification mode), against Amazon's cool-start targets of under 1.5 s and under 8 s ([FL-20](https://dicechess-tv.jegors-cemisovs.workers.dev/friction-log/#fl-20)). Hotseat and three local opponents, from easy to hard, three-die turns, promotion, king capture, resignation, draw agreement, save and resume mid-turn, a completed-game ledger, an interactive tutorial and a rules guide are all implemented on the native board, driven entirely by D-pad, OK and Back.
 
 Also done: sound for every step of the game — chosen by ear, heard on the virtual device, and set on a settings screen in both menus — an icon and splash screen, and an About screen carrying the credits the asset licences require. Adaptive music follows the danger to the king, with four themes by pepka-prygni used with his permission. On the virtual device its own reports show it switching themes and stopping for the launcher, but it has not been checked by ear there yet ([#76](https://github.com/fortemate/dicechess-tv/issues/76)). Each move slides to its new square, so an opponent's turn can be followed ([#131](https://github.com/fortemate/dicechess-tv/issues/131)), a roll tumbles in ([#99](https://github.com/fortemate/dicechess-tv/issues/99)), and the board can turn to the side to move in hotseat ([#120](https://github.com/fortemate/dicechess-tv/issues/120)). Not done: onboarding. Everything above is evidence from the **virtual** device; nothing has yet run on physical Fire TV hardware, and the emulator does not measure Stick performance.
 
@@ -24,25 +24,26 @@ It needs the Vega SDK 0.24 and either a Vega Virtual Device or a Fire TV Stick i
 ```bash
 npm ci && npm ci --prefix native
 npm run build --prefix native
+# The aarch64 package is for an Apple silicon Mac; native/README.md names the one for Linux and Intel Macs
 vega device install-app -d VirtualDevice -p native/build/aarch64-release/dicechess-tv-native_aarch64.vpkg
 vega device launch-app -d VirtualDevice -a com.fortemate.dicechesstv.main
 ```
 
 The whole game is playable with three controls (D-pad, OK, and Back), while the remote Menu button provides a fourth control:
 
-| Remote | Virtual device keyboard | What it does                                                                                                                                              |
-| ------ | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| D-pad  | Arrow keys              | Jumps between the pieces that can move, or the destinations of the one in hand; moves through the menus                                                   |
-| OK     | Enter                   | Rolls the dice, picks up a piece, puts it on its destination, chooses a menu item                                                                         |
-| Back   | Esc                     | Puts a picked-up piece back, opens the game menu, closes a screen; on the home screen, leaves the app                                                     |
-| Menu   | M                       | Puts a picked-up piece back and opens the game menu; closes open menus; leaves secondary screens for home (verified in tests; not yet on a Fire TV Stick) |
+| Remote | Virtual device keyboard | What it does                                                                                                                                                                                |
+| ------ | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D-pad  | Arrow keys              | Jumps between the pieces that can move, or the destinations of the one in hand; moves through the menus                                                                                     |
+| OK     | Enter                   | Rolls the dice, picks up a piece, puts it on its destination, chooses a menu item                                                                                                           |
+| Back   | Esc                     | Puts a picked-up piece back, opens the game menu, closes a screen; on the home screen, leaves the app                                                                                       |
+| Menu   | F2 (not yet checked)    | Puts a picked-up piece back and opens the game menu; closes open menus; leaves secondary screens for home (covered by tests; not yet checked on the Vega Virtual Device or a Fire TV Stick) |
 
 The application has no network code, no accounts and no analytics. Games, results and settings stay on the device.
 
 ## Product scope
 
 - Hotseat: two people take turns using one remote after each complete Dice Chess turn, with an optional living-room setting to turn the board to the active player's side, and Rolly as a neutral host who cheers both players at the pauses (#202). While she speaks, she shows with her line above the bottom badge (#213: seen on the Vega Virtual Device and checked by tests, not yet on a Fire TV Stick), and Settings chooses the host or turns her off.
-- Several entirely local bots, starting with Random and Aggressive. The interface must never stall: Random turned out to need no thread of its own, and a stronger bot's strength comes from a bounded work budget rather than from wall-clock time.
+- Several entirely local bots: Rolly, Grabby and Rampage today, each one of the engine's algorithms. The interface must never stall: these three compute their reply on the JavaScript thread and have not needed a thread of their own on the Vega Virtual Device, and a stronger bot's strength must come from its algorithm or a bounded amount of work, never from wall-clock time.
 - No stake doubling, coins, wallets or betting in the initial game.
 - Local win/draw/loss (W/D/L) statistics, separated by opponent and hotseat mode.
 - D-pad, OK and Back navigation through the board, dice, promotion, menus and results.
@@ -57,23 +58,24 @@ See [offline game scope](docs/offline-game-scope.md) for the accepted requiremen
 
 ```text
 native/ — the React Native for Vega application
-├── Board and screens, drawn with @amazon-devices/react-native-svg
-├── Remote input: useTVEventHandler for the D-pad and OK,
+├── Board and screens in React Native views; pieces and the opponents'
+│   emoji faces drawn with @amazon-devices/react-native-svg
+├── Remote input: useTVEventHandler for the D-pad, OK and Menu,
 │                 useKeplerBackHandler for Back
 └── Snapshot store on MMKV
         │
         ▼
 src/core/ — one shared, pure TypeScript core, no DOM and no React
 ├── Turn controller → Dice Chess engine
-├── Local bot, which needs no thread of its own
+├── Local bots (Rolly, Grabby, Rampage): the engine's algorithms, run on the JavaScript thread
 └── Versioned game snapshot, ledger, tutorial and rules data
 ```
 
-The core is pure by enforcement, not by convention: `tsconfig.core.json` compiles it with `lib: ES2022` and `types: []`, so a DOM or Node global there fails `npm run check`. That purity is what let one verified controller serve the WebView probe and the native board at once, and what let the probe be deleted without touching the rules.
+The core is pure by enforcement, not by convention: `tsconfig.core.json` typechecks it with `lib: ES2022` and `types: []`, so a DOM or Node global there fails `npm run check`. That purity is what let one verified controller serve the WebView probe and the native board at once, and what let the probe be deleted without touching the rules.
 
-The canonical engine determines legal actions and board transitions. The controller follows each roll through the engine's legal turn tree, so a turn is checked as a whole, and takes the dice left from the engine's `applyMove` (engine 0.13.0, #101). `test/game.test.ts` and `test/dice.test.ts` cover both, and hotseat, bot and promotion turns were played this way on the Vega Virtual Device; not yet on a Fire TV Stick. Which of the dice left a legal turn can still spend, and so which dice dim, is the engine's `getPlayableDice` (engine 0.14.0, #140), covered by `test/dice.test.ts` and checked on the Vega Virtual Device; not yet on a Fire TV Stick. It applies the existing game-service terminal policy. The board only renders state and emits intent.
+The canonical engine determines legal actions and board transitions. The controller follows each roll through the engine's legal turn tree, so a turn is checked as a whole, and takes the dice left from the engine's `applyMove` (engine 0.13.0, #101). `test/game.test.ts` and `test/dice.test.ts` cover both, and hotseat, bot and promotion turns were played this way on the Vega Virtual Device; not yet on a Fire TV Stick. Which of the dice left a legal turn can still spend, and so which dice dim, is the engine's `getPlayableDice` (engine 0.14.0, #140), covered by `test/dice.test.ts` and checked on the Vega Virtual Device; not yet on a Fire TV Stick. Besides resignation and an agreed draw, the controller ends a game as Fortemate's game service does: when a king is taken, after 100 halfmoves without a capture or a pawn move, checked at the end of a turn, or at turn 5,000. The board only renders state; the remote's keys reach the screen reducer through `useRemoteInput`.
 
-The long-form technical records, platform findings on Vega, and quality metrics are published on the [project site](https://dicechess-tv.jegors-cemisovs.workers.dev/): see [Architecture](https://dicechess-tv.jegors-cemisovs.workers.dev/technology/architecture/), [Building on Vega](https://dicechess-tv.jegors-cemisovs.workers.dev/technology/vega/), and [How we test and review](https://dicechess-tv.jegors-cemisovs.workers.dev/quality/). [native/README.md](native/README.md) provides a terminal quick-reference for building, packaging, and installing.
+The architecture, platform findings on Vega, the friction log and how the project is tested are published on the [project site](https://dicechess-tv.jegors-cemisovs.workers.dev/): see [Architecture](https://dicechess-tv.jegors-cemisovs.workers.dev/technology/architecture/), [Building on Vega](https://dicechess-tv.jegors-cemisovs.workers.dev/technology/vega/), and [How we test and review](https://dicechess-tv.jegors-cemisovs.workers.dev/quality/). [native/README.md](native/README.md) provides a terminal quick-reference for building, packaging, and installing.
 
 This repository owns TV-specific packaging, input and application integration. Reuse appropriate public components from [dicechess-play](https://github.com/fortemate/dicechess-play) and [dicechess-engine](https://github.com/fortemate/dicechess-engine) after checking their licenses. Shared fixes should return to their source repositories.
 
