@@ -13,8 +13,8 @@
 // The key names are Vega's own remote vocabulary, so the native layer passes
 // them through unchanged.
 
-import { pieceAt, rankOf, type Square } from './board.ts';
-import { central, jump, RULE, type Layout } from './cursor.ts';
+import { fileOf, pieceAt, rankOf, type Square } from './board.ts';
+import { central, jump, pressesFrom, RULE, type Layout } from './cursor.ts';
 
 export type BoardKey =
   'up' | 'down' | 'left' | 'right' | 'select' | 'back' | 'menu';
@@ -73,10 +73,63 @@ function doublePush(board: string, square: string): string | null {
   return null;
 }
 
-// Where the cursor lands once the piece on `square` is picked up: on its
-// central destination, except that a pawn that can advance two squares lands
-// there, the push players usually choose over the single step. Without the
-// board the landing is the central destination.
+// What a piece is worth to the landing below. The king is worth the most:
+// taking it ends the game.
+const WORTH: Readonly<Record<string, number>> = {
+  p: 1,
+  n: 3,
+  b: 3,
+  r: 5,
+  q: 9,
+  k: 100,
+};
+
+const isWhite = (piece: string) => piece === piece.toUpperCase();
+
+// The worth of what the piece on `square` of `board` takes by moving to `to`,
+// or 0 when the move takes nothing. A legal pawn move that changes file always
+// takes: onto an empty square it takes en passant, and so takes a pawn.
+function takes(board: string, square: string, to: string): number {
+  const piece = pieceAt(board, square);
+  if (piece === null) return 0;
+  const target = pieceAt(board, to);
+  if (target !== null)
+    return isWhite(target) === isWhite(piece) ? 0 : WORTH[target.toLowerCase()];
+  return piece.toLowerCase() === 'p' && fileOf(to) !== fileOf(square)
+    ? WORTH.p
+    : 0;
+}
+
+// The destination players usually choose, when the board makes one likely:
+// the most valuable piece it can take, since players take far more often than
+// not, and between equal captures the central one; failing a capture, a pawn's
+// two-square push, which players usually choose over the single step.
+function likely(
+  destinations: readonly string[],
+  square: string,
+  layout: Layout,
+  board: string,
+): string | null {
+  let best = 0;
+  let captures: string[] = [];
+  for (const to of destinations) {
+    const worth = takes(board, square, to);
+    if (worth > best) {
+      best = worth;
+      captures = [to];
+    } else if (worth > 0 && worth === best) captures.push(to);
+  }
+  if (captures.length) return central(captures, square, layout);
+  const far = doublePush(board, square);
+  return far !== null && destinations.includes(far) ? far : null;
+}
+
+// Where the cursor lands once the piece on `square` is picked up: on the
+// likely destination, so that the usual move needs no arrow, and otherwise on
+// the central one. Arrows do not reach every destination from every square: a
+// few are reached only by landing on them, which `central` allows for. So a
+// likely destination that would leave another out of reach gives way to the
+// central one. Without the board the landing is the central destination.
 export function landing(
   legal: readonly string[],
   square: string,
@@ -84,8 +137,13 @@ export function landing(
   board: string | null = null,
 ): string | null {
   const destinations = destinationsOf(legal, square);
-  const far = board === null ? null : doublePush(board, square);
-  if (far !== null && destinations.includes(far)) return far;
+  const preferred =
+    board === null ? null : likely(destinations, square, layout, board);
+  if (
+    preferred !== null &&
+    pressesFrom(preferred, destinations, layout).size === destinations.length
+  )
+    return preferred;
   return central(destinations, square, layout);
 }
 
@@ -106,7 +164,8 @@ export function waitingFocus(
 
 // `flipped` is the board turned for a person playing Black: the arrows still
 // move the cursor the way they point on the screen. `board` is the FEN board
-// field, which tells a pawn from other pieces where the cursor lands.
+// field, which tells where the cursor lands: on a capture, or on a pawn's
+// two-square push.
 export function boardInput(
   focus: BoardFocus,
   key: BoardKey,

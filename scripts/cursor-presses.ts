@@ -79,6 +79,16 @@ const STRATEGIES: [string, Strategy][] = [
     { ...jumping, start: 'sticky', destinations: 'jump', rule: 'cone' },
   ],
   [
+    'cone rule: jump + destinations, sticky, landing always central',
+    {
+      ...jumping,
+      start: 'sticky',
+      destinations: 'jump',
+      rule: 'cone',
+      landing: 'central',
+    },
+  ],
+  [
     'cone rule: jump + destinations, central',
     { ...jumping, start: 'central', destinations: 'jump', rule: 'cone' },
   ],

@@ -22,7 +22,7 @@ Dice Chess TV is designed from the ground up for a television remote. The entire
 
 Moving square-by-square across an 8x8 chessboard is frustrating on a remote. Dice Chess TV replaces grid stepping with **smart directional jumps**:
 
-- **Between movable pieces:** When no piece is selected, pressing an arrow jumps directly to the nearest piece permitted to move by your current dice roll. In simulations across 200 random games, this reduced remote presses from **22.6 to 8.7 per turn** (a 61% reduction).
+- **Between movable pieces:** When no piece is selected, pressing an arrow jumps directly to the nearest piece permitted to move by your current dice roll. In simulations across 200 random games, this reduced remote presses from **23.0 to 9.2 per turn** (60% fewer).
 - **Between destinations:** Once a piece is picked up, the arrows jump only between that piece's valid destination squares (marked with dots for quiet moves or rings for captures).
 - **In menus and cards:** Moves focus through menu options, difficulty cards, and rules topics. Holding an arrow repeats smoothly.
 
@@ -31,7 +31,7 @@ Moving square-by-square across an 8x8 chessboard is frustrating on a remote. Dic
 The primary action button handles roll initiation, piece selection, and move execution:
 
 - **Roll the dice:** When a turn begins, pressing OK rolls the three dice, tumbling them onto the tray in 260 ms. The board shows no cursor until then: the cyan frame appears after the roll, on a piece the dice let you move. This was seen on the Vega Virtual Device in a game against Rolly, and `native/test/input.test.tsx` checks it in Hot Seat and against Rolly.
-- **Pick up a piece:** Pressing OK on an active piece picks it up and automatically positions the cursor on its most central destination square. A pawn that can still advance two squares is the exception: the cursor lands on the two-square push, and one arrow press towards the pawn reaches the single step. This was seen on the Vega Virtual Device in the tutorial's first step, and `native/test/screen.test.ts` checks it.
+- **Pick up a piece:** Pressing OK on an active piece picks it up and positions the cursor on the move players usually make. If the piece can take, the cursor lands on the most valuable piece it can take, the king above all. A pawn that cannot take but can still advance two squares lands on the two-square push, and one arrow press towards the pawn reaches the single step. Any other piece lands on its most central destination square. If a landing would leave another destination out of the arrows' reach, the cursor lands on the central destination instead. On the Vega Virtual Device the two-square landing was seen in the tutorial's first step, and the capture landing in its two capture lessons and in a Hot Seat game; `test/boardInput.test.ts` and `native/test/screen.test.ts` check both.
 - **Play a move:** Pressing OK on a destination square executes the action. The piece smoothly slides to its new square in 220 ms on the native driver.
 - **Single-destination shortcut:** If a piece has only one legal destination, pressing **OK then OK** immediately plays the move.
 - **Confirm menu items:** Selects the focused menu row. OK acts on release (`eventKeyAction === 1`), with a distinct 97% scale compression and highlight while held.

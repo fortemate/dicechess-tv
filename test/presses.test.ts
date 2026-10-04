@@ -55,6 +55,26 @@ test('with the board, a picked-up pawn lands on its two-square push', () => {
   assert.equal(withBoard('b2b3'), 3);
 });
 
+test('with the board, a piece that can take lands on the capture', () => {
+  const tv = strategy({
+    pieces: 'jump',
+    start: 'sticky',
+    destinations: 'jump',
+  });
+  // The e4 pawn can push to e5 or take the pawn on d5.
+  const board = 'rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR';
+  const legal = ['e4d5', 'e4e5'];
+  // OK on e4, then OK on d5 where the cursor lands.
+  assert.equal(actionCost(tv, 'e4', legal, 'e4d5', false, board).presses, 2);
+  // Landing always on the central destination puts the cursor on e5, the
+  // nearer one, and the capture takes an arrow.
+  const central = { ...tv, landing: 'central' as const };
+  assert.equal(
+    actionCost(central, 'e4', legal, 'e4d5', false, board).presses,
+    3,
+  );
+});
+
 test('staying put jumps from wherever the cursor was left', () => {
   // e2 holds a movable pawn: two jumps left, through d2, reach b2.
   assert.equal(cost(strategy({ pieces: 'jump' })), 6);

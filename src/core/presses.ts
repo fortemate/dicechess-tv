@@ -20,6 +20,9 @@ export type Strategy = {
   // destinations.
   destinations: 'step' | 'jump';
   rule: JumpRule;
+  // Where a picked-up piece lands when the board is known: on its likely
+  // destination, as the board does (the default), or always on the central one.
+  landing?: 'likely' | 'central';
 };
 
 // The board today: the cursor stays where it was, and every press moves it one
@@ -44,7 +47,8 @@ export function actionCost(
   legal: readonly string[],
   move: string,
   flipped = false,
-  // The FEN board field. Without it a picked-up pawn lands as any piece does.
+  // The FEN board field. Without it a picked-up piece lands on its central
+  // destination, whether or not it could take.
   board: string | null = null,
 ): Cost {
   const layout = { rule: strategy.rule, flipped };
@@ -77,7 +81,8 @@ export function actionCost(
           .map((action) => action.slice(2, 4)),
       ),
     ];
-    presses += reach(landing(legal, from, layout, board) ?? from, targets, to);
+    const known = strategy.landing === 'central' ? null : board;
+    presses += reach(landing(legal, from, layout, known) ?? from, targets, to);
   }
   return { presses: presses + 2 + (move.length > 4 ? 1 : 0), reachable };
 }

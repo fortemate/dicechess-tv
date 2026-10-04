@@ -9,7 +9,7 @@ import {
   type BoardFocus,
   type BoardKey,
 } from '../src/core/boardInput.ts';
-import { route } from '../src/core/cursor.ts';
+import { route, RULE } from '../src/core/cursor.ts';
 import {
   newGame,
   rollGame,
@@ -176,8 +176,10 @@ test("Black's pawn lands on its two-square push on the turned board", () => {
 
 test('the two-square landing applies only to a pawn whose push is legal', () => {
   const layout = { flipped: false };
-  // A pawn whose two-square push is not legal lands as before.
-  assert.equal(landing(['e2e3', 'e2d3'], 'e2', layout, START), 'e3');
+  // A pawn whose two-square push is blocked lands as before: here a black
+  // knight stands on e4.
+  const blocked = 'rnbqkb1r/pppppppp/8/8/4n3/8/PPPPPPPP/RNBQKBNR';
+  assert.equal(landing(['e2e3'], 'e2', layout, blocked), 'e3');
   // A pawn that has left its starting rank has no two-square push.
   const advanced = 'rnbqkbnr/pppppppp/8/8/8/4P3/PPPP1PPP/RNBQKBNR';
   assert.equal(landing(['e3e4'], 'e3', layout, advanced), 'e4');
@@ -185,6 +187,87 @@ test('the two-square landing applies only to a pawn whose push is legal', () => 
   // central destination of a2-a3-a4 is a3.
   const rook = '4k3/8/8/8/8/8/R7/4K3';
   assert.equal(landing(['a2a3', 'a2a4', 'a2a1'], 'a2', layout, rook), 'a3');
+});
+
+test('a piece that can take lands on the most valuable piece it can take', () => {
+  const layout = { flipped: false };
+  // The d4 knight can take the e6 pawn or the b5 rook: the rook is worth more.
+  const knight = '4k3/8/4p3/1r6/3N4/8/8/4K3';
+  const moves = [
+    'd4b3',
+    'd4b5',
+    'd4c2',
+    'd4c6',
+    'd4e2',
+    'd4e6',
+    'd4f3',
+    'd4f5',
+  ];
+  assert.equal(landing(moves, 'd4', layout, knight), 'b5');
+  // Taking the king ends the game, so it comes before even the queen.
+  const rook = 'k7/8/8/8/8/8/8/R6q';
+  assert.equal(landing(['a1a8', 'a1h1', 'a1b1'], 'a1', layout, rook), 'a8');
+  // Without the board nothing is known to be a capture: central, as before.
+  assert.equal(landing(moves, 'd4', layout), 'c6');
+});
+
+test('between equal captures the cursor lands on the central one', () => {
+  // The d4 rook can take a pawn on b4 or on d7; b4 is the nearer.
+  const board = '4k3/3p4/8/8/1p1R4/8/8/4K3';
+  const moves = ['d4b4', 'd4c4', 'd4d5', 'd4d6', 'd4d7', 'd4e4'];
+  assert.equal(landing(moves, 'd4', { flipped: false }, board), 'b4');
+});
+
+test('a pawn takes before it pushes, en passant included', () => {
+  const layout = { flipped: false };
+  // A black knight on d3 is worth more to the e2 pawn than its two-square push.
+  const knight = 'rnbqkb1r/pppppppp/8/8/8/3n4/PPPPPPPP/RNBQKBNR';
+  assert.equal(landing(['e2d3', 'e2e3', 'e2e4'], 'e2', layout, knight), 'd3');
+  // Black has just pushed d7-d5 beside the e5 pawn: e5xd6 lands on an empty
+  // square and still takes a pawn.
+  const passant = 'rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR';
+  assert.equal(landing(['e5d6', 'e5e6'], 'e5', layout, passant), 'd6');
+});
+
+test('a picked-up knight lands on its capture, not on the way home', () => {
+  // The position of the site's Hot Seat screenshot: Black's c6 knight can take
+  // on e5, and before the capture came first it landed on b8.
+  const fen = 'r1bqkbnr/pppppppp/2n5/4P3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1';
+  const game = rollGame(newGame('hotseat', 'landing', fen), [2, 2, 2]);
+  const { legal, dfen } = viewGame(game);
+  assert.deepEqual(movesFrom(legal, 'c6').sort(), [
+    'c6a5',
+    'c6b4',
+    'c6b8',
+    'c6d4',
+    'c6e5',
+  ]);
+  const picked = boardInput(
+    at('c6'),
+    'select',
+    legal,
+    true,
+    dfen.split(' ')[0],
+  );
+  assert.deepEqual(picked.focus, at('e5', 'c6'));
+});
+
+test('a capture that would leave a destination out of reach gives way to the central one', () => {
+  // Black's c5 queen, on the board turned for Black, can take the king on e3.
+  // From e3 no arrow ever reaches a7, so the cursor lands where it always
+  // could reach every destination.
+  const fen = 'r1b1k3/1p1pnp2/n3Pr1b/2q1P2p/5P2/1BN1K1PP/PPPB4/R5R1 b - - 8 17';
+  const game = rollGame(newGame('hotseat', 'reach', fen), [1, 4, 5]);
+  const { legal, dfen } = viewGame(game);
+  const board = dfen.split(' ')[0];
+  const layout = { rule: RULE, flipped: true };
+  const destinations = movesFrom(legal, 'c5').map((move) => move.slice(2, 4));
+  assert.ok(destinations.includes('e3') && destinations.includes('a7'));
+  assert.equal(route('e3', 'a7', destinations, layout), null);
+  const square = landing(legal, 'c5', layout, board);
+  assert.notEqual(square, 'e3');
+  for (const to of destinations)
+    assert.ok(route(square!, to, destinations, layout), `${to} out of reach`);
 });
 
 test('movesFrom and movableSquares report what the squares can do', () => {
