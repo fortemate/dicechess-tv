@@ -15,6 +15,8 @@ import { MmkvSnapshotStore } from '../src/mmkvStore';
 import { decodeGame, viewGame, type Game } from '../../src/core/game';
 import { decodeLedger, type Ledger } from '../../src/core/ledger';
 import { TUTORIAL, isComplete, stepGame } from '../../src/core/tutorial';
+import { portraitPath } from '../src/Portrait';
+import { TEACHER_PORTRAIT } from '../src/TutorialScreen';
 import { initialTutorial, tutorialReducer, step } from '../src/tutorial';
 import {
   movableSquares,
@@ -71,14 +73,23 @@ const text = (root: Instance) =>
     .map((node) => String(node.props.children))
     .join('\n');
 
+// The tutorial is open: Thinkle's name is on screen.
+const TUTORIAL_OPEN = /THINKLE/;
+
 // Play the current step by taking the action it teaches, through the reducer.
+// A step that opens before its roll is rolled first, with OK.
 const solve = (state: ReturnType<typeof initialTutorial>) => {
   const current = step(state);
   const goal = current.goal;
-  let played = state;
+  let played =
+    state.game.phase === 'roll' ? tutorialReducer(state, 'select') : state;
   for (let i = 0; i < 4 && !played.complete; i++) {
     const legal = viewGame(played.game).legal;
-    if (!legal.length) break;
+    // A roll no die can use: OK passes it.
+    if (!legal.length) {
+      played = tutorialReducer(played, 'select');
+      break;
+    }
     const move =
       goal.kind === 'capture'
         ? (legal.find((m) => m.slice(2, 4) === goal.square) ?? legal[0])
@@ -122,9 +133,14 @@ test('it is skippable at any point, and Back cancels a selection first', () => {
   // From the first lesson.
   assert.ok(tutorialReducer(initialTutorial(), 'back').exit);
 
+  // Before the roll, OK rolls and nothing is picked up.
+  const rolled = tutorialReducer(initialTutorial(), 'select');
+  assert.equal(rolled.focus.selected, null);
+  assert.equal(rolled.game.phase, 'move');
+
   // With a piece in hand, Back puts it down rather than leaving. The cursor
-  // starts on a pawn, and the first lesson rolls three pawns.
-  const holding = tutorialReducer(initialTutorial(), 'select');
+  // waits on a pawn, and the first lesson rolls three pawns.
+  const holding = tutorialReducer(rolled, 'select');
   assert.notEqual(holding.focus.selected, null);
   const cancelled = tutorialReducer(holding, 'back');
   assert.equal(cancelled.focus.selected, null);
@@ -173,7 +189,7 @@ test('playing the tutorial changes neither the saved game nor the record', () =>
   // Open the tutorial. The finished game is not resumable, so the home screen
   // offers three choices and How to play is the last.
   send('down', 'down', 'enter');
-  assert.match(text(root), /HOW TO PLAY/);
+  assert.match(text(root), TUTORIAL_OPEN);
   send('right', 'down', 'enter', 'up', 'enter');
 
   assert.equal(JSON.stringify(games.read()), savedBefore);
@@ -188,14 +204,14 @@ test('the tutorial takes the remote, so a press is not handled twice', () => {
   const before = listenerCount();
 
   send('down', 'down', 'enter');
-  assert.match(text(root), /HOW TO PLAY/);
+  assert.match(text(root), TUTORIAL_OPEN);
   // Both screens are mounted and both are listening, because a hook cannot be
   // conditional. The game screen must ignore keys, or every press would move
   // the cursor twice and start games behind the lesson.
   assert.equal(listenerCount(), before + 1);
 
   send('right');
-  assert.match(text(root), /HOW TO PLAY/);
+  assert.match(text(root), TUTORIAL_OPEN);
   send('back');
   assert.match(text(root), /Dice Chess/);
   assert.equal(listenerCount(), before);
@@ -205,9 +221,9 @@ test('leaving the tutorial returns to the home screen', () => {
   reset();
   const root = launch();
   send('down', 'down', 'enter');
-  assert.match(text(root), /HOW TO PLAY/);
+  assert.match(text(root), TUTORIAL_OPEN);
   send('back');
-  assert.doesNotMatch(text(root), /HOW TO PLAY/);
+  assert.doesNotMatch(text(root), TUTORIAL_OPEN);
   assert.match(text(root), /Dice Chess/);
 });
 
@@ -219,13 +235,13 @@ test('the panel says which of the two things Back will do', () => {
 
   // With a piece in hand Back puts it down, and the panel says so rather than
   // promising to leave.
-  send('enter');
+  send('enter', 'enter');
   assert.match(text(root), /Back: put the piece down/);
   assert.doesNotMatch(text(root), /Back: leave the tutorial/);
 
   send('back');
   assert.match(text(root), /Back: leave the tutorial/);
-  assert.match(text(root), /HOW TO PLAY/);
+  assert.match(text(root), TUTORIAL_OPEN);
 
   send('back');
   assert.match(text(root), /Dice Chess/);
@@ -235,8 +251,9 @@ test('Back leaves from a finished lesson too', () => {
   reset();
   const root = launch();
   send('down', 'down', 'enter');
-  // Play the first lesson: the cursor starts on a pawn the dice allow.
-  send('enter', 'up', 'enter');
+  // Play the first lesson: roll, then three pawn moves. The cursor waits on a
+  // pawn, lands on a square it may go to, and stays on it after the move.
+  send('enter', 'enter', 'enter', 'enter', 'enter', 'enter', 'enter');
   assert.match(text(root), /Done\. OK: next lesson · Back: leave/);
   send('back');
   assert.match(text(root), /Dice Chess/);
@@ -325,4 +342,227 @@ test('the About screen shows the credits and returns on Back or OK', () => {
   send('enter');
   assert.doesNotMatch(text(root), /ABOUT/);
   assert.match(text(root), /New hotseat game/);
+});
+
+test('Thinkle teaches: his portrait, his name and the lesson number', () => {
+  reset();
+  const root = launch();
+  send('down', 'down', 'enter');
+  const teacher = root.find(
+    (node) => typeof node.type === 'string' && node.props.testID === 'teacher',
+  );
+  const portrait = teacher.find(
+    (node) => (node.type as unknown as string) === 'Image',
+  );
+  assert.equal(portrait.props.source.uri, portraitPath('thinkle', 'card'));
+  assert.match(text(root), /THINKLE\nLesson 1 of 6/);
+
+  // A build without the portraits keeps his place, so nothing moves.
+  act(() => portrait.props.onError());
+  const empty = teacher.find(
+    (node) =>
+      typeof node.type === 'string' &&
+      node.props.testID === 'portrait-missing-thinkle',
+  );
+  assert.equal(empty.props.style.width, TEACHER_PORTRAIT);
+  assert.equal(empty.props.style.height, TEACHER_PORTRAIT);
+  assert.match(text(root), /THINKLE/);
+  send('back');
+});
+
+test('the first lesson opens on the roll, and Thinkle follows it through', () => {
+  reset();
+  const root = launch();
+  send('down', 'down', 'enter');
+  const { speech } = TUTORIAL[0];
+  // Before the roll: his welcome, and the task asks for the roll.
+  assert.match(text(root), /Welcome, my friend! I am Thinkle/);
+  assert.match(text(root), /Press OK to roll the dice\./);
+
+  // OK rolls three pawns.
+  send('enter');
+  assert.match(text(root), new RegExp(speech.rolled![0]));
+  assert.match(text(root), /press OK on a dot/);
+
+  // A pawn moves: one die spent, two to go.
+  send('enter', 'enter');
+  assert.match(text(root), new RegExp(speech.moved![0]));
+
+  // The other two: the turn is over and the lesson is done.
+  send('enter', 'enter', 'enter', 'enter');
+  assert.match(text(root), new RegExp(speech.done![0]));
+  assert.match(text(root), /Done\. OK: next lesson/);
+  // Nothing is left to do on the board, so the task is gone.
+  assert.doesNotMatch(text(root), /press OK on a dot/);
+  send('back');
+});
+
+test('the second lesson opens on its roll too, and Thinkle explains the grey dice', () => {
+  reset();
+  const root = launch();
+  send('down', 'down', 'enter');
+  // The first lesson: the roll and three pawn moves, then on to the next.
+  send('enter', 'enter', 'enter', 'enter', 'enter', 'enter', 'enter');
+  send('enter');
+  assert.match(text(root), /Lesson 2 of 6/);
+  assert.match(text(root), /Now, a little secret of the dice\./);
+  assert.match(text(root), /Press OK to roll the dice\./);
+
+  send('enter');
+  assert.match(text(root), /Their dice go grey\./);
+  assert.match(text(root), /Play a knight\./);
+
+  // The cursor waits on a knight and lands where it may go: one move ends the
+  // turn.
+  send('enter', 'enter');
+  assert.match(text(root), /Well leapt!/);
+  assert.match(text(root), /Done\. OK: next lesson/);
+  send('back');
+});
+
+test('the third lesson: a pawn clears the way for the bishop and the queen', () => {
+  reset();
+  const root = launch();
+  send('down', 'down', 'enter');
+  // Lessons 1 and 2, each from its roll.
+  send('enter', 'enter', 'enter', 'enter', 'enter', 'enter', 'enter');
+  send('enter');
+  send('enter', 'enter', 'enter');
+  send('enter');
+  assert.match(text(root), /Lesson 3 of 6/);
+  assert.match(text(root), /Clear the way/);
+  assert.match(text(root), /stuck behind its own pawns/);
+
+  send('enter');
+  assert.match(text(root), /yet their dice are lit/);
+  assert.match(text(root), /Move a glowing pawn/);
+
+  // The cursor waits on a glowing pawn; it moves, and the way is open.
+  send('enter', 'enter');
+  assert.match(text(root), /The way is open!/);
+
+  // The bishop and the queen, wherever the cursor lands them.
+  send('enter', 'enter', 'enter', 'enter');
+  assert.match(text(root), /Use every die you can: that is the rule\./);
+  assert.match(text(root), /Done\. OK: next lesson/);
+  send('back');
+});
+
+test('the fourth lesson: no die can be used, and OK passes the turn', () => {
+  // Through the reducer: lessons 1 to 3, then this one's roll.
+  let state = initialTutorial();
+  for (let i = 0; i < 3; i++) state = tutorialReducer(solve(state), 'select');
+  assert.equal(step(state).id, 'pass');
+  state = tutorialReducer(state, 'select');
+  assert.equal(viewGame(state.game).legal.length, 0);
+  assert.equal(state.complete, false);
+
+  // The arrows change nothing; OK passes, and the lesson is done.
+  assert.equal(tutorialReducer(state, 'up'), state);
+  const passed = tutorialReducer(state, 'select');
+  assert.ok(passed.complete);
+  assert.equal(passed.game.turn, 2);
+  // Back leaves, as everywhere.
+  assert.ok(tutorialReducer(state, 'back').exit);
+});
+
+test('on a roll no die can use, the hint says what OK does', () => {
+  reset();
+  const root = launch();
+  send('down', 'down', 'enter');
+  // Lessons 1 to 3, each from its roll.
+  send('enter', 'enter', 'enter', 'enter', 'enter', 'enter', 'enter', 'enter');
+  send('enter', 'enter', 'enter', 'enter');
+  send('enter', 'enter', 'enter', 'enter', 'enter', 'enter', 'enter', 'enter');
+  assert.match(text(root), /Lesson 4 of 6/);
+  assert.match(text(root), /the dice play a little trick/);
+
+  send('enter');
+  assert.match(text(root), /your turn simply passes/);
+  assert.match(
+    text(root),
+    /No die can be used, so the turn passes\. Press OK\./,
+  );
+  assert.match(text(root), /OK: pass the turn · Back: leave/);
+
+  send('enter');
+  assert.match(text(root), /No harm done!/);
+  assert.match(text(root), /Done\. OK: next lesson/);
+  send('back');
+});
+
+test('a missed lesson offers OK to try again, from its roll', () => {
+  let state = initialTutorial();
+  for (let i = 0; i < 4; i++) state = tutorialReducer(solve(state), 'select');
+  assert.equal(step(state).id, 'capture');
+  state = tutorialReducer(state, 'select');
+  // The rook goes up the file one square instead of taking the pawn: the turn
+  // is over and the lesson missed.
+  const missed = [
+    ...jumps(
+      state.focus.cursor,
+      'd1',
+      movableSquares(viewGame(state.game).legal),
+    ),
+    'select' as const,
+  ].reduce((s, key) => tutorialReducer(s, key), state);
+  const played = [
+    ...jumps(missed.focus.cursor, 'd2', [
+      'd2',
+      'd3',
+      'd4',
+      'd5',
+      'a1',
+      'b1',
+      'c1',
+    ]),
+    'select' as const,
+  ].reduce((s, key) => tutorialReducer(s, key), missed);
+  assert.equal(played.game.lastMove, 'd1d2');
+  assert.equal(played.complete, false);
+
+  // The arrows change nothing; OK starts the lesson again, before its roll.
+  assert.equal(tutorialReducer(played, 'left'), played);
+  const again = tutorialReducer(played, 'select');
+  assert.equal(again.index, played.index);
+  assert.equal(again.game.phase, 'roll');
+  assert.deepEqual(again.game.moves, []);
+  assert.ok(tutorialReducer(played, 'back').exit);
+});
+
+test('after the last lesson: finish, then the closing words on the starting position', () => {
+  let state = initialTutorial();
+  for (let i = 0; i < TUTORIAL.length - 1; i++)
+    state = tutorialReducer(solve(state), 'select');
+  const last = solve(state);
+  assert.ok(last.complete);
+  const closing = tutorialReducer(last, 'select');
+  assert.ok(closing.finished);
+  // The board is set up for a game again, and is not the lesson's.
+  assert.equal(closing.game.start, stepGame(TUTORIAL[0]).start);
+  assert.match(closing.game.id, /^tutorial-/);
+  assert.deepEqual(closing.game.roll, []);
+});
+
+test('the last lesson says finish, and the closing screen has no dice', () => {
+  reset();
+  const root = launch();
+  send('down', 'down', 'enter');
+  send('enter', 'enter', 'enter', 'enter', 'enter', 'enter', 'enter', 'enter');
+  send('enter', 'enter', 'enter', 'enter');
+  send('enter', 'enter', 'enter', 'enter', 'enter', 'enter', 'enter', 'enter');
+  send('enter', 'enter', 'enter');
+  send('enter', 'enter', 'enter', 'enter');
+  // The king lesson: roll, pick up the rook, take the king.
+  send('enter', 'enter', 'enter');
+  assert.match(text(root), /Lesson 6 of 6/);
+  assert.match(text(root), /Done\. OK: finish · Back: leave/);
+
+  send('enter');
+  assert.match(text(root), /That is the whole game/);
+  assert.match(text(root), /All lessons done/);
+  assert.match(text(root), /use dice too/);
+  assert.match(text(root), /OK: back to the menu/);
+  send('enter');
+  assert.match(text(root), /Dice Chess/);
 });

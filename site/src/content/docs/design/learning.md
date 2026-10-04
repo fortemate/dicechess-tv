@@ -1,6 +1,6 @@
 ---
 title: Learning the game
-description: 'How Dice Chess for Fire TV teaches its rules: a five-lesson tutorial played on real positions, a rules guide one level deep, and a notice when a roll leaves nothing to play.'
+description: 'How Dice Chess for Fire TV teaches its rules: a six-lesson tutorial taught by Thinkle the wizard on real positions, a rules guide one level deep, and a notice when a roll leaves nothing to play.'
 sidebar:
   order: 4
 ---
@@ -11,15 +11,20 @@ Most people who pick up the remote know chess, or some of it, and have never pla
 
 ![The first tutorial lesson, Moving a piece, with the pawns that can move marked](../../../assets/screenshots/tutorial.png)
 
-Five short lessons, each on a real position with a fixed roll:
+Six short lessons, taught by Thinkle the wizard. Each is a real position with a fixed roll, and each opens on that roll, which the player makes with OK, as every turn of a game begins:
 
-1. moving a piece;
-2. the dice choose the pieces;
-3. three actions in one turn;
-4. taking a piece;
-5. taking the king ends it.
+1. roll and move: a whole turn of three pawn moves;
+2. the dice choose the pieces, and a die whose piece cannot move goes grey;
+3. clear the way: a pawn move frees the pieces behind it, and every die that can be used must be;
+4. when nothing can move: a roll no die can use, and OK passes the turn;
+5. taking a piece;
+6. taking the king ends it, and nothing warns you when a king is attacked.
 
-Each lesson is a position, a roll and a goal, and the tests check each one against the engine. The position must decode, the roll must allow the action being taught, and the goal must be reachable. A lesson never touches a saved game or the record of completed games. Castling, promotion and en passant are left to the rules guide.
+Thinkle's portrait stands at the top of the panel with his words in a bubble under it, and the task stays on screen in plain words. A build without the portraits keeps his place empty. His lines are written to be recorded: each keeps to the voice packs' rules, at most 56 characters of plain ASCII.
+
+Each lesson is a position, a roll and a goal, and the tests check each one against the engine. The position must decode, the roll must allow the action being taught, and the goal must be reachable. Every way to play each lesson ends either with it done or, when the dice are spent elsewhere, with Thinkle offering to try again, so no lesson can leave the player on a board that takes no keys. A lesson never touches a saved game or the record of completed games. Castling, promotion and en passant are left to the rules guide.
+
+The lessons were played on the Vega Virtual Device; not yet on a Fire TV Stick.
 
 ## The rules guide
 

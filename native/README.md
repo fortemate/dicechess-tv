@@ -29,7 +29,7 @@ Long-form technical documentation, platform findings, performance benchmarks and
 | `src/screen.ts`                | The screen's whole flow, as a pure reducer over state and one action.                |
 | `src/OpponentScreen.tsx`       | Opponent selection: three cards with bot faces, difficulty, and player records.      |
 | `src/Portrait.tsx`             | A character's portrait, or its emoji face when the build has no portraits.           |
-| `src/TutorialScreen.tsx`       | Five-lesson interactive tutorial running on an isolated sandbox board.               |
+| `src/TutorialScreen.tsx`       | Six-lesson interactive tutorial taught by Thinkle, on an isolated sandbox board.     |
 | `src/tutorial.ts`              | The tutorial's flow, as a pure reducer over state and one key.                       |
 | `src/RulesScreen.tsx`          | Dual-pane rules guide: topics on the left, selected explanation on the right.        |
 | `src/AboutScreen.tsx`          | Project credits and third-party licence notices accessible via TV remote.            |
