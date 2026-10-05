@@ -2,7 +2,11 @@
 // dist/demo-video/takes/<take>.mp4. assemble.ts cuts them together and lays
 // Thinkle's narration over them.
 //
-//   node --experimental-strip-types scripts/demo-video/record.ts [take...]
+//   node --experimental-strip-types scripts/demo-video/record.ts [--only] [take...]
+//
+// A take named on its own runs after the takes it continues from, unless
+// --only says it continues from where the device already is, as after a run
+// that stopped part-way.
 //
 // Before a run: the release build is built (`npm run build --prefix native`)
 // and the Virtual Device runs with its gRPC on (`vvd enable-grpc`). The first
@@ -304,14 +308,16 @@ const takes: Record<string, () => Promise<void>> = {
     });
   },
 
-  // The turn left part-way: Home leaves for the launcher, the app is closed
-  // there, and a launch brings the game back on the home screen, where Resume
-  // game opens it as it was, dice and all.
+  // The turn left part-way: the app is closed for the launcher, and a launch
+  // brings the game back on the home screen, where Resume game opens it as it
+  // was, dice and all. Home cannot be pressed on the Virtual Device over gRPC,
+  // so the app is closed from the command line, which shows the launcher as
+  // Home would.
   resume: async () => {
-    await record('resume', 26, async () => {
-      press(['KEY_HOME'], 2500);
+    await record('resume', 24, async () => {
+      await sleep(1500); // the turn, left part-way
       vega('device', 'terminate-app', '-a', APP);
-      await sleep(1500);
+      await sleep(3000); // the launcher
       vega('device', 'launch-app', '-a', APP);
       await sleep(5000); // the home screen, with Resume game first
       press(['ok'], 4000);
@@ -377,7 +383,8 @@ const prereqs: Partial<Record<string, string[]>> = {
   grabby: ['opponents'],
 };
 
-const chosen = process.argv.slice(2);
+const only = process.argv.includes('--only');
+const chosen = process.argv.slice(2).filter((arg) => arg !== '--only');
 const unknown = chosen.filter((name) => !(name in takes));
 if (unknown.length) {
   console.error(
@@ -394,7 +401,12 @@ const toRun: string[] =
   chosen.length === 0
     ? order
     : [
-        ...new Set(chosen.flatMap((name) => [...(prereqs[name] ?? []), name])),
+        ...new Set(
+          chosen.flatMap((name) => [
+            ...(only ? [] : (prereqs[name] ?? [])),
+            name,
+          ]),
+        ),
       ].sort((a, b) => order.indexOf(a) - order.indexOf(b));
 
 if (chosen.length && toRun.length > chosen.length) {

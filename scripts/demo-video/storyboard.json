@@ -14,73 +14,191 @@
       "fadeOutSeconds": 3
     },
     "narration": [
-      { "line": "thinkle_demo_close_1", "at": 0.6 },
-      { "line": "thinkle_tutor_closing_3", "at": 5.4 }
+      {
+        "line": "thinkle_demo_close_1",
+        "at": 0.6
+      },
+      {
+        "line": "thinkle_tutor_closing_3",
+        "at": 5.4
+      }
     ]
   },
   "scenes": [
     {
       "name": "Dice Chess for Fire TV",
-      "clips": [{ "take": "hotseat", "from": null, "to": null }],
+      "clips": [
+        {
+          "take": "hotseat",
+          "from": 63.2,
+          "to": 75.0
+        }
+      ],
       "narration": [
-        { "line": "thinkle_demo_hook_1", "at": 0.8 },
-        { "line": "thinkle_demo_hook_2", "at": 6.2 }
+        {
+          "line": "thinkle_demo_hook_1",
+          "at": 0.8
+        },
+        {
+          "line": "thinkle_demo_hook_2",
+          "at": 6.2
+        }
       ]
     },
     {
       "name": "The TV teaches the game",
       "clips": [
-        { "take": "tutorial", "from": null, "to": null },
-        { "take": "tutorial", "from": null, "to": null },
-        { "take": "tutorial", "from": null, "to": null },
-        { "take": "tutorial", "from": null, "to": null, "hold": 4.5 },
-        { "take": "tutorial", "from": null, "to": null }
+        {
+          "take": "tutorial",
+          "from": 5.15,
+          "to": 11.3
+        },
+        {
+          "take": "tutorial",
+          "from": 12.3,
+          "to": 22.4
+        },
+        {
+          "take": "tutorial",
+          "from": 28.9,
+          "to": 35.2
+        },
+        {
+          "take": "tutorial",
+          "from": 73.6,
+          "to": 79.6
+        },
+        {
+          "take": "tutorial",
+          "from": 103.95,
+          "to": 104.65,
+          "hold": 4.4
+        },
+        {
+          "take": "tutorial",
+          "from": 108.1,
+          "to": 113.6
+        }
       ],
-      "narration": [{ "line": "thinkle_demo_teach_1", "at": 30 }]
+      "narration": [
+        {
+          "line": "thinkle_demo_teach_1",
+          "at": 29.15
+        }
+      ]
     },
     {
       "name": "Two players, one remote",
-      "clips": [{ "take": "hotseat", "from": null, "to": null }],
+      "clips": [
+        {
+          "take": "hotseat",
+          "from": 4.8,
+          "to": 29.5
+        }
+      ],
       "narration": [
-        { "line": "thinkle_demo_hotseat_1", "at": 5 },
-        { "line": "thinkle_demo_hotseat_2", "at": 11 },
-        { "line": "thinkle_demo_hotseat_3", "at": 16 }
+        {
+          "line": "thinkle_demo_hotseat_1",
+          "at": 11.6
+        },
+        {
+          "line": "thinkle_demo_hotseat_2",
+          "at": 16.0
+        },
+        {
+          "line": "thinkle_demo_hotseat_3",
+          "at": 20.1
+        }
       ]
     },
     {
       "name": "Music that follows the danger",
-      "clips": [{ "take": "rampage", "from": null, "to": null }],
+      "clips": [
+        {
+          "take": "rampage",
+          "from": 51.5,
+          "to": 85.6
+        }
+      ],
       "narration": [
-        { "line": "thinkle_demo_music_1", "at": 1 },
-        { "line": "thinkle_demo_music_2", "at": 14 }
+        {
+          "line": "thinkle_demo_music_1",
+          "at": 3.1
+        },
+        {
+          "line": "thinkle_demo_music_2",
+          "at": 7.9
+        }
       ]
     },
     {
       "name": "Three opponents",
       "clips": [
-        { "take": "opponents", "from": null, "to": null },
-        { "take": "grabby", "from": null, "to": null }
+        {
+          "take": "opponents",
+          "from": 3.8,
+          "to": 11.0
+        },
+        {
+          "take": "grabby",
+          "from": 18.0,
+          "to": 31.0
+        }
       ],
       "narration": [
-        { "line": "thinkle_demo_opponents_1", "at": 0.6 },
-        { "line": "thinkle_demo_opponents_2", "at": 6 }
+        {
+          "line": "thinkle_demo_opponents_1",
+          "at": 0.4
+        },
+        {
+          "line": "thinkle_demo_opponents_2",
+          "at": 7.6
+        }
       ]
     },
     {
       "name": "The game waits",
-      "clips": [{ "take": "resume", "from": null, "to": null }],
-      "narration": [{ "line": "thinkle_demo_resume_1", "at": 0.6 }]
+      "clips": [
+        {
+          "take": "resume",
+          "from": 1.5,
+          "to": 16.0
+        }
+      ],
+      "narration": [
+        {
+          "line": "thinkle_demo_resume_1",
+          "at": 1.5
+        }
+      ]
     },
     {
       "name": "Built for Vega",
       "clips": [
-        { "take": "built", "from": null, "to": null },
-        { "take": "built", "from": null, "to": null }
+        {
+          "take": "built",
+          "from": 3.2,
+          "to": 9.4
+        },
+        {
+          "take": "built",
+          "from": 11.6,
+          "to": 20.0
+        }
       ],
       "narration": [
-        { "line": "thinkle_demo_built_1", "at": 0.6 },
-        { "line": "thinkle_demo_built_2", "at": 5.8 },
-        { "line": "thinkle_demo_built_3", "at": 10.2 }
+        {
+          "line": "thinkle_demo_built_1",
+          "at": 0.2
+        },
+        {
+          "line": "thinkle_demo_built_2",
+          "at": 5.3
+        },
+        {
+          "line": "thinkle_demo_built_3",
+          "at": 9.4
+        }
       ]
     }
   ]
