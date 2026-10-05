@@ -831,7 +831,11 @@ export const GameScreen = ({
         <View
           style={{ flex: 1, height: drawnSide(size), paddingLeft: BOARD_GAP }}
         >
-          <TutorialOffer index={overlay.index} pressed={pressed} />
+          <TutorialOffer
+            index={overlay.index}
+            pressed={pressed}
+            voice={sounds}
+          />
         </View>
       </View>
     );

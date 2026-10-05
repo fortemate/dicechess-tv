@@ -11,6 +11,7 @@ import {
   MISSED_SPEECH,
   CLOSING_SPEECH,
   OFFER_SPEECH,
+  OFFER_LINES,
   TUTOR_CATALOGUE,
   tutorLinesAt,
   ROLL_TASK,
@@ -394,6 +395,21 @@ test('Thinkle never says check or checkmate, and never names a die by number', (
       );
       assert.doesNotMatch(line, /\d/, line);
     }
+});
+
+test("the first launch's offer is his too, under the event offer (#244)", () => {
+  assert.deepEqual(
+    OFFER_LINES.map(({ id, event, text }) => [id, event, text]),
+    [
+      ['thinkle_tutor_offer_1', 'offer', 'New to Dice Chess?'],
+      [
+        'thinkle_tutor_offer_2',
+        'offer',
+        'I can teach you to play in a few minutes.',
+      ],
+    ],
+  );
+  for (const line of OFFER_LINES) assert.ok(TUTOR_CATALOGUE.includes(line));
 });
 
 test("each point of a lesson names the event and clips of Thinkle's voice pack", () => {

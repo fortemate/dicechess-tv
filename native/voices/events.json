@@ -13,7 +13,8 @@
     "Silence breaker: after silenceBreakerTurns turns without a line, the next event speaks whatever its tier, cap, alert limit or decay.",
     "Within an event, lines come from a shuffled bag kept across games, so every line of the event is heard before any repeats.",
     "The host speaks only at the start of a game and at the end of a turn, never while someone is thinking; threat and danger have no host lines.",
-    "The tutor speaks at every point of a lesson, with no pacing: the lines of an event are said one after another, in the order of their ids, and together are what he says there. A line stops when the player leaves the lesson."
+    "The tutor speaks at every point of a lesson, with no pacing: the lines of an event are said one after another, in the order of their ids, and together are what he says there. A line stops when the player leaves the lesson.",
+    "The narrator speaks only in the Dice Chess TV demo video, never in a game: the lines of a scene are said one after another, in the order of their ids, where the video's storyboard places them."
   ],
   "pacing": {
     "bot": {
@@ -35,7 +36,8 @@
       "repeatDecay": 0.5,
       "silenceBreakerTurns": 8
     },
-    "tutor": {}
+    "tutor": {},
+    "narrator": {}
   },
   "events": {
     "bot": {
@@ -374,6 +376,53 @@
         "tier": "always",
         "priority": 1,
         "means": "Every lesson is done: the closing screen."
+      },
+      "offer": {
+        "tier": "always",
+        "priority": 1,
+        "means": "Dice Chess TV's first launch offers the tutorial, before the home screen (fortemate/dicechess-tv#244)."
+      }
+    },
+    "narrator": {
+      "hook": {
+        "tier": "always",
+        "priority": 1,
+        "means": "The demo video opens: the game in one question, and its name."
+      },
+      "teach": {
+        "tier": "always",
+        "priority": 1,
+        "means": "The demo video shows the tutorial, from the first launch's offer to a first game."
+      },
+      "hotseat": {
+        "tier": "always",
+        "priority": 1,
+        "means": "The demo video shows a Hot Seat game: two players on one remote, and the cursor."
+      },
+      "music": {
+        "tier": "always",
+        "priority": 1,
+        "means": "The demo video shows the music following the danger to a king."
+      },
+      "opponents": {
+        "tier": "always",
+        "priority": 1,
+        "means": "The demo video shows the three computer opponents."
+      },
+      "resume": {
+        "tier": "always",
+        "priority": 1,
+        "means": "The demo video shows a game left mid-turn and resumed after a relaunch."
+      },
+      "built": {
+        "tier": "always",
+        "priority": 1,
+        "means": "The demo video says how the app is built: native code, its start, its engine."
+      },
+      "close": {
+        "tier": "always",
+        "priority": 1,
+        "means": "The demo video ends, before its end card."
       }
     }
   }

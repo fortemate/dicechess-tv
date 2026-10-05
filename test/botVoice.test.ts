@@ -23,6 +23,7 @@ import {
   type Game,
 } from '../src/core/game.ts';
 import { opponentOf } from '../src/core/opponents.ts';
+import { HOST_CATALOGUE } from '../src/core/hostVoice.ts';
 import { rowsOf } from './rows.ts';
 
 const PAWN = 1;
@@ -338,6 +339,18 @@ test('no line speaks of check or checkmate, which Dice Chess does not have', () 
     assert.doesNotMatch(
       line.text,
       /\b(check|checks|checkmate|checkmated|stalemate)\b/i,
+      line.id,
+    );
+});
+
+test('no bot or host line speaks of money or gambling (#251)', () => {
+  // The audience includes children, and a game of dice keeps away from the
+  // words of slot machines. Grabby collects pieces: his treasure is the pieces
+  // themselves, never money.
+  for (const line of [...VOICE_CATALOGUE, ...HOST_CATALOGUE])
+    assert.doesNotMatch(
+      line.text,
+      /\b(jackpots?|profits?|greed\w*|bets?|betting|gambl\w*|casinos?|prizes?|priceless|money|coins?|cash|gold|dollars?|bucks|wager\w*|chips)\b/i,
       line.id,
     );
 });

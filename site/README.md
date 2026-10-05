@@ -117,7 +117,8 @@ node site/scripts/vendor-voices.mjs ../dicechess-assets <full commit>
 ```
 
 It checks every clip against the digest the asset repository published and
-refuses a pack that is not public. The page shows the candidates as A, B and C;
+refuses a pack that is not public. It leaves out a line the game has rewritten
+since the audition: Grabby's "Jackpot! That prize piece is mine!" went in #251. The page shows the candidates as A, B and C;
 the data carries no voice names, and `test/voice-audition.test.ts` fails if it
 does, if a clip's bytes change, or if a clip says other words than the game's
 catalogue. [`scripts/voice-results.mjs`](scripts/voice-results.mjs) counts the

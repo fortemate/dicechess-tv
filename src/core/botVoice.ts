@@ -129,9 +129,9 @@ const RAW_SCRIPTS: Readonly<
       'Empty roll! You got lucky... for now.',
     ],
     capture_heavy: [
-      'Jackpot! That prize piece is mine!',
+      'Ooh, what a beauty! Straight into my display case!',
       'Exquisite loot! A crown jewel for my hoard!',
-      'The bigger the piece, the sweeter the profit!',
+      'A masterpiece! I shall polish it every morning.',
     ],
     capture: [
       "Mine! I'll take that, thank you.",
@@ -146,7 +146,7 @@ const RAW_SCRIPTS: Readonly<
     win: [
       'Victory and total plunder! What a splendid haul!',
       'All your squares and treasures are mine!',
-      'Greed is good, but winning is priceless!',
+      "Ha! I'll have this whole game framed!",
     ],
     loss: [
       'No! My glorious collection! How dare you?!',

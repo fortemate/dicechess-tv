@@ -1,7 +1,7 @@
 // A first launch offers the tutorial (#244): Thinkle asks whether the game is
 // new to the player, once. Answered either way, the offer is never made again,
 // and a player who has a game saved is never asked.
-import { test } from 'node:test';
+import { test, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
@@ -16,9 +16,11 @@ import { App } from '../src/App';
 import { MmkvSnapshotStore } from '../src/mmkvStore';
 import { readTutorialOffered } from '../src/tutorialOfferSetting';
 import type { ScreenOptions } from '../src/screen';
+import type { Sounds } from '../src/sound';
+import { nextLineMs } from '../src/useTutorialVoice';
 import { portraitPath } from '../src/Portrait';
 import { decodeGame, newGame, rollGame, type Game } from '../../src/core/game';
-import { OFFER_SPEECH } from '../../src/core/tutorial';
+import { OFFER_LINES, OFFER_SPEECH } from '../../src/core/tutorial';
 import { focusedLabel, optionViews } from './options';
 
 type Instance = renderer.ReactTestInstance;
@@ -37,11 +39,11 @@ const options: ScreenOptions = {
 
 // A launch replaces the app a previous launch left mounted, as a relaunch does.
 let mounted: renderer.ReactTestRenderer | null = null;
-const launch = (): Instance => {
+const launch = (sounds?: Sounds): Instance => {
   if (mounted) act(() => mounted!.unmount());
   let tree!: renderer.ReactTestRenderer;
   act(() => {
-    tree = renderer.create(React.createElement(App, { options }));
+    tree = renderer.create(React.createElement(App, { options, sounds }));
   });
   mounted = tree;
   return tree.root;
@@ -188,6 +190,58 @@ test('nor is one whose saved game no longer reads', () => {
   const root = launch();
   assert.doesNotMatch(text(root), OFFER);
   assert.equal(focusedLabel(root), 'New hotseat game');
+});
+
+// Sounds that note what was said, and how often a line was stopped.
+const listener = () => {
+  const said: string[] = [];
+  let stopped = 0;
+  const sounds: Sounds = {
+    play() {},
+    setMuted() {},
+    say: (line) => {
+      said.push(line.id);
+    },
+    stopLine: () => {
+      stopped++;
+    },
+    setVoices() {},
+    setSuspended() {},
+  };
+  return { said, stopped: () => stopped, sounds };
+};
+
+test('Thinkle says the offer aloud, one line after the other', () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  try {
+    reset({ firstLaunch: true });
+    const { said, sounds } = listener();
+    launch(sounds);
+    assert.deepEqual(said, ['thinkle_tutor_offer_1']);
+    act(() => mock.timers.tick(nextLineMs(OFFER_LINES[0])!));
+    assert.deepEqual(said, ['thinkle_tutor_offer_1', 'thinkle_tutor_offer_2']);
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+test('an answer stops him: Skip in silence, Learn to play with the welcome', () => {
+  reset({ firstLaunch: true });
+  const skipped = listener();
+  launch(skipped.sounds);
+  const before = skipped.stopped();
+  send('down', 'enter');
+  assert.ok(skipped.stopped() > before, 'Skip did not stop the offer');
+  assert.deepEqual(skipped.said, ['thinkle_tutor_offer_1']);
+
+  reset({ firstLaunch: true });
+  const learning = listener();
+  launch(learning.sounds);
+  send('enter');
+  assert.deepEqual(learning.said, [
+    'thinkle_tutor_offer_1',
+    'thinkle_tutor_move_opening_1',
+  ]);
 });
 
 test('a first launch can go from the offer, through every lesson, to a game against Rolly', () => {

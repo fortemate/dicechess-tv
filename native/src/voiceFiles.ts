@@ -29,8 +29,8 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
   },
   grabby_capture_heavy_1: {
     file: 'elevenlabs-dicechess-bots/grabby_capture_heavy_1.mp3',
-    seconds: 4.64,
-    text: 'Jackpot! That prize piece is mine!',
+    seconds: 5.92,
+    text: 'Ooh, what a beauty! Straight into my display case!',
   },
   grabby_capture_heavy_2: {
     file: 'elevenlabs-dicechess-bots/grabby_capture_heavy_2.mp3',
@@ -39,8 +39,8 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
   },
   grabby_capture_heavy_3: {
     file: 'elevenlabs-dicechess-bots/grabby_capture_heavy_3.mp3',
-    seconds: 4.56,
-    text: 'The bigger the piece, the sweeter the profit!',
+    seconds: 5.12,
+    text: 'A masterpiece! I shall polish it every morning.',
   },
   grabby_empty_roll_1: {
     file: 'elevenlabs-dicechess-bots/grabby_empty_roll_1.mp3',
@@ -114,8 +114,8 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
   },
   grabby_win_3: {
     file: 'elevenlabs-dicechess-bots/grabby_win_3.mp3',
-    seconds: 4.08,
-    text: 'Greed is good, but winning is priceless!',
+    seconds: 4.48,
+    text: "Ha! I'll have this whole game framed!",
   },
   host_again_1: {
     file: 'elevenlabs-dicechess-host/host_again_1.mp3',
@@ -1006,6 +1006,16 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     file: 'elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_move_rolled_2.mp3',
     seconds: 3.52,
     text: 'Pick one, and the dots show where it may go.',
+  },
+  thinkle_tutor_offer_1: {
+    file: 'elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_offer_1.mp3',
+    seconds: 1.84,
+    text: 'New to Dice Chess?',
+  },
+  thinkle_tutor_offer_2: {
+    file: 'elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_offer_2.mp3',
+    seconds: 2.64,
+    text: 'I can teach you to play in a few minutes.',
   },
   thinkle_tutor_pass_done_1: {
     file: 'elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_pass_done_1.mp3',

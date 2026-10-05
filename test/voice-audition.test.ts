@@ -27,7 +27,9 @@ const clips = audition.bots.flatMap(
 test('every clip on the site is the one the asset repository published', () => {
   assert.match(audition.commit, /^[0-9a-f]{40}$/);
   assert.equal(audition.license, 'CC0-1.0');
-  assert.equal(clips.length, 27);
+  // Three candidates for each bot's three lines, but Grabby's money line,
+  // which the game no longer says (#251).
+  assert.equal(clips.length, 24);
   for (const clip of clips) {
     const bytes = readFileSync(join(site, 'public', clip.file));
     assert.equal(
