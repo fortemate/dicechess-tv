@@ -1,9 +1,9 @@
 {
   "upstream": "fortemate/dicechess-assets",
-  "commit": "9044904c29830101127f3a9a2958aeca1d51479d",
+  "commit": "656f1a3cb14073760dc6dd92895672d5a2c1349a",
   "events": {
     "file": "events.json",
-    "sha256": "be8a7840abd757af69c76c66b5155ffe7449f2aec15ba46af04752ce075d6170"
+    "sha256": "f854ece1d70e64a711b1939a36807f09c13830ec19f8b2571aa0efdea98cf89f"
   },
   "packs": {
     "elevenlabs-dicechess-bots": {
@@ -17,20 +17,20 @@
       "attributionRequired": false,
       "generator": "ElevenLabs",
       "texts": {
-        "commit": "77022f5b63902b2ebc879e85619c48cd2d1aa12b",
+        "commit": "66aadd9a75d6648a1f68d813f8e6d55cd7ef7d47",
         "dirty": false,
         "path": "src/core/botVoice.ts",
         "repository": "fortemate/dicechess-tv"
       },
       "files": {
-        "manifest.json": "2df2db2c9e9aa005fc0805c2a1f675cb6694b5af295dc5a4730deec068782118",
+        "manifest.json": "f8dee0116c2b128a336a4671158f5c718e9529abebb2dc439be1432ba4f7d354",
         "LICENSE.txt": "a4661efdeb8dbc7ac3929dede1d2748409cb04d564f5105647e1f6b655eb6cdd",
         "grabby_capture_1.mp3": "b8875a2bccdc7fb0817d5499079fe1a411ec3a982ccd29627cc45c663325ff1d",
         "grabby_capture_2.mp3": "07d740a55736bc1629c2d296fc6d7629f7e5a3d692c20d56ad6673c637aca535",
         "grabby_capture_3.mp3": "6f3c02cc2c18ef1c3d7812add913bfa9bfbbbfa6c1b116cf7c4e91418b328466",
-        "grabby_capture_heavy_1.mp3": "380061d1620a49bdf8fbddfef5646b27af4326809263535a4f5d6db5a4e28607",
+        "grabby_capture_heavy_1.mp3": "83e7e245bb07d644b29524e4c7200ab40453abfac5eb665e3b42fe66c6126047",
         "grabby_capture_heavy_2.mp3": "dc96e7ad37b9178b5b0e3fc5eafb2199c3e022d095ab247718f6a09f5ef12b93",
-        "grabby_capture_heavy_3.mp3": "2cd781e0a408b6cfb7933f41f868881eb6b07e1281ed72e783bed20f2d019162",
+        "grabby_capture_heavy_3.mp3": "33d756e8161973e385edeade843bc2557e6b6ba18c48ab186455f16dc89f84cd",
         "grabby_empty_roll_1.mp3": "bfb7924bc38a156baeb61eea2cd69022f4fadc3d5a59181fee77c3ca56cc19ea",
         "grabby_empty_roll_2.mp3": "55bd093693b09e7a413694b074a45708be1bc48241c741922afabcd1abcbd203",
         "grabby_empty_roll_3.mp3": "bfe974d2903d95db47eaa494bc0b313e00df7796ba72ea2e150031036be465fc",
@@ -45,7 +45,7 @@
         "grabby_threat_3.mp3": "94fcada4c96c83d09737597411b4680ce5b54af28e1c44e06f3d9693f051f8dd",
         "grabby_win_1.mp3": "4f2fc882511a382f39a1e0e7829ddb15aea13a99dacf67a9f76719d94661769e",
         "grabby_win_2.mp3": "c2ba2602e59dbe9ec846d1b787d5f9ec2cd0700bf0bbe7b731c0db510765ade2",
-        "grabby_win_3.mp3": "dbe1ff168e0bf7d8f365fb88090409db9e0148f5666c28c670fbb8e3aface9cd",
+        "grabby_win_3.mp3": "25ccf1a39359f59969329de02f4eec0cb3890510c4660df0bea4f51ab91f6a36",
         "rampage_capture_1.mp3": "1059e4ff6ba870712200b1561857d36de3b79abb00c8e8c97acbf608c91b3837",
         "rampage_capture_2.mp3": "3088d1e44cbbc90e00e7f986734f47a535c0417bf5e9fa872a23266882d10545",
         "rampage_capture_3.mp3": "e43941e95bc5ab23593f04dde7adef46dda935f8b34de85337469f53d62a0bfb",
@@ -239,7 +239,7 @@
         "repository": "fortemate/dicechess-assets"
       },
       "files": {
-        "manifest.json": "ffc404814c9ece41877cbbb3a87738d3782c448506d33f3e6edb0ecdc7219803",
+        "manifest.json": "b92137eee4ea9f9d2caf2ccc1abe98741d39b508828c96dcbbaa6d6ef193d11f",
         "LICENSE.txt": "074df40ab83e76af5bbaf967a6d174451df520cc2f5f40f865f25c00f2274659",
         "thinkle_tutor_capture_done_1.mp3": "e26d2acb421099552e83ba3721cd4ceb603f897efdbf8279318d5e43eb0e372f",
         "thinkle_tutor_capture_opening_1.mp3": "e57d1c6d7ef8bd354680f167ebcc64b6c0f202ac90d4a78770a7edeaf85db78e",
@@ -281,6 +281,8 @@
         "thinkle_tutor_move_opening_3.mp3": "8885d3b297ea14c95059cefca3ae2736c968173ec34c62542b06b08cec9df537",
         "thinkle_tutor_move_rolled_1.mp3": "7415ab9e9146ec9b85641492742d67f42f76578a7ebf7ba5c21f0d582de21fd5",
         "thinkle_tutor_move_rolled_2.mp3": "fd1a60e1b5450aa1f028eeb7062187064a53c1aeb431c4f389c60816b90ef549",
+        "thinkle_tutor_offer_1.mp3": "906842aff8595f644eb737a1dd4301b1c90e681ba8d5323d7b793fe65a1d631c",
+        "thinkle_tutor_offer_2.mp3": "02cd494d776f5e90dd79842c0c52477a6d6649089295c846a7b71c57e672b701",
         "thinkle_tutor_pass_done_1.mp3": "fa6286a0de0b2fdf79a2ff38e0a46c7a4379df10a90332180a385359ad499ab4",
         "thinkle_tutor_pass_opening_1.mp3": "17e8c9e58fed7986b93f412b5b9293af0cc546debc866b1b86f8db18f4bf06e0",
         "thinkle_tutor_pass_opening_2.mp3": "7ee7e6264e2ac10eb02ebe48901c6e69adbbe24d6beaa1055a6f63a02470c45c",
@@ -325,11 +327,11 @@
       "pack": "elevenlabs-dicechess-bots",
       "bot": "greedy",
       "event": "capture_heavy",
-      "text": "Jackpot! That prize piece is mine!",
+      "text": "Ooh, what a beauty! Straight into my display case!",
       "voice": "Grabby",
       "file": "elevenlabs-dicechess-bots/grabby_capture_heavy_1.mp3",
-      "sha256": "380061d1620a49bdf8fbddfef5646b27af4326809263535a4f5d6db5a4e28607",
-      "seconds": 4.64
+      "sha256": "83e7e245bb07d644b29524e4c7200ab40453abfac5eb665e3b42fe66c6126047",
+      "seconds": 5.92
     },
     "grabby_capture_heavy_2": {
       "pack": "elevenlabs-dicechess-bots",
@@ -345,11 +347,11 @@
       "pack": "elevenlabs-dicechess-bots",
       "bot": "greedy",
       "event": "capture_heavy",
-      "text": "The bigger the piece, the sweeter the profit!",
+      "text": "A masterpiece! I shall polish it every morning.",
       "voice": "Grabby",
       "file": "elevenlabs-dicechess-bots/grabby_capture_heavy_3.mp3",
-      "sha256": "2cd781e0a408b6cfb7933f41f868881eb6b07e1281ed72e783bed20f2d019162",
-      "seconds": 4.56
+      "sha256": "33d756e8161973e385edeade843bc2557e6b6ba18c48ab186455f16dc89f84cd",
+      "seconds": 5.12
     },
     "grabby_empty_roll_1": {
       "pack": "elevenlabs-dicechess-bots",
@@ -495,11 +497,11 @@
       "pack": "elevenlabs-dicechess-bots",
       "bot": "greedy",
       "event": "win",
-      "text": "Greed is good, but winning is priceless!",
+      "text": "Ha! I'll have this whole game framed!",
       "voice": "Grabby",
       "file": "elevenlabs-dicechess-bots/grabby_win_3.mp3",
-      "sha256": "dbe1ff168e0bf7d8f365fb88090409db9e0148f5666c28c670fbb8e3aface9cd",
-      "seconds": 4.08
+      "sha256": "25ccf1a39359f59969329de02f4eec0cb3890510c4660df0bea4f51ab91f6a36",
+      "seconds": 4.48
     },
     "host_again_1": {
       "pack": "elevenlabs-dicechess-host",
@@ -2280,6 +2282,26 @@
       "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_move_rolled_2.mp3",
       "sha256": "fd1a60e1b5450aa1f028eeb7062187064a53c1aeb431c4f389c60816b90ef549",
       "seconds": 3.52
+    },
+    "thinkle_tutor_offer_1": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "offer",
+      "text": "New to Dice Chess?",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_offer_1.mp3",
+      "sha256": "906842aff8595f644eb737a1dd4301b1c90e681ba8d5323d7b793fe65a1d631c",
+      "seconds": 1.84
+    },
+    "thinkle_tutor_offer_2": {
+      "pack": "elevenlabs-dicechess-tutorial-thinkle",
+      "bot": "tutor",
+      "event": "offer",
+      "text": "I can teach you to play in a few minutes.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_offer_2.mp3",
+      "sha256": "02cd494d776f5e90dd79842c0c52477a6d6649089295c846a7b71c57e672b701",
+      "seconds": 2.64
     },
     "thinkle_tutor_pass_done_1": {
       "pack": "elevenlabs-dicechess-tutorial-thinkle",

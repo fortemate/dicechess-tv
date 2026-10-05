@@ -143,31 +143,31 @@
     "grabby_capture_heavy_1": {
       "bot": "greedy",
       "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
-      "direction": "[laughs] Jackpot! That prize piece is mine!",
-      "durationSeconds": 4.64,
+      "direction": "[gasps] Ooh, what a beauty! [gleeful] Straight into my display case!",
+      "durationSeconds": 5.92,
       "event": "capture_heavy",
       "export": "exports/mp3/grabby_capture_heavy_1.mp3",
-      "generated": "2026-10-01T17:43:00Z",
+      "generated": "2026-10-05T08:55:08Z",
       "loudness": {
         "exportLufs": -16.3,
-        "gainDb": 0.6,
-        "passes": 1,
-        "sourceLufs": -16.6
+        "gainDb": 3.7,
+        "passes": 2,
+        "sourceLufs": -18.9
       },
       "model": "eleven_v4",
       "outputFormat": "mp3_44100_192",
-      "requestId": "ouTi1733vioKbGLl6oNe",
-      "seed": 1331334579,
-      "sha256": "380061d1620a49bdf8fbddfef5646b27af4326809263535a4f5d6db5a4e28607",
+      "requestId": "4qee20E0wIwij89twe1N",
+      "seed": 407661159,
+      "sha256": "83e7e245bb07d644b29524e4c7200ab40453abfac5eb665e3b42fe66c6126047",
       "source": "source/mp3/grabby_capture_heavy_1.mp3",
-      "sourceSha256": "caf16f91d3fe88ebc9569df0fa747e72846bbc84ef880622ece9ecafad48788a",
+      "sourceSha256": "596ac1f8f7b1237adee6dcda75675d4ea06103e452d15bc66e4d111673df8f56",
       "take": 1,
       "target": {
         "bitrate": "64k",
         "integratedLufs": -16,
         "limitDbfs": -1.5
       },
-      "text": "Jackpot! That prize piece is mine!",
+      "text": "Ooh, what a beauty! Straight into my display case!",
       "voice": "Grabby",
       "voiceId": "f9EKEWtbCudAsdt40nCS",
       "voiceSettings": {
@@ -219,31 +219,31 @@
     "grabby_capture_heavy_3": {
       "bot": "greedy",
       "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
-      "direction": "[gleeful] The bigger the piece, the sweeter the profit! [laughs]",
-      "durationSeconds": 4.56,
+      "direction": "[gleeful] A masterpiece! [snickers] I shall polish it every morning.",
+      "durationSeconds": 5.12,
       "event": "capture_heavy",
       "export": "exports/mp3/grabby_capture_heavy_3.mp3",
-      "generated": "2026-10-01T17:43:14Z",
+      "generated": "2026-10-05T08:55:13Z",
       "loudness": {
-        "exportLufs": -16.3,
-        "gainDb": 3.1,
+        "exportLufs": -16.5,
+        "gainDb": 4.8,
         "passes": 2,
-        "sourceLufs": -18.2
+        "sourceLufs": -19.6
       },
       "model": "eleven_v4",
       "outputFormat": "mp3_44100_192",
-      "requestId": "3ignGaDyCpzoZrsZ2WEL",
-      "seed": 1054726503,
-      "sha256": "2cd781e0a408b6cfb7933f41f868881eb6b07e1281ed72e783bed20f2d019162",
+      "requestId": "TC9t96ZgUvDZzaEyiBa8",
+      "seed": 281935170,
+      "sha256": "33d756e8161973e385edeade843bc2557e6b6ba18c48ab186455f16dc89f84cd",
       "source": "source/mp3/grabby_capture_heavy_3.mp3",
-      "sourceSha256": "f1ab68177f3b0ae8ed5a13da1d899a29888f49ba70e9b0cadd52feea8810f48f",
+      "sourceSha256": "f8cbaad7eb8a8d6f86de9b070081856ff2d04b9c56b68f9bb4323905ed1d2bac",
       "take": 1,
       "target": {
         "bitrate": "64k",
         "integratedLufs": -16,
         "limitDbfs": -1.5
       },
-      "text": "The bigger the piece, the sweeter the profit!",
+      "text": "A masterpiece! I shall polish it every morning.",
       "voice": "Grabby",
       "voiceId": "f9EKEWtbCudAsdt40nCS",
       "voiceSettings": {
@@ -789,31 +789,31 @@
     "grabby_win_3": {
       "bot": "greedy",
       "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
-      "direction": "[smug] Greed is good, but winning is priceless!",
-      "durationSeconds": 4.08,
+      "direction": "[gleeful] Ha! I'll have this whole game framed! [laughs]",
+      "durationSeconds": 4.48,
       "event": "win",
       "export": "exports/mp3/grabby_win_3.mp3",
-      "generated": "2026-10-01T17:44:06Z",
+      "generated": "2026-10-05T08:55:18Z",
       "loudness": {
-        "exportLufs": -16.3,
-        "gainDb": 7.6,
-        "passes": 3,
-        "sourceLufs": -21.2
+        "exportLufs": -16.4,
+        "gainDb": 0.6,
+        "passes": 1,
+        "sourceLufs": -16.6
       },
       "model": "eleven_v4",
       "outputFormat": "mp3_44100_192",
-      "requestId": "eHn8AyKtbhnvfPsNjyfY",
-      "seed": 3650785818,
-      "sha256": "dbe1ff168e0bf7d8f365fb88090409db9e0148f5666c28c670fbb8e3aface9cd",
+      "requestId": "DwqvLYrsGf9wQMehsvCx",
+      "seed": 210944416,
+      "sha256": "25ccf1a39359f59969329de02f4eec0cb3890510c4660df0bea4f51ab91f6a36",
       "source": "source/mp3/grabby_win_3.mp3",
-      "sourceSha256": "c03c03ac143286830530995d0977b7a78e06f78bb8a7b9acae0d9ed487d45fdf",
+      "sourceSha256": "55e4c23109dca56c5e6bdebf3e8b5ecb6b074833f2213b9fcee29738928eec75",
       "take": 1,
       "target": {
         "bitrate": "64k",
         "integratedLufs": -16,
         "limitDbfs": -1.5
       },
-      "text": "Greed is good, but winning is priceless!",
+      "text": "Ha! I'll have this whole game framed!",
       "voice": "Grabby",
       "voiceId": "f9EKEWtbCudAsdt40nCS",
       "voiceSettings": {
@@ -2424,7 +2424,7 @@
   "pack": {
     "picks": "picks.json",
     "texts": {
-      "commit": "77022f5b63902b2ebc879e85619c48cd2d1aa12b",
+      "commit": "66aadd9a75d6648a1f68d813f8e6d55cd7ef7d47",
       "dirty": false,
       "path": "src/core/botVoice.ts",
       "repository": "fortemate/dicechess-tv"

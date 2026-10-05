@@ -223,9 +223,9 @@ export const TUTORIAL: readonly TutorialStep[] = [
   },
 ];
 
-// What Thinkle says on a first launch, offering to teach the game (#244). These
-// lines are not in his voice pack yet. They will be recorded with the demo
-// video's narration; until then they show only in his bubble.
+// What Thinkle says on a first launch, offering to teach the game (#244). They
+// are recorded in his tutorial pack under the event `offer`, made with the demo
+// video's narration.
 export const OFFER_SPEECH: readonly string[] = [
   'New to Dice Chess?',
   'I can teach you to play in a few minutes.',
@@ -314,8 +314,9 @@ const spoken = (
   };
 };
 
-// A tutorial event: a point of a lesson, a miss, or the closing words.
-export type TutorEvent = `${string}_${Moment}` | 'missed' | 'closing';
+// A tutorial event: a point of a lesson, a miss, the closing words, or the
+// first launch's offer of the tutorial.
+export type TutorEvent = `${string}_${Moment}` | 'missed' | 'closing' | 'offer';
 
 // A line Thinkle says, as his voice pack records it: the clip's id, the event
 // it belongs to, and its text. An event's lines are said one after another, in
@@ -355,6 +356,12 @@ export const CLOSING_LINES: readonly TutorLine[] = tutorLines(
   CLOSING_SPEECH,
 );
 
+// What he says on a first launch, offering the tutorial (#244).
+export const OFFER_LINES: readonly TutorLine[] = tutorLines(
+  'offer',
+  OFFER_SPEECH,
+);
+
 // Every line he may say, once each: what his voice pack must hold.
 export const TUTOR_CATALOGUE: readonly TutorLine[] = [
   ...TUTORIAL.flatMap((step) =>
@@ -364,6 +371,7 @@ export const TUTOR_CATALOGUE: readonly TutorLine[] = [
   ),
   ...tutorLines('missed', MISSED_SPEECH),
   ...CLOSING_LINES,
+  ...OFFER_LINES,
 ];
 
 export function isComplete(step: TutorialStep, game: Game): boolean {

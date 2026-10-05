@@ -194,5 +194,5 @@ test("the tutor's lines are said in order: each point's clips number from 1", ()
       ids.map((_, i) => `thinkle_tutor_${event}_${i + 1}`),
       event,
     );
-  assert.equal(TUTOR_CATALOGUE.length, 46);
+  assert.equal(TUTOR_CATALOGUE.length, 48);
 });

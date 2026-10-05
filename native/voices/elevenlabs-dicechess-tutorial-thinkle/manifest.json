@@ -1546,6 +1546,82 @@
         "use_speaker_boost": true
       }
     },
+    "thinkle_tutor_offer_1": {
+      "bot": "tutor",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] New to Dice Chess?",
+      "durationSeconds": 1.84,
+      "event": "offer",
+      "export": "exports/mp3/thinkle_tutor_offer_1.mp3",
+      "generated": "2026-10-05T08:54:25Z",
+      "loudness": {
+        "exportLufs": -16.1,
+        "gainDb": 6.2,
+        "passes": 2,
+        "sourceLufs": -21.6
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "66EzXBtbAKZCPEgeBg00",
+      "seed": 844726082,
+      "sha256": "906842aff8595f644eb737a1dd4301b1c90e681ba8d5323d7b793fe65a1d631c",
+      "source": "source/mp3/thinkle_tutor_offer_1.mp3",
+      "sourceSha256": "53b23a1c70b561d11bffa74077c7f9793b664eccb178a6435b111b82317abb57",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "New to Dice Chess?",
+      "voice": "Thinkle",
+      "voiceId": "UDn5cabCjqJGTbU62y7U",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "thinkle_tutor_offer_2": {
+      "bot": "tutor",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] I can teach you to play in a few minutes.",
+      "durationSeconds": 2.64,
+      "event": "offer",
+      "export": "exports/mp3/thinkle_tutor_offer_2.mp3",
+      "generated": "2026-10-05T08:54:26Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 0.9,
+        "passes": 1,
+        "sourceLufs": -16.9
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "8PhDruDWgupJh3JWIwKr",
+      "seed": 2024392238,
+      "sha256": "02cd494d776f5e90dd79842c0c52477a6d6649089295c846a7b71c57e672b701",
+      "source": "source/mp3/thinkle_tutor_offer_2.mp3",
+      "sourceSha256": "2537c1d1b6ce6729d2f7d05a69969a4d0f56958d49c6e56a3f08bcb3d61f180d",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "I can teach you to play in a few minutes.",
+      "voice": "Thinkle",
+      "voiceId": "UDn5cabCjqJGTbU62y7U",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
     "thinkle_tutor_pass_done_1": {
       "bot": "tutor",
       "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
