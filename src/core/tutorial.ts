@@ -223,6 +223,14 @@ export const TUTORIAL: readonly TutorialStep[] = [
   },
 ];
 
+// What Thinkle says on a first launch, offering to teach the game (#244). These
+// lines are not in his voice pack yet. They will be recorded with the demo
+// video's narration; until then they show only in his bubble.
+export const OFFER_SPEECH: readonly string[] = [
+  'New to Dice Chess?',
+  'I can teach you to play in a few minutes.',
+];
+
 // What Thinkle says after the last lesson. Castling, promotion and en passant
 // are left to the rules guide, but not described as chess: each needs a die.
 export const CLOSING_SPEECH: readonly string[] = [

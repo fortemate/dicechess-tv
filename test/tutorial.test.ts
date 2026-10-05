@@ -10,6 +10,7 @@ import {
   isMissed,
   MISSED_SPEECH,
   CLOSING_SPEECH,
+  OFFER_SPEECH,
   TUTOR_CATALOGUE,
   tutorLinesAt,
   ROLL_TASK,
@@ -226,6 +227,7 @@ test('every line Thinkle says can be recorded as one clip', () => {
       ...linesOf(step),
       ...MISSED_SPEECH,
       ...CLOSING_SPEECH,
+      ...OFFER_SPEECH,
     ]) {
       assert.match(line, /^[\x20-\x7e]+$/, `${step.id}: ${line}`);
       assert.ok(line.length <= 56, `${step.id}: ${line} (${line.length})`);
@@ -382,6 +384,7 @@ test('Thinkle never says check or checkmate, and never names a die by number', (
       ...linesOf(step),
       ...MISSED_SPEECH,
       ...CLOSING_SPEECH,
+      ...OFFER_SPEECH,
     ]) {
       assert.doesNotMatch(line, /\bcheck(mate)?\b|stalemate/i, line);
       assert.doesNotMatch(

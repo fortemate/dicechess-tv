@@ -19,6 +19,7 @@ import { Board } from './Board';
 import { Dice } from './Dice';
 import { diceOf } from '../../src/core/dice';
 import { TutorialScreen } from './TutorialScreen';
+import { TutorialOffer } from './TutorialOffer';
 import { RulesScreen } from './RulesScreen';
 import { AboutScreen } from './AboutScreen';
 import { OpponentScreen } from './OpponentScreen';
@@ -40,7 +41,7 @@ import { cues } from '../../src/core/cues';
 import { useRemoteInput } from './useRemoteInput';
 import { THEME } from './theme';
 import { Option } from './Option';
-import { BOARD_GAP, boardSide, safeInsets } from './layout';
+import { BOARD_GAP, boardSide, drawnSide, safeInsets } from './layout';
 import { botReply, botToAct, type BotReply } from '../../src/core/bot';
 import {
   screenReducer,
@@ -58,6 +59,7 @@ import {
   botOwes,
   BOT_STEP_MS,
   OK_GUARD_MS,
+  type GameChoice,
   type Overlay,
   type ScreenAction,
   type ScreenOptions,
@@ -118,6 +120,11 @@ export type GameScreenProps = {
   onMusic?: (music: MusicSetting) => void;
   // Whether the build has music, which the app learns after launch.
   musicAvailable?: boolean;
+  // Whether to open on Thinkle's offer of the tutorial: a first launch (#244).
+  offerTutorial?: boolean;
+  // Called once the offer is answered, either way, so the app can remember
+  // that it was and never make it again.
+  onTutorialOffered?: () => void;
 };
 
 // How long the music stays silent after a game ends, so the result's jingle is
@@ -466,7 +473,9 @@ const report = (
   ].join(' | ');
 
 type OwnScreenProps = {
-  onExit: () => void;
+  // Leaving returns to the home screen, or starts the game chosen on the
+  // tutorial's last screen (#244).
+  onExit: (next?: GameChoice | null) => void;
   onState?: (report: string) => void;
   // The game's sounds, for a screen that speaks: Thinkle in the tutorial.
   voice?: Sounds;
@@ -501,6 +510,8 @@ export const GameScreen = ({
   initialMusic,
   onMusic,
   musicAvailable = false,
+  offerTutorial = false,
+  onTutorialOffered,
 }: GameScreenProps) => {
   const { width, height } = useWindowDimensions();
   const reduce = React.useCallback(
@@ -524,14 +535,19 @@ export const GameScreen = ({
     },
     dispatch,
   ] = React.useReducer(reduce, initial, (restored) =>
-    initialState(options, restored, {
-      sound: initialSound,
-      music: initialMusic,
-      musicAvailable,
-      turnHotseat: initialTurnBoard,
-      voices: initialVoices,
-      host: initialHost,
-    }),
+    initialState(
+      options,
+      restored,
+      {
+        sound: initialSound,
+        music: initialMusic,
+        musicAvailable,
+        turnHotseat: initialTurnBoard,
+        voices: initialVoices,
+        host: initialHost,
+      },
+      offerTutorial,
+    ),
   );
   React.useEffect(() => {
     dispatch({ kind: 'musicAvailable', available: musicAvailable });
@@ -687,6 +703,15 @@ export const GameScreen = ({
     onVoices?.(voices);
   }, [voices, onVoices]);
 
+  // The offer of the tutorial is answered as soon as the screen leaves it, for
+  // the tutorial, the home screen or Back (#244). Reported once.
+  const offered = React.useRef(overlay.kind === 'offer');
+  React.useEffect(() => {
+    if (!offered.current || overlay.kind === 'offer') return;
+    offered.current = false;
+    onTutorialOffered?.();
+  }, [overlay.kind, onTutorialOffered]);
+
   // Seeded like the sound, so opening the screen is not reported as a change.
   const hostSetting = React.useRef(host);
   React.useEffect(() => {
@@ -747,17 +772,19 @@ export const GameScreen = ({
     onState?.(report(game, state, focus, overlay));
   }, [onState, game, state, focus, overlay]);
 
+  // Leaving a screen of its own goes back to the home screen, or into the game
+  // chosen on the tutorial's last screen (#244).
+  const leave = React.useCallback((next?: GameChoice | null) => {
+    dispatch(
+      next ? { kind: 'newGame', ...next } : { kind: 'key', key: 'back' },
+    );
+  }, []);
+
   // The tutorial, the rules and About are screens of their own, with their own
   // state, and this one hands over entirely rather than drawing a board behind.
   if (handsOff(overlay)) {
     const Screen = OWN_SCREENS[overlay.kind];
-    return (
-      <Screen
-        onExit={() => dispatch({ kind: 'key', key: 'back' })}
-        onState={onState}
-        voice={sounds}
-      />
-    );
+    return <Screen onExit={leave} onState={onState} voice={sounds} />;
   }
 
   // The choice of opponent takes the whole screen: three cards need the width
@@ -773,27 +800,45 @@ export const GameScreen = ({
   // game itself, so the bot's last word shows under its badge (#163).
   const result = overlay.kind === 'result' ? game.result : null;
   const isFlipped = flipped(game, turnHotseat);
+  const screen = {
+    flex: 1,
+    flexDirection: 'row',
+    backgroundColor: THEME.background,
+    alignItems: 'center',
+    paddingHorizontal: insets.x,
+    paddingVertical: insets.y,
+  } as const;
+  const board = (
+    <Board
+      size={size}
+      board={state.dfen.split(' ')[0]}
+      legal={state.legal}
+      lastMove={game.lastMove}
+      selected={focus.selected}
+      cursor={choosing ? focus.cursor : null}
+      flipped={isFlipped}
+      movable={movable}
+    />
+  );
+
+  // The offer of the tutorial on a first launch (#244) stands level with the
+  // board, as the tutorial's panel does, since it shows Thinkle as the lessons
+  // do.
+  if (overlay.kind === 'offer')
+    return (
+      <View style={screen}>
+        {board}
+        <View
+          style={{ flex: 1, height: drawnSide(size), paddingLeft: BOARD_GAP }}
+        >
+          <TutorialOffer index={overlay.index} pressed={pressed} />
+        </View>
+      </View>
+    );
+
   return (
-    <View
-      style={{
-        flex: 1,
-        flexDirection: 'row',
-        backgroundColor: THEME.background,
-        alignItems: 'center',
-        paddingHorizontal: insets.x,
-        paddingVertical: insets.y,
-      }}
-    >
-      <Board
-        size={size}
-        board={state.dfen.split(' ')[0]}
-        legal={state.legal}
-        lastMove={game.lastMove}
-        selected={focus.selected}
-        cursor={choosing ? focus.cursor : null}
-        flipped={isFlipped}
-        movable={movable}
-      />
+    <View style={screen}>
+      {board}
       <View style={{ flex: 1, height: size, paddingLeft: BOARD_GAP }}>
         {overlay.kind !== 'none' && !result ? (
           <>

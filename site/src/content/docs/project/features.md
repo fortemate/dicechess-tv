@@ -54,7 +54,7 @@ Six short lessons, taught aloud by Thinkle the wizard, each on a real position w
 5. taking a piece;
 6. taking the king ends it.
 
-A lesson never touches a saved game or the record.
+A first launch offers the tutorial before anything else, and the last lesson leads straight into a first game, against Rolly or a friend. A lesson never touches a saved game or the record.
 
 [![Play the tutorial video on YouTube: the first tutorial lesson, Roll and move, after the roll: Thinkle speaks from beside his portrait and the pawns that can move are marked](../../../assets/screenshots/tutorial.png)](https://youtu.be/KK8BBICjaBQ)
 

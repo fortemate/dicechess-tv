@@ -1,6 +1,6 @@
 ---
 title: Learning the game
-description: 'How Dice Chess for Fire TV teaches its rules: a six-lesson tutorial taught by Thinkle the wizard on real positions, a rules guide one level deep, and a notice when a roll leaves nothing to play.'
+description: 'How Dice Chess for Fire TV teaches its rules: a six-lesson tutorial taught by Thinkle the wizard on real positions, offered on the first launch and ending in a first game, a rules guide one level deep, and a notice when a roll leaves nothing to play.'
 sidebar:
   order: 4
 ---
@@ -24,9 +24,15 @@ Six short lessons, taught by Thinkle the wizard. Each is a real position with a 
 
 Thinkle's portrait stands at the top of the panel with his words in a bubble under it, and the task stays on screen in plain words. A build without the portraits keeps his place empty. His lines are written to be recorded: each keeps to the voice packs' rules, at most 56 characters of plain ASCII.
 
+![The first launch: beside the starting position, Thinkle asks New to Dice Chess? I can teach you to play in a few minutes, over the choices Learn to play and Skip](../../../assets/screenshots/first-launch.png)
+
+A first launch offers the tutorial before anything else: Thinkle asks "New to Dice Chess? I can teach you to play in a few minutes." **Learn to play** opens the first lesson. **Skip**, Back or Menu goes to the home screen, where the tutorial stays as **How to play**. The offer is made once, whatever the answer. It is never made to a player who already has a saved game, since they have played before.
+
+After the last lesson, the player goes straight into a first game. The choices are **Play Rolly**, the easiest opponent, as White, so the player rolls first; **Play a friend**, a Hot Seat game on the same remote; or the **Main menu**. If a game is in play, starting a new one asks first, as it does from the menus.
+
 Each lesson is a position, a roll and a goal, and the tests check each one against the engine. The position must decode, the roll must allow the action being taught, and the goal must be reachable. Every way to play each lesson ends either with it done or, when the dice are spent elsewhere, with Thinkle offering to try again, so no lesson can leave the player on a board that takes no keys. A lesson never touches a saved game or the record of completed games. Castling, promotion and en passant are left to the rules guide.
 
-The lessons were played on the Vega Virtual Device; not yet on a Fire TV Stick.
+The lessons were played on the Vega Virtual Device; not yet on a Fire TV Stick. So was a first launch after a fresh install, on 5 October 2026: the offer, Back on it, Learn to play, every lesson, the last screen's choices, a game against Rolly, and the next launch, which opened on the home screen.
 
 ## The rules guide
 

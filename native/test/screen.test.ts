@@ -10,6 +10,7 @@ import {
   confirmOptions,
   resultOptions,
   colourOptions,
+  offerOptions,
   resumable,
   botOwes,
   flipped,
@@ -87,7 +88,7 @@ const fresh = () => initialState(options);
 const started = () =>
   moveGame(rollGame(newGame('hotseat', 'started'), [5, 4, 2]), 'b1c3');
 
-test('every launch opens on the home screen, and resume is offered only when there is one', () => {
+test('a launch opens on the home screen, and resume is offered only when there is one', () => {
   assert.equal(fresh().overlay.kind, 'home');
   assert.equal(initialState(options, started()).overlay.kind, 'home');
   // Dropping a player straight into a turn they may not remember is worse than
@@ -109,6 +110,107 @@ test('every launch opens on the home screen, and resume is offered only when the
     'Settings',
     'About',
   ]);
+});
+
+// ── The first launch (#244) ────────────────────────────────────────────────────
+
+const firstLaunch = () => initialState(options, null, {}, true);
+const HOME_TOP = { kind: 'home', index: 0 };
+
+test('a first launch opens on the offer of the tutorial, a later one on the home screen', () => {
+  assert.deepEqual(firstLaunch().overlay, { kind: 'offer', index: 0 });
+  assert.deepEqual(offerOptions, ['Learn to play', 'Skip']);
+  assert.deepEqual(initialState(options, null, {}, false).overlay, HOME_TOP);
+  assert.deepEqual(fresh().overlay, HOME_TOP);
+  // Away from a game, the offer plays the menu theme.
+  const first = firstLaunch();
+  assert.equal(musicRole(first.overlay, first.game, 'critical'), 'menu');
+});
+
+test('Learn to play opens the tutorial; Skip, Back and Menu go to the home screen', () => {
+  const first = firstLaunch();
+  assert.equal(drive(first, 'select').overlay.kind, 'tutorial');
+  assert.deepEqual(drive(first, 'down', 'select').overlay, HOME_TOP);
+  assert.deepEqual(drive(first, 'back').overlay, HOME_TOP);
+  assert.deepEqual(drive(first, 'menu').overlay, HOME_TOP);
+  // The arrows walk the two answers, wrapping.
+  assert.deepEqual(drive(first, 'up').overlay, { kind: 'offer', index: 1 });
+  assert.deepEqual(drive(first, 'down', 'down').overlay, {
+    kind: 'offer',
+    index: 0,
+  });
+  // The tutorial, left, returns to the home screen like one opened from there.
+  assert.deepEqual(drive(first, 'select', 'back').overlay, HOME_TOP);
+  // An answer starts no game.
+  assert.equal(drive(first, 'select').game, first.game);
+  assert.equal(drive(first, 'down', 'select').game, first.game);
+});
+
+test('a game chosen at the end of the tutorial starts at once when none is in play', () => {
+  const tutorial = drive(fresh(), 'down', 'down', 'select');
+  assert.equal(tutorial.overlay.kind, 'tutorial');
+  const rolly = screenReducer(
+    tutorial,
+    { kind: 'newGame', mode: 'random', colour: 'w' },
+    options,
+  );
+  assert.equal(rolly.overlay.kind, 'none');
+  assert.equal(rolly.game.mode, 'random');
+  assert.equal(rolly.game.human, 'w');
+  // The player, as White, rolls first.
+  assert.equal(rolly.game.phase, 'roll');
+  assert.equal(botOwes(rolly.game), false);
+  const friend = screenReducer(
+    tutorial,
+    { kind: 'newGame', mode: 'hotseat', colour: 'random' },
+    options,
+  );
+  assert.equal(friend.overlay.kind, 'none');
+  assert.equal(friend.game.mode, 'hotseat');
+  assert.equal(friend.game.human, null);
+});
+
+test('over a game in play, a game chosen at the end of the tutorial asks first', () => {
+  const playing = initialState(options, started());
+  const tutorial = drive(playing, 'down', 'down', 'down', 'select');
+  assert.equal(tutorial.overlay.kind, 'tutorial');
+  const asked = screenReducer(
+    tutorial,
+    { kind: 'newGame', mode: 'random', colour: 'w' },
+    options,
+  );
+  assert.deepEqual(asked.overlay, {
+    kind: 'confirm',
+    action: 'replace',
+    index: 0,
+    mode: 'random',
+    colour: 'w',
+    from: 'home',
+  });
+  assert.equal(asked.game, playing.game);
+  // Cancel keeps the game, and the home screen waits on the option that would
+  // have started the new one.
+  const kept = drive(asked, 'select');
+  assert.equal(kept.game, playing.game);
+  assert.deepEqual(kept.overlay, {
+    kind: 'home',
+    index: homeOptions(true).indexOf('Play the computer'),
+  });
+  // Yes replaces it with the game chosen.
+  const replaced = drive(asked, 'down', 'select');
+  assert.equal(replaced.game.mode, 'random');
+  assert.equal(replaced.game.human, 'w');
+  // A game against a friend asks the same, and Back waits on its option.
+  const hotseat = screenReducer(
+    tutorial,
+    { kind: 'newGame', mode: 'hotseat', colour: 'random' },
+    options,
+  );
+  assert.equal(hotseat.overlay.kind, 'confirm');
+  assert.deepEqual(drive(hotseat, 'back').overlay, {
+    kind: 'home',
+    index: homeOptions(true).indexOf('New hotseat game'),
+  });
 });
 
 test('a game that has not started is not offered for resuming', () => {

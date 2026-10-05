@@ -41,10 +41,11 @@ To keep Back from closing the app when a player wants to put a piece down or ope
 - When a piece is selected: Back deselects the piece.
 - During a game, with nothing selected or while the opponent plays: Back opens the game menu, and Back again closes it.
 - In the rules guide, the tutorial or About: Back returns to the home screen, with its first item focused. In the tutorial, Back first puts down a selected piece.
+- On the first launch's offer of the tutorial: Back goes to the home screen, as Skip does, and never closes the app.
 - In Settings and in the choice of opponent and colour: Back returns to the screen that opened it. On a confirmation, Back does what Cancel does.
 - On the home screen: the handler returns `false`, and `useKeplerBackHandler` closes the app.
 
-_Verification:_ on the Virtual Device, with Back sent as `KEY_BACK` through the emulator's gRPC API on 24 and 28 September 2026, Back put a selected knight down, opened the game menu and closed it, returned from Settings to the home screen with Settings focused, left the rules guide and the tutorial for the home screen, and closed the app from the home screen. Unit tests (`native/test/screen.test.ts`, `native/test/input.test.tsx`, `native/test/tutorial.test.tsx`) cover the other paths.
+_Verification:_ on the Virtual Device, with Back sent as `KEY_BACK` through the emulator's gRPC API on 24 and 28 September 2026, Back put a selected knight down, opened the game menu and closed it, returned from Settings to the home screen with Settings focused, left the rules guide and the tutorial for the home screen, and closed the app from the home screen. On 5 October 2026, `vvd press back` on the first launch's offer of the tutorial went to the home screen, and the app stayed open. Unit tests (`native/test/screen.test.ts`, `native/test/input.test.tsx`, `native/test/tutorial.test.tsx`, `native/test/tutorialOffer.test.tsx`) cover the other paths.
 
 ### Event Timing: Press vs Release
 

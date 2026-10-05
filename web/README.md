@@ -54,7 +54,9 @@ not to index it.
 
 Back where the television would close the app shows that it would, and the next
 key launches it again from its saved game. **New session** forgets the saved
-game and settings; the browser keeps them otherwise, like the television.
+game and settings; the browser keeps them otherwise, like the television. A
+browser with nothing saved opens as a fresh install does, on Thinkle's offer of
+the tutorial (#244).
 
 ## Variants in the address
 
