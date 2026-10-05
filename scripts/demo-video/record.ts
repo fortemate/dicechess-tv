@@ -1,36 +1,45 @@
 // Records the takes of the demo video on the Vega Virtual Device, into
-// dist/demo-video/takes/<take>.mp4. assemble.ts cuts them together.
+// dist/demo-video/takes/<take>.mp4. assemble.ts cuts them together and lays
+// Thinkle's narration over them.
 //
-//   node --experimental-strip-types scripts/demo-video/record.ts [take...]
+//   node --experimental-strip-types scripts/demo-video/record.ts [--only] [take...]
 //
-// Before a run: the release build is installed and open on the Virtual
-// Device, its gRPC is on (`vvd enable-grpc`), and in the app's Settings music
-// is off, sound effects, voices and "Turn board in hotseat" are on, and the
-// Hot Seat host is Rolly.
-// The takes carry the game's sound effects and the bots' lines only;
-// assemble.ts lays the music under the whole video, so it does not break at
-// the cuts, and ducks it where the storyboard says a bot speaks.
+// A take named on its own runs after the takes it continues from, unless
+// --only says it continues from where the device already is, as after a run
+// that stopped part-way.
+//
+// Before a run: the release build is built (`npm run build --prefix native`)
+// and the Virtual Device runs with its gRPC on (`vvd enable-grpc`). The first
+// take installs the build afresh, which deletes the game, the results and the
+// settings saved on the device, so a first launch can be filmed. The takes keep
+// the game's own music, so it follows the game, the danger themes included
+// (#76): a fresh install starts with music on, and a take run on its own checks
+// that the home screen is not silent.
 //
 // The takes run in this order, and each leaves the app where the next begins:
-// home, hotseat, opponents, grabby, rolly, tutorial, rules. The dice are
-// random, so a take can miss what its scene needs, such as a dimmed die or the
-// end of a game: look through it and record that take again. Recording
-// replaces the game saved on the device.
+// tutorial, hotseat, resume, opponents, grabby, rampage, built. The dice are
+// random, so a take can miss what its scene needs, such as a capture, a danger
+// to a king or a turn left part-way: look through it and record it again.
 //
-// VVD and VEGA name the two command-line tools when they are not on the PATH.
+// VVD and VEGA name the two command-line tools when they are not on the PATH,
+// and VPKG the package the tutorial take installs.
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
-import { mkdirSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 
 const VVD = process.env.VVD ?? 'vvd';
 const VEGA = process.env.VEGA ?? 'vega';
+const VPKG =
+  process.env.VPKG ??
+  'native/build/aarch64-release/dicechess-tv-native_aarch64.vpkg';
 const APP = 'com.fortemate.dicechesstv.main';
 const TAKES = 'dist/demo-video/takes';
 
-// A person's pace, so a viewer can follow each step, and a quick one for play
-// nobody watches.
+// A person's pace, so a viewer can follow each step, a steady one for stretches
+// the video skips, and a quick one for play nobody watches.
 const PACE = 1150;
+const STEADY = 1200;
 const QUICK = 400;
 // The recorder needs a moment for its first frame; the cut drops this lead.
 const LEAD = 2000;
@@ -39,6 +48,9 @@ const PROBE = 300;
 
 const vvd = (...args: string[]): string =>
   execFileSync(VVD, args, { encoding: 'utf8' });
+const vega = (...args: string[]): void => {
+  execFileSync(VEGA, args, { stdio: 'ignore' });
+};
 
 const press = (keys: string[], gap = PACE): void => {
   vvd('press', ...keys, '--gap', String(gap));
@@ -49,14 +61,34 @@ const times = (key: string, count: number): string[] =>
   Array.from({ length: count }, () => key);
 
 // Back to the home screen, whatever was open: a new launch always opens there,
-// with the cursor on the first option.
+// with the cursor on the first option, unless the offer of the tutorial is
+// still unanswered (#244).
 async function relaunch(): Promise<void> {
-  execFileSync(VEGA, ['device', 'terminate-app', '-a', APP], {
-    stdio: 'ignore',
-  });
+  vega('device', 'terminate-app', '-a', APP);
   await sleep(1500);
-  execFileSync(VEGA, ['device', 'launch-app', '-a', APP], { stdio: 'ignore' });
+  vega('device', 'launch-app', '-a', APP);
   await sleep(6000);
+}
+
+// The build installed afresh and launched once, so the next launch is still a
+// first one: the offer of the tutorial stays until it is answered. Launching is
+// left out of the recording here: a recording started a moment before a launch
+// once brought the Virtual Device down.
+let fresh = false;
+async function freshInstall(): Promise<void> {
+  // Never take the app off the device without the package to put back.
+  if (!existsSync(VPKG)) {
+    console.error(
+      `no package at ${VPKG}: build it first (npm run build --prefix native)`,
+    );
+    process.exit(2);
+  }
+  vega('device', 'uninstall-app', '-a', APP);
+  vega('device', 'install-app', '-p', VPKG);
+  await sleep(2000);
+  vega('device', 'launch-app', '-a', APP);
+  await sleep(8000);
+  fresh = true;
 }
 
 type Area = [x: number, y: number, width: number, height: number];
@@ -147,11 +179,11 @@ async function record(
   await done;
 }
 
-// The game's music must be off: the video lays its own under the cuts. With
-// nothing playing, the device sends no sound at all.
-async function checkSilent(): Promise<void> {
-  const file = join(TAKES, 'silence.mp4');
-  await record('silence', 3, () => {});
+// The takes keep the game's music, so it must be on. With nothing playing, the
+// device sends no sound at all.
+async function checkMusic(): Promise<void> {
+  const file = join(TAKES, 'music.mp4');
+  await record('music', 3, () => {});
   // ffmpeg reports the level on stderr.
   const probe = spawnSync(
     'ffmpeg',
@@ -166,56 +198,137 @@ async function checkSilent(): Promise<void> {
     process.exit(1);
   }
   const peak = /max_volume: (-?[\d.]+) dB/.exec(probe.stderr)?.[1];
-  if (peak !== undefined && Number(peak) > -50) {
+  if (peak === undefined || Number(peak) < -50) {
     console.error(
-      `the home screen is not silent (peak ${peak} dB): turn music off in Settings`,
+      `the home screen is silent (peak ${peak ?? 'none'} dB): turn music on in Settings`,
     );
     process.exit(1);
   }
 }
 
-// A fresh hotseat game, not yet rolled, so the home screen shows the starting
-// position and no game to resume. "Resume game" leads the home list only when
-// there is a game to resume, so the other options are counted from the end.
-async function freshHotseat(): Promise<void> {
-  await relaunch();
-  await checkSilent();
-  press(times('up', 6), QUICK); // New hotseat game
-  press(['ok'], 1500);
+// Plays on against the computer: OK on the person's turn, when their badge is
+// framed, since the computer's move can end the game between a look and a
+// press. Only a wait that is nobody's turn by the badges, such as the OK after
+// the computer's empty roll, is pressed through, after a while. It stops at the
+// result, since the next OK would choose Rematch, so the opponent's last word
+// is heard.
+async function playOn(steps: number): Promise<void> {
+  let waited = 0;
+  for (let step = 0; step < steps; step++) {
+    const [focus, yours] = count([PANEL, CYAN], [PERSON_BADGE, GOLD]);
+    if (focus > 500) return;
+    // A framed badge is about 4,700 gold pixels.
+    if (yours < 3000 && ++waited < 6) {
+      await sleep(PACE);
+      continue;
+    }
+    waited = 0;
+    // Looking takes about as long as the rest of a step.
+    press(['ok'], PACE - PROBE);
+  }
+}
+
+// A game against an opponent, from the home screen, as White, which replaces
+// the game in play after its confirmation. `card` is the opponent's place among
+// the cards: Rolly, Grabby, Rampage.
+function startAgainst(card: number, gap = 300): void {
+  press(times('up', 5), gap); // Play the computer, counted from the end
+  press(['ok'], 1800);
+  // The cards open on the opponent of the game in play.
+  const now = focusedCard();
+  if (now > card) press(times('left', now - card), 900);
+  if (now < card) press(times('right', card - now), 900);
+  press(['ok'], 1200); // the choice of colour
+  press(['down'], 1200); // White
+  press(['ok'], 1200);
   // Replacing a game in play asks first, starting on Cancel.
-  if (focusInPanel() > 500) press(['down', 'ok'], 1500);
-  await relaunch();
+  if (focusInPanel() > 500) press(['down', 'ok'], 2000);
 }
 
 const takes: Record<string, () => Promise<void>> = {
-  // The home screen: the cursor walks the options and starts a hotseat game,
-  // and the take goes on while Rolly greets the two players as their host
-  // (#202): the longest greeting lasts about 4 s, and starts about 0.45 s
-  // after her bubble (#187).
-  home: async () => {
-    await freshHotseat();
-    await record('home', 18, async () => {
-      press(['down', 'down', 'down', 'up', 'up', 'up'], 800);
-      press(['ok'], 2000);
-      await sleep(5500);
+  // A first launch, filmed after a fresh install: Thinkle offers the tutorial
+  // aloud, and Learn to play takes the player through every lesson, at a pace
+  // that lets him say what the video keeps, to the closing words and a first
+  // game against Rolly, who greets the player (#244, #264).
+  tutorial: async () => {
+    await freshInstall();
+    await record('tutorial', 130, async () => {
+      // An unanswered offer is made again at the next launch.
+      await relaunch();
+      await sleep(3000); // the offer, said in full
+      press(['ok'], 14000); // Learn to play: his welcome
+      press(['ok'], 9500); // the roll: three pawns
+      press(times('ok', 6), PACE); // three pawn moves
+      await sleep(3500); // the turn done
+      // Lessons 2 to 4, which the video skips.
+      press(['ok', ...times('ok', 3)], STEADY); // next; roll, knight, leap
+      press(['ok', ...times('ok', 7)], STEADY); // next; roll, three moves
+      press(['ok', ...times('ok', 2)], STEADY); // next; roll, pass
+      // Taking a piece: the rook takes the pawn.
+      press(['ok', 'ok', 'ok', 'ok'], STEADY); // next; roll, pick up, take
+      await sleep(6000); // "Splendid! The dice chose the rook..."
+      // Taking the king.
+      press(['ok', 'ok', 'ok', 'ok'], STEADY); // next; roll, pick up, take
+      await sleep(8000); // "Victory! Taking the king wins at once..."
+      press(['ok'], 13500); // finish: his closing words and the choices
+      press(['ok'], 6000); // Play Rolly: she greets the player
     });
   },
 
-  // A hotseat game from its first roll, at a person's pace, with a right press
-  // now and then to show the cursor moving between the pieces it may play. OK
-  // always does the next thing: roll, pick up, put down, or pass the turn.
+  // A Hot Seat game hosted by Prowla the cat (#258), from its first roll, at a
+  // person's pace, with a right press now and then to show the cursor leaping
+  // between the pieces that may move. OK always does the next thing: roll, pick
+  // up, put down, or pass the turn. It ends on an OK that plays a move, so the
+  // turn is likely left part-way for the resume take.
   hotseat: async () => {
-    const steps = Array.from({ length: 64 }, (_, index) =>
+    await relaunch();
+    if (fresh) {
+      // A fresh install has Rolly as the host; one step right is Prowla.
+      press(times('up', 2), QUICK); // Settings, counted from the end
+      press(['ok'], 1500);
+      press(times('down', 4), QUICK); // Hot Seat host
+      press(['right'], 1200);
+      press(['back'], 1500);
+      // Back leaves the focus on Settings; a launch puts it on the first option.
+      await relaunch();
+    } else {
+      console.log('note: the Hot Seat host must be Prowla');
+      await checkMusic();
+    }
+    const steps = Array.from({ length: 58 }, (_, index) =>
       index % 5 === 3 ? 'right' : 'ok',
     );
-    await record('hotseat', 80, () => press(steps));
+    await record('hotseat', 85, async () => {
+      press(times('up', 6), QUICK); // New hotseat game, counted from the end
+      press(['ok'], 1500);
+      // Replacing a game in play asks first, starting on Cancel.
+      if (focusInPanel() > 500) press(['down', 'ok'], 1500);
+      await sleep(5000); // Prowla greets the two players
+      press(steps);
+    });
   },
 
-  // The three opponents, and the choice of colour, which replaces the hotseat
-  // game with one against Grabby as White.
+  // The turn left part-way: the app is closed for the launcher, and a launch
+  // brings the game back on the home screen, where Resume game opens it as it
+  // was, dice and all. Home cannot be pressed on the Virtual Device over gRPC,
+  // so the app is closed from the command line, which shows the launcher as
+  // Home would.
+  resume: async () => {
+    await record('resume', 24, async () => {
+      await sleep(1500); // the turn, left part-way
+      vega('device', 'terminate-app', '-a', APP);
+      await sleep(3000); // the launcher
+      vega('device', 'launch-app', '-a', APP);
+      await sleep(5000); // the home screen, with Resume game first
+      press(['ok'], 4000);
+    });
+  },
+
+  // The three opponents, and the choice of colour, which replaces the game in
+  // play with one against Grabby as White.
   opponents: async () => {
     await relaunch();
-    await record('opponents', 20, () => {
+    await record('opponents', 22, () => {
       press(times('up', 5), 300); // Play the computer
       press(['ok'], 1800);
       // The cards open on the opponent of the game in play: back to Rolly
@@ -230,79 +343,33 @@ const takes: Record<string, () => Promise<void>> = {
     });
   },
 
-  // Grabby's turns, some way into the game so that there is something to take.
-  // The first stretch is played quickly and not recorded. When the game ends
-  // the pressing stops, since the next OK would choose Rematch: the result
-  // stays up while Grabby says its last word, after the jingle. OK is pressed
-  // on the person's turn, when their badge is framed: Grabby's move can end
-  // the game between a look and a press. Only a wait that is nobody's turn by
-  // the badges, such as the OK after Grabby's empty roll, is pressed through,
-  // after a while.
+  // Grabby's turns, some way into the game so that there is something to take,
+  // to the end of the game and his last word. The first stretch is played
+  // quickly and not recorded.
   grabby: async () => {
     press(times('ok', 130), QUICK);
-    await record('grabby', 80, async () => {
-      let waited = 0;
-      for (let step = 0; step < 72; step++) {
-        const [focus, yours] = count([PANEL, CYAN], [PERSON_BADGE, GOLD]);
-        if (focus > 500) return;
-        // A framed badge is about 4,700 gold pixels.
-        if (yours < 3000 && ++waited < 6) {
-          await sleep(PACE);
-          continue;
-        }
-        waited = 0;
-        // Looking takes about as long as the rest of a step.
-        press(['ok'], PACE - PROBE);
-      }
-    });
+    await record('grabby', 80, () => playOn(72));
   },
 
-  // A game against Rolly as White, from its first line: Rolly greets the
-  // person in its speech bubble and aloud (#159), then the person rolls and
-  // plays. After grabby, so that the board, seen from White's side before, does
-  // not turn at the start.
-  rolly: async () => {
+  // A game against Rampage, who goes for the king, from its first roll, long
+  // enough for the music to follow the danger to a king: tense when enough rolls
+  // could take it this turn, critical when one action could (#76).
+  rampage: async () => {
     await relaunch();
-    await record('rolly', 24, async () => {
-      press(times('up', 5), 300); // Play the computer
-      press(['ok'], 1800);
-      const card = focusedCard();
-      if (card) press(times('left', card), 900); // Rolly
-      press(['ok'], 1200); // the choice of colour
-      press(['down'], 1200); // White
-      press(['ok'], 1200);
-      if (focusInPanel() > 500) press(['down', 'ok'], 1200);
-      // The greeting, said in full: the longest lasts 4.2 s, and the voice
-      // starts about 0.45 s after the bubble (#187).
-      await sleep(5500);
-      press(['ok', 'ok', 'ok'], PACE); // roll, pick up, put down
-    });
+    startAgainst(2);
+    await record('rampage', 150, () => playOn(130));
   },
 
-  // The first lesson played through, and the start of the second.
-  tutorial: async () => {
-    await relaunch();
-    await record('tutorial', 22, () => {
-      press(times('up', 4), 300); // How to play
-      press(['ok'], 3200);
-      press(['ok'], 1200); // pick up the pawn
-      press(['ok'], 2800); // and put it down
-      press(['ok'], 4000); // the next lesson
-    });
-  },
-
-  // A few topics of the rules guide, then Castling and Draws, the topics the
-  // card names.
-  rules: async () => {
-    press(['back'], 1500);
-    await record('rules', 17, async () => {
-      press(times('up', 3), 300); // Rules
-      press(['ok'], 2400);
-      press(['down', 'down'], 2000); // Your turn, What the dice mean
-      press(times('down', 3), 250); // Castling
-      await sleep(2200);
-      press(times('down', 3), 250); // Draws
-      await sleep(2200);
+  // A cool start from the launcher, then the About screen, which credits the
+  // Dice Chess engine the rules come from.
+  built: async () => {
+    await record('built', 22, async () => {
+      vega('device', 'terminate-app', '-a', APP);
+      await sleep(2500); // the launcher
+      vega('device', 'launch-app', '-a', APP);
+      await sleep(4000); // the home screen
+      press(['up'], 1200); // About, last, by wrapping
+      press(['ok'], 9000);
     });
   },
 };
@@ -310,15 +377,14 @@ const takes: Record<string, () => Promise<void>> = {
 // Takes that depend on prior app state: each entry lists the takes that must
 // run before the named take when it is selected without its predecessors.
 const prereqs: Partial<Record<string, string[]>> = {
-  // hotseat continues from the hotseat game home started.
-  hotseat: ['home'],
-  // grabby continues from the single-player game opponents started.
+  // resume leaves the hotseat game part-way through.
+  resume: ['hotseat'],
+  // grabby continues from the game against Grabby that opponents started.
   grabby: ['opponents'],
-  // rules is navigated from the tutorial end screen.
-  rules: ['tutorial'],
 };
 
-const chosen = process.argv.slice(2);
+const only = process.argv.includes('--only');
+const chosen = process.argv.slice(2).filter((arg) => arg !== '--only');
 const unknown = chosen.filter((name) => !(name in takes));
 if (unknown.length) {
   console.error(
@@ -335,7 +401,12 @@ const toRun: string[] =
   chosen.length === 0
     ? order
     : [
-        ...new Set(chosen.flatMap((name) => [...(prereqs[name] ?? []), name])),
+        ...new Set(
+          chosen.flatMap((name) => [
+            ...(only ? [] : (prereqs[name] ?? [])),
+            name,
+          ]),
+        ),
       ].sort((a, b) => order.indexOf(a) - order.indexOf(b));
 
 if (chosen.length && toRun.length > chosen.length) {

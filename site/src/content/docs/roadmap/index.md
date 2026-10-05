@@ -24,7 +24,6 @@ Every feature here was played on the Vega Virtual Device, and the app's automate
 
 - **The tester round:** people who have never seen the game play it, on the Vega Virtual Device and, through Live App Testing, on their own Fire TV Sticks. See [Play the beta](/play/beta/).
 - **Testing on a physical Fire TV Stick**, including how fast the game runs there.
-- **A demo video** of a whole game.
 
 ## Next
 

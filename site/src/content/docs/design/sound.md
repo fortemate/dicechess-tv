@@ -84,7 +84,7 @@ What this rests on:
 
 ## What has been heard, and where
 
-The cues have been heard from the Vega Virtual Device through a computer's speakers, not yet from a television. The tests check that the players pause when the app leaves the screen. On the Virtual Device the app came back from the launcher as it left, but that nothing plays over the launcher is still to be confirmed by ear.
+The cues have been heard from the Vega Virtual Device through a computer's speakers, not yet from a television. So has the music following the danger: in a game against Rampage recorded there for the demo video, it went from calm to tense to critical as he closed in on the king, and the owner listened to it on 5 October 2026. The tests check that the players pause when the app leaves the screen. On the Virtual Device the app came back from the launcher as it left, but that nothing plays over the launcher is still to be confirmed by ear.
 
 ## Sources
 

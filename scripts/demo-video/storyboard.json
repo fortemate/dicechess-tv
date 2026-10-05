@@ -1,147 +1,203 @@
 {
-  "music": {
-    "file": "native/music/pepka-prygni-dicechess/warm_anticipation.mp3",
-    "gainDb": -9.1,
-    "cardLiftDb": 4,
-    "duckDb": -9,
-    "fadeInSeconds": 1.5,
-    "fadeOutSeconds": 4
-  },
   "badge": "Vega Virtual Device on macOS",
+  "duckDb": -9,
+  "narrationGainDb": 0,
   "end": {
-    "seconds": 6,
+    "seconds": 10,
     "title": "Dice Chess for Fire TV",
-    "tagline": "Free · no ads · no account",
     "link": "dicechess-tv.jegors-cemisovs.workers.dev",
-    "footer": "Recorded on the Vega Virtual Device on macOS · Music by pepka-prygni\nVoices made with ElevenLabs · Portraits made with Recraft"
+    "footer": "Recorded on the Vega Virtual Device on macOS · Music by pepka-prygni\nVoices made with ElevenLabs · Portraits made with Recraft",
+    "music": {
+      "file": "native/music/pepka-prygni-dicechess/warm_anticipation.mp3",
+      "gainDb": -6,
+      "fadeInSeconds": 1,
+      "fadeOutSeconds": 3
+    },
+    "narration": [
+      {
+        "line": "thinkle_demo_close_1",
+        "at": 0.6
+      },
+      {
+        "line": "thinkle_tutor_closing_3",
+        "at": 5.4
+      }
+    ]
   },
   "scenes": [
     {
-      "kicker": "Dice Chess for Fire TV",
-      "title": "Chess with a roll of the dice",
-      "clips": [
-        {
-          "take": "home",
-          "from": 0.4,
-          "to": 7.5
-        }
-      ]
-    },
-    {
-      "kicker": "Two players, one remote",
-      "title": "Rolly hosts: she greets you both and cheers the big moments",
-      "clips": [
-        {
-          "take": "home",
-          "from": 7.6,
-          "to": 14.0,
-          "duck": [[8.1, 10.9]]
-        }
-      ]
-    },
-    {
-      "kicker": "Your turn",
-      "title": "Roll three dice: they decide which pieces you may move",
+      "name": "Dice Chess for Fire TV",
       "clips": [
         {
           "take": "hotseat",
-          "from": 1.0,
-          "to": 8.4
-        }
-      ]
-    },
-    {
-      "kicker": "Face to face",
-      "title": "The board can turn to face whoever moves",
-      "clips": [
-        {
-          "take": "hotseat",
-          "from": 8.9,
-          "to": 14.9,
-          "duck": [[11.26, 14.49]]
+          "from": 63.2,
+          "to": 75.0
         }
       ],
-      "seconds": 4.3
-    },
-    {
-      "kicker": "The dice",
-      "title": "A die that no move can use is dimmed",
-      "seconds": 4.8,
-      "clips": [
+      "narration": [
         {
-          "take": "hotseat",
-          "from": 26.9,
-          "to": 32.4,
-          "duck": [[27.61, 32.11]]
+          "line": "thinkle_demo_hook_1",
+          "at": 0.8
+        },
+        {
+          "line": "thinkle_demo_hook_2",
+          "at": 6.2
         }
       ]
     },
     {
-      "kicker": "Against the computer",
-      "title": "Or play one of three computer opponents",
-      "clips": [
-        {
-          "take": "opponents",
-          "from": 4.35,
-          "to": 11.35
-        }
-      ]
-    },
-    {
-      "kicker": "They talk",
-      "title": "Each opponent has a face and a voice of its own",
-      "clips": [
-        {
-          "take": "rolly",
-          "from": 10.85,
-          "to": 20.5,
-          "duck": [[11.37, 14.06]]
-        }
-      ]
-    },
-    {
-      "kicker": "The computer's turn",
-      "title": "Every move slides, so you can follow it",
-      "clips": [
-        {
-          "take": "grabby",
-          "from": 14.0,
-          "to": 20.8,
-          "duck": [[15.9, 19.66]]
-        }
-      ]
-    },
-    {
-      "kicker": "The last word",
-      "title": "When the game ends, your opponent has the last word",
-      "clips": [
-        {
-          "take": "grabby",
-          "from": 43.4,
-          "to": 52.5,
-          "duck": [[46.12, 51.22]]
-        }
-      ]
-    },
-    {
-      "kicker": "How to play",
-      "title": "A five-lesson tutorial teaches the game from scratch",
+      "name": "The TV teaches the game",
       "clips": [
         {
           "take": "tutorial",
-          "from": 4.0,
-          "to": 15.0
+          "from": 5.15,
+          "to": 11.3
+        },
+        {
+          "take": "tutorial",
+          "from": 12.3,
+          "to": 22.4
+        },
+        {
+          "take": "tutorial",
+          "from": 28.9,
+          "to": 35.2
+        },
+        {
+          "take": "tutorial",
+          "from": 73.6,
+          "to": 79.6
+        },
+        {
+          "take": "tutorial",
+          "from": 103.95,
+          "to": 104.65,
+          "hold": 4.4
+        },
+        {
+          "take": "tutorial",
+          "from": 108.1,
+          "to": 113.6
+        }
+      ],
+      "narration": [
+        {
+          "line": "thinkle_demo_teach_1",
+          "at": 29.15
         }
       ]
     },
     {
-      "kicker": "Rules",
-      "title": "A rules guide covers everything from castling to draws",
+      "name": "Two players, one remote",
       "clips": [
         {
-          "take": "rules",
-          "from": 3.6,
-          "to": 16.8
+          "take": "hotseat",
+          "from": 4.8,
+          "to": 29.5
+        }
+      ],
+      "narration": [
+        {
+          "line": "thinkle_demo_hotseat_1",
+          "at": 11.6
+        },
+        {
+          "line": "thinkle_demo_hotseat_2",
+          "at": 16.0
+        },
+        {
+          "line": "thinkle_demo_hotseat_3",
+          "at": 20.1
+        }
+      ]
+    },
+    {
+      "name": "Music that follows the danger",
+      "clips": [
+        {
+          "take": "rampage",
+          "from": 51.5,
+          "to": 85.6
+        }
+      ],
+      "narration": [
+        {
+          "line": "thinkle_demo_music_1",
+          "at": 3.1
+        },
+        {
+          "line": "thinkle_demo_music_2",
+          "at": 7.9
+        }
+      ]
+    },
+    {
+      "name": "Three opponents",
+      "clips": [
+        {
+          "take": "opponents",
+          "from": 3.8,
+          "to": 11.0
+        },
+        {
+          "take": "grabby",
+          "from": 18.0,
+          "to": 31.0
+        }
+      ],
+      "narration": [
+        {
+          "line": "thinkle_demo_opponents_1",
+          "at": 0.4
+        },
+        {
+          "line": "thinkle_demo_opponents_2",
+          "at": 7.6
+        }
+      ]
+    },
+    {
+      "name": "The game waits",
+      "clips": [
+        {
+          "take": "resume",
+          "from": 1.5,
+          "to": 16.0
+        }
+      ],
+      "narration": [
+        {
+          "line": "thinkle_demo_resume_1",
+          "at": 1.5
+        }
+      ]
+    },
+    {
+      "name": "Built for Vega",
+      "clips": [
+        {
+          "take": "built",
+          "from": 3.2,
+          "to": 9.4
+        },
+        {
+          "take": "built",
+          "from": 11.6,
+          "to": 20.0
+        }
+      ],
+      "narration": [
+        {
+          "line": "thinkle_demo_built_1",
+          "at": 0.2
+        },
+        {
+          "line": "thinkle_demo_built_2",
+          "at": 5.3
+        },
+        {
+          "line": "thinkle_demo_built_3",
+          "at": 9.4
         }
       ]
     }

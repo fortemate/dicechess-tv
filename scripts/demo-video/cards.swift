@@ -1,19 +1,13 @@
-// Draws the stills of the demo video at 1920x1080: the title cards, the badge
-// laid over the footage and the end card. scripts/demo-video/assemble.ts writes
-// the spec and runs this; nothing else needs it.
+// Draws the stills of the demo video at 1920x1080: the badge laid over the
+// footage and the end card. scripts/demo-video/assemble.ts writes the spec and
+// runs this; nothing else needs it.
 //
 //   swift scripts/demo-video/cards.swift <spec.json> <out-dir>
 //
 // AppKit draws the text, so it needs macOS, as the Vega Virtual Device does.
-// The cards take the app's own heading style: a teal kicker in spaced capitals
-// over a large white title, like "HOTSEAT · TURN 9" over "White to play".
+// The end card takes the app's own colours. Thinkle's narration took the place
+// of the title cards between scenes (owner, 2026-10-05).
 import AppKit
-
-struct Card: Decodable {
-  let file: String
-  let kicker: String
-  let title: String
-}
 
 struct Badge: Decodable {
   let file: String
@@ -24,16 +18,16 @@ struct End: Decodable {
   let file: String
   let icon: String
   let title: String
-  let tagline: String
+  // A line under the title; left out when there is none.
+  let tagline: String?
   let link: String
   let footer: String
 }
 
 struct Spec: Decodable {
-  // The background as the recordings decode it, so a card fades into the
+  // The background as the recordings decode it, so the end card follows the
   // footage without a step in colour.
   let background: String
-  let cards: [Card]
   let badge: Badge
   let end: End
 }
@@ -131,19 +125,6 @@ let background = colour(spec.background)
 let column: CGFloat = 1440
 let columnLeft = (CGFloat(width) - column) / 2
 
-for card in spec.cards {
-  try still(card.file, fill: background) {
-    let kicker = text(card.kicker.uppercased(), "AvenirNext-DemiBold", 36, kickerColour, kern: 7)
-    let title = text(card.title, "AvenirNext-Medium", 84, titleColour)
-    let gap: CGFloat = 34
-    let block = measure(kicker, column) + gap + measure(title, column)
-    // Centred, and a little above the middle, where a reader looks first.
-    let top = (CGFloat(height) - block) / 2 - 20
-    let kickerTall = draw(kicker, top: top, left: columnLeft, width: column)
-    _ = draw(title, top: top + kickerTall + gap, left: columnLeft, width: column)
-  }
-}
-
 // Where the first cut had it: top right, in the app's quiet teal, inside the
 // margin the app keeps clear.
 try still(spec.badge.file, fill: nil) {
@@ -164,7 +145,11 @@ try still(spec.end.file, fill: background) {
   }
   var y = top + side + 56
   y += draw(text(spec.end.title, "AvenirNext-Medium", 72, titleColour), top: y, left: columnLeft, width: column) + 22
-  y += draw(text(spec.end.tagline, "AvenirNext-Regular", 36, kickerColour), top: y, left: columnLeft, width: column) + 30
+  if let tagline = spec.end.tagline, !tagline.isEmpty {
+    y += draw(text(tagline, "AvenirNext-Regular", 36, kickerColour), top: y, left: columnLeft, width: column) + 30
+  } else {
+    y += 8
+  }
   _ = draw(text(spec.end.link, "AvenirNext-DemiBold", 36, titleColour), top: y, left: columnLeft, width: column)
   _ = draw(text(spec.end.footer, "AvenirNext-Regular", 26, quietColour), top: 980, left: columnLeft, width: column)
 }
