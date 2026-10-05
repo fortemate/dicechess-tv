@@ -1,0 +1,612 @@
+{
+  "attributionRequired": false,
+  "casting": "casting.json",
+  "clients": [
+    "fortemate/dicechess-tv"
+  ],
+  "derivation": {
+    "arguments": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+    "note": "Each export is its source with the gain that brings it to the target loudness, measured by ffmpeg's ebur128 filter, then a limiter, as mono MP3 without metadata. Where the limiter takes more than 0.5 LU, the gain is raised by the difference and the conversion made again, up to 3 conversions in all.",
+    "target": {
+      "bitrate": "64k",
+      "integratedLufs": -16,
+      "limitDbfs": -1.5
+    },
+    "tool": "ffmpeg version 9.0.1 Copyright (c) 2000-2026 the FFmpeg developers"
+  },
+  "directions": "directions.json",
+  "distribution": "project",
+  "generator": {
+    "kind": "voices",
+    "note": "Voices designed, or to be designed, with ElevenLabs Voice Design and read by Eleven v4 on a paid plan; nothing made on the free plan ships. The ElevenLabs Terms of Service for the EEA (last updated 31 March 2026) say that as between the user and ElevenLabs the user retains all rights in the Output. The Prohibited Use Policy (17 August 2026) forbids using it in datasets for AI training, so the pack has no open licence: it is for Fortemate's Dice Chess applications and the videos that present them (fortemate/dicechess-assets#27).",
+    "tool": "ElevenLabs",
+    "via": "POST /v1/text-to-speech/{voice_id} with model eleven_v4, run by tools/elevenlabs_audio.py with the owner's API key"
+  },
+  "id": "elevenlabs-dicechess-demo-thinkle",
+  "license": "Fortemate apps only",
+  "licenseFile": "LICENSE.txt",
+  "lines": {
+    "thinkle_demo_built_1": {
+      "bot": "narrator",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[mischievously] No magic under the hood: just fast, native code.",
+      "durationSeconds": 4.72,
+      "event": "built",
+      "export": "exports/mp3/thinkle_demo_built_1.mp3",
+      "generated": "2026-10-05T08:54:53Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 3.2,
+        "passes": 1,
+        "sourceLufs": -19.2
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "xbwSnsm6evcrf1c2CH4x",
+      "seed": 720102301,
+      "sha256": "0c85a5e00b2ffb80f8d9f74d77897bf97ea689fb5d36925aefe8a6e4b260c147",
+      "source": "source/mp3/thinkle_demo_built_1.mp3",
+      "sourceSha256": "93cc0ec781ec218b2ff3a4ff777d8b25daaf4301450c1528e6b78e5fc39f0b9f",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "No magic under the hood: just fast, native code.",
+      "voice": "Thinkle",
+      "voiceId": "UDn5cabCjqJGTbU62y7U",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "thinkle_demo_built_2": {
+      "bot": "narrator",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] It draws its first frame in about a third of a second.",
+      "durationSeconds": 3.68,
+      "event": "built",
+      "export": "exports/mp3/thinkle_demo_built_2.mp3",
+      "generated": "2026-10-05T08:54:55Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 2.5,
+        "passes": 1,
+        "sourceLufs": -18.5
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "h1rztBtYs2gPdvYv4e8y",
+      "seed": 160156240,
+      "sha256": "7d5705165a1e00d9fc89a932739b8473d4a904b977e388aa485e42f32fbd4352",
+      "source": "source/mp3/thinkle_demo_built_2.mp3",
+      "sourceSha256": "f4ae03df116784a4b0d50fa8b5bbaa513437cb1a6002d2a050966e7c421feb87",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "It draws its first frame in about a third of a second.",
+      "voice": "Thinkle",
+      "voiceId": "UDn5cabCjqJGTbU62y7U",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "thinkle_demo_built_3": {
+      "bot": "narrator",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] The rules come from Fortemate's open Dice Chess engine.",
+      "durationSeconds": 4.0,
+      "event": "built",
+      "export": "exports/mp3/thinkle_demo_built_3.mp3",
+      "generated": "2026-10-05T08:54:56Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 1.0,
+        "passes": 1,
+        "sourceLufs": -17.0
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "8BEx0uTojzsWYuSM54S9",
+      "seed": 456295827,
+      "sha256": "7d8457f940bb54c6c9b9c5ce28ad647997188a2ef9702b93a84f521cca836a0a",
+      "source": "source/mp3/thinkle_demo_built_3.mp3",
+      "sourceSha256": "cf2e147cf6985bb5b896b88559a5b1454f003e570b8a62ad12cd7623d807a222",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "The rules come from Fortemate's open Dice Chess engine.",
+      "voice": "Thinkle",
+      "voiceId": "UDn5cabCjqJGTbU62y7U",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "thinkle_demo_close_1": {
+      "bot": "narrator",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] So gather the family, my friend. The dice are waiting.",
+      "durationSeconds": 4.08,
+      "event": "close",
+      "export": "exports/mp3/thinkle_demo_close_1.mp3",
+      "generated": "2026-10-05T08:54:57Z",
+      "loudness": {
+        "exportLufs": -16.1,
+        "gainDb": 1.7,
+        "passes": 2,
+        "sourceLufs": -17.1
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "8h9FApHmxbF5jZRmqosF",
+      "seed": 282663039,
+      "sha256": "3efc9c7c3e38c97e748e20f10ac66e4180b50d293f52a50d03a36982dc9a5837",
+      "source": "source/mp3/thinkle_demo_close_1.mp3",
+      "sourceSha256": "f4e226849a6ece9fbe241be5facb3f6843d86e1e0416bc3333c5f4fea39f2e85",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "So gather the family, my friend. The dice are waiting.",
+      "voice": "Thinkle",
+      "voiceId": "UDn5cabCjqJGTbU62y7U",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "thinkle_demo_hook_1": {
+      "bot": "narrator",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] Hmm... what if the dice chose which pieces you move?",
+      "durationSeconds": 4.8,
+      "event": "hook",
+      "export": "exports/mp3/thinkle_demo_hook_1.mp3",
+      "generated": "2026-10-05T08:54:38Z",
+      "loudness": {
+        "exportLufs": -16.1,
+        "gainDb": 5.3,
+        "passes": 2,
+        "sourceLufs": -20.5
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "oUOCBG3e5SfcbjLJ25Qs",
+      "seed": 964002921,
+      "sha256": "8ca482eb29cfceaa46e8bfc8a54791224fe34628b642540fd2bf8004f4fdd1d4",
+      "source": "source/mp3/thinkle_demo_hook_1.mp3",
+      "sourceSha256": "1e1372ac51acefabfa4ef7ef181efe6e154ea2d9387c770d464edd33efeb60b7",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Hmm... what if the dice chose which pieces you move?",
+      "voice": "Thinkle",
+      "voiceId": "UDn5cabCjqJGTbU62y7U",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "thinkle_demo_hook_2": {
+      "bot": "narrator",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] That is Dice Chess, my friend, and your TV teaches it.",
+      "durationSeconds": 4.56,
+      "event": "hook",
+      "export": "exports/mp3/thinkle_demo_hook_2.mp3",
+      "generated": "2026-10-05T08:54:39Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 3.3,
+        "passes": 2,
+        "sourceLufs": -18.6
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "DH58W3ugCRg2TTowKvyl",
+      "seed": 898270297,
+      "sha256": "74e84be1bd840ef0d63ca8388f803c7a5f0e973a7075df405cc5abc79a9cc717",
+      "source": "source/mp3/thinkle_demo_hook_2.mp3",
+      "sourceSha256": "8a8d2a6e33a673d88cc01f854ea4cfef355ba680143ce7f9b9c988c603c8cc2f",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "That is Dice Chess, my friend, and your TV teaches it.",
+      "voice": "Thinkle",
+      "voiceId": "UDn5cabCjqJGTbU62y7U",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "thinkle_demo_hotseat_1": {
+      "bot": "narrator",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[excited] Two players, one remote. Pass it along the sofa!",
+      "durationSeconds": 3.92,
+      "event": "hotseat",
+      "export": "exports/mp3/thinkle_demo_hotseat_1.mp3",
+      "generated": "2026-10-05T08:54:42Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": -0.9,
+        "passes": 1,
+        "sourceLufs": -15.1
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "bpboCp2o41TcNUVBZgY1",
+      "seed": 2208800126,
+      "sha256": "841541e284a26fe1970a429357abb02f07643feda02931ba720e6363daa7629d",
+      "source": "source/mp3/thinkle_demo_hotseat_1.mp3",
+      "sourceSha256": "c16232498c2cd85744359ebeefe1a95b8dd8272af958a779193419c9fd157b8b",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Two players, one remote. Pass it along the sofa!",
+      "voice": "Thinkle",
+      "voiceId": "UDn5cabCjqJGTbU62y7U",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "thinkle_demo_hotseat_2": {
+      "bot": "narrator",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] The cursor leaps between the pieces that may move.",
+      "durationSeconds": 3.6,
+      "event": "hotseat",
+      "export": "exports/mp3/thinkle_demo_hotseat_2.mp3",
+      "generated": "2026-10-05T08:54:43Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 4.1,
+        "passes": 1,
+        "sourceLufs": -20.1
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "IZ4c4R8PfYWYL7FWSgjC",
+      "seed": 1830036779,
+      "sha256": "61e6061c554d4094b4d9f5a8caa6010e5d8326c57d95e5e272a253ac780631f8",
+      "source": "source/mp3/thinkle_demo_hotseat_2.mp3",
+      "sourceSha256": "9b744663fe901d460a333c8aaec4d34873e3fe5de3c9fa397dcb34436a27df59",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "The cursor leaps between the pieces that may move.",
+      "voice": "Thinkle",
+      "voiceId": "UDn5cabCjqJGTbU62y7U",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "thinkle_demo_hotseat_3": {
+      "bot": "narrator",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] About nine presses a turn, instead of twenty-three.",
+      "durationSeconds": 3.84,
+      "event": "hotseat",
+      "export": "exports/mp3/thinkle_demo_hotseat_3.mp3",
+      "generated": "2026-10-05T08:54:44Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 3.3,
+        "passes": 2,
+        "sourceLufs": -18.4
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "7CRc9SH7DP3UbExvu2D4",
+      "seed": 125154199,
+      "sha256": "5754e9952ee9ca85bfaf178d2790f50325211ab1bde54e52c3a8db0187bfd66f",
+      "source": "source/mp3/thinkle_demo_hotseat_3.mp3",
+      "sourceSha256": "43eee048c42f05b07cd5e2e2706c5e48ac4d7044dea08bc21693d245d9a962e1",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "About nine presses a turn, instead of twenty-three.",
+      "voice": "Thinkle",
+      "voiceId": "UDn5cabCjqJGTbU62y7U",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "thinkle_demo_music_1": {
+      "bot": "narrator",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[whispers] Listen... the music knows when a king is in danger.",
+      "durationSeconds": 4.16,
+      "event": "music",
+      "export": "exports/mp3/thinkle_demo_music_1.mp3",
+      "generated": "2026-10-05T08:54:46Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 8.9,
+        "passes": 1,
+        "sourceLufs": -24.9
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "Dl5Tf8kcCC7mmVPnsO4N",
+      "seed": 2488418601,
+      "sha256": "0913846f5397b2674e50c167a4235a3f5aa3371778268bc69c74aef20a9e7303",
+      "source": "source/mp3/thinkle_demo_music_1.mp3",
+      "sourceSha256": "85cb30ed490530e4a77189e50412b2243536dbc9db4f3845a88b7c20e3b8767e",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Listen... the music knows when a king is in danger.",
+      "voice": "Thinkle",
+      "voiceId": "UDn5cabCjqJGTbU62y7U",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "thinkle_demo_music_2": {
+      "bot": "narrator",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] Each turn it weighs all two hundred and sixteen rolls.",
+      "durationSeconds": 4.56,
+      "event": "music",
+      "export": "exports/mp3/thinkle_demo_music_2.mp3",
+      "generated": "2026-10-05T08:54:47Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 4.8,
+        "passes": 1,
+        "sourceLufs": -20.8
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "AC4cIhZC1taSMNUFb6uA",
+      "seed": 901341155,
+      "sha256": "fd2554bc0938f0e10d906d3f1fa90f0e25dd8a2db38ba9112f7ae21c52461a38",
+      "source": "source/mp3/thinkle_demo_music_2.mp3",
+      "sourceSha256": "3adebab7d07418a5d48e507fbd3a1e82b44507b354efa6d86ae16b627f61e4f7",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Each turn it weighs all two hundred and sixteen rolls.",
+      "voice": "Thinkle",
+      "voiceId": "UDn5cabCjqJGTbU62y7U",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "thinkle_demo_opponents_1": {
+      "bot": "narrator",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] Or play the computer: three rivals, from easy to hard.",
+      "durationSeconds": 4.72,
+      "event": "opponents",
+      "export": "exports/mp3/thinkle_demo_opponents_1.mp3",
+      "generated": "2026-10-05T08:54:49Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 0.7,
+        "passes": 1,
+        "sourceLufs": -16.7
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "8gmwIbXRwN7vAArEcZYF",
+      "seed": 1830249739,
+      "sha256": "9751b6b8900fca5ff40b5d26abbbda7a98482f59831dcf648f9d3492dd62fd45",
+      "source": "source/mp3/thinkle_demo_opponents_1.mp3",
+      "sourceSha256": "2ee1bd78a3fbca48f5828868feacc2099730890d9f3e4393724323c03317cf49",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Or play the computer: three rivals, from easy to hard.",
+      "voice": "Thinkle",
+      "voiceId": "UDn5cabCjqJGTbU62y7U",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "thinkle_demo_opponents_2": {
+      "bot": "narrator",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[laughs] Each has a face, a voice and a style all its own.",
+      "durationSeconds": 5.6,
+      "event": "opponents",
+      "export": "exports/mp3/thinkle_demo_opponents_2.mp3",
+      "generated": "2026-10-05T08:54:50Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 4.0,
+        "passes": 2,
+        "sourceLufs": -19.2
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "9ub1a22kjJQ3cMjJHPIj",
+      "seed": 3680189509,
+      "sha256": "11b8a0fb413d25524d8191de8168c5fd50a04fdaf6b0418e99e88dab504c5a5b",
+      "source": "source/mp3/thinkle_demo_opponents_2.mp3",
+      "sourceSha256": "15ebb998d564da86b755c2258e4eb5c6c422440f66bc18a35f48975881556034",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Each has a face, a voice and a style all its own.",
+      "voice": "Thinkle",
+      "voiceId": "UDn5cabCjqJGTbU62y7U",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "thinkle_demo_resume_1": {
+      "bot": "narrator",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] Called to dinner mid-turn? The game waits, dice and all.",
+      "durationSeconds": 4.96,
+      "event": "resume",
+      "export": "exports/mp3/thinkle_demo_resume_1.mp3",
+      "generated": "2026-10-05T08:54:52Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 2.6,
+        "passes": 2,
+        "sourceLufs": -17.6
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "EtFmhqUBf28UKml3I4k9",
+      "seed": 2640253356,
+      "sha256": "d58c94a6e72fb5fd7c6027a4bec294d5208cdd43b0ca78c3862fb61d10dd6cb3",
+      "source": "source/mp3/thinkle_demo_resume_1.mp3",
+      "sourceSha256": "f6bc2ccd696f86ddcba7b9f72c1c8c0fbc1c8ea528fdea1f10053a1c4475db52",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Called to dinner mid-turn? The game waits, dice and all.",
+      "voice": "Thinkle",
+      "voiceId": "UDn5cabCjqJGTbU62y7U",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "thinkle_demo_teach_1": {
+      "bot": "narrator",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] Six short lessons, then straight into your first game.",
+      "durationSeconds": 3.84,
+      "event": "teach",
+      "export": "exports/mp3/thinkle_demo_teach_1.mp3",
+      "generated": "2026-10-05T08:54:41Z",
+      "loudness": {
+        "exportLufs": -16.1,
+        "gainDb": 2.9,
+        "passes": 2,
+        "sourceLufs": -18.3
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "uor6I6Wo2GmQPvtpSSWY",
+      "seed": 4259125428,
+      "sha256": "8b4e5861f31a1f15367df44a281259f08f4eb0f2eb376b5d2d9d9f663c626cbc",
+      "source": "source/mp3/thinkle_demo_teach_1.mp3",
+      "sourceSha256": "752e299ce25add9a9d3e57b3095ba8007ad273bfd1beff0367ce9736880dea93",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Six short lessons, then straight into your first game.",
+      "voice": "Thinkle",
+      "voiceId": "UDn5cabCjqJGTbU62y7U",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    }
+  },
+  "pack": {
+    "picks": "picks.json",
+    "texts": {
+      "path": "voices/elevenlabs-dicechess-demo-thinkle/catalogue.json",
+      "repository": "fortemate/dicechess-assets"
+    }
+  },
+  "picks": "picks.json",
+  "schemaVersion": 1,
+  "status": "draft",
+  "texts": "catalogue.json",
+  "title": "Dice Chess TV demo video, narrated by Thinkle (ElevenLabs)"
+}

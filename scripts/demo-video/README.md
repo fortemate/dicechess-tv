@@ -1,39 +1,34 @@
 # Demo video
 
-These scripts record and cut the demo video in the form of a silent film: a
-title card before each scene, the app on the Vega Virtual Device after it, and
-one track of the game's music under the whole video, cards included. A card
-takes the place of a caption, which read as one more line of the app's own
-text over its menus.
+These scripts record and cut the demo video. Thinkle the wizard narrates it, in
+place of the title cards of the cuts before it (owner, 2026-10-05). He teaches
+the app's tutorial in the same voice, and the video shows him doing it, so the
+viewer meets the narrator in the game. The takes keep the game's own music, so
+each scene sounds as the game did there, and the music that follows the danger
+to a king is heard as it plays (#76).
 
-| File              | What it does                                                                                                        |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `record.ts`       | Drives the Virtual Device through seven takes with `vvd`: home, hotseat, opponents, grabby, rolly, tutorial, rules. |
-| `storyboard.json` | The cut: each card's kicker and title, the stretch of a take that follows it, the music and the end card.           |
-| `assemble.ts`     | Cuts the video from the takes and the storyboard, and checks it against the contest's rules.                        |
-| `cards.swift`     | Draws the cards, the "Vega Virtual Device on macOS" badge and the end card, in the app's colours.                   |
+| File                   | What it does                                                                                                             |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `record.ts`            | Drives the Virtual Device through seven takes with `vvd`: tutorial, hotseat, resume, opponents, grabby, rampage, built.  |
+| `storyboard.json`      | The cut: each scene's name (its chapter), the stretches of takes it shows, where Thinkle speaks in it, and the end card. |
+| `assemble.ts`          | Cuts the video from the takes, lays the narration over it, and checks it against the contest's rules.                    |
+| `cards.swift`          | Draws the "Vega Virtual Device on macOS" badge and the end card, in the app's colours.                                   |
+| `vendor-narration.mjs` | Vendors Thinkle's narration from fortemate/dicechess-assets at a pinned commit into `narration/`, with its licence.      |
+| `narration/`           | The narration: 15 clips, the pack's manifest and licence, and `narration.json`, which `test/demo-video.test.ts` checks.  |
 
 ## What it needs
 
-- macOS, with the Vega Virtual Device running and the release build installed
-  and open: `npm run build --prefix native`, then `vega device install-app` and
-  `vega device launch-app`.
+- macOS, with the Vega Virtual Device running, and the release build built:
+  `npm run build --prefix native`. The tutorial take installs it afresh.
 - [`vvd`](https://github.com/fortemate/vega-vvd-driver) on the PATH with gRPC
   on (`vvd enable-grpc`), and `vega`, `ffmpeg`, `ffprobe` and `swift`. `VVD`
-  and `VEGA` name the first two when they are elsewhere. Use a `vvd` with
-  fortemate/vega-vvd-driver#14: earlier versions record long sounds, such as
-  the bots' lines, with a hole every few packets, heard as a rattle
-  (fortemate/vega-vvd-driver#13).
-- In the app's Settings: music off; sound effects, voices ("Bot voices" up to
-  0.1.0 beta 7) and "Turn board in hotseat" on; and Rolly as the Hot Seat host
-  (#202, from beta 8). The takes carry only the sound effects and the
-  characters' lines, and `record.ts` stops if the home screen is not silent.
-  The home take goes on while Rolly greets the two players at the start of the
-  hotseat game, which is the scene about her. The music is laid in afterwards,
-  so it does not break at the cuts.
-- A build with the opponents' portraits shows them in the takes (see
-  "Portraits" in `native/README.md`). The takes and the video stay in `dist/`,
-  which git ignores.
+  and `VEGA` name the first two when they are elsewhere, and `VPKG` the
+  package. Use a `vvd` with fortemate/vega-vvd-driver#14: earlier versions
+  record long sounds, such as the characters' lines, with a hole every few
+  packets, heard as a rattle (fortemate/vega-vvd-driver#13).
+- A build with the portraits shows them in the takes (see "Portraits" in
+  `native/README.md`). The takes and the video stay in `dist/`, which git
+  ignores.
 
 ## Making the video
 
@@ -43,18 +38,29 @@ text over its menus.
    node --experimental-strip-types scripts/demo-video/record.ts
    ```
 
-   They are saved to `dist/demo-video/takes/`. Recording replaces the game
-   saved on the device.
+   They are saved to `dist/demo-video/takes/`.
+   - **The tutorial take uninstalls the app first**, which deletes the game, the
+     results and the settings saved on the device, so a first launch can be
+     filmed: Thinkle's offer, every lesson, the closing words and a first game
+     against Rolly. A fresh install starts with music and voices on. The hotseat
+     take that follows makes Prowla the Hot Seat host.
+   - A take run on its own checks that music is on and says that the host must
+     be Prowla. Recording replaces the game saved on the device.
+   - A recording started a moment before the app launched once brought the
+     Virtual Device down, so each take starts its recording a few seconds
+     before it launches the app, as the ones that worked did.
 
 2. Look through each take and set where each clip starts and ends in
-   `storyboard.json`. The dice are random, so a take can miss what its scene
-   needs, such as a die dimmed by the roll or the end of Grabby's game; record
-   that take again. With the music off, a bot's line is the only sound in a
-   take longer than a second, which is how to find the stretches for `duck`.
-   The Virtual Device itself now and then sends a packet of silence in the
-   middle of a sound while it is recorded, about once in 30 s of sound: keep
-   such a moment out of the clips, or record the take again.
-   The times in the file belong to the takes the last cut was made from.
+   `storyboard.json`, and where each of Thinkle's lines starts, as `at`, in
+   seconds from the start of its scene. The dice are random, so a take can miss
+   what its scene needs: a capture by Grabby, a turn left part-way for the resume
+   take, or in the rampage take the music turning tense and then critical as a
+   king comes under threat. Record that take again.
+   - Keep his lines off the characters' own: they speak in the takes, and he
+     should not talk over them, or over himself in the tutorial.
+   - The Virtual Device itself now and then sends a packet of silence in the
+     middle of a sound while it is recorded, about once in 30 s of sound: keep
+     such a moment out of the clips, or record the take again.
 
 3. Cut the video:
 
@@ -64,26 +70,34 @@ text over its menus.
 
    It writes `dist/demo-video/dicechess-tv-demo.mp4`, `chapters.txt` for the
    YouTube description, and `sheet.png`, a frame every two seconds to check the
-   cut by. The script enforces that the video is shorter than three minutes,
-   1080p at 30 frames a second, with AAC sound, and prints a warning for any
-   chapter shorter than the 10 s YouTube needs (checked by assemble.ts, not on
-   a device).
+   cut by.
+   - It refuses a storyboard whose lines run into each other, and warns of a
+     line that runs past its scene.
+   - It enforces that the video is shorter than three minutes, 1080p at 30
+     frames a second, with AAC sound. It warns of any chapter shorter than the
+     10 s YouTube needs. These are checked by assemble.ts, not on a device.
 
 ## How the cut is made
 
-- A card holds one idea in about ten words. Its duration is configurable and
-  scales with the word count of its title; `seconds` in the storyboard overrides
-  it.
-- The music is the menu theme at the game's own balance: the track's gain and
-  the default volume step. It is louder while a card is up, where there are
-  no effects, and the finished mix is brought to a target loudness level.
-- A clip's `hold` keeps its last frame up. The takes press OK at a steady pace,
-  so a screen the app keeps up until a key is pressed closes at once in the
-  take. The grabby take is the exception: it stops pressing at the result, so
-  Grabby's last word is heard.
-- A clip's `duck` lists where a bot speaks, as `[from, to]` in the take's
-  seconds. The music dips by `duckDb` under each stretch, as the game's own
-  music does: down in 0.2 s before the line, back in 0.6 s after it.
+- A scene is its clips in a row, each faded through the app's background into
+  the next, with the take's own sound: music, effects and the characters' lines.
+- Thinkle's lines go in at their times. Under each one the take's sound dips by
+  `duckDb`, as the game's music does under a character's line: down in 0.2 s
+  before it, back in 0.6 s after it. `narrationGainDb` moves his level against
+  the takes; the clips are packed at -16 LUFS.
+- A clip's `hold` keeps its last frame up, with silence under it: room for a
+  line of his over a screen the take pressed on from at once.
+- The end card has the menu theme under it and his last words: an invitation
+  to the family, then his tutorial sign-off, "May the stars and the dice be kind
+  to you!", which is the app's own clip (`native/voices/`). The card makes no
+  promise of price, ads or accounts, since plans may change (owner, 2026-10-05).
+- The finished mix is brought to -16 LUFS, with its peaks under -1.5 dBFS.
 - The music is pepka-prygni's. `native/music/pepka-prygni-dicechess/LICENSE.txt`
   grants it for the game only; the owner reports that the author also allowed it
   in the demo video. The end card credits it.
+- The narration is for Fortemate's Dice Chess apps and the videos that present
+  them (`narration/LICENSE.txt`). To take a newer recording, vendor it again:
+
+  ```sh
+  node scripts/demo-video/vendor-narration.mjs ../dicechess-assets <full commit>
+  ```

@@ -1,0 +1,119 @@
+{
+  "upstream": "fortemate/dicechess-assets",
+  "commit": "5224de0373c2fc13114d0366f771fc320d1bf5ff",
+  "pack": "elevenlabs-dicechess-demo-thinkle",
+  "title": "Dice Chess TV demo video, narrated by Thinkle (ElevenLabs)",
+  "license": "Fortemate apps only",
+  "licenseFile": "LICENSE.txt",
+  "files": {
+    "manifest.json": "63e3cf02062eb993c722a307ee8fb1b98b67ed3db964e3d12f264b4a083d51fe",
+    "LICENSE.txt": "1060917a92920ba2cde2cff49afb5fa1a6687b2109542c0e141da42656b3697f",
+    "thinkle_demo_built_1.mp3": "0c85a5e00b2ffb80f8d9f74d77897bf97ea689fb5d36925aefe8a6e4b260c147",
+    "thinkle_demo_built_2.mp3": "7d5705165a1e00d9fc89a932739b8473d4a904b977e388aa485e42f32fbd4352",
+    "thinkle_demo_built_3.mp3": "7d8457f940bb54c6c9b9c5ce28ad647997188a2ef9702b93a84f521cca836a0a",
+    "thinkle_demo_close_1.mp3": "3efc9c7c3e38c97e748e20f10ac66e4180b50d293f52a50d03a36982dc9a5837",
+    "thinkle_demo_hook_1.mp3": "8ca482eb29cfceaa46e8bfc8a54791224fe34628b642540fd2bf8004f4fdd1d4",
+    "thinkle_demo_hook_2.mp3": "74e84be1bd840ef0d63ca8388f803c7a5f0e973a7075df405cc5abc79a9cc717",
+    "thinkle_demo_hotseat_1.mp3": "841541e284a26fe1970a429357abb02f07643feda02931ba720e6363daa7629d",
+    "thinkle_demo_hotseat_2.mp3": "61e6061c554d4094b4d9f5a8caa6010e5d8326c57d95e5e272a253ac780631f8",
+    "thinkle_demo_hotseat_3.mp3": "5754e9952ee9ca85bfaf178d2790f50325211ab1bde54e52c3a8db0187bfd66f",
+    "thinkle_demo_music_1.mp3": "0913846f5397b2674e50c167a4235a3f5aa3371778268bc69c74aef20a9e7303",
+    "thinkle_demo_music_2.mp3": "fd2554bc0938f0e10d906d3f1fa90f0e25dd8a2db38ba9112f7ae21c52461a38",
+    "thinkle_demo_opponents_1.mp3": "9751b6b8900fca5ff40b5d26abbbda7a98482f59831dcf648f9d3492dd62fd45",
+    "thinkle_demo_opponents_2.mp3": "11b8a0fb413d25524d8191de8168c5fd50a04fdaf6b0418e99e88dab504c5a5b",
+    "thinkle_demo_resume_1.mp3": "d58c94a6e72fb5fd7c6027a4bec294d5208cdd43b0ca78c3862fb61d10dd6cb3",
+    "thinkle_demo_teach_1.mp3": "8b4e5861f31a1f15367df44a281259f08f4eb0f2eb376b5d2d9d9f663c626cbc"
+  },
+  "lines": {
+    "thinkle_demo_built_1": {
+      "file": "thinkle_demo_built_1.mp3",
+      "seconds": 4.72,
+      "text": "No magic under the hood: just fast, native code.",
+      "sha256": "0c85a5e00b2ffb80f8d9f74d77897bf97ea689fb5d36925aefe8a6e4b260c147"
+    },
+    "thinkle_demo_built_2": {
+      "file": "thinkle_demo_built_2.mp3",
+      "seconds": 3.68,
+      "text": "It draws its first frame in about a third of a second.",
+      "sha256": "7d5705165a1e00d9fc89a932739b8473d4a904b977e388aa485e42f32fbd4352"
+    },
+    "thinkle_demo_built_3": {
+      "file": "thinkle_demo_built_3.mp3",
+      "seconds": 4,
+      "text": "The rules come from Fortemate's open Dice Chess engine.",
+      "sha256": "7d8457f940bb54c6c9b9c5ce28ad647997188a2ef9702b93a84f521cca836a0a"
+    },
+    "thinkle_demo_close_1": {
+      "file": "thinkle_demo_close_1.mp3",
+      "seconds": 4.08,
+      "text": "So gather the family, my friend. The dice are waiting.",
+      "sha256": "3efc9c7c3e38c97e748e20f10ac66e4180b50d293f52a50d03a36982dc9a5837"
+    },
+    "thinkle_demo_hook_1": {
+      "file": "thinkle_demo_hook_1.mp3",
+      "seconds": 4.8,
+      "text": "Hmm... what if the dice chose which pieces you move?",
+      "sha256": "8ca482eb29cfceaa46e8bfc8a54791224fe34628b642540fd2bf8004f4fdd1d4"
+    },
+    "thinkle_demo_hook_2": {
+      "file": "thinkle_demo_hook_2.mp3",
+      "seconds": 4.56,
+      "text": "That is Dice Chess, my friend, and your TV teaches it.",
+      "sha256": "74e84be1bd840ef0d63ca8388f803c7a5f0e973a7075df405cc5abc79a9cc717"
+    },
+    "thinkle_demo_hotseat_1": {
+      "file": "thinkle_demo_hotseat_1.mp3",
+      "seconds": 3.92,
+      "text": "Two players, one remote. Pass it along the sofa!",
+      "sha256": "841541e284a26fe1970a429357abb02f07643feda02931ba720e6363daa7629d"
+    },
+    "thinkle_demo_hotseat_2": {
+      "file": "thinkle_demo_hotseat_2.mp3",
+      "seconds": 3.6,
+      "text": "The cursor leaps between the pieces that may move.",
+      "sha256": "61e6061c554d4094b4d9f5a8caa6010e5d8326c57d95e5e272a253ac780631f8"
+    },
+    "thinkle_demo_hotseat_3": {
+      "file": "thinkle_demo_hotseat_3.mp3",
+      "seconds": 3.84,
+      "text": "About nine presses a turn, instead of twenty-three.",
+      "sha256": "5754e9952ee9ca85bfaf178d2790f50325211ab1bde54e52c3a8db0187bfd66f"
+    },
+    "thinkle_demo_music_1": {
+      "file": "thinkle_demo_music_1.mp3",
+      "seconds": 4.16,
+      "text": "Listen... the music knows when a king is in danger.",
+      "sha256": "0913846f5397b2674e50c167a4235a3f5aa3371778268bc69c74aef20a9e7303"
+    },
+    "thinkle_demo_music_2": {
+      "file": "thinkle_demo_music_2.mp3",
+      "seconds": 4.56,
+      "text": "Each turn it weighs all two hundred and sixteen rolls.",
+      "sha256": "fd2554bc0938f0e10d906d3f1fa90f0e25dd8a2db38ba9112f7ae21c52461a38"
+    },
+    "thinkle_demo_opponents_1": {
+      "file": "thinkle_demo_opponents_1.mp3",
+      "seconds": 4.72,
+      "text": "Or play the computer: three rivals, from easy to hard.",
+      "sha256": "9751b6b8900fca5ff40b5d26abbbda7a98482f59831dcf648f9d3492dd62fd45"
+    },
+    "thinkle_demo_opponents_2": {
+      "file": "thinkle_demo_opponents_2.mp3",
+      "seconds": 5.6,
+      "text": "Each has a face, a voice and a style all its own.",
+      "sha256": "11b8a0fb413d25524d8191de8168c5fd50a04fdaf6b0418e99e88dab504c5a5b"
+    },
+    "thinkle_demo_resume_1": {
+      "file": "thinkle_demo_resume_1.mp3",
+      "seconds": 4.96,
+      "text": "Called to dinner mid-turn? The game waits, dice and all.",
+      "sha256": "d58c94a6e72fb5fd7c6027a4bec294d5208cdd43b0ca78c3862fb61d10dd6cb3"
+    },
+    "thinkle_demo_teach_1": {
+      "file": "thinkle_demo_teach_1.mp3",
+      "seconds": 3.84,
+      "text": "Six short lessons, then straight into your first game.",
+      "sha256": "8b4e5861f31a1f15367df44a281259f08f4eb0f2eb376b5d2d9d9f663c626cbc"
+    }
+  }
+}
