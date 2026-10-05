@@ -89,9 +89,15 @@ const settled = (
 // after launch.
 export type ScreenAction =
   | { kind: 'key'; key: BoardKey }
+  // A game started from outside the menus: the tutorial's last screen offers
+  // one against Rolly or a friend (#244).
+  | ({ kind: 'newGame' } & GameChoice)
   | { kind: 'bot'; reply?: BotReply }
   | { kind: 'unguard' }
   | { kind: 'musicAvailable'; available: boolean };
+
+// A game to start: its mode, and the colour a person plays against the bot.
+export type GameChoice = { mode: Mode; colour: ColourChoice };
 
 // How long the opponent's next step waits, in milliseconds: long enough to watch
 // each roll and move land.
@@ -114,6 +120,9 @@ export const OK_GUARD_MS = 700;
 export type Overlay =
   | { kind: 'none' }
   | { kind: 'home'; index: number }
+  // On a first launch, before the home screen: Thinkle offers to teach the game
+  // (#244). Answered once, either way, it is never shown again.
+  | { kind: 'offer'; index: number }
   | { kind: 'menu'; index: number }
   | {
       kind: 'confirm';
@@ -304,6 +313,10 @@ export const menuOptions = (game: Game): string[] => [
 
 export const confirmOptions = ['Cancel', 'Yes'];
 
+// The first launch's offer (#244): the tutorial, or straight to the home screen.
+export const LEARN_OPTION = 'Learn to play';
+export const offerOptions = [LEARN_OPTION, 'Skip'];
+
 export const resultOptions = ['Rematch', 'Main menu'];
 
 // A new game keeps the settings, which are not about the game.
@@ -364,6 +377,8 @@ export const initialState = (
     voices = true,
     host = DEFAULT_HOST,
   }: Partial<ScreenSettings> = {},
+  // A first launch, which opens on the offer of the tutorial (#244).
+  firstLaunch = false,
 ): ScreenState => {
   const game = restored ?? newGame('hotseat', options.newId());
   const isFlipped = flipped(game, turnHotseat);
@@ -375,10 +390,13 @@ export const initialState = (
       game,
       turnHotseat,
     ),
-    // Always the home screen: a new launch has a mode to choose, and a restored
-    // game should be resumed deliberately rather than dropping the player
-    // mid-turn into a game they may not remember.
-    overlay: { kind: 'home', index: 0 },
+    // The home screen: a new launch has a mode to choose, and a restored game
+    // should be resumed deliberately rather than dropping the player mid-turn
+    // into a game they may not remember. A first launch is offered the tutorial
+    // first: the game is new to nearly everyone (#244).
+    overlay: firstLaunch
+      ? { kind: 'offer', index: 0 }
+      : { kind: 'home', index: 0 },
     pending: [],
     sound,
     music,
@@ -530,6 +548,36 @@ const onHome: Handler<'home'> = (state, overlay, key, options) => {
     });
   return start(state, 'hotseat', 'random', options);
 };
+
+// The offer of the tutorial on a first launch. Skip, Back and Menu all go to the
+// home screen, so the offer never closes the app.
+const onOffer: Handler<'offer'> = (state, overlay, key) => {
+  if (key === 'back' || key === 'menu') return show(state, HOME);
+  if (key !== 'select') return moved(state, overlay, key, offerOptions.length);
+  return show(
+    state,
+    offerOptions[overlay.index] === LEARN_OPTION ? { kind: 'tutorial' } : HOME,
+  );
+};
+
+// A game started from the tutorial's last screen, as one from the menus would
+// be: over a game still in play only after the same confirmation.
+const startFrom = (
+  state: ScreenState,
+  mode: Mode,
+  colour: ColourChoice,
+  options: ScreenOptions,
+): ScreenState =>
+  resumable(state.game)
+    ? show(state, {
+        kind: 'confirm',
+        action: 'replace',
+        index: 0,
+        mode,
+        colour,
+        from: 'home',
+      })
+    : start(state, mode, colour, options);
 
 // The option the choice of opponent was opened from, which Back returns to.
 const openerOf = (state: ScreenState, from: 'home' | 'menu'): Overlay =>
@@ -780,6 +828,8 @@ export function screenReducer(
   options: ScreenOptions,
 ): ScreenState {
   if (action.kind === 'bot') return botStep(state, options, action.reply);
+  if (action.kind === 'newGame')
+    return startFrom(state, action.mode, action.colour, options);
   if (action.kind === 'unguard')
     return state.guarded ? { ...state, guarded: false } : state;
   if (action.kind === 'musicAvailable') {
@@ -798,6 +848,8 @@ export function screenReducer(
   switch (overlay.kind) {
     case 'home':
       return onHome(state, overlay, key, options);
+    case 'offer':
+      return onOffer(state, overlay, key, options);
     case 'opponent':
       return onOpponent(state, overlay, key, options);
     case 'colour':

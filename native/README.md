@@ -31,6 +31,8 @@ Long-form technical documentation, platform findings, performance benchmarks and
 | `src/Portrait.tsx`             | A character's portrait, or its emoji face when the build has no portraits.           |
 | `src/TutorialScreen.tsx`       | Six-lesson interactive tutorial taught by Thinkle, on an isolated sandbox board.     |
 | `src/tutorial.ts`              | The tutorial's flow, as a pure reducer over state and one key.                       |
+| `src/TutorialOffer.tsx`        | The first launch's offer of the tutorial: Thinkle asks, Learn to play or Skip.       |
+| `src/Teacher.tsx`              | Thinkle in the panel, for the tutorial and its offer: portrait, name and bubble.     |
 | `src/RulesScreen.tsx`          | Dual-pane rules guide: topics on the left, selected explanation on the right.        |
 | `src/AboutScreen.tsx`          | Project credits and third-party licence notices accessible via TV remote.            |
 | `src/Board.tsx`                | 8x8 grid rendering pieces, square tints, focus rings, and move slide animations.     |
@@ -49,6 +51,7 @@ Long-form technical documentation, platform findings, performance benchmarks and
 | `src/soundSetting.ts`          | Sound effects enable/disable toggle remembered across launches.                      |
 | `src/voiceSetting.ts`          | Voices toggle for every spoken line, on by default, remembered across launches.      |
 | `src/hostSetting.ts`           | Who hosts Hot Seat, Rolly (the default) or off, remembered across launches.          |
+| `src/tutorialOfferSetting.ts`  | Whether the first launch's offer of the tutorial was answered, remembered.           |
 | `src/music.ts`                 | Plays adaptive music: menu theme or danger-level tracks with crossfades.             |
 | `src/useDanger.ts`             | Measures king threat level at the start of each turn spread over frames.             |
 | `src/musicSetting.ts`          | Music toggle and volume settings remembered across launches.                         |

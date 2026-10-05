@@ -7,7 +7,8 @@
 // lesson's title, his portrait with his name and the lesson's number, his
 // bubble, and the task in plain words. The dice and the key hint stand at the
 // bottom, where a game has the player's badge, so they keep their place however
-// much he says, and his bubble may take the room between.
+// much he says, and his bubble may take the room between. After the last lesson
+// the task gives way to a choice: a first game, or the main menu (#244).
 import React from 'react';
 import { View, Text, useWindowDimensions } from 'react-native';
 import { emptyRoll, viewGame } from '../../src/core/game';
@@ -24,11 +25,13 @@ import { Dice } from './Dice';
 import { diceOf } from '../../src/core/dice';
 import { useRemoteInput } from './useRemoteInput';
 import { THEME } from './theme';
-import { Portrait } from './Portrait';
-import { SpeechBubble } from './SpeechBubble';
+import { Option } from './Option';
+import { Teacher, TeacherTitle } from './Teacher';
 import { useTutorialVoice, type TutorialVoice } from './useTutorialVoice';
-import { BOARD_GAP, boardSide, safeInsets } from './layout';
+import { BOARD_GAP, boardSide, drawnSide, safeInsets } from './layout';
+import type { GameChoice } from './screen';
 import {
+  CLOSING_CHOICES,
   initialTutorial,
   tutorialReducer,
   step,
@@ -36,7 +39,8 @@ import {
 } from './tutorial';
 
 export type TutorialScreenProps = {
-  onExit: () => void;
+  // Leaving, with the game chosen on the closing screen to start, if any.
+  onExit: (next: GameChoice | null) => void;
   // Diagnostic seam for device checks, as on the game screen.
   onState?: (report: string) => void;
   // Where Thinkle's lines are said: the game's sounds, which honour the Voices
@@ -44,23 +48,15 @@ export type TutorialScreenProps = {
   voice?: TutorialVoice;
 };
 
-// Thinkle's portrait, and the rows his bubble may take: about 170 characters,
-// in the layout the owner chose from the mockups (#264). The rows above the
-// task and the dice leave about 24 dp spare for a task of three rows.
-export const TEACHER_PORTRAIT = 72;
-export const TEACHER_BUBBLE_ROWS = 5;
-
-// A line of text has room above its capitals and below its baseline. These pull
-// the title's capitals up to the board's top edge and the hint's baseline down
-// to its bottom edge. Measured on the Virtual Device (#264): with them both
-// meet the board's edges to within a pixel of a 1080p capture.
-const TITLE_LEAD = 7;
+// A line of text has room below its baseline. This pulls the hint's baseline
+// down to the board's bottom edge, as the title's capitals meet its top one:
+// measured on the Virtual Device (#264), to within a pixel of a 1080p capture.
 const HINT_DESCENT = 5;
 
 // What OK and Back do now. Back cancels a selection before it leaves, as in a
-// game, so the hint says which of the two it will do.
+// game, so the hint says which of the two it will do. The closing screen's
+// choices say what OK does there, so it has no hint.
 const hint = (state: TutorialState): string => {
-  if (state.finished) return 'OK: back to the menu';
   if (state.complete)
     return state.index + 1 < TUTORIAL.length
       ? 'Done. OK: next lesson · Back: leave'
@@ -84,6 +80,9 @@ export const TutorialScreen = ({
     initialTutorial,
   );
 
+  // OK held down, shown on the focused choice of the closing screen (#51).
+  const [pressed, setPressed] = React.useState(false);
+
   // The tutorial always has somewhere to go back to, so it never lets Back
   // close the app.
   useRemoteInput(onKey as (key: BoardKey) => void, {
@@ -91,11 +90,12 @@ export const TutorialScreen = ({
       (onKey as (key: BoardKey) => void)('back');
       return true;
     },
+    onPress: setPressed,
   });
 
   React.useEffect(() => {
-    if (state.exit) onExit();
-  }, [state.exit, onExit]);
+    if (state.exit) onExit(state.next);
+  }, [state.exit, state.next, onExit]);
 
   React.useEffect(() => {
     const view = viewGame(state.game);
@@ -105,6 +105,7 @@ export const TutorialScreen = ({
         `step ${step(state).id}`,
         `complete ${state.complete}`,
         `finished ${state.finished}`,
+        `choice ${state.finished ? CLOSING_CHOICES[state.choice].label : '-'}`,
         `dice "${view.remaining}"`,
         `playable "${view.playable}"`,
         `cursor ${state.focus.cursor}`,
@@ -152,51 +153,31 @@ export const TutorialScreen = ({
           its badges: the title starts at the board's top edge and the hint ends
           at its bottom one. */}
       <View
-        style={{
-          flex: 1,
-          height: Math.floor(size / 8) * 8,
-          paddingLeft: BOARD_GAP,
-        }}
+        style={{ flex: 1, height: drawnSide(size), paddingLeft: BOARD_GAP }}
       >
-        <Text
-          style={{
-            color: '#f0f4f8',
-            fontSize: 34,
-            marginTop: -TITLE_LEAD,
-            marginBottom: 14,
-          }}
-        >
+        <TeacherTitle>
           {state.finished ? 'That is the whole game' : current.title}
-        </Text>
+        </TeacherTitle>
 
-        <View testID="teacher" style={{ marginBottom: 10 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Portrait character="thinkle" kind="card" size={TEACHER_PORTRAIT} />
-            <View style={{ marginLeft: 12 }}>
-              <Text
-                style={{
-                  color: '#f0f4f8',
-                  fontSize: 20,
-                  fontWeight: '700',
-                  letterSpacing: 1,
-                }}
-              >
-                THINKLE
-              </Text>
-              <Text style={{ color: '#8dc9b6', fontSize: 20 }}>
-                {state.finished ? 'All lessons done' : lesson}
-              </Text>
-            </View>
+        <Teacher
+          caption={state.finished ? 'All lessons done' : lesson}
+          text={lines.map((line) => line.text).join(' ')}
+        />
+
+        {/* Once the lesson is done there is nothing left to do on the board.
+            After the last one, what comes next is chosen under his words. */}
+        {state.finished ? (
+          <View>
+            {CLOSING_CHOICES.map(({ label }, i) => (
+              <Option
+                key={label}
+                label={label}
+                focused={i === state.choice}
+                pressed={pressed}
+              />
+            ))}
           </View>
-          <SpeechBubble
-            text={lines.map((line) => line.text).join(' ')}
-            rows={TEACHER_BUBBLE_ROWS}
-            tail="up"
-            tailAt={TEACHER_PORTRAIT / 2}
-          />
-        </View>
-
-        {/* Once the lesson is done there is nothing left to do on the board. */}
+        ) : null}
         {state.finished || state.complete ? null : (
           <Text style={{ color: '#f0f4f8', fontSize: 24 }}>
             {taskAt(current, state.game)}
@@ -205,24 +186,26 @@ export const TutorialScreen = ({
 
         <View style={{ flex: 1 }} />
 
-        {/* After the last lesson there is nothing to roll. */}
+        {/* After the last lesson there is nothing to roll, and the choices say
+            what OK does. */}
         {state.finished ? null : (
-          <Dice
-            dice={diceOf(state.game.roll, board.remaining, board.playable)}
-            side={board.side}
-            size={56}
-          />
+          <>
+            <Dice
+              dice={diceOf(state.game.roll, board.remaining, board.playable)}
+              side={board.side}
+              size={56}
+            />
+            <Text
+              style={{
+                color: state.complete ? '#8aebaa' : '#98a9ba',
+                fontSize: 22,
+                marginBottom: -HINT_DESCENT,
+              }}
+            >
+              {hint(state)}
+            </Text>
+          </>
         )}
-
-        <Text
-          style={{
-            color: state.complete || state.finished ? '#8aebaa' : '#98a9ba',
-            fontSize: 22,
-            marginBottom: -HINT_DESCENT,
-          }}
-        >
-          {hint(state)}
-        </Text>
       </View>
     </View>
   );

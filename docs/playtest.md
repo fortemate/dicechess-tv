@@ -49,7 +49,7 @@ Removing the app deletes its saved game, results and settings. They never leave 
 
 ## What to try
 
-1. Start with **How to play**, the six-lesson tutorial, before reading anything else about the game.
+1. Start with **How to play**, the six-lesson tutorial, before reading anything else about the game. Builds after 0.1.0 beta 8 offer it on the first launch after a fresh install (**Learn to play**). Their tutorial's last screen goes straight into a first game, against Rolly or a friend.
 2. Play a game against the computer: **Play the computer**, then pick Rolly (easy), Grabby (medium) or Rampage (hard). In 0.1.0 beta 1 there is one opponent, under **Play Random**. From beta 6 the computer opponents talk: each has a face, speech bubbles and a voice of its own. From beta 7 they are fairy-tale characters, a pixie, a goblin and a little horned imp, whose voices act their lines. From beta 8 the opponent talks from beside its face at the top of the screen, and stays in full colour the whole game.
 3. If someone is with you, start a **New hotseat game** and pass the remote. From beta 8, Rolly hosts it: she greets you both, cheers the big moments when a turn ends, and cheers you both at the end. While she speaks, she shows with her line above the bottom badge.
 4. Look something up in **Rules**.

@@ -43,7 +43,7 @@ Contains all platform-agnostic gameplay code. Enforced pure by `tsconfig.core.js
 | `snapshotStore.ts` | Snapshot serialization contract and integrity validation.                                   |
 | `danger.ts`        | King threat evaluation driving adaptive background music levels.                            |
 | `ledger.ts`        | Persistent win/draw/loss ledger with crash-resilient exactly-once accounting.               |
-| `tutorial.ts`      | Pure data and state machine for the 5 interactive tutorial lessons.                         |
+| `tutorial.ts`      | Pure data and state machine for the 6 interactive tutorial lessons.                         |
 | `cues.ts`          | Computes audio cue triggers (move, capture, roll, victory) from board state diffs.          |
 
 ### 2. React Native for Vega Shell (`native/`)
@@ -64,6 +64,7 @@ Contains the TV presentation layer built with React Native for Vega:
 | `src/Dice.tsx`           | Three-dice tray with tumbling roll animations and dimmed unplayable dice.                              |
 | `src/OpponentScreen.tsx` | Three-card opponent selection screen showing bot faces, difficulty, and player record.                 |
 | `src/TutorialScreen.tsx` | Interactive tutorial screen driving lessons on an isolated sandbox board.                              |
+| `src/TutorialOffer.tsx`  | The first launch's offer of the tutorial, made by Thinkle: Learn to play or Skip.                      |
 | `src/RulesScreen.tsx`    | Dual-pane rules guide with topics on the left and explanations on the right.                           |
 | `src/AboutScreen.tsx`    | Project credits and third-party license notices accessible via TV remote.                              |
 | `src/useRemoteInput.ts`  | Subscribes to Vega input events and normalizes keys (`enter`, `kpenter`, `select`, `back`).            |

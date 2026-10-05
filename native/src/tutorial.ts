@@ -6,7 +6,9 @@
 // keep in step.
 //
 // There is no store here and no ledger. The screen that runs this is given
-// neither, so a lesson cannot touch a saved game or a record.
+// neither, so a lesson cannot touch a saved game or a record. The game chosen
+// on the last screen is only named here. The game screen starts it as its
+// menus would, and asks first if that would replace a game in play (#244).
 import { emptyRoll, moveGame, viewGame, type Game } from '../../src/core/game';
 import {
   boardInput,
@@ -24,7 +26,8 @@ import {
   isMissed,
   type TutorialStep,
 } from '../../src/core/tutorial';
-import { START } from './screen';
+import { opponentOf } from '../../src/core/opponents';
+import { START, type GameChoice } from './screen';
 
 export type TutorialState = {
   index: number;
@@ -36,7 +39,26 @@ export type TutorialState = {
   finished: boolean;
   // The player asked to leave. The tutorial is skippable at any point.
   exit: boolean;
+  // The option focused on the closing screen, and the game chosen there to
+  // start on leaving (#244). Leaving any other way starts none.
+  choice: number;
+  next: GameChoice | null;
 };
+
+// What the closing screen offers (#244): a first game against the easiest
+// opponent, as White so the player rolls first, or against a friend on the
+// same remote; or the main menu.
+export const CLOSING_CHOICES: readonly {
+  label: string;
+  game: GameChoice | null;
+}[] = [
+  {
+    label: `Play ${opponentOf('random').name}`,
+    game: { mode: 'random', colour: 'w' },
+  },
+  { label: 'Play a friend', game: { mode: 'hotseat', colour: 'random' } },
+  { label: 'Main menu', game: null },
+];
 
 export const step = (state: TutorialState): TutorialStep =>
   TUTORIAL[state.index];
@@ -52,6 +74,8 @@ const atStep = (index: number): TutorialState => {
     complete: false,
     finished: false,
     exit: false,
+    choice: 0,
+    next: null,
   };
 };
 
@@ -63,10 +87,20 @@ export function tutorialReducer(
 ): TutorialState {
   if (state.exit) return state;
 
-  if (state.finished)
-    return key === 'select' || key === 'back' || key === 'menu'
-      ? { ...state, exit: true }
-      : state;
+  // The closing screen: the arrows walk its choices, wrapping, as they walk a
+  // menu's, and OK takes one. Back and Menu go to the main menu, as its last
+  // choice does.
+  if (state.finished) {
+    if (key === 'back' || key === 'menu') return { ...state, exit: true };
+    if (key === 'select')
+      return { ...state, exit: true, next: CLOSING_CHOICES[state.choice].game };
+    const length = CLOSING_CHOICES.length;
+    const back = key === 'up' || key === 'left';
+    return {
+      ...state,
+      choice: (state.choice + (back ? -1 : 1) + length) % length,
+    };
+  }
 
   // Between steps: OK goes on, Back leaves. The board takes no input, so a
   // stray press cannot undo what was just learned.

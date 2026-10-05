@@ -14,7 +14,14 @@ export class MMKV {
   }
 }
 
-// Test-only: forget everything, as a fresh install would.
-export function reset() {
+// The answered offer of the tutorial (#244), as src/tutorialOfferSetting.ts
+// stores it; test/tutorialOffer.test.tsx holds the two to the same key.
+const OFFER_KEY = 'dicechess-tv.tutorialOffer.v1';
+
+// Test-only: forget everything, as a fresh install would, except that the
+// first launch's offer of the tutorial has been answered, since nearly every
+// test is about what comes after it. A first launch keeps nothing at all.
+export function reset({ firstLaunch = false } = {}) {
   store.clear();
+  if (!firstLaunch) store.set(OFFER_KEY, 'answered');
 }

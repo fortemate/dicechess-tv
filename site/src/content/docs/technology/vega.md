@@ -41,6 +41,7 @@ To keep Back from closing the app when a player wants to put a piece down or ope
 - When a piece is selected: Back deselects the piece.
 - During a game, with nothing selected or while the opponent plays: Back opens the game menu, and Back again closes it.
 - In the rules guide, the tutorial or About: Back returns to the home screen, with its first item focused. In the tutorial, Back first puts down a selected piece.
+- On the first launch's offer of the tutorial: Back goes to the home screen, as Skip does, and never closes the app.
 - In Settings and in the choice of opponent and colour: Back returns to the screen that opened it. On a confirmation, Back does what Cancel does.
 - On the home screen: the handler returns `false`, and `useKeplerBackHandler` closes the app.
 

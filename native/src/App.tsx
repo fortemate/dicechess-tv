@@ -28,6 +28,10 @@ import { readSound, saveSound } from './soundSetting';
 import { readTurnBoard, saveTurnBoard } from './turnSetting';
 import { readVoices, saveVoices } from './voiceSetting';
 import { readHost, saveHost, type HostChoice } from './hostSetting';
+import {
+  readTutorialOffered,
+  saveTutorialOffered,
+} from './tutorialOfferSetting';
 import { createMusic, loadCatalogue, type Music } from './music';
 import {
   readMusic,
@@ -229,6 +233,20 @@ export const App = ({
     [settings, music],
   );
 
+  // A first launch opens on Thinkle's offer of the tutorial (#244). It is made
+  // once, and never to a player who has a game saved, even one that no longer
+  // reads: they have played before.
+  const [offerTutorial] = React.useState(
+    () =>
+      !readTutorialOffered(settings) &&
+      opened.game === null &&
+      opened.damaged === null,
+  );
+  const onTutorialOffered = React.useCallback(
+    () => saveTutorialOffered(settings),
+    [settings],
+  );
+
   // Whether the board turns to the side to move in hotseat (#120).
   const [initialTurnBoard] = React.useState(() => readTurnBoard(settings));
   const onTurnBoard = React.useCallback(
@@ -316,6 +334,8 @@ export const App = ({
       initialMusic={initialMusic}
       onMusic={onMusic}
       musicAvailable={musicAvailable}
+      offerTutorial={offerTutorial}
+      onTutorialOffered={onTutorialOffered}
     />
   );
 };

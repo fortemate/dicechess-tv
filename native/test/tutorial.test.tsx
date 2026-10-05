@@ -16,8 +16,14 @@ import { decodeGame, viewGame, type Game } from '../../src/core/game';
 import { decodeLedger, type Ledger } from '../../src/core/ledger';
 import { TUTORIAL, isComplete, stepGame } from '../../src/core/tutorial';
 import { portraitPath } from '../src/Portrait';
-import { TEACHER_PORTRAIT } from '../src/TutorialScreen';
-import { initialTutorial, tutorialReducer, step } from '../src/tutorial';
+import { TEACHER_PORTRAIT } from '../src/Teacher';
+import {
+  CLOSING_CHOICES,
+  initialTutorial,
+  tutorialReducer,
+  step,
+} from '../src/tutorial';
+import { Dice } from '../src/Dice';
 import {
   movableSquares,
   movesFrom,
@@ -544,17 +550,74 @@ test('after the last lesson: finish, then the closing words on the starting posi
   assert.deepEqual(closing.game.roll, []);
 });
 
-test('the last lesson says finish, and the closing screen has no dice', () => {
+// Every lesson played on the remote, from the first one's opening until the
+// last one is done. Each OK rolls, picks up the piece the cursor waits on,
+// plays the move it lands on, passes the turn, or goes on to the next lesson.
+const playEveryLesson = () => {
+  // Roll and move: the roll, three pawn moves, next.
+  send('enter', 'enter', 'enter', 'enter', 'enter', 'enter', 'enter', 'enter');
+  // Dice choose the pieces: the roll, the knight's leap, next.
+  send('enter', 'enter', 'enter', 'enter');
+  // Clear the way: the roll, three moves, next.
+  send('enter', 'enter', 'enter', 'enter', 'enter', 'enter', 'enter', 'enter');
+  // When nothing can move: the roll, the pass, next.
+  send('enter', 'enter', 'enter');
+  // Taking a piece: the roll, the rook takes the pawn, next.
+  send('enter', 'enter', 'enter', 'enter');
+  // Taking the king: the roll, the rook takes the king.
+  send('enter', 'enter', 'enter');
+};
+
+// The game the app has saved, if any.
+const savedGame = () =>
+  new MmkvSnapshotStore<Game>({
+    key: 'dicechess-tv.game.v2',
+    decode: decodeGame,
+  }).read();
+
+test('the closing screen offers a first game, or the main menu', () => {
+  let state = initialTutorial();
+  for (let i = 0; i < TUTORIAL.length; i++)
+    state = tutorialReducer(solve(state), 'select');
+  assert.ok(state.finished);
+  assert.deepEqual(
+    CLOSING_CHOICES.map(({ label }) => label),
+    ['Play Rolly', 'Play a friend', 'Main menu'],
+  );
+  // Rolly, the easiest opponent, with the player as White, who rolls first.
+  assert.equal(state.choice, 0);
+  const rolly = tutorialReducer(state, 'select');
+  assert.ok(rolly.exit);
+  assert.deepEqual(rolly.next, { mode: 'random', colour: 'w' });
+
+  // The arrows walk the choices and wrap, as in a menu.
+  const friend = tutorialReducer(state, 'down');
+  assert.equal(friend.choice, 1);
+  assert.equal(tutorialReducer(friend, 'up').choice, 0);
+  assert.equal(tutorialReducer(state, 'up').choice, 2);
+  assert.equal(tutorialReducer(state, 'right').choice, 1);
+  assert.equal(tutorialReducer(state, 'left').choice, 2);
+  assert.deepEqual(tutorialReducer(friend, 'select').next, {
+    mode: 'hotseat',
+    colour: 'random',
+  });
+
+  // Main menu starts no game, and nor do Back and Menu, from any choice.
+  const menu = tutorialReducer(tutorialReducer(state, 'up'), 'select');
+  assert.ok(menu.exit);
+  assert.equal(menu.next, null);
+  for (const key of ['back', 'menu'] as const) {
+    const left = tutorialReducer(friend, key);
+    assert.ok(left.exit);
+    assert.equal(left.next, null);
+  }
+});
+
+test('the last lesson says finish, and the closing screen has choices, not dice', () => {
   reset();
   const root = launch();
   send('down', 'down', 'enter');
-  send('enter', 'enter', 'enter', 'enter', 'enter', 'enter', 'enter', 'enter');
-  send('enter', 'enter', 'enter', 'enter');
-  send('enter', 'enter', 'enter', 'enter', 'enter', 'enter', 'enter', 'enter');
-  send('enter', 'enter', 'enter');
-  send('enter', 'enter', 'enter', 'enter');
-  // The king lesson: roll, pick up the rook, take the king.
-  send('enter', 'enter', 'enter');
+  playEveryLesson();
   assert.match(text(root), /Lesson 6 of 6/);
   assert.match(text(root), /Done\. OK: finish · Back: leave/);
 
@@ -562,7 +625,87 @@ test('the last lesson says finish, and the closing screen has no dice', () => {
   assert.match(text(root), /That is the whole game/);
   assert.match(text(root), /All lessons done/);
   assert.match(text(root), /use dice too/);
-  assert.match(text(root), /OK: back to the menu/);
+  assert.equal(root.findAllByType(Dice as never).length, 0);
+  // The choices say what OK does, so there is no hint.
+  assert.deepEqual(
+    optionViews(root).map(({ label }) => label),
+    ['Play Rolly', 'Play a friend', 'Main menu'],
+  );
+  assert.equal(focusedLabel(root), 'Play Rolly');
+  assert.doesNotMatch(text(root), /OK: /);
+  send('down');
+  assert.equal(focusedLabel(root), 'Play a friend');
+  send('back');
+});
+
+test('Play Rolly at the end of the tutorial starts a game against Rolly, as White', () => {
+  reset();
+  const root = launch();
+  send('down', 'down', 'enter');
+  playEveryLesson();
+  send('enter', 'enter');
+  assert.doesNotMatch(text(root), TUTORIAL_OPEN);
+  const game = savedGame();
+  assert.equal(game?.mode, 'random');
+  assert.equal(game?.human, 'w');
+  // The player rolls first.
+  assert.equal(game?.phase, 'roll');
+  assert.match(text(root), /White to play · you/);
+  assert.match(text(root), /OK: roll three dice/);
+});
+
+test('Play a friend at the end of the tutorial starts a hotseat game', () => {
+  reset();
+  const root = launch();
+  send('down', 'down', 'enter');
+  playEveryLesson();
+  send('enter', 'down', 'enter');
+  assert.doesNotMatch(text(root), TUTORIAL_OPEN);
+  assert.equal(savedGame()?.mode, 'hotseat');
+  assert.match(text(root), /HOTSEAT · TURN 1/);
+  assert.match(text(root), /OK: roll three dice/);
+});
+
+test('Main menu at the end of the tutorial returns home and starts nothing', () => {
+  reset();
+  const root = launch();
+  send('down', 'down', 'enter');
+  playEveryLesson();
+  // Up from the first choice wraps to the last.
+  send('enter', 'up', 'enter');
+  assert.doesNotMatch(text(root), TUTORIAL_OPEN);
+  assert.equal(focusedLabel(root), 'New hotseat game');
+  assert.equal(savedGame(), null);
+});
+
+test('over a game in play, a game chosen at the end of the tutorial asks first', () => {
+  reset();
+  launch();
+  // A hotseat game with its first roll made is worth resuming.
+  send('enter', 'enter');
+  const before = JSON.stringify(savedGame());
+  // On the next launch the home screen offers Resume game first.
+  const root = launch();
+  send('down', 'down', 'down', 'enter');
+  assert.match(text(root), TUTORIAL_OPEN);
+  playEveryLesson();
+  send('enter', 'enter');
+  assert.match(text(root), /Replace this game\?/);
+  assert.equal(focusedLabel(root), 'Cancel');
+
+  // Cancel keeps the game, and the home screen waits on the option that would
+  // have started the new one.
   send('enter');
-  assert.match(text(root), /Dice Chess/);
+  assert.equal(JSON.stringify(savedGame()), before);
+  assert.equal(focusedLabel(root), 'Play the computer');
+
+  // Yes replaces it with the game chosen: Rolly, as White. How to play is the
+  // next option down.
+  send('down', 'enter');
+  assert.match(text(root), TUTORIAL_OPEN);
+  playEveryLesson();
+  send('enter', 'enter', 'down', 'enter');
+  const game = savedGame();
+  assert.equal(game?.mode, 'random');
+  assert.equal(game?.human, 'w');
 });

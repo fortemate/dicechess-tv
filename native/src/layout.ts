@@ -16,3 +16,7 @@ export const safeInsets = (width: number, height: number) => ({
 export const BOARD_GAP = 32;
 export const boardSide = (width: number, height: number): number =>
   Math.min(height - 80, width * 0.62);
+
+// The side of the board as drawn: eight whole squares, a little short of the
+// side it is given. A panel this tall stands level with the board.
+export const drawnSide = (side: number): number => Math.floor(side / 8) * 8;
