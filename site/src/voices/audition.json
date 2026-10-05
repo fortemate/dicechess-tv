@@ -111,13 +111,6 @@
               "seconds": 3.36
             },
             {
-              "line": "grabby_capture_heavy_1",
-              "text": "Jackpot! That prize piece is mine!",
-              "file": "voices/greedy/a/grabby_capture_heavy_1.mp3",
-              "sha256": "2c713721ea57efa8e824bd670bf2f05374dc4407745d6e3304f973570e5a5ef5",
-              "seconds": 3.6
-            },
-            {
               "line": "grabby_loss_1",
               "text": "No! My glorious collection! How dare you?!",
               "file": "voices/greedy/a/grabby_loss_1.mp3",
@@ -134,13 +127,6 @@
               "text": "Everything on this board belongs in my collection.",
               "file": "voices/greedy/b/grabby_intro_1.mp3",
               "sha256": "4045633ad4c4fde13c97729d7c8666f69f34822e228b11f4e85e63150f5f0e39",
-              "seconds": 2.976
-            },
-            {
-              "line": "grabby_capture_heavy_1",
-              "text": "Jackpot! That prize piece is mine!",
-              "file": "voices/greedy/b/grabby_capture_heavy_1.mp3",
-              "sha256": "22371d7a3716e609c52fe73180fcb8d6e5257afbf505f57039d5ea41373aea8f",
               "seconds": 2.976
             },
             {
@@ -161,13 +147,6 @@
               "file": "voices/greedy/c/grabby_intro_1.mp3",
               "sha256": "8d4e7d36971e34519adfe3c66d09e5a1ad6f55068763c1ba7b183680b144a44b",
               "seconds": 2.448
-            },
-            {
-              "line": "grabby_capture_heavy_1",
-              "text": "Jackpot! That prize piece is mine!",
-              "file": "voices/greedy/c/grabby_capture_heavy_1.mp3",
-              "sha256": "4cbbc3ea0d1d813c7a23f3103f065e9bc3a8d237d31faba601bedeb9db40e994",
-              "seconds": 2.688
             },
             {
               "line": "grabby_loss_1",

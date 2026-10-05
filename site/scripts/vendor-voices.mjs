@@ -11,11 +11,15 @@
 // The page shows the candidates as A, B and C, so the voice names stay out of
 // what is written here: site/src/voices/audition.json has the bots, their
 // candidates' ids and the clips' texts, files, digests and lengths.
+//
+// It carries only the lines the game still says. A line rewritten since the
+// audition, such as Grabby's money line of #251, is left out with its clips.
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { VOICE_CATALOGUE } from '../../src/core/botVoice.ts';
 
 const UPSTREAM = 'fortemate/dicechess-assets';
 const PACK = 'voices/polly-dicechess-bots';
@@ -63,9 +67,10 @@ const bots = order.map((mode) => ({
 
 const target = join(site, 'public/voices');
 rmSync(target, { recursive: true, force: true });
-const byKey = Object.entries(audition.clips).sort(
-  ([a], [b]) => Number(a > b) - Number(a < b),
-);
+const said = new Map(VOICE_CATALOGUE.map((line) => [line.id, line.text]));
+const byKey = Object.entries(audition.clips)
+  .filter(([, clip]) => said.get(clip.line) === clip.text)
+  .sort(([a], [b]) => Number(a > b) - Number(a < b));
 for (const [key, clip] of byKey) {
   const bot = bots.find((each) => each.mode === clip.bot);
   let candidate = bot.candidates.find((each) => each.id === clip.candidate);
