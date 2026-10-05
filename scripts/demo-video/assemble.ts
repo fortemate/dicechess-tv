@@ -152,7 +152,8 @@ function lineCatalogue(): Map<string, Line> {
 }
 
 // His lines in a stretch that lasts `length` seconds and starts `start` seconds
-// into the video: placed, and checked to keep apart and inside it.
+// into the video: placed in the order they are said, whatever the order the
+// storyboard lists them in, and checked to keep apart and inside it.
 type Placed = { line: string; file: string; start: number; end: number };
 function place(
   where: string,
@@ -161,16 +162,18 @@ function place(
   length: number,
   lines: Map<string, Line>,
 ): Placed[] {
-  const placed = narration.map(({ line, at }) => {
-    const found = lines.get(line);
-    if (!found) throw new Error(`${where}: no clip for ${line}`);
-    return {
-      line,
-      file: found.file,
-      start: start + at,
-      end: start + at + found.seconds,
-    };
-  });
+  const placed = narration
+    .map(({ line, at }) => {
+      const found = lines.get(line);
+      if (!found) throw new Error(`${where}: no clip for ${line}`);
+      return {
+        line,
+        file: found.file,
+        start: start + at,
+        end: start + at + found.seconds,
+      };
+    })
+    .sort((a, b) => a.start - b.start);
   placed.forEach((each, index) => {
     const next = placed[index + 1];
     if (each.start < start)

@@ -87,10 +87,12 @@ test('each of his approved narration lines is said once', () => {
 });
 
 test('no two of his lines run into each other', () => {
-  for (const { where, lines } of placements)
-    lines.forEach(({ line, at }, index) => {
+  // In the order they are said, which the storyboard need not list them in.
+  for (const { where, lines } of placements) {
+    const said = [...lines].sort((a, b) => a.at - b.at);
+    said.forEach(({ line, at }, index) => {
       assert.ok(at >= 0, `${where}: ${line} starts before its scene`);
-      const next = lines[index + 1];
+      const next = said[index + 1];
       if (!next) return;
       const end = at + (lineOf(line)?.seconds ?? 0);
       assert.ok(
@@ -98,6 +100,7 @@ test('no two of his lines run into each other', () => {
         `${where}: ${line} runs into ${next.line}`,
       );
     });
+  }
 });
 
 test('every scene names its chapter, and the end card makes no promise', () => {

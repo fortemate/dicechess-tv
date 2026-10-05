@@ -14,7 +14,7 @@
 // of native/voices/, whose test allows no clip the game never says.
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -48,59 +48,77 @@ if (
   );
 const published = JSON.parse(show(`voices/${PACK}/checksums.json`).toString());
 
+// The new pack is written beside the old one and takes its place only once
+// every file has passed, so a failed run leaves the vendored pack as it was.
 const root = join(here, 'narration');
-rmSync(root, { recursive: true, force: true });
-mkdirSync(root, { recursive: true });
+const staging = join(here, 'narration.staging');
+rmSync(staging, { recursive: true, force: true });
+mkdirSync(staging, { recursive: true });
 
 const files = {};
+// The pack's path behind each file name: two paths may not share a name, or
+// one file would silently replace the other, the licence among them.
+const sources = new Map();
 const copy = (path) => {
+  const name = path.split('/').pop();
+  const taken = sources.get(name);
+  if (taken !== undefined && taken !== path)
+    throw new Error(`${PACK}: ${path} and ${taken} would both be ${name}`);
+  sources.set(name, path);
   const bytes = show(`voices/${PACK}/${path}`);
   const digest = sha256(bytes);
   if (published[path] !== digest)
     throw new Error(
       `${PACK}/${path} does not match the digest ${UPSTREAM} published at ${commit}`,
     );
-  const name = path.split('/').pop();
-  writeFileSync(join(root, name), bytes);
+  writeFileSync(join(staging, name), bytes);
   files[name] = digest;
   return { name, digest };
 };
 
-copy('manifest.json');
-copy(manifest.licenseFile);
 const ids = Object.keys(manifest.lines ?? {}).sort(byCodeUnit);
-if (ids.length === 0) throw new Error(`${PACK} has no lines made at ${commit}`);
-const lines = {};
-for (const id of ids) {
-  const line = manifest.lines[id];
-  const { name, digest } = copy(line.export);
-  if (digest !== line.sha256)
-    throw new Error(`${id} does not match its record in the manifest`);
-  lines[id] = {
-    file: name,
-    seconds: line.durationSeconds,
-    text: line.text,
-    sha256: digest,
-  };
-}
+try {
+  if (ids.length === 0)
+    throw new Error(`${PACK} has no lines made at ${commit}`);
+  copy('manifest.json');
+  copy(manifest.licenseFile);
+  const lines = {};
+  for (const id of ids) {
+    const line = manifest.lines[id];
+    const { name, digest } = copy(line.export);
+    if (digest !== line.sha256)
+      throw new Error(`${id} does not match its record in the manifest`);
+    lines[id] = {
+      file: name,
+      seconds: line.durationSeconds,
+      text: line.text,
+      sha256: digest,
+    };
+  }
 
-writeFileSync(
-  join(root, 'narration.json'),
-  JSON.stringify(
-    {
-      upstream: UPSTREAM,
-      commit,
-      pack: PACK,
-      title: manifest.title,
-      license: manifest.license,
-      licenseFile: manifest.licenseFile,
-      files,
-      lines,
-    },
-    null,
-    2,
-  ) + '\n',
-);
+  writeFileSync(
+    join(staging, 'narration.json'),
+    JSON.stringify(
+      {
+        upstream: UPSTREAM,
+        commit,
+        pack: PACK,
+        title: manifest.title,
+        license: manifest.license,
+        licenseFile: manifest.licenseFile,
+        files,
+        lines,
+      },
+      null,
+      2,
+    ) + '\n',
+  );
+} catch (error) {
+  rmSync(staging, { recursive: true, force: true });
+  throw error;
+}
+rmSync(root, { recursive: true, force: true });
+renameSync(staging, root);
 console.log(
   `narration: ${ids.length} lines of ${PACK} at ${commit.slice(0, 7)} -> scripts/demo-video/narration/`,
 );
