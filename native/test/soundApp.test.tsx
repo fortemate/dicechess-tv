@@ -159,7 +159,7 @@ test('the bots speak by default, and turning their voices off is remembered (#15
   act(() => tree.unmount());
 });
 
-test('Prowla hosts Hot Seat by default, Rolly or no one instead, and the choice is remembered (#202, #258)', () => {
+test('Prowla hosts Hot Seat by default, Rolly, Thinkle or no one instead, and the choice is remembered (#202, #258, #279)', () => {
   reset();
   const first = recorder();
   let tree = launch(first);
@@ -169,6 +169,9 @@ test('Prowla hosts Hot Seat by default, Rolly or no one instead, and the choice 
   send('down', 'down', 'enter');
   assert.match(text(tree.root), /Hot Seat host: Rolly/);
   assert.equal(new MMKV().getString('dicechess-tv.host.v1'), 'rolly');
+  send('enter');
+  assert.match(text(tree.root), /Hot Seat host: Thinkle/);
+  assert.equal(new MMKV().getString('dicechess-tv.host.v1'), 'thinkle');
   send('enter');
   assert.match(text(tree.root), /Hot Seat host: off/);
   assert.match(text(tree.root), /Voices: on/, 'the voices are left alone');
@@ -199,9 +202,12 @@ test('turning the host off while she speaks stops her voice, and only hers (#202
   send('back', 'up', 'enter', 'down', 'down');
   assert.match(text(tree.root), /Hot Seat host: Prowla/);
   assert.equal(sounds.stopped, 0, 'a menu alone leaves the line alone');
-  // Another host lets the line being said finish (#258).
+  // Another host lets the line being said finish (#258), and so does a third.
   send('enter');
   assert.match(text(tree.root), /Hot Seat host: Rolly/);
+  assert.equal(sounds.stopped, 0);
+  send('enter');
+  assert.match(text(tree.root), /Hot Seat host: Thinkle/);
   assert.equal(sounds.stopped, 0);
   send('enter');
   assert.match(text(tree.root), /Hot Seat host: off/);
@@ -216,7 +222,7 @@ test('turning the host off while she speaks stops her voice, and only hers (#202
   tree = launch(bot);
   send('down', 'enter', 'enter', 'enter');
   assert.match(bot.said[0], /^rolly_intro_[123]$/);
-  send('back', 'up', 'enter', 'down', 'down', 'enter', 'enter');
+  send('back', 'up', 'enter', 'down', 'down', 'enter', 'enter', 'enter');
   assert.match(text(tree.root), /Hot Seat host: off/);
   assert.equal(bot.stopped, 0);
   act(() => tree.unmount());
@@ -313,6 +319,28 @@ test('Rolly, chosen, hosts in her own voice, and her portrait shows with her lin
     const [block] = drawn(tree.root, 'host-block');
     assert.ok(block, 'she shows while she speaks');
     assert.equal(drawn(block, 'portrait-rolly').length, 1);
+    assert.equal(drawn(block, 'portrait-cat').length, 0);
+    assert.equal(
+      text(block),
+      HOST_CATALOGUE.find((line) => line.id === sounds.said[0])?.text,
+    );
+  } finally {
+    act(() => tree.unmount());
+  }
+});
+
+test('Thinkle, chosen, hosts in his own voice, and his portrait shows with his line (#279)', () => {
+  reset();
+  new MMKV().set('dicechess-tv.host.v1', 'thinkle');
+  const sounds = recorder();
+  const tree = launch(sounds);
+  try {
+    send('enter');
+    assert.equal(sounds.said.length, 1);
+    assert.match(sounds.said[0], /^thinkle_host_intro_[1-5]$/);
+    const [block] = drawn(tree.root, 'host-block');
+    assert.ok(block, 'he shows while he speaks');
+    assert.equal(drawn(block, 'portrait-thinkle').length, 1);
     assert.equal(drawn(block, 'portrait-cat').length, 0);
     assert.equal(
       text(block),

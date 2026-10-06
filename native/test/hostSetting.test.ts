@@ -57,17 +57,21 @@ test('Settings steps through the hosts, then off, and round again', () => {
     [
       ['prowla', 'Prowla', 'cat'],
       ['rolly', 'Rolly', 'rolly'],
+      ['thinkle', 'Thinkle', 'thinkle'],
     ],
   );
-  assert.deepEqual(HOST_CHOICES, ['prowla', 'rolly', 'off']);
+  assert.deepEqual(HOST_CHOICES, ['prowla', 'rolly', 'thinkle', 'off']);
   assert.equal(hostName('prowla'), 'Prowla');
   assert.equal(hostName('rolly'), 'Rolly');
+  assert.equal(hostName('thinkle'), 'Thinkle');
   assert.equal(hostName('off'), 'off');
   assert.equal(cycleHost('prowla'), 'rolly');
-  assert.equal(cycleHost('rolly'), 'off');
+  assert.equal(cycleHost('rolly'), 'thinkle');
+  assert.equal(cycleHost('thinkle'), 'off');
   assert.equal(cycleHost('off'), 'prowla');
   assert.equal(cycleHost('prowla', -1), 'off');
-  assert.equal(cycleHost('off', -1), 'rolly');
+  assert.equal(cycleHost('off', -1), 'thinkle');
+  assert.equal(cycleHost('thinkle', -1), 'rolly');
   assert.equal(cycleHost('rolly', -1), 'prowla');
 });
 
@@ -76,6 +80,14 @@ test('Prowla, chosen, is remembered by her id (#258)', () => {
   saveHost(store, 'prowla');
   assert.equal(store.getString(KEY), 'prowla');
   assert.equal(readHost(store), 'prowla');
+});
+
+test('Thinkle, chosen, is remembered by his id (#279)', () => {
+  const store = memoryStore();
+  saveHost(store, 'thinkle');
+  assert.equal(store.getString(KEY), 'thinkle');
+  assert.equal(readHost(store), 'thinkle');
+  assert.equal(readHost(memoryStore({ [KEY]: 'Thinkle' })), 'prowla');
 });
 
 test('the host and the voices are settings of their own', () => {

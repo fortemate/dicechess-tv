@@ -6,7 +6,7 @@ Long-form technical documentation, platform findings, performance benchmarks and
 
 - **[Architecture & Data Flow](https://dicechess-tv.fortemate.com/technology/architecture/):** The pure TypeScript core, React Native for Vega shell, and the canonical engine.
 - **[Building on Vega](https://dicechess-tv.fortemate.com/technology/vega/):** Platform findings measured on the device (input channels, the three names of OK, Back handler, service declarations, audio formats, splash/icon traps, and scripted automation).
-- **[Performance](https://dicechess-tv.fortemate.com/technology/performance/):** Launch KPIs (first frame in 309 ms, fully drawn in 748 ms), bot decision speeds, and motion timings.
+- **[Performance](https://dicechess-tv.fortemate.com/technology/performance/):** Launch KPIs on a Fire TV Stick (fully drawn in 2.65 s) and on the Virtual Device, bot decision speeds, and motion timings.
 - **[How We Test & Review](https://dicechess-tv.fortemate.com/quality/):** Automated tests, CI, CodeQL, SonarCloud quality gate, CodeRabbit, pre-commit hooks, and the press evaluator.
 - **[Build & Run](https://dicechess-tv.fortemate.com/contribute/build/):** Prerequisites, package variants, installation, security advisories, and Metro configuration.
 - **[Project Layout](https://dicechess-tv.fortemate.com/contribute/layout/):** Repository structure, source directories, and scripts.
@@ -18,51 +18,51 @@ Long-form technical documentation, platform findings, performance benchmarks and
 
 ## What is here
 
-| Path                           | Purpose                                                                              |
-| ------------------------------ | ------------------------------------------------------------------------------------ |
-| `src/App.tsx`                  | The root: reads saves before first render; owns randomness, sound and music.         |
-| `src/GameScreen.tsx`           | The board and side status panel, with menus, dialogs, and prompts.                   |
-| `src/Matchup.tsx`              | Matchup HUD: the bot's dialogue block or a badge per side; turn frame; the host.     |
-| `src/SpeechBubble.tsx`         | A line beside its speaker's portrait: 20 dp, three rows for a bot, two for the host. |
-| `src/useBotVoice.ts`           | Picks the bot's lines as the game moves and how long each stays on screen.           |
-| `src/useHostVoice.ts`          | Picks the host's lines at the pauses, says them, and returns the one to show.        |
-| `src/screen.ts`                | The screen's whole flow, as a pure reducer over state and one action.                |
-| `src/OpponentScreen.tsx`       | Opponent selection: three cards with bot faces, difficulty, and player records.      |
-| `src/Portrait.tsx`             | A character's portrait, or its emoji face when the build has no portraits.           |
-| `src/TutorialScreen.tsx`       | Six-lesson interactive tutorial taught by Thinkle, on an isolated sandbox board.     |
-| `src/tutorial.ts`              | The tutorial's flow, as a pure reducer over state and one key.                       |
-| `src/TutorialOffer.tsx`        | The first launch's offer of the tutorial: Thinkle asks, Learn to play or Skip.       |
-| `src/Teacher.tsx`              | Thinkle in the panel, for the tutorial and its offer: portrait, name and bubble.     |
-| `src/RulesScreen.tsx`          | Dual-pane rules guide: topics on the left, selected explanation on the right.        |
-| `src/AboutScreen.tsx`          | Project credits and third-party licence notices accessible via TV remote.            |
-| `src/Board.tsx`                | 8x8 grid rendering pieces, square tints, focus rings, and move slide animations.     |
-| `src/Dice.tsx`                 | Three-dice tray with tumbling roll animations and dimmed unplayable dice.            |
-| `src/Option.tsx`               | Focusable menu and list items with cyan border frame and pressed state.              |
-| `src/layout.ts`                | TV safe area insets (5% overscan margin) and responsive board layout.                |
-| `src/theme.ts`                 | Board colours, square tints, selection rings, and theme constants.                   |
-| `src/pieces/`                  | Generated SVG React components for all 12 chess pieces (RhosGFX CC0).                |
-| `src/faces/`                   | Generated SVG React components for opponent bot avatars (RhosGFX CC0).               |
-| `src/useRemoteInput.ts`        | Normalizes Vega remote events (`enter`, `kpenter`, `select`, `back`).                |
-| `src/mmkvStore.ts`             | Synchronous snapshot store on MMKV for saves, ledger, and preferences.               |
-| `src/randomSource.ts`          | Runtime randomness selector feeding uniform rejection sampling.                      |
-| `src/sound.ts`                 | Plays cues on three players (board, dice, result), and spoken lines on a fourth.     |
-| `src/cueFiles.ts`              | Sound cue file mapping, generated by `scripts/vendor-sounds.mjs`.                    |
-| `src/voiceFiles.ts`            | Bot and host clips, lengths, texts, generated by `scripts/vendor-voices.mjs`.        |
-| `src/soundSetting.ts`          | Sound effects enable/disable toggle remembered across launches.                      |
-| `src/voiceSetting.ts`          | Voices toggle for every spoken line, on by default, remembered across launches.      |
-| `src/hostSetting.ts`           | Who hosts Hot Seat, Prowla (the default), Rolly or off, remembered across launches.  |
-| `src/tutorialOfferSetting.ts`  | Whether the first launch's offer of the tutorial was answered, remembered.           |
-| `src/music.ts`                 | Plays adaptive music: menu theme or danger-level tracks with crossfades.             |
-| `src/useDanger.ts`             | Measures king threat level at the start of each turn spread over frames.             |
-| `src/musicSetting.ts`          | Music toggle and volume settings remembered across launches.                         |
-| `scripts/generate-pieces.mjs`  | Regenerates `src/pieces/` from RhosGFX vector SVG pieces.                            |
-| `scripts/generate-faces.mjs`   | Regenerates `src/faces/` from RhosGFX Vector Emojis.                                 |
-| `scripts/rhosgfx-svg.mjs`      | Compiles SVG files into inline JSX compatible with Vega SVG.                         |
-| `scripts/vendor-sounds.mjs`    | Vendors sounds from `dicechess-assets` at a pinned commit.                           |
-| `scripts/vendor-music.mjs`     | Vendors music from `dicechess-assets` at a pinned commit.                            |
-| `scripts/vendor-voices.mjs`    | Vendors the voices and `events.json` from `dicechess-assets` at a pinned commit.     |
-| `scripts/vendor-portraits.mjs` | Vendors the portraits from `dicechess-assets` into git-ignored `portraits/`.         |
-| `scripts/generate-assets.mjs`  | Builds `assets/` on each build: icon, splash, sounds, music, voices, portraits.      |
+| Path                           | Purpose                                                                                      |
+| ------------------------------ | -------------------------------------------------------------------------------------------- |
+| `src/App.tsx`                  | The root: reads saves before first render; owns randomness, sound and music.                 |
+| `src/GameScreen.tsx`           | The board and side status panel, with menus, dialogs, and prompts.                           |
+| `src/Matchup.tsx`              | Matchup HUD: the bot's dialogue block or a badge per side; turn frame; the host.             |
+| `src/SpeechBubble.tsx`         | A line beside its speaker's portrait: 20 dp, three rows for a bot, two for the host.         |
+| `src/useBotVoice.ts`           | Picks the bot's lines as the game moves and how long each stays on screen.                   |
+| `src/useHostVoice.ts`          | Picks the host's lines at the pauses, says them, and returns the one to show.                |
+| `src/screen.ts`                | The screen's whole flow, as a pure reducer over state and one action.                        |
+| `src/OpponentScreen.tsx`       | Opponent selection: three cards with bot faces, difficulty, and player records.              |
+| `src/Portrait.tsx`             | A character's portrait, or its emoji face when the build has no portraits.                   |
+| `src/TutorialScreen.tsx`       | Six-lesson interactive tutorial taught by Thinkle, on an isolated sandbox board.             |
+| `src/tutorial.ts`              | The tutorial's flow, as a pure reducer over state and one key.                               |
+| `src/TutorialOffer.tsx`        | The first launch's offer of the tutorial: Thinkle asks, Learn to play or Skip.               |
+| `src/Teacher.tsx`              | Thinkle in the panel, for the tutorial and its offer: portrait, name and bubble.             |
+| `src/RulesScreen.tsx`          | Dual-pane rules guide: topics on the left, selected explanation on the right.                |
+| `src/AboutScreen.tsx`          | Project credits and third-party licence notices accessible via TV remote.                    |
+| `src/Board.tsx`                | 8x8 grid rendering pieces, square tints, focus rings, and move slide animations.             |
+| `src/Dice.tsx`                 | Three-dice tray with tumbling roll animations and dimmed unplayable dice.                    |
+| `src/Option.tsx`               | Focusable menu and list items with cyan border frame and pressed state.                      |
+| `src/layout.ts`                | TV safe area insets (5% overscan margin) and responsive board layout.                        |
+| `src/theme.ts`                 | Board colours, square tints, selection rings, and theme constants.                           |
+| `src/pieces/`                  | Generated SVG React components for all 12 chess pieces (RhosGFX CC0).                        |
+| `src/faces/`                   | Generated SVG React components for opponent bot avatars (RhosGFX CC0).                       |
+| `src/useRemoteInput.ts`        | Normalizes Vega remote events (`enter`, `kpenter`, `select`, `back`).                        |
+| `src/mmkvStore.ts`             | Synchronous snapshot store on MMKV for saves, ledger, and preferences.                       |
+| `src/randomSource.ts`          | Runtime randomness selector feeding uniform rejection sampling.                              |
+| `src/sound.ts`                 | Plays cues on three players (board, dice, result), and spoken lines on a fourth.             |
+| `src/cueFiles.ts`              | Sound cue file mapping, generated by `scripts/vendor-sounds.mjs`.                            |
+| `src/voiceFiles.ts`            | Bot and host clips, lengths, texts, generated by `scripts/vendor-voices.mjs`.                |
+| `src/soundSetting.ts`          | Sound effects enable/disable toggle remembered across launches.                              |
+| `src/voiceSetting.ts`          | Voices toggle for every spoken line, on by default, remembered across launches.              |
+| `src/hostSetting.ts`           | Who hosts Hot Seat, Prowla (the default), Rolly, Thinkle or off, remembered across launches. |
+| `src/tutorialOfferSetting.ts`  | Whether the first launch's offer of the tutorial was answered, remembered.                   |
+| `src/music.ts`                 | Plays adaptive music: menu theme or danger-level tracks with crossfades.                     |
+| `src/useDanger.ts`             | Measures king threat level at the start of each turn spread over frames.                     |
+| `src/musicSetting.ts`          | Music toggle and volume settings remembered across launches.                                 |
+| `scripts/generate-pieces.mjs`  | Regenerates `src/pieces/` from RhosGFX vector SVG pieces.                                    |
+| `scripts/generate-faces.mjs`   | Regenerates `src/faces/` from RhosGFX Vector Emojis.                                         |
+| `scripts/rhosgfx-svg.mjs`      | Compiles SVG files into inline JSX compatible with Vega SVG.                                 |
+| `scripts/vendor-sounds.mjs`    | Vendors sounds from `dicechess-assets` at a pinned commit.                                   |
+| `scripts/vendor-music.mjs`     | Vendors music from `dicechess-assets` at a pinned commit.                                    |
+| `scripts/vendor-voices.mjs`    | Vendors the voices and `events.json` from `dicechess-assets` at a pinned commit.             |
+| `scripts/vendor-portraits.mjs` | Vendors the portraits from `dicechess-assets` into git-ignored `portraits/`.                 |
+| `scripts/generate-assets.mjs`  | Builds `assets/` on each build: icon, splash, sounds, music, voices, portraits.              |
 
 ---
 
@@ -129,7 +129,7 @@ Regenerating and formatting reproduces the checked-in files byte for byte.
 
 ## Portraits
 
-The three opponents have portraits of their own, drawn for Dice Chess: Rolly, Grabby and Rampage (fortemate/dicechess-assets#31). So do Prowla the cat, who hosts Hot Seat games (#258), and Thinkle the wizard, who teaches the tutorial (#264). They are for Fortemate's Dice Chess apps only, so they stay out of this repository while it is public. A local build vendors them from the private asset repository at a pinned commit:
+The three opponents have portraits of their own, drawn for Dice Chess: Rolly, Grabby and Rampage (fortemate/dicechess-assets#31). So do Prowla the cat, who hosts Hot Seat games (#258), and Thinkle the wizard, who teaches the tutorial (#264) and hosts Hot Seat games too (#279). They are for Fortemate's Dice Chess apps only, so they stay out of this repository while it is public. A local build vendors them from the private asset repository at a pinned commit:
 
 ```bash
 node native/scripts/vendor-portraits.mjs ../dicechess-assets <commit>

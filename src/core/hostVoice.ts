@@ -1,17 +1,17 @@
-// The Hot Seat host (#202): Prowla the cat (#258), or Rolly, hosts games
-// between two people at one television, a neutral party host who cheers the
-// moment and never a side. Each host has her own lines for the same events,
-// and the same pacing.
+// The Hot Seat host (#202): Prowla the cat (#258), Rolly or Thinkle the wizard
+// (#279) hosts games between two people at one television, a neutral party
+// host who cheers the moment and never a side. Each host has lines of their own
+// for the same events, and the same pacing.
 //
-// She speaks as a game starts, when a turn ends and the prompt says "OK:
+// The host speaks as a game starts, when a turn ends and the prompt says "OK:
 // continue", and when the game ends. A big moment is said at once, at the
-// action that makes it (#227): a queen or a rook taken, en passant, a
-// promotion. Her lines for those are cries of the moment, and by the turn's
-// end the board marks another move. Everything else waits for the turn's end,
-// which judges the turn as a whole. One step says at most one line, and a turn
-// at most one besides the result. How often she speaks is the host pacing of
-// voices/events.json in dicechess-assets, which every Dice Chess client shares,
-// generated into hostPacing.ts.
+// action that makes it (#227): a queen or a rook taken, en passant, castling
+// (#279), a promotion. The lines for those are cries of the moment, and by the
+// turn's end the board marks another move. Everything else waits for the
+// turn's end, which judges the turn as a whole. One step says at most one line,
+// and a turn at most one besides the result. How often the host speaks is the
+// host pacing of voices/events.json in dicechess-assets, which every Dice Chess
+// client shares, generated into hostPacing.ts.
 //
 // The lines themselves are in hostScripts.ts, copied word for word from
 // dicechess-assets.
@@ -31,14 +31,15 @@ import {
   type HostEvent,
   type HostPacing,
 } from './hostPacing.ts';
-import { PROWLA, ROLLY, type HostScript } from './hostScripts.ts';
+import { PROWLA, ROLLY, THINKLE, type HostScript } from './hostScripts.ts';
 
 export { HOST_EVENTS, HOST_PACING };
 export type { HostEvent, HostPacing };
 
 // The characters who can host, in the order Settings offers them: the default
-// first, Prowla (owner, 2026-10-06), then Rolly, who hosted before her.
-export const HOST_IDS = ['prowla', 'rolly'] as const;
+// first, Prowla (owner, 2026-10-06), then Rolly, who hosted before her, then
+// Thinkle the wizard (#279).
+export const HOST_IDS = ['prowla', 'rolly', 'thinkle'] as const;
 export type HostId = (typeof HOST_IDS)[number];
 export const DEFAULT_HOST: HostId = 'prowla';
 
@@ -54,17 +55,19 @@ export type HostLine = {
 const SCRIPTS: Readonly<Record<HostId, HostScript>> = {
   rolly: ROLLY,
   prowla: PROWLA,
+  thinkle: THINKLE,
 };
 
 // The prefix of each host's line ids, the names their clips are recorded under.
 const ID_PREFIX: Readonly<Record<HostId, string>> = {
   rolly: 'host',
   prowla: 'prowla_host',
+  thinkle: 'thinkle_host',
 };
 
-// Every host's lines, with the ids their clips are recorded under: Rolly's 45
-// as host_<event>_<n> and Prowla's 51 as prowla_host_<event>_<n>, numbered
-// from 1.
+// Every host's lines, with the ids their clips are recorded under: Prowla's 54
+// as prowla_host_<event>_<n>, Rolly's 48 as host_<event>_<n> and Thinkle's 54
+// as thinkle_host_<event>_<n>, numbered from 1.
 export const HOST_CATALOGUE: readonly HostLine[] = HOST_IDS.flatMap((host) =>
   (Object.keys(SCRIPTS[host]) as HostEvent[]).flatMap((event) =>
     SCRIPTS[host][event].map((text, index) => ({
@@ -179,6 +182,7 @@ export const AT_ONCE: ReadonlySet<HostEvent> = new Set<HostEvent>([
   'capture_queen',
   'capture_heavy',
   'en_passant',
+  'castling',
   'promotion',
 ]);
 
@@ -189,6 +193,7 @@ function moments(before: Game, after: Game): HostEvent[] {
   if (step.queen) events.push('capture_queen');
   if (step.rook) events.push('capture_heavy');
   if (step.enPassant) events.push('en_passant');
+  if (step.castling) events.push('castling');
   if (step.promotion) events.push('promotion');
   return events;
 }

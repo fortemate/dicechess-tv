@@ -748,6 +748,120 @@
         "use_speaker_boost": true
       }
     },
+    "host_castling_1": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[squeals] Leapfrog! [giggles] The rook jumped right over the king!",
+      "durationSeconds": 5.44,
+      "event": "castling",
+      "export": "exports/mp3/host_castling_1.mp3",
+      "generated": "2026-10-06T17:49:16Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 0.3,
+        "passes": 1,
+        "sourceLufs": -16.3
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "n7sm4tvdpVQ4Tk5fjWlr",
+      "seed": 3352092228,
+      "sha256": "e9f9c23f9f8c36635ac800ff515d4f609f1477d43270765f70676fed9b054ae2",
+      "source": "source/mp3/host_castling_1.mp3",
+      "sourceSha256": "0209e2ab21ad622e63d46c691c48356910ee0db25ccc2f86e776f6b70c001fc6",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Leapfrog! The rook jumped right over the king!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_castling_2": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[excited] Castling! Two pieces, one move. [giggles] Yay!",
+      "durationSeconds": 5.04,
+      "event": "castling",
+      "export": "exports/mp3/host_castling_2.mp3",
+      "generated": "2026-10-06T17:49:18Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 1.5,
+        "passes": 1,
+        "sourceLufs": -17.5
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "ftTxwnb0awuqDj4ZQllU",
+      "seed": 3969121997,
+      "sha256": "a3bdb3699216766754a896b941c0bdf0da9ce01da7b1a98b6a9f7b6a3d89d74f",
+      "source": "source/mp3/host_castling_2.mp3",
+      "sourceSha256": "78fe24d7efacdb7a144c3e7d971a0ebe3fb4940b49dca90bdffd6bfce572789f",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Castling! Two pieces, one move. Yay!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_castling_3": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[giggles] Boop! [cheerful] The king just moved into his castle!",
+      "durationSeconds": 4.32,
+      "event": "castling",
+      "export": "exports/mp3/host_castling_3.mp3",
+      "generated": "2026-10-06T17:49:20Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 3.5,
+        "passes": 2,
+        "sourceLufs": -18.3
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "atYFFE3JRzXDpvS9d8kd",
+      "seed": 3811969171,
+      "sha256": "75040c0a8edd3a26b6498e50d9ea42f0f845496d4bf46ce78a53d28917333209",
+      "source": "source/mp3/host_castling_3.mp3",
+      "sourceSha256": "59b2ff4ed68f85a7d241bac50f9cfdafd1b4203028814d629cf12c48631bf60c",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Boop! The king just moved into his castle!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
     "host_draw_1": {
       "bot": "host",
       "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",

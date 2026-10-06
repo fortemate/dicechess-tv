@@ -72,19 +72,24 @@ export function isEnPassant(board: string, move: string): boolean {
   );
 }
 
+// Castling: a king only ever moves two files when it castles. `board` is the
+// placement field of the position the move is played from.
+export function isCastling(board: string, move: string): boolean {
+  const from = move.slice(0, 2);
+  return (
+    pieceAt(board, from)?.toLowerCase() === 'k' &&
+    Math.abs(fileOf(from) - fileOf(move.slice(2, 4))) === 2
+  );
+}
+
 function moveCue(before: Game, move: string): Cue {
   // A promotion that also captures is still, above all, a promotion.
   if (isPromotion(move)) return 'promotion';
   const board = viewGame(before).dfen.split(' ')[0];
-  const from = move.slice(0, 2);
-  const to = move.slice(2, 4);
-  const piece = pieceAt(board, from)?.toLowerCase();
-  // A king only ever moves two files when it castles.
-  if (piece === 'k' && Math.abs(fileOf(from) - fileOf(to)) === 2)
-    return 'castle';
+  if (isCastling(board, move)) return 'castle';
   // The engine never offers a move onto a friendly piece, so anything on the
   // target square is an enemy one.
-  if (pieceAt(board, to)) return 'piece_capture';
+  if (pieceAt(board, move.slice(2, 4))) return 'piece_capture';
   if (isEnPassant(board, move)) return 'piece_capture';
   return 'piece_move';
 }

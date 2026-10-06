@@ -1,10 +1,11 @@
-// The Hot Seat hosts' lines (#202, #258), by event: what each host says, and
-// nothing about when. src/core/hostVoice.ts numbers them into the ids their
+// The Hot Seat hosts' lines (#202, #258, #279), by event: what each host says,
+// and nothing about when. src/core/hostVoice.ts numbers them into the ids their
 // clips are recorded under and picks among them.
 //
 // Written in dicechess-assets, in the catalogue.json of
-// voices/elevenlabs-dicechess-host (Rolly's) and of
-// voices/elevenlabs-dicechess-host-prowla, and copied here word for word:
+// voices/elevenlabs-dicechess-host (Rolly's), of
+// voices/elevenlabs-dicechess-host-prowla and of
+// voices/elevenlabs-dicechess-host-thinkle, and copied here word for word:
 // native/test/vendoredVoices.test.ts fails when a line here and the clip
 // recorded from it say different things. Every host has the same shape, one
 // list for each event, so this table is left out of duplication analysis
@@ -56,6 +57,11 @@ export const ROLLY: HostScript = {
     'En passant! A rare sideways capture!',
     'Did you see that? A pawn caught in passing!',
     "Psst... that's called en passant!",
+  ],
+  castling: [
+    'Leapfrog! The rook jumped right over the king!',
+    'Castling! Two pieces, one move. Yay!',
+    'Boop! The king just moved into his castle!',
   ],
   promotion: [
     'Look! That little pawn grew up!',
@@ -134,6 +140,11 @@ export const PROWLA: HostScript = {
     'Sneaky! A pawn caught en passant.',
     'Psst... that sideways catch is en passant.',
   ],
+  castling: [
+    'Castling, darlings. King and rook, in one move.',
+    'Mmm, castling. The rook slips past the king.',
+    'A king curled up by the fire. Purrr...',
+  ],
   promotion: [
     'A pawn crossed the board! How bold.',
     'Look who grew up. A brand new piece!',
@@ -167,5 +178,92 @@ export const PROWLA: HostScript = {
     'Off it goes. The board breathes a little.',
     'Shh... a piece just slipped away.',
     'A tidy little catch. Purrr...',
+  ],
+};
+
+// Thinkle's: a storyteller who tells the game as a tale, to the room, and names
+// a rule only once it has happened (dicechess-assets#63).
+export const THINKLE: HostScript = {
+  white_wins: [
+    'White wins! A fine tale, told by you both.',
+    'Victory to White, and a bow to Black!',
+    'The stars smile on White, and wink at Black!',
+  ],
+  black_wins: [
+    'Black wins! What a tale you two have told.',
+    'Victory to Black, and a bow to White!',
+    'The stars smile on Black, and wink at White!',
+  ],
+  win: [
+    'And that is the last page. What a story!',
+    'The game is won! What splendid play, you two.',
+    'My scrolls will remember this one. Bravo!',
+  ],
+  draw: [
+    'Equals part as friends, as the old saying goes.',
+    'Neither side wins. What a gentle ending!',
+    'Level to the last! The stars applaud you both.',
+  ],
+  intro: [
+    'Hmm... the dice favour no one, young or old.',
+    'Settle in, my friends. A new tale begins.',
+    'White, you roll first. The stars are watching!',
+    'Welcome, you two! May the best roll win.',
+    'I promise: no spells from me, only dice!',
+  ],
+  again: [
+    'Another chapter! Turn the page, my friends.',
+    'Every piece is home again. Off we go!',
+    "Again? Splendid! I'll fetch a fresh candle.",
+    "Round two... or three? I've lost count!",
+  ],
+  handoff: [
+    "The remote passes on, my friends. Black's turn.",
+    'Hear ye, hear ye! The remote goes to Black.',
+    "Pass the wand! I mean... the remote. Black's turn.",
+  ],
+  en_passant: [
+    'From my oldest scrolls: the rule of en passant!',
+    "A pawn's secret move! En passant, they call it.",
+    'En passant! Rarer than a blue moon.',
+  ],
+  castling: [
+    'Castling! It takes a king and a rook on the dice.',
+    'The king steps aside, and his tower leaps over!',
+    'One move for two pieces! That is castling.',
+  ],
+  promotion: [
+    'Abracadabra! The pawn becomes something new.',
+    'Ah, a promotion! A pawn no longer.',
+    'The bravest pawn reached the far side!',
+    'Hats off to that little pawn! Splendid!',
+  ],
+  capture_queen: [
+    'Whoosh! A queen, and my hat nearly flew off!',
+    'A queen! Bards will sing of this for years.',
+    'Queen overboard! What a moment, my friends!',
+    'Gracious me, a queen! I must sit down.',
+  ],
+  capture_heavy: [
+    'Goodness me! My beard stood on end!',
+    'Stars and scrolls! What a capture!',
+    'A chapter to remember, my friends!',
+    'Great heavens! What a turn of events!',
+    'That one will echo through the ages!',
+  ],
+  empty_roll: [
+    'Hmm... not a single move on that roll.',
+    'A roll with no move. It happens to us all!',
+    'Blame the dice, my friends, not the player!',
+    'The dice kept their secrets this time.',
+    "Even magic can't argue with the dice!",
+  ],
+  capture: [
+    'Aha! A capture, and the tale takes a twist.',
+    'A piece bows out, ever so politely.',
+    "Hmm... a capture. I'll note that in my scrolls.",
+    'Splendid! One more piece for the box.',
+    'Poof! Away it floats, like a little spell.',
+    'Taken! My spectacles saw it all.',
   ],
 };

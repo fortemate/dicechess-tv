@@ -1,6 +1,6 @@
 ---
 title: What it does
-description: 'A tour of Dice Chess for Fire TV: hotseat on one remote with Prowla or Rolly as host, three computer opponents as either colour, the tutorial and the rules guide, saving, your record against each opponent, sound, music that follows the danger to the king, and rematch.'
+description: 'A tour of Dice Chess for Fire TV: hotseat on one remote with Prowla, Rolly or Thinkle as host, three computer opponents as either colour, the tutorial and the rules guide, saving, your record against each opponent, sound, music that follows the danger to the king, and rematch.'
 sidebar:
   order: 2
 ---
@@ -15,7 +15,7 @@ For living-room sofa play where players prefer to view the board from their own 
 
 ![A hotseat game: Black's knight is picked up, its destinations are dotted, the cursor rests on the ringed capture of White's knight, and three dice sit beside the board](../../../assets/screenshots/hotseat.png)
 
-Prowla the cat hosts Hot Seat games, or Rolly, the friendliest of the computer opponents, in her place. Each has her own lines and voice. The host greets you both as a game starts, cries out the moment a queen or a rook is taken, a pawn is caught en passant or a pawn is promoted, names the rest of a turn when it ends, and at the end cheers the winner and the other player too. She never takes a side, and says one line a turn at most. While she speaks, her face and her line show above the bottom badge, and nothing else on the screen moves. **Hot Seat host** in Settings chooses Prowla, Rolly or off. The tests cover both. The virtual device has shown Rolly and played her lines, and has shown Prowla and played her greeting and the pass of the remote.
+Prowla the cat hosts Hot Seat games, or in her place Rolly, the friendliest of the computer opponents, or Thinkle the wizard, who teaches the tutorial. Each has lines and a voice of their own. The host greets you both as a game starts, cries out the moment a queen or a rook is taken, a pawn is caught en passant, a king castles or a pawn is promoted, names the rest of a turn when it ends, and at the end cheers the winner and the other player too. She never takes a side, and says one line a turn at most. While she speaks, her face and her line show above the bottom badge, and nothing else on the screen moves. **Hot Seat host** in Settings chooses Prowla, Rolly, Thinkle or off. The tests cover all three. The virtual device has shown Rolly and played her lines, and has shown Prowla and played her greeting and the pass of the remote. It has also shown Thinkle and played his greeting, and, on a test build that starts from a position where castling is possible, his castling line.
 
 ![Rolly hosting a new Hot Seat game: her portrait and her greeting show above the bottom badge](../../../assets/screenshots/host.png)
 

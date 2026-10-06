@@ -12,7 +12,7 @@
 
 import { DiceChess } from '@fortemate/dicechess-engine';
 import { pieceAt } from './board.ts';
-import { isEnPassant, isPromotion } from './cues.ts';
+import { isCastling, isEnPassant, isPromotion } from './cues.ts';
 import type { Level } from './danger.ts';
 import {
   emptyRoll,
@@ -223,7 +223,8 @@ export function voiceLineById(id: string): VoiceLine | undefined {
 
 // What the actions between two games took. `heavy` and `standard` are what a
 // bot's line reacts to: a queen or a rook, and any smaller piece, en passant
-// included. The rest tell the Hot Seat host which piece it was (#202).
+// included. The rest tell the Hot Seat host which piece it was (#202), and
+// whether a king castled (#279).
 export type CaptureAnalysis = {
   heavy: boolean;
   standard: boolean;
@@ -233,6 +234,7 @@ export type CaptureAnalysis = {
   minor: boolean;
   enPassant: boolean;
   promotion: boolean;
+  castling: boolean;
 };
 
 // An action between two games, with the board it was played on.
@@ -261,6 +263,7 @@ export function analyzeCaptures(before: Game, after: Game): CaptureAnalysis {
   let minor = false;
   let enPassant = false;
   let promotion = false;
+  let castling = false;
 
   for (const { move, board } of playedOn(before, after)) {
     const target = pieceAt(board, move.slice(2, 4))?.toLowerCase();
@@ -270,6 +273,7 @@ export function analyzeCaptures(before: Game, after: Game): CaptureAnalysis {
     else if (target && target !== 'k') minor = true;
     else if (isEnPassant(board, move)) enPassant = true;
     if (isPromotion(move)) promotion = true;
+    if (isCastling(board, move)) castling = true;
   }
 
   return {
@@ -280,6 +284,7 @@ export function analyzeCaptures(before: Game, after: Game): CaptureAnalysis {
     minor,
     enPassant,
     promotion,
+    castling,
   };
 }
 
