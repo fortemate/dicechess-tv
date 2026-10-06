@@ -295,13 +295,7 @@ test('a complete turn plays out on the remote and hands over', () => {
   assert.match(state(), /dice "Q"/);
   assert.match(state(), /phase handoff/);
 
-  send(Select);
-  assert.match(state(), /turn 2 \| phase roll \| side b/);
-  assert.equal(
-    overlays(root, (s) => s.backgroundColor === THEME.lastMove).length,
-    2,
-  );
-
+  // One OK hands the turn over and rolls Black's dice
   send(Select);
   assert.match(state(), /turn 2 \| phase move \| side b/);
   assert.match(state(), /last -/);

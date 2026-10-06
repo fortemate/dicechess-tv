@@ -814,12 +814,18 @@ const onBoard = (
   // they would have made on their own turn, made while the notice is up.
   if (botToAct(game))
     return played(state, rollGame(nextTurn(game), options.roll()));
+  if (game.mode === 'hotseat') {
+    const next = nextTurn(game);
+    const isFlipped = flipped(next, state.turnHotseat);
+    const focusSeed: BoardFocus = {
+      cursor: startFor(next.human, isFlipped),
+      selected: null,
+    };
+    const rolled = rollGame(next, options.roll());
+    return played(state, rolled, settled(focusSeed, rolled, state.turnHotseat));
+  }
   const next = nextTurn(game);
-  const nextFocus =
-    state.turnHotseat && next.mode === 'hotseat'
-      ? { cursor: startFor(next.human, flipped(next, true)), selected: null }
-      : undefined;
-  return played(state, next, nextFocus);
+  return played(state, next);
 };
 
 export function screenReducer(
