@@ -120,12 +120,12 @@ test('a Hot Seat turn with a die left over says it is over, and whose turn OK st
   send('enter', 'enter', 'enter', 'enter');
   assert.equal(headline(root), "White's turn is over");
   assert.equal(prompt(root), "OK: Black's turn");
-  // OK starts Black's turn, at the roll.
+  // OK starts Black's turn and rolls the dice.
   send('enter');
   assert.equal(headline(root), 'Black to play');
-  assert.equal(prompt(root), 'OK: roll three dice');
+  assert.equal(prompt(root), 'OK: pick up · Back: menu');
   // Black's knight the same way, and then White's turn is the next.
-  send('enter', 'enter', 'enter');
+  send('enter', 'enter');
   assert.equal(headline(root), "Black's turn is over");
   assert.equal(prompt(root), "OK: White's turn");
 });
@@ -197,11 +197,11 @@ test('Black’s piece is named too, on the board turned for Black', () => {
   reset();
   new MMKV().set('dicechess-tv.turnBoard.v1', 'on');
   const { root, state } = launch(optionsFor([1, 1, 1]));
-  // A new hotseat game: White plays three pawns, and OK hands the turn over.
+  // A new hotseat game: White plays three pawns, and OK hands the turn over and rolls for Black.
   send('enter', 'enter', 'enter', 'enter', 'enter', 'enter', 'enter', 'enter');
   send('enter');
-  // Black rolls and picks a pawn up, on the board turned for Black.
-  send('enter', 'enter');
+  // Black picks a pawn up, on the board turned for Black.
+  send('enter');
   assert.match(state() ?? '', /side b/);
   assert.match(state() ?? '', /selected [a-h]7/);
   assert.equal(prompt(root), 'OK: move the pawn here');

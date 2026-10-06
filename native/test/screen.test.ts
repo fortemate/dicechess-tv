@@ -1166,9 +1166,12 @@ test('after a roll with nothing to play, OK passes the turn only once the guard 
   assert.equal(ready.guarded, false);
   const passed = driveWith(nothing, ready, 'select');
   assert.equal(passed.game.turn, 2);
-  assert.equal(passed.guarded, false);
-  // Unguarding what is not guarded is no change at all.
-  assert.equal(screenReducer(passed, { kind: 'unguard' }, nothing), passed);
+  assert.equal(passed.guarded, true);
+  // Unguarding Black's empty roll:
+  assert.equal(
+    screenReducer(passed, { kind: 'unguard' }, nothing).guarded,
+    false,
+  );
 });
 
 test('only an empty roll is guarded: a roll with moves and a turn with dice left are not', () => {
@@ -1292,15 +1295,14 @@ test('when Turn board in hotseat is on, the board turns for Black and cursor sta
   assert.equal(state.game.phase, 'handoff');
   assert.equal(flipped(state.game, state.turnHotseat), false);
 
-  // Turn handover to Black
+  // Turn handover to Black and roll
   state = drive(state, 'select');
   assert.equal(state.game.turn, 2);
   assert.equal(viewGame(state.game).side, 'b');
   assert.equal(flipped(state.game, state.turnHotseat), true);
-  assert.equal(state.focus.cursor, 'e7');
+  assert.equal(state.focus.cursor, 'g8');
 
-  // Black rolls and plays moves
-  state = drive(state, 'select');
+  // Black plays moves
   while (state.game.phase === 'move') {
     const move = viewGame(state.game).legal[0];
     state = play(state, move);
@@ -1308,12 +1310,12 @@ test('when Turn board in hotseat is on, the board turns for Black and cursor sta
   assert.equal(state.game.phase, 'handoff');
   assert.equal(flipped(state.game, state.turnHotseat), true);
 
-  // Turn handover back to White
+  // Turn handover back to White and roll
   state = drive(state, 'select');
   assert.equal(state.game.turn, 3);
   assert.equal(viewGame(state.game).side, 'w');
   assert.equal(flipped(state.game, state.turnHotseat), false);
-  assert.equal(state.focus.cursor, 'e2');
+  assert.equal(state.focus.cursor, 'g1');
 });
 
 test('when Turn board in hotseat is off, the board remains drawn from White side throughout hotseat', () => {
@@ -1350,7 +1352,7 @@ test('a saved hotseat game resumes in the right orientation when Turn board in h
   // Resuming this saved game with turnHotseat on
   const resumed = initialState(options, state.game, { turnHotseat: true });
   assert.equal(flipped(resumed.game, resumed.turnHotseat), true);
-  assert.equal(resumed.focus.cursor, 'e7');
+  assert.equal(resumed.focus.cursor, 'g8');
 
   // Resuming with turnHotseat off stays on White side
   const resumedOff = initialState(options, state.game, {

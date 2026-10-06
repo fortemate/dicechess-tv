@@ -130,7 +130,8 @@ test('a hotseat roll with nothing to play is announced and heard, and OK waits o
   clock.next();
   send('enter');
   assert.match(text(tree.root), /TURN 2/);
-  assert.match(text(tree.root), /Black to play/);
+  assert.match(text(tree.root), /No legal moves/);
+  assert.match(text(tree.root), /OK: White's turn/);
   act(() => tree.unmount());
 });
 
