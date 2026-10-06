@@ -16,6 +16,7 @@ export type HostEvent =
   | 'again'
   | 'handoff'
   | 'en_passant'
+  | 'castling'
   | 'promotion'
   | 'capture_queen'
   | 'capture_heavy'
@@ -53,6 +54,7 @@ export const HOST_EVENTS: Readonly<
   again: { tier: 'always', priority: 2 },
   handoff: { tier: 'always', priority: 3 },
   en_passant: { tier: 'always', priority: 4 },
+  castling: { tier: 'always', priority: 5 },
   promotion: { tier: 'always', priority: 6 },
   capture_queen: { tier: 'always', priority: 7 },
   capture_heavy: { tier: 'notable', priority: 8 },

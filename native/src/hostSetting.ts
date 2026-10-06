@@ -1,5 +1,6 @@
 // Who hosts Hot Seat games, or no one, remembered across launches (#202):
-// Prowla the cat (#258), who hosts though no bot plays her yet, or Rolly.
+// Prowla the cat (#258), who hosts though no bot plays her yet, Rolly, or
+// Thinkle the wizard, who teaches the tutorial (#279).
 //
 // Prowla unless the viewer turned the host off or chose another; Rolly was the
 // default until the owner chose Prowla on 2026-10-06. Anything but an explicit
@@ -13,12 +14,13 @@ import type { KeyValueStore } from './mmkvStore';
 export { DEFAULT_HOST, type HostId };
 
 // The characters who can host, as Settings names them, and the portrait each
-// shows beside her line.
+// shows beside the line.
 const HOST_INFO: Readonly<
   Record<HostId, { readonly name: string; readonly portrait: CharacterId }>
 > = {
   rolly: { name: 'Rolly', portrait: 'rolly' },
   prowla: { name: 'Prowla', portrait: 'cat' },
+  thinkle: { name: 'Thinkle', portrait: 'thinkle' },
 };
 
 export const HOSTS = HOST_IDS.map((id) => ({ id, ...HOST_INFO[id] }));

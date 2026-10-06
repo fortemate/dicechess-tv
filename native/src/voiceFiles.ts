@@ -212,6 +212,21 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     seconds: 5.04,
     text: 'Queen down! My microphone is shaking!',
   },
+  host_castling_1: {
+    file: 'elevenlabs-dicechess-host/host_castling_1.mp3',
+    seconds: 5.44,
+    text: 'Leapfrog! The rook jumped right over the king!',
+  },
+  host_castling_2: {
+    file: 'elevenlabs-dicechess-host/host_castling_2.mp3',
+    seconds: 5.04,
+    text: 'Castling! Two pieces, one move. Yay!',
+  },
+  host_castling_3: {
+    file: 'elevenlabs-dicechess-host/host_castling_3.mp3',
+    seconds: 4.32,
+    text: 'Boop! The king just moved into his castle!',
+  },
   host_draw_1: {
     file: 'elevenlabs-dicechess-host/host_draw_1.mp3',
     seconds: 5.6,
@@ -451,6 +466,21 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     file: 'elevenlabs-dicechess-host-prowla/prowla_host_capture_queen_4.mp3',
     seconds: 4.64,
     text: 'Farewell, Your Majesty. What a moment.',
+  },
+  prowla_host_castling_1: {
+    file: 'elevenlabs-dicechess-host-prowla/prowla_host_castling_1.mp3',
+    seconds: 4.96,
+    text: 'Castling, darlings. King and rook, in one move.',
+  },
+  prowla_host_castling_2: {
+    file: 'elevenlabs-dicechess-host-prowla/prowla_host_castling_2.mp3',
+    seconds: 4.4,
+    text: 'Mmm, castling. The rook slips past the king.',
+  },
+  prowla_host_castling_3: {
+    file: 'elevenlabs-dicechess-host-prowla/prowla_host_castling_3.mp3',
+    seconds: 4,
+    text: 'A king curled up by the fire. Purrr...',
   },
   prowla_host_draw_1: {
     file: 'elevenlabs-dicechess-host-prowla/prowla_host_draw_1.mp3',
@@ -806,6 +836,276 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     file: 'elevenlabs-dicechess-bots/rolly_win_3.mp3',
     seconds: 4,
     text: 'High five! That was so much fun!',
+  },
+  thinkle_host_again_1: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_again_1.mp3',
+    seconds: 3.76,
+    text: 'Another chapter! Turn the page, my friends.',
+  },
+  thinkle_host_again_2: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_again_2.mp3',
+    seconds: 3.52,
+    text: 'Every piece is home again. Off we go!',
+  },
+  thinkle_host_again_3: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_again_3.mp3',
+    seconds: 4.08,
+    text: "Again? Splendid! I'll fetch a fresh candle.",
+  },
+  thinkle_host_again_4: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_again_4.mp3',
+    seconds: 5.04,
+    text: "Round two... or three? I've lost count!",
+  },
+  thinkle_host_black_wins_1: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_black_wins_1.mp3',
+    seconds: 4.64,
+    text: 'Black wins! What a tale you two have told.',
+  },
+  thinkle_host_black_wins_2: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_black_wins_2.mp3',
+    seconds: 4,
+    text: 'Victory to Black, and a bow to White!',
+  },
+  thinkle_host_black_wins_3: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_black_wins_3.mp3',
+    seconds: 4.48,
+    text: 'The stars smile on Black, and wink at White!',
+  },
+  thinkle_host_capture_1: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_capture_1.mp3',
+    seconds: 4.24,
+    text: 'Aha! A capture, and the tale takes a twist.',
+  },
+  thinkle_host_capture_2: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_capture_2.mp3',
+    seconds: 3.2,
+    text: 'A piece bows out, ever so politely.',
+  },
+  thinkle_host_capture_3: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_capture_3.mp3',
+    seconds: 4.56,
+    text: "Hmm... a capture. I'll note that in my scrolls.",
+  },
+  thinkle_host_capture_4: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_capture_4.mp3',
+    seconds: 3.52,
+    text: 'Splendid! One more piece for the box.',
+  },
+  thinkle_host_capture_5: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_capture_5.mp3',
+    seconds: 4,
+    text: 'Poof! Away it floats, like a little spell.',
+  },
+  thinkle_host_capture_6: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_capture_6.mp3',
+    seconds: 4.24,
+    text: 'Taken! My spectacles saw it all.',
+  },
+  thinkle_host_capture_heavy_1: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_capture_heavy_1.mp3',
+    seconds: 4.4,
+    text: 'Goodness me! My beard stood on end!',
+  },
+  thinkle_host_capture_heavy_2: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_capture_heavy_2.mp3',
+    seconds: 3.68,
+    text: 'Stars and scrolls! What a capture!',
+  },
+  thinkle_host_capture_heavy_3: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_capture_heavy_3.mp3',
+    seconds: 2.88,
+    text: 'A chapter to remember, my friends!',
+  },
+  thinkle_host_capture_heavy_4: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_capture_heavy_4.mp3',
+    seconds: 4.16,
+    text: 'Great heavens! What a turn of events!',
+  },
+  thinkle_host_capture_heavy_5: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_capture_heavy_5.mp3',
+    seconds: 3.6,
+    text: 'That one will echo through the ages!',
+  },
+  thinkle_host_capture_queen_1: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_capture_queen_1.mp3',
+    seconds: 4.96,
+    text: 'Whoosh! A queen, and my hat nearly flew off!',
+  },
+  thinkle_host_capture_queen_2: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_capture_queen_2.mp3',
+    seconds: 4,
+    text: 'A queen! Bards will sing of this for years.',
+  },
+  thinkle_host_capture_queen_3: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_capture_queen_3.mp3',
+    seconds: 4.56,
+    text: 'Queen overboard! What a moment, my friends!',
+  },
+  thinkle_host_capture_queen_4: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_capture_queen_4.mp3',
+    seconds: 6.4,
+    text: 'Gracious me, a queen! I must sit down.',
+  },
+  thinkle_host_castling_1: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_castling_1.mp3',
+    seconds: 4.08,
+    text: 'Castling! It takes a king and a rook on the dice.',
+  },
+  thinkle_host_castling_2: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_castling_2.mp3',
+    seconds: 4.16,
+    text: 'The king steps aside, and his tower leaps over!',
+  },
+  thinkle_host_castling_3: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_castling_3.mp3',
+    seconds: 4.16,
+    text: 'One move for two pieces! That is castling.',
+  },
+  thinkle_host_draw_1: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_draw_1.mp3',
+    seconds: 3.84,
+    text: 'Equals part as friends, as the old saying goes.',
+  },
+  thinkle_host_draw_2: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_draw_2.mp3',
+    seconds: 5.04,
+    text: 'Neither side wins. What a gentle ending!',
+  },
+  thinkle_host_draw_3: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_draw_3.mp3',
+    seconds: 4.32,
+    text: 'Level to the last! The stars applaud you both.',
+  },
+  thinkle_host_empty_roll_1: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_empty_roll_1.mp3',
+    seconds: 3.84,
+    text: 'Hmm... not a single move on that roll.',
+  },
+  thinkle_host_empty_roll_2: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_empty_roll_2.mp3',
+    seconds: 5.28,
+    text: 'A roll with no move. It happens to us all!',
+  },
+  thinkle_host_empty_roll_3: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_empty_roll_3.mp3',
+    seconds: 4.64,
+    text: 'Blame the dice, my friends, not the player!',
+  },
+  thinkle_host_empty_roll_4: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_empty_roll_4.mp3',
+    seconds: 2.96,
+    text: 'The dice kept their secrets this time.',
+  },
+  thinkle_host_empty_roll_5: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_empty_roll_5.mp3',
+    seconds: 4,
+    text: "Even magic can't argue with the dice!",
+  },
+  thinkle_host_en_passant_1: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_en_passant_1.mp3',
+    seconds: 4.56,
+    text: 'From my oldest scrolls: the rule of en passant!',
+  },
+  thinkle_host_en_passant_2: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_en_passant_2.mp3',
+    seconds: 4.8,
+    text: "A pawn's secret move! En passant, they call it.",
+  },
+  thinkle_host_en_passant_3: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_en_passant_3.mp3',
+    seconds: 4.4,
+    text: 'En passant! Rarer than a blue moon.',
+  },
+  thinkle_host_handoff_1: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_handoff_1.mp3',
+    seconds: 3.6,
+    text: "The remote passes on, my friends. Black's turn.",
+  },
+  thinkle_host_handoff_2: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_handoff_2.mp3',
+    seconds: 4.16,
+    text: 'Hear ye, hear ye! The remote goes to Black.',
+  },
+  thinkle_host_handoff_3: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_handoff_3.mp3',
+    seconds: 4.88,
+    text: "Pass the wand! I mean... the remote. Black's turn.",
+  },
+  thinkle_host_intro_1: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_intro_1.mp3',
+    seconds: 4.64,
+    text: 'Hmm... the dice favour no one, young or old.',
+  },
+  thinkle_host_intro_2: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_intro_2.mp3',
+    seconds: 4.32,
+    text: 'Settle in, my friends. A new tale begins.',
+  },
+  thinkle_host_intro_3: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_intro_3.mp3',
+    seconds: 4.48,
+    text: 'White, you roll first. The stars are watching!',
+  },
+  thinkle_host_intro_4: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_intro_4.mp3',
+    seconds: 4.24,
+    text: 'Welcome, you two! May the best roll win.',
+  },
+  thinkle_host_intro_5: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_intro_5.mp3',
+    seconds: 4.64,
+    text: 'I promise: no spells from me, only dice!',
+  },
+  thinkle_host_promotion_1: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_promotion_1.mp3',
+    seconds: 4.16,
+    text: 'Abracadabra! The pawn becomes something new.',
+  },
+  thinkle_host_promotion_2: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_promotion_2.mp3',
+    seconds: 3.84,
+    text: 'Ah, a promotion! A pawn no longer.',
+  },
+  thinkle_host_promotion_3: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_promotion_3.mp3',
+    seconds: 3.44,
+    text: 'The bravest pawn reached the far side!',
+  },
+  thinkle_host_promotion_4: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_promotion_4.mp3',
+    seconds: 4.48,
+    text: 'Hats off to that little pawn! Splendid!',
+  },
+  thinkle_host_white_wins_1: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_white_wins_1.mp3',
+    seconds: 4.96,
+    text: 'White wins! A fine tale, told by you both.',
+  },
+  thinkle_host_white_wins_2: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_white_wins_2.mp3',
+    seconds: 3.84,
+    text: 'Victory to White, and a bow to Black!',
+  },
+  thinkle_host_white_wins_3: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_white_wins_3.mp3',
+    seconds: 4.24,
+    text: 'The stars smile on White, and wink at Black!',
+  },
+  thinkle_host_win_1: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_win_1.mp3',
+    seconds: 5.52,
+    text: 'And that is the last page. What a story!',
+  },
+  thinkle_host_win_2: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_win_2.mp3',
+    seconds: 4.56,
+    text: 'The game is won! What splendid play, you two.',
+  },
+  thinkle_host_win_3: {
+    file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_win_3.mp3',
+    seconds: 4.08,
+    text: 'My scrolls will remember this one. Bravo!',
   },
   thinkle_tutor_capture_done_1: {
     file: 'elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_capture_done_1.mp3',

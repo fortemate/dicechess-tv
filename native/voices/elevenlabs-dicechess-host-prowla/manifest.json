@@ -862,6 +862,120 @@
         "use_speaker_boost": true
       }
     },
+    "prowla_host_castling_1": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[mischievously] Castling, darlings. King and rook, in one move.",
+      "durationSeconds": 4.96,
+      "event": "castling",
+      "export": "exports/mp3/prowla_host_castling_1.mp3",
+      "generated": "2026-10-06T17:49:22Z",
+      "loudness": {
+        "exportLufs": -16.1,
+        "gainDb": 5.6,
+        "passes": 2,
+        "sourceLufs": -21.0
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "0TPROcA94qm61BhfGRrV",
+      "seed": 2774223617,
+      "sha256": "557534f43cf26789715a3989f79c485126371a9328c4b6487e2c40e49ea97e1c",
+      "source": "source/mp3/prowla_host_castling_1.mp3",
+      "sourceSha256": "6233c88d03fded762e4da5dc3067e66803fee219add68c67da933d478c2b1c75",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Castling, darlings. King and rook, in one move.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_castling_2": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] Mmm, castling. [whispers] The rook slips past the king.",
+      "durationSeconds": 4.4,
+      "event": "castling",
+      "export": "exports/mp3/prowla_host_castling_2.mp3",
+      "generated": "2026-10-06T17:49:24Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 9.9,
+        "passes": 1,
+        "sourceLufs": -25.9
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "usGLAJDRcggSDSSG1Ogs",
+      "seed": 2657050191,
+      "sha256": "1dd643c6b145dad91e32345836e266b7a371f0445c355b3236a023beb4677e19",
+      "source": "source/mp3/prowla_host_castling_2.mp3",
+      "sourceSha256": "73b5de9aa3794f028aee0d68ed7c2fe7bc0d40ef42adf79204ac81eadf9bbd5a",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Mmm, castling. The rook slips past the king.",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "prowla_host_castling_3": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[whispers] A king curled up by the fire. [smug] Purrr...",
+      "durationSeconds": 4.0,
+      "event": "castling",
+      "export": "exports/mp3/prowla_host_castling_3.mp3",
+      "generated": "2026-10-06T17:49:32Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 9.9,
+        "passes": 2,
+        "sourceLufs": -24.5
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "KZ366Is3wyr7ONz5jp0t",
+      "seed": 1152967795,
+      "sha256": "d9f752a5f64ef45222ad15f495f4db85c2745b8c62bf98087cbcbe67e4ffadb7",
+      "source": "source/mp3/prowla_host_castling_3.mp3",
+      "sourceSha256": "4ccd6ce7a95f07b14bc7913b41e05efac9260f0ee27eabac5f318a66e0cb3b2d",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "A king curled up by the fire. Purrr...",
+      "voice": "Prowla",
+      "voiceId": "EvT9FdUBSQImfVRTPse6",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
     "prowla_host_draw_1": {
       "bot": "host",
       "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
