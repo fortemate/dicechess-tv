@@ -667,15 +667,20 @@ test('OK or the arrows sideways flip music, sound effects, voices and hotseat bo
   assert.equal(drive(voices, 'right').voices, false);
   assert.equal(drive(voices, 'select', 'left').voices, true);
   // Once more, the Hot Seat host, Prowla by default (#258). OK and Right step
-  // to the next choice, Rolly and then off, and Left to the one before.
+  // to the next choice, Rolly, Thinkle (#279) and then off, and Left to the one
+  // before.
   const host = drive(voices, 'down');
   assert.equal(host.host, 'prowla');
   assert.equal(drive(host, 'select').host, 'rolly');
   assert.equal(drive(host, 'right').host, 'rolly');
-  assert.equal(drive(host, 'select', 'select').host, 'off');
+  assert.equal(drive(host, 'select', 'select').host, 'thinkle');
+  assert.equal(drive(host, 'select', 'select', 'select').host, 'off');
   assert.equal(drive(host, 'left').host, 'off');
-  assert.equal(drive(host, 'left', 'left').host, 'rolly');
-  assert.equal(drive(host, 'select', 'select', 'select').host, 'prowla');
+  assert.equal(drive(host, 'left', 'left').host, 'thinkle');
+  assert.equal(
+    drive(host, 'select', 'select', 'select', 'select').host,
+    'prowla',
+  );
   assert.equal(drive(host, 'right', 'left').host, 'prowla');
   assert.equal(
     settingsOptions(
@@ -684,9 +689,9 @@ test('OK or the arrows sideways flip music, sound effects, voices and hotseat bo
       host.musicAvailable,
       host.turnHotseat,
       host.voices,
-      'rolly',
+      'thinkle',
     )[4],
-    'Hot Seat host: Rolly',
+    'Hot Seat host: Thinkle',
   );
   const hostOff = drive(host, 'left');
   assert.equal(

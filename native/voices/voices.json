@@ -1,9 +1,9 @@
 {
   "upstream": "fortemate/dicechess-assets",
-  "commit": "656f1a3cb14073760dc6dd92895672d5a2c1349a",
+  "commit": "520a7a6493c1d13e7578062ee86462abdee7384d",
   "events": {
     "file": "events.json",
-    "sha256": "f854ece1d70e64a711b1939a36807f09c13830ec19f8b2571aa0efdea98cf89f"
+    "sha256": "aa06c801a49ce922464ff70ef1392a31fe9bbb3ad5a7367f47f96ceeefc31f99"
   },
   "packs": {
     "elevenlabs-dicechess-bots": {
@@ -105,7 +105,7 @@
         "repository": "fortemate/dicechess-assets"
       },
       "files": {
-        "manifest.json": "6a91ce6c8c6dfa8ceb944885f84cbfab3a774fa79ebd7ef73672896b71471d88",
+        "manifest.json": "f24d6b226443d42373da3306910e0267faa7f2c0e220e8c027e2539f14d6ecd9",
         "LICENSE.txt": "645f754fd130b85fef5b3fb104d59ce67f1dd7b391a03f9e67840d74b2cc51ea",
         "host_again_1.mp3": "148d5a9996f235834f617bbb96687da0f9258ad6dd5c2f32330ca3f55591239b",
         "host_again_2.mp3": "6a743e3820280c8f0500443a1a2cfa99120377e6df678f82f9e62d29872bbb15",
@@ -126,6 +126,9 @@
         "host_capture_queen_2.mp3": "be456215b430371aa4070616139e2361982a4d6d368334d58e4e61fb3d7ecd3b",
         "host_capture_queen_3.mp3": "7f03c46033c6c88fe43125c0144ebe3124b5788e7f523ae1619e5a3e57e6a379",
         "host_capture_queen_4.mp3": "fc0ff827ca012bfb720600a2ab8c061a605f58a0ec041c571b1af511d7f68f39",
+        "host_castling_1.mp3": "e9f9c23f9f8c36635ac800ff515d4f609f1477d43270765f70676fed9b054ae2",
+        "host_castling_2.mp3": "a3bdb3699216766754a896b941c0bdf0da9ce01da7b1a98b6a9f7b6a3d89d74f",
+        "host_castling_3.mp3": "75040c0a8edd3a26b6498e50d9ea42f0f845496d4bf46ce78a53d28917333209",
         "host_draw_1.mp3": "3804b6a94ce95ec1e6dd2f4fa80112f924cd00e7f5c3cacc85dcda7eb805b26d",
         "host_draw_2.mp3": "0356a61ade826cd956ba54357cb8cc77ad5dac97753b428c5cc00d963bea4bc5",
         "host_draw_3.mp3": "ce92f009eccedff23077cb8ef494e7eb3260e27880d6c7b48bcc9f9b33350954",
@@ -169,7 +172,7 @@
         "repository": "fortemate/dicechess-assets"
       },
       "files": {
-        "manifest.json": "3991283dd561b50c7ba310c9603c60235ef5be0f5a8d6c09dadddc1521824add",
+        "manifest.json": "6e452188a7dbdf6a50e65ede6ef7650f6d322e5ba89d2da650ed74ee35fd3bca",
         "LICENSE.txt": "1073728dca9d772c4cb14072808e59840269bc3934157f7a8a8b07d4ba1cd552",
         "prowla_host_again_1.mp3": "4c896cd95f86a6f064c910b72bb5b1da6ebc4ded85949a41142c2503a897bfdd",
         "prowla_host_again_2.mp3": "b0c3c8c821bf86a469046ecf35dcd737c99dea0251614cfcf0a32a7d8ac29d8d",
@@ -193,6 +196,9 @@
         "prowla_host_capture_queen_2.mp3": "699711e14ec87e4ebf619f49b2fe750c10a33206af0a721bdd637c94f8025bbe",
         "prowla_host_capture_queen_3.mp3": "7195b3f3e924af1b8f56bae31a82ec05fdb225cad3c6bae2d49d1f64d92fb472",
         "prowla_host_capture_queen_4.mp3": "bb7afa055f4104e4f407bd795ad7ec42a4ae23faf08c302f09763825d81ba0e8",
+        "prowla_host_castling_1.mp3": "557534f43cf26789715a3989f79c485126371a9328c4b6487e2c40e49ea97e1c",
+        "prowla_host_castling_2.mp3": "1dd643c6b145dad91e32345836e266b7a371f0445c355b3236a023beb4677e19",
+        "prowla_host_castling_3.mp3": "d9f752a5f64ef45222ad15f495f4db85c2745b8c62bf98087cbcbe67e4ffadb7",
         "prowla_host_draw_1.mp3": "254efe70bf966efc960f9d21bf579124bf924c9e474942ef1cd1082757f5e6bd",
         "prowla_host_draw_2.mp3": "28a5969a75f8c6e2bce8d9415163d4ae73a42ad549df322abd914115e0a6da03",
         "prowla_host_draw_3.mp3": "f68fc591578adba6b75b70bb7757ed24a44eadff031589ed042f6976d166348a",
@@ -289,6 +295,79 @@
         "thinkle_tutor_pass_rolled_1.mp3": "1e4313215997a1123c972fb8e97ad6610406a49910887a200c7c34290b38fb90",
         "thinkle_tutor_pass_rolled_2.mp3": "a2435ccbd3820529f8160e5091363e88017b55421cce7bf5ff0ad831600f8144",
         "thinkle_tutor_pass_rolled_3.mp3": "6edeff9248c7eedcd1c4af1c54a41a960982d9b6a70d49a5aaf2ada6e62572c8"
+      }
+    },
+    "elevenlabs-dicechess-host-thinkle": {
+      "title": "Dice Chess Hot Seat host Thinkle (ElevenLabs)",
+      "license": "Fortemate apps only",
+      "licenseFile": "LICENSE.txt",
+      "distribution": "project",
+      "clients": [
+        "fortemate/dicechess-tv"
+      ],
+      "attributionRequired": false,
+      "generator": "ElevenLabs",
+      "texts": {
+        "path": "voices/elevenlabs-dicechess-host-thinkle/catalogue.json",
+        "repository": "fortemate/dicechess-assets"
+      },
+      "files": {
+        "manifest.json": "16c8533935960797417fc852a974219c73898941d63b7524b66bc1f4ca3c98ff",
+        "LICENSE.txt": "0733b10bff7a070ca5c9388b5d558a3c89de1d860e767574996bb2aedeaaa09d",
+        "thinkle_host_again_1.mp3": "88437db62128a223c1dcaee46cf4f036469486a4b1a0e143987a2cf6cd2f4690",
+        "thinkle_host_again_2.mp3": "c63047dda3b3a16afa68dde7826504775c082e4191de1b987d3f43639b808e6e",
+        "thinkle_host_again_3.mp3": "c4dd0af44dd7c369a86a6ea65677b612c8acfc68bc29e572f9208c1e8ada9d29",
+        "thinkle_host_again_4.mp3": "e6a828459fa5f35c2583f8137456657b3798e47d9d15666c37ff652aba4377ef",
+        "thinkle_host_black_wins_1.mp3": "4c6d8d6989a0ca7c4fd279f45e68a18680d5356bc7676eebe1f0dc28ebc3c8ab",
+        "thinkle_host_black_wins_2.mp3": "3e93a4ce3fb6ac310efbfbf2ff45a1bc5fedd3c3f96fde9827dd1758b39ed30e",
+        "thinkle_host_black_wins_3.mp3": "090278291f15106e89f8cbf9a761a325ce8082700c854fa7c101479c8c453737",
+        "thinkle_host_capture_1.mp3": "6dd023ab6fafb2016debf0b3ee013ec3739ca71e7929d977770893064d489d8e",
+        "thinkle_host_capture_2.mp3": "3c1078bb023b078fd71b28bdf1c4e073b02e056c3c274117b3a7cfb32ef2193f",
+        "thinkle_host_capture_3.mp3": "3caf4dcbd63c53ad2f255bf07b966b672780aa128c8dd3e8cb221574e3517c32",
+        "thinkle_host_capture_4.mp3": "ae25ec2be87782f1287dce55b0b808ed525391ef299fbbac0d57ec424ce2a0da",
+        "thinkle_host_capture_5.mp3": "300b5d23fec98b5342dc37293c2d625e3556b4cb094651ea5b43643f710ebfe6",
+        "thinkle_host_capture_6.mp3": "affc7ea2e347b1d796d7c82f6f1b2c1a2bce5ef5b2a3fc07c148026c6f11f1b4",
+        "thinkle_host_capture_heavy_1.mp3": "9d3e8603975202b827d5fa3730f75d78124052901a8e098bc318d691687135f4",
+        "thinkle_host_capture_heavy_2.mp3": "82d95dd3ded477cac95845347188031acb45392ad8d0b44afd4e11298d3f47f4",
+        "thinkle_host_capture_heavy_3.mp3": "94f299ac716799ffc3f862ee222f1102268a7d8605672c4bce94f489f65e9647",
+        "thinkle_host_capture_heavy_4.mp3": "4d558970b5bf9cfa80fd970726db3122665efdfd2212ef405a7a7dd2fb3ae1e6",
+        "thinkle_host_capture_heavy_5.mp3": "1d1c07ac6fb1381f21c526a047ef894eca4743d32e3245069fd141970dcb17eb",
+        "thinkle_host_capture_queen_1.mp3": "cba53115b699ff8ec3f1cee93f6fe8377d926802bf7d1405cd49328a75df40c9",
+        "thinkle_host_capture_queen_2.mp3": "50fd1ab5e9823953cdd589dff1b36f6e83c90fb365e0801c10916c2ee9a36fea",
+        "thinkle_host_capture_queen_3.mp3": "4595311ad3303474e1801929c2db7e30ecb1e5b70ad441821834e559576bdcbe",
+        "thinkle_host_capture_queen_4.mp3": "75d516dd3feb6bc8a48012e820b41bb3a467efb68b00599e09c767458d01ae07",
+        "thinkle_host_castling_1.mp3": "7b543f1e2cca1b6ef80444f450cf8b88686c015122da70f533dd2b680685517b",
+        "thinkle_host_castling_2.mp3": "71285e231e6b9028f0f3bfc5c52f91f49a96312832e6e5b8fda7ed0458ad32ed",
+        "thinkle_host_castling_3.mp3": "89263fece6d5089e4e0750af74e2cec90e98907c5799752968bc9006a1debc6f",
+        "thinkle_host_draw_1.mp3": "73420952a327e81d1588c955ec7f67a3e0a4db8a7e47d95dc97698f0271412df",
+        "thinkle_host_draw_2.mp3": "a2ed1ed9bf51966def10dcf93026d14d770fd3a69fd3e46efd924dd95e61f222",
+        "thinkle_host_draw_3.mp3": "3aad60d9cf8763431b3fb25afb0fefe0c274658946ece75ddf9380242a203b39",
+        "thinkle_host_empty_roll_1.mp3": "ec2c4178cc050fd100ac7276370e288ff829cacffdb2dc8a826c19802e5fd6ca",
+        "thinkle_host_empty_roll_2.mp3": "6265bcc55c9de230574a8afe627bd8defaec9fd66e6818777ebc336bf735cf61",
+        "thinkle_host_empty_roll_3.mp3": "28786097602d916fd07f4643185854883c55a7643a61d07b57e4f7b262c30844",
+        "thinkle_host_empty_roll_4.mp3": "229eb9366b971c6d867c14eb67eb70eb9cdfc275fc93dcd03c4d918a787457a4",
+        "thinkle_host_empty_roll_5.mp3": "db76b5fbc1bc309d5270e629cdf34fd5628805f2774ff9d76605319422f636c8",
+        "thinkle_host_en_passant_1.mp3": "23bdc53dafc3b12456e55a78219a82674fbb90d7a2942a7327e7993d2ee5efba",
+        "thinkle_host_en_passant_2.mp3": "4fff94bcb0bd84a3dda0d5917836a8bbedcb7ab5aef75e06f7a0f4fc9e22ebdb",
+        "thinkle_host_en_passant_3.mp3": "3b1aeb4306770837bfaf078e6b28c51346958394d768cb8cecfb58bae60ec950",
+        "thinkle_host_handoff_1.mp3": "b09409564da8ddd043b329ba4a08238ca3c2967e42ec610ac6431653cac525be",
+        "thinkle_host_handoff_2.mp3": "35c026b32083077954ebe311c75632fe2b2553d1825b2bcf304dd11dcc461a75",
+        "thinkle_host_handoff_3.mp3": "2a296b0abe2feebcb6463c93fc76c738a6a2a6d713093ab485306013b556d450",
+        "thinkle_host_intro_1.mp3": "17aa1fba6d694bc4554053f7561fdd9adb5430c152c134036e3392238dc443aa",
+        "thinkle_host_intro_2.mp3": "b84759d7151f02048266f269b1c5e3ff31ff20fd79862fd18b72f4ed7eb9bf22",
+        "thinkle_host_intro_3.mp3": "fd1764a00b89c4c30fbebbb2454d7767a35199fdf6ae8b46b4b754da7771a8b5",
+        "thinkle_host_intro_4.mp3": "02f42ffabdf59b4c732cde5f8bde9f2e13f39f1424ba8a2fefb11e414b8828a2",
+        "thinkle_host_intro_5.mp3": "e9080ab839f70522847d55a2badf2b7091c602714b29f0b6baab079a7939d125",
+        "thinkle_host_promotion_1.mp3": "5cc8308f7c86fa4e0c18480fd84e67fb4d400a6591642c0b9d95e97b6bf47838",
+        "thinkle_host_promotion_2.mp3": "abef7266408b98a4549748cda3fee3207ffa56e13be1edd74bbcf72dcf7af6e5",
+        "thinkle_host_promotion_3.mp3": "0847c2aa17fd91137a66b32258d3cffa4a5b41765bc78d79c475ab7ebbbb19e2",
+        "thinkle_host_promotion_4.mp3": "09a455d12b57ba9be16d982fdbd080b26b2269e75409ca1cd893e72628fac97c",
+        "thinkle_host_white_wins_1.mp3": "cd8491986238fe19b20ebd450225e61fd53cd5933da78934b5aa8db79da8f032",
+        "thinkle_host_white_wins_2.mp3": "1477f85ccdc1f4bd3d0a7fdfc70ffcd3da355226f2900f325593a8663a7f258b",
+        "thinkle_host_white_wins_3.mp3": "2b1e31c0741ccbdee47f6d14b955b361d05da565c7870727bc9a45aabc59786a",
+        "thinkle_host_win_1.mp3": "5a0ecdbe70e9cadef1cf864606e66d93b7c291403dd78cd7833ef2530b15dd3d",
+        "thinkle_host_win_2.mp3": "f851ddadbe9915acdb4e8e9abdb4bb7a6b3fbb75ccf453f965fa9dcbf05d817e",
+        "thinkle_host_win_3.mp3": "70635a9cd99bb9c4dbe864448bcdc9b9a67442aa5631aed996a0a29cbd32487f"
       }
     }
   },
@@ -692,6 +771,36 @@
       "file": "elevenlabs-dicechess-host/host_capture_queen_4.mp3",
       "sha256": "fc0ff827ca012bfb720600a2ab8c061a605f58a0ec041c571b1af511d7f68f39",
       "seconds": 5.04
+    },
+    "host_castling_1": {
+      "pack": "elevenlabs-dicechess-host",
+      "bot": "host",
+      "event": "castling",
+      "text": "Leapfrog! The rook jumped right over the king!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host/host_castling_1.mp3",
+      "sha256": "e9f9c23f9f8c36635ac800ff515d4f609f1477d43270765f70676fed9b054ae2",
+      "seconds": 5.44
+    },
+    "host_castling_2": {
+      "pack": "elevenlabs-dicechess-host",
+      "bot": "host",
+      "event": "castling",
+      "text": "Castling! Two pieces, one move. Yay!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host/host_castling_2.mp3",
+      "sha256": "a3bdb3699216766754a896b941c0bdf0da9ce01da7b1a98b6a9f7b6a3d89d74f",
+      "seconds": 5.04
+    },
+    "host_castling_3": {
+      "pack": "elevenlabs-dicechess-host",
+      "bot": "host",
+      "event": "castling",
+      "text": "Boop! The king just moved into his castle!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host/host_castling_3.mp3",
+      "sha256": "75040c0a8edd3a26b6498e50d9ea42f0f845496d4bf46ce78a53d28917333209",
+      "seconds": 4.32
     },
     "host_draw_1": {
       "pack": "elevenlabs-dicechess-host",
@@ -1172,6 +1281,36 @@
       "file": "elevenlabs-dicechess-host-prowla/prowla_host_capture_queen_4.mp3",
       "sha256": "bb7afa055f4104e4f407bd795ad7ec42a4ae23faf08c302f09763825d81ba0e8",
       "seconds": 4.64
+    },
+    "prowla_host_castling_1": {
+      "pack": "elevenlabs-dicechess-host-prowla",
+      "bot": "host",
+      "event": "castling",
+      "text": "Castling, darlings. King and rook, in one move.",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla/prowla_host_castling_1.mp3",
+      "sha256": "557534f43cf26789715a3989f79c485126371a9328c4b6487e2c40e49ea97e1c",
+      "seconds": 4.96
+    },
+    "prowla_host_castling_2": {
+      "pack": "elevenlabs-dicechess-host-prowla",
+      "bot": "host",
+      "event": "castling",
+      "text": "Mmm, castling. The rook slips past the king.",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla/prowla_host_castling_2.mp3",
+      "sha256": "1dd643c6b145dad91e32345836e266b7a371f0445c355b3236a023beb4677e19",
+      "seconds": 4.4
+    },
+    "prowla_host_castling_3": {
+      "pack": "elevenlabs-dicechess-host-prowla",
+      "bot": "host",
+      "event": "castling",
+      "text": "A king curled up by the fire. Purrr...",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla/prowla_host_castling_3.mp3",
+      "sha256": "d9f752a5f64ef45222ad15f495f4db85c2745b8c62bf98087cbcbe67e4ffadb7",
+      "seconds": 4
     },
     "prowla_host_draw_1": {
       "pack": "elevenlabs-dicechess-host-prowla",
@@ -1882,6 +2021,546 @@
       "file": "elevenlabs-dicechess-bots/rolly_win_3.mp3",
       "sha256": "8de85cd7cfa42d836942f07c0f93e9adf32b62252211b836e4877d7357e81c74",
       "seconds": 4
+    },
+    "thinkle_host_again_1": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "again",
+      "text": "Another chapter! Turn the page, my friends.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_again_1.mp3",
+      "sha256": "88437db62128a223c1dcaee46cf4f036469486a4b1a0e143987a2cf6cd2f4690",
+      "seconds": 3.76
+    },
+    "thinkle_host_again_2": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "again",
+      "text": "Every piece is home again. Off we go!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_again_2.mp3",
+      "sha256": "c63047dda3b3a16afa68dde7826504775c082e4191de1b987d3f43639b808e6e",
+      "seconds": 3.52
+    },
+    "thinkle_host_again_3": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "again",
+      "text": "Again? Splendid! I'll fetch a fresh candle.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_again_3.mp3",
+      "sha256": "c4dd0af44dd7c369a86a6ea65677b612c8acfc68bc29e572f9208c1e8ada9d29",
+      "seconds": 4.08
+    },
+    "thinkle_host_again_4": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "again",
+      "text": "Round two... or three? I've lost count!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_again_4.mp3",
+      "sha256": "e6a828459fa5f35c2583f8137456657b3798e47d9d15666c37ff652aba4377ef",
+      "seconds": 5.04
+    },
+    "thinkle_host_black_wins_1": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "black_wins",
+      "text": "Black wins! What a tale you two have told.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_black_wins_1.mp3",
+      "sha256": "4c6d8d6989a0ca7c4fd279f45e68a18680d5356bc7676eebe1f0dc28ebc3c8ab",
+      "seconds": 4.64
+    },
+    "thinkle_host_black_wins_2": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "black_wins",
+      "text": "Victory to Black, and a bow to White!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_black_wins_2.mp3",
+      "sha256": "3e93a4ce3fb6ac310efbfbf2ff45a1bc5fedd3c3f96fde9827dd1758b39ed30e",
+      "seconds": 4
+    },
+    "thinkle_host_black_wins_3": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "black_wins",
+      "text": "The stars smile on Black, and wink at White!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_black_wins_3.mp3",
+      "sha256": "090278291f15106e89f8cbf9a761a325ce8082700c854fa7c101479c8c453737",
+      "seconds": 4.48
+    },
+    "thinkle_host_capture_1": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "capture",
+      "text": "Aha! A capture, and the tale takes a twist.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_capture_1.mp3",
+      "sha256": "6dd023ab6fafb2016debf0b3ee013ec3739ca71e7929d977770893064d489d8e",
+      "seconds": 4.24
+    },
+    "thinkle_host_capture_2": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "capture",
+      "text": "A piece bows out, ever so politely.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_capture_2.mp3",
+      "sha256": "3c1078bb023b078fd71b28bdf1c4e073b02e056c3c274117b3a7cfb32ef2193f",
+      "seconds": 3.2
+    },
+    "thinkle_host_capture_3": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "capture",
+      "text": "Hmm... a capture. I'll note that in my scrolls.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_capture_3.mp3",
+      "sha256": "3caf4dcbd63c53ad2f255bf07b966b672780aa128c8dd3e8cb221574e3517c32",
+      "seconds": 4.56
+    },
+    "thinkle_host_capture_4": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "capture",
+      "text": "Splendid! One more piece for the box.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_capture_4.mp3",
+      "sha256": "ae25ec2be87782f1287dce55b0b808ed525391ef299fbbac0d57ec424ce2a0da",
+      "seconds": 3.52
+    },
+    "thinkle_host_capture_5": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "capture",
+      "text": "Poof! Away it floats, like a little spell.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_capture_5.mp3",
+      "sha256": "300b5d23fec98b5342dc37293c2d625e3556b4cb094651ea5b43643f710ebfe6",
+      "seconds": 4
+    },
+    "thinkle_host_capture_6": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "capture",
+      "text": "Taken! My spectacles saw it all.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_capture_6.mp3",
+      "sha256": "affc7ea2e347b1d796d7c82f6f1b2c1a2bce5ef5b2a3fc07c148026c6f11f1b4",
+      "seconds": 4.24
+    },
+    "thinkle_host_capture_heavy_1": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "capture_heavy",
+      "text": "Goodness me! My beard stood on end!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_capture_heavy_1.mp3",
+      "sha256": "9d3e8603975202b827d5fa3730f75d78124052901a8e098bc318d691687135f4",
+      "seconds": 4.4
+    },
+    "thinkle_host_capture_heavy_2": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "capture_heavy",
+      "text": "Stars and scrolls! What a capture!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_capture_heavy_2.mp3",
+      "sha256": "82d95dd3ded477cac95845347188031acb45392ad8d0b44afd4e11298d3f47f4",
+      "seconds": 3.68
+    },
+    "thinkle_host_capture_heavy_3": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "capture_heavy",
+      "text": "A chapter to remember, my friends!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_capture_heavy_3.mp3",
+      "sha256": "94f299ac716799ffc3f862ee222f1102268a7d8605672c4bce94f489f65e9647",
+      "seconds": 2.88
+    },
+    "thinkle_host_capture_heavy_4": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "capture_heavy",
+      "text": "Great heavens! What a turn of events!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_capture_heavy_4.mp3",
+      "sha256": "4d558970b5bf9cfa80fd970726db3122665efdfd2212ef405a7a7dd2fb3ae1e6",
+      "seconds": 4.16
+    },
+    "thinkle_host_capture_heavy_5": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "capture_heavy",
+      "text": "That one will echo through the ages!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_capture_heavy_5.mp3",
+      "sha256": "1d1c07ac6fb1381f21c526a047ef894eca4743d32e3245069fd141970dcb17eb",
+      "seconds": 3.6
+    },
+    "thinkle_host_capture_queen_1": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "capture_queen",
+      "text": "Whoosh! A queen, and my hat nearly flew off!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_capture_queen_1.mp3",
+      "sha256": "cba53115b699ff8ec3f1cee93f6fe8377d926802bf7d1405cd49328a75df40c9",
+      "seconds": 4.96
+    },
+    "thinkle_host_capture_queen_2": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "capture_queen",
+      "text": "A queen! Bards will sing of this for years.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_capture_queen_2.mp3",
+      "sha256": "50fd1ab5e9823953cdd589dff1b36f6e83c90fb365e0801c10916c2ee9a36fea",
+      "seconds": 4
+    },
+    "thinkle_host_capture_queen_3": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "capture_queen",
+      "text": "Queen overboard! What a moment, my friends!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_capture_queen_3.mp3",
+      "sha256": "4595311ad3303474e1801929c2db7e30ecb1e5b70ad441821834e559576bdcbe",
+      "seconds": 4.56
+    },
+    "thinkle_host_capture_queen_4": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "capture_queen",
+      "text": "Gracious me, a queen! I must sit down.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_capture_queen_4.mp3",
+      "sha256": "75d516dd3feb6bc8a48012e820b41bb3a467efb68b00599e09c767458d01ae07",
+      "seconds": 6.4
+    },
+    "thinkle_host_castling_1": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "castling",
+      "text": "Castling! It takes a king and a rook on the dice.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_castling_1.mp3",
+      "sha256": "7b543f1e2cca1b6ef80444f450cf8b88686c015122da70f533dd2b680685517b",
+      "seconds": 4.08
+    },
+    "thinkle_host_castling_2": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "castling",
+      "text": "The king steps aside, and his tower leaps over!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_castling_2.mp3",
+      "sha256": "71285e231e6b9028f0f3bfc5c52f91f49a96312832e6e5b8fda7ed0458ad32ed",
+      "seconds": 4.16
+    },
+    "thinkle_host_castling_3": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "castling",
+      "text": "One move for two pieces! That is castling.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_castling_3.mp3",
+      "sha256": "89263fece6d5089e4e0750af74e2cec90e98907c5799752968bc9006a1debc6f",
+      "seconds": 4.16
+    },
+    "thinkle_host_draw_1": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "draw",
+      "text": "Equals part as friends, as the old saying goes.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_draw_1.mp3",
+      "sha256": "73420952a327e81d1588c955ec7f67a3e0a4db8a7e47d95dc97698f0271412df",
+      "seconds": 3.84
+    },
+    "thinkle_host_draw_2": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "draw",
+      "text": "Neither side wins. What a gentle ending!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_draw_2.mp3",
+      "sha256": "a2ed1ed9bf51966def10dcf93026d14d770fd3a69fd3e46efd924dd95e61f222",
+      "seconds": 5.04
+    },
+    "thinkle_host_draw_3": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "draw",
+      "text": "Level to the last! The stars applaud you both.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_draw_3.mp3",
+      "sha256": "3aad60d9cf8763431b3fb25afb0fefe0c274658946ece75ddf9380242a203b39",
+      "seconds": 4.32
+    },
+    "thinkle_host_empty_roll_1": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "empty_roll",
+      "text": "Hmm... not a single move on that roll.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_empty_roll_1.mp3",
+      "sha256": "ec2c4178cc050fd100ac7276370e288ff829cacffdb2dc8a826c19802e5fd6ca",
+      "seconds": 3.84
+    },
+    "thinkle_host_empty_roll_2": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "empty_roll",
+      "text": "A roll with no move. It happens to us all!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_empty_roll_2.mp3",
+      "sha256": "6265bcc55c9de230574a8afe627bd8defaec9fd66e6818777ebc336bf735cf61",
+      "seconds": 5.28
+    },
+    "thinkle_host_empty_roll_3": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "empty_roll",
+      "text": "Blame the dice, my friends, not the player!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_empty_roll_3.mp3",
+      "sha256": "28786097602d916fd07f4643185854883c55a7643a61d07b57e4f7b262c30844",
+      "seconds": 4.64
+    },
+    "thinkle_host_empty_roll_4": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "empty_roll",
+      "text": "The dice kept their secrets this time.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_empty_roll_4.mp3",
+      "sha256": "229eb9366b971c6d867c14eb67eb70eb9cdfc275fc93dcd03c4d918a787457a4",
+      "seconds": 2.96
+    },
+    "thinkle_host_empty_roll_5": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "empty_roll",
+      "text": "Even magic can't argue with the dice!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_empty_roll_5.mp3",
+      "sha256": "db76b5fbc1bc309d5270e629cdf34fd5628805f2774ff9d76605319422f636c8",
+      "seconds": 4
+    },
+    "thinkle_host_en_passant_1": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "en_passant",
+      "text": "From my oldest scrolls: the rule of en passant!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_en_passant_1.mp3",
+      "sha256": "23bdc53dafc3b12456e55a78219a82674fbb90d7a2942a7327e7993d2ee5efba",
+      "seconds": 4.56
+    },
+    "thinkle_host_en_passant_2": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "en_passant",
+      "text": "A pawn's secret move! En passant, they call it.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_en_passant_2.mp3",
+      "sha256": "4fff94bcb0bd84a3dda0d5917836a8bbedcb7ab5aef75e06f7a0f4fc9e22ebdb",
+      "seconds": 4.8
+    },
+    "thinkle_host_en_passant_3": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "en_passant",
+      "text": "En passant! Rarer than a blue moon.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_en_passant_3.mp3",
+      "sha256": "3b1aeb4306770837bfaf078e6b28c51346958394d768cb8cecfb58bae60ec950",
+      "seconds": 4.4
+    },
+    "thinkle_host_handoff_1": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "handoff",
+      "text": "The remote passes on, my friends. Black's turn.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_handoff_1.mp3",
+      "sha256": "b09409564da8ddd043b329ba4a08238ca3c2967e42ec610ac6431653cac525be",
+      "seconds": 3.6
+    },
+    "thinkle_host_handoff_2": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "handoff",
+      "text": "Hear ye, hear ye! The remote goes to Black.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_handoff_2.mp3",
+      "sha256": "35c026b32083077954ebe311c75632fe2b2553d1825b2bcf304dd11dcc461a75",
+      "seconds": 4.16
+    },
+    "thinkle_host_handoff_3": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "handoff",
+      "text": "Pass the wand! I mean... the remote. Black's turn.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_handoff_3.mp3",
+      "sha256": "2a296b0abe2feebcb6463c93fc76c738a6a2a6d713093ab485306013b556d450",
+      "seconds": 4.88
+    },
+    "thinkle_host_intro_1": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "intro",
+      "text": "Hmm... the dice favour no one, young or old.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_intro_1.mp3",
+      "sha256": "17aa1fba6d694bc4554053f7561fdd9adb5430c152c134036e3392238dc443aa",
+      "seconds": 4.64
+    },
+    "thinkle_host_intro_2": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "intro",
+      "text": "Settle in, my friends. A new tale begins.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_intro_2.mp3",
+      "sha256": "b84759d7151f02048266f269b1c5e3ff31ff20fd79862fd18b72f4ed7eb9bf22",
+      "seconds": 4.32
+    },
+    "thinkle_host_intro_3": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "intro",
+      "text": "White, you roll first. The stars are watching!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_intro_3.mp3",
+      "sha256": "fd1764a00b89c4c30fbebbb2454d7767a35199fdf6ae8b46b4b754da7771a8b5",
+      "seconds": 4.48
+    },
+    "thinkle_host_intro_4": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "intro",
+      "text": "Welcome, you two! May the best roll win.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_intro_4.mp3",
+      "sha256": "02f42ffabdf59b4c732cde5f8bde9f2e13f39f1424ba8a2fefb11e414b8828a2",
+      "seconds": 4.24
+    },
+    "thinkle_host_intro_5": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "intro",
+      "text": "I promise: no spells from me, only dice!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_intro_5.mp3",
+      "sha256": "e9080ab839f70522847d55a2badf2b7091c602714b29f0b6baab079a7939d125",
+      "seconds": 4.64
+    },
+    "thinkle_host_promotion_1": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "promotion",
+      "text": "Abracadabra! The pawn becomes something new.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_promotion_1.mp3",
+      "sha256": "5cc8308f7c86fa4e0c18480fd84e67fb4d400a6591642c0b9d95e97b6bf47838",
+      "seconds": 4.16
+    },
+    "thinkle_host_promotion_2": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "promotion",
+      "text": "Ah, a promotion! A pawn no longer.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_promotion_2.mp3",
+      "sha256": "abef7266408b98a4549748cda3fee3207ffa56e13be1edd74bbcf72dcf7af6e5",
+      "seconds": 3.84
+    },
+    "thinkle_host_promotion_3": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "promotion",
+      "text": "The bravest pawn reached the far side!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_promotion_3.mp3",
+      "sha256": "0847c2aa17fd91137a66b32258d3cffa4a5b41765bc78d79c475ab7ebbbb19e2",
+      "seconds": 3.44
+    },
+    "thinkle_host_promotion_4": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "promotion",
+      "text": "Hats off to that little pawn! Splendid!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_promotion_4.mp3",
+      "sha256": "09a455d12b57ba9be16d982fdbd080b26b2269e75409ca1cd893e72628fac97c",
+      "seconds": 4.48
+    },
+    "thinkle_host_white_wins_1": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "white_wins",
+      "text": "White wins! A fine tale, told by you both.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_white_wins_1.mp3",
+      "sha256": "cd8491986238fe19b20ebd450225e61fd53cd5933da78934b5aa8db79da8f032",
+      "seconds": 4.96
+    },
+    "thinkle_host_white_wins_2": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "white_wins",
+      "text": "Victory to White, and a bow to Black!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_white_wins_2.mp3",
+      "sha256": "1477f85ccdc1f4bd3d0a7fdfc70ffcd3da355226f2900f325593a8663a7f258b",
+      "seconds": 3.84
+    },
+    "thinkle_host_white_wins_3": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "white_wins",
+      "text": "The stars smile on White, and wink at Black!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_white_wins_3.mp3",
+      "sha256": "2b1e31c0741ccbdee47f6d14b955b361d05da565c7870727bc9a45aabc59786a",
+      "seconds": 4.24
+    },
+    "thinkle_host_win_1": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "win",
+      "text": "And that is the last page. What a story!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_win_1.mp3",
+      "sha256": "5a0ecdbe70e9cadef1cf864606e66d93b7c291403dd78cd7833ef2530b15dd3d",
+      "seconds": 5.52
+    },
+    "thinkle_host_win_2": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "win",
+      "text": "The game is won! What splendid play, you two.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_win_2.mp3",
+      "sha256": "f851ddadbe9915acdb4e8e9abdb4bb7a6b3fbb75ccf453f965fa9dcbf05d817e",
+      "seconds": 4.56
+    },
+    "thinkle_host_win_3": {
+      "pack": "elevenlabs-dicechess-host-thinkle",
+      "bot": "host",
+      "event": "win",
+      "text": "My scrolls will remember this one. Bravo!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_win_3.mp3",
+      "sha256": "70635a9cd99bb9c4dbe864448bcdc9b9a67442aa5631aed996a0a29cbd32487f",
+      "seconds": 4.08
     },
     "thinkle_tutor_capture_done_1": {
       "pack": "elevenlabs-dicechess-tutorial-thinkle",

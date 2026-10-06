@@ -240,6 +240,11 @@
         "priority": 4,
         "means": "A pawn of either side is taken en passant; said instead of capture."
       },
+      "castling": {
+        "tier": "always",
+        "priority": 5,
+        "means": "Either side castles; said as it happens. The line may name the rule: a king die and a rook die, spent as one action."
+      },
       "promotion": {
         "tier": "always",
         "priority": 6,

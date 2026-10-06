@@ -133,9 +133,9 @@ licence asks for credit, a line on the About screen (`src/core/credits.ts`).
 
 ## The voices
 
-Four voice packs are vendored from fortemate/dicechess-assets, which keeps them for
-every client: the bots', one for each Hot Seat host, Rolly (#202) and Prowla
-(#258), and the tutorial's, which Thinkle the wizard teaches (#264).
+Five voice packs are vendored from fortemate/dicechess-assets, which keeps them for
+every client: the bots', one for each Hot Seat host, Prowla (#258), Rolly (#202)
+and Thinkle (#279), and the tutorial's, which Thinkle the wizard teaches (#264).
 
 The bots' lines are written here, in `src/core/botVoice.ts`, and their voices are
 synthesized from those lines in dicechess-assets. Whenever a line changes, commit
@@ -151,8 +151,9 @@ lines come from; an export taken while `src/core/botVoice.ts` has changes that a
 not committed is marked `dirty`, because no commit holds its texts.
 
 The hosts' lines go the other way: they are written in dicechess-assets (the
-`catalogue.json` of `voices/elevenlabs-dicechess-host` and of
-`voices/elevenlabs-dicechess-host-prowla`) and copied word for word into
+`catalogue.json` of `voices/elevenlabs-dicechess-host`, of
+`voices/elevenlabs-dicechess-host-prowla` and of
+`voices/elevenlabs-dicechess-host-thinkle`) and copied word for word into
 `src/core/hostScripts.ts`, so `native/test/vendoredVoices.test.ts` fails when the two
 drift apart. So do Thinkle's tutorial lines: they are written in
 `voices/elevenlabs-dicechess-tutorial-thinkle/catalogue.json` and copied into

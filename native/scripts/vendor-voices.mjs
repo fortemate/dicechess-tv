@@ -1,6 +1,7 @@
-// Vendors the voices (#159, #187, #202, #258, #264) from fortemate/dicechess-assets
-// at one pinned commit: the bots' pack, the Hot Seat hosts' packs, the tutorial's,
-// and events.json, the table of when a character speaks.
+// Vendors the voices (#159, #187, #202, #258, #264, #279) from
+// fortemate/dicechess-assets at one pinned commit: the bots' pack, the Hot Seat
+// hosts' packs, the tutorial's, and events.json, the table of when a character
+// speaks.
 //
 //   node scripts/vendor-voices.mjs <dicechess-assets checkout> <commit>
 //
@@ -9,8 +10,9 @@
 // clip for each of its lines, made ahead of time with ElevenLabs and levelled to
 // the music's loudness: the bots' for the lines of src/core/botVoice.ts, which
 // the owner designed and picked by ear (dicechess-assets#29), and the hosts' for
-// the lines of src/core/hostScripts.ts, said by Rolly (#202) and by Prowla the cat
-// (#258) as the Hot Seat host, and the tutorial's for the lines of
+// the lines of src/core/hostScripts.ts, said by Prowla the cat (#258), Rolly
+// (#202) and Thinkle the wizard (#279) as the Hot Seat host, and the tutorial's
+// for the lines of
 // src/core/tutorial.ts, said by Thinkle the wizard as he teaches it (#264). Every
 // pack is for Fortemate's Dice Chess apps only (dicechess-assets#27): a project
 // permission that names this repository, like the music's.
@@ -34,6 +36,7 @@ const PACKS = [
   'elevenlabs-dicechess-host',
   'elevenlabs-dicechess-host-prowla',
   'elevenlabs-dicechess-tutorial-thinkle',
+  'elevenlabs-dicechess-host-thinkle',
 ];
 const UPSTREAM = 'fortemate/dicechess-assets';
 const CLIENT = 'fortemate/dicechess-tv';

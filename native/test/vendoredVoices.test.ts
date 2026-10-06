@@ -1,5 +1,5 @@
 // The vendored voices are what their catalogue says, and say what the game says
-// (#159, #187, #202, #258, #264).
+// (#159, #187, #202, #258, #264, #279).
 //
 // scripts/vendor-voices.mjs writes voices/voices.json: the pinned commit of
 // dicechess-assets, the digest of events.json, each pack's permission and files,
@@ -28,9 +28,10 @@ const sha256 = (bytes: Buffer) =>
 const BOTS = 'elevenlabs-dicechess-bots';
 const HOST = 'elevenlabs-dicechess-host';
 const PROWLA = 'elevenlabs-dicechess-host-prowla';
+const THINKLE = 'elevenlabs-dicechess-host-thinkle';
 const TUTOR = 'elevenlabs-dicechess-tutorial-thinkle';
-// Each host's lines are in her own pack.
-const HOST_PACK = { rolly: HOST, prowla: PROWLA } as const;
+// Each host's lines are in that host's own pack.
+const HOST_PACK = { rolly: HOST, prowla: PROWLA, thinkle: THINKLE } as const;
 
 type Pack = {
   title: string;
@@ -70,6 +71,7 @@ test('the catalogue pins one full commit of the asset repository', () => {
     BOTS,
     HOST,
     PROWLA,
+    THINKLE,
     TUTOR,
   ]);
 });
@@ -93,6 +95,7 @@ test('every vendored file has the bytes the catalogue pinned, and nothing else i
     BOTS,
     HOST,
     PROWLA,
+    THINKLE,
     TUTOR,
     'events.json',
     'voices.json',

@@ -90,6 +90,13 @@ const PROMOTION_TAKING_QUEEN = (turn = 1) =>
     rolled('1q2k3/P7/8/8/8/8/8/4K3 w - - 0 1', [PAWN, PAWN, PAWN], turn),
     'a7b8q',
   );
+// White castles short with a king die and a rook die (#279): the turn ends
+// there, since the pawn die left has no pawn to move.
+const CASTLING = (turn = 1) =>
+  lastAction(
+    rolled('4k3/8/8/8/8/8/8/4K2R w K - 0 1', [KING, ROOK, PAWN], turn),
+    'e1g1',
+  );
 // A bishop and a rook take a knight and a rook in one turn, the rook last: a
 // big moment of an earlier action was judged as it happened (#227).
 const ROOK_AND_KNIGHT = (turn = 1) =>
@@ -137,13 +144,14 @@ const cueOf = (
 
 // ── The lines ──────────────────────────────────────────────────────────────────
 
-test('each host has her own lines, numbered by event from 1: Rolly 45, Prowla 51 (#258)', () => {
-  assert.equal(HOST_CATALOGUE.length, 96);
+test('each host has lines of their own, numbered by event from 1: Prowla 54, Rolly 48, Thinkle 54 (#258, #279)', () => {
+  assert.equal(HOST_CATALOGUE.length, 156);
   const ids = HOST_CATALOGUE.map((line) => line.id);
   assert.equal(new Set(ids).size, ids.length);
   const prefix: Record<HostId, string> = {
     rolly: 'host',
     prowla: 'prowla_host',
+    thinkle: 'thinkle_host',
   };
   const counts: Record<HostId, Record<HostEvent, number>> = {
     rolly: {
@@ -155,6 +163,7 @@ test('each host has her own lines, numbered by event from 1: Rolly 45, Prowla 51
       capture_queen: 4,
       capture: 4,
       en_passant: 3,
+      castling: 3,
       promotion: 3,
       white_wins: 3,
       black_wins: 3,
@@ -170,6 +179,23 @@ test('each host has her own lines, numbered by event from 1: Rolly 45, Prowla 51
       capture_queen: 4,
       capture: 6,
       en_passant: 3,
+      castling: 3,
+      promotion: 4,
+      white_wins: 3,
+      black_wins: 3,
+      win: 3,
+      draw: 3,
+    },
+    thinkle: {
+      intro: 5,
+      again: 4,
+      handoff: 3,
+      empty_roll: 5,
+      capture_heavy: 5,
+      capture_queen: 4,
+      capture: 6,
+      en_passant: 3,
+      castling: 3,
       promotion: 4,
       white_wins: 3,
       black_wins: 3,
@@ -177,7 +203,7 @@ test('each host has her own lines, numbered by event from 1: Rolly 45, Prowla 51
       draw: 3,
     },
   };
-  assert.deepEqual(HOST_IDS, ['prowla', 'rolly']);
+  assert.deepEqual(HOST_IDS, ['prowla', 'rolly', 'thinkle']);
   for (const host of HOST_IDS) {
     for (const event of Object.keys(HOST_EVENTS) as HostEvent[]) {
       const lines = hostLinesFor(event, host);
@@ -291,6 +317,24 @@ test('Prowla, hosting, says only her own lines', () => {
   }
 });
 
+test('Thinkle, hosting, says only his own lines (#279)', () => {
+  const state = withHost(INITIAL_HOST_STATE, 'thinkle');
+  const first = hostVoiceCue(null, newGame('hotseat', 'one'), state);
+  assert.equal(first.line?.host, 'thinkle');
+  assert.match(first.line?.id ?? '', /^thinkle_host_intro_[1-5]$/);
+  const [before, after] = WHITE_TAKES_KING(4);
+  for (const random of [() => 0, () => 0.99]) {
+    const won = hostVoiceCue(
+      before,
+      after,
+      withHost(midGame(4, 0), 'thinkle'),
+      random,
+    );
+    assert.equal(won.line?.host, 'thinkle');
+    assert.match(won.line?.id ?? '', /^thinkle_host_(white_wins|win)_\d$/);
+  }
+});
+
 test('another host starts with full bags, and keeps what the session has seen', () => {
   const rolly = hostVoiceCue(
     null,
@@ -365,15 +409,36 @@ const takesMidTurn = (piece: string, turn = 5): [Game, Game] => {
   return [taking, moveGame(taking, 'a1a5')];
 };
 
-test('the big moments are a queen, a rook, en passant and a promotion', () => {
+test('the big moments are a queen, a rook, en passant, castling and a promotion', () => {
   assert.deepEqual([...AT_ONCE].sort(), [
     'capture_heavy',
     'capture_queen',
+    'castling',
     'en_passant',
     'promotion',
   ]);
   for (const event of AT_ONCE)
     assert.notEqual(HOST_EVENTS[event].tier, 'frequent', event);
+});
+
+test('castling is said as it happens, by every host in their own words (#279)', () => {
+  // A rook die is left, so the turn goes on after the king's move.
+  const castling = rolled(
+    '4k3/8/8/8/8/8/8/R3K2R w KQ - 0 1',
+    [KING, ROOK, ROOK],
+    5,
+  );
+  const after = moveGame(castling, 'e1g1');
+  assert.equal(after.phase, 'move');
+  assert.deepEqual(hostEvents(castling, after, midGame(5, 6)), ['castling']);
+  for (const host of HOST_IDS) {
+    const cue = cueOf([castling, after], withHost(midGame(5, 6), host));
+    assert.equal(cue.event, 'castling', host);
+    assert.equal(cue.line?.host, host);
+    assert.equal(cue.line?.event, 'castling', host);
+  }
+  // A castling that ends the turn is said at the turn's end, as its last action.
+  assert.deepEqual(hostEvents(...CASTLING(5), midGame(5, 6)), ['castling']);
 });
 
 test('a queen taken with actions still to come is said at once', () => {
@@ -782,6 +847,7 @@ test('the capture analysis agrees with the cues, and gives the bots what it gave
     ['en passant', EN_PASSANT()],
     ['promotion', PROMOTION()],
     ['promotion taking a queen', PROMOTION_TAKING_QUEEN()],
+    ['castling', CASTLING()],
     ['quiet', lastAction(rolled(OPENING, [2, 2, 2]), 'b1c3')],
   ];
   const heavy = new Set(['queen', 'rook', 'promotion taking a queen']);
@@ -790,6 +856,7 @@ test('the capture analysis agrees with the cues, and gives the bots what it gave
     const analysis = analyzeCaptures(before, after);
     const heard = cues(before, after);
     assert.equal(analysis.promotion, heard.includes('promotion'), name);
+    assert.equal(analysis.castling, heard.includes('castle'), name);
     const took =
       heard.includes('piece_capture') ||
       (heard.includes('promotion') && name === 'promotion taking a queen');
