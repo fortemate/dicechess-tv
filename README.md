@@ -44,7 +44,7 @@ The application has no network code, no accounts and no analytics. Games, result
 
 ## Product scope
 
-- Hotseat: two people take turns using one remote after each complete Dice Chess turn, with an optional living-room setting to turn the board to the active player's side, and Rolly as a neutral host who cheers both players at the pauses and at the big moments as they happen (#202, #227). While she speaks, she shows with her line above the bottom badge (#213: seen on the Vega Virtual Device and checked by tests, not yet on a Fire TV Stick), and Settings chooses the host or turns her off.
+- Hotseat: two people take turns using one remote after each complete Dice Chess turn, with an optional living-room setting to turn the board to the active player's side, and a neutral host who cheers both players at the pauses and at the big moments as they happen (#202, #227): Rolly, or Prowla the cat (#258). While she speaks, she shows with her line above the bottom badge (#213: seen on the Vega Virtual Device and checked by tests, not yet on a Fire TV Stick), and Settings chooses the host, Rolly by default, or turns her off.
 - Several entirely local bots: Rolly, Grabby and Rampage today, each one of the engine's algorithms. The interface must never stall: these three compute their reply on the JavaScript thread and have not needed a thread of their own on the Vega Virtual Device, and a stronger bot's strength must come from its algorithm or a bounded amount of work, never from wall-clock time.
 - No stake doubling, coins, wallets or betting in the initial game.
 - Local win/draw/loss (W/D/L) statistics, separated by opponent and hotseat mode.
