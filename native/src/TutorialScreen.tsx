@@ -55,8 +55,9 @@ const HINT_DESCENT = 5;
 
 // What OK and Back do now. Back cancels a selection before it leaves, as in a
 // game, so the hint says which of the two it will do. The closing screen's
-// choices say what OK does there, so it has no hint.
-const hint = (state: TutorialState): string => {
+// choices say what OK does there, so it has no hint. Each keeps to one line,
+// as the game's hints do (#240, native/test/hints.test.tsx).
+export const hint = (state: TutorialState): string => {
   if (state.complete)
     return state.index + 1 < TUTORIAL.length
       ? 'Done. OK: next lesson · Back: leave'
