@@ -85,9 +85,14 @@ anything that changes what the screen shows or how the remote works, build the
 package, install it and use it:
 
 ```bash
+mise run portraits      # the characters' portraits, with access to dicechess-assets
 mise run device:start   # the Vega Virtual Device, if it is not running
 mise run device:run     # build, install and launch
 ```
+
+`mise run portraits` needs a checkout of the private asset repository next to this
+one (or `ASSETS_DIR`). Without the portraits the game shows emoji faces in their
+place; see "Portraits" in [native/README.md](native/README.md).
 
 The build takes the latest beta's build number. A build numbered like the installed beta
 installs over it and keeps its saved game, as one did over beta 6 on the Vega Virtual
