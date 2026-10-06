@@ -186,7 +186,7 @@ existing tag that points at older code. The notes are grouped by the labels in
 
 ## The project site
 
-`site/` is the public site, <https://dicechess-tv.jegors-cemisovs.workers.dev/>, built
+`site/` is the public site, <https://dicechess-tv.fortemate.com/>, built
 with Astro Starlight. Its workflow builds every pull request that touches it and
 deploys it from `main`. [site/README.md](site/README.md) explains how to run it
 and add a page.

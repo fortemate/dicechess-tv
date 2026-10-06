@@ -4,6 +4,15 @@
 {
   "name": "dicechess-tv",
   "compatibility_date": "2026-10-01",
+  // The site's address. Wrangler treats this file as the source of truth for
+  // routes, so a domain attached only in the dashboard would be dropped by the
+  // next deploy. Attaching it needs Workers Routes and DNS edit rights on the
+  // fortemate.com zone for the deploy token.
+  "routes": [
+    { "pattern": "dicechess-tv.fortemate.com", "custom_domain": true },
+  ],
+  // The first address, still cited in the published demo video and in other
+  // repositories: keep serving it.
   "workers_dev": true,
   "preview_urls": false,
   "assets": {

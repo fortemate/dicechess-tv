@@ -63,7 +63,7 @@ export default defineConfig({
   // A Cloudflare Worker serves the site from the root of its workers.dev
   // address (wrangler.jsonc). `site` is what canonical links and the sitemap
   // point at, so it names the address that actually serves the pages.
-  site: 'https://dicechess-tv.jegors-cemisovs.workers.dev',
+  site: 'https://dicechess-tv.fortemate.com',
   markdown: {
     // Heading attributes, `### Title {#id}`, give a heading an anchor of its
     // own choosing. The friction log's entries are cited from outside by
