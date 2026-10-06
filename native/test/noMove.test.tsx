@@ -187,6 +187,53 @@ test('against the bot both sides’ empty rolls are announced, and the bot’s w
   }
 });
 
+test('the person’s dice thrown over the bot’s empty roll tumble in like any roll (#99, #149)', async () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  const slides = globalThis as {
+    __holdSlides?: boolean;
+    __heldSlides?: unknown[];
+  };
+  try {
+    reset();
+    const clock = scheduler();
+    const tree = launch(optionsFor([5, 4, 6], clock), recorder());
+    // Play the computer, Rolly, on Random, which draws White; roll nothing to
+    // play, and once the guard is over pass the turn.
+    send('down', 'enter', 'enter', 'enter', 'enter');
+    // The dice tumble only once the platform has said it does not ask for less
+    // motion, an answer that comes after the board is drawn.
+    await act(async () => {});
+    clock.next();
+    send('enter');
+    // Rolly's roll leaves nothing to play either, and its three dice stay,
+    // dimmed: the person's roll comes over dice, not into empty slots.
+    clock.next();
+    clock.next();
+    assert.match(text(tree.root), /Rolly can't move/);
+    const dimmed = faces(tree.root);
+    assert.equal(dimmed.length, 3);
+    assert.ok(dimmed.every(dimmedWithoutRing));
+
+    // One OK passes its turn and throws the person's dice over its own: they
+    // tumble in, as the dice do wherever there were none.
+    slides.__holdSlides = true;
+    slides.__heldSlides = [];
+    send('enter');
+    assert.match(text(tree.root), /TURN 3/);
+    const tumbling = tree.root.findAll(
+      (node) =>
+        (node.type as unknown as string) === 'Animated.View' &&
+        node.props.testID === 'tumble',
+    );
+    assert.equal(tumbling.length, 3);
+    act(() => tree.unmount());
+  } finally {
+    slides.__holdSlides = false;
+    slides.__heldSlides = [];
+    mock.timers.reset();
+  }
+});
+
 test('a turn that ends with dice left dims them, with no notice, no cue and no guard', () => {
   reset();
   const clock = scheduler();

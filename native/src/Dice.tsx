@@ -8,9 +8,11 @@
 // A roll tumbles in (#99): each die turns and grows onto its face, a beat after
 // the one on its left, on the native driver. The dice tumble lit, and the ones
 // no legal turn can spend dim as they land. It is presentation only: the roll is
-// already made, and the remote is never held up. Dice that were there when the
-// screen opened, such as a resumed game's, do not tumble; an action during the
-// tumble ends it; and it is skipped when the platform asks for less motion.
+// already made, and the remote is never held up. A roll thrown over dice still
+// showing tumbles too: the person's, after the bot's roll with nothing to play.
+// Dice that were there when the screen opened, such as a resumed game's, do not
+// tumble; an action during the tumble ends it; and it is skipped when the
+// platform asks for less motion.
 import React from 'react';
 import { Animated, Easing, View } from 'react-native';
 import type { Die } from '../../src/core/dice';
@@ -111,22 +113,32 @@ const keyOfDie = ({ piece, spent, leftover }: Die): string => {
 
 type Tumble = { id: number; progress: Animated.Value[] };
 
-// The tumble of the latest roll: dice where there were none. It is worked out
-// while rendering, so the first frame of the roll already shows the dice on
-// their way in instead of flashing them in place.
-const useTumble = (dice: readonly Die[]): Tumble | null => {
+// The tumble of the latest roll. It is worked out while rendering, so the first
+// frame of the roll already shows the dice on their way in instead of flashing
+// them in place.
+//
+// A roll is dice where there were none, or dice of the other side: a turn
+// passes with its dice cleared, except when OK passes the bot's roll with
+// nothing to play, which throws the person's dice over its dimmed ones (#149).
+// Within a turn the side never changes, so an action is never taken for a roll.
+const useTumble = (dice: readonly Die[], side: Side): Tumble | null => {
   const reduced = useReducedMotion();
   const key = keyOf(dice);
   const [state, setState] = React.useState<{
     key: string;
+    side: Side;
     tumble: Tumble | null;
-  }>({ key, tumble: null });
-  if (state.key !== key) {
+  }>({ key, side, tumble: null });
+  if (state.key !== key || state.side !== side) {
     // Nothing tumbles until the platform has said it does not ask for less
     // motion: a roll before that answer is simply drawn.
-    const rolled = state.key === '' && key !== '' && reduced === false;
+    const rolled =
+      key !== '' &&
+      (state.key === '' || state.side !== side) &&
+      reduced === false;
     setState({
       key,
+      side,
       tumble: rolled
         ? {
             id: (state.tumble?.id ?? 0) + 1,
@@ -135,7 +147,7 @@ const useTumble = (dice: readonly Die[]): Tumble | null => {
         : null,
     });
   }
-  const tumble = state.key === key ? state.tumble : null;
+  const tumble = state.key === key && state.side === side ? state.tumble : null;
   React.useEffect(() => {
     if (!tumble) return;
     let rolling = tumble.progress.length;
@@ -201,7 +213,7 @@ const SlotContent = ({
 };
 
 export const Dice = ({ dice, side, size = 72 }: DiceProps) => {
-  const tumble = useTumble(dice);
+  const tumble = useTumble(dice, side);
   return (
     <View style={{ flexDirection: 'row', marginTop: 4, marginBottom: 12 }}>
       {[0, 1, 2].map((slot) => (

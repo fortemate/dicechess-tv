@@ -12,6 +12,7 @@ import { BOT_STEP_MS } from '../src/screen';
 import { CUE_DELAY_MS } from '../src/sound';
 import { THEME } from '../src/theme';
 import type { Die } from '../../src/core/dice';
+import type { Side } from '../../src/core/game';
 
 type Instance = renderer.ReactTestInstance;
 type Style = Record<string, unknown>;
@@ -60,16 +61,16 @@ const styleOf = (node: Instance): Style => (node.props.style ?? {}) as Style;
 
 // Mounts the dice, lets the platform answer whether it asks for less motion,
 // and returns what shows the next dice.
-const mount = async (dice: Die[]) => {
+const mount = async (dice: Die[], side: Side = 'w') => {
   let tree!: renderer.ReactTestRenderer;
   await act(async () => {
-    tree = renderer.create(React.createElement(Dice, { dice, side: 'w' }));
+    tree = renderer.create(React.createElement(Dice, { dice, side }));
   });
   return {
     root: () => tree.root,
-    show: (next: Die[]) =>
+    show: (next: Die[], nextSide: Side = 'w') =>
       act(() => {
-        tree.update(React.createElement(Dice, { dice: next, side: 'w' }));
+        tree.update(React.createElement(Dice, { dice: next, side: nextSide }));
       }),
   };
 };
@@ -168,6 +169,27 @@ test('once the dice are cleared, the next roll tumbles again', async () => {
   // The turn is handed over, and the next side rolls.
   dice.show([]);
   dice.show(ROLLED);
+  assert.equal(tumbles(dice.root()).length, 3);
+});
+
+// Queen, rook and king at the start, for Black: nothing can move.
+const EMPTY_FOR_BLACK: Die[] = [
+  { piece: 'Q', spent: false, leftover: true },
+  { piece: 'R', spent: false, leftover: true },
+  { piece: 'K', spent: false, leftover: true },
+];
+
+test('a roll over the other side’s dice tumbles too (#149)', async () => {
+  // The bot's roll with nothing to play stays on screen, dimmed, until the
+  // person's OK passes it and throws their own dice over it.
+  const dice = await mount(EMPTY_FOR_BLACK, 'b');
+  assert.equal(tumbles(dice.root()).length, 0);
+  dice.show(ROLLED, 'w');
+  assert.equal(tumbles(dice.root()).length, 3);
+  assert.equal((globals.__heldSlides ?? []).length, 3);
+  // The same faces thrown again by the other side are a roll as well.
+  land();
+  dice.show(ROLLED, 'b');
   assert.equal(tumbles(dice.root()).length, 3);
 });
 
