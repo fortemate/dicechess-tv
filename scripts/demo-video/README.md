@@ -42,8 +42,8 @@ to a king is heard as it plays (#76).
    - **The tutorial take uninstalls the app first**, which deletes the game, the
      results and the settings saved on the device, so a first launch can be
      filmed: Thinkle's offer, every lesson, the closing words and a first game
-     against Rolly. A fresh install starts with music and voices on. The hotseat
-     take that follows makes Prowla the Hot Seat host.
+     against Rolly. A fresh install starts with music and voices on, and with
+     Prowla as the Hot Seat host, whom the hotseat take that follows films.
    - A take run on its own checks that music is on and says that the host must
      be Prowla. Recording replaces the game saved on the device.
    - A recording started a moment before the app launched once brought the

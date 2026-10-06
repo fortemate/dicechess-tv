@@ -282,16 +282,8 @@ const takes: Record<string, () => Promise<void>> = {
   // turn is likely left part-way for the resume take.
   hotseat: async () => {
     await relaunch();
-    if (fresh) {
-      // A fresh install has Rolly as the host; one step right is Prowla.
-      press(times('up', 2), QUICK); // Settings, counted from the end
-      press(['ok'], 1500);
-      press(times('down', 4), QUICK); // Hot Seat host
-      press(['right'], 1200);
-      press(['back'], 1500);
-      // Back leaves the focus on Settings; a launch puts it on the first option.
-      await relaunch();
-    } else {
+    // A fresh install has Prowla as the host already: she is the default.
+    if (!fresh) {
       console.log('note: the Hot Seat host must be Prowla');
       await checkMusic();
     }

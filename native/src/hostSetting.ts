@@ -1,10 +1,11 @@
 // Who hosts Hot Seat games, or no one, remembered across launches (#202):
-// Rolly, or Prowla the cat (#258), who hosts though no bot plays her yet.
+// Prowla the cat (#258), who hosts though no bot plays her yet, or Rolly.
 //
-// Rolly unless the viewer turned the host off or chose another. Anything but
-// an explicit "off" or a host's id reads as Rolly, like the voices, so a
-// damaged value cannot dismiss her for good, and the "on" an early build stored
-// still means Rolly.
+// Prowla unless the viewer turned the host off or chose another; Rolly was the
+// default until the owner chose Prowla on 2026-10-06. Anything but an explicit
+// "off" or a host's id reads as Prowla, like the voices, so a damaged value
+// cannot dismiss her for good. The "on" an early build stored, when Rolly was
+// the only host, now reads as Prowla too.
 import { DEFAULT_HOST, HOST_IDS, type HostId } from '../../src/core/hostVoice';
 import type { CharacterId } from './Portrait';
 import type { KeyValueStore } from './mmkvStore';

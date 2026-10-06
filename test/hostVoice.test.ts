@@ -177,7 +177,7 @@ test('each host has her own lines, numbered by event from 1: Rolly 45, Prowla 51
       draw: 3,
     },
   };
-  assert.deepEqual(HOST_IDS, ['rolly', 'prowla']);
+  assert.deepEqual(HOST_IDS, ['prowla', 'rolly']);
   for (const host of HOST_IDS) {
     for (const event of Object.keys(HOST_EVENTS) as HostEvent[]) {
       const lines = hostLinesFor(event, host);
@@ -190,8 +190,8 @@ test('each host has her own lines, numbered by event from 1: Rolly 45, Prowla 51
       });
     }
   }
-  // Rolly's, unless another host is named.
-  assert.deepEqual(hostLinesFor('intro'), hostLinesFor('intro', 'rolly'));
+  // Prowla's, the default, unless another host is named.
+  assert.deepEqual(hostLinesFor('intro'), hostLinesFor('intro', 'prowla'));
   for (const line of HOST_CATALOGUE)
     assert.ok(Object.hasOwn(HOST_EVENTS, line.event), line.id);
 });
@@ -292,7 +292,11 @@ test('Prowla, hosting, says only her own lines', () => {
 });
 
 test('another host starts with full bags, and keeps what the session has seen', () => {
-  const rolly = hostVoiceCue(null, newGame('hotseat', 'one'));
+  const rolly = hostVoiceCue(
+    null,
+    newGame('hotseat', 'one'),
+    withHost(INITIAL_HOST_STATE, 'rolly'),
+  );
   const said = { ...rolly.state, handoffSaid: true, played: true };
   assert.ok(said.bags.intro?.length, 'Rolly has an intro bag under way');
   const prowla = withHost(said, 'prowla');
@@ -471,7 +475,7 @@ test('each moment is said, once its pacing allows', () => {
 test('a queen is said even right after another line', () => {
   const cue = cueOf(takes('q', 2), midGame(2, 0));
   assert.equal(cue.event, 'capture_queen');
-  assert.ok(cue.line?.id.startsWith('host_capture_queen_'));
+  assert.match(cue.line?.id ?? '', /^prowla_host_capture_queen_\d$/);
 });
 
 // ── Teaching the pass ─────────────────────────────────────────────────────────
@@ -686,7 +690,8 @@ test('every line of an event is heard before any repeats, and a refill never rep
 test("a colour's win draws from its own lines and the ones that name no colour", () => {
   let state = midGame(1, 0);
   const heard = new Set<string>();
-  for (let game = 0; game < 5; game++) {
+  // A bag holds each line once, so as many games as lines hear them all.
+  for (let game = 0; game < ids('white_wins', 'win').length; game++) {
     state = hostVoiceCue(null, newGame('hotseat', `w${game}`), state).state;
     const cue = cueOf(WHITE_TAKES_KING(1, `w${game}`), state, seeded(game + 1));
     assert.equal(cue.event, 'white_wins');
@@ -725,6 +730,7 @@ test('the line that ended one game never ends the next, whichever colour won', (
 
 test("a colourless line heard for one colour leaves the other colour's bag", () => {
   const state = midGame(1, 0, {
+    host: 'rolly',
     bags: {
       white_wins: ['host_win_1', 'host_white_wins_1'],
       black_wins: ['host_win_1', 'host_black_wins_2', 'host_win_2'],

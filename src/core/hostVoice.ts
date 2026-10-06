@@ -1,4 +1,4 @@
-// The Hot Seat host (#202): Rolly, or Prowla the cat (#258), hosts games
+// The Hot Seat host (#202): Prowla the cat (#258), or Rolly, hosts games
 // between two people at one television, a neutral party host who cheers the
 // moment and never a side. Each host has her own lines for the same events,
 // and the same pacing.
@@ -36,10 +36,11 @@ import { PROWLA, ROLLY, type HostScript } from './hostScripts.ts';
 export { HOST_EVENTS, HOST_PACING };
 export type { HostEvent, HostPacing };
 
-// The characters who can host, in the order Settings offers them.
-export const HOST_IDS = ['rolly', 'prowla'] as const;
+// The characters who can host, in the order Settings offers them: the default
+// first, Prowla (owner, 2026-10-06), then Rolly, who hosted before her.
+export const HOST_IDS = ['prowla', 'rolly'] as const;
 export type HostId = (typeof HOST_IDS)[number];
-export const DEFAULT_HOST: HostId = 'rolly';
+export const DEFAULT_HOST: HostId = 'prowla';
 
 export type HostLine = {
   readonly id: string;

@@ -159,16 +159,16 @@ test('the bots speak by default, and turning their voices off is remembered (#15
   act(() => tree.unmount());
 });
 
-test('Rolly hosts Hot Seat by default, Prowla or no one instead, and the choice is remembered (#202, #258)', () => {
+test('Prowla hosts Hot Seat by default, Rolly or no one instead, and the choice is remembered (#202, #258)', () => {
   reset();
   const first = recorder();
   let tree = launch(first);
   // Settings, then the row after the voices.
   send('down', 'down', 'down', 'down', 'enter');
-  assert.match(text(tree.root), /Hot Seat host: Rolly/);
-  send('down', 'down', 'enter');
   assert.match(text(tree.root), /Hot Seat host: Prowla/);
-  assert.equal(new MMKV().getString('dicechess-tv.host.v1'), 'prowla');
+  send('down', 'down', 'enter');
+  assert.match(text(tree.root), /Hot Seat host: Rolly/);
+  assert.equal(new MMKV().getString('dicechess-tv.host.v1'), 'rolly');
   send('enter');
   assert.match(text(tree.root), /Hot Seat host: off/);
   assert.match(text(tree.root), /Voices: on/, 'the voices are left alone');
@@ -194,14 +194,14 @@ test('turning the host off while she speaks stops her voice, and only hers (#202
   let tree = launch(sounds);
   // A new hotseat game: she greets both players.
   send('enter');
-  assert.match(sounds.said[0], /^host_intro_[1-5]$/);
+  assert.match(sounds.said[0], /^prowla_host_intro_[1-5]$/);
   // The game menu, up to its Settings, and down to her row.
   send('back', 'up', 'enter', 'down', 'down');
-  assert.match(text(tree.root), /Hot Seat host: Rolly/);
+  assert.match(text(tree.root), /Hot Seat host: Prowla/);
   assert.equal(sounds.stopped, 0, 'a menu alone leaves the line alone');
   // Another host lets the line being said finish (#258).
   send('enter');
-  assert.match(text(tree.root), /Hot Seat host: Prowla/);
+  assert.match(text(tree.root), /Hot Seat host: Rolly/);
   assert.equal(sounds.stopped, 0);
   send('enter');
   assert.match(text(tree.root), /Hot Seat host: off/);
@@ -250,7 +250,7 @@ test('a new hotseat game opens with the host greeting both players (#202)', () =
   const tree = launch(sounds);
   send('enter');
   assert.equal(sounds.said.length, 1);
-  assert.match(sounds.said[0], /^host_intro_[1-5]$/);
+  assert.match(sounds.said[0], /^prowla_host_intro_[1-5]$/);
   act(() => tree.unmount());
 });
 
@@ -269,7 +269,7 @@ test('the Hot Seat host is seen while she speaks, above the bottom badge, and no
       const [block] = drawn(tree.root, 'host-block');
       assert.ok(block, 'she shows while she speaks');
       assert.equal(block.props.style.position, 'absolute');
-      assert.equal(drawn(block, 'portrait-rolly').length, 1);
+      assert.equal(drawn(block, 'portrait-cat').length, 1);
       assert.equal(text(block), textOf(id));
       const [line] = drawn(tree.root, 'turn-line');
       assert.match(text(line), turn);
@@ -277,7 +277,7 @@ test('the Hot Seat host is seen while she speaks, above the bottom badge, and no
     // A new hotseat game: she greets both players.
     send('enter');
     assert.equal(sounds.said.length, 1);
-    assert.match(sounds.said[0], /^host_intro_[1-5]$/);
+    assert.match(sounds.said[0], /^prowla_host_intro_[1-5]$/);
     speaking(sounds.said[0], /HOTSEAT · TURN 1/);
     // Her greeting said, she leaves the screen; the turn line stays.
     act(() => {
@@ -289,7 +289,7 @@ test('the Hot Seat host is seen while she speaks, above the bottom badge, and no
     send('enter', 'back', 'down', 'select', 'down', 'select');
     assert.match(text(tree.root), /Black wins/);
     assert.equal(sounds.said.length, 2);
-    assert.match(sounds.said[1], /^host_(black_wins|win)_\d$/);
+    assert.match(sounds.said[1], /^prowla_host_(black_wins|win)_\d$/);
     speaking(sounds.said[1], /HOTSEAT · TURN 1/);
     act(() => {
       mock.timers.tick(10_000);
@@ -301,19 +301,19 @@ test('the Hot Seat host is seen while she speaks, above the bottom badge, and no
   }
 });
 
-test('Prowla hosts in her own voice, and her portrait shows with her line (#258)', () => {
+test('Rolly, chosen, hosts in her own voice, and her portrait shows with her line (#258)', () => {
   reset();
-  new MMKV().set('dicechess-tv.host.v1', 'prowla');
+  new MMKV().set('dicechess-tv.host.v1', 'rolly');
   const sounds = recorder();
   const tree = launch(sounds);
   try {
     send('enter');
     assert.equal(sounds.said.length, 1);
-    assert.match(sounds.said[0], /^prowla_host_intro_[1-5]$/);
+    assert.match(sounds.said[0], /^host_intro_[1-5]$/);
     const [block] = drawn(tree.root, 'host-block');
     assert.ok(block, 'she shows while she speaks');
-    assert.equal(drawn(block, 'portrait-cat').length, 1);
-    assert.equal(drawn(block, 'portrait-rolly').length, 0);
+    assert.equal(drawn(block, 'portrait-rolly').length, 1);
+    assert.equal(drawn(block, 'portrait-cat').length, 0);
     assert.equal(
       text(block),
       HOST_CATALOGUE.find((line) => line.id === sounds.said[0])?.text,
