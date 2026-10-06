@@ -22,94 +22,82 @@ export type RulesTopic = {
   lines: readonly string[];
 };
 
+const defineTopic = (
+  id: string,
+  title: string,
+  ...lines: readonly string[]
+): RulesTopic => ({ id, title, lines });
+
 export const RULES: readonly RulesTopic[] = [
-  {
-    id: 'winning',
-    title: 'How a game ends',
-    lines: [
-      'Capture the enemy king and you win immediately.',
-      'There is no checkmate. The king is taken like any other piece.',
-      'A player may resign, and in hotseat both players may agree a draw.',
-      'A turn that ends 100 half-moves after the last capture or pawn move draws.',
-    ],
-  },
-  {
-    id: 'turn',
-    title: 'Your turn',
-    lines: [
-      'Roll three dice and play up to three actions.',
-      'A normal move spends one die; castling spends a king die and a rook die.',
-      'The turn ends when no die you hold can be used.',
-      'Moving one piece out of the way to free another is normal play.',
-    ],
-  },
-  {
-    id: 'dice',
-    title: 'What the dice mean',
-    lines: [
-      'Each die names a piece: pawn, knight, bishop, rook, queen, king.',
-      'You may only move a piece one of your dice names.',
-      'The same piece type can come up more than once, and then you may move it again.',
-      'A die with no legal move is simply lost.',
-    ],
-  },
-  {
-    id: 'maximum',
-    title: 'Use as many dice as you can',
-    lines: [
-      'You must play as many of your three actions as the position allows.',
-      'You cannot stop early to keep a piece where it is.',
-      'You cannot choose an order that wastes a die when another order would not.',
-      'If no die can be used at all, the turn passes.',
-    ],
-  },
-  {
-    id: 'check',
-    title: 'No check, no checkmate',
-    lines: [
-      'A king under attack is not in check, and nothing warns you.',
-      'You may leave your king attacked, and you may move into attack.',
-      'Checkmate and stalemate do not exist here.',
-      'Guarding the king is your judgement, not a rule.',
-    ],
-  },
-  {
-    id: 'castling',
-    title: 'Castling',
-    lines: [
-      'Castling needs a king die and a rook die, and spends both.',
-      'The king and that rook must not have moved, and the squares between them must be empty.',
-      'It counts as one action, not two.',
-      'Because there is no check, castling out of or through attack is allowed.',
-    ],
-  },
-  {
-    id: 'promotion',
-    title: 'Promotion',
-    lines: [
-      'A pawn reaching the last rank promotes, and spends a pawn die to do it.',
-      'Choose a queen, rook, bishop or knight.',
-      'Only choices that keep the rest of the turn legal are offered.',
-    ],
-  },
-  {
-    id: 'enpassant',
-    title: 'En passant',
-    lines: [
-      'A pawn that has just advanced two squares may be taken in passing.',
-      'It needs a pawn die, as any pawn move does.',
-      'The chance lasts only for the action immediately after that advance.',
-    ],
-  },
-  {
-    id: 'draws',
-    title: 'Draws',
-    lines: [
-      'In hotseat, both players may agree a draw from the menu.',
-      'A draw also comes when a turn ends 100 half-moves after the last capture or pawn move.',
-      'Stalemate, repetition and insufficient material do not draw here.',
-    ],
-  },
+  defineTopic(
+    'winning',
+    'How a game ends',
+    'Capture the enemy king and you win immediately.',
+    'There is no checkmate. The king is taken like any other piece.',
+    'A player may resign, and in hotseat both players may agree a draw.',
+    'A turn that ends 100 half-moves after the last capture or pawn move draws.',
+  ),
+  defineTopic(
+    'turn',
+    'Your turn',
+    'Roll three dice and play up to three actions.',
+    'A normal move spends one die; castling spends a king die and a rook die.',
+    'The turn ends when no die you hold can be used.',
+    'Moving one piece out of the way to free another is normal play.',
+  ),
+  defineTopic(
+    'dice',
+    'What the dice mean',
+    'Each die names a piece: pawn, knight, bishop, rook, queen, king.',
+    'You may only move a piece one of your dice names.',
+    'The same piece type can come up more than once, and then you may move it again.',
+    'A die with no legal move is simply lost.',
+  ),
+  defineTopic(
+    'maximum',
+    'Use as many dice as you can',
+    'You must play as many of your three actions as the position allows.',
+    'You cannot stop early to keep a piece where it is.',
+    'You cannot choose an order that wastes a die when another order would not.',
+    'If no die can be used at all, the turn passes.',
+  ),
+  defineTopic(
+    'check',
+    'No check, no checkmate',
+    'A king under attack is not in check, and nothing warns you.',
+    'You may leave your king attacked, and you may move into attack.',
+    'Checkmate and stalemate do not exist here.',
+    'Guarding the king is your judgement, not a rule.',
+  ),
+  defineTopic(
+    'castling',
+    'Castling',
+    'Castling needs a king die and a rook die, and spends both.',
+    'The king and that rook must not have moved, and the squares between them must be empty.',
+    'It counts as one action, not two.',
+    'Because there is no check, castling out of or through attack is allowed.',
+  ),
+  defineTopic(
+    'promotion',
+    'Promotion',
+    'A pawn reaching the last rank promotes, and spends a pawn die to do it.',
+    'Choose a queen, rook, bishop or knight.',
+    'Only choices that keep the rest of the turn legal are offered.',
+  ),
+  defineTopic(
+    'enpassant',
+    'En passant',
+    'A pawn that has just advanced two squares may be taken in passing.',
+    'It needs a pawn die, as any pawn move does.',
+    'The chance lasts only for the action immediately after that advance.',
+  ),
+  defineTopic(
+    'draws',
+    'Draws',
+    'In hotseat, both players may agree a draw from the menu.',
+    'A draw also comes when a turn ends 100 half-moves after the last capture or pawn move.',
+    'Stalemate, repetition and insufficient material do not draw here.',
+  ),
 ];
 
 export const topic = (id: string): RulesTopic | undefined =>
