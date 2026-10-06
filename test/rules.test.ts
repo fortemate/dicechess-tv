@@ -282,6 +282,30 @@ test('"a turn that ends 100 half-moves after the last capture or pawn move draws
   assert.deepEqual(game.result, { winner: null, reason: '100-halfmoves' });
 });
 
+// The game screen calls that draw "100 moves, no capture or pawn move" (#235),
+// a move being one die, as the tutorial teaches. That holds because the count
+// is of actions, not turns: each quiet action adds one, and a turn that passes
+// with no action adds nothing.
+test('the hundred counts actions, one a die, and a passed turn adds none', () => {
+  let game = at('4k3/8/8/8/8/8/8/R3K3 w - - 0 1', [ROOK, ROOK, ROOK], 'count');
+  const count = () => viewGame(game).dfen.split(' ')[4];
+  for (const after of ['1', '2', '3']) {
+    game = moveGame(game, viewGame(game).legal[0]);
+    assert.equal(count(), after);
+  }
+  assert.equal(nextTurn(game).start.split(' ')[4], '3');
+
+  // Queen, rook and king at the start: nothing can move, and the turn passes.
+  const passed = at(
+    'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 42 1',
+    [QUEEN, ROOK, KING],
+    'pass',
+  );
+  assert.deepEqual(passed.moves, []);
+  assert.equal(passed.phase, 'handoff');
+  assert.equal(nextTurn(passed).start.split(' ')[4], '42');
+});
+
 test('topic() finds a topic and refuses an unknown one', () => {
   assert.equal(topic('dice')?.title, 'What the dice mean');
   assert.equal(topic('doubling'), undefined);

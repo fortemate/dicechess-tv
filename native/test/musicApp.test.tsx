@@ -109,7 +109,7 @@ test('a finished game falls silent before the menu theme returns', () => {
   const tree = launch(music);
   // A hotseat game, resigned from its menu.
   send('enter', 'back', 'down', 'enter', 'down', 'enter');
-  assert.match(text(tree.root), /Resigned/);
+  assert.match(text(tree.root), /White resigned/);
   assert.deepEqual(music.roles.at(-1), ['menu', RESULT_SILENCE_MS]);
   act(() => tree.unmount());
 });

@@ -116,6 +116,8 @@ test('a hotseat roll with nothing to play is announced and heard, and OK waits o
   assert.match(shown, /No legal moves/);
   assert.doesNotMatch(shown, /to play/);
   assert.ok(shown.includes(NO_MOVE_LINE));
+  // OK passes the turn, and the prompt says to whom (#232).
+  assert.match(shown, /OK: Black's turn/);
   assert.deepEqual(sounds.played, [['dice_roll', 'no_move']]);
   const dice = faces(tree.root);
   assert.equal(dice.length, 3);
@@ -147,6 +149,8 @@ test('against the bot both sides’ empty rolls are announced, and the bot’s w
     // longest (#159).
     act(() => mock.timers.tick(DISMISS_DELAY_MS * 3));
     assert.match(text(tree.root), /No legal moves · you/);
+    // OK passes the turn to Rolly, and the prompt says so (#232).
+    assert.match(text(tree.root), /OK: Rolly's turn/);
     assert.deepEqual(clock.waits(), [OK_GUARD_MS]);
     clock.next();
     send('enter');
@@ -192,8 +196,10 @@ test('a turn that ends with dice left dims them, with no notice, no cue and no g
   // it up and lands on f3, OK plays it, and nothing can use the kings.
   send('enter', 'enter', 'enter', 'enter');
   const shown = text(tree.root);
-  assert.match(shown, /White to play/);
-  assert.match(shown, /OK: continue/);
+  // The turn is over, and OK starts Black's (#232).
+  assert.match(shown, /White's turn is over/);
+  assert.doesNotMatch(shown, /to play/);
+  assert.match(shown, /OK: Black's turn/);
   assert.ok(!shown.includes(NO_MOVE_LINE));
   assert.deepEqual(sounds.played, [['dice_roll'], ['piece_move']]);
   const [knight, ...kings] = faces(tree.root);

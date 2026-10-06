@@ -167,7 +167,7 @@ const resultEvent = (winner: Side | null): HostEvent => {
 };
 
 // The end of a turn: the roll left nothing to play, or its last action was
-// played, and the prompt says "OK: continue".
+// played, and the prompt says whose turn OK starts.
 const endsTurn = (before: Game, after: Game): boolean =>
   after.phase === 'handoff' &&
   before.phase !== 'handoff' &&

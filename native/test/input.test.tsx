@@ -422,20 +422,20 @@ test('a focused option is framed, and holding OK shows it pressed until the rele
   );
 });
 
-test('a finished game says how it ended and who won', () => {
+test('a finished game says who won, then how it ended (#235)', () => {
   // From the menu of a hotseat game: Resume, Resign, Agree a draw, New game.
   const drawn = mount();
   send(Back, Down, Down, Select);
   assert.match(drawn.state(), /result agreed-draw/);
-  assert.ok(lines(drawn.root).includes('Draw agreed'));
-  assert.ok(lines(drawn.root).includes('Drawn'));
+  assert.ok(lines(drawn.root).includes('Draw'));
+  assert.ok(lines(drawn.root).includes('Both players agreed'));
 
   // White is to move, so White resigns.
   const resigned = mount();
   send(Back, Down, Select, Down, Select);
   assert.match(resigned.state(), /result resigned/);
-  assert.ok(lines(resigned.root).includes('Resigned'));
   assert.ok(lines(resigned.root).includes('Black wins'));
+  assert.ok(lines(resigned.root).includes('White resigned'));
 });
 
 test('the panel shows the roll as dice, not words', () => {
