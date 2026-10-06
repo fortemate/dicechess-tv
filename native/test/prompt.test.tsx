@@ -1,6 +1,7 @@
 // What the panel says during play, through the whole app: that a turn is over
 // at the handoff and whose turn OK starts (#232), and which piece is in hand
-// rather than its square, which the board does not label (#233).
+// rather than its square, which the board does not label (#233), each on one
+// line (#240).
 //
 // The headline and the prompt are read by their sizes, the panel's one 38 dp
 // line and its one 24 dp line, so a host's or a bot's line beside them is never
@@ -184,11 +185,12 @@ test('a piece in hand is named, not its square, which the board does not label',
   // picks it up.
   send('enter', 'enter', 'enter');
   assert.match(state() ?? '', /selected g1/);
-  assert.equal(prompt(root), 'Where should the knight go? · Back: put it down');
+  assert.equal(prompt(root), 'OK: move the knight here');
   assert.doesNotMatch(text(root), /\b[a-h][1-8]\b/);
-  // Back puts it down, and the prompt is the board's again.
+  // Back puts it down, and the prompt is the board's again (#240).
   send('back');
-  assert.equal(prompt(root), 'Arrows: move focus · OK: select · Back: menu');
+  assert.match(state() ?? '', /selected -/);
+  assert.equal(prompt(root), 'OK: pick up · Back: menu');
 });
 
 test('Black’s piece is named too, on the board turned for Black', () => {
@@ -202,6 +204,6 @@ test('Black’s piece is named too, on the board turned for Black', () => {
   send('enter', 'enter');
   assert.match(state() ?? '', /side b/);
   assert.match(state() ?? '', /selected [a-h]7/);
-  assert.equal(prompt(root), 'Where should the pawn go? · Back: put it down');
+  assert.equal(prompt(root), 'OK: move the pawn here');
   assert.doesNotMatch(text(root), /\b[a-h][1-8]\b/);
 });

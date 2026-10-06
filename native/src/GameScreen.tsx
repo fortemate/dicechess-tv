@@ -373,8 +373,12 @@ const pieceOn = (view: GameView, square: string): string => {
 const botPlaying = (game: Game): boolean =>
   botOwes(game) && game.phase !== 'handoff';
 
-// What OK and the arrows do now, when no menu or choice is open.
-const promptFor = (
+// What OK does now, and Back where a viewer would not guess it, when no menu or
+// choice is open. Each hint keeps to one line of the panel (#240): a hint on
+// two lines took the room the host's line and the bottom badge need, and the
+// arrows need no words on a television. native/test/hints.test.ts holds every
+// hint to a width measured on the Virtual Device.
+export const promptFor = (
   game: Game,
   view: GameView,
   selected: string | null,
@@ -391,9 +395,12 @@ const promptFor = (
   if (game.phase === 'handoff')
     return `OK: ${playerOf(game, opposite(view.side))}'s turn`;
   if (game.phase === 'ended') return 'OK: back to the menu';
+  // A piece in hand is named, not its square, which the board does not label
+  // (#233), and OK moves it to the cursor. With the name there is no room on
+  // the line for "Back: put down", and Back cancels on any television screen.
   return selected
-    ? `Where should the ${pieceOn(view, selected)} go? · Back: put it down`
-    : 'Arrows: move focus · OK: select · Back: menu';
+    ? `OK: move the ${pieceOn(view, selected)} here`
+    : 'OK: pick up · Back: menu';
 };
 
 const CONFIRM = {
