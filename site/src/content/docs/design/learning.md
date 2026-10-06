@@ -26,7 +26,7 @@ Thinkle's portrait stands at the top of the panel with his words in a bubble und
 
 ![The first launch: beside the starting position, Thinkle asks New to Dice Chess? I can teach you to play in a few minutes, over the choices Learn to play and Skip](../../../assets/screenshots/first-launch.png)
 
-A first launch offers the tutorial before anything else: Thinkle asks "New to Dice Chess? I can teach you to play in a few minutes." **Learn to play** opens the first lesson. **Skip**, Back or Menu goes to the home screen, where the tutorial stays as **How to play**. The offer is made once, whatever the answer. It is never made to a player who already has a saved game, since they have played before.
+A first launch offers the tutorial before anything else: Thinkle asks "New to Dice Chess? I can teach you to play in a few minutes." **Learn to play** opens the first lesson. **Skip**, Back or Menu goes to the home screen, where the tutorial stays as **Learn to play**. The offer is made once, whatever the answer. It is never made to a player who already has a saved game, since they have played before.
 
 After the last lesson, the player goes straight into a first game. The choices are **Play Rolly**, the easiest opponent, as White, so the player rolls first; **Play a friend**, a Hot Seat game on the same remote; or the **Main menu**. If a game is in play, starting a new one asks first, as it does from the menus.
 
@@ -39,7 +39,7 @@ The lessons were played on the Vega Virtual Device; not yet on a Fire TV Stick. 
 ![The rules guide on the topic Use as many dice as you can](../../../assets/screenshots/rules.png)
 
 - **Nine topics**, from how a game ends to castling, promotion, en passant and draws.
-- **One level deep.** The arrows move between topics, and the text changes as they do, with nothing to open or close. A remote makes every extra level expensive.
+- **One level deep.** Up and Down move between topics, and the text changes as they do, with nothing to open or close. OK keeps the selected topic open; Back returns to the home screen. A remote makes every extra level expensive.
 - **Checked against the engine.** The tests tie many of the guide's sentences to checks against the engine. Writing them corrected one claim: a draw by the hundred-half-move rule comes when a turn ends, not the moment the count reaches a hundred.
 
 ## A roll with nothing to play

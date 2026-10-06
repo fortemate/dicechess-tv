@@ -26,9 +26,8 @@ type State = { index: number; exit: boolean };
 
 const reducer = (state: State, key: BoardKey): State => {
   if (state.exit) return state;
-  if (key === 'back' || key === 'select' || key === 'menu')
-    return { ...state, exit: true };
-  if (key === 'left' || key === 'right') return state;
+  if (key === 'back' || key === 'menu') return { ...state, exit: true };
+  if (key === 'left' || key === 'right' || key === 'select') return state;
   const step = key === 'up' ? -1 : 1;
   return {
     ...state,
@@ -79,7 +78,7 @@ export const RulesScreen = ({ onExit, onState }: RulesScreenProps) => {
             marginBottom: 14,
           }}
         >
-          RULES
+          RULES REFERENCE
         </Text>
         {RULES.map((entry, i) => (
           <Option
@@ -105,7 +104,7 @@ export const RulesScreen = ({ onExit, onState }: RulesScreenProps) => {
           </Text>
         ))}
         <Text style={{ color: '#98a9ba', fontSize: 20, marginTop: 20 }}>
-          Arrows: another topic · Back: return
+          Up/Down: another topic · Back: return
         </Text>
       </View>
     </View>

@@ -193,7 +193,7 @@ test('playing the tutorial changes neither the saved game nor the record', () =>
   assert.notEqual(ledgerBefore, 'null');
 
   // Open the tutorial. The finished game is not resumable, so the home screen
-  // offers three choices and How to play is the last.
+  // offers three choices and Learn to play is the last.
   send('down', 'down', 'enter');
   assert.match(text(root), TUTORIAL_OPEN);
   send('right', 'down', 'enter', 'up', 'enter');
@@ -268,7 +268,7 @@ test('Back leaves from a finished lesson too', () => {
 test('the rules guide opens, moves between topics and returns', () => {
   reset();
   const root = launch();
-  // Home: new hotseat, Play the computer, How to play, Rules.
+  // Home: new hotseat, Play the computer, Learn to play, Rules reference.
   send('down', 'down', 'down', 'enter');
   assert.match(text(root), /RULES/);
   assert.match(text(root), /How a game ends/);
@@ -281,10 +281,19 @@ test('the rules guide opens, moves between topics and returns', () => {
   );
   assert.equal(focusedLabel(root), RULES[0].title);
 
+  // OK keeps the selected topic open, as the guide already shows its text.
+  send('enter');
+  assert.equal(focusedLabel(root), RULES[0].title);
+  assert.match(text(root), /RULES REFERENCE/);
+  assert.match(text(root), /Up\/Down: another topic/);
+
   // Moving down changes the text without opening anything.
   send('down');
   assert.match(text(root), /Your turn/);
-  assert.match(text(root), /Each action spends one die/);
+  assert.match(
+    text(root),
+    /A normal move spends one die; castling spends a king die and a rook die/,
+  );
 
   // Up from the first topic wraps, so a remote never reaches a dead end.
   send('up', 'up');
@@ -699,7 +708,7 @@ test('over a game in play, a game chosen at the end of the tutorial asks first',
   assert.equal(JSON.stringify(savedGame()), before);
   assert.equal(focusedLabel(root), 'Play the computer');
 
-  // Yes replaces it with the game chosen: Rolly, as White. How to play is the
+  // Yes replaces it with the game chosen: Rolly, as White. Learn to play is the
   // next option down.
   send('down', 'enter');
   assert.match(text(root), TUTORIAL_OPEN);

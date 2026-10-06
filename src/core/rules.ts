@@ -22,9 +22,8 @@ export type RulesTopic = {
   lines: readonly string[];
 };
 
-export const RULES: readonly RulesTopic[] = [
-  {
-    id: 'winning',
+const TOPICS: Record<string, Omit<RulesTopic, 'id'>> = {
+  winning: {
     title: 'How a game ends',
     lines: [
       'Capture the enemy king and you win immediately.',
@@ -33,18 +32,16 @@ export const RULES: readonly RulesTopic[] = [
       'A turn that ends 100 half-moves after the last capture or pawn move draws.',
     ],
   },
-  {
-    id: 'turn',
+  turn: {
     title: 'Your turn',
     lines: [
-      'Roll three dice, then play up to three actions with them.',
-      'Each action spends one die.',
+      'Roll three dice and play up to three actions.',
+      'A normal move spends one die; castling spends a king die and a rook die.',
       'The turn ends when no die you hold can be used.',
       'Moving one piece out of the way to free another is normal play.',
     ],
   },
-  {
-    id: 'dice',
+  dice: {
     title: 'What the dice mean',
     lines: [
       'Each die names a piece: pawn, knight, bishop, rook, queen, king.',
@@ -53,8 +50,7 @@ export const RULES: readonly RulesTopic[] = [
       'A die with no legal move is simply lost.',
     ],
   },
-  {
-    id: 'maximum',
+  maximum: {
     title: 'Use as many dice as you can',
     lines: [
       'You must play as many of your three actions as the position allows.',
@@ -63,8 +59,7 @@ export const RULES: readonly RulesTopic[] = [
       'If no die can be used at all, the turn passes.',
     ],
   },
-  {
-    id: 'check',
+  check: {
     title: 'No check, no checkmate',
     lines: [
       'A king under attack is not in check, and nothing warns you.',
@@ -73,8 +68,7 @@ export const RULES: readonly RulesTopic[] = [
       'Guarding the king is your judgement, not a rule.',
     ],
   },
-  {
-    id: 'castling',
+  castling: {
     title: 'Castling',
     lines: [
       'Castling needs a king die and a rook die, and spends both.',
@@ -83,8 +77,7 @@ export const RULES: readonly RulesTopic[] = [
       'Because there is no check, castling out of or through attack is allowed.',
     ],
   },
-  {
-    id: 'promotion',
+  promotion: {
     title: 'Promotion',
     lines: [
       'A pawn reaching the last rank promotes, and spends a pawn die to do it.',
@@ -92,8 +85,7 @@ export const RULES: readonly RulesTopic[] = [
       'Only choices that keep the rest of the turn legal are offered.',
     ],
   },
-  {
-    id: 'enpassant',
+  enpassant: {
     title: 'En passant',
     lines: [
       'A pawn that has just advanced two squares may be taken in passing.',
@@ -101,8 +93,7 @@ export const RULES: readonly RulesTopic[] = [
       'The chance lasts only for the action immediately after that advance.',
     ],
   },
-  {
-    id: 'draws',
+  draws: {
     title: 'Draws',
     lines: [
       'In hotseat, both players may agree a draw from the menu.',
@@ -110,7 +101,11 @@ export const RULES: readonly RulesTopic[] = [
       'Stalemate, repetition and insufficient material do not draw here.',
     ],
   },
-];
+};
+
+export const RULES: readonly RulesTopic[] = Object.entries(TOPICS).map(
+  ([id, content]) => ({ id, ...content }),
+);
 
 export const topic = (id: string): RulesTopic | undefined =>
   RULES.find((entry) => entry.id === id);

@@ -122,7 +122,7 @@ test('turning sound off is remembered at the next launch', () => {
   let tree = launch(first);
   assert.equal(first.muted, false, 'sound starts on');
 
-  // Home, nothing saved: new hotseat, Play the computer, How to play, Rules,
+  // Home, nothing saved: new hotseat, Play the computer, Learn to play, Rules reference,
   // Settings. This build has no music, so the sound effects come first.
   send('down', 'down', 'down', 'down', 'enter');
   assert.match(text(tree.root), /Sound effects: on/);
