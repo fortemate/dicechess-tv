@@ -378,7 +378,8 @@ test('a hotseat result stays on the board, with the host’s last word beside he
     assert.ok(
       HOST_CATALOGUE.some(
         (line) =>
-          line.text === lastWord && /^host_(black_wins|win)_/.test(line.id),
+          line.text === lastWord &&
+          /^prowla_host_(black_wins|win)_/.test(line.id),
       ),
       `the host cheers the result: ${lastWord}`,
     );

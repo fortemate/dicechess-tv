@@ -274,13 +274,13 @@ test('a line that waits while a menu is up is said when the board returns', () =
 test('another host chosen in Settings lets the line being said finish, and drops the one Rolly left waiting (#258)', () => {
   const host = harness();
   const game = newGame('hotseat', 'switch');
-  host.show(game);
+  host.show(game, { host: 'rolly' });
   assert.deepEqual(host.ids(), ['host_intro_2']);
   // White's roll leaves nothing to play while Rolly greets: the pass waits.
   const empty = rollGame(game, EMPTY);
-  host.show(empty);
+  host.show(empty, { host: 'rolly' });
   // Settings opens, and Prowla is chosen.
-  host.show(empty, { live: false });
+  host.show(empty, { live: false, host: 'rolly' });
   host.show(empty, { live: false, host: 'prowla' });
   host.show(empty, { host: 'prowla' });
   tick(HOLD * 2);

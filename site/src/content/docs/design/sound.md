@@ -64,7 +64,7 @@ On the Virtual Device the voice was measured at about 14 dB above the music, wit
 
 ## The Hot Seat host
 
-In Hot Seat, two people sharing one remote, the host is Rolly or Prowla the cat: a neutral party host who cheers the moment, never a side. Prowla is not one of the opponents. Each has lines of her own, in her own voice, 45 for Rolly and 51 for Prowla. They speak at the same moments, so what follows holds for both.
+In Hot Seat, two people sharing one remote, the host is Prowla the cat or Rolly: a neutral party host who cheers the moment, never a side. Prowla is not one of the opponents. Each has lines of her own, in her own voice, 51 for Prowla and 45 for Rolly. They speak at the same moments, so what follows holds for both.
 
 She is seen while she speaks. Her portrait and her line show in the free space above the bottom badge for as long as the line holds, and leave when it ends. They are placed over that space, so nothing else on the screen moves, and her last word stays with the result. A build without the portraits shows Rolly's emoji face in their place. Prowla has no such face: her place stays empty, the size of her portrait, so her line does not move.
 
@@ -74,7 +74,7 @@ She is seen while she speaks. Her portrait and her line show in the free space a
 - **Never over herself.** A new line waits for the one being said, as long as the game waits too: once the game takes another step it is put back unheard, so a waiting line is never said after the moment it was about. A line already begun goes on while the turn is played. Each event's lines come from a shuffled bag, so all of them are heard before any repeats, and a game never ends on the line that ended the one before, whichever side won.
 - **Over the music.** Her lines are said on the bots' voice player: the music ducks under them, and her result waits for its jingle.
 - **Only with the board on screen.** She picks no line behind the home screen or a menu, so a game waiting at launch is quiet. The same rule keeps a bot's game restored at launch from speaking behind the home screen. A line already begun, hers or a bot's, is left to finish when a menu or the home screen opens, so leaving a finished game with OK does not cut her result short. Turning her off stops her line at once, and turning the Voices off or leaving the app stops any line.
-- **A setting of her own.** **Hot Seat host** in Settings chooses who hosts, or no one: it reads "Hot Seat host: Rolly", "Hot Seat host: Prowla" or "Hot Seat host: off", and OK or Left and Right step through the choices. Rolly is the default. Chosen during a session, the other host takes over from the next line: a line being said finishes, and the pass of the remote is not taught twice. Off, she says nothing, and a line she is saying stops. **Voices** off silences her too.
+- **A setting of her own.** **Hot Seat host** in Settings chooses who hosts, or no one: it reads "Hot Seat host: Prowla", "Hot Seat host: Rolly" or "Hot Seat host: off", and OK or Left and Right step through the choices. Prowla is the default; until 6 October 2026 Rolly was. Chosen during a session, the other host takes over from the next line: a line being said finishes, and the pass of the remote is not taught twice. Off, she says nothing, and a line she is saying stops. **Voices** off silences her too.
 
 What this rests on:
 

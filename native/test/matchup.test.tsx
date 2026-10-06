@@ -299,8 +299,9 @@ test('the host shows above the bottom badge while she speaks, over the free spac
   // Placed over the foot of the centre, so nothing in it moves.
   assert.equal(styleOf(block).position, 'absolute');
   assert.equal(styleOf(block).height, HOST_HEIGHT);
+  // The default host's: Prowla the cat.
   const [portrait] = block.findAll((node) => isHost(node, 'Image'));
-  assert.equal(portrait.props.source.uri, portraitPath('rolly', 'card'));
+  assert.equal(portrait.props.source.uri, portraitPath('cat', 'card'));
   assert.deepEqual(texts(block), ['Now pass the remote over!']);
   assert.deepEqual(texts(center), [
     'White to play',

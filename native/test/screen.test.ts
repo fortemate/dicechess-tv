@@ -596,7 +596,7 @@ test('without music in the build, Settings offers sound effects, voices, the hos
     [
       'Sound effects: on',
       'Voices: on',
-      'Hot Seat host: Rolly',
+      'Hot Seat host: Prowla',
       'Turn board in hotseat: off',
     ],
   );
@@ -607,7 +607,7 @@ test('without music in the build, Settings offers sound effects, voices, the hos
   assert.equal(drive(voices, 'select').voices, false);
   assert.equal(drive(voices, 'select').sound, true);
   const host = drive(voices, 'down');
-  assert.equal(drive(host, 'select').host, 'prowla');
+  assert.equal(drive(host, 'select').host, 'rolly');
   assert.equal(drive(host, 'select').voices, true);
   assert.equal(drive(host, 'select').turnHotseat, false);
   const hotseat = drive(host, 'down');
@@ -640,7 +640,7 @@ test('Settings opens from the home menu on music, and Back returns to it', () =>
       'Music volume: 7',
       'Sound effects: on',
       'Voices: on',
-      'Hot Seat host: Rolly',
+      'Hot Seat host: Prowla',
       'Turn board in hotseat: off',
     ],
   );
@@ -666,17 +666,17 @@ test('OK or the arrows sideways flip music, sound effects, voices and hotseat bo
   assert.equal(drive(voices, 'select').voices, false);
   assert.equal(drive(voices, 'right').voices, false);
   assert.equal(drive(voices, 'select', 'left').voices, true);
-  // Once more, the Hot Seat host, Rolly by default. OK and Right step to the
-  // next choice, Prowla (#258) and then off, and Left to the one before.
+  // Once more, the Hot Seat host, Prowla by default (#258). OK and Right step
+  // to the next choice, Rolly and then off, and Left to the one before.
   const host = drive(voices, 'down');
-  assert.equal(host.host, 'rolly');
-  assert.equal(drive(host, 'select').host, 'prowla');
-  assert.equal(drive(host, 'right').host, 'prowla');
+  assert.equal(host.host, 'prowla');
+  assert.equal(drive(host, 'select').host, 'rolly');
+  assert.equal(drive(host, 'right').host, 'rolly');
   assert.equal(drive(host, 'select', 'select').host, 'off');
   assert.equal(drive(host, 'left').host, 'off');
-  assert.equal(drive(host, 'left', 'left').host, 'prowla');
-  assert.equal(drive(host, 'select', 'select', 'select').host, 'rolly');
-  assert.equal(drive(host, 'right', 'left').host, 'rolly');
+  assert.equal(drive(host, 'left', 'left').host, 'rolly');
+  assert.equal(drive(host, 'select', 'select', 'select').host, 'prowla');
+  assert.equal(drive(host, 'right', 'left').host, 'prowla');
   assert.equal(
     settingsOptions(
       host.sound,
@@ -684,9 +684,9 @@ test('OK or the arrows sideways flip music, sound effects, voices and hotseat bo
       host.musicAvailable,
       host.turnHotseat,
       host.voices,
-      'prowla',
+      'rolly',
     )[4],
-    'Hot Seat host: Prowla',
+    'Hot Seat host: Rolly',
   );
   const hostOff = drive(host, 'left');
   assert.equal(
@@ -707,7 +707,7 @@ test('OK or the arrows sideways flip music, sound effects, voices and hotseat bo
   // None touches another, nor leaves the screen.
   assert.equal(drive(hotseat, 'select').music.on, true);
   assert.equal(drive(hotseat, 'select').voices, true);
-  assert.equal(drive(hotseat, 'select').host, 'rolly');
+  assert.equal(drive(hotseat, 'select').host, 'prowla');
   assert.equal(drive(hotseat, 'select').overlay.kind, 'settings');
 });
 
@@ -760,7 +760,7 @@ test('a new game keeps the settings', () => {
   assert.deepEqual(changed.music, { on: false, volume: 8 });
   assert.equal(changed.sound, false);
   assert.equal(changed.voices, false);
-  assert.equal(changed.host, 'prowla');
+  assert.equal(changed.host, 'rolly');
   // Back to the home menu, on Settings, then up to a new hotseat game.
   const home = drive(changed, 'back');
   const at = homeOptions(false).indexOf('Settings');
@@ -769,13 +769,13 @@ test('a new game keeps the settings', () => {
   assert.deepEqual(game.music, { on: false, volume: 8 });
   assert.equal(game.sound, false);
   assert.equal(game.voices, false);
-  assert.equal(game.host, 'prowla');
+  assert.equal(game.host, 'rolly');
 });
 
 test('the host setting starts as the app read it, and a move keeps it (#202)', () => {
   const off = initialState(options, null, { host: 'off' });
   assert.equal(off.host, 'off');
-  assert.equal(fresh().host, 'rolly');
+  assert.equal(fresh().host, 'prowla');
   // A new game, then a roll: both keep it.
   const board = drive(off, 'select');
   assert.equal(board.overlay.kind, 'none');
