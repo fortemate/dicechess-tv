@@ -58,7 +58,7 @@ Contains the TV presentation layer built with React Native for Vega:
 | `src/SpeechBubble.tsx`   | A line beside its speaker's portrait: 20 dp text, three rows for a bot, two for the host.              |
 | `src/useBotVoice.ts`     | Picks the bot's lines as the game moves and how long each stays on screen.                             |
 | `src/useHostVoice.ts`    | Picks the Hot Seat host's lines at the pauses and big moments, says them, and returns the one to show. |
-| `src/hostSetting.ts`     | Who hosts Hot Seat, Rolly (the default) or off, remembered across launches.                            |
+| `src/hostSetting.ts`     | Who hosts Hot Seat, Rolly (the default), Prowla or off, remembered across launches.                    |
 | `src/screen.ts`          | Pure state reducer coordinating menu navigation, confirmations, and gameplay flow.                     |
 | `src/Board.tsx`          | 8x8 chessboard grid rendering pieces, square tints, focus rings, and move animations.                  |
 | `src/Dice.tsx`           | Three-dice tray with tumbling roll animations and dimmed unplayable dice.                              |
@@ -83,7 +83,7 @@ Automated tools for asset compilation and algorithmic measurement:
 - **`native/scripts/generate-faces.mjs`:** Compiles RhosGFX Vector Emoji SVGs into inline JSX components for bot opponent cards.
 - **`native/scripts/vendor-sounds.mjs`:** Copies pinned sound effects from `dicechess-assets` and verifies cryptographic SHA-256 hashes against `sounds.lock.json`.
 - **`native/scripts/vendor-music.mjs`:** Copies pinned music tracks from `dicechess-assets` and writes `music.json`.
-- **`native/scripts/vendor-voices.mjs`:** Copies both voice packs, the bots' and the Hot Seat host's, and `events.json` from one pinned commit of `dicechess-assets`, writes `voices.json`, `src/voiceFiles.ts` and `src/core/hostPacing.ts`, and keeps the text each clip was recorded from, so a changed line fails `vendoredVoices.test.ts`.
+- **`native/scripts/vendor-voices.mjs`:** Copies the voice packs, the bots', each Hot Seat host's and the tutorial's, and `events.json` from one pinned commit of `dicechess-assets`, writes `voices.json`, `src/voiceFiles.ts` and `src/core/hostPacing.ts`, and keeps the text each clip was recorded from, so a changed line fails `vendoredVoices.test.ts`.
 - **`native/scripts/generate-assets.mjs`:** Rebuilds `native/assets/` afresh on each build, assembling `SplashScreenImages.zip`, launcher icons, sound files, music and voices.
 
 ### 4. Test Suites
