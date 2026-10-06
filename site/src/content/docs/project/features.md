@@ -91,4 +91,4 @@ Sound stops when the app leaves the screen. The tests check that the players pau
 
 A game against the computer ends on a choice: a rematch or the main menu. A rematch keeps your colour choice; if you chose Random, it picks again. In hotseat, a finished game stays on the board, and OK returns to the main menu.
 
-![After resigning against Grabby: Resigned, White wins, Grabby's last word, Ha! I'll have this whole game framed!, beside its portrait, and the choice of Rematch or Main menu](../../../assets/screenshots/rematch.png)
+![After resigning as Black against Grabby: Grabby wins, You resigned, Grabby's last word, Ha! I'll have this whole game framed!, beside its portrait, and the choice of Rematch or Main menu](../../../assets/screenshots/rematch.png)

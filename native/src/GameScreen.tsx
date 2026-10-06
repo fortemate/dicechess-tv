@@ -7,13 +7,16 @@ import { View, Text, useWindowDimensions } from 'react-native';
 import {
   viewGame,
   sideName,
+  opposite,
   emptyRoll,
   isBotMode,
   type Game,
   type Result,
+  type Side,
 } from '../../src/core/game';
 import { opponentOf } from '../../src/core/opponents';
 import type { Ledger } from '../../src/core/ledger';
+import { pieceAt } from '../../src/core/board';
 import { movableSquares, type BoardKey } from '../../src/core/boardInput';
 import { Board } from './Board';
 import { Dice } from './Dice';
@@ -73,14 +76,6 @@ const DIE = {
   R: 'Rook',
   Q: 'Queen',
   K: 'King',
-} as const;
-
-const RESULT = {
-  'king-captured': 'King captured',
-  resigned: 'Resigned',
-  'agreed-draw': 'Draw agreed',
-  '100-halfmoves': 'Draw: 100 halfmoves',
-  'turn-limit': 'Draw: turn limit',
 } as const;
 
 export type GameScreenProps = {
@@ -230,29 +225,78 @@ const mover = (game: Game, bot: boolean): string =>
 // Nobody did anything wrong, so it says so plainly rather than "forfeited".
 const headline = (game: Game, view: GameView): string => {
   if (!emptyRoll(game))
-    return `${sideName(view.side)} to play${mover(game, view.bot)}`;
+    return game.phase === 'handoff'
+      ? turnOver(game, view)
+      : `${sideName(view.side)} to play${mover(game, view.bot)}`;
   const name = opponentName(game);
   return view.bot && name
     ? `${name} can't move`
     : `No legal moves${mover(game, view.bot)}`;
 };
 
+// A turn with no action left is over, though it is still the mover's until OK
+// hands it on (#232): the headline says so, not that the side is to play.
+// Against the bot the person's own is "your turn", in the player's words, as
+// the result is (#235).
+const turnOver = (game: Game, view: GameView): string =>
+  game.human !== null && !view.bot
+    ? 'Your turn is over'
+    : `${sideName(view.side)}'s turn is over`;
+
 // Who the person plays: nobody in hotseat, else the opponent's name.
 const opponentName = (game: Game): string | null =>
   isBotMode(game.mode) ? opponentOf(game.mode).name : null;
 
+// Who plays a side, in the player's words (#235): against the bot the person is
+// "You" and the bot goes by its name; in hotseat each side is its colour.
+const playerOf = (game: Game, side: Side): string => {
+  if (game.human === null) return sideName(side);
+  return side === game.human ? 'You' : (opponentName(game) ?? 'The computer');
+};
+
+// A side's king, as a sentence names it: the person's is "your king".
+const kingOf = (game: Game, side: Side): string =>
+  side === game.human ? 'your king' : `${playerOf(game, side)}'s king`;
+
 type GameView = ReturnType<typeof viewGame>;
 
-// The line under the headline: who won, or the dice still to use.
-const winnerLine = (result: Result): string =>
-  result.winner ? `${sideName(result.winner)} wins` : 'Drawn';
+// The headline of a finished game: who won, in the player's words (#235). The
+// person's win is the one cheer; a loss names the bot that won rather than
+// telling the person they lost.
+const outcome = (game: Game, { winner }: Result): string => {
+  if (!winner) return 'Draw';
+  return winner === game.human ? 'You win!' : `${playerOf(game, winner)} wins`;
+};
+
+// Why a game was drawn, in the rules guide's terms but plain words (#235). The
+// hundred is the engine's half-move clock, which counts each action that is
+// neither a capture nor a pawn move, a die each, and nothing for a turn that
+// passes (test/rules.test.ts). So it is a hundred moves in the tutorial's
+// sense, where each die is one move, not fifty turns each as in chess.
+const DRAWN = {
+  'agreed-draw': 'Both players agreed',
+  '100-halfmoves': '100 moves, no capture or pawn move',
+  'turn-limit': '5,000-turn limit reached',
+} as const;
+
+// How a game ended, the line under who won (#235). A king taken and a
+// resignation always have a winner.
+const reasonOf = (game: Game, { winner, reason }: Result): string => {
+  if (reason === 'king-captured')
+    return `${playerOf(game, winner!)} took ${kingOf(game, opposite(winner!))}`;
+  if (reason === 'resigned')
+    return `${playerOf(game, opposite(winner!))} resigned`;
+  return DRAWN[reason];
+};
+
 const HEADLINE = { color: '#f0f4f8', fontSize: 38, marginBottom: 16 };
-const STATUS_LINE = { color: '#aab8c9', fontSize: 24, marginBottom: 12 };
 
 // Under the dice after a roll with nothing to play, in the rules guide's words.
 // It is a caption, 20 dp like the others (#168), which keeps it to one line of
 // the panel: at 24 dp it took two, and the prompt under it ran into the bottom
-// badge (#213).
+// badge (#213). How a game ended is a caption of the same size, under who won
+// (#235), so the longest of those, the draw after a hundred moves, keeps to one
+// line too.
 export const NO_MOVE_LINE = 'No die can be used — the turn passes';
 const REASON_LINE = { color: '#aab8c9', fontSize: 20, marginBottom: 12 };
 
@@ -265,59 +309,90 @@ const modeLine = (game: Game, overlayOpen: boolean): string => {
   return turn;
 };
 
+// The line over an open menu, which names a game only when there is one to
+// name (#234). Over the home screen, and the settings or a confirmation opened
+// from it, that is the game Resume would return to: a first launch, or a game
+// that has ended, has none. The choice of colour is for a new game, whatever is
+// behind it, so it names that game's opponent and no turn.
+const menuLine = (game: Game, overlay: Overlay): string | null => {
+  if (overlay.kind === 'colour')
+    return `VS ${opponentOf(overlay.mode).name.toUpperCase()}`;
+  const overHome =
+    overlay.kind === 'home' || ('from' in overlay && overlay.from === 'home');
+  return overHome && !resumable(game) ? null : modeLine(game, true);
+};
+
 // The mode and the turn. Over an open menu it is the only line: a menu, its
 // list and the record need the height to stay inside the safe area (#51), and
 // the board behind it already shows the game. During play it stands under the
 // top of the panel, the bot's dialogue block or the top badge, and those name
 // the opponent.
-const ModeLine = ({
-  game,
-  overlayOpen,
-}: {
-  game: Game;
-  overlayOpen: boolean;
-}) => (
+const ModeLine = ({ line }: { line: string }) => (
   <Text style={{ color: '#8dc9b6', fontSize: 20, letterSpacing: 2 }}>
-    {modeLine(game, overlayOpen)}
+    {line}
   </Text>
 );
 
-// How the game ended or whose move it is; then the winner or the dice, and why
-// the turn passes when a roll left nothing to play. It also shows the result of
-// a game against the bot, above the choice of what comes next (#163).
+// Whose move it is and the dice, and why the turn passes when a roll left
+// nothing to play; or, once the game is over, who won and how (#235). The
+// result of a game against the bot stands above the choice of what comes next
+// (#163), and a hotseat result stays on the board.
 const Status = ({ game, view }: { game: Game; view: GameView }) => {
   const { result } = game;
+  if (result)
+    return (
+      <>
+        <Text style={HEADLINE}>{outcome(game, result)}</Text>
+        <Text style={REASON_LINE}>{reasonOf(game, result)}</Text>
+      </>
+    );
   return (
     <>
-      <Text style={HEADLINE}>
-        {result ? RESULT[result.reason] : headline(game, view)}
-      </Text>
-      {result ? (
-        <Text style={STATUS_LINE}>{winnerLine(result)}</Text>
-      ) : (
-        <Dice
-          dice={diceOf(game.roll, view.remaining, view.playable)}
-          side={view.side}
-        />
-      )}
-      {!result && emptyRoll(game) ? (
-        <Text style={REASON_LINE}>{NO_MOVE_LINE}</Text>
-      ) : null}
+      <Text style={HEADLINE}>{headline(game, view)}</Text>
+      <Dice
+        dice={diceOf(game.roll, view.remaining, view.playable)}
+        side={view.side}
+      />
+      {emptyRoll(game) ? <Text style={REASON_LINE}>{NO_MOVE_LINE}</Text> : null}
     </>
   );
 };
 
+// The piece standing on a square, as a word: the board draws no coordinates,
+// so a prompt names the piece picked up, not its square (#233).
+const pieceOn = (view: GameView, square: string): string => {
+  const piece = pieceAt(view.dfen.split(' ')[0], square);
+  return piece
+    ? DIE[piece.toUpperCase() as keyof typeof DIE].toLowerCase()
+    : 'piece';
+};
+
+// The opponent is at work on its turn: rolling, deciding or playing. Once the
+// turn is over it still owes the handoff, but only waits for its last move to
+// be seen, and the screen says the turn is over (#232), not that it plays on.
+const botPlaying = (game: Game): boolean =>
+  botOwes(game) && game.phase !== 'handoff';
+
 // What OK and the arrows do now, when no menu or choice is open.
-const promptFor = (game: Game, selected: string | null): string => {
+const promptFor = (
+  game: Game,
+  view: GameView,
+  selected: string | null,
+): string => {
   // The board takes no keys while the opponent owes an action.
   if (botOwes(game))
-    return `${opponentName(game) ?? 'The computer'} is playing…`;
+    return botPlaying(game)
+      ? `${opponentName(game) ?? 'The computer'} is playing…`
+      : 'Your turn next';
   // After the opponent's empty roll, OK passes its turn and rolls the person's.
   if (game.phase === 'roll' || botToAct(game)) return 'OK: roll three dice';
-  if (game.phase === 'handoff') return 'OK: continue';
+  // OK hands the turn on, so the prompt says to whom (#232): the bot by its
+  // name, and in hotseat the colour the remote goes to.
+  if (game.phase === 'handoff')
+    return `OK: ${playerOf(game, opposite(view.side))}'s turn`;
   if (game.phase === 'ended') return 'OK: back to the menu';
   return selected
-    ? `Choose a destination for ${selected} · Back: put it down`
+    ? `Where should the ${pieceOn(view, selected)} go? · Back: put it down`
     : 'Arrows: move focus · OK: select · Back: menu';
 };
 
@@ -333,6 +408,7 @@ const CONFIRM = {
 const Panel = ({
   overlay,
   game,
+  view,
   sound,
   music,
   hasMusic,
@@ -344,6 +420,7 @@ const Panel = ({
 }: {
   overlay: Overlay;
   game: Game;
+  view: GameView;
   sound: boolean;
   music: MusicSetting;
   hasMusic: boolean;
@@ -444,7 +521,7 @@ const Panel = ({
     default:
       return (
         <Text style={{ color: '#f0f4f8', fontSize: 24 }}>
-          {promptFor(game, selected)}
+          {promptFor(game, view, selected)}
         </Text>
       );
   }
@@ -799,6 +876,7 @@ export const GameScreen = ({
   // The result of a game against the bot is drawn in the matchup HUD like the
   // game itself, so the bot's last word shows under its badge (#163).
   const result = overlay.kind === 'result' ? game.result : null;
+  const overMenu = menuLine(game, overlay);
   const isFlipped = flipped(game, turnHotseat);
   const screen = {
     flex: 1,
@@ -846,10 +924,11 @@ export const GameScreen = ({
       <View style={{ flex: 1, height: size, paddingLeft: BOARD_GAP }}>
         {overlay.kind !== 'none' && !result ? (
           <>
-            <ModeLine game={game} overlayOpen={true} />
+            {overMenu ? <ModeLine line={overMenu} /> : null}
             <Panel
               overlay={overlay}
               game={game}
+              view={state}
               sound={sound}
               music={musicSetting}
               hasMusic={hasMusic}
@@ -867,7 +946,7 @@ export const GameScreen = ({
             game={game}
             side={state.side}
             flipped={isFlipped}
-            thinking={botOwes(game)}
+            thinking={botPlaying(game)}
             speechBubble={
               voiceLine ? <SpeechBubble text={voiceLine.text} /> : undefined
             }
@@ -877,12 +956,13 @@ export const GameScreen = ({
               ) : undefined
             }
             host={hostLine?.host}
-            header={<ModeLine game={game} overlayOpen={false} />}
+            header={<ModeLine line={modeLine(game, false)} />}
           >
             <Status game={game} view={state} />
             <Panel
               overlay={overlay}
               game={game}
+              view={state}
               sound={sound}
               music={musicSetting}
               hasMusic={hasMusic}

@@ -78,4 +78,5 @@ When a pawn reaches the eighth rank (or first rank for Black), it immediately pr
 Because king capture is required to win, stalemate and three-fold repetition do not cause automatic draws:
 
 1. **Agreed Draw:** In a two-player hotseat game, players may agree to a draw at any time via the in-game menu.
-2. **100-Halfmove Rule:** A game draws automatically when a turn concludes 100 half-moves (50 full turns per side) after the last pawn move or piece capture.
+2. **Hundred-move rule:** A game draws automatically when a turn ends 100 moves after the last pawn move or capture. Each die played is one move, and a turn that passes plays none. With three moves a turn, that can be as few as 34 turns, 17 for each side, not the 50 moves each of chess. The result screen reads "100 moves, no capture or pawn move".
+3. **Turn limit:** A game still going at the end of its 5,000th turn is drawn.
