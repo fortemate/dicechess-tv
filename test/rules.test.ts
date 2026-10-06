@@ -188,7 +188,10 @@ test('"a die with no legal move is lost" and "the turn passes" are what the engi
 
 test('"the turn ends when no die can be used" is what the engine does', () => {
   claims('turn', 'The turn ends when no die you hold can be used.');
-  claims('turn', 'Each action spends one die.');
+  claims(
+    'turn',
+    'A normal move spends one die; castling spends a king die and a rook die.',
+  );
   let game = at('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', [
     PAWN,
     PAWN,

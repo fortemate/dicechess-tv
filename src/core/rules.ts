@@ -37,8 +37,8 @@ export const RULES: readonly RulesTopic[] = [
     id: 'turn',
     title: 'Your turn',
     lines: [
-      'Roll three dice, then play up to three actions with them.',
-      'Each action spends one die.',
+      'Roll three dice and play up to three actions.',
+      'A normal move spends one die; castling spends a king die and a rook die.',
       'The turn ends when no die you hold can be used.',
       'Moving one piece out of the way to free another is normal play.',
     ],

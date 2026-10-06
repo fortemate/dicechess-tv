@@ -97,16 +97,16 @@ test('a launch opens on the home screen, and resume is offered only when there i
     'Resume game',
     'New hotseat game',
     'Play the computer',
-    'How to play',
-    'Rules',
+    'Learn to play',
+    'Rules reference',
     'Settings',
     'About',
   ]);
   assert.deepEqual(homeOptions(false), [
     'New hotseat game',
     'Play the computer',
-    'How to play',
-    'Rules',
+    'Learn to play',
+    'Rules reference',
     'Settings',
     'About',
   ]);

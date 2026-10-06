@@ -133,8 +133,8 @@ test('Skip goes to the home screen, and the offer is not made again', () => {
   send('up', 'enter');
   assert.doesNotMatch(text(root), OFFER);
   assert.equal(focusedLabel(root), 'New hotseat game');
-  // How to play is still on the home screen.
-  assert.ok(labels(root).includes('How to play'));
+  // Learn to play is still on the home screen.
+  assert.ok(labels(root).includes('Learn to play'));
 
   root = launch();
   assert.doesNotMatch(text(root), OFFER);

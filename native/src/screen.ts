@@ -249,8 +249,8 @@ export const homeOptions = (resumable: boolean): string[] => [
   ...(resumable ? ['Resume game'] : []),
   HOTSEAT_OPTION,
   COMPUTER_OPTION,
-  'How to play',
-  'Rules',
+  'Learn to play',
+  'Rules reference',
   SETTINGS_OPTION,
   // Last, because it is read once: it is where the credits a licence asks for
   // are shown.
@@ -294,8 +294,8 @@ const cardOf = (mode: Mode): number =>
 // Home options that open another screen and change nothing else.
 const OPENS = new Map<string, Overlay>([
   ['Resume game', { kind: 'none' }],
-  ['How to play', { kind: 'tutorial' }],
-  ['Rules', { kind: 'rules' }],
+  ['Learn to play', { kind: 'tutorial' }],
+  ['Rules reference', { kind: 'rules' }],
   [SETTINGS_OPTION, { kind: 'settings', index: 0, from: 'home' }],
   ['About', { kind: 'about' }],
 ]);
