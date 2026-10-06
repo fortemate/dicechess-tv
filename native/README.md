@@ -6,7 +6,7 @@ Long-form technical documentation, platform findings, performance benchmarks and
 
 - **[Architecture & Data Flow](https://dicechess-tv.fortemate.com/technology/architecture/):** The pure TypeScript core, React Native for Vega shell, and the canonical engine.
 - **[Building on Vega](https://dicechess-tv.fortemate.com/technology/vega/):** Platform findings measured on the device (input channels, the three names of OK, Back handler, service declarations, audio formats, splash/icon traps, and scripted automation).
-- **[Performance](https://dicechess-tv.fortemate.com/technology/performance/):** Launch KPIs (first frame in 309 ms, fully drawn in 748 ms), bot decision speeds, and motion timings.
+- **[Performance](https://dicechess-tv.fortemate.com/technology/performance/):** Launch KPIs on a Fire TV Stick (fully drawn in 2.65 s) and on the Virtual Device, bot decision speeds, and motion timings.
 - **[How We Test & Review](https://dicechess-tv.fortemate.com/quality/):** Automated tests, CI, CodeQL, SonarCloud quality gate, CodeRabbit, pre-commit hooks, and the press evaluator.
 - **[Build & Run](https://dicechess-tv.fortemate.com/contribute/build/):** Prerequisites, package variants, installation, security advisories, and Metro configuration.
 - **[Project Layout](https://dicechess-tv.fortemate.com/contribute/layout/):** Repository structure, source directories, and scripts.
