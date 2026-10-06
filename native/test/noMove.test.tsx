@@ -201,11 +201,14 @@ test('the person’s dice thrown over the bot’s empty roll tumble in like any 
     await act(async () => {});
     clock.next();
     send('enter');
-    // Rolly's roll leaves nothing to play either, and its dimmed dice stay.
+    // Rolly's roll leaves nothing to play either, and its three dice stay,
+    // dimmed: the person's roll comes over dice, not into empty slots.
     clock.next();
     clock.next();
     assert.match(text(tree.root), /Rolly can't move/);
-    assert.ok(faces(tree.root).every(dimmedWithoutRing));
+    const dimmed = faces(tree.root);
+    assert.equal(dimmed.length, 3);
+    assert.ok(dimmed.every(dimmedWithoutRing));
 
     // One OK passes its turn and throws the person's dice over its own: they
     // tumble in, as the dice do wherever there were none.
