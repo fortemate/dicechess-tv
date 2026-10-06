@@ -25,10 +25,11 @@ import { TUTORIAL, rollStep, stepGame } from '../../src/core/tutorial';
 import { textWidth } from './textWidth';
 
 // The panel beside the board is 372 dp wide on the 960 x 540 dp screen
-// (src/layout.ts). textWidth's sum was at most 4.5% short of what the Virtual
-// Device drew, so a hint it puts at most this wide fits the line. On the device
-// on 2026-10-06 each hint here took one line; the widest, "Done. OK: next
-// lesson · Back: leave", drew 342 dp, and "OK: move the pawn here" 265.
+// (src/layout.ts). The Virtual Device drew lines at most 4.5% wider than
+// textWidth's sum, and narrower ones do not wrap, so a hint whose sum is at
+// most this fits the line. On the device on 2026-10-06 each hint here took one
+// line; the widest, "Done. OK: next lesson · Back: leave", summed 352 dp and
+// drew 342, and "OK: move the pawn here" drew 265.
 const PANEL_DP = 372;
 const FITS_DP = Math.floor(PANEL_DP / 1.05);
 

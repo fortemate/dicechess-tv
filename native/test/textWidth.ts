@@ -4,9 +4,10 @@
 // Arial, given here in thousandths of an em.
 //
 // Checked against 28 lines captured on the Vega Virtual Device on 2026-10-06,
-// from 20 to 38 dp, the sum came within -6.5% and +4.5% of the width drawn: W
-// draws wider than this, R and g narrower. native/test/hints.test.tsx keeps to
-// the margin that leaves.
+// from 20 to 38 dp, the width drawn ran from 6.5% narrower than this sum to
+// 4.5% wider: W draws wider than it counts here, R and g narrower. Only the
+// wider side can push a line over, so native/test/hints.test.tsx keeps 5% for
+// it.
 const WIDTHS: Readonly<Record<string, number>> = {
   ' ': 278,
   '!': 278,
