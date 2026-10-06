@@ -1,6 +1,6 @@
 # The project site
 
-The public site of Dice Chess TV, <https://dicechess-tv.jegors-cemisovs.workers.dev/>. It
+The public site of Dice Chess TV, <https://dicechess-tv.fortemate.com/>. It
 presents the project to players and judges and documents it for developers. It is
 an [Astro Starlight](https://starlight.astro.build/) project, and its own npm
 package with its own lockfile; `mise run setup` does not install it.

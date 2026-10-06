@@ -35,7 +35,7 @@ npm test         # the address format of the variants
 directory of any static host.
 
 The project site's deployment builds it and publishes it with the site, at
-<https://dicechess-tv.jegors-cemisovs.workers.dev/bench/>, on every push to `main` that
+<https://dicechess-tv.fortemate.com/bench/>, on every push to `main` that
 touches the bench or what it draws
 ([`deploy-site.yaml`](../.github/workflows/deploy-site.yaml)). Like the site's
 tester pages it is unlisted: nothing links to it, and it asks search engines

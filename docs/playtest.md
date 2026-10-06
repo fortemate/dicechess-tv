@@ -59,7 +59,7 @@ The whole game uses the D-pad, OK and Back; on the Virtual Device, those are the
 
 ## Telling us what you found
 
-- **Without an account:** the short anonymous form, <https://dicechess-tv.jegors-cemisovs.workers.dev/feedback/>.
+- **Without an account:** the short anonymous form, <https://dicechess-tv.fortemate.com/feedback/>.
 - **With a GitHub account:** [Discussions](https://github.com/fortemate/dicechess-tv/discussions). Tell us what happened in a game under **General**, suggest a change under **Ideas**, and ask for help with installing under **Q&A**. One finding per discussion is easiest to follow up.
 - Or reply where you found this build.
 

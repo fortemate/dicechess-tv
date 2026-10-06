@@ -7,7 +7,7 @@
 
 Dice Chess for Amazon Fire TV: two players sharing one screen and remote, or a game against a choice of on-device bots.
 
-**Project site:** <https://dicechess-tv.jegors-cemisovs.workers.dev/>, built from [`site/`](site/README.md).
+**Project site:** <https://dicechess-tv.fortemate.com/>, built from [`site/`](site/README.md).
 
 **Browser test bench:** [`web/`](web/README.md) draws the same screens in a browser, driven from the keyboard, with switchable board marks and a colour-vision simulation — for testers without an emulator. It is not device evidence.
 
@@ -15,7 +15,7 @@ Dice Chess for Amazon Fire TV: two players sharing one screen and remote, or a g
 
 **Tutorial video:** <https://youtu.be/KK8BBICjaBQ>, 4:52, recorded on the Vega Virtual Device: Thinkle the wizard teaches the six lessons of How to play aloud.
 
-**Status: a React Native for Vega application that builds and runs from this repository.** `npm run build --prefix native` produces an installable package that installs, launches and plays on the Vega Virtual Device. There, Amazon's KPI Visualizer measured a cool start of a Release build at 309 ms to first frame and 748 ms to fully drawn, on average (25 September 2026, 3 iterations, not in certification mode), against Amazon's cool-start targets of under 1.5 s and under 8 s ([FL-20](https://dicechess-tv.jegors-cemisovs.workers.dev/friction-log/#fl-20)). Hotseat and three local opponents, from easy to hard, three-die turns, promotion, king capture, resignation, draw agreement, save and resume mid-turn, a completed-game ledger, an interactive tutorial offered on the first launch, and a rules guide are all implemented on the native board, driven entirely by D-pad, OK and Back.
+**Status: a React Native for Vega application that builds and runs from this repository.** `npm run build --prefix native` produces an installable package that installs, launches and plays on the Vega Virtual Device. There, Amazon's KPI Visualizer measured a cool start of a Release build at 309 ms to first frame and 748 ms to fully drawn, on average (25 September 2026, 3 iterations, not in certification mode), against Amazon's cool-start targets of under 1.5 s and under 8 s ([FL-20](https://dicechess-tv.fortemate.com/friction-log/#fl-20)). Hotseat and three local opponents, from easy to hard, three-die turns, promotion, king capture, resignation, draw agreement, save and resume mid-turn, a completed-game ledger, an interactive tutorial offered on the first launch, and a rules guide are all implemented on the native board, driven entirely by D-pad, OK and Back.
 
 Also done: sound for every step of the game — chosen by ear, heard on the virtual device, and set on a settings screen in both menus — an icon and splash screen, and an About screen carrying the credits the asset licences require. Adaptive music follows the danger to the king, with four themes by pepka-prygni used with his permission. On the virtual device it was heard following a recorded game against Rampage from calm to tense to critical, and its own reports show it stopping for the launcher ([#76](https://github.com/fortemate/dicechess-tv/issues/76)). Each move slides to its new square, so an opponent's turn can be followed ([#131](https://github.com/fortemate/dicechess-tv/issues/131)), a roll tumbles in ([#99](https://github.com/fortemate/dicechess-tv/issues/99)), and the board can turn to the side to move in hotseat ([#120](https://github.com/fortemate/dicechess-tv/issues/120)). Everything above is evidence from the **virtual** device; nothing has yet run on physical Fire TV hardware, and the emulator does not measure Stick performance.
 
@@ -77,7 +77,7 @@ The core is pure by enforcement, not by convention: `tsconfig.core.json` typeche
 
 The canonical engine determines legal actions and board transitions. The controller follows each roll through the engine's legal turn tree, so a turn is checked as a whole, and takes the dice left from the engine's `applyMove` (engine 0.13.0, #101). `test/game.test.ts` and `test/dice.test.ts` cover both, and hotseat, bot and promotion turns were played this way on the Vega Virtual Device; not yet on a Fire TV Stick. Which of the dice left a legal turn can still spend, and so which dice dim, is the engine's `getPlayableDice` (engine 0.14.0, #140), covered by `test/dice.test.ts` and checked on the Vega Virtual Device; not yet on a Fire TV Stick. Besides resignation and an agreed draw, the controller ends a game as Fortemate's game service does: when a king is taken, after 100 halfmoves without a capture or a pawn move, checked at the end of a turn, or at turn 5,000. The board only renders state; the remote's keys reach the screen reducer through `useRemoteInput`.
 
-The architecture, platform findings on Vega, the friction log and how the project is tested are published on the [project site](https://dicechess-tv.jegors-cemisovs.workers.dev/): see [Architecture](https://dicechess-tv.jegors-cemisovs.workers.dev/technology/architecture/), [Building on Vega](https://dicechess-tv.jegors-cemisovs.workers.dev/technology/vega/), and [How we test and review](https://dicechess-tv.jegors-cemisovs.workers.dev/quality/). [native/README.md](native/README.md) provides a terminal quick-reference for building, packaging, and installing.
+The architecture, platform findings on Vega, the friction log and how the project is tested are published on the [project site](https://dicechess-tv.fortemate.com/): see [Architecture](https://dicechess-tv.fortemate.com/technology/architecture/), [Building on Vega](https://dicechess-tv.fortemate.com/technology/vega/), and [How we test and review](https://dicechess-tv.fortemate.com/quality/). [native/README.md](native/README.md) provides a terminal quick-reference for building, packaging, and installing.
 
 This repository owns TV-specific packaging, input and application integration. Reuse appropriate public components from [dicechess-play](https://github.com/fortemate/dicechess-play) and [dicechess-engine](https://github.com/fortemate/dicechess-engine) after checking their licenses. Shared fixes should return to their source repositories.
 
@@ -107,7 +107,7 @@ Prepared for [Build, Ship, Shape: Amazon Developer Hackathon 2026](https://amazo
 - Internal submission target: **21 October 2026**.
 - Owner confirmed registration on 21 September 2026. Final submission and Appstore publication remain separate, unconfirmed actions.
 - Demonstrate the actual Vega/Fire TV environment and clearly distinguish reused components from work completed during the contest window.
-- Keep a reproducible SDK friction log and record tool versions from the first experiment. The log is published on the site: [Friction log](https://dicechess-tv.jegors-cemisovs.workers.dev/friction-log/).
+- Keep a reproducible SDK friction log and record tool versions from the first experiment. The log is published on the site: [Friction log](https://dicechess-tv.fortemate.com/friction-log/).
 
 Full decisions and the detailed schedule are maintained in the private Fortemate knowledge base, starting from the page **Build, Ship, Shape — Amazon Developer Hackathon 2026**.
 

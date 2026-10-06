@@ -7,7 +7,7 @@ body:
       value: |
         Thank you for playing Dice Chess TV. Tell us about one moment per discussion: something that broke, something that confused you, or something you enjoyed. A few words are enough, and a photo of the screen helps.
 
-        No GitHub account? Use the anonymous form instead: https://dicechess-tv.jegors-cemisovs.workers.dev/feedback/
+        No GitHub account? Use the anonymous form instead: https://dicechess-tv.fortemate.com/feedback/
   - type: dropdown
     id: build
     attributes:
