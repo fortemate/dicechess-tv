@@ -5,22 +5,12 @@
 // it afresh (#122).
 //
 // Vega wants `assets/raw/SplashScreenImages.zip`, and inside it a `desc.txt`
-// naming the frame size and rate, plus a `_loop` directory of PNG frames. Ours
-// is one frame: a still image, which the descriptor loops forever until the app
-// says it has drawn.
+// naming the frame size and rate, plus a `_loop` directory of PNG frames. The
+// reveal is followed by a still tail; the OS dismisses it when the app draws.
 //
-// The splash is the Fortemate mark on the board's own background, so it and the
-// first frame of the application are the same colour and the handover is
-// invisible. The icon is the brand's maskable export, copied unchanged: the
-// launcher fits a square icon into a wide tile, and a maskable icon is the one
-// built to survive that.
-//
-// Neither is redrawn here. Both sources are verbatim brand exports; see
-// ../brand/README.md.
-//
-// No dependencies: the sources are 8-bit PNG without interlacing, which is the
-// one case worth decoding by hand, and `zip` is on every machine that can build
-// this package.
+// The splash shares the application's background. The game's icon and the
+// Fortemate mark remain unchanged; fonts and pieces are documented in
+// ../splash/README.md. The rasterizer is build-time only.
 import { execFileSync } from 'node:child_process';
 import {
   copyFileSync,
@@ -31,10 +21,11 @@ import {
   utimesSync,
   writeFileSync,
 } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { crc32, deflateSync, inflateSync } from 'node:zlib';
 import { createHash } from 'node:crypto';
+import { MOTION, splashRenderer } from './splash-frames.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 // The application's directory. The functions below take it as `root`, so a test
@@ -170,7 +161,14 @@ const encodePng = (width, height, rgb) => {
   ]);
 };
 
-export const SPLASH = { WIDTH, HEIGHT, FPS, BACKGROUND };
+export const SPLASH = {
+  WIDTH,
+  HEIGHT,
+  FPS,
+  BACKGROUND,
+  ...MOTION,
+  holdFrames: Math.ceil((FPS * MOTION.holdMilliseconds) / 1000),
+};
 
 export const main = (root = native) => {
   // Nothing may be there that this run did not write: a file left by an earlier
@@ -183,53 +181,48 @@ export const main = (root = native) => {
   mkdirSync(dirname(icon), { recursive: true });
   copyFileSync(iconSource, icon);
 
-  const mark = decodePng(join(root, 'brand/fortemate-mark-512-white.png'));
-  if (mark.width > WIDTH || mark.height > HEIGHT)
-    throw new Error('the mark does not fit the frame');
-
-  // Centred, and on whole pixels, so the mark is copied rather than resampled.
-  const left = (WIDTH - mark.width) >> 1;
-  const top = (HEIGHT - mark.height) >> 1;
-
-  const frame = Buffer.alloc(WIDTH * HEIGHT * 3);
-  for (let i = 0; i < WIDTH * HEIGHT; i++) {
-    frame[i * 3] = BACKGROUND[0];
-    frame[i * 3 + 1] = BACKGROUND[1];
-    frame[i * 3 + 2] = BACKGROUND[2];
-  }
-  for (let y = 0; y < mark.height; y++) {
-    for (let x = 0; x < mark.width; x++) {
-      const source = (y * mark.width + x) * 4;
-      const alpha = mark.pixels[source + 3];
-      if (alpha === 0) continue;
-      const target = ((top + y) * WIDTH + left + x) * 3;
-      for (let c = 0; c < 3; c++) {
-        const over = mark.pixels[source + c];
-        const under = frame[target + c];
-        frame[target + c] = Math.round(
-          (over * alpha + under * (255 - alpha)) / 255,
-        );
-      }
-    }
-  }
-
   // Staged outside assets/, because only the zip belongs in the package.
   const staging = join(root, 'build/splash');
   rmSync(staging, { recursive: true, force: true });
   mkdirSync(join(staging, '_loop'), { recursive: true });
 
-  const framePath = join(staging, '_loop/loop00000.png');
-  writeFileSync(framePath, encodePng(WIDTH, HEIGHT, frame));
+  const render = splashRenderer(root, WIDTH, HEIGHT);
+  const framePaths = Array.from({ length: MOTION.frames }, (_, index) => {
+    const path = join(
+      staging,
+      `_loop/loop${String(index).padStart(5, '0')}.png`,
+    );
+    writeFileSync(path, encodePng(WIDTH, HEIGHT, render(index)));
+    return path;
+  });
+  const framePath = framePaths.at(-1);
+  // TV Ship/48 loops the whole archive even with c 1 or a separate hold part.
+  // A bounded still tail makes this a useful hardware trial without adding
+  // an application timer. Starts longer than the tail can repeat the reveal;
+  // see ../splash/README.md before treating this as the final issue #289 fix.
+  const holdPaths = Array.from({ length: SPLASH.holdFrames }, (_, index) => {
+    const path = join(
+      staging,
+      `_loop/loop${String(MOTION.frames + index).padStart(5, '0')}.png`,
+    );
+    copyFileSync(framePath, path);
+    return path;
+  });
+  const holdPath = holdPaths[0];
 
-  // Line 1: frame size and rate. Line 2: keep the assets, loop forever, no
-  // delay, and read the frames from `_loop`.
+  // Use the documented descriptor; no application minimum display time.
   const descriptorPath = join(staging, 'desc.txt');
   writeFileSync(descriptorPath, `${WIDTH} ${HEIGHT} ${FPS}\nc 0 0 _loop\n`);
 
   // A fixed timestamp keeps the archive byte-identical between builds. The
   // directory entry carries one of its own, so it is stamped too.
   const epoch = new Date('2020-01-01T00:00:00Z');
-  for (const path of [framePath, descriptorPath, join(staging, '_loop')])
+  for (const path of [
+    ...framePaths,
+    ...holdPaths,
+    descriptorPath,
+    join(staging, '_loop'),
+  ])
     utimesSync(path, epoch, epoch);
 
   const destination = join(root, 'assets/raw/SplashScreenImages.zip');
@@ -239,18 +232,33 @@ export const main = (root = native) => {
   // from inside the staging directory so the archive has no wrapping folder:
   // the animation service looks for `_loop` and `desc.txt` at the root and
   // finds neither if one is added.
-  execFileSync('zip', ['-q', '-X', '-r', destination, '_loop', 'desc.txt'], {
-    cwd: staging,
-  });
+  // The service consumes ZIP entries in order. Recursive directory traversal
+  // can scramble them on APFS; pass the chronological sequence explicitly.
+  // PNGs already compress their pixels, so store them without another layer.
+  execFileSync(
+    'zip',
+    [
+      '-q',
+      '-0',
+      '-X',
+      destination,
+      '_loop/',
+      ...framePaths.map((path) => relative(staging, path)),
+      ...holdPaths.map((path) => relative(staging, path)),
+      'desc.txt',
+    ],
+    { cwd: staging, env: { ...process.env, TZ: 'UTC' } },
+  );
 
   return {
     framePath,
+    framePaths,
+    holdPath,
+    holdPaths,
     descriptorPath,
     destination,
     icon,
     iconSource,
-    left,
-    top,
     sounds: copySounds(root),
     music: copyMusic(root),
     voices: copyVoices(root),
@@ -389,7 +397,7 @@ if (
   process.argv[1] &&
   resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
-  const { destination, icon, left, top, sounds, music, voices } = main();
+  const { destination, icon, sounds, music, voices } = main();
   const shown = (path) => path.replace(`${native}/`, '');
   console.log(`icon:   ${shown(icon)}`);
   console.log(`sounds: ${sounds.length} files -> assets/sfx/`);
@@ -400,6 +408,6 @@ if (
   );
   console.log(`voices: ${voices.length} clips -> assets/voices/`);
   console.log(
-    `splash: ${WIDTH}x${HEIGHT}, mark at ${left},${top} -> ${shown(destination)}`,
+    `splash: ${WIDTH}x${HEIGHT}, ${MOTION.frames} motion frames + ${SPLASH.holdFrames} still frames -> ${shown(destination)}`,
   );
 }

@@ -24,6 +24,21 @@ Chess pieces use 12 vector SVG pieces (White and Black Outline variants) from th
 
 The faces of the three local opponents are three SVGs from the RhosGFX Vector Emojis pack, Outline set: `Zany face.svg`, `Money mouth face.svg` and `Smiling face with horns.svg`. They are bundled unchanged, under shorter names, in `src/assets/faces/rhosgfx/`, and drawn by the components `native/scripts/generate-faces.mjs` writes to `native/src/faces/`. The pack is dedicated to the public domain under CC0 1.0. Its notice, in `licenses/RhosGFX-Emojis-CC0.txt` with LF line endings, is the one RhosGFX ships with the pack: it names the Vector Ranks Pack, whose notice it copies, and the pack's own page states the same terms. The whole pack is kept, with the download's SHA-256, in the private asset repository. A build with the opponents' portraits, below, draws a face only where a portrait does not load.
 
+## Splash typography and renderer
+
+The launch splash uses Arimo Regular and Bold under SIL Open Font License 1.1,
+copied unchanged from `googlefonts/Arimo` at commit
+`4a6255f269916ae7ad3fc2706b0935e7621396b8`. The fonts and their verbatim licence
+are in `native/splash/fonts/`; their provenance and SHA-256 digests are recorded
+in `native/splash/README.md`. These inputs are used only at build time, and the
+application ships rendered PNGs. "by Fortemate" is a developer credit, not a
+new organization wordmark.
+
+`@resvg/resvg-js` 2.6.2 is a build-time development dependency under MPL-2.0.
+Its upstream source is https://github.com/thx/resvg-js/tree/v2.6.2, and its full
+licence is retained in the installed package. The package lock pins the tool
+and its platform binding. It is not imported by the application bundle.
+
 ## Sounds
 
 The game's sounds are vendored under `native/sounds/` from the private asset repository `fortemate/dicechess-assets`, at the commit recorded in `native/sounds/sounds.lock.json`, each pack beside its own manifest and licence file.

@@ -30,6 +30,7 @@
     "@react-native-community/cli": "20.0.2",
     "@react-native/babel-preset": "0.83.10",
     "@react-native/metro-config": "0.83.10",
+    "@resvg/resvg-js": "2.6.2",
     "@types/react": "19.2.2",
     "@types/react-test-renderer": "^19.3.0",
     "esbuild": "0.28.2",

@@ -13,12 +13,13 @@ import { decodePng, main, SPLASH } from '../scripts/generate-assets.mjs';
 
 const built = main() as {
   framePath: string;
+  framePaths: string[];
+  holdPath: string;
+  holdPaths: string[];
   descriptorPath: string;
   destination: string;
   icon: string;
   iconSource: string;
-  left: number;
-  top: number;
 };
 
 const frame = decodePng(built.framePath) as {
@@ -57,7 +58,7 @@ test('the background is the board colour, so the handover is invisible', () => {
     assert.deepEqual(at(x, y), SPLASH.BACKGROUND, `corner ${x},${y}`);
 });
 
-test('the mark is inked, and centred', () => {
+test('the final composition is centred and inside the television safe margins', () => {
   let minX = frame.width;
   let minY = frame.height;
   let maxX = -1;
@@ -77,22 +78,78 @@ test('the mark is inked, and centred', () => {
       if (y > maxY) maxY = y;
     }
   }
-  assert.ok(maxX > 0, 'the frame is empty: the mark was never drawn');
+  assert.ok(maxX > 0, 'the frame is empty');
 
   // Equal margins on each side, within a pixel for an odd difference.
   assert.ok(
-    Math.abs(minX - (frame.width - 1 - maxX)) <= 1,
-    `mark is off-centre horizontally: ${minX} left, ${frame.width - 1 - maxX} right`,
+    Math.abs(minX - (frame.width - 1 - maxX)) <= 4,
+    `composition is off-centre: ${minX} left, ${frame.width - 1 - maxX} right`,
   );
-  assert.ok(
-    Math.abs(minY - (frame.height - 1 - maxY)) <= 1,
-    `mark is off-centre vertically: ${minY} top, ${frame.height - 1 - maxY} bottom`,
-  );
+  assert.ok(minX >= 96 && maxX < 1824);
+  assert.ok(minY >= 54 && maxY < 1026);
+});
 
-  // Large enough to read from a sofa: at least a fifth of the frame height.
+test('title and developer credit are legible and unchanged throughout the reveal', () => {
+  const first = decodePng(built.framePaths[0]) as Picture;
+  const titleEnd = frame.width * 454 * 3;
+  const creditStart = frame.width * 900 * 3;
+  for (const path of built.framePaths) {
+    const picture = decodePng(path) as Picture;
+    assert.equal(picture.width, 1920);
+    assert.equal(picture.height, 1080);
+    assert.equal(picture.channels, 3);
+    assert.deepEqual(
+      picture.pixels.subarray(0, titleEnd),
+      first.pixels.subarray(0, titleEnd),
+    );
+    assert.deepEqual(
+      picture.pixels.subarray(creditStart),
+      first.pixels.subarray(creditStart),
+    );
+  }
+  const ink = (start: number, end: number) => {
+    let count = 0;
+    for (let i = start; i < end; i += 3)
+      if (
+        first.pixels[i] !== 0x12 ||
+        first.pixels[i + 1] !== 0x27 ||
+        first.pixels[i + 2] !== 0x37
+      )
+        count++;
+    return count;
+  };
+  assert.ok(ink(0, titleEnd) > 20000, 'the title is missing or too small');
   assert.ok(
-    maxY - minY >= frame.height / 5,
-    'the mark is too small to read on a television',
+    ink(creditStart, first.pixels.length) > 3000,
+    'the developer credit is missing or too small',
+  );
+});
+
+test('the dice enter below the title and settle into three distinct faces', () => {
+  const first = decodePng(built.framePaths[0]) as Picture;
+  for (let y = 454; y < 900; y++)
+    for (let x = 0; x < first.width; x++) {
+      const i = (y * first.width + x) * 3;
+      assert.deepEqual(
+        Array.from(first.pixels.subarray(i, i + 3)),
+        SPLASH.BACKGROUND,
+      );
+    }
+  for (const centre of [700, 960, 1220]) {
+    assert.deepEqual(
+      at(centre, 600),
+      [0xf4, 0xea, 0xd8],
+      'the final die face is missing',
+    );
+    assert.notDeepEqual(
+      at(centre, 700),
+      [0xf4, 0xea, 0xd8],
+      'the chess piece is missing',
+    );
+  }
+  assert.notDeepEqual(
+    readFileSync(built.framePaths[8]),
+    readFileSync(built.framePath),
   );
 });
 
@@ -209,14 +266,23 @@ test('the descriptor says what the animation service expects', () => {
     readFileSync(built.descriptorPath, 'utf8'),
     `${SPLASH.WIDTH} ${SPLASH.HEIGHT} ${SPLASH.FPS}\nc 0 0 _loop\n`,
   );
+  for (const path of built.holdPaths)
+    assert.deepEqual(readFileSync(path), readFileSync(built.framePath));
 });
 
-test('the archive has no wrapping folder, which would hide it from the service', () => {
+test('the archive has no wrapping folder and preserves playback order', () => {
   const listed = execFileSync('unzip', ['-Z1', built.destination], {
     encoding: 'utf8',
   })
     .split('\n')
-    .filter(Boolean)
-    .sort();
-  assert.deepEqual(listed, ['_loop/', '_loop/loop00000.png', 'desc.txt']);
+    .filter(Boolean);
+  assert.equal(SPLASH.frames, 18);
+  assert.deepEqual(listed, [
+    '_loop/',
+    ...Array.from(
+      { length: SPLASH.frames + SPLASH.holdFrames },
+      (_, i) => `_loop/loop${String(i).padStart(5, '0')}.png`,
+    ),
+    'desc.txt',
+  ]);
 });

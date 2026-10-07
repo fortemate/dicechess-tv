@@ -44,7 +44,7 @@ test('a run leaves nothing under assets/ that it did not write', (t) => {
   t.after(() => rmSync(root, { recursive: true, force: true }));
   // Copied rather than linked, so nothing the generator deletes can reach the
   // real inputs.
-  for (const input of ['icon', 'brand', 'sounds', 'music', 'voices'])
+  for (const input of ['icon', 'brand', 'splash', 'sounds', 'music', 'voices'])
     cpSync(join(NATIVE, input), join(root, input), { recursive: true });
 
   // What gets left behind: a folder of its own, a loose file, and a file next to
@@ -83,6 +83,20 @@ test('a run leaves nothing under assets/ that it did not write', (t) => {
     false,
     'the stray folder was emptied but not removed',
   );
+  const digest = () =>
+    createHash('sha256')
+      .update(readFileSync(join(assets, 'raw/SplashScreenImages.zip')))
+      .digest('hex');
+  const first = digest();
+  const previousTimezone = process.env.TZ;
+  try {
+    process.env.TZ = 'America/Los_Angeles';
+    main(root);
+  } finally {
+    if (previousTimezone === undefined) delete process.env.TZ;
+    else process.env.TZ = previousTimezone;
+  }
+  assert.equal(digest(), first, 'a rebuild changed the splash archive bytes');
 });
 
 // The portraits (dicechess-assets#31) stay out of the public repository, so a
