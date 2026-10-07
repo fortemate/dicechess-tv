@@ -14,6 +14,7 @@ import {
 import { focusedLabel, optionViews } from './options';
 import { GameScreen } from '../src/GameScreen';
 import { THEME } from '../src/theme';
+import { PIECES } from '../src/pieces';
 import type { ScreenOptions } from '../src/screen';
 import { newGame, rollGame } from '../../src/core/game';
 import { Dice } from '../src/Dice';
@@ -383,8 +384,63 @@ test('the promotion choice names the pieces, with the queen first', () => {
       ['Knight', false],
     ],
   );
+  const optionsList = tree.root.findAll(
+    (node) =>
+      (node.type as unknown as string) === 'View' &&
+      node.props.testID === 'option',
+  );
+  assert.equal(optionsList.length, 4);
+  assert.equal(optionsList[0].findAllByType(PIECES.Q as never).length, 1);
+  assert.equal(optionsList[1].findAllByType(PIECES.R as never).length, 1);
+  assert.equal(optionsList[2].findAllByType(PIECES.B as never).length, 1);
+  assert.equal(optionsList[3].findAllByType(PIECES.N as never).length, 1);
   send(Down);
   assert.equal(focusedLabel(tree.root), 'Rook');
+});
+
+test('the promotion choice draws Black pieces when Black promotes', () => {
+  const reports: string[] = [];
+  const tree = replace(() =>
+    renderer.create(
+      React.createElement(GameScreen, {
+        options,
+        // One step from promotion for Black, with pawns rolled.
+        initial: rollGame(
+          newGame(
+            'hotseat',
+            'promotion-black',
+            '4k3/8/8/8/8/8/p7/4K3 b - - 0 1',
+          ),
+          [1, 1, 1],
+        ),
+        onState: (line: string) => reports.push(line),
+      }),
+    ),
+  );
+  // Resume, walk from e2 to a2, pick the pawn up and put it on a1.
+  send(Select, Left, Left, Left, Left, Select, Down, Select);
+  assert.match(reports[reports.length - 1], /overlay promotion#0/);
+  assert.ok(lines(tree.root).includes('Promote to'));
+  const optionsList = tree.root.findAll(
+    (node) =>
+      (node.type as unknown as string) === 'View' &&
+      node.props.testID === 'option',
+  );
+  assert.equal(optionsList.length, 4);
+  assert.equal(optionsList[0].findAllByType(PIECES.q as never).length, 1);
+  assert.equal(optionsList[1].findAllByType(PIECES.r as never).length, 1);
+  assert.equal(optionsList[2].findAllByType(PIECES.b as never).length, 1);
+  assert.equal(optionsList[3].findAllByType(PIECES.n as never).length, 1);
+  assert.equal(tree.root.findAllByType(PIECES.Q as never).length, 0);
+
+  // Focus and order: Queen is first with focus, walking down moves focus to Rook.
+  assert.equal(focusedLabel(tree.root), 'Queen');
+  send(Down);
+  assert.equal(focusedLabel(tree.root), 'Rook');
+
+  // Back dismisses the promotion overlay without playing.
+  send(Back);
+  assert.match(reports[reports.length - 1], /overlay none/);
 });
 
 test('a focused option is framed, and holding OK shows it pressed until the release acts', () => {
