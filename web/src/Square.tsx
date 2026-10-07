@@ -5,24 +5,20 @@
 // With the default marks it is the television's square itself, so the TV look
 // on the bench is never a copy that has drifted. Every other choice is drawn
 // here, in the same layers and order as the original: last move, the movable
-// mark, the picked-up tint, the destination, the piece, then the cursor.
+// mark, the picked-up mark, the destination, the piece, then the cursor.
 import React from 'react';
 import { View } from 'react-native';
 import type { SquareView } from '../../src/core/boardView';
 import { Square as TvSquare } from '../../native/src/Square';
 import { PIECES } from '../../native/src/pieces';
 import { THEME } from '../../native/src/theme';
-import {
-  PALETTES,
-  getBench,
-  isDefault,
-  subscribeBench,
-  type Marks,
-  type Palette,
-} from './marks';
+import { PALETTES, isDefault, type Marks, type Palette } from './marks';
+import { useMarks } from './useMarks';
 
-const useMarks = (): Marks =>
-  React.useSyncExternalStore(subscribeBench, () => getBench().marks);
+// The FEN letter of the picked-up piece, for the ghost under the cursor. The
+// board does not say it to a square, so the gallery supplies it; without it the
+// ghost variant only leaves the picked-up piece faint.
+export const Carried = React.createContext<string | null>(null);
 
 // The cursor's width on the television, native/src/Square.tsx's ring().
 const ring = (edge: number) => Math.max(2, Math.round((edge * 8) / 240));
@@ -186,34 +182,78 @@ const Destination = ({
   }
 };
 
-// The cursor, and the picked-up piece's heavier frame. A two-tone frame keeps a
-// dark line inside the bright one, so it stands out from light and dark squares
-// by lightness as well as by colour.
+// A frame at the square's edge, with a dark line inside the bright one when
+// asked, so it stands out from light and dark squares by lightness as well as
+// by colour.
+const Frame = ({
+  edge,
+  width,
+  color,
+  inner,
+}: {
+  edge: number;
+  width: number;
+  color: string;
+  inner: string | null;
+}) => (
+  <>
+    {cover(edge, { borderWidth: width, borderColor: color })}
+    {inner ? (
+      <View
+        style={{
+          position: 'absolute',
+          left: width,
+          top: width,
+          width: edge - width * 2,
+          height: edge - width * 2,
+          borderWidth: Math.min(ring(edge), Math.max(1, Math.round(width / 2))),
+          borderColor: inner,
+        }}
+      />
+    ) : null}
+  </>
+);
+
+// The cursor, and the picked-up piece's heavier frame. bold and fill are the
+// two-tone frame at twice the width.
 const Cursor = ({
   marks,
   palette,
   edge,
   selected,
 }: MarkProps & { selected: boolean }) => {
-  const base = ring(edge) * (marks.cursor === 'thick' ? 2 : 1);
+  const bold = marks.cursor === 'bold' || marks.cursor === 'fill';
+  const base = ring(edge) * (marks.cursor === 'thick' || bold ? 2 : 1);
   const width = selected && marks.selected !== 'lift' ? base * 2 : base;
   return (
-    <>
-      {cover(edge, { borderWidth: width, borderColor: palette.cursor })}
-      {marks.cursor === 'two-tone' ? (
-        <View
-          style={{
-            position: 'absolute',
-            left: width,
-            top: width,
-            width: edge - width * 2,
-            height: edge - width * 2,
-            borderWidth: Math.max(1, Math.round(width / 2)),
-            borderColor: palette.cursorInner,
-          }}
-        />
-      ) : null}
-    </>
+    <Frame
+      edge={edge}
+      width={width}
+      color={palette.cursor}
+      inner={marks.cursor === 'two-tone' || bold ? palette.cursorInner : null}
+    />
+  );
+};
+
+// The picked-up marks that are not the cursor's frame (#121).
+const OWN_MARKS: readonly Marks['selected'][] = ['raised', 'ghost', 'warm'];
+
+// The shadow a raised piece casts on its square.
+const Shadow = ({ edge }: { edge: number }) => {
+  const width = Math.round(edge * 0.76);
+  const height = Math.round(edge * 0.22);
+  return (
+    <View
+      style={{
+        position: 'absolute',
+        left: Math.round((edge - width) / 2),
+        top: Math.round(edge * 0.74),
+        width,
+        height,
+        borderRadius: height / 2,
+        backgroundColor: THEME.shadow,
+      }}
+    />
   );
 };
 
@@ -221,11 +261,19 @@ type MarkProps = { marks: Marks; palette: Palette; edge: number };
 
 export const Square = ({ view, edge }: { view: SquareView; edge: number }) => {
   const marks = useMarks();
+  const carried = React.useContext(Carried);
   if (isDefault(marks)) return <TvSquare view={view} edge={edge} />;
   const palette = PALETTES[marks.palette];
   const props = { marks, palette, edge };
   const Piece = view.piece ? PIECES[view.piece as keyof typeof PIECES] : null;
   const lifted = view.selected && marks.selected === 'lift';
+  const raised = view.selected && marks.selected === 'raised';
+  const faint = view.selected && marks.selected === 'ghost';
+  const ownMark = OWN_MARKS.includes(marks.selected);
+  const Ghost =
+    marks.selected === 'ghost' && view.cursor && view.destination && carried
+      ? PIECES[carried as keyof typeof PIECES]
+      : null;
   return (
     <View
       style={{
@@ -243,6 +291,9 @@ export const Square = ({ view, edge }: { view: SquareView; edge: number }) => {
         <Inset edge={edge} color={palette.lastMoveLine} />
       ) : null}
       {view.movable ? <Movable {...props} /> : null}
+      {view.cursor && marks.cursor === 'fill'
+        ? cover(edge, { backgroundColor: palette.cursorFill })
+        : null}
       {view.selected && marks.selected === 'tint-frame'
         ? cover(edge, { backgroundColor: palette.selected })
         : null}
@@ -250,7 +301,11 @@ export const Square = ({ view, edge }: { view: SquareView; edge: number }) => {
         ? cover(edge, { backgroundColor: palette.selectedSolid })
         : null}
       {lifted ? cover(edge, { backgroundColor: palette.selected }) : null}
-      {view.destination ? (
+      {view.selected && marks.selected === 'warm'
+        ? cover(edge, { backgroundColor: palette.warmFill })
+        : null}
+      {raised ? <Shadow edge={edge} /> : null}
+      {view.destination && !Ghost ? (
         <Destination {...props} occupied={view.piece !== null} />
       ) : null}
       {Piece ? (
@@ -258,13 +313,32 @@ export const Square = ({ view, edge }: { view: SquareView; edge: number }) => {
           style={
             lifted
               ? { transform: [{ scale: 1.14 }, { translateY: -edge * 0.04 }] }
-              : undefined
+              : raised
+                ? {
+                    transform: [{ scale: 1.2 }, { translateY: -edge * 0.1 }],
+                  }
+                : faint
+                  ? { opacity: 0.35 }
+                  : undefined
           }
         >
           <Piece size={Math.round(edge * 0.92)} />
         </View>
       ) : null}
-      {view.cursor || view.selected ? (
+      {Ghost ? (
+        <View style={{ position: 'absolute', opacity: 0.75 }}>
+          <Ghost size={Math.round(edge * 0.92)} />
+        </View>
+      ) : null}
+      {view.selected && marks.selected === 'warm' ? (
+        <Frame
+          edge={edge}
+          width={ring(edge) * 2}
+          color={palette.warm}
+          inner={palette.cursorInner}
+        />
+      ) : null}
+      {view.cursor || (view.selected && !ownMark) ? (
         <Cursor {...props} selected={view.selected} />
       ) : null}
     </View>

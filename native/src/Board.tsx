@@ -20,6 +20,8 @@ import {
   type MovePlan,
   type Slide,
 } from '../../src/core/moveAnimation';
+import { hides } from './arrow';
+import { MoveArrow } from './MoveArrow';
 import { PIECES } from './pieces';
 import { Square } from './Square';
 import { useReducedMotion } from './useReducedMotion';
@@ -216,7 +218,36 @@ export const Board = ({ size, ...input }: BoardProps) => {
   const { displayed: flipped, opacity } = useFlipFade(input.flipped ?? false);
   const motion = useMotion(input.board, input.lastMove ?? null);
   const rows = boardView({ ...input, flipped });
-  const shown = motion ? inFlight(rows, motion.plan) : rows;
+  const centreOf = (square: string) => {
+    const corner = cornerOf(square, flipped, edge);
+    return { x: corner.x + edge / 2, y: corner.y + edge / 2 };
+  };
+  // The arrow from the picked-up piece to the cursor (#121), and the empty
+  // destinations it passes over: their squares leave their dots to the arrow,
+  // which draws them on top of itself.
+  const { selected, cursor } = input;
+  const arrow =
+    selected && cursor && selected !== cursor
+      ? { from: centreOf(selected), to: centreOf(cursor) }
+      : null;
+  const under = arrow
+    ? rows
+        .flat()
+        .filter(
+          (view) =>
+            view.destination &&
+            view.piece === null &&
+            hides(arrow.from, arrow.to, centreOf(view.square), edge),
+        )
+    : [];
+  const left = under.length
+    ? rows.map((row) =>
+        row.map((view) =>
+          under.includes(view) ? { ...view, destination: false } : view,
+        ),
+      )
+    : rows;
+  const shown = motion ? inFlight(left, motion.plan) : left;
   return (
     <View style={{ width: edge * 8, height: edge * 8 }}>
       <Animated.View style={{ width: edge * 8, height: edge * 8, opacity }}>
@@ -227,6 +258,16 @@ export const Board = ({ size, ...input }: BoardProps) => {
             ))}
           </View>
         ))}
+        {arrow ? (
+          <MoveArrow
+            {...arrow}
+            edge={edge}
+            dots={under.map((view) => ({
+              ...centreOf(view.square),
+              dark: view.dark,
+            }))}
+          />
+        ) : null}
         {motion?.plan.slides.map((slide) => (
           <Flight
             key={`${motion.id}-${slide.from}`}
