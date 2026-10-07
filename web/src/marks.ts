@@ -10,12 +10,18 @@ export const MARKS = {
   // A piece that can move now (#68). fill, fill-corners and corners are the A,
   // B and C of the colour-vision check (#105, #108).
   movable: ['fill', 'fill-corners', 'corners', 'outline', 'badge', 'none'],
-  // The picked-up piece. The TV tints it and doubles the cursor's frame.
-  selected: ['tint-frame', 'frame', 'solid', 'lift'],
+  // The picked-up piece. The TV raises it on a shadow (#121); tint-frame is
+  // what it drew before, a tint with the cursor's frame twice as thick. ghost
+  // leaves it faint with its copy under the cursor, warm frames it in orange.
+  selected: ['raised', 'tint-frame', 'frame', 'solid', 'lift', 'ghost', 'warm'],
+  // The arrow from the picked-up piece to the cursor (#121).
+  arrow: ['on', 'off'],
   // A legal destination of the picked-up piece: a dot, or a ring on a capture.
   destination: ['dot', 'dot-large', 'fill', 'corners', 'outline'],
-  // The remote's cursor.
-  cursor: ['frame', 'thick', 'two-tone'],
+  // The remote's cursor. The TV's is bold: a frame twice the width of the old
+  // one, frame, with a dark line inside (#121). fill adds a fill under the
+  // piece, so the cursor is the one filled square.
+  cursor: ['bold', 'frame', 'thick', 'two-tone', 'fill'],
   // Both squares of the last action.
   lastMove: ['tint', 'outline', 'none'],
   palette: ['tv', 'okabe-ito', 'high-contrast'],
@@ -26,9 +32,10 @@ export type Marks = { [Name in MarkName]: (typeof MARKS)[Name][number] };
 
 export const DEFAULT_MARKS: Marks = {
   movable: 'fill',
-  selected: 'tint-frame',
+  selected: 'raised',
+  arrow: 'on',
   destination: 'dot',
-  cursor: 'frame',
+  cursor: 'bold',
   lastMove: 'tint',
   palette: 'tv',
 };
@@ -60,6 +67,7 @@ export type Bench = {
 const PARAM: Record<MarkName, string> = {
   movable: 'movable',
   selected: 'selected',
+  arrow: 'arrow',
   destination: 'dest',
   cursor: 'cursor',
   lastMove: 'last',
@@ -118,6 +126,8 @@ export const PRESETS: Readonly<Record<string, Partial<Marks>>> = {
     palette: 'high-contrast',
   },
   'Okabe-Ito colours': { palette: 'okabe-ito' },
+  // The cursor and the picked-up piece as the TV drew them before #121.
+  'Before #121': { selected: 'tint-frame', arrow: 'off', cursor: 'frame' },
 };
 
 // The preset the marks are, if they are one.
@@ -137,12 +147,17 @@ export type Palette = {
   destinationLine: string;
   cursor: string;
   cursorInner: string;
+  cursorFill: string;
+  // The picked-up piece's own frame and tint, in a hue apart from the cursor.
+  warm: string;
+  warmFill: string;
   lastMove: string;
   lastMoveLine: string;
 };
 
 export const PALETTES: Readonly<Record<Marks['palette'], Palette>> = {
-  // native/src/theme.ts, and the corner green of the #105 mock-ups.
+  // native/src/theme.ts, the corner green of the #105 mock-ups, and the cyan
+  // tint the picked-up piece had before #121.
   tv: {
     movable: 'rgba(34, 197, 94, 0.5)',
     movableLine: '#14532d',
@@ -152,6 +167,9 @@ export const PALETTES: Readonly<Record<Marks['palette'], Palette>> = {
     destinationLine: '#14532d',
     cursor: '#00eaff',
     cursorInner: '#0b1a24',
+    cursorFill: 'rgba(0, 234, 255, 0.45)',
+    warm: '#ff8a1f',
+    warmFill: 'rgba(255, 138, 31, 0.3)',
     lastMove: 'rgba(155, 199, 0, 0.41)',
     lastMoveLine: '#6f8f00',
   },
@@ -167,6 +185,9 @@ export const PALETTES: Readonly<Record<Marks['palette'], Palette>> = {
     destinationLine: '#d55e00',
     cursor: '#f0e442',
     cursorInner: '#000000',
+    cursorFill: 'rgba(240, 228, 66, 0.5)',
+    warm: '#cc79a7',
+    warmFill: 'rgba(204, 121, 167, 0.35)',
     lastMove: 'rgba(86, 180, 233, 0.45)',
     lastMoveLine: '#56b4e9',
   },
@@ -181,6 +202,9 @@ export const PALETTES: Readonly<Record<Marks['palette'], Palette>> = {
     destinationLine: '#000000',
     cursor: '#ffffff',
     cursorInner: '#000000',
+    cursorFill: 'rgba(255, 255, 255, 0.5)',
+    warm: '#000000',
+    warmFill: 'rgba(0, 0, 0, 0.25)',
     lastMove: 'rgba(0, 0, 0, 0.18)',
     lastMoveLine: '#ffffff',
   },

@@ -214,7 +214,7 @@ test('arrows move the focus, OK picks a piece up and marks its destinations', ()
   send(Left, Select);
   assert.match(state(), /cursor a3 \| selected b1/);
   assert.equal(
-    overlays(root, (s) => s.backgroundColor === THEME.selected).length,
+    overlays(root, (s) => s.backgroundColor === THEME.shadow).length,
     1,
   );
   // A dot on each of the knight's two empty destinations.
