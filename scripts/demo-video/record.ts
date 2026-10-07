@@ -291,7 +291,7 @@ const takes: Record<string, () => Promise<void>> = {
       index % 5 === 3 ? 'right' : 'ok',
     );
     await record('hotseat', 85, async () => {
-      press(times('up', 6), QUICK); // New hotseat game, counted from the end
+      press(times('up', 6), QUICK); // New Hot Seat game, counted from the end
       press(['ok'], 1500);
       // Replacing a game in play asks first, starting on Cancel.
       if (focusInPanel() > 500) press(['down', 'ok'], 1500);

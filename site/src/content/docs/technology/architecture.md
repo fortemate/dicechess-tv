@@ -62,7 +62,7 @@ The native app makes no decisions about move legality, dice spending or how a ga
 
 ### 3. The Canonical Engine (`@fortemate/dicechess-engine`)
 
-Which actions and turns are legal is decided by Fortemate's open-source rules engine, published on npm as [`@fortemate/dicechess-engine`](https://github.com/fortemate/dicechess-engine). How a game ends is decided in `src/core/game.ts`. Besides a resignation or a draw agreed in hotseat, it ends on its own as in Fortemate's game service: when a king is taken, after 100 halfmoves without a capture or a pawn move, checked at the end of a turn, or at turn 5,000.
+Which actions and turns are legal is decided by Fortemate's open-source rules engine, published on npm as [`@fortemate/dicechess-engine`](https://github.com/fortemate/dicechess-engine). How a game ends is decided in `src/core/game.ts`. Besides a resignation or a draw agreed in Hot Seat, it ends on its own as in Fortemate's game service: when a king is taken, after 100 halfmoves without a capture or a pawn move, checked at the end of a turn, or at turn 5,000.
 
 The engine provides:
 

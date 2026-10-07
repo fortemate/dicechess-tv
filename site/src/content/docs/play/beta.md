@@ -29,7 +29,7 @@ Each pre-release has three packages: one for a Fire TV Stick in developer mode, 
 
 - **Learn to play** (**How to play** in older builds), the six-lesson tutorial, before anything else.
 - A game against the computer: Rolly (easy), Grabby (medium) or Rampage (hard).
-- A hotseat game with someone else in the room, passing the remote.
+- A Hot Seat game with someone else in the room, passing the remote.
 - **Rules reference** (**Rules** in older builds), to look something up.
 - The music as a game gets tense, and **Settings** for the music and the sound effects.
 

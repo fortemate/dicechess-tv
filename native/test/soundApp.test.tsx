@@ -186,7 +186,7 @@ test('Prowla hosts Hot Seat by default, Rolly, Thinkle or no one instead, and th
   assert.match(text(tree.root), /Hot Seat host: off/);
   // Back to the home screen, up to a new hotseat game: she says nothing.
   send('back', 'up', 'up', 'up', 'up', 'enter');
-  assert.match(text(tree.root), /HOTSEAT · TURN 1/);
+  assert.match(text(tree.root), /HOT SEAT · TURN 1/);
   assert.deepEqual(second.said, []);
   act(() => tree.unmount());
 });
@@ -284,23 +284,23 @@ test('the Hot Seat host is seen while she speaks, above the bottom badge, and no
     send('enter');
     assert.equal(sounds.said.length, 1);
     assert.match(sounds.said[0], /^prowla_host_intro_[1-5]$/);
-    speaking(sounds.said[0], /HOTSEAT · TURN 1/);
+    speaking(sounds.said[0], /HOT SEAT · TURN 1/);
     // Her greeting said, she leaves the screen; the turn line stays.
     act(() => {
       mock.timers.tick(10_000);
     });
     assert.equal(drawn(tree.root, 'host-block').length, 0);
-    assert.match(text(drawn(tree.root, 'turn-line')[0]), /HOTSEAT · TURN 1/);
+    assert.match(text(drawn(tree.root, 'turn-line')[0]), /HOT SEAT · TURN 1/);
     // White rolls and resigns: her last word shows with the result, and holds.
     send('enter', 'back', 'down', 'select', 'down', 'select');
     assert.match(text(tree.root), /Black wins/);
     assert.equal(sounds.said.length, 2);
     assert.match(sounds.said[1], /^prowla_host_(black_wins|win)_\d$/);
-    speaking(sounds.said[1], /HOTSEAT · TURN 1/);
+    speaking(sounds.said[1], /HOT SEAT · TURN 1/);
     act(() => {
       mock.timers.tick(10_000);
     });
-    speaking(sounds.said[1], /HOTSEAT · TURN 1/);
+    speaking(sounds.said[1], /HOT SEAT · TURN 1/);
   } finally {
     act(() => tree.unmount());
     mock.timers.reset();

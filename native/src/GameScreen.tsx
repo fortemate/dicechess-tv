@@ -309,7 +309,7 @@ const REASON_LINE = { color: '#aab8c9', fontSize: 20, marginBottom: 12 };
 const modeLine = (game: Game, overlayOpen: boolean): string => {
   const name = opponentName(game);
   const turn = `TURN ${game.turn}`;
-  if (!name) return `HOTSEAT · ${turn}`;
+  if (!name) return `HOT SEAT · ${turn}`;
   if (overlayOpen) return `VS ${name.toUpperCase()} · ${turn}`;
   return turn;
 };

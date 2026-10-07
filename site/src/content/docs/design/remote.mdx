@@ -19,7 +19,7 @@ A TV remote has four arrows, OK and Back. On a chessboard that is a long way fro
 
 <figure class="bars">
   <figcaption>
-    Remote presses per turn, hotseat, 200 simulated games (lower is better)
+    Remote presses per turn, Hot Seat, 200 simulated games (lower is better)
   </figcaption>
   <div class="bar-row">
     <span class="bar-label">Square by square, as before</span>
@@ -64,13 +64,13 @@ A TV remote has four arrows, OK and Back. On a chessboard that is a long way fro
 | **Jump between pieces, then between destinations**      |   **3.56** | **9.21** |      **10** |          **13** |
 | The same, but landing always on the central destination |       3.45 |     8.92 |           9 |              12 |
 
-Both sides of 200 hotseat games, 8,346 turns, seed 68. The shipped row uses the cone rule described below. The same design with a plain axis rule scores 9.16, so the rule was chosen on another ground: in 20,000 random sets of squares, the cone rule reached every square, while two simpler rules each left some square out of reach.
+Both sides of 200 Hot Seat games, 8,346 turns, seed 68. The shipped row uses the cone rule described below. The same design with a plain axis rule scores 9.16, so the rule was chosen on another ground: in 20,000 random sets of squares, the cone rule reached every square, while two simpler rules each left some square out of reach.
 
 The last row shows what the landing rules below cost in these games. A random mover takes no more often than it makes any other move, so landing on a capture saves it nothing, and the shipped design spends 0.29 presses a turn more than landing in the centre. People are different: they take far more often than not, and a pawn on its starting square usually advances two. The landing follows people, so random games cannot credit it.
 
 ## The rules the board follows
 
-![A hotseat game: Black's knight is picked up, its destinations are dotted, the capture of White's knight is ringed, and the cursor landed on that capture](../../../assets/screenshots/hotseat.png)
+![A Hot Seat game: Black's knight is picked up, its destinations are dotted, the capture of White's knight is ringed, and the cursor landed on that capture](../../../assets/screenshots/hotseat.png)
 
 - **What can move is marked.** After every roll and every action, a green fill marks the pieces that can move. They are the starts of the engine's legal actions, so they already follow the rule that a turn uses as many dice as it can.
 - **Arrows jump.** A press lands on the nearest choice within 45 degrees of the arrow. Failing that, it lands on the choice least far ahead, counting sideways distance twice. With nothing ahead the cursor stays. On the board turned for Black, the arrows follow the screen.

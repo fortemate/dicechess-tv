@@ -99,7 +99,7 @@ script and the owner's sheet, and the page read the script's reply
 ([#109](https://github.com/fortemate/dicechess-tv/issues/109)).
 
 **The pictures** in `src/assets/check/` are Release builds on the Vega Virtual
-Device, one hotseat game played on through three builds that differ only in the
+Device, one Hot Seat game played on through three builds that differ only in the
 mark. A worked example, `example.png`, comes first: it is the position the
 legends are cut from, not a scored picture.
 [`src/check/items.ts`](src/check/items.ts) lists what each picture shows and
