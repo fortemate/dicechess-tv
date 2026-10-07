@@ -43,6 +43,7 @@ import { useDanger } from './useDanger';
 import { cues } from '../../src/core/cues';
 import { useRemoteInput } from './useRemoteInput';
 import { THEME } from './theme';
+import { PIECES } from './pieces';
 import { Option } from './Option';
 import { BOARD_GAP, boardSide, drawnSide, safeInsets } from './layout';
 import { botReply, botToAct, type BotReply } from '../../src/core/bot';
@@ -177,6 +178,7 @@ const Choices = ({
   options,
   index,
   pressed = false,
+  befores = [],
   afters = [],
 }: {
   title: string;
@@ -185,6 +187,8 @@ const Choices = ({
   index: number;
   // OK is held on the focused option.
   pressed?: boolean;
+  // Drawn before an option's label, by position.
+  befores?: (React.ReactNode | undefined)[];
   // Drawn after an option's label, by position.
   afters?: (React.ReactNode | undefined)[];
 }) => (
@@ -203,6 +207,7 @@ const Choices = ({
         label={option}
         focused={i === index}
         pressed={pressed}
+        before={befores[i]}
         after={afters[i]}
       />
     ))}
@@ -514,7 +519,28 @@ const Panel = ({
           pressed={pressed}
         />
       );
-    case 'promotion':
+    case 'promotion': {
+      const befores = overlay.moves.map((move) => {
+        const letter =
+          view.side === 'w'
+            ? move.slice(4).toUpperCase()
+            : move.slice(4).toLowerCase();
+        const Piece = PIECES[letter as keyof typeof PIECES];
+        return Piece ? (
+          <View
+            key={letter}
+            style={{
+              width: 38,
+              height: 38,
+              marginRight: 10,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Piece size={34} />
+          </View>
+        ) : undefined;
+      });
       return (
         <Choices
           title="Promote to"
@@ -523,8 +549,10 @@ const Panel = ({
           )}
           index={overlay.index}
           pressed={pressed}
+          befores={befores}
         />
       );
+    }
     default:
       return (
         <Text style={{ color: '#f0f4f8', fontSize: 24 }}>
