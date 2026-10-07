@@ -6,7 +6,12 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
-import { press, pressBack } from './stubs/react-native-kepler.mjs';
+import {
+  press,
+  pressBack,
+  hold,
+  release,
+} from './stubs/react-native-kepler.mjs';
 import {
   RulesScreen,
   rulesReducer,
@@ -14,6 +19,7 @@ import {
   type RulesState,
 } from '../src/RulesScreen';
 import { RULES } from '../../src/core/rules';
+import { Option } from '../src/Option';
 
 (
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
@@ -157,3 +163,43 @@ test('RulesScreen component: Menu exits the screen', () => {
     act(() => tree.unmount());
   }
 });
+
+// Each OK key must reach the handler. Holding the key lights `pressed` on the
+// options, so the assertion fails if the key mapping is broken, unlike an
+// unchanged topic report.
+for (const key of ['select', 'enter', 'kpenter']) {
+  test(`RulesScreen component: ${key} reaches the handler and keeps topic open (#237)`, () => {
+    let exitCalls = 0;
+    const reports: string[] = [];
+    let tree!: renderer.ReactTestRenderer;
+    act(() => {
+      tree = renderer.create(
+        React.createElement(RulesScreen, {
+          onExit: () => {
+            exitCalls++;
+          },
+          onState: (report: string) => reports.push(report),
+        }),
+      );
+    });
+    const isPressed = () =>
+      tree.root.findAllByType(Option).every((o) => o.props.pressed === true);
+
+    try {
+      act(() => press('down'));
+      const topic = reports[reports.length - 1];
+      assert.equal(topic, `rules 2/${RULES.length} | topic turn`);
+
+      assert.equal(isPressed(), false);
+      act(() => hold(key, 1));
+      assert.equal(isPressed(), true, `${key} did not reach the handler`);
+      act(() => release(key));
+      assert.equal(isPressed(), false);
+
+      assert.equal(reports[reports.length - 1], topic);
+      assert.equal(exitCalls, 0);
+    } finally {
+      act(() => tree.unmount());
+    }
+  });
+}
