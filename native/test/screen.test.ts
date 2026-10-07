@@ -6,6 +6,7 @@ import {
   homeOptions,
   menuOptions,
   settingsOptions,
+  RULES_OPTION,
   musicRole,
   confirmOptions,
   resultOptions,
@@ -303,6 +304,7 @@ test('the menu opens from the board and closes back to it', () => {
     'Resign',
     'Agree a draw',
     'New game',
+    RULES_OPTION,
     'Settings',
   ]);
 
@@ -450,6 +452,7 @@ test('a draw cannot be agreed with the opponent, only with another player', () =
     'Resume',
     'Resign',
     'New game',
+    RULES_OPTION,
     'Settings',
   ]);
   const hotseat = drive(fresh(), 'select');
@@ -746,6 +749,77 @@ test('Settings from the game menu never asks to replace the game, and Back retur
     back.overlay.kind === 'menu' ? back.overlay.index : -1,
     menuOptions(menu.game).indexOf('Settings'),
   );
+});
+
+test('Rules reference from the game menu never asks to replace the game, and Back returns to the menu on Rules reference', () => {
+  const board = drive(initialState(options, started()), 'select');
+  const menu = drive(board, 'back');
+  const at = menuOptions(menu.game).indexOf(RULES_OPTION);
+  const rules = drive(
+    menu,
+    ...(Array(at).fill('down') as BoardKey[]),
+    'select',
+  );
+  assert.deepEqual(rules.overlay, {
+    kind: 'rules',
+    from: 'menu',
+  });
+  assert.deepEqual(rules.game, menu.game);
+  assert.equal(musicRole(rules.overlay, rules.game, 'critical'), 'critical');
+  const back = drive(rules, 'back');
+  assert.equal(back.overlay.kind, 'menu');
+  assert.equal(back.overlay.kind === 'menu' ? back.overlay.index : -1, at);
+  assert.deepEqual(back.game, menu.game);
+  // Resuming from the menu returns to the board with the turn and focus intact.
+  const resumed = drive(
+    back,
+    ...(Array(at).fill('up') as BoardKey[]),
+    'select',
+  );
+  assert.equal(resumed.overlay.kind, 'none');
+  assert.deepEqual(resumed.game, board.game);
+  assert.deepEqual(resumed.focus, board.focus);
+});
+
+test('opening rules reference from the menu mid-turn preserves game phase, roll and pending actions', () => {
+  const inPlay = initialState(options, started());
+  const rolled = drive(inPlay, 'select');
+  assert.equal(rolled.game.phase, 'move');
+  const menu = drive(rolled, 'back');
+  assert.equal(menu.overlay.kind, 'menu');
+  const at = menuOptions(menu.game).indexOf(RULES_OPTION);
+  const rules = drive(
+    menu,
+    ...(Array(at).fill('down') as BoardKey[]),
+    'select',
+  );
+  assert.equal(rules.overlay.kind, 'rules');
+  assert.equal(rules.game.phase, 'move');
+  assert.deepEqual(rules.game.roll, rolled.game.roll);
+  const left = drive(rules, 'back');
+  assert.deepEqual(left.overlay, { kind: 'menu', index: at });
+  assert.equal(left.game.phase, 'move');
+  assert.deepEqual(left.game.roll, rolled.game.roll);
+});
+
+test('rules reference opened from home returns to home on Rules reference', () => {
+  const home = fresh();
+  const at = homeOptions(false).indexOf(RULES_OPTION);
+  const rules = drive(
+    home,
+    ...(Array(at).fill('down') as BoardKey[]),
+    'select',
+  );
+  assert.deepEqual(rules.overlay, {
+    kind: 'rules',
+    from: 'home',
+  });
+  assert.equal(musicRole(rules.overlay, rules.game, 'critical'), 'menu');
+  const back = drive(rules, 'back');
+  assert.deepEqual(back.overlay, {
+    kind: 'home',
+    index: at,
+  });
 });
 
 test('a new game keeps the settings', () => {

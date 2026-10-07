@@ -150,7 +150,7 @@ export type Overlay =
   // The tutorial, the rules guide and the About screen, which the screen hands
   // to their own components. Nothing about a game is touched while one is up.
   | { kind: 'tutorial' }
-  | { kind: 'rules' }
+  | { kind: 'rules'; from: 'home' | 'menu' }
   | { kind: 'about' };
 
 // The overlays drawn by their own component, which takes the remote while it is
@@ -244,13 +244,14 @@ export type ScreenOptions = {
 // the computer through the choice of opponent and colour.
 export const HOTSEAT_OPTION = 'New hotseat game';
 export const COMPUTER_OPTION = 'Play the computer';
+export const RULES_OPTION = 'Rules reference';
 
 export const homeOptions = (resumable: boolean): string[] => [
   ...(resumable ? ['Resume game'] : []),
   HOTSEAT_OPTION,
   COMPUTER_OPTION,
   'Learn to play',
-  'Rules reference',
+  RULES_OPTION,
   SETTINGS_OPTION,
   // Last, because it is read once: it is where the credits a licence asks for
   // are shown.
@@ -295,7 +296,7 @@ const cardOf = (mode: Mode): number =>
 const OPENS = new Map<string, Overlay>([
   ['Resume game', { kind: 'none' }],
   ['Learn to play', { kind: 'tutorial' }],
-  ['Rules reference', { kind: 'rules' }],
+  [RULES_OPTION, { kind: 'rules', from: 'home' }],
   [SETTINGS_OPTION, { kind: 'settings', index: 0, from: 'home' }],
   ['About', { kind: 'about' }],
 ]);
@@ -306,6 +307,7 @@ export const menuOptions = (game: Game): string[] => [
   // A draw needs two players to agree; there is nobody to agree with a bot.
   ...(game.mode === 'hotseat' ? ['Agree a draw'] : []),
   'New game',
+  RULES_OPTION,
   // Last: the order above is unchanged, and because the menu wraps, Up from
   // Resume reaches this in one press — the quickest way to silence a game.
   SETTINGS_OPTION,
@@ -499,6 +501,7 @@ export const musicRole = (
     case 'settings':
     case 'opponent':
     case 'colour':
+    case 'rules':
       return overlay.from === 'menu' ? level : 'menu';
     default:
       return 'menu';
@@ -665,6 +668,8 @@ const onMenu: Handler<'menu'> = (state, overlay, key) => {
   // destructive choice and asks to confirm replacing the game.
   if (chosen === SETTINGS_OPTION)
     return show(state, { kind: 'settings', index: 0, from: 'menu' });
+  if (chosen === RULES_OPTION)
+    return show(state, { kind: 'rules', from: 'menu' });
   if (chosen === 'Agree a draw') return played(state, agreeDraw(game));
   // A new game against the computer starts, like one from home, with the
   // cards, on the opponent of this game.
@@ -683,6 +688,18 @@ const onMenu: Handler<'menu'> = (state, overlay, key) => {
     from: 'menu',
   });
 };
+
+// The option the rules guide was opened from, which Back returns to.
+const rulesOpener = (state: ScreenState, from: 'home' | 'menu'): Overlay =>
+  from === 'home'
+    ? {
+        kind: 'home',
+        index: homeOptions(resumable(state.game)).indexOf(RULES_OPTION),
+      }
+    : {
+        kind: 'menu',
+        index: menuOptions(state.game).indexOf(RULES_OPTION),
+      };
 
 // The option the settings were opened from, which Back returns to.
 const settingsOpener = (state: ScreenState, from: 'home' | 'menu'): Overlay =>
@@ -850,7 +867,11 @@ export function screenReducer(
   const { key } = action;
   const { overlay } = state;
   // Leaving any of those comes back here, to the screen they were started from.
-  if (handsOff(overlay)) return show(state, HOME);
+  if (handsOff(overlay)) {
+    if (overlay.kind === 'rules')
+      return show(state, rulesOpener(state, overlay.from));
+    return show(state, HOME);
+  }
   switch (overlay.kind) {
     case 'home':
       return onHome(state, overlay, key, options);
