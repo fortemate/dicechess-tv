@@ -22,9 +22,19 @@ export type RulesScreenProps = {
   onState?: (report: string) => void;
 };
 
-type State = { index: number; exit: boolean };
+/** State of the rules guide navigation. */
+export type RulesState = { index: number; exit: boolean };
 
-const reducer = (state: State, key: BoardKey): State => {
+/** Initial state opening on the first topic without exit requested. */
+export const INITIAL_RULES_STATE: RulesState = { index: 0, exit: false };
+
+/**
+ * Pure reducer for the rules guide remote navigation.
+ *
+ * Up and down cycle through the rules topics. OK (select) keeps the selected
+ * topic open without leaving (#237). Back and menu request screen exit.
+ */
+export const rulesReducer = (state: RulesState, key: BoardKey): RulesState => {
   if (state.exit) return state;
   if (key === 'back' || key === 'menu') return { ...state, exit: true };
   if (key === 'left' || key === 'right' || key === 'select') return state;
@@ -37,7 +47,7 @@ const reducer = (state: State, key: BoardKey): State => {
 
 export const RulesScreen = ({ onExit, onState }: RulesScreenProps) => {
   const { width, height } = useWindowDimensions();
-  const [state, onKey] = React.useReducer(reducer, { index: 0, exit: false });
+  const [state, onKey] = React.useReducer(rulesReducer, INITIAL_RULES_STATE);
   // OK held down, shown on the focused topic (#51).
   const [pressed, setPressed] = React.useState(false);
 
