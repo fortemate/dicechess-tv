@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import config, { SWAPPED } from '../vite.config.ts';
 
 // The bench's tests run in Node, which has a `global` of its own, so the crash
@@ -15,7 +16,7 @@ test('the bench gives react-native-web the global that React Native has', () => 
 // since it checks the board against the television's module.
 test("the bench's stand-ins export every name the board takes from them", () => {
   const read = (path: string) =>
-    readFileSync(new URL(path, import.meta.url), 'utf8');
+    readFileSync(fileURLToPath(new URL(path, import.meta.url)), 'utf8');
   const board = read('../../native/src/Board.tsx');
   for (const [source, file] of Object.entries(SWAPPED)) {
     const from = new RegExp(`import \\{([^}]*)\\} from '${source}';`);

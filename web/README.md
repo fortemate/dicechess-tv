@@ -100,8 +100,11 @@ those deficiencies.
 ## How it is put together
 
 - [`vite.config.ts`](vite.config.ts) aliases every `@amazon-devices/*` package to a
-  stand-in in [`src/shims/`](src/shims/), and swaps one import:
-  `native/src/Board.tsx` draws its squares with `src/Square.tsx` here.
+  stand-in in [`src/shims/`](src/shims/), and swaps two of
+  `native/src/Board.tsx`'s imports (`SWAPPED`): it draws its squares with
+  `src/Square.tsx` here, and its arrow with `src/MoveArrow.tsx`, which is what
+  lets the `arrow` mark switch the arrow off. `test/config.test.ts` checks that
+  both stand-ins export every name the board imports from them.
 - `react-native` is react-native-web, except that the window is always 960 x 540,
   the size Vega reports.
 - The sounds are the vendored cues in `native/sounds/`, played on HTML audio
