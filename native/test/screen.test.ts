@@ -782,10 +782,12 @@ test('Rules reference from the game menu never asks to replace the game, and Bac
 });
 
 test('opening rules reference from the menu mid-turn preserves game phase, roll and pending actions', () => {
-  const inPlay = initialState(options, started());
-  const rolled = drive(inPlay, 'select');
-  assert.equal(rolled.game.phase, 'move');
-  const menu = drive(rolled, 'back');
+  const pawns: ScreenOptions = { ...options, roll: () => [1, 1, 1] };
+  const rolled = screenReducer(handedToBot(), { kind: 'bot' }, pawns);
+  const inPlay = screenReducer(rolled, { kind: 'bot' }, pawns);
+  assert.equal(inPlay.game.phase, 'move');
+  assert.ok(inPlay.pending.length > 0);
+  const menu = drive(inPlay, 'back');
   assert.equal(menu.overlay.kind, 'menu');
   const at = menuOptions(menu.game).indexOf(RULES_OPTION);
   const rules = drive(
@@ -795,11 +797,13 @@ test('opening rules reference from the menu mid-turn preserves game phase, roll 
   );
   assert.equal(rules.overlay.kind, 'rules');
   assert.equal(rules.game.phase, 'move');
-  assert.deepEqual(rules.game.roll, rolled.game.roll);
+  assert.deepEqual(rules.game.roll, inPlay.game.roll);
+  assert.deepEqual(rules.pending, inPlay.pending);
   const left = drive(rules, 'back');
   assert.deepEqual(left.overlay, { kind: 'menu', index: at });
   assert.equal(left.game.phase, 'move');
-  assert.deepEqual(left.game.roll, rolled.game.roll);
+  assert.deepEqual(left.game.roll, inPlay.game.roll);
+  assert.deepEqual(left.pending, inPlay.pending);
 });
 
 test('rules reference opened from home returns to home on Rules reference', () => {
