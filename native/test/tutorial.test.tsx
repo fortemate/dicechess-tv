@@ -348,7 +348,7 @@ test('the About screen shows the credits and returns on Back or OK', () => {
   send('back');
   assert.equal(hasExited(), false, 'Back on About closed the app');
   assert.doesNotMatch(text(root), /ABOUT/);
-  assert.match(text(root), /New hotseat game/);
+  assert.match(text(root), /New Hot Seat game/);
 
   // OK leaves too: there is nothing on this page to select. The cursor came back
   // to the top of the menu, so Up reaches About again.
@@ -356,7 +356,7 @@ test('the About screen shows the credits and returns on Back or OK', () => {
   assert.match(text(root), /ABOUT/);
   send('enter');
   assert.doesNotMatch(text(root), /ABOUT/);
-  assert.match(text(root), /New hotseat game/);
+  assert.match(text(root), /New Hot Seat game/);
 });
 
 test('Thinkle teaches: his portrait, his name and the lesson number', () => {
@@ -671,7 +671,7 @@ test('Play a friend at the end of the tutorial starts a hotseat game', () => {
   send('enter', 'down', 'enter');
   assert.doesNotMatch(text(root), TUTORIAL_OPEN);
   assert.equal(savedGame()?.mode, 'hotseat');
-  assert.match(text(root), /HOTSEAT · TURN 1/);
+  assert.match(text(root), /HOT SEAT · TURN 1/);
   assert.match(text(root), /OK: roll three dice/);
 });
 
@@ -683,7 +683,7 @@ test('Main menu at the end of the tutorial returns home and starts nothing', () 
   // Up from the first choice wraps to the last.
   send('enter', 'up', 'enter');
   assert.doesNotMatch(text(root), TUTORIAL_OPEN);
-  assert.equal(focusedLabel(root), 'New hotseat game');
+  assert.equal(focusedLabel(root), 'New Hot Seat game');
   assert.equal(savedGame(), null);
 });
 

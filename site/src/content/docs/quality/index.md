@@ -73,10 +73,10 @@ The way the cursor moves was chosen by counting presses.
 
 Moving a cursor across the board one square at a time takes many presses on a TV remote. A script, `scripts/cursor-presses.ts` (`npm run presses`), plays **200 seeded random games** through the app's shared core, with random legal actions for both sides, and counts the arrow and OK presses each way of moving the cursor would need. Random moves are not a person's moves, but every way is scored on the same ones. [#68](https://github.com/fortemate/dicechess-tv/issues/68) recorded the first run; the figures below are from the run of 4 October 2026, seed 68, 8,346 turns:
 
-| Navigation Model                          | Presses per Hotseat Turn | Change                |
-| ----------------------------------------- | ------------------------ | --------------------- |
-| **Square by square**                      | **23.0 presses**         | Baseline              |
-| **Jumps between pieces and destinations** | **9.2 presses**          | **60% fewer presses** |
+| Navigation Model                          | Presses per Hot Seat Turn | Change                |
+| ----------------------------------------- | ------------------------- | --------------------- |
+| **Square by square**                      | **23.0 presses**          | Baseline              |
+| **Jumps between pieces and destinations** | **9.2 presses**           | **60% fewer presses** |
 
 Random movers take no more often than they make any other move, so this count cannot credit where the cursor lands once a piece is picked up. Landing on captures costs them 0.29 presses a turn: 9.21 against 8.92 with the cursor always landing on the central destination. The landing follows people, who take far more often than not.
 

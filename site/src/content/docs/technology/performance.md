@@ -66,7 +66,7 @@ How to run a stronger opponent off the JavaScript thread is open ([FL-13](/frict
 
 ## Danger Evaluation & Threat Analysis
 
-The music follows the danger to a king. At the start of each turn, `src/core/danger.ts` measures how close a side is to taking the other's king, and the music plays a calm, tense or critical theme, moving up at once and down one level per turn. Against the computer it measures the danger to the person's king; in hotseat, the greater danger to either king.
+The music follows the danger to a king. At the start of each turn, `src/core/danger.ts` measures how close a side is to taking the other's king, and the music plays a calm, tense or critical theme, moving up at once and down one level per turn. Against the computer it measures the danger to the person's king; in Hot Seat, the greater danger to either king.
 
 - **Critical:** some roll would let the attacking side take the king with its first action. This takes one pseudo-legal move generation: a median of 0.08 ms over 61 engine positions, in a probe build on the Vega Virtual Device on 26 September 2026.
 - **Tense:** at least 22 of the 216 ordered rolls (6 × 6 × 6) would let the attacking side take the king within its turn, in up to three actions. The search tries the 56 distinct rolls, each weighted by how many of the 216 it stands for, and stops once the answer is known.

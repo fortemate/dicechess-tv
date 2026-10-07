@@ -399,7 +399,7 @@ test('a focused option is framed, and holding OK shows it pressed until the rele
   );
   // Home, nothing saved: the first option has focus, and nothing is held.
   assert.deepEqual(optionViews(tree.root)[0], {
-    label: 'New hotseat game',
+    label: 'New Hot Seat game',
     focused: true,
     pressed: false,
   });
@@ -417,7 +417,7 @@ test('a focused option is framed, and holding OK shows it pressed until the rele
 });
 
 test('a finished game says who won, then how it ended (#235)', () => {
-  // From the menu of a hotseat game: Resume, Resign, Agree a draw, New game.
+  // From the menu of a hotseat game: Resume game, Resign, Agree a draw, New game.
   const drawn = mount();
   send(Back, Down, Down, Select);
   assert.match(drawn.state(), /result agreed-draw/);

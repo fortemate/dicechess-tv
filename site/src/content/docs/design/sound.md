@@ -45,7 +45,7 @@ The game has adaptive music. The menus have their own theme. Over a game the the
 - **Tense** when at least a tenth of the rolls would let the side about to roll take the king within its turn.
 - **Critical** when the king is attacked directly, and only the right die is missing.
 
-Against the computer the music follows the danger to your own king. In hotseat, where both players are in the room, it follows the danger to either king. It rises at once and falls one step per turn, so one quiet turn does not drop a tense game to calm. Themes crossfade over two seconds, and a new theme starts from its beginning, as chosen by ear; after a result the music waits, so the jingle is heard on its own.
+Against the computer the music follows the danger to your own king. In Hot Seat, where both players are in the room, it follows the danger to either king. It rises at once and falls one step per turn, so one quiet turn does not drop a tense game to calm. Themes crossfade over two seconds, and a new theme starts from its beginning, as chosen by ear; after a result the music waits, so the jingle is heard on its own.
 
 The Settings screen switches music on or off and sets its volume, apart from the sound effects. Music stops at once when the app leaves the screen.
 

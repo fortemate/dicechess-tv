@@ -96,7 +96,7 @@ test('a launch opens on the home screen, and resume is offered only when there i
   // asking them to choose it.
   assert.deepEqual(homeOptions(resumable(started())), [
     'Resume game',
-    'New hotseat game',
+    'New Hot Seat game',
     'Play the computer',
     'Learn to play',
     'Rules reference',
@@ -104,7 +104,7 @@ test('a launch opens on the home screen, and resume is offered only when there i
     'About',
   ]);
   assert.deepEqual(homeOptions(false), [
-    'New hotseat game',
+    'New Hot Seat game',
     'Play the computer',
     'Learn to play',
     'Rules reference',
@@ -210,7 +210,7 @@ test('over a game in play, a game chosen at the end of the tutorial asks first',
   assert.equal(hotseat.overlay.kind, 'confirm');
   assert.deepEqual(drive(hotseat, 'back').overlay, {
     kind: 'home',
-    index: homeOptions(true).indexOf('New hotseat game'),
+    index: homeOptions(true).indexOf('New Hot Seat game'),
   });
 });
 
@@ -244,7 +244,7 @@ test('starting over an unfinished game asks first, and Cancel keeps it', () => {
   assert.deepEqual(kept.game.moves, ['b1c3']);
   assert.deepEqual(kept.overlay, {
     kind: 'home',
-    index: homeOptions(true).indexOf('New hotseat game'),
+    index: homeOptions(true).indexOf('New Hot Seat game'),
   });
   assert.deepEqual(drive(asking, 'back'), kept);
 
@@ -300,7 +300,7 @@ test('the menu opens from the board and closes back to it', () => {
   const menu = drive(board, 'back');
   assert.equal(menu.overlay.kind, 'menu');
   assert.deepEqual(menuOptions(menu.game), [
-    'Resume',
+    'Resume game',
     'Resign',
     'Agree a draw',
     'New game',
@@ -449,7 +449,7 @@ test('the board ignores play input while the opponent owes an action', () => {
 test('a draw cannot be agreed with the opponent, only with another player', () => {
   const random = drive(fresh(), 'down', 'select', 'select', 'select');
   assert.deepEqual(menuOptions(random.game), [
-    'Resume',
+    'Resume game',
     'Resign',
     'New game',
     RULES_OPTION,
@@ -600,7 +600,7 @@ test('without music in the build, Settings offers sound effects, voices, the hos
       'Sound effects: on',
       'Voices: on',
       'Hot Seat host: Prowla',
-      'Turn board in hotseat: off',
+      'Turn board in Hot Seat: off',
     ],
   );
   // Down moves from the sound effects to the voices, on to the host, and on
@@ -644,7 +644,7 @@ test('Settings opens from the home menu on music, and Back returns to it', () =>
       'Sound effects: on',
       'Voices: on',
       'Hot Seat host: Prowla',
-      'Turn board in hotseat: off',
+      'Turn board in Hot Seat: off',
     ],
   );
   const back = drive(settings, 'back');

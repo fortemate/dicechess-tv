@@ -1,19 +1,19 @@
 ---
 title: What it does
-description: 'A tour of Dice Chess for Fire TV: hotseat on one remote with Prowla, Rolly or Thinkle as host, three computer opponents as either colour, the tutorial and the rules guide, saving, your record against each opponent, sound, music that follows the danger to the king, and rematch.'
+description: 'A tour of Dice Chess for Fire TV: Hot Seat on one remote with Prowla, Rolly or Thinkle as host, three computer opponents as either colour, the tutorial and the rules guide, saving, your record against each opponent, sound, music that follows the danger to the king, and rematch.'
 sidebar:
   order: 2
 ---
 
 Every screenshot here comes from the Vega Virtual Device, captured with scripted presses of the remote on beta 8 with the opponents' portraits. A test build set the first rolls, so that a roll with nothing to play and a knight with a capture came up when they were needed; apart from the dice, each screen is the app as it ships. Each feature was also played there, and the app's automated tests cover it; where a check is still open, the section says so. Nothing has run on a physical Fire TV Stick yet.
 
-## Hotseat on one remote
+## Hot Seat on one remote
 
 Two players share the remote and take turns. OK rolls three dice; the pieces the dice let you move are marked green, and a die that no legal turn can use dims at once. The arrows jump between those pieces. OK picks one up and lands on one of its destinations, the arrows jump between those, and OK plays the move. Back puts a piece down again.
 
 For living-room sofa play where players prefer to view the board from their own side, a switch in **Settings** allows turning the board so the mover's pieces sit at the bottom. When enabled, the board fades out and back in over 200 ms as the turn passes to Black or back to White, while D-pad arrow directions remain locked to the physical television screen.
 
-![A hotseat game: Black's knight is picked up, its destinations are dotted, the cursor rests on the ringed capture of White's knight, and three dice sit beside the board](../../../assets/screenshots/hotseat.png)
+![A Hot Seat game: Black's knight is picked up, its destinations are dotted, the cursor rests on the ringed capture of White's knight, and three dice sit beside the board](../../../assets/screenshots/hotseat.png)
 
 Prowla the cat hosts Hot Seat games, or in her place Rolly, the friendliest of the computer opponents, or Thinkle the wizard, who teaches the tutorial. Each has lines and a voice of their own. The host greets you both as a game starts, cries out the moment a queen or a rook is taken, a pawn is caught en passant, a king castles or a pawn is promoted, names the rest of a turn when it ends, and at the end cheers the winner and the other player too. She never takes a side, and says one line a turn at most. While she speaks, her face and her line show above the bottom badge, and nothing else on the screen moves. **Hot Seat host** in Settings chooses Prowla, Rolly, Thinkle or off. The tests cover all three. The virtual device has shown Rolly and played her lines, and has shown Prowla and played her greeting and the pass of the remote. It has also shown Thinkle and played his greeting, and, on a test build that starts from a position where castling is possible, his castling line.
 
@@ -89,6 +89,6 @@ Sound stops when the app leaves the screen. The tests check that the players pau
 
 ## Rematch
 
-A game against the computer ends on a choice: a rematch or the main menu. A rematch keeps your colour choice; if you chose Random, it picks again. In hotseat, a finished game stays on the board, and OK returns to the main menu.
+A game against the computer ends on a choice: a rematch or the main menu. A rematch keeps your colour choice; if you chose Random, it picks again. In Hot Seat, a finished game stays on the board, and OK returns to the main menu.
 
 ![After resigning as Black against Grabby: Grabby wins, You resigned, Grabby's last word, Ha! I'll have this whole game framed!, beside its portrait, and the choice of Rematch or Main menu](../../../assets/screenshots/rematch.png)

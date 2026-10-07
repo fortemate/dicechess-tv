@@ -214,7 +214,7 @@ export const settingsOptions = (
   `Sound effects: ${sound ? 'on' : 'off'}`,
   `Voices: ${voices ? 'on' : 'off'}`,
   `Hot Seat host: ${hostName(host)}`,
-  `Turn board in hotseat: ${turnHotseat ? 'on' : 'off'}`,
+  `Turn board in Hot Seat: ${turnHotseat ? 'on' : 'off'}`,
 ];
 
 export type ScreenOptions = {
@@ -240,14 +240,15 @@ export type ScreenOptions = {
   now?: () => number;
 };
 
-// The home options that start a game: a hotseat game at once, a game against
+// The home options that start a game: a Hot Seat game at once, a game against
 // the computer through the choice of opponent and colour.
-export const HOTSEAT_OPTION = 'New hotseat game';
+export const RESUME_OPTION = 'Resume game';
+export const HOTSEAT_OPTION = 'New Hot Seat game';
 export const COMPUTER_OPTION = 'Play the computer';
 export const RULES_OPTION = 'Rules reference';
 
 export const homeOptions = (resumable: boolean): string[] => [
-  ...(resumable ? ['Resume game'] : []),
+  ...(resumable ? [RESUME_OPTION] : []),
   HOTSEAT_OPTION,
   COMPUTER_OPTION,
   'Learn to play',
@@ -294,7 +295,7 @@ const cardOf = (mode: Mode): number =>
 
 // Home options that open another screen and change nothing else.
 const OPENS = new Map<string, Overlay>([
-  ['Resume game', { kind: 'none' }],
+  [RESUME_OPTION, { kind: 'none' }],
   ['Learn to play', { kind: 'tutorial' }],
   [RULES_OPTION, { kind: 'rules', from: 'home' }],
   [SETTINGS_OPTION, { kind: 'settings', index: 0, from: 'home' }],
@@ -302,14 +303,14 @@ const OPENS = new Map<string, Overlay>([
 ]);
 
 export const menuOptions = (game: Game): string[] => [
-  'Resume',
+  RESUME_OPTION,
   'Resign',
   // A draw needs two players to agree; there is nobody to agree with a bot.
   ...(game.mode === 'hotseat' ? ['Agree a draw'] : []),
   'New game',
   RULES_OPTION,
   // Last: the order above is unchanged, and because the menu wraps, Up from
-  // Resume reaches this in one press — the quickest way to silence a game.
+  // Resume game reaches this in one press — the quickest way to silence a game.
   SETTINGS_OPTION,
 ];
 
@@ -663,7 +664,7 @@ const onMenu: Handler<'menu'> = (state, overlay, key) => {
   if (key === 'back' || key === 'menu') return show(state, BOARD);
   if (key !== 'select') return moved(state, overlay, key, choices.length);
   const chosen = choices[overlay.index];
-  if (chosen === 'Resume') return show(state, BOARD);
+  if (chosen === RESUME_OPTION) return show(state, BOARD);
   // Handled before the fall-through below, which treats anything else as a
   // destructive choice and asks to confirm replacing the game.
   if (chosen === SETTINGS_OPTION)
@@ -735,7 +736,7 @@ const changed = (
   if (row.startsWith('Voices:')) return { ...state, voices: !state.voices };
   if (row.startsWith('Hot Seat host:'))
     return { ...state, host: cycleHost(state.host, key === 'left' ? -1 : 1) };
-  if (row.startsWith('Turn board in hotseat:'))
+  if (row.startsWith('Turn board in Hot Seat:'))
     return { ...state, turnHotseat: !state.turnHotseat };
   return state;
 };
