@@ -11,24 +11,15 @@ A television is read from three metres away, often by several people at once, an
 
 The squares use the brown palette of Chessground, the board of the open-source chess site Lichess, which many players already know. Each mark on the board looks different, not only a different colour:
 
-| Mark                  | How it looks                                                             |
-| --------------------- | ------------------------------------------------------------------------ |
-| The cursor            | A cyan frame around the square, with a dark line inside it               |
-| A piece that can move | A translucent green fill                                                 |
-| The piece in hand     | Raised: larger, lifted over its shadow, joined to the cursor by an arrow |
-| A destination         | A dot on an empty square; a ring around a piece that would be taken      |
-| The last move         | A translucent yellow-green tint on both of its squares                   |
+| Mark                  | How it looks                                                        |
+| --------------------- | ------------------------------------------------------------------- |
+| The cursor            | A cyan frame around the square                                      |
+| A piece that can move | A translucent green fill                                            |
+| The piece in hand     | A translucent cyan fill                                             |
+| A destination         | A dot on an empty square; a ring around a piece that would be taken |
+| The last move         | A translucent yellow-green tint on both of its squares              |
 
-A dot covers 32 % of its square, and a capture ring 94 %, drawn under the piece so that it does not cover the piece's edges. A dot the arrow passes over, such as a pawn's single step under the arrow to its double one, is drawn on top of the arrow.
-
-### The cursor and the piece in hand
-
-Testers found the cursor hard to see, and the piece in hand hard to tell from it (#121). Both were cyan: the cursor a thin frame, the piece in hand a tint with the same frame twice as thick. Cyan is almost as light as the light squares, 1.08:1 by WCAG luminance, so on them the frame stood out by hue alone. Two changes, chosen by the owner from seven variants on the browser bench:
-
-- **The cursor** is twice as wide, with a dark line inside it. The line is 12.9:1 against the light squares and 5.6:1 against the dark ones.
-- **The piece in hand** has no frame or tint of its own. It is a fifth larger and lifted over its shadow, and a cyan arrow, outlined in the cursor's dark line, joins it to the cursor.
-
-Measured as in the next section, both stand apart from the squares for every simulated vision: the cursor's cyan by 9.9 or more, its dark line by 42.6 or more, the arrow by 8.7 or more and the shadow by 24.6 or more. The old tint of the piece in hand was 3.2 from a light square for a protanope.
+A dot covers 32 % of its square, and a capture ring 94 %, drawn under the piece so that it does not cover the piece's edges.
 
 ## The dice
 

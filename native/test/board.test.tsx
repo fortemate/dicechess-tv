@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 import { Board } from '../src/Board';
-import { arrowPath, hides } from '../src/arrow';
 import { PIECES } from '../src/pieces';
 import { THEME } from '../src/theme';
 
@@ -109,181 +108,18 @@ test('each overlay state draws its own distinct mark', () => {
     'both ends of the last move are tinted',
   );
   assert.equal(
-    overlays(root, (s) => s.backgroundColor === THEME.shadow).length,
+    overlays(root, (s) => s.backgroundColor === THEME.selected).length,
     1,
-    'the picked-up piece stands on a shadow',
   );
 
-  // Only the cursor is framed in cyan (#121). The picked-up piece used to carry
-  // the same frame, twice as thick, and the two were hard to tell apart.
-  assert.equal(overlays(root, (s) => s.borderColor === THEME.cursor).length, 1);
-  assert.equal(arrows(root).length, 1);
-});
-
-// The arrow from the picked-up piece to the cursor, as drawn.
-const arrows = (root: Instance): Instance[] =>
-  root.findAll(
-    (node) => isHost(node, 'View') && node.props.testID === 'move-arrow',
-  );
-
-// The square at a position, from White's side: rank 8 is rendered first.
-const squareAt = (root: Instance, square: string): Instance =>
-  squares(root)[
-    (8 - Number(square[1])) * 8 + square.charCodeAt(0) - 'a'.charCodeAt(0)
-  ];
-
-test('the cursor is a cyan frame with a dark line inside it (#121)', () => {
-  const root = render({ cursor: 'e4' });
-  const e4 = squareAt(root, 'e4');
-  const [frame] = overlays(e4, (s) => s.borderColor === THEME.cursor);
-  const [line] = overlays(e4, (s) => s.borderColor === THEME.cursorLine);
-  assert.ok(frame && line, 'both on the cursor square');
-  const width = styleOf(frame).borderWidth as number;
-  assert.equal(styleOf(frame).width, EDGE);
-  // Twice the line's width, and the line sits just inside it.
-  assert.equal(styleOf(line).borderWidth, width / 2);
-  assert.equal(styleOf(line).left, width);
-  assert.equal(styleOf(line).top, width);
-  assert.equal(styleOf(line).width, EDGE - width * 2);
-});
-
-// WCAG 2.2 relative luminance and contrast ratio, of opaque #rrggbb colours.
-const luminance = (hex: string) => {
-  const [r, g, b] = [1, 3, 5].map((at) => {
-    const c = parseInt(hex.slice(at, at + 2), 16) / 255;
-    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
-  });
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-};
-const contrast = (a: string, b: string) => {
-  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
-  return (hi + 0.05) / (lo + 0.05);
-};
-
-test('the cursor stands out by lightness on both square colours (#121)', () => {
-  // The cyan alone is 1.08:1 against a light square, so the dark line carries
-  // the frame there. WCAG 2.2 (1.4.11) asks 3:1 of a graphical object.
-  for (const square of [THEME.light, THEME.dark])
-    assert.ok(
-      contrast(THEME.cursorLine, square) >= 3,
-      `line on ${square}: ${contrast(THEME.cursorLine, square).toFixed(2)}`,
-    );
-  assert.ok(contrast(THEME.cursor, THEME.cursorLine) >= 3);
-});
-
-test('the picked-up piece is raised on its shadow, with no frame (#121)', () => {
-  const root = render({
-    legal: ['b1a3', 'b1c3'],
-    selected: 'b1',
-    cursor: 'c3',
-  });
-  const b1 = squareAt(root, 'b1');
-  const layers = b1.children.filter(
-    (child): child is Instance => typeof child !== 'string',
-  );
-  const shadowAt = layers.findIndex(
-    (layer) =>
-      overlays(layer, (s) => s.backgroundColor === THEME.shadow).length,
-  );
-  const lifted = layers.findIndex(
-    (layer) => layer.findAllByType(PIECES.N as never).length === 1,
-  );
-  assert.ok(shadowAt >= 0 && lifted > shadowAt, 'the knight over its shadow');
-  const [scale, rise] = styleOf(layers[lifted]).transform as unknown as [
-    { scale: number },
-    { translateY: number },
-  ];
-  assert.ok(scale.scale > 1, 'larger than the pieces left standing');
-  assert.ok(rise.translateY < 0, 'lifted');
-  assert.equal(overlays(b1, (s) => s.borderColor !== undefined).length, 0);
-
-  // A piece left standing is drawn as it is, without the wrapper.
-  const g1 = squareAt(root, 'g1');
-  assert.ok(g1.children.some((child) => (child as Instance).type === PIECES.N));
-});
-
-test('an arrow joins the picked-up piece to the cursor, and only then (#121)', () => {
-  const centre = (file: number, row: number) => ({
-    x: (file + 0.5) * EDGE,
-    y: (row + 0.5) * EDGE,
-  });
-  const path = (root: Instance) =>
-    arrows(root)
-      .flatMap((arrow) => arrow.findAll((node) => isHost(node, 'Path')))
-      .map((node) => node.props.d as string);
-
-  const picked = { legal: ['b1a3', 'b1c3'], selected: 'b1', cursor: 'c3' };
-  // b1 is file 1 on the bottom row; c3 is file 2, two rows up.
-  assert.deepEqual(path(render(picked)), [
-    arrowPath(centre(1, 7), centre(2, 5), EDGE),
-  ]);
-  // From Black's side, b1 is at the top, second from the right.
-  assert.deepEqual(path(render({ ...picked, flipped: true })), [
-    arrowPath(centre(6, 0), centre(5, 2), EDGE),
-  ]);
-  assert.deepEqual(path(render({ cursor: 'b1' })), [], 'no piece picked up');
-});
-
-test('a dot the arrow passes over is drawn on top of it (#121)', () => {
-  // A pawn on e2 picked up, the cursor on its two-square push: the arrow runs
-  // over e3, the single step, which must stay in sight.
-  const root = render({
-    legal: ['e2e3', 'e2e4'],
-    selected: 'e2',
-    cursor: 'e4',
-  });
-  const dot = (s: Style) => s.backgroundColor === THEME.destination;
-  assert.equal(overlays(squareAt(root, 'e3'), dot).length, 0, 'not under it');
-  assert.equal(overlays(squareAt(root, 'e4'), dot).length, 1);
-
-  const views = root.findAll((node) => isHost(node, 'View'), { deep: true });
-  const arrowAt = views.findIndex((node) => node.props.testID === 'move-arrow');
-  const [e3] = overlays(root, dot).filter(
-    (node) =>
-      !squares(root).some((square) => overlays(square, dot).includes(node)),
-  );
-  assert.ok(e3, 'drawn by the arrow');
-  assert.ok(views.indexOf(e3) > arrowAt, 'after the arrow, so over it');
-  // Where e3's own dot would be: file e, the sixth row from the top.
-  const size = Math.round(EDGE * 0.32);
-  assert.equal(styleOf(e3).left, 4 * EDGE + Math.round((EDGE - size) / 2));
-  assert.equal(styleOf(e3).top, 5 * EDGE + Math.round((EDGE - size) / 2));
-  // On a disc of the square's own colour, so it looks like every other dot.
-  const disc = views[views.indexOf(e3) - 1];
-  assert.equal(styleOf(disc).backgroundColor, THEME.dark, 'e3 is dark');
-  assert.equal(styleOf(disc).left, styleOf(e3).left);
-});
-
-test('only the squares between the two ends are under the arrow', () => {
-  const at = (file: number, row: number) => ({ x: file * 10, y: row * 10 });
-  const [from, to] = [at(0, 7), at(0, 2)];
-  assert.ok(hides(from, to, at(0, 5), 10), 'on the way');
-  assert.ok(!hides(from, to, at(0, 7), 10), 'the picked-up square');
-  assert.ok(!hides(from, to, at(0, 2), 10), 'the cursor');
-  assert.ok(!hides(from, to, at(0, 1), 10), 'beyond the cursor');
-  assert.ok(!hides(from, to, at(1, 5), 10), 'beside the way');
-  // A knight's arrow passes between squares, over none of their centres.
-  assert.ok(!hides(at(2, 5), at(1, 3), at(1, 4), 10));
-  assert.ok(!hides(at(2, 5), at(1, 3), at(2, 4), 10));
-});
-
-test('the arrow leaves the picked-up square and stops short of the dot', () => {
-  const from = { x: 50, y: 350 };
-  const tip = (d: string) => {
-    // The fourth point of the outline is the tip.
-    const [x, y] = d.slice(2, -2).split(' L ')[3].split(' ').map(Number);
-    return Math.hypot(x - from.x, y - from.y);
-  };
-  for (const [to, length] of [
-    [{ x: 150, y: 150 }, Math.hypot(100, 200)],
-    [{ x: 50, y: 250 }, 100],
-  ] as const) {
-    const d = arrowPath(from, to, 100);
-    assert.ok(d, 'drawn, even for a move to the next square');
-    assert.ok(tip(d) < length - 15, 'short of the centre and its dot');
-    assert.ok(tip(d) > 50, 'beyond the picked-up square');
-  }
-  assert.equal(arrowPath(from, { x: 60, y: 350 }, 100), null);
+  // The cursor square and the selected square each get a ring, and the selected
+  // one is twice as thick so the two are told apart.
+  const rings = overlays(root, (s) => s.borderColor === THEME.cursor);
+  assert.equal(rings.length, 2);
+  const widths = rings
+    .map((ring) => styleOf(ring).borderWidth as number)
+    .sort((a, b) => a - b);
+  assert.equal(widths[1], widths[0] * 2, `ring widths ${widths}`);
 });
 
 test('an empty destination gets a dot, and a piece that would be taken a ring', () => {

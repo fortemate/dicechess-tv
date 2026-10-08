@@ -1,8 +1,7 @@
 // The bench's build: native/src/ as it is, on react-native-web, with the Vega
-// packages replaced by the stand-ins in src/shims/. Two imports are swapped by
+// packages replaced by the stand-ins in src/shims/. One import is swapped by
 // importer rather than by name: native/src/Board.tsx draws its squares with
-// src/Square.tsx here, which can draw every variant of the marks, and its arrow
-// with src/MoveArrow.tsx, which can leave it out.
+// src/Square.tsx here, which can draw every variant of the marks.
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { defineConfig, type Plugin } from 'vite';
@@ -12,18 +11,12 @@ const here = dirname(fileURLToPath(import.meta.url));
 const shim = (file: string) => resolve(here, 'src/shims', file);
 const board = resolve(here, '../native/src/Board.tsx');
 
-// What native/src/Board.tsx imports, and the bench's stand-in for each.
-export const SWAPPED: Record<string, string> = {
-  './Square': 'src/Square.tsx',
-  './MoveArrow': 'src/MoveArrow.tsx',
-};
-
 const benchSquare = (): Plugin => ({
   name: 'bench-square',
   enforce: 'pre',
   resolveId(source, importer) {
-    if (source in SWAPPED && importer && resolve(importer) === board)
-      return resolve(here, SWAPPED[source]);
+    if (source === './Square' && importer && resolve(importer) === board)
+      return resolve(here, 'src/Square.tsx');
     return null;
   },
 });
@@ -72,13 +65,6 @@ export default defineConfig({
     // The engine is one module of about 1 MB, and the bench loads nothing else
     // worth splitting from it.
     chunkSizeWarningLimit: 1500,
-    // The bench, and the gallery of the marks compared for #121.
-    rollupOptions: {
-      input: {
-        main: resolve(here, 'index.html'),
-        gallery: resolve(here, 'gallery.html'),
-      },
-    },
   },
   server: {
     fs: { allow: [resolve(here, '..')] },

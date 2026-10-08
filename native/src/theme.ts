@@ -6,16 +6,11 @@ export const THEME = {
   light: '#f0d9b5',
   dark: '#b58863',
   cursor: '#00eaff',
-  // The dark line inside the cursor's frame (#121). Cyan is almost as light as
-  // the light squares, so the line gives the frame contrast by lightness too.
-  cursorLine: '#0b1a24',
   // Chessground's move-destination green. Translucent and dark, so a dot reads
   // on both square colours.
   destination: 'rgba(20, 85, 30, 0.5)',
   lastMove: 'rgba(155, 199, 0, 0.41)',
-  // The picked-up piece (#121) stands raised on this shadow rather than in a
-  // tint of the cursor's cyan, so the two are not mistaken for each other.
-  shadow: 'rgba(0, 0, 0, 0.5)',
+  selected: 'rgba(0, 234, 255, 0.28)',
   // A piece that can move now (#68): translucent, so it reads on both square
   // colours and under the last-move tint.
   movable: 'rgba(34, 197, 94, 0.5)',
