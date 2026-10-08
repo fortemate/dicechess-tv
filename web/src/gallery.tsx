@@ -1,6 +1,6 @@
 // The mark gallery (#121): the board at both steps of a move, once for each
 // variant of the cursor and the picked-up piece that was compared, side by
-// side. 1B and 2E were chosen and are now the television's. The boards are
+// side. Green brackets are current; 1B and 2E were the previous design. The boards are
 // native/src/Board.tsx with the bench's squares, at the size the game draws
 // them. ?only=<id> draws one board alone and ?step=choose or ?step=move one
 // step, for a screenshot; ?cvd= views the page through a colour-vision
@@ -8,7 +8,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { View } from 'react-native';
-import { Board } from '../../native/src/Board';
+import { Board } from './Board';
 import { THEME } from '../../native/src/theme';
 import { boardSide, drawnSide } from '../../native/src/layout';
 import { TV_HEIGHT, TV_WIDTH } from './shims/react-native';
@@ -43,10 +43,22 @@ const BEFORE: Partial<Marks> = {
   arrow: 'off',
 };
 
+const PREVIOUS: Partial<Marks> = {
+  selected: 'raised',
+  cursor: 'bold',
+  arrow: 'on',
+};
+
 const STEPS: Record<Step, { title: string; variants: Variant[] }> = {
   choose: {
     title: 'Step 1: choosing a piece',
     variants: [
+      {
+        id: '1e',
+        title: 'Green brackets (current)',
+        note: 'Dark green brackets mark the remote focus.',
+        marks: {},
+      },
       {
         id: '1a',
         title: 'Before',
@@ -55,27 +67,33 @@ const STEPS: Record<Step, { title: string; variants: Variant[] }> = {
       },
       {
         id: '1b',
-        title: 'Bold two-tone cursor (chosen)',
+        title: 'Previous bold two-tone cursor',
         note: 'Cyan frame twice as wide, with a dark line inside.',
-        marks: {},
+        marks: PREVIOUS,
       },
       {
         id: '1c',
         title: 'Corners, bold cursor',
         note: 'Pieces that can move get corners only (#105 C).',
-        marks: { movable: 'corners' },
+        marks: { ...PREVIOUS, movable: 'corners' },
       },
       {
         id: '1d',
         title: 'Corners, filled cursor',
         note: 'The cursor is the one filled square on the board.',
-        marks: { movable: 'corners', cursor: 'fill' },
+        marks: { ...PREVIOUS, movable: 'corners', cursor: 'fill' },
       },
     ],
   },
   move: {
     title: 'Step 2: choosing where it goes',
     variants: [
+      {
+        id: '2h',
+        title: 'Green brackets and warm source (current)',
+        note: 'No arrow; the focus replaces its destination dot.',
+        marks: {},
+      },
       {
         id: '2a',
         title: 'Before',
@@ -86,37 +104,42 @@ const STEPS: Record<Step, { title: string; variants: Variant[] }> = {
         id: '2b',
         title: 'Bold cursor, same picked-up mark',
         note: 'Only the frames are stronger; both are still cyan.',
-        marks: { selected: 'tint-frame', arrow: 'off' },
+        marks: { ...PREVIOUS, selected: 'tint-frame', arrow: 'off' },
       },
       {
         id: '2c',
         title: 'Raised piece',
         note: 'The picked-up piece is lifted on a shadow, with no frame.',
-        marks: { arrow: 'off' },
+        marks: { ...PREVIOUS, arrow: 'off' },
       },
       {
         id: '2d',
         title: 'Ghost',
         note: 'The piece fades where it stands and shows under the cursor.',
-        marks: { selected: 'ghost', arrow: 'off' },
+        marks: { ...PREVIOUS, selected: 'ghost', arrow: 'off' },
       },
       {
         id: '2e',
-        title: 'Raised piece and arrow (chosen)',
+        title: 'Previous raised piece and arrow',
         note: 'An arrow joins the picked-up piece to the cursor.',
-        marks: {},
+        marks: PREVIOUS,
       },
       {
         id: '2f',
         title: 'Warm frame',
         note: 'The picked-up piece has an orange frame, the cursor cyan.',
-        marks: { selected: 'warm', arrow: 'off' },
+        marks: { ...PREVIOUS, selected: 'warm', arrow: 'off' },
       },
       {
         id: '2g',
         title: 'Raised piece, filled cursor',
         note: 'Goes with 1d: the cursor stays the one filled square.',
-        marks: { movable: 'corners', cursor: 'fill', arrow: 'off' },
+        marks: {
+          ...PREVIOUS,
+          movable: 'corners',
+          cursor: 'fill',
+          arrow: 'off',
+        },
       },
     ],
   },

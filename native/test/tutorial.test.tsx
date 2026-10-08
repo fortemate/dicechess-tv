@@ -397,7 +397,7 @@ test('the first lesson opens on the roll, and Thinkle follows it through', () =>
   // OK rolls three pawns.
   send('enter');
   assert.match(text(root), new RegExp(speech.rolled![0]));
-  assert.match(text(root), /press OK on a dot/);
+  assert.match(text(root), /choose where to move and press OK/);
 
   // A pawn moves: one die spent, two to go.
   send('enter', 'enter');
@@ -408,7 +408,7 @@ test('the first lesson opens on the roll, and Thinkle follows it through', () =>
   assert.match(text(root), new RegExp(speech.done![0]));
   assert.match(text(root), /Done\. OK: next lesson/);
   // Nothing is left to do on the board, so the task is gone.
-  assert.doesNotMatch(text(root), /press OK on a dot/);
+  assert.doesNotMatch(text(root), /choose where to move and press OK/);
   send('back');
 });
 

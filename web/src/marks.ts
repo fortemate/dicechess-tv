@@ -10,18 +10,28 @@ export const MARKS = {
   // A piece that can move now (#68). fill, fill-corners and corners are the A,
   // B and C of the colour-vision check (#105, #108).
   movable: ['fill', 'fill-corners', 'corners', 'outline', 'badge', 'none'],
-  // The picked-up piece. The TV raises it on a shadow (#121); tint-frame is
+  // The TV marks the picked-up square with a warm fill; raised is the earlier
+  // shadow variant (#121), and tint-frame is
   // what it drew before, a tint with the cursor's frame twice as thick. ghost
   // leaves it faint with its copy under the cursor, warm frames it in orange.
-  selected: ['raised', 'tint-frame', 'frame', 'solid', 'lift', 'ghost', 'warm'],
-  // The arrow from the picked-up piece to the cursor (#121).
-  arrow: ['on', 'off'],
+  selected: [
+    'warm-fill',
+    'raised',
+    'tint-frame',
+    'frame',
+    'solid',
+    'lift',
+    'ghost',
+    'warm',
+  ],
+  // The earlier arrow (#121), retained only on the browser design bench.
+  arrow: ['off', 'on'],
   // A legal destination of the picked-up piece: a dot, or a ring on a capture.
   destination: ['dot', 'dot-large', 'fill', 'corners', 'outline'],
-  // The remote's cursor. The TV's is bold: a frame twice the width of the old
+  // The TV cursor uses brackets. bold is the previous frame, twice the old
   // one, frame, with a dark line inside (#121). fill adds a fill under the
   // piece, so the cursor is the one filled square.
-  cursor: ['bold', 'frame', 'thick', 'two-tone', 'fill'],
+  cursor: ['brackets', 'bold', 'frame', 'thick', 'two-tone', 'fill'],
   // Both squares of the last action.
   lastMove: ['tint', 'outline', 'none'],
   palette: ['tv', 'okabe-ito', 'high-contrast'],
@@ -32,10 +42,10 @@ export type Marks = { [Name in MarkName]: (typeof MARKS)[Name][number] };
 
 export const DEFAULT_MARKS: Marks = {
   movable: 'fill',
-  selected: 'raised',
-  arrow: 'on',
+  selected: 'warm-fill',
+  arrow: 'off',
   destination: 'dot',
-  cursor: 'bold',
+  cursor: 'brackets',
   lastMove: 'tint',
   palette: 'tv',
 };
@@ -128,6 +138,11 @@ export const PRESETS: Readonly<Record<string, Partial<Marks>>> = {
   'Okabe-Ito colours': { palette: 'okabe-ito' },
   // The cursor and the picked-up piece as the TV drew them before #121.
   'Before #121': { selected: 'tint-frame', arrow: 'off', cursor: 'frame' },
+  'Raised piece and arrow (#121)': {
+    selected: 'raised',
+    arrow: 'on',
+    cursor: 'bold',
+  },
 };
 
 // The preset the marks are, if they are one.
@@ -151,6 +166,7 @@ export type Palette = {
   // The picked-up piece's own frame and tint, in a hue apart from the cursor.
   warm: string;
   warmFill: string;
+  warmLine: string;
   lastMove: string;
   lastMoveLine: string;
 };
@@ -164,12 +180,13 @@ export const PALETTES: Readonly<Record<Marks['palette'], Palette>> = {
     selected: 'rgba(0, 234, 255, 0.28)',
     selectedSolid: 'rgba(0, 234, 255, 0.55)',
     destination: 'rgba(20, 85, 30, 0.5)',
-    destinationLine: '#14532d',
+    destinationLine: '#104426',
     cursor: '#00eaff',
     cursorInner: '#0b1a24',
     cursorFill: 'rgba(0, 234, 255, 0.45)',
     warm: '#ff8a1f',
-    warmFill: 'rgba(255, 138, 31, 0.3)',
+    warmFill: 'rgba(255, 180, 76, 0.62)',
+    warmLine: '#58310b',
     lastMove: 'rgba(155, 199, 0, 0.41)',
     lastMoveLine: '#6f8f00',
   },
@@ -188,6 +205,7 @@ export const PALETTES: Readonly<Record<Marks['palette'], Palette>> = {
     cursorFill: 'rgba(240, 228, 66, 0.5)',
     warm: '#cc79a7',
     warmFill: 'rgba(204, 121, 167, 0.35)',
+    warmLine: '#3e2136',
     lastMove: 'rgba(86, 180, 233, 0.45)',
     lastMoveLine: '#56b4e9',
   },
@@ -205,6 +223,7 @@ export const PALETTES: Readonly<Record<Marks['palette'], Palette>> = {
     cursorFill: 'rgba(255, 255, 255, 0.5)',
     warm: '#000000',
     warmFill: 'rgba(0, 0, 0, 0.25)',
+    warmLine: '#000000',
     lastMove: 'rgba(0, 0, 0, 0.18)',
     lastMoveLine: '#ffffff',
   },

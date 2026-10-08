@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
 import config, { SWAPPED } from '../vite.config.ts';
 
 // The bench's tests run in Node, which has a `global` of its own, so the crash
@@ -33,4 +34,27 @@ test("the bench's stand-ins export every name the board takes from them", () => 
         `${file} exports ${name}`,
       );
   }
+});
+
+test('screens use the bench wrapper without redirecting its native board import', () => {
+  const here = dirname(fileURLToPath(import.meta.url));
+  const plugin = config.plugins?.find(
+    (entry) => entry && 'name' in entry && entry.name === 'bench-square',
+  ) as unknown as {
+    resolveId: (source: string, importer: string) => string | null;
+  };
+  assert.equal(
+    plugin.resolveId(
+      './Board',
+      resolve(here, '../../native/src/GameScreen.tsx'),
+    ),
+    resolve(here, '../src/Board.tsx'),
+  );
+  assert.equal(
+    plugin.resolveId(
+      '../../native/src/Board',
+      resolve(here, '../src/Board.tsx'),
+    ),
+    null,
+  );
 });

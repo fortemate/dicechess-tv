@@ -1,8 +1,7 @@
 // The bench's build: native/src/ as it is, on react-native-web, with the Vega
-// packages replaced by the stand-ins in src/shims/. Two imports are swapped by
-// importer rather than by name: native/src/Board.tsx draws its squares with
-// src/Square.tsx here, which can draw every variant of the marks, and its arrow
-// with src/MoveArrow.tsx, which can leave it out.
+// packages replaced by the stand-ins in src/shims/. The native board's squares
+// are swapped for the design variants. The bench's wrapper can add the earlier
+// arrow without putting that experiment back in the native application.
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { defineConfig, type Plugin } from 'vite';
@@ -15,13 +14,18 @@ const board = resolve(here, '../native/src/Board.tsx');
 // What native/src/Board.tsx imports, and the bench's stand-in for each.
 export const SWAPPED: Record<string, string> = {
   './Square': 'src/Square.tsx',
-  './MoveArrow': 'src/MoveArrow.tsx',
 };
 
 const benchSquare = (): Plugin => ({
   name: 'bench-square',
   enforce: 'pre',
   resolveId(source, importer) {
+    if (
+      source === './Board' &&
+      importer &&
+      dirname(importer) === dirname(board)
+    )
+      return resolve(here, 'src/Board.tsx');
     if (source in SWAPPED && importer && resolve(importer) === board)
       return resolve(here, SWAPPED[source]);
     return null;

@@ -9,7 +9,11 @@
 import React from 'react';
 import { View } from 'react-native';
 import type { SquareView } from '../../src/core/boardView';
-import { Square as TvSquare } from '../../native/src/Square';
+import {
+  FocusBrackets,
+  PickedUp,
+  Square as TvSquare,
+} from '../../native/src/Square';
 import { PIECES } from '../../native/src/pieces';
 import { THEME } from '../../native/src/theme';
 import { PALETTES, isDefault, type Marks, type Palette } from './marks';
@@ -222,6 +226,8 @@ const Cursor = ({
   edge,
   selected,
 }: MarkProps & { selected: boolean }) => {
+  if (marks.cursor === 'brackets')
+    return <FocusBrackets edge={edge} color={palette.destinationLine} />;
   const bold = marks.cursor === 'bold' || marks.cursor === 'fill';
   const base = ring(edge) * (marks.cursor === 'thick' || bold ? 2 : 1);
   const width = selected && marks.selected !== 'lift' ? base * 2 : base;
@@ -236,7 +242,12 @@ const Cursor = ({
 };
 
 // The picked-up marks that are not the cursor's frame (#121).
-const OWN_MARKS: readonly Marks['selected'][] = ['raised', 'ghost', 'warm'];
+const OWN_MARKS: readonly Marks['selected'][] = [
+  'raised',
+  'ghost',
+  'warm',
+  'warm-fill',
+];
 
 // The shadow a raised piece casts on its square.
 const Shadow = ({ edge }: { edge: number }) => {
@@ -294,6 +305,12 @@ export const Square = ({ view, edge }: { view: SquareView; edge: number }) => {
       {view.cursor && marks.cursor === 'fill'
         ? cover(edge, { backgroundColor: palette.cursorFill })
         : null}
+      {view.cursor && marks.cursor === 'brackets'
+        ? cover(edge, { backgroundColor: palette.destination, opacity: 0.24 })
+        : null}
+      {view.selected && marks.selected === 'warm-fill' ? (
+        <PickedUp edge={edge} fill={palette.warmFill} line={palette.warmLine} />
+      ) : null}
       {view.selected && marks.selected === 'tint-frame'
         ? cover(edge, { backgroundColor: palette.selected })
         : null}
@@ -305,7 +322,9 @@ export const Square = ({ view, edge }: { view: SquareView; edge: number }) => {
         ? cover(edge, { backgroundColor: palette.warmFill })
         : null}
       {raised ? <Shadow edge={edge} /> : null}
-      {view.destination && !Ghost ? (
+      {view.destination &&
+      !Ghost &&
+      !(view.cursor && marks.cursor === 'brackets') ? (
         <Destination {...props} occupied={view.piece !== null} />
       ) : null}
       {Piece ? (

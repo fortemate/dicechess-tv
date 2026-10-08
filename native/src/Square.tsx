@@ -1,16 +1,11 @@
 // One square of the board and the marks on it: the last move, the pieces that
 // can move, the picked-up piece, the legal destinations and the cursor. It
-// draws what a SquareView says and nothing else. The arrow from the picked-up
-// piece to the cursor spans squares, so ./MoveArrow.tsx draws it over the board.
+// draws what a SquareView says and nothing else.
 import React from 'react';
 import { View } from 'react-native';
 import type { SquareView } from '../../src/core/boardView';
 import { PIECES } from './pieces';
 import { THEME } from './theme';
-
-// Ring thickness and piece inset scale with the board so the board stays
-// legible whether it is sized for a 1080p panel or a smaller window.
-const ring = (size: number) => Math.max(2, Math.round(size / 240));
 
 // A destination dot's diameter, in squares.
 export const DOT = 0.32;
@@ -48,63 +43,66 @@ const Destination = ({
   );
 };
 
-// The cursor (#121): a cyan frame at twice the ring's width, with a dark line
-// inside it. Cyan is almost as light as the light squares, so on them the frame
-// alone stood out by hue only; the line stands out by lightness on both.
-const Cursor = ({ edge }: { edge: number }) => {
-  const line = ring(edge * 8);
-  const frame = line * 2;
+// The remote's focus, whether choosing a piece or its destination: two dark
+// green square brackets. Their open top and bottom leave the piece visible.
+export const FocusBrackets = ({
+  edge,
+  color = THEME.boardCursor,
+}: {
+  edge: number;
+  color?: string;
+}) => {
+  const width = Math.max(2, Math.round(edge * 0.085));
+  const inset = Math.round(edge * 0.06);
+  const top = Math.round(edge * 0.13);
   return (
     <>
-      <View
-        style={{
-          position: 'absolute',
-          left: 0,
-          top: 0,
-          width: edge,
-          height: edge,
-          borderWidth: frame,
-          borderColor: THEME.cursor,
-        }}
-      />
-      <View
-        style={{
-          position: 'absolute',
-          left: frame,
-          top: frame,
-          width: edge - frame * 2,
-          height: edge - frame * 2,
-          borderWidth: line,
-          borderColor: THEME.cursorLine,
-        }}
-      />
+      {[true, false].map((left) => (
+        <View
+          key={String(left)}
+          style={{
+            position: 'absolute',
+            ...(left ? { left: inset } : { right: inset }),
+            top,
+            width: Math.round(edge * 0.2),
+            height: edge - top * 2,
+            borderColor: color,
+            borderTopWidth: width,
+            borderBottomWidth: width,
+            ...(left
+              ? { borderLeftWidth: width }
+              : { borderRightWidth: width }),
+          }}
+        />
+      ))}
     </>
   );
 };
 
-// The picked-up piece (#121), lifted off its square: a fifth larger, a tenth of
-// a square higher, over the shadow it casts. It carries no frame or tint, so it
-// cannot be mistaken for the cursor, which is on one of its destinations.
-const RAISED = 1.2;
-const LIFT = 0.1;
-
-const Shadow = ({ edge }: { edge: number }) => {
-  const width = Math.round(edge * 0.76);
-  const height = Math.round(edge * 0.22);
-  return (
-    <View
-      style={{
-        position: 'absolute',
-        left: Math.round((edge - width) / 2),
-        top: Math.round(edge * 0.74),
-        width,
-        height,
-        borderRadius: height / 2,
-        backgroundColor: THEME.shadow,
-      }}
-    />
-  );
-};
+// The source stays marked while focus moves: a warm fill and a dark baseline,
+// distinct in shape from the focus brackets. The piece keeps its normal size.
+export const PickedUp = ({
+  edge,
+  fill = THEME.selected,
+  line = THEME.selectedLine,
+}: {
+  edge: number;
+  fill?: string;
+  line?: string;
+}) => (
+  <View
+    style={{
+      position: 'absolute',
+      left: 0,
+      top: 0,
+      width: edge,
+      height: edge,
+      backgroundColor: fill,
+      borderBottomWidth: Math.max(2, Math.round(edge * 0.085)),
+      borderBottomColor: line,
+    }}
+  />
+);
 
 export const Square = ({ view, edge }: { view: SquareView; edge: number }) => {
   const Piece = view.piece ? PIECES[view.piece as keyof typeof PIECES] : null;
@@ -131,7 +129,7 @@ export const Square = ({ view, edge }: { view: SquareView; edge: number }) => {
       ) : null}
       {view.movable ? (
         // A piece that can move now (#68): a fill under the piece, a shape the
-        // cursor's ring and the destination dots do not share.
+        // cursor's brackets and the destination dots do not share.
         <View
           style={{
             position: 'absolute',
@@ -141,22 +139,22 @@ export const Square = ({ view, edge }: { view: SquareView; edge: number }) => {
           }}
         />
       ) : null}
-      {view.selected ? <Shadow edge={edge} /> : null}
-      {view.destination ? (
-        <Destination edge={edge} occupied={view.piece !== null} />
-      ) : null}
-      {view.selected && piece ? (
+      {view.selected ? <PickedUp edge={edge} /> : null}
+      {view.cursor ? (
         <View
           style={{
-            transform: [{ scale: RAISED }, { translateY: -edge * LIFT }],
+            position: 'absolute',
+            width: edge,
+            height: edge,
+            backgroundColor: THEME.boardFocusFill,
           }}
-        >
-          {piece}
-        </View>
-      ) : (
-        piece
-      )}
-      {view.cursor ? <Cursor edge={edge} /> : null}
+        />
+      ) : null}
+      {view.destination && !view.cursor ? (
+        <Destination edge={edge} occupied={view.piece !== null} />
+      ) : null}
+      {piece}
+      {view.cursor ? <FocusBrackets edge={edge} /> : null}
     </View>
   );
 };

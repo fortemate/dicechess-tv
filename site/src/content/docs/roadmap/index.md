@@ -16,7 +16,7 @@ Every feature here was played on the Vega Virtual Device, and the app's automate
 - **Three computer opponents**, Rolly, Grabby and Rampage, as either colour, each with a portrait drawn for the game, speech bubbles and a synthetic voice. They are fairy-tale characters, a pixie, a goblin and a little horned imp, and their voices act their lines. An opponent talks from beside its portrait at the top of the screen. The portraits are in the build on the Appstore Beta Hub; the public packages show emoji faces in their place for now.
 - **Prowla the cat, Rolly or Thinkle the wizard hosts Hot Seat games**: the host cheers both players at the pauses of a game and at its big moments, castling among them, and shows with the line while speaking. Settings chooses Prowla, Rolly, Thinkle or no host.
 - **Moves that slide** to their squares, so an opponent's turn can be followed.
-- **A cursor that stands out**, its cyan frame lined in dark, and **a picked-up piece that rises** over its shadow, joined to the cursor by an arrow.
+- **Green focus brackets** and a **warm source-square fill**, keeping the picked-up piece at its normal size and the board free of move arrows.
 - **Dice that tumble in** on a roll, and dim when no legal turn can use them.
 - **Music that follows the game**, and **Settings** for music, sound effects, voices, and turning the board in Hot Seat.
 - **Eight public pre-releases**, with a playtest guide.

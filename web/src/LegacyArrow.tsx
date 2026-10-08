@@ -1,13 +1,13 @@
-// The arrow from the picked-up piece to the destination under the cursor
-// (#121). The two squares used to carry the same cyan frame, told apart only by
+// The earlier arrow, retained only for browser design comparisons,
+// from #121. The two squares used to carry the same cyan frame, told apart only by
 // its width; the arrow says "this piece goes here" in one shape, and it spans
 // squares, so it is drawn over the board rather than by a square.
 import React from 'react';
 import { View } from 'react-native';
 import { Path, Svg } from '@amazon-devices/react-native-svg';
 import { arrowPath, type Point } from './arrow';
-import { DOT } from './Square';
-import { THEME } from './theme';
+import { DOT } from '../../native/src/Square';
+import { THEME } from '../../native/src/theme';
 
 // A destination the arrow passes over, such as e3 under a pawn's arrow to e4.
 export type Dot = Point & { dark: boolean };

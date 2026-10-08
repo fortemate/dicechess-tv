@@ -6,15 +6,19 @@ export const THEME = {
   light: '#f0d9b5',
   dark: '#b58863',
   cursor: '#00eaff',
-  // The dark line inside the cursor's frame (#121). Cyan is almost as light as
+  // Board focus is green brackets; menus keep their existing cyan focus.
+  boardCursor: '#104426',
+  boardFocusFill: 'rgba(20, 85, 30, 0.12)',
+  selected: 'rgba(255, 180, 76, 0.62)',
+  selectedLine: '#58310b',
+  // The earlier board frame (#121), retained for browser comparisons. Cyan is as light as
   // the light squares, so the line gives the frame contrast by lightness too.
   cursorLine: '#0b1a24',
   // Chessground's move-destination green. Translucent and dark, so a dot reads
   // on both square colours.
   destination: 'rgba(20, 85, 30, 0.5)',
   lastMove: 'rgba(155, 199, 0, 0.41)',
-  // The picked-up piece (#121) stands raised on this shadow rather than in a
-  // tint of the cursor's cyan, so the two are not mistaken for each other.
+  // The earlier raised-piece variant, retained on the browser design bench.
   shadow: 'rgba(0, 0, 0, 0.5)',
   // A piece that can move now (#68): translucent, so it reads on both square
   // colours and under the last-move tint.

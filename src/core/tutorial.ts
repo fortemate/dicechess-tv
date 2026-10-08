@@ -69,7 +69,7 @@ export const TUTORIAL: readonly TutorialStep[] = [
   {
     id: 'move',
     title: 'Roll and move',
-    task: 'Use the arrows to choose a piece, press OK, then press OK on a dot.',
+    task: 'Choose a piece with the arrows and OK, then choose where to move and press OK.',
     speech: {
       opening: [
         'Welcome, my friend!',
