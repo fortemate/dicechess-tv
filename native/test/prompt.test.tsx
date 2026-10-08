@@ -13,6 +13,9 @@ import renderer, { act } from 'react-test-renderer';
 import { press, pressBack } from './stubs/react-native-kepler.mjs';
 import { MMKV, reset } from './stubs/react-native-mmkv.mjs';
 import { App } from '../src/App';
+import { Dice } from '../src/Dice';
+import { THEME } from '../src/theme';
+import { PIECES } from '../src/pieces';
 import type { ScreenOptions } from '../src/screen';
 
 type Instance = renderer.ReactTestInstance;
@@ -173,6 +176,31 @@ test('against the bot the person’s turn is over and OK starts the bot’s, whi
     clock.next();
     assert.equal(headline(root), 'White to play · you');
     assert.equal(prompt(root), 'OK: roll three dice');
+
+    // Before the person rolls, Rolly's played dice stay dimmed on screen (#297)
+    const dice = root.findByType(Dice);
+    const faces = dice.findAll(
+      (node) =>
+        (node.type as unknown as string) === 'View' &&
+        (node.props.style as Style | undefined)?.backgroundColor === THEME.die,
+    );
+    assert.equal(faces.length, 3);
+    assert.equal(dice.findAllByType(PIECES.n as never).length, 1);
+    assert.equal(dice.findAllByType(PIECES.k as never).length, 2);
+    assert.ok(
+      faces.every(
+        (node) =>
+          node.props.style?.opacity === 0.3 ||
+          node.props.style?.opacity === 0.45,
+      ),
+    );
+
+    // Pressing OK rolls the person's dice, replacing Rolly's dimmed dice
+    send('enter');
+    assert.equal(headline(root), 'White to play · you');
+    assert.equal(prompt(root), 'OK: pick up · Back: menu');
+    assert.equal(dice.findAllByType(PIECES.N as never).length, 1);
+    assert.equal(dice.findAllByType(PIECES.K as never).length, 2);
   } finally {
     mock.timers.reset();
   }
