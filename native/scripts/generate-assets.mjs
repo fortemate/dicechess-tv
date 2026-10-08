@@ -5,21 +5,21 @@
 // it afresh (#122).
 //
 // Vega wants `assets/raw/SplashScreenImages.zip`, and inside it a `desc.txt`
-// naming the frame size and rate, plus a `_loop` directory of PNG frames. Ours
-// is one frame: a still image, which the descriptor loops forever until the app
-// has drawn. Vega repeats the whole archive whatever count desc.txt gives, so a
-// still is the one splash that never restarts or stops halfway (#289).
+// naming the frame size and rate, plus a `_loop` directory of PNG frames, which
+// the descriptor loops forever until the app has drawn. Vega repeats the whole
+// archive whatever count desc.txt gives, so ours is a loop that ends where it
+// starts (#289).
 //
-// The frame is "Thinkle conjures", drawn by ./splash.mjs on the app's own
-// background, so the handover has no change of colour. It needs Thinkle's
+// The frames are "Thinkle conjures", drawn by ./splash.mjs on the app's own
+// background, so the handover has no change of colour. They need Thinkle's
 // vector from the private portrait pack; a checkout without it draws his hat
 // instead. ../splash/README.md covers the scene, its fonts and its sizes.
 //
 // The icon is the game's own, copied unchanged: the launcher fits a square icon
 // into a wide tile, and this one was made to survive that.
 //
-// The PNG work is done by hand here: the frame is written as plain RGB, and the
-// tests read it back with the decoder below. `zip` is on every machine that can
+// The PNG work is done by hand here: the frames are written as plain RGB, and
+// the tests read them back with the decoder below. `zip` is on every machine that can
 // build this package.
 import { execFileSync } from 'node:child_process';
 import {
@@ -31,11 +31,11 @@ import {
   utimesSync,
   writeFileSync,
 } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { crc32, deflateSync, inflateSync } from 'node:zlib';
 import { createHash } from 'node:crypto';
-import { renderSplash } from './splash.mjs';
+import { MOTION, splashRenderer } from './splash.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 // The application's directory. The functions below take it as `root`, so a test
@@ -45,7 +45,7 @@ const native = resolve(here, '..');
 // A television frame. 4K is not supported by the animation service.
 const WIDTH = 1920;
 const HEIGHT = 1080;
-const FPS = 30;
+const FPS = MOTION.fps;
 
 // THEME.background in src/theme.ts. If one changes, change both.
 const BACKGROUND = [0x12, 0x27, 0x37];
@@ -188,15 +188,19 @@ export const main = (root = native) => {
   // splash draws Thinkle from the same pinned pack.
   const portraits = copyPortraits(root);
   const thinkle = portraitVector(root, 'thinkle.svg');
-  const frame = renderSplash(root, thinkle);
+  const render = splashRenderer(root, thinkle);
 
   // Staged outside assets/, because only the zip belongs in the package.
   const staging = join(root, 'build/splash');
   rmSync(staging, { recursive: true, force: true });
   mkdirSync(join(staging, '_loop'), { recursive: true });
 
-  const framePath = join(staging, '_loop/loop00000.png');
-  writeFileSync(framePath, encodePng(WIDTH, HEIGHT, frame));
+  // The documented names, loop00000.png on, one per frame of the loop.
+  const framePaths = Array.from({ length: MOTION.frames }, (_, i) => {
+    const path = join(staging, `_loop/loop${String(i).padStart(5, '0')}.png`);
+    writeFileSync(path, encodePng(WIDTH, HEIGHT, render(i)));
+    return path;
+  });
 
   // Line 1: frame size and rate. Line 2: keep the assets, loop forever, no
   // delay, and read the frames from `_loop`.
@@ -206,7 +210,7 @@ export const main = (root = native) => {
   // A fixed timestamp keeps the archive byte-identical between builds. The
   // directory entry carries one of its own, so it is stamped too.
   const epoch = new Date('2020-01-01T00:00:00Z');
-  for (const path of [framePath, descriptorPath, join(staging, '_loop')])
+  for (const path of [...framePaths, descriptorPath, join(staging, '_loop')])
     utimesSync(path, epoch, epoch);
 
   const destination = join(root, 'assets/raw/SplashScreenImages.zip');
@@ -216,14 +220,26 @@ export const main = (root = native) => {
   // stamps entries in local time, so it runs in UTC. Built from inside the
   // staging directory so the archive has no wrapping folder: the animation
   // service looks for `_loop` and `desc.txt` at the root and finds neither if
-  // one is added.
-  execFileSync('zip', ['-q', '-X', '-r', destination, '_loop', 'desc.txt'], {
-    cwd: staging,
-    env: { ...process.env, TZ: 'UTC' },
-  });
+  // one is added. The frames are named one by one, in playback order: the
+  // service takes them in archive order, and a recursive walk of the folder
+  // can list them in another (#290). PNG is already compressed, so -0 stores
+  // them as they are.
+  execFileSync(
+    'zip',
+    [
+      '-q',
+      '-0',
+      '-X',
+      destination,
+      '_loop/',
+      ...framePaths.map((path) => `_loop/${basename(path)}`),
+      'desc.txt',
+    ],
+    { cwd: staging, env: { ...process.env, TZ: 'UTC' } },
+  );
 
   return {
-    framePath,
+    framePaths,
     descriptorPath,
     destination,
     icon,
@@ -398,6 +414,6 @@ if (
   );
   console.log(`voices: ${voices.length} clips -> assets/voices/`);
   console.log(
-    `splash: ${WIDTH}x${HEIGHT}, ${thinkle ? 'Thinkle' : "Thinkle's hat (no portraits in this checkout)"} -> ${shown(destination)}`,
+    `splash: ${WIDTH}x${HEIGHT}, ${MOTION.frames} frames at ${FPS} fps, ${thinkle ? 'Thinkle' : "Thinkle's hat (no portraits in this checkout)"} -> ${shown(destination)}`,
   );
 }

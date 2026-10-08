@@ -19,14 +19,16 @@ import {
   DICE,
   HAT_BLUE,
   MEDALLION,
-  renderSplash,
+  MOTION,
+  REST_FRAME,
+  splashRenderer,
   // @ts-expect-error — a build script, deliberately plain JavaScript.
 } from '../scripts/splash.mjs';
 
 const NATIVE = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 const built = main() as {
-  framePath: string;
+  framePaths: string[];
   descriptorPath: string;
   destination: string;
   icon: string;
@@ -34,12 +36,15 @@ const built = main() as {
   thinkle: boolean;
 };
 
-const frame = decodePng(built.framePath) as {
+type Frame = {
   width: number;
   height: number;
   channels: number;
   pixels: Buffer;
 };
+const frames = built.framePaths.map((path) => decodePng(path) as Frame);
+// The pose most launches hand over on: the dice hovering on their orbit.
+const frame = frames[REST_FRAME];
 
 const at = (x: number, y: number) => {
   const base = (y * frame.width + x) * frame.channels;
@@ -54,14 +59,48 @@ const hex = (colour: string) =>
 
 const IVORY = hex('#f4ead8');
 
-test('the frame is a television frame, not a 4K one the service would refuse', () => {
-  assert.equal(frame.width, 1920);
-  assert.equal(frame.height, 1080);
-  assert.equal(
-    frame.channels,
-    3,
-    'an alpha channel would leave the compositor to blend',
+test('every frame is a television frame, not a 4K one the service would refuse', () => {
+  assert.equal(frames.length, MOTION.frames);
+  for (const each of frames) {
+    assert.equal(each.width, 1920);
+    assert.equal(each.height, 1080);
+    assert.equal(
+      each.channels,
+      3,
+      'an alpha channel would leave the compositor to blend',
+    );
+  }
+});
+
+// The title and the credit are what a cut at any frame must still show, so
+// only the right side, where Thinkle conjures, may change.
+test('the title and the credit stand still in every frame', () => {
+  const left = (each: Frame) => {
+    const rows = [];
+    for (let y = 0; y < 1080; y++)
+      rows.push(each.pixels.subarray(y * 1920 * 3, (y * 1920 + 800) * 3));
+    return Buffer.concat(rows);
+  };
+  const first = left(frames[0]);
+  frames.forEach((each, i) =>
+    assert.ok(left(each).equals(first), `frame ${i} moved the left side`),
   );
+});
+
+// Vega plays the frames in a loop, so the last must lead into the first
+// without a jump.
+test('the loop closes without a jump', () => {
+  const last = frames[frames.length - 1].pixels;
+  const first = frames[0].pixels;
+  let changed = 0;
+  for (let i = 0; i < first.length; i += 3)
+    if (
+      Math.abs(first[i] - last[i]) > 24 ||
+      Math.abs(first[i + 1] - last[i + 1]) > 24 ||
+      Math.abs(first[i + 2] - last[i + 2]) > 24
+    )
+      changed++;
+  assert.ok(changed / (1920 * 1080) < 0.01, `${changed} pixels jump`);
 });
 
 test('the background is the board colour, so the handover is invisible', () => {
@@ -79,18 +118,22 @@ test('the background is the board colour, so the handover is invisible', () => {
 });
 
 test('everything stays inside the five per cent a television may crop', () => {
-  let minX = frame.width;
-  let minY = frame.height;
+  let minX = 1920;
+  let minY = 1080;
   let maxX = -1;
   let maxY = -1;
-  for (let y = 0; y < frame.height; y++)
-    for (let x = 0; x < frame.width; x++) {
-      if (near(at(x, y), SPLASH.BACKGROUND, 0)) continue;
-      if (x < minX) minX = x;
-      if (y < minY) minY = y;
-      if (x > maxX) maxX = x;
-      if (y > maxY) maxY = y;
-    }
+  const [r, g, b] = SPLASH.BACKGROUND;
+  for (const { pixels } of frames)
+    for (let y = 0; y < 1080; y++)
+      for (let x = 0; x < 1920; x++) {
+        const i = (y * 1920 + x) * 3;
+        if (pixels[i] === r && pixels[i + 1] === g && pixels[i + 2] === b)
+          continue;
+        if (x < minX) minX = x;
+        if (y < minY) minY = y;
+        if (x > maxX) maxX = x;
+        if (y > maxY) maxY = y;
+      }
   assert.ok(maxX > 0, 'the frame is empty');
   assert.ok(
     minX >= 96 && maxX < 1824 && minY >= 54 && maxY < 1026,
@@ -132,7 +175,7 @@ test('the mark sits on whole pixels beside the name, so it stays crisp', () => {
   assert.ok(white > 3000, `only ${white} white pixels in the name`);
 });
 
-test('the three dice show ivory faces on their orbit', () => {
+test('at rest, the three dice show ivory faces on their orbit', () => {
   for (const { piece, x, y } of DICE)
     assert.ok(
       near(at(Math.round(x - 70), Math.round(y)), IVORY),
@@ -149,9 +192,9 @@ test('the medallion holds Thinkle, or his hat in a checkout without him', () => 
   const standIn = Buffer.from(
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><rect width="2048" height="2048" fill="#ff00ff"/></svg>',
   );
-  const drawn = renderSplash(NATIVE, standIn);
+  const drawn = splashRenderer(NATIVE, standIn)(REST_FRAME);
   assert.deepEqual(pixel(drawn, MEDALLION.cx, MEDALLION.cy), [255, 0, 255]);
-  const hat = renderSplash(NATIVE, null);
+  const hat = splashRenderer(NATIVE, null)(REST_FRAME);
   assert.ok(near(pixel(hat, 1440, 650), hex(HAT_BLUE), 2), 'no hat');
   // The build drew the one this checkout has.
   const medallion = at(1440, 650);
@@ -273,18 +316,24 @@ test('the descriptor says what the animation service expects', () => {
   );
 });
 
-// Vega repeats the whole archive and has to unpack it before the first frame;
-// a 17 MB one appeared only after the game did (#290). One still is far below.
-test('the archive is one small entry', () => {
-  assert.ok(statSync(built.destination).size < 1_000_000);
+// Vega has to unpack the whole archive before the first frame; a 17 MB one
+// appeared only after the game did (#290). The frames stay under 3 MB.
+test('the archive stays under 3 MB', () => {
+  assert.ok(statSync(built.destination).size < 3_000_000);
 });
 
-test('the archive has no wrapping folder, which would hide it from the service', () => {
+test('the archive has no wrapping folder and keeps the frames in playback order', () => {
   const listed = execFileSync('unzip', ['-Z1', built.destination], {
     encoding: 'utf8',
   })
     .split('\n')
-    .filter(Boolean)
-    .sort();
-  assert.deepEqual(listed, ['_loop/', '_loop/loop00000.png', 'desc.txt']);
+    .filter(Boolean);
+  assert.deepEqual(listed, [
+    '_loop/',
+    ...Array.from(
+      { length: MOTION.frames },
+      (_, i) => `_loop/loop${String(i).padStart(5, '0')}.png`,
+    ),
+    'desc.txt',
+  ]);
 });

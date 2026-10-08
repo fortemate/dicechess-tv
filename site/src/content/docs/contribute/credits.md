@@ -30,7 +30,7 @@ Dice Chess TV combines open-source code with public domain and permitted creativ
 
 - **Fonts:** [Titan One](https://github.com/google/fonts/tree/main/ofl/titanone) by Rodrigo Fuenzalida sets the title on the launch splash, and [Arimo](https://github.com/googlefonts/Arimo) by The Arimo Project Authors sets the Fortemate name beside the mark.
 - **Licence:** SIL Open Font License 1.1, with each licence kept beside its font in `native/splash/fonts/`.
-- **Usage:** Build time only. The splash is drawn once into a picture, so neither font is in the app.
+- **Usage:** Build time only. The splash is drawn into pictures when the app is built, so neither font is in the app.
 
 ### Opponent Bot Avatars
 

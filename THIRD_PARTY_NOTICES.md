@@ -29,7 +29,7 @@ The faces of the three local opponents are three SVGs from the RhosGFX Vector Em
 
 ## Splash
 
-The launch splash is drawn at build time by `native/scripts/splash.mjs` and ships as one PNG. Its title is set in Titan One and the Fortemate name in Arimo Regular, both under the SIL Open Font License 1.1 and copied unchanged into `native/splash/fonts/` with their licences; `native/splash/README.md` records their sources and digests. The fonts themselves are not in the package. `@resvg/resvg-js` 2.6.2 renders the frame; it is a development dependency under MPL-2.0, its full licence stays in the installed package, and the application does not import it. The splash draws Thinkle from the private portrait pack (below) and three RhosGFX pieces (above); a build without the portraits draws a hat instead.
+The launch splash is drawn at build time by `native/scripts/splash.mjs` and ships as 25 PNG frames. Its title is set in Titan One and the Fortemate name in Arimo Regular, both under the SIL Open Font License 1.1 and copied unchanged into `native/splash/fonts/` with their licences; `native/splash/README.md` records their sources and digests. The fonts themselves are not in the package. `@resvg/resvg-js` 2.6.2 renders the frames; it is a development dependency under MPL-2.0, its full licence stays in the installed package, and the application does not import it. The splash draws Thinkle from the private portrait pack (below) and three RhosGFX pieces (above); a build without the portraits draws a hat instead.
 
 ## Sounds
 
