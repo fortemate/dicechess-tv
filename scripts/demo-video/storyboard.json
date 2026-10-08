@@ -6,7 +6,7 @@
     "seconds": 7,
     "title": "Dice Chess for Fire TV",
     "link": "dicechess-tv.fortemate.com",
-    "footer": "Recorded on the Vega Virtual Device on macOS \u00b7 Music by pepka-prygni\nVoices made with ElevenLabs \u00b7 Portraits made with Recraft",
+    "footer": "Recorded on the Vega Virtual Device on macOS \u00b7 Music by pepka-prygni\nSounds by Kenney & JDSherbert \u00b7 Voices: ElevenLabs \u00b7 Portraits: Recraft",
     "music": {
       "file": "native/music/pepka-prygni-dicechess/warm_anticipation.mp3",
       "gainDb": -6,
@@ -38,6 +38,50 @@
       ]
     },
     {
+      "name": "Learn with Thinkle",
+      "card": {
+        "kicker": "Learn with Thinkle",
+        "title": "The wizard talks you\nthrough your first moves",
+        "seconds": 4.5
+      },
+      "clips": [
+        {
+          "take": "tutorial",
+          "from": 16.1,
+          "to": 28.0,
+          "audio": [
+            {
+              "line": "thinkle_tutor_move_opening_1",
+              "at": 16.448
+            },
+            {
+              "line": "thinkle_tutor_move_opening_2",
+              "at": 19.344
+            },
+            {
+              "line": "thinkle_tutor_move_opening_3",
+              "at": 24.304
+            }
+          ]
+        },
+        {
+          "take": "tutorial",
+          "from": 30.85,
+          "to": 40.85,
+          "audio": [
+            {
+              "line": "thinkle_tutor_move_rolled_1",
+              "at": 31.073
+            },
+            {
+              "line": "thinkle_tutor_move_rolled_2",
+              "at": 36.993
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "Two players, one remote",
       "card": {
         "kicker": "Two players, one remote",
@@ -48,7 +92,13 @@
         {
           "take": "hotseat",
           "from": 5.4,
-          "to": 11.2
+          "to": 11.2,
+          "audio": [
+            {
+              "line": "prowla_host_intro_3",
+              "at": 5.747
+            }
+          ]
         }
       ]
     },
@@ -63,7 +113,24 @@
         {
           "take": "hotseat",
           "from": 11.2,
-          "to": 21.35
+          "to": 21.35,
+          "audio": [
+            {
+              "file": "native/sounds/kenney-casino-audio/dice_throw_1.mp3",
+              "at": 12.9445,
+              "gainDb": -1
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
+              "at": 15.372,
+              "gainDb": -1
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
+              "at": 18.9423,
+              "gainDb": -1
+            }
+          ]
         }
       ]
     },
@@ -78,7 +145,23 @@
         {
           "take": "flip",
           "from": 12.4,
-          "to": 23.4
+          "to": 23.4,
+          "audio": [
+            {
+              "file": "native/sounds/kenney-casino-audio/dice_throw_3.mp3",
+              "at": 12.8456,
+              "gainDb": -1
+            },
+            {
+              "line": "prowla_host_handoff_2",
+              "at": 15.378
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_1.mp3",
+              "at": 21.3555,
+              "gainDb": -1
+            }
+          ]
         }
       ]
     },
@@ -98,42 +181,13 @@
         {
           "take": "opponents",
           "from": 18.65,
-          "to": 24.2
-        }
-      ]
-    },
-    {
-      "name": "Learn with Thinkle",
-      "card": {
-        "kicker": "Learn with Thinkle",
-        "title": "The wizard talks you\nthrough your first moves",
-        "seconds": 4.5
-      },
-      "clips": [
-        {
-          "take": "tutorial",
-          "from": 16.1,
-          "to": 28.0
-        },
-        {
-          "take": "tutorial",
-          "from": 30.85,
-          "to": 40.85
-        }
-      ]
-    },
-    {
-      "name": "Music that follows the game",
-      "card": {
-        "kicker": "Music that follows the game",
-        "title": "Hear the music change\nas the kings come under threat",
-        "seconds": 5
-      },
-      "clips": [
-        {
-          "take": "rampage",
-          "from": 53.8,
-          "to": 81.6
+          "to": 24.2,
+          "audio": [
+            {
+              "line": "grabby_intro_2",
+              "at": 18.971
+            }
+          ]
         }
       ]
     },
@@ -161,6 +215,118 @@
           "to": 23.6
         }
       ]
+    },
+    {
+      "name": "Music that follows the game",
+      "card": {
+        "kicker": "Music that follows the game",
+        "title": "Hear the music change\nas the kings come under threat",
+        "seconds": 5
+      },
+      "clips": [
+        {
+          "take": "rampage",
+          "from": 53.8,
+          "to": 88.3,
+          "audio": [
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
+              "at": 55.851,
+              "gainDb": -1
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_1.mp3",
+              "at": 59.6122,
+              "gainDb": -1
+            },
+            {
+              "file": "native/sounds/kenney-casino-audio/dice_throw_1.mp3",
+              "at": 62.2249,
+              "gainDb": -1
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
+              "at": 63.0682,
+              "gainDb": -1
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_impact_1.mp3",
+              "at": 63.6923,
+              "gainDb": -1
+            },
+            {
+              "line": "rampage_capture_3",
+              "at": 63.893
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_1.mp3",
+              "at": 69.2922,
+              "gainDb": -1
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
+              "at": 73.0523,
+              "gainDb": -1
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_impact_1.mp3",
+              "at": 76.5083,
+              "gainDb": -1
+            },
+            {
+              "file": "native/sounds/kenney-casino-audio/dice_grab_2.mp3",
+              "at": 78.3211,
+              "gainDb": -1
+            },
+            {
+              "line": "rampage_threat_1",
+              "at": 78.373
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
+              "at": 80.4925,
+              "gainDb": -1
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_impact_2.mp3",
+              "at": 80.9085,
+              "gainDb": -1
+            },
+            {
+              "file": "native/sounds/kenney-music-jingles/pizzicato_01.mp3",
+              "at": 81.0251,
+              "gainDb": 0
+            },
+            {
+              "line": "rampage_win_1",
+              "at": 82.021
+            }
+          ]
+        }
+      ]
     }
-  ]
+  ],
+  "soundtrack": {
+    "gainDb": -6,
+    "crossfadeSeconds": 2,
+    "fadeInSeconds": 1,
+    "fadeOutSeconds": 3,
+    "changes": [
+      {
+        "role": "menu",
+        "scene": "Dice Chess for Fire TV"
+      },
+      {
+        "role": "calm",
+        "scene": "Two players, one remote",
+        "clip": 0
+      },
+      {
+        "role": "critical",
+        "scene": "Music that follows the game",
+        "clip": 0,
+        "at": 65.239
+      }
+    ]
+  }
 }

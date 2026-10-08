@@ -2,16 +2,18 @@
 
 These scripts record and cut the demo video. The preliminary cut uses short
 title cards and the game's own sound (owner, 2026-10-08), following demo v.6.
-Prowla hosts Hot Seat; Thinkle is heard teaching the tutorial, without an added
-narrator. The adaptive music is kept as the game played it, with no music bed
-laid over gameplay. The earlier narrated cut is retained in
+Prowla hosts Hot Seat; Thinkle's tutorial follows the launch animation, without
+an added narrator. Music is mixed continuously across cards and footage: menu
+through the introduction and tutorial, calm from the first Hot Seat game, then
+critical at the recorded threat to the king. The earlier narrated cut is retained in
 `storyboard-narrated.json` for a later version.
 
 | File                   | What it does                                                                                                            |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | `record.ts`            | Drives the Virtual Device through the gameplay takes with `vvd`; also renders one cycle of the built launch animation.  |
 | `storyboard.json`      | The cut: each scene's name (its chapter), the stretches of takes it shows, its optional title card, and the end card.   |
-| `assemble.ts`          | Cuts the video, preserving game audio, and checks duration, picture and sound.                                          |
+| `assemble.ts`          | Cuts the picture, mixes continuous music with synchronized game sounds, and checks the export.                          |
+| `soundtrack.ts`        | Resolves music transitions and recorded voice/effect events onto the finished timeline.                                 |
 | `cards.swift`          | Draws the "Vega Virtual Device on macOS" badge, title cards and end card, in the app's colours.                         |
 | `vendor-narration.mjs` | Vendors Thinkle's narration from fortemate/dicechess-assets at a pinned commit into `narration/`, with its licence.     |
 | `narration/`           | The narration: 15 clips, the pack's manifest and licence, and `narration.json`, which `test/demo-video.test.ts` checks. |
@@ -61,7 +63,11 @@ laid over gameplay. The earlier narrated cut is retained in
      before it launches the app, as the ones that worked did.
 
 2. Look through each take and set where each clip starts and ends in
-   `storyboard.json`, and the short text and reading time of each `card`. For the
+   `storyboard.json`, and the short text and reading time of each `card`. Set
+   each clip's `audio` events to the voices and effects actually heard in that
+   take; `at` is the absolute source-take time. A `line` names a native voice
+   asset; a `file` names a native sound effect. Never add dialogue that the
+   footage does not show. The assembler rejects cuts that truncate a voice. For the
    narrated storyboard, `at` places each line in seconds from the start of its
    scene. The dice are random, so a take can miss
    what its scene needs: a capture by Grabby, a turn left part-way for the resume
@@ -82,34 +88,45 @@ laid over gameplay. The earlier narrated cut is retained in
    Set `OUT` to a different directory to keep an earlier cut. It writes
    `dist/demo-video/dicechess-tv-demo.mp4`, `chapters.txt` for the
    YouTube description, and `sheet.png`, a frame every two seconds to check the
-   cut by.
+   cut by. `soundtrack-timeline.json` records music spans, picture timings and
+   every synchronized sound for review.
    - It refuses a storyboard whose lines run into each other, and warns of a
      line that runs past its scene.
    - It enforces that the video is shorter than three minutes, 1080p at 30
-     frames a second, with AAC sound. It warns of any chapter shorter than the
-     10 s YouTube needs. These are checked by assemble.ts, not on a device.
+     frames a second, with AAC sound. It also rejects sustained silence in the
+     continuous soundtrack, except at its opening and closing fades. It warns of
+     any chapter shorter than the 10 s YouTube needs. These are checked by assemble.ts, not on a device.
 
 ## How the cut is made
 
 - A scene is its clips in a row, each faded through the app's background into
-  the next, with the take's own sound: music, effects and the characters' lines.
-- Optional title cards use the menu theme with short fades; gameplay keeps its
-  own music and voices. Cards have a `kicker`, a short `title`, and `seconds`
-  for reading.
+  the next. Cards have a `kicker`, a short `title`, and `seconds` for reading.
+- The preliminary cut uses one music timeline, independent of picture cuts.
+  `soundtrack.changes` anchor each change to a scene's beginning, or to a clip
+  and an absolute time in its source take. Themes use the app's catalogue gain
+  and a two-second equal-power crossfade. Music never restarts for a card.
+- Baked take audio is muted in this cut. The same native voice and effect
+  assets are placed at their observed source times. Mono voices play equally
+  in both channels, as on Vega; music ducks by `duckDb` for speech, including
+  the app's 0.3-second tail and 0.2/0.6-second ramps. There is no added narrator.
+- The adaptive chapter retains the observed calm-to-critical trigger time,
+  then carries critical music over the result and closing card. It demonstrates
+  the game's themes; music across editorial cards is part of the video mix.
 - In `storyboard-narrated.json`, Thinkle's lines go in at their times. Under
   each one the take's sound dips by
   `duckDb`, as the game's music does under a character's line: down in 0.2 s
   before it, back in 0.6 s after it. `narrationGainDb` moves his level against
   the takes; the clips are packed at -16 LUFS.
-- A clip's `hold` keeps its last frame up, with silence under it: room for a
-  line of his over a screen the take pressed on from at once.
-- The preliminary end card has the menu theme and the project URL. The
+- A clip's `hold` keeps its last frame up. Continuous music carries through it;
+  the narrated cut leaves room for a line over a screen the take left at once.
+- The preliminary end card continues the current game theme and shows the project URL. The
   narrated storyboard retains Thinkle's closing words. Neither card promises
   a price, ads or accounts, since plans may change (owner, 2026-10-05).
 - The finished mix is brought to -16 LUFS, with PCM sample peaks limited to -1.5 dBFS before AAC encoding.
 - The music is pepka-prygni's. `native/music/pepka-prygni-dicechess/LICENSE.txt`
   grants it for the game only; the owner reports that the author also allowed it
-  in the demo video. The end card credits it.
+  in the demo video. The end card credits it, Kenney and JDSherbert
+  (`native/sounds/` licences), alongside the voice and portrait generators.
 - The narration is for Fortemate's Dice Chess apps and the videos that present
   them (`narration/LICENSE.txt`). To take a newer recording, vendor it again:
 
