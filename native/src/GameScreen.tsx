@@ -376,8 +376,10 @@ const pieceOn = (view: GameView, square: string): string => {
 // The opponent is at work on its turn: rolling, deciding or playing. Once the
 // turn is over it still owes the handoff, but only waits for its last move to
 // be seen, and the screen says the turn is over (#232), not that it plays on.
-const voiceIsLive = (active: boolean, kind: Overlay['kind']): boolean =>
-  active && (kind === 'none' || kind === 'result');
+const boardActivity = (active: boolean, kind: Overlay['kind']) => ({
+  live: active && kind === 'none',
+  voiceLive: active && (kind === 'none' || kind === 'result'),
+});
 
 const botPlaying = (game: Game): boolean =>
   botOwes(game) && game.phase !== 'handoff';
@@ -871,11 +873,11 @@ export const GameScreen = ({
   // Lines are picked only while the board is on screen (#202), so a game
   // waiting behind the home screen says nothing. A bot's last word is said with
   // the result over the board.
-  const live = active && overlay.kind === 'none';
+  const { live, voiceLive } = boardActivity(active, overlay.kind);
   const voiceLine = useBotVoice(game, level, {
     onVoiceLine: say,
     holdMs: bubbleHoldMs,
-    live: voiceIsLive(active, overlay.kind),
+    live: voiceLive,
   });
   // The Hot Seat host (#202): her line is said, and shown with her portrait
   // above the bottom badge while it lasts (#213). The bot's hook speaks only
