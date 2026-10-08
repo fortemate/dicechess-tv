@@ -1,27 +1,31 @@
 # Launch splash
 
 The native splash (#289) is "Thinkle conjures", which the owner chose on
-2026-10-08 as a still. Thinkle sits in an ivory-rimmed medallion, as on the
-opponent cards; three chess dice, queen, knight and rook, float on a dotted
-orbit beside him; "Dice Chess" leads on the left in Titan One; the Fortemate
-mark sits beside its name as the developer credit.
+2026-10-08. Thinkle sits in an ivory-rimmed medallion, as on the opponent cards,
+with three chess dice, queen, knight and rook, stacked over his raised palm.
+They rise from it one after another and float out to a dotted orbit beside
+him, where they hover. "Dice Chess" leads on the left in Titan One; the
+Fortemate mark sits beside its name as the developer credit. The title and the
+credit never move, so a cut at any frame shows them whole.
 
-`scripts/splash.mjs` draws it at build time with `@resvg/resvg-js` 2.6.2
-(MPL-2.0, a development dependency), and `scripts/generate-assets.mjs` packs the
-single PNG into `assets/raw/SplashScreenImages.zip`. Nothing here, the fonts and
-Thinkle's vector included, goes into the package: the device gets pixels.
+`scripts/splash.mjs` draws the 25 frames at build time with `@resvg/resvg-js`
+2.6.2 (MPL-2.0, a development dependency), and `scripts/generate-assets.mjs`
+packs them, in playback order, into `assets/raw/SplashScreenImages.zip` at
+8 fps. Nothing here, the fonts and Thinkle's vector included, goes into the
+package: the device gets pixels.
 
-## Why one frame
+## Why a loop
 
 Vega's animation service plays the archive in a loop, whatever `desc.txt` asks.
 On our Fire TV Stick (Vega OS 1.2) a count of 1 and a separate hold part both
 repeated the whole archive (#290), as a
 [public bug report](https://community.amazondeveloper.com/t/28867) describes.
-The splash is on screen for about 2.2 s of a cool start there: its first frame
-at 0.41 s, the game fully drawn at 2.65 s (see the performance page). So a
-reveal either repeats or is cut halfway, and a slower start repeats it more. A
-still does neither. Animated concepts were tried in #290 and in a design review;
-the owner chose a still for now.
+So the motion is a loop of 3.125 s that ends where it starts: the dice reach
+their orbit by about 1.1 s, hover until 2.5 s, then glide back into his palm.
+The splash is on screen for about 2.2 s of a cool start there (its first frame
+at 0.41 s, the game fully drawn at 2.65 s, see the performance page), so a
+typical launch hands over while the dice hover; a slower one sees them come
+home and rise again, never a jump.
 
 ## Inputs
 
@@ -45,12 +49,14 @@ both: a stand-in portrait and the hat.
 
 ## Size
 
-The frame is about 124 KB as a PNG and the archive about 117 KB. Keep it small:
-in #290 an archive of 17 MB made the service prepare the splash only after the
-game was already on screen.
+Each frame is a whole PNG of about 118 KB with Thinkle, and the archive stores
+them as they are: about 2.95 MB for the 25. In #290 an archive of 17 MB made the
+service prepare the splash only after the game was already on screen, so the
+test holds it under 3 MB. More frames, a higher frame rate or a shadow under
+the title would not fit.
 
 ## Changing it
 
-Edit `scripts/splash.mjs`, run `npm run assets`, and look at
-`build/splash/_loop/loop00000.png`. Then look at it on a Fire TV Stick: in
+Edit `scripts/splash.mjs`, run `npm run assets`, and look at the frames in
+`build/splash/_loop/`. Then look at it on a Fire TV Stick: in
 #290's runs the Virtual Device showed the splash black.
