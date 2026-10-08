@@ -1,13 +1,18 @@
-// Draws the stills of the demo video at 1920x1080: the badge laid over the
-// footage and the end card. scripts/demo-video/assemble.ts writes the spec and
+// Draws the stills of the demo video at 1920x1080: title cards, the badge over
+// footage, and the end card. scripts/demo-video/assemble.ts writes the spec and
 // runs this; nothing else needs it.
 //
 //   swift scripts/demo-video/cards.swift <spec.json> <out-dir>
 //
 // AppKit draws the text, so it needs macOS, as the Vega Virtual Device does.
-// The end card takes the app's own colours. Thinkle's narration took the place
-// of the title cards between scenes (owner, 2026-10-05).
+// Title cards and the end card use the app's heading style and colours.
 import AppKit
+
+struct Card: Decodable {
+  let file: String
+  let kicker: String
+  let title: String
+}
 
 struct Badge: Decodable {
   let file: String
@@ -28,6 +33,7 @@ struct Spec: Decodable {
   // The background as the recordings decode it, so the end card follows the
   // footage without a step in colour.
   let background: String
+  let cards: [Card]?
   let badge: Badge
   let end: End
 }
@@ -124,6 +130,19 @@ func still(_ file: String, fill: NSColor?, _ paint: () -> Void) throws {
 let background = colour(spec.background)
 let column: CGFloat = 1440
 let columnLeft = (CGFloat(width) - column) / 2
+
+for card in spec.cards ?? [] {
+  try still(card.file, fill: background) {
+    let kicker = text(card.kicker.uppercased(), "AvenirNext-DemiBold", 36, kickerColour, kern: 7)
+    let title = text(card.title, "AvenirNext-Medium", 84, titleColour)
+    let gap: CGFloat = 34
+    let block = measure(kicker, column) + gap + measure(title, column)
+    // Centred, and a little above the middle, where a reader looks first.
+    let top = (CGFloat(height) - block) / 2 - 20
+    let kickerTall = draw(kicker, top: top, left: columnLeft, width: column)
+    _ = draw(title, top: top + kickerTall + gap, left: columnLeft, width: column)
+  }
+}
 
 // Where the first cut had it: top right, in the app's quiet teal, inside the
 // margin the app keeps clear.

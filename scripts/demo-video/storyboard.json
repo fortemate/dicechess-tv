@@ -3,203 +3,330 @@
   "duckDb": -9,
   "narrationGainDb": 0,
   "end": {
-    "seconds": 10,
+    "seconds": 7,
     "title": "Dice Chess for Fire TV",
     "link": "dicechess-tv.fortemate.com",
-    "footer": "Recorded on the Vega Virtual Device on macOS · Music by pepka-prygni\nVoices made with ElevenLabs · Portraits made with Recraft",
+    "footer": "Recorded on the Vega Virtual Device on macOS \u00b7 Music by pepka-prygni\nSounds by Kenney & JDSherbert \u00b7 Voices: ElevenLabs \u00b7 Portraits: Recraft",
     "music": {
       "file": "native/music/pepka-prygni-dicechess/warm_anticipation.mp3",
       "gainDb": -6,
       "fadeInSeconds": 1,
       "fadeOutSeconds": 3
     },
-    "narration": [
-      {
-        "line": "thinkle_demo_close_1",
-        "at": 0.6
-      },
-      {
-        "line": "thinkle_tutor_closing_3",
-        "at": 5.4
-      }
-    ]
+    "tagline": "Three dice. One remote. A new kind of chess."
   },
   "scenes": [
     {
       "name": "Dice Chess for Fire TV",
+      "card": {
+        "kicker": "Dice Chess for Fire TV",
+        "title": "Chess with a roll of the dice",
+        "seconds": 4.0
+      },
       "clips": [
         {
-          "take": "hotseat",
-          "from": 63.2,
-          "to": 75.0
-        }
-      ],
-      "narration": [
-        {
-          "line": "thinkle_demo_hook_1",
-          "at": 0.8
+          "take": "launch-animation",
+          "from": 0,
+          "to": 3.125,
+          "badge": false
         },
         {
-          "line": "thinkle_demo_hook_2",
-          "at": 6.2
+          "take": "built",
+          "from": 8.0,
+          "to": 11.0
         }
       ]
     },
     {
-      "name": "The TV teaches the game",
+      "name": "Learn with Thinkle",
+      "card": {
+        "kicker": "Learn with Thinkle",
+        "title": "The wizard talks you\nthrough your first moves",
+        "seconds": 4.5
+      },
       "clips": [
         {
           "take": "tutorial",
-          "from": 5.15,
-          "to": 11.3
+          "from": 16.1,
+          "to": 28.0,
+          "audio": [
+            {
+              "line": "thinkle_tutor_move_opening_1",
+              "at": 16.448
+            },
+            {
+              "line": "thinkle_tutor_move_opening_2",
+              "at": 19.344
+            },
+            {
+              "line": "thinkle_tutor_move_opening_3",
+              "at": 24.304
+            }
+          ]
         },
         {
           "take": "tutorial",
-          "from": 12.3,
-          "to": 22.4
-        },
-        {
-          "take": "tutorial",
-          "from": 28.9,
-          "to": 35.2
-        },
-        {
-          "take": "tutorial",
-          "from": 73.6,
-          "to": 79.6
-        },
-        {
-          "take": "tutorial",
-          "from": 103.95,
-          "to": 104.65,
-          "hold": 4.4
-        },
-        {
-          "take": "tutorial",
-          "from": 108.1,
-          "to": 113.6
-        }
-      ],
-      "narration": [
-        {
-          "line": "thinkle_demo_teach_1",
-          "at": 29.15
+          "from": 30.85,
+          "to": 40.85,
+          "audio": [
+            {
+              "line": "thinkle_tutor_move_rolled_1",
+              "at": 31.073
+            },
+            {
+              "line": "thinkle_tutor_move_rolled_2",
+              "at": 36.993
+            }
+          ]
         }
       ]
     },
     {
       "name": "Two players, one remote",
+      "card": {
+        "kicker": "Two players, one remote",
+        "title": "Prowla hosts your game\nand cheers you both on",
+        "seconds": 4.5
+      },
       "clips": [
         {
           "take": "hotseat",
-          "from": 4.8,
-          "to": 29.5
-        }
-      ],
-      "narration": [
-        {
-          "line": "thinkle_demo_hotseat_1",
-          "at": 11.6
-        },
-        {
-          "line": "thinkle_demo_hotseat_2",
-          "at": 16.0
-        },
-        {
-          "line": "thinkle_demo_hotseat_3",
-          "at": 20.1
+          "from": 5.4,
+          "to": 11.2,
+          "audio": [
+            {
+              "line": "prowla_host_intro_3",
+              "at": 5.747
+            }
+          ]
         }
       ]
     },
     {
-      "name": "Music that follows the danger",
+      "name": "Your turn",
+      "card": {
+        "kicker": "Your turn",
+        "title": "The dice choose your pieces.\nPlay up to three moves.",
+        "seconds": 4.5
+      },
       "clips": [
         {
-          "take": "rampage",
-          "from": 51.5,
-          "to": 85.6
+          "take": "hotseat",
+          "from": 11.2,
+          "to": 21.35,
+          "audio": [
+            {
+              "file": "native/sounds/kenney-casino-audio/dice_throw_1.mp3",
+              "at": 12.9445,
+              "gainDb": -1
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
+              "at": 15.372,
+              "gainDb": -1
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
+              "at": 18.9423,
+              "gainDb": -1
+            }
+          ]
         }
-      ],
-      "narration": [
+      ]
+    },
+    {
+      "name": "Face to face",
+      "card": {
+        "kicker": "Face to face",
+        "title": "The board can turn\nto face whoever moves",
+        "seconds": 4
+      },
+      "clips": [
         {
-          "line": "thinkle_demo_music_1",
-          "at": 3.1
-        },
-        {
-          "line": "thinkle_demo_music_2",
-          "at": 7.9
+          "take": "flip",
+          "from": 12.4,
+          "to": 23.4,
+          "audio": [
+            {
+              "file": "native/sounds/kenney-casino-audio/dice_throw_3.mp3",
+              "at": 12.8456,
+              "gainDb": -1
+            },
+            {
+              "line": "prowla_host_handoff_2",
+              "at": 15.378
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_1.mp3",
+              "at": 21.3555,
+              "gainDb": -1
+            }
+          ]
         }
       ]
     },
     {
       "name": "Three opponents",
+      "card": {
+        "kicker": "Three opponents",
+        "title": "Each has a voice\nand a playing style of their own",
+        "seconds": 5
+      },
       "clips": [
         {
           "take": "opponents",
-          "from": 3.8,
-          "to": 11.0
+          "from": 4.3,
+          "to": 12.0
         },
         {
-          "take": "grabby",
-          "from": 18.0,
-          "to": 31.0
-        }
-      ],
-      "narration": [
-        {
-          "line": "thinkle_demo_opponents_1",
-          "at": 0.4
-        },
-        {
-          "line": "thinkle_demo_opponents_2",
-          "at": 7.6
+          "take": "opponents",
+          "from": 18.65,
+          "to": 24.2,
+          "audio": [
+            {
+              "line": "grabby_intro_2",
+              "at": 18.971
+            }
+          ]
         }
       ]
     },
     {
-      "name": "The game waits",
+      "name": "Pick up where you left off",
+      "card": {
+        "kicker": "Pick up where you left off",
+        "title": "Your game waits for you.\nThe rules are always at hand.",
+        "seconds": 4.5
+      },
       "clips": [
         {
           "take": "resume",
-          "from": 1.5,
-          "to": 16.0
-        }
-      ],
-      "narration": [
+          "from": 0.2,
+          "to": 3.0
+        },
         {
-          "line": "thinkle_demo_resume_1",
-          "at": 1.5
+          "take": "resume",
+          "from": 10.9,
+          "to": 18.5
+        },
+        {
+          "take": "rules",
+          "from": 17.3,
+          "to": 23.6
         }
       ]
     },
     {
-      "name": "Built for Vega",
+      "name": "Music that follows the game",
+      "card": {
+        "kicker": "Music that follows the game",
+        "title": "Hear the music change\nas the kings come under threat",
+        "seconds": 5
+      },
       "clips": [
         {
-          "take": "built",
-          "from": 3.2,
-          "to": 9.4
-        },
-        {
-          "take": "built",
-          "from": 11.6,
-          "to": 20.0
-        }
-      ],
-      "narration": [
-        {
-          "line": "thinkle_demo_built_1",
-          "at": 0.2
-        },
-        {
-          "line": "thinkle_demo_built_2",
-          "at": 5.3
-        },
-        {
-          "line": "thinkle_demo_built_3",
-          "at": 9.4
+          "take": "rampage",
+          "from": 53.8,
+          "to": 88.3,
+          "audio": [
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
+              "at": 55.851,
+              "gainDb": -1
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_1.mp3",
+              "at": 59.6122,
+              "gainDb": -1
+            },
+            {
+              "file": "native/sounds/kenney-casino-audio/dice_throw_1.mp3",
+              "at": 62.2249,
+              "gainDb": -1
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
+              "at": 63.0682,
+              "gainDb": -1
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_impact_1.mp3",
+              "at": 63.6923,
+              "gainDb": -1
+            },
+            {
+              "line": "rampage_capture_3",
+              "at": 63.893
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_1.mp3",
+              "at": 69.2922,
+              "gainDb": -1
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
+              "at": 73.0523,
+              "gainDb": -1
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_impact_1.mp3",
+              "at": 76.5083,
+              "gainDb": -1
+            },
+            {
+              "file": "native/sounds/kenney-casino-audio/dice_grab_2.mp3",
+              "at": 78.3211,
+              "gainDb": -1
+            },
+            {
+              "line": "rampage_threat_1",
+              "at": 78.373
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
+              "at": 80.4925,
+              "gainDb": -1
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_impact_2.mp3",
+              "at": 80.9085,
+              "gainDb": -1
+            },
+            {
+              "file": "native/sounds/kenney-music-jingles/pizzicato_01.mp3",
+              "at": 81.0251,
+              "gainDb": 0
+            },
+            {
+              "line": "rampage_win_1",
+              "at": 82.021
+            }
+          ]
         }
       ]
     }
-  ]
+  ],
+  "soundtrack": {
+    "gainDb": -6,
+    "crossfadeSeconds": 2,
+    "fadeInSeconds": 1,
+    "fadeOutSeconds": 3,
+    "changes": [
+      {
+        "role": "menu",
+        "scene": "Dice Chess for Fire TV"
+      },
+      {
+        "role": "calm",
+        "scene": "Two players, one remote",
+        "clip": 0
+      },
+      {
+        "role": "critical",
+        "scene": "Music that follows the game",
+        "clip": 0,
+        "at": 65.239
+      }
+    ]
+  }
 }

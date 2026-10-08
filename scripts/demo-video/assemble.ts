@@ -1,6 +1,6 @@
 // Builds the demo video from the takes record.ts saved and the storyboard:
-// each scene's footage, with its own sound, Thinkle's narration laid over it,
-// and an end card.
+// each scene's optional title card and footage, a continuous soundtrack or
+// the takes' sound, optional narration, and an end card.
 //
 //   node --experimental-strip-types scripts/demo-video/assemble.ts [storyboard]
 //
@@ -10,14 +10,14 @@
 // chapters for the YouTube description, and a contact sheet to check it by.
 // It needs ffmpeg and ffprobe, and swift (macOS) for the stills.
 //
-// Thinkle narrates the video in place of title cards (owner, 2026-10-05). The
-// takes are recorded with the game's music on, so a scene keeps the music the
-// game played there, the danger themes included (#76). Under each line of his
-// the take's sound dips, as the game's music dips under a character's line
-// (#159).
+// The preliminary cut carries music across picture edits and re-lays the
+// game's voices/effects at their recorded times. The earlier narrated cut
+// retains the takes' sound and ducks it under the added narrator.
 import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
+import { musicSpans, recordedSounds, unexpectedSilence } from './soundtrack.ts';
+import type { RecordedSound, SceneTiming, Soundtrack } from './soundtrack.ts';
 
 type Clip = {
   take: string;
@@ -26,12 +26,21 @@ type Clip = {
   // Seconds to keep the clip's last frame up, for a screen the app leaves up
   // until a key is pressed but the take pressed on at once, such as a result.
   hold?: number;
+  // Built splash artwork is shown as an asset, without the device badge.
+  badge?: boolean;
+  audio?: RecordedSound[];
 };
 // One of Thinkle's lines, `at` seconds into its scene (or the end card).
 type Narration = { line: string; at: number };
-type Scene = { name: string; clips: Clip[]; narration?: Narration[] };
+type Scene = {
+  name: string;
+  card?: { kicker: string; title: string; seconds: number };
+  clips: Clip[];
+  narration?: Narration[];
+};
 type Storyboard = {
   badge: string;
+  soundtrack?: Soundtrack;
   // How far the take's sound dips under Thinkle's line: the game's own duck.
   duckDb: number;
   // His lines are packed at -16 LUFS; this moves them against the takes.
@@ -55,8 +64,8 @@ type Storyboard = {
 };
 
 const HERE = 'scripts/demo-video';
-const OUT = 'dist/demo-video';
-const TAKES = join(OUT, 'takes');
+const OUT = process.env.OUT ?? 'dist/demo-video';
+const TAKES = process.env.TAKES ?? join(OUT, 'takes');
 const WORK = join(OUT, 'work');
 const VIDEO = join(OUT, 'dicechess-tv-demo.mp4');
 
@@ -190,6 +199,113 @@ function place(
   return placed;
 }
 
+function continuousMix(
+  soundtrack: Soundtrack,
+  scenes: SceneTiming[],
+  total: number,
+  catalogue: Map<string, Line>,
+  duckDb: number,
+): string {
+  const music = JSON.parse(readFileSync('native/music/music.json', 'utf8')) as {
+    tracks: Record<
+      string,
+      { file: string; loopStart: number; loopEnd: number; gainDb: number }
+    >;
+  };
+  const spans = musicSpans(soundtrack, scenes, total);
+  const sounds = recordedSounds(scenes, catalogue, probeDuration);
+  const spoken = sounds.filter(({ voice }) => voice);
+  const down =
+    spoken
+      .map(
+        ({ start, seconds: length }) =>
+          `clip(min((t-${seconds(start - DUCK_IN)})/${DUCK_IN},` +
+          `(${seconds(start + length + BREATH + DUCK_OUT)}-t)/${DUCK_OUT}),0,1)`,
+      )
+      .join('+') || '0';
+  const inputs = [
+    '-f',
+    'lavfi',
+    '-t',
+    seconds(total),
+    '-i',
+    'anullsrc=r=48000:cl=stereo',
+  ];
+  const graph: string[] = [];
+  const beds: string[] = [];
+  spans.forEach(({ role, start, end, fadeIn, fadeOut }, index) => {
+    const track = music.tracks[role];
+    if (!track) throw new Error(`no music asset for ${role}`);
+    const length = end - start;
+    if (length > track.loopEnd - track.loopStart)
+      throw new Error(`${role} needs a longer music source or a loop`);
+    inputs.push(
+      '-ss',
+      seconds(track.loopStart),
+      '-i',
+      join('native/music', track.file),
+    );
+    const delay = Math.round(start * 1000);
+    graph.push(
+      `[${index + 1}:a]atrim=0:${seconds(length)},asetpts=PTS-STARTPTS,` +
+        `aresample=48000,aformat=channel_layouts=stereo,` +
+        `volume=${soundtrack.gainDb + track.gainDb}dB,` +
+        `afade=t=in:st=0:d=${fadeIn}:curve=qsin,` +
+        `afade=t=out:st=${seconds(length - fadeOut)}:d=${fadeOut}:curve=qsin,` +
+        `adelay=${delay}|${delay}[music${index}]`,
+    );
+    beds.push(`[music${index}]`);
+  });
+  graph.push(
+    `${beds.join('')}amix=inputs=${beds.length}:normalize=0:duration=longest,` +
+      // Keep the duck clock valid after the first music input reaches EOF.
+      'asetpts=N/SR/TB,' +
+      `volume='if(isnan(t),1,pow(10,${duckDb}/20*clip(${down},0,1)))':eval=frame,asplit=2[bed][bedreview]`,
+  );
+  const mixed = ['[0:a]', '[bed]'];
+  sounds.forEach(({ file, start, seconds: length, gainDb, voice }, index) => {
+    inputs.push('-i', file);
+    const delay = Math.round(start * 1000);
+    graph.push(
+      `[${spans.length + index + 1}:a]atrim=0:${seconds(length)},` +
+        `asetpts=PTS-STARTPTS,aresample=48000,` +
+        // Vega plays the mono voices equally in both speakers. ffmpeg's
+        // default mono upmix would make them 3 dB quieter in each channel.
+        (voice
+          ? 'pan=stereo|c0=c0|c1=c0,'
+          : 'aformat=channel_layouts=stereo,') +
+        `volume=${gainDb}dB,adelay=${delay}|${delay}[sound${index}]`,
+    );
+    mixed.push(`[sound${index}]`);
+  });
+  graph.push(
+    `${mixed.join('')}amix=inputs=${mixed.length}:normalize=0:duration=first[a]`,
+  );
+  const mix = join(WORK, 'mix.wav');
+  writeFileSync(join(WORK, 'audio-filter.txt'), graph.join(';') + '\n');
+  writeFileSync(join(WORK, 'audio-inputs.json'), JSON.stringify(inputs));
+  ffmpeg([
+    ...inputs,
+    '-filter_complex',
+    graph.join(';'),
+    '-map',
+    '[a]',
+    '-c:a',
+    'pcm_f32le',
+    mix,
+    '-map',
+    '[bedreview]',
+    '-c:a',
+    'pcm_f32le',
+    join(WORK, 'music-bed.wav'),
+  ]);
+  writeFileSync(
+    join(OUT, 'soundtrack-timeline.json'),
+    JSON.stringify({ total, music: spans, scenes, sounds }, null, 2) + '\n',
+  );
+  return mix;
+}
+
 function main(): void {
   // Another storyboard may be named, to try a different cut of the same takes.
   const board = JSON.parse(
@@ -224,6 +340,9 @@ function main(): void {
     spec,
     JSON.stringify({
       background: `#${background}`,
+      cards: board.scenes.flatMap((scene, index) =>
+        scene.card ? [{ file: `card-${index}.png`, ...scene.card }] : [],
+      ),
       badge: { file: 'badge.png', text: board.badge },
       end: {
         file: 'end.png',
@@ -235,14 +354,23 @@ function main(): void {
       },
     }),
   );
-  execFileSync('swift', [join(HERE, 'cards.swift'), spec, WORK], {
-    stdio: 'inherit',
-  });
+  execFileSync(
+    'swift',
+    [
+      '-module-cache-path',
+      join(WORK, 'swift-cache'),
+      join(HERE, 'cards.swift'),
+      spec,
+      WORK,
+    ],
+    { stdio: 'inherit' },
+  );
 
   // Every segment has the same codecs, so they join without a re-encode.
   const segments: string[] = [];
   const spoken: Placed[] = [];
   const chapters: { start: number; name: string }[] = [];
+  const timing: SceneTiming[] = [];
   let at = 0;
   const fades = (length: number) =>
     `fade=t=in:st=0:d=${FADE}:color=${colour},` +
@@ -250,24 +378,65 @@ function main(): void {
   const segmentName = (name: string) =>
     join(WORK, `${String(segments.length).padStart(2, '0')}-${name}.mp4`);
 
-  for (const scene of board.scenes) {
+  for (const [index, scene] of board.scenes.entries()) {
     chapters.push({ start: at, name: scene.name });
     const start = at;
+    const sceneTiming: SceneTiming = { name: scene.name, start, clips: [] };
+    timing.push(sceneTiming);
+    if (scene.card) {
+      const length = scene.card.seconds;
+      const out = segmentName(`card-${index}`);
+      const music = board.end.music;
+      ffmpeg([
+        '-loop',
+        '1',
+        '-framerate',
+        '30',
+        '-t',
+        seconds(length),
+        '-i',
+        join(WORK, `card-${index}.png`),
+        '-stream_loop',
+        '-1',
+        '-ss',
+        seconds(at),
+        '-i',
+        music.file,
+        '-filter_complex',
+        `[0:v]${fades(length)}[v];` +
+          `[1:a]atrim=0:${seconds(length)},aresample=48000,` +
+          (board.soundtrack ? 'volume=0,' : `volume=${music.gainDb}dB,`) +
+          `afade=t=in:st=0:d=0.25,` +
+          `afade=t=out:st=${seconds(length - FADE)}:d=${FADE}[a]`,
+        '-map',
+        '[v]',
+        '-map',
+        '[a]',
+        ...videoCodec(16),
+        ...AUDIO_CODEC,
+        '-shortest',
+        out,
+      ]);
+      segments.push(out);
+      at += probeDuration(out);
+    }
     for (const clip of scene.clips) {
       const from = clip.from as number;
       const length = (clip.to as number) - from;
       const hold = clip.hold ?? 0;
       const out = segmentName(clip.take);
+      const clipStart = at;
       ffmpeg(
         [
           ['-ss', seconds(from), '-t', seconds(length), '-i', take(clip)],
           ['-i', join(WORK, 'badge.png')],
           [
             '-filter_complex',
-            `[0:v][1:v]overlay=0:0,` +
+            (clip.badge === false ? '[0:v]' : '[0:v][1:v]overlay=0:0,') +
               `tpad=stop_mode=clone:stop_duration=${seconds(hold)},` +
               `${fades(length + hold)}[v];` +
               `[0:a]aresample=48000,apad=pad_dur=${seconds(hold)},` +
+              (board.soundtrack ? 'volume=0,' : '') +
               `afade=t=in:st=0:d=0.15,` +
               `afade=t=out:st=${seconds(length + hold - 0.25)}:d=0.25[a]`,
           ],
@@ -284,6 +453,14 @@ function main(): void {
       );
       segments.push(out);
       at += probeDuration(out);
+      sceneTiming.clips.push({
+        take: clip.take,
+        from,
+        to: clip.to as number,
+        start: clipStart,
+        end: at,
+        audio: clip.audio,
+      });
     }
     spoken.push(
       ...place(scene.name, scene.narration ?? [], start, at - start, catalogue),
@@ -347,51 +524,64 @@ function main(): void {
   // under the end card. The joins leave the segments' timestamps a few
   // milliseconds off, so the takes' sound is laid on its own timestamps,
   // silence filling any gap.
-  const dip = 1 - 10 ** (board.duckDb / 20);
-  const down =
-    spoken
-      .map(
-        ({ start, end }) =>
-          `clip(min((t-${seconds(start - DUCK_IN)})/${DUCK_IN},(${seconds(end + DUCK_OUT)}-t)/${DUCK_OUT}),0,1)`,
-      )
-      .join('+') || '0';
-  const { music } = board.end;
-  const inputs = ['-i', joined];
-  const graph = [
-    `[0:a]aresample=48000:async=1:first_pts=0,` +
-      `volume='1-${dip.toFixed(4)}*clip(${down},0,1)':eval=frame[takes]`,
-  ];
-  const mixed = ['[takes]'];
-  spoken.forEach(({ file, start }, index) => {
-    inputs.push('-i', file);
-    const delay = Math.round(start * 1000);
-    graph.push(
-      `[${index + 1}:a]aresample=48000,aformat=channel_layouts=stereo,` +
-        `volume=${board.narrationGainDb}dB,adelay=${delay}|${delay}[line${index}]`,
+  let mix: string;
+  if (board.soundtrack) {
+    if (spoken.length)
+      throw new Error('continuous soundtrack does not add narration');
+    mix = continuousMix(
+      board.soundtrack,
+      timing,
+      total,
+      catalogue,
+      board.duckDb,
     );
-    mixed.push(`[line${index}]`);
-  });
-  inputs.push('-stream_loop', '-1', '-i', music.file);
-  const endDelay = Math.round(endStart * 1000);
-  graph.push(
-    `[${spoken.length + 1}:a]atrim=0:${seconds(endLength)},` +
-      `aresample=48000,aformat=channel_layouts=stereo,volume=${music.gainDb}dB,` +
-      `afade=t=in:st=0:d=${music.fadeInSeconds},` +
-      `afade=t=out:st=${seconds(endLength - music.fadeOutSeconds)}:d=${music.fadeOutSeconds},` +
-      `adelay=${endDelay}|${endDelay}[theme]`,
-  );
-  mixed.push('[theme]');
-  graph.push(
-    `${mixed.join('')}amix=inputs=${mixed.length}:normalize=0:duration=first[a]`,
-  );
-  const mix = join(WORK, 'mix.wav');
-  ffmpeg(
-    [
-      inputs,
-      ['-filter_complex', graph.join(';')],
-      ['-map', '[a]', '-c:a', 'pcm_f32le', mix],
-    ].flat(),
-  );
+  } else {
+    const dip = 1 - 10 ** (board.duckDb / 20);
+    const down =
+      spoken
+        .map(
+          ({ start, end }) =>
+            `clip(min((t-${seconds(start - DUCK_IN)})/${DUCK_IN},(${seconds(end + DUCK_OUT)}-t)/${DUCK_OUT}),0,1)`,
+        )
+        .join('+') || '0';
+    const { music } = board.end;
+    const inputs = ['-i', joined];
+    const graph = [
+      `[0:a]aresample=48000:async=1:first_pts=0,` +
+        `volume='1-${dip.toFixed(4)}*clip(${down},0,1)':eval=frame[takes]`,
+    ];
+    const mixed = ['[takes]'];
+    spoken.forEach(({ file, start }, index) => {
+      inputs.push('-i', file);
+      const delay = Math.round(start * 1000);
+      graph.push(
+        `[${index + 1}:a]aresample=48000,aformat=channel_layouts=stereo,` +
+          `volume=${board.narrationGainDb}dB,adelay=${delay}|${delay}[line${index}]`,
+      );
+      mixed.push(`[line${index}]`);
+    });
+    inputs.push('-stream_loop', '-1', '-i', music.file);
+    const endDelay = Math.round(endStart * 1000);
+    graph.push(
+      `[${spoken.length + 1}:a]atrim=0:${seconds(endLength)},` +
+        `aresample=48000,aformat=channel_layouts=stereo,volume=${music.gainDb}dB,` +
+        `afade=t=in:st=0:d=${music.fadeInSeconds},` +
+        `afade=t=out:st=${seconds(endLength - music.fadeOutSeconds)}:d=${music.fadeOutSeconds},` +
+        `adelay=${endDelay}|${endDelay}[theme]`,
+    );
+    mixed.push('[theme]');
+    graph.push(
+      `${mixed.join('')}amix=inputs=${mixed.length}:normalize=0:duration=first[a]`,
+    );
+    mix = join(WORK, 'mix.wav');
+    ffmpeg(
+      [
+        inputs,
+        ['-filter_complex', graph.join(';')],
+        ['-map', '[a]', '-c:a', 'pcm_f32le', mix],
+      ].flat(),
+    );
+  }
 
   // Brought to the loudness the earlier cuts had, which is also what video
   // sites play at, with the peaks held under the ceiling. The picture is set to
@@ -412,6 +602,36 @@ function main(): void {
   );
 
   check(VIDEO);
+  if (board.soundtrack) {
+    const { status, stderr } = spawnSync(
+      'ffmpeg',
+      [
+        '-v',
+        'info',
+        '-nostats',
+        '-i',
+        VIDEO,
+        '-af',
+        'silencedetect=n=-55dB:d=0.5',
+        '-f',
+        'null',
+        '-',
+      ],
+      { encoding: 'utf8' },
+    );
+    writeFileSync(join(OUT, 'audio-continuity.log'), stderr);
+    if (status !== 0) throw new Error('could not check the exported sound');
+    const gaps = unexpectedSilence(
+      stderr,
+      total,
+      board.soundtrack.fadeInSeconds,
+      board.soundtrack.fadeOutSeconds,
+    );
+    if (gaps.length)
+      throw new Error(
+        `unexpected silence in the export: ${JSON.stringify(gaps)}`,
+      );
+  }
 
   const stamp = (value: number) =>
     `${Math.floor(value / 60)}:${String(Math.floor(value % 60)).padStart(2, '0')}`;
