@@ -7,20 +7,20 @@
 // Vega wants `assets/raw/SplashScreenImages.zip`, and inside it a `desc.txt`
 // naming the frame size and rate, plus a `_loop` directory of PNG frames. Ours
 // is one frame: a still image, which the descriptor loops forever until the app
-// says it has drawn.
+// has drawn. Vega repeats the whole archive whatever count desc.txt gives, so a
+// still is the one splash that never restarts or stops halfway (#289).
 //
-// The splash is the Fortemate mark on the board's own background, so it and the
-// first frame of the application are the same colour and the handover is
-// invisible. The icon is the brand's maskable export, copied unchanged: the
-// launcher fits a square icon into a wide tile, and a maskable icon is the one
-// built to survive that.
+// The frame is "Thinkle conjures", drawn by ./splash.mjs on the app's own
+// background, so the handover has no change of colour. It needs Thinkle's
+// vector from the private portrait pack; a checkout without it draws his hat
+// instead. ../splash/README.md covers the scene, its fonts and its sizes.
 //
-// Neither is redrawn here. Both sources are verbatim brand exports; see
-// ../brand/README.md.
+// The icon is the game's own, copied unchanged: the launcher fits a square icon
+// into a wide tile, and this one was made to survive that.
 //
-// No dependencies: the sources are 8-bit PNG without interlacing, which is the
-// one case worth decoding by hand, and `zip` is on every machine that can build
-// this package.
+// The PNG work is done by hand here: the frame is written as plain RGB, and the
+// tests read it back with the decoder below. `zip` is on every machine that can
+// build this package.
 import { execFileSync } from 'node:child_process';
 import {
   copyFileSync,
@@ -35,6 +35,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { crc32, deflateSync, inflateSync } from 'node:zlib';
 import { createHash } from 'node:crypto';
+import { renderSplash } from './splash.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 // The application's directory. The functions below take it as `root`, so a test
@@ -69,7 +70,7 @@ const PREDICTORS = [
 ];
 
 // The image header. Only the two colour types involved here are accepted: the
-// mark is RGBA, the frame this script writes is RGB.
+// icon is RGBA, the frame this script writes is RGB.
 const readHeader = (body, file) => {
   const [depth, colour, interlace] = [body[8], body[9], body[12]];
   if (depth !== 8 || (colour !== 6 && colour !== 2) || interlace !== 0)
@@ -183,35 +184,11 @@ export const main = (root = native) => {
   mkdirSync(dirname(icon), { recursive: true });
   copyFileSync(iconSource, icon);
 
-  const mark = decodePng(join(root, 'brand/fortemate-mark-512-white.png'));
-  if (mark.width > WIDTH || mark.height > HEIGHT)
-    throw new Error('the mark does not fit the frame');
-
-  // Centred, and on whole pixels, so the mark is copied rather than resampled.
-  const left = (WIDTH - mark.width) >> 1;
-  const top = (HEIGHT - mark.height) >> 1;
-
-  const frame = Buffer.alloc(WIDTH * HEIGHT * 3);
-  for (let i = 0; i < WIDTH * HEIGHT; i++) {
-    frame[i * 3] = BACKGROUND[0];
-    frame[i * 3 + 1] = BACKGROUND[1];
-    frame[i * 3 + 2] = BACKGROUND[2];
-  }
-  for (let y = 0; y < mark.height; y++) {
-    for (let x = 0; x < mark.width; x++) {
-      const source = (y * mark.width + x) * 4;
-      const alpha = mark.pixels[source + 3];
-      if (alpha === 0) continue;
-      const target = ((top + y) * WIDTH + left + x) * 3;
-      for (let c = 0; c < 3; c++) {
-        const over = mark.pixels[source + c];
-        const under = frame[target + c];
-        frame[target + c] = Math.round(
-          (over * alpha + under * (255 - alpha)) / 255,
-        );
-      }
-    }
-  }
+  // The portraits first: they refuse a pack the app does not look for, and the
+  // splash draws Thinkle from the same pinned pack.
+  const portraits = copyPortraits(root);
+  const thinkle = portraitVector(root, 'thinkle.svg');
+  const frame = renderSplash(root, thinkle);
 
   // Staged outside assets/, because only the zip belongs in the package.
   const staging = join(root, 'build/splash');
@@ -235,12 +212,14 @@ export const main = (root = native) => {
   const destination = join(root, 'assets/raw/SplashScreenImages.zip');
   mkdirSync(dirname(destination), { recursive: true });
   rmSync(destination, { force: true });
-  // -X drops the extra attributes that would differ between machines. Built
-  // from inside the staging directory so the archive has no wrapping folder:
-  // the animation service looks for `_loop` and `desc.txt` at the root and
-  // finds neither if one is added.
+  // -X drops the extra attributes that would differ between machines, and zip
+  // stamps entries in local time, so it runs in UTC. Built from inside the
+  // staging directory so the archive has no wrapping folder: the animation
+  // service looks for `_loop` and `desc.txt` at the root and finds neither if
+  // one is added.
   execFileSync('zip', ['-q', '-X', '-r', destination, '_loop', 'desc.txt'], {
     cwd: staging,
+    env: { ...process.env, TZ: 'UTC' },
   });
 
   return {
@@ -249,12 +228,11 @@ export const main = (root = native) => {
     destination,
     icon,
     iconSource,
-    left,
-    top,
+    thinkle: thinkle !== null,
     sounds: copySounds(root),
     music: copyMusic(root),
     voices: copyVoices(root),
-    portraits: copyPortraits(root),
+    portraits,
   };
 };
 
@@ -324,6 +302,9 @@ export const copyMusic = (root = native) => {
 // (`portraitsVersion`). A pack of any other version would ship and never load,
 // and the game would show the emoji faces without a word, so the build refuses
 // it instead.
+//
+// A vector (an .svg, since pack 1.4.0) is a build input for the splash and
+// does not ship: the app draws only the PNG exports.
 export const copyPortraits = (root = native, expected = portraitsVersion()) => {
   rmSync(join(root, 'assets/portraits'), { recursive: true, force: true });
   const lockPath = join(root, 'portraits/portraits.lock.json');
@@ -344,11 +325,28 @@ export const copyPortraits = (root = native, expected = portraitsVersion()) => {
       throw new Error(
         `portraits/${name} no longer matches portraits/portraits.lock.json`,
       );
+    if (name.endsWith('.svg')) continue;
     mkdirSync(target, { recursive: true });
     writeFileSync(join(target, name), data);
     copied.push(name);
   }
   return copied;
+};
+
+// A portrait vector pinned by the lock, for drawing at build time, or null in a
+// checkout without the portraits. copyPortraits has already refused a pack of
+// another version.
+export const portraitVector = (root, name) => {
+  const lockPath = join(root, 'portraits/portraits.lock.json');
+  if (!existsSync(lockPath)) return null;
+  const pinned = JSON.parse(readFileSync(lockPath, 'utf8')).files?.[name];
+  if (!pinned) return null;
+  const data = readFileSync(join(root, 'portraits', name));
+  if (createHash('sha256').update(data).digest('hex') !== pinned.sha256)
+    throw new Error(
+      `portraits/${name} no longer matches portraits/portraits.lock.json`,
+    );
+  return data;
 };
 
 // The portrait pack version the app looks for: PORTRAITS_VERSION in
@@ -389,7 +387,7 @@ if (
   process.argv[1] &&
   resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
-  const { destination, icon, left, top, sounds, music, voices } = main();
+  const { destination, icon, thinkle, sounds, music, voices } = main();
   const shown = (path) => path.replace(`${native}/`, '');
   console.log(`icon:   ${shown(icon)}`);
   console.log(`sounds: ${sounds.length} files -> assets/sfx/`);
@@ -400,6 +398,6 @@ if (
   );
   console.log(`voices: ${voices.length} clips -> assets/voices/`);
   console.log(
-    `splash: ${WIDTH}x${HEIGHT}, mark at ${left},${top} -> ${shown(destination)}`,
+    `splash: ${WIDTH}x${HEIGHT}, ${thinkle ? 'Thinkle' : "Thinkle's hat (no portraits in this checkout)"} -> ${shown(destination)}`,
   );
 }

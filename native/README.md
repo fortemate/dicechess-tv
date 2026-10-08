@@ -63,6 +63,7 @@ Long-form technical documentation, platform findings, performance benchmarks and
 | `scripts/vendor-voices.mjs`    | Vendors the voices and `events.json` from `dicechess-assets` at a pinned commit.             |
 | `scripts/vendor-portraits.mjs` | Vendors the portraits from `dicechess-assets` into git-ignored `portraits/`.                 |
 | `scripts/generate-assets.mjs`  | Builds `assets/` on each build: icon, splash, sounds, music, voices, portraits.              |
+| `scripts/splash.mjs`           | Draws the launch splash, Thinkle with the dice and the title, at build time (`splash/`).     |
 
 ---
 

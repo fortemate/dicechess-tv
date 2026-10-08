@@ -1,15 +1,29 @@
 // The splash is the one asset nothing else would catch. It is generated, it is
 // never imported by any code, and nobody looks at a television boot screen in
-// CI — so a wrong colour or an off-centre mark would ship in silence.
+// CI — so a wrong colour, a title off the safe area or a blurred mark would
+// ship in silence.
 //
 // Every assertion here reads the file that was actually written, not the
-// buffer that was meant to be written.
+// buffer that was meant to be written, except where a test draws the scene
+// itself to try both medallions: CI has no private portraits.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { readFileSync, statSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 // @ts-expect-error — a build script, deliberately plain JavaScript.
 import { decodePng, main, SPLASH } from '../scripts/generate-assets.mjs';
+import {
+  CREDIT,
+  DICE,
+  HAT_BLUE,
+  MEDALLION,
+  renderSplash,
+  // @ts-expect-error — a build script, deliberately plain JavaScript.
+} from '../scripts/splash.mjs';
+
+const NATIVE = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 const built = main() as {
   framePath: string;
@@ -17,8 +31,7 @@ const built = main() as {
   destination: string;
   icon: string;
   iconSource: string;
-  left: number;
-  top: number;
+  thinkle: boolean;
 };
 
 const frame = decodePng(built.framePath) as {
@@ -32,6 +45,14 @@ const at = (x: number, y: number) => {
   const base = (y * frame.width + x) * frame.channels;
   return [frame.pixels[base], frame.pixels[base + 1], frame.pixels[base + 2]];
 };
+
+const near = (pixel: number[], rgb: number[], tolerance = 6) =>
+  pixel.every((value, i) => Math.abs(value - rgb[i]) <= tolerance);
+
+const hex = (colour: string) =>
+  [1, 3, 5].map((i) => parseInt(colour.slice(i, i + 2), 16));
+
+const IVORY = hex('#f4ead8');
 
 test('the frame is a television frame, not a 4K one the service would refuse', () => {
   assert.equal(frame.width, 1920);
@@ -57,43 +78,84 @@ test('the background is the board colour, so the handover is invisible', () => {
     assert.deepEqual(at(x, y), SPLASH.BACKGROUND, `corner ${x},${y}`);
 });
 
-test('the mark is inked, and centred', () => {
+test('everything stays inside the five per cent a television may crop', () => {
   let minX = frame.width;
   let minY = frame.height;
   let maxX = -1;
   let maxY = -1;
-  for (let y = 0; y < frame.height; y++) {
+  for (let y = 0; y < frame.height; y++)
     for (let x = 0; x < frame.width; x++) {
-      const [r, g, b] = at(x, y);
-      if (
-        r === SPLASH.BACKGROUND[0] &&
-        g === SPLASH.BACKGROUND[1] &&
-        b === SPLASH.BACKGROUND[2]
-      )
-        continue;
+      if (near(at(x, y), SPLASH.BACKGROUND, 0)) continue;
       if (x < minX) minX = x;
       if (y < minY) minY = y;
       if (x > maxX) maxX = x;
       if (y > maxY) maxY = y;
     }
-  }
-  assert.ok(maxX > 0, 'the frame is empty: the mark was never drawn');
+  assert.ok(maxX > 0, 'the frame is empty');
+  assert.ok(
+    minX >= 96 && maxX < 1824 && minY >= 54 && maxY < 1026,
+    `artwork spans ${minX}..${maxX} x ${minY}..${maxY}`,
+  );
+});
 
-  // Equal margins on each side, within a pixel for an odd difference.
-  assert.ok(
-    Math.abs(minX - (frame.width - 1 - maxX)) <= 1,
-    `mark is off-centre horizontally: ${minX} left, ${frame.width - 1 - maxX} right`,
-  );
-  assert.ok(
-    Math.abs(minY - (frame.height - 1 - maxY)) <= 1,
-    `mark is off-centre vertically: ${minY} top, ${frame.height - 1 - maxY} bottom`,
-  );
+test('the title leads: two lines of large ivory letters on the left', () => {
+  let top = frame.height;
+  let bottom = -1;
+  let ink = 0;
+  for (let y = 54; y < 760; y++)
+    for (let x = 96; x < 800; x++)
+      if (near(at(x, y), IVORY)) {
+        ink++;
+        if (y < top) top = y;
+        if (y > bottom) bottom = y;
+      }
+  assert.ok(ink > 100000, `only ${ink} ivory pixels: is the title drawn?`);
+  // "Dice" over "Chess": from the D's top to the baseline of the second line.
+  assert.ok(bottom - top > 320, `the title is ${bottom - top} px tall`);
+});
 
-  // Large enough to read from a sofa: at least a fifth of the frame height.
-  assert.ok(
-    maxY - minY >= frame.height / 5,
-    'the mark is too small to read on a television',
+test('the mark sits on whole pixels beside the name, so it stays crisp', () => {
+  // 56 px for a 14-unit canvas: 16 px cells, 4 px gaps. The middle of the
+  // first cell is white, and so is the last pixel of it; the gap after it is
+  // the background, with nothing blurred between.
+  const top = CREDIT.base - CREDIT.cap / 2 - CREDIT.mark / 2;
+  const row = top + 8;
+  assert.deepEqual(at(CREDIT.x + 8, row), [255, 255, 255]);
+  assert.deepEqual(at(CREDIT.x + 15, row), [255, 255, 255]);
+  assert.deepEqual(at(CREDIT.x + 17, row), SPLASH.BACKGROUND);
+  assert.deepEqual(at(CREDIT.x + 20, row), [255, 255, 255]);
+  // The name follows the mark, in white, on the same line.
+  let white = 0;
+  for (let y = CREDIT.base - CREDIT.cap; y <= CREDIT.base; y++)
+    for (let x = CREDIT.x + CREDIT.mark + 10; x < CREDIT.x + 400; x++)
+      if (near(at(x, y), [255, 255, 255], 2)) white++;
+  assert.ok(white > 3000, `only ${white} white pixels in the name`);
+});
+
+test('the three dice show ivory faces on their orbit', () => {
+  for (const { piece, x, y } of DICE)
+    assert.ok(
+      near(at(Math.round(x - 70), Math.round(y)), IVORY),
+      `the ${piece} die is missing at ${Math.round(x)},${Math.round(y)}`,
+    );
+});
+
+test('the medallion holds Thinkle, or his hat in a checkout without him', () => {
+  const pixel = (rgb: Buffer, x: number, y: number) => {
+    const i = (y * 1920 + x) * 3;
+    return [rgb[i], rgb[i + 1], rgb[i + 2]];
+  };
+  // A stand-in portrait, since the real one is private: a plain magenta square.
+  const standIn = Buffer.from(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><rect width="2048" height="2048" fill="#ff00ff"/></svg>',
   );
+  const drawn = renderSplash(NATIVE, standIn);
+  assert.deepEqual(pixel(drawn, MEDALLION.cx, MEDALLION.cy), [255, 0, 255]);
+  const hat = renderSplash(NATIVE, null);
+  assert.ok(near(pixel(hat, 1440, 650), hex(HAT_BLUE), 2), 'no hat');
+  // The build drew the one this checkout has.
+  const medallion = at(1440, 650);
+  assert.equal(near(medallion, hex(HAT_BLUE), 2), !built.thinkle);
 });
 
 test('the icon is the game icon from the asset repository, unchanged', () => {
@@ -209,6 +271,12 @@ test('the descriptor says what the animation service expects', () => {
     readFileSync(built.descriptorPath, 'utf8'),
     `${SPLASH.WIDTH} ${SPLASH.HEIGHT} ${SPLASH.FPS}\nc 0 0 _loop\n`,
   );
+});
+
+// Vega repeats the whole archive and has to unpack it before the first frame;
+// a 17 MB one appeared only after the game did (#290). One still is far below.
+test('the archive is one small entry', () => {
+  assert.ok(statSync(built.destination).size < 1_000_000);
 });
 
 test('the archive has no wrapping folder, which would hide it from the service', () => {

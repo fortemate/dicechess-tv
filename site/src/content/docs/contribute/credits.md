@@ -22,9 +22,15 @@ Dice Chess TV combines open-source code with public domain and permitted creativ
 
 ### Character portraits
 
-- **Source:** Portrait pack 1.3.1, drawn for Dice Chess by Fortemate with [Recraft](https://www.recraft.ai) on a paid plan. The app shows five characters from it: the opponents Rolly, Grabby and Rampage, Prowla the cat, who hosts Hot Seat games, and Thinkle the wizard, who teaches the tutorial.
+- **Source:** Portrait pack 1.4.0, drawn for Dice Chess by Fortemate with [Recraft](https://www.recraft.ai) on a paid plan. The app shows five characters from it: the opponents Rolly, Grabby and Rampage, Prowla the cat, who hosts Hot Seat games, and Thinkle the wizard, who teaches the tutorial.
 - **Licence:** Fortemate's own, for Fortemate's Dice Chess apps only. Not covered by the AGPL or by any other open licence. A fork or copy of this repository may not use, publish or distribute them.
-- **Usage:** The opponent cards and the game screen show them, the Hot Seat host's beside the host's line. Thinkle's stands above his bubble in the tutorial and in its offer on a first launch. While the repository is public the portrait files are kept out of it. A build without them shows the opponents' emoji faces below instead. Prowla and Thinkle have no such face, so their place stays empty, at the portrait's size. The About screen shows the portraits beside Recraft's name, with the engine and the voices, so that a player knows they are AI-generated. The screenshots on this site show them as the app draws them, and so does the demo video's picture. Those pictures are Fortemate's too, and not under the AGPL.
+- **Usage:** The opponent cards and the game screen show them, the Hot Seat host's beside the host's line. Thinkle's stands above his bubble in the tutorial and in its offer on a first launch, and the launch splash shows him in a large medallion, drawn at build time from his vector, which the game does not ship. While the repository is public the portrait files are kept out of it. A build without them shows the opponents' emoji faces below instead. Prowla and Thinkle have no such face, so their place stays empty, at the portrait's size. The About screen shows the portraits beside Recraft's name, with the engine and the voices, so that a player knows they are AI-generated. The screenshots on this site show them as the app draws them, and so does the demo video's picture. Those pictures are Fortemate's too, and not under the AGPL.
+
+### Splash typography
+
+- **Fonts:** [Titan One](https://github.com/google/fonts/tree/main/ofl/titanone) by Rodrigo Fuenzalida sets the title on the launch splash, and [Arimo](https://github.com/googlefonts/Arimo) by The Arimo Project Authors sets the Fortemate name beside the mark.
+- **Licence:** SIL Open Font License 1.1, with each licence kept beside its font in `native/splash/fonts/`.
+- **Usage:** Build time only. The splash is drawn once into a picture, so neither font is in the app.
 
 ### Opponent Bot Avatars
 
