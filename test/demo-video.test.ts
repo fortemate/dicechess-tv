@@ -13,7 +13,7 @@ const NARRATION = join(HERE, 'narration');
 type Line = { file: string; seconds: number; text: string; sha256?: string };
 type Narration = { line: string; at: number };
 const board = JSON.parse(
-  readFileSync(join(HERE, 'storyboard.json'), 'utf8'),
+  readFileSync(join(HERE, 'storyboard-narrated.json'), 'utf8'),
 ) as {
   end: {
     title: string;
@@ -116,4 +116,33 @@ test('every scene names its chapter, and the end card makes no promise', () => {
     last.at + (lineOf(last.line)?.seconds ?? 0) <= board.end.seconds,
     'his sign-off ends before the end card does',
   );
+});
+
+// The preliminary card cut keeps voices inside the recorded game. The narrated
+// storyboard is retained separately so it can be revisited later.
+test('the preliminary cut uses cards and game audio, under three minutes', () => {
+  const preview = JSON.parse(
+    readFileSync(join(HERE, 'storyboard.json'), 'utf8'),
+  ) as {
+    scenes: {
+      name: string;
+      card: { kicker: string; title: string; seconds: number };
+      clips: { from: number; to: number; hold?: number }[];
+      narration?: Narration[];
+    }[];
+    end: { seconds: number; narration?: Narration[] };
+  };
+  let duration = preview.end.seconds;
+  assert.equal(preview.end.narration?.length ?? 0, 0);
+  for (const scene of preview.scenes) {
+    assert.ok(scene.card.title.trim(), scene.name);
+    assert.ok(scene.card.seconds > 0, scene.name);
+    assert.equal(scene.narration?.length ?? 0, 0, scene.name);
+    duration += scene.card.seconds;
+    for (const clip of scene.clips) {
+      assert.ok(clip.from >= 0 && clip.to > clip.from, scene.name);
+      duration += clip.to - clip.from + (clip.hold ?? 0);
+    }
+  }
+  assert.ok(duration >= 150 && duration < 180, `${duration} seconds`);
 });

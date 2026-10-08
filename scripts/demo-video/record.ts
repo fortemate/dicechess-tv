@@ -1,6 +1,6 @@
 // Records the takes of the demo video on the Vega Virtual Device, into
-// dist/demo-video/takes/<take>.mp4. assemble.ts cuts them together and lays
-// Thinkle's narration over them.
+// dist/demo-video/takes/<take>.mp4. assemble.ts cuts them together with cards
+// or narration, preserving their game audio.
 //
 //   node --experimental-strip-types scripts/demo-video/record.ts [--only] [take...]
 //
@@ -9,7 +9,7 @@
 // that stopped part-way.
 //
 // Before a run: the release build is built (`npm run build --prefix native`)
-// and the Virtual Device runs with its gRPC on (`vvd enable-grpc`). The first
+// and the Virtual Device runs with its gRPC on (`vvd enable-grpc`). The tutorial
 // take installs the build afresh, which deletes the game, the results and the
 // settings saved on the device, so a first launch can be filmed. The takes keep
 // the game's own music, so it follows the game, the danger themes included
@@ -17,14 +17,21 @@
 // that the home screen is not silent.
 //
 // The takes run in this order, and each leaves the app where the next begins:
-// tutorial, hotseat, resume, opponents, grabby, rampage, built. The dice are
+// launch-animation, splash, tutorial, hotseat, flip, rules, resume, opponents,
+// grabby, rampage, built. The dice are
 // random, so a take can miss what its scene needs, such as a capture, a danger
 // to a king or a turn left part-way: look through it and record it again.
 //
 // VVD and VEGA name the two command-line tools when they are not on the PATH,
 // and VPKG the package the tutorial take installs.
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, rmSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+} from 'node:fs';
 import { join } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 
@@ -34,7 +41,7 @@ const VPKG =
   process.env.VPKG ??
   'native/build/aarch64-release/dicechess-tv-native_aarch64.vpkg';
 const APP = 'com.fortemate.dicechesstv.main';
-const TAKES = 'dist/demo-video/takes';
+const TAKES = process.env.TAKES ?? 'dist/demo-video/takes';
 
 // A person's pace, so a viewer can follow each step, a steady one for stretches
 // the video skips, and a quick one for play nobody watches.
@@ -49,7 +56,11 @@ const PROBE = 300;
 const vvd = (...args: string[]): string =>
   execFileSync(VVD, args, { encoding: 'utf8' });
 const vega = (...args: string[]): void => {
-  execFileSync(VEGA, args, { stdio: 'ignore' });
+  const [domain, command, ...options] = args;
+  // A physical device may be connected too: recording only targets the emulator.
+  execFileSync(VEGA, [domain, command, '-d', 'VirtualDevice', ...options], {
+    stdio: 'ignore',
+  });
 };
 
 const press = (keys: string[], gap = PACE): void => {
@@ -246,6 +257,65 @@ function startAgainst(card: number, gap = 300): void {
 }
 
 const takes: Record<string, () => Promise<void>> = {
+  // Show one complete cycle of the actual built artwork, rather than extending
+  // the duration of a recorded startup. assemble omits the device badge here.
+  'launch-animation': async () => {
+    const splash = 'native/build/splash';
+    const fps = Number(
+      readFileSync(join(splash, 'desc.txt'), 'utf8')
+        .split('\n')[0]
+        .split(' ')[2],
+    );
+    const frames = readdirSync(join(splash, '_loop')).filter((file) =>
+      /^loop\d+\.png$/.test(file),
+    ).length;
+    if (!(fps > 0 && frames > 0))
+      throw new Error('build the splash artwork first');
+    const length = frames / fps;
+    execFileSync(
+      'ffmpeg',
+      [
+        '-v',
+        'error',
+        '-y',
+        '-framerate',
+        String(fps),
+        '-i',
+        join(splash, '_loop/loop%05d.png'),
+        '-ss',
+        '3.5',
+        '-i',
+        'native/music/pepka-prygni-dicechess/warm_anticipation.mp3',
+        '-t',
+        String(length),
+        '-c:v',
+        'libx264',
+        '-pix_fmt',
+        'yuv420p',
+        '-r',
+        '30',
+        '-af',
+        `volume=-6dB,afade=t=out:st=${length - 0.25}:d=0.25`,
+        '-c:a',
+        'aac',
+        '-ar',
+        '48000',
+        '-ac',
+        '2',
+        join(TAKES, 'launch-animation.mp4'),
+      ],
+      { stdio: 'inherit' },
+    );
+  },
+  // A cold launch, including the real splash handoff, before the home screen.
+  splash: async () => {
+    await record('splash', 12, async () => {
+      vega('device', 'terminate-app', '-a', APP);
+      await sleep(3000);
+      vega('device', 'launch-app', '-a', APP);
+      await sleep(5000);
+    });
+  },
   // A first launch, filmed after a fresh install: Thinkle offers the tutorial
   // aloud, and Learn to play takes the player through every lesson, at a pace
   // that lets him say what the video keeps, to the closing words and a first
@@ -300,6 +370,31 @@ const takes: Record<string, () => Promise<void>> = {
     });
   },
 
+  // A dedicated Hot Seat take with board turning on. A fresh tutorial install
+  // leaves this setting off. Restore the emulator backup after the shoot.
+  flip: async () => {
+    await relaunch();
+    press(['up', 'up', 'ok', 'up', 'ok', 'back'], 500);
+    await relaunch();
+    await record('flip', 50, async () => {
+      press(times('up', 6), QUICK);
+      press(['ok'], 1500);
+      if (focusInPanel() > 500) press(['down', 'ok'], 1500);
+      await sleep(5000);
+      press(times('ok', 28));
+    });
+  },
+
+  // The rules guide, reached from Home and explored with the remote.
+  rules: async () => {
+    await relaunch();
+    await record('rules', 24, async () => {
+      press(['up', 'up', 'up', 'ok'], 500);
+      await sleep(4000);
+      press(times('down', 5), 1800);
+    });
+  },
+
   // The turn left part-way: the app is closed for the launcher, and a launch
   // brings the game back on the home screen, where Resume game opens it as it
   // was, dice and all. Home cannot be pressed on the Virtual Device over gRPC,
@@ -320,7 +415,7 @@ const takes: Record<string, () => Promise<void>> = {
   // play with one against Grabby as White.
   opponents: async () => {
     await relaunch();
-    await record('opponents', 22, () => {
+    await record('opponents', 30, () => {
       press(times('up', 5), 300); // Play the computer
       press(['ok'], 1800);
       // The cards open on the opponent of the game in play: back to Rolly

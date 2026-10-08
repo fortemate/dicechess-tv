@@ -1,6 +1,6 @@
 // Builds the demo video from the takes record.ts saved and the storyboard:
-// each scene's footage, with its own sound, Thinkle's narration laid over it,
-// and an end card.
+// each scene's optional title card and footage with its own sound, optional
+// narration, and an end card.
 //
 //   node --experimental-strip-types scripts/demo-video/assemble.ts [storyboard]
 //
@@ -10,7 +10,7 @@
 // chapters for the YouTube description, and a contact sheet to check it by.
 // It needs ffmpeg and ffprobe, and swift (macOS) for the stills.
 //
-// Thinkle narrates the video in place of title cards (owner, 2026-10-05). The
+// A scene can open with a title card or add narration. The
 // takes are recorded with the game's music on, so a scene keeps the music the
 // game played there, the danger themes included (#76). Under each line of his
 // the take's sound dips, as the game's music dips under a character's line
@@ -26,10 +26,17 @@ type Clip = {
   // Seconds to keep the clip's last frame up, for a screen the app leaves up
   // until a key is pressed but the take pressed on at once, such as a result.
   hold?: number;
+  // Built splash artwork is shown as an asset, without the device badge.
+  badge?: boolean;
 };
 // One of Thinkle's lines, `at` seconds into its scene (or the end card).
 type Narration = { line: string; at: number };
-type Scene = { name: string; clips: Clip[]; narration?: Narration[] };
+type Scene = {
+  name: string;
+  card?: { kicker: string; title: string; seconds: number };
+  clips: Clip[];
+  narration?: Narration[];
+};
 type Storyboard = {
   badge: string;
   // How far the take's sound dips under Thinkle's line: the game's own duck.
@@ -55,8 +62,8 @@ type Storyboard = {
 };
 
 const HERE = 'scripts/demo-video';
-const OUT = 'dist/demo-video';
-const TAKES = join(OUT, 'takes');
+const OUT = process.env.OUT ?? 'dist/demo-video';
+const TAKES = process.env.TAKES ?? join(OUT, 'takes');
 const WORK = join(OUT, 'work');
 const VIDEO = join(OUT, 'dicechess-tv-demo.mp4');
 
@@ -224,6 +231,9 @@ function main(): void {
     spec,
     JSON.stringify({
       background: `#${background}`,
+      cards: board.scenes.flatMap((scene, index) =>
+        scene.card ? [{ file: `card-${index}.png`, ...scene.card }] : [],
+      ),
       badge: { file: 'badge.png', text: board.badge },
       end: {
         file: 'end.png',
@@ -250,9 +260,45 @@ function main(): void {
   const segmentName = (name: string) =>
     join(WORK, `${String(segments.length).padStart(2, '0')}-${name}.mp4`);
 
-  for (const scene of board.scenes) {
+  for (const [index, scene] of board.scenes.entries()) {
     chapters.push({ start: at, name: scene.name });
     const start = at;
+    if (scene.card) {
+      const length = scene.card.seconds;
+      const out = segmentName(`card-${index}`);
+      const music = board.end.music;
+      ffmpeg([
+        '-loop',
+        '1',
+        '-framerate',
+        '30',
+        '-t',
+        seconds(length),
+        '-i',
+        join(WORK, `card-${index}.png`),
+        '-stream_loop',
+        '-1',
+        '-ss',
+        seconds(at),
+        '-i',
+        music.file,
+        '-filter_complex',
+        `[0:v]${fades(length)}[v];` +
+          `[1:a]atrim=0:${seconds(length)},aresample=48000,` +
+          `volume=${music.gainDb}dB,afade=t=in:st=0:d=0.25,` +
+          `afade=t=out:st=${seconds(length - FADE)}:d=${FADE}[a]`,
+        '-map',
+        '[v]',
+        '-map',
+        '[a]',
+        ...videoCodec(16),
+        ...AUDIO_CODEC,
+        '-shortest',
+        out,
+      ]);
+      segments.push(out);
+      at += probeDuration(out);
+    }
     for (const clip of scene.clips) {
       const from = clip.from as number;
       const length = (clip.to as number) - from;
@@ -264,7 +310,7 @@ function main(): void {
           ['-i', join(WORK, 'badge.png')],
           [
             '-filter_complex',
-            `[0:v][1:v]overlay=0:0,` +
+            (clip.badge === false ? '[0:v]' : '[0:v][1:v]overlay=0:0,') +
               `tpad=stop_mode=clone:stop_duration=${seconds(hold)},` +
               `${fades(length + hold)}[v];` +
               `[0:a]aresample=48000,apad=pad_dur=${seconds(hold)},` +
