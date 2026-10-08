@@ -69,6 +69,33 @@ echo "build number ${n:-0}"
 npm run build --prefix native -- --build-number "${n:-0}"
 '''
 
+[tasks.portraits]
+description = "🖼️  Vendor the characters' portraits from dicechess-assets into git-ignored native/portraits/"
+# The portraits stay out of git while this repository is public (#212), so a local
+# build vendors them. This takes the newest pack on the asset repository's main
+# branch whose version is the PORTRAITS_VERSION the app loads (a pack of another
+# version would ship and never load). ASSETS_DIR names the dicechess-assets
+# checkout (default: next to this one); PORTRAITS_COMMIT pins another commit.
+run = '''
+dir="${ASSETS_DIR:-../dicechess-assets}"
+pack=portraits/dicechess-cast/manifest.json
+want="$(sed -nE "s/^export const PORTRAITS_VERSION = '([^']+)';.*/\1/p" native/src/Portrait.tsx)"
+commit="${PORTRAITS_COMMIT:+$(git -C "$dir" rev-parse "$PORTRAITS_COMMIT")}"
+if [ -z "$commit" ]; then
+  git -C "$dir" fetch --quiet origin
+  for c in $(git -C "$dir" rev-list origin/main -- "$pack"); do
+    v="$(git -C "$dir" show "$c:$pack" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>console.log(JSON.parse(s).version))')"
+    if [ "$v" = "$want" ]; then commit="$c"; break; fi
+  done
+fi
+if [ -z "$commit" ]; then
+  echo "no portraits pack $want on the main branch of $dir" >&2
+  exit 1
+fi
+echo "portraits $want from $commit"
+node native/scripts/vendor-portraits.mjs "$dir" "$commit"
+'''
+
 [tasks."device:start"]
 description = "📺 Start the Vega Virtual Device"
 run = "vega virtual-device start"

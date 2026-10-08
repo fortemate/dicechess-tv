@@ -133,6 +133,12 @@ Regenerating and formatting reproduces the checked-in files byte for byte.
 The three opponents have portraits of their own, drawn for Dice Chess: Rolly, Grabby and Rampage (fortemate/dicechess-assets#31). So do Prowla the cat, who hosts Hot Seat games (#258), and Thinkle the wizard, who teaches the tutorial (#264) and hosts Hot Seat games too (#279). They are for Fortemate's Dice Chess apps only, so they stay out of this repository while it is public. A local build vendors them from the private asset repository at a pinned commit:
 
 ```bash
+mise run portraits
+```
+
+The task takes the newest pack on the asset repository's `main` branch whose version is the `PORTRAITS_VERSION` the app loads, from a `dicechess-assets` checkout next to this one. `ASSETS_DIR` names another checkout, and `PORTRAITS_COMMIT` pins a commit. It runs the script underneath, which can also be called directly:
+
+```bash
 node native/scripts/vendor-portraits.mjs ../dicechess-assets <commit>
 ```
 
