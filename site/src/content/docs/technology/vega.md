@@ -1,6 +1,6 @@
 ---
 title: Building on Vega
-description: 'How Amazon Vega OS behaved for Dice Chess on the Vega Virtual Device (SDK 0.24): remote input, sound, the icon and splash, and scripted checks. Nothing here has been checked on a Fire TV Stick yet.'
+description: 'How Amazon Vega OS behaved for Dice Chess on the Vega Virtual Device (SDK 0.24): remote input, sound, the icon and splash, and scripted checks. Unless a section says otherwise, nothing here has been checked on a Fire TV Stick.'
 sidebar:
   order: 2
 ---
@@ -135,7 +135,8 @@ Vega's animation service reads `assets/raw/SplashScreenImages.zip` directly when
 
 - As Amazon's [splash screen documentation](https://developer.amazon.com/docs/react-native-vega/0.83/splashscreenmanager) describes, the archive holds a `desc.txt` file (width, height and frame rate, e.g. `1920 1080 30`, then `c 0 0 _loop`) and a `_loop` directory of PNG frames.
 - **Archive root trap:** `desc.txt` and `_loop` must sit at the root of the archive, as that page warns. With a wrapping folder, the animation service on the Virtual Device silently showed nothing.
-- **Deterministic archive:** `native/scripts/generate-assets.mjs` stamps every entry of the archive with a fixed time, so two builds write byte-identical archives.
+- **Deterministic archive:** `native/scripts/generate-assets.mjs` stamps every entry of the archive with a fixed time and runs `zip` in UTC, so two builds write byte-identical archives wherever they run.
+- **The archive loops:** on our Fire TV Stick (Vega OS 1.2), a count of 1 in `desc.txt` and a separate hold part both repeated the whole archive, as a [public bug report](https://community.amazondeveloper.com/t/28867) describes. A cool start keeps the splash up for about 2.2 s there, so an animation either repeats or is cut halfway. Our splash is a single still frame ([#289](https://github.com/fortemate/dicechess-tv/issues/289)).
 
 ## Scripted Virtual Device Automation
 

@@ -27,6 +27,7 @@
 # clone. That happened once in dicechess-assets before it had the same rule.
 # Vendored, so they stay out of the repository's language statistics too.
 native/sounds/** -text linguist-vendored
+native/splash/fonts/** -text linguist-vendored
 # The voices, the bots' and the Hot Seat host's, and events.json beside them,
 # pinned by native/voices/voices.json the same way (#159, #202).
 native/voices/** -text linguist-vendored

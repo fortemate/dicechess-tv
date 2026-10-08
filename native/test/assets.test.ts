@@ -23,6 +23,7 @@ import { fileURLToPath } from 'node:url';
 import {
   main,
   copyPortraits,
+  portraitVector,
   portraitsVersion,
   // @ts-expect-error — a build script, deliberately plain JavaScript.
 } from '../scripts/generate-assets.mjs';
@@ -44,7 +45,7 @@ test('a run leaves nothing under assets/ that it did not write', (t) => {
   t.after(() => rmSync(root, { recursive: true, force: true }));
   // Copied rather than linked, so nothing the generator deletes can reach the
   // real inputs.
-  for (const input of ['icon', 'brand', 'sounds', 'music', 'voices'])
+  for (const input of ['icon', 'brand', 'splash', 'sounds', 'music', 'voices'])
     cpSync(join(NATIVE, input), join(root, input), { recursive: true });
 
   // What gets left behind: a folder of its own, a loose file, and a file next to
@@ -83,6 +84,23 @@ test('a run leaves nothing under assets/ that it did not write', (t) => {
     false,
     'the stray folder was emptied but not removed',
   );
+
+  // zip stamps entries in local time, so a build elsewhere in the world must
+  // still write the same archive, byte for byte.
+  const digest = () =>
+    createHash('sha256')
+      .update(readFileSync(join(assets, 'raw/SplashScreenImages.zip')))
+      .digest('hex');
+  const first = digest();
+  const zone = process.env.TZ;
+  try {
+    process.env.TZ = 'America/Los_Angeles';
+    main(root);
+  } finally {
+    if (zone === undefined) delete process.env.TZ;
+    else process.env.TZ = zone;
+  }
+  assert.equal(digest(), first, 'a rebuild changed the splash archive');
 });
 
 // The portraits (dicechess-assets#31) stay out of the public repository, so a
@@ -112,6 +130,42 @@ test('portraits ship as the lock pinned them, and not at all without one', (t) =
   assert.deepEqual(files(target), [`${PORTRAITS_VERSION}/rolly-card-336.png`]);
 
   writeFileSync(join(root, 'portraits/rolly-card-336.png'), 'edited by hand');
+  assert.throws(() => copyPortraits(root), /no longer matches/);
+});
+
+// Since pack 1.4.0 Thinkle comes as a vector too. The splash draws him from it
+// at build time; the app never loads it, so it must not ship.
+test('a portrait vector is read for the splash and never shipped', (t) => {
+  const root = mkdtempSync(join(tmpdir(), 'dicechess-tv-portraits-'));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  assert.equal(portraitVector(root, 'thinkle.svg'), null);
+
+  const pin = (bytes: Buffer) => ({
+    sha256: createHash('sha256').update(bytes).digest('hex'),
+  });
+  const card = Buffer.from('a card');
+  const vector = Buffer.from('<svg/>');
+  mkdirSync(join(root, 'portraits'));
+  writeFileSync(join(root, 'portraits/thinkle-card-336.png'), card);
+  writeFileSync(join(root, 'portraits/thinkle.svg'), vector);
+  const lock = (files: object) =>
+    writeFileSync(
+      join(root, 'portraits/portraits.lock.json'),
+      JSON.stringify({ source: { version: PORTRAITS_VERSION }, files }),
+    );
+
+  lock({ 'thinkle-card-336.png': pin(card) });
+  assert.equal(portraitVector(root, 'thinkle.svg'), null, 'not pinned');
+
+  lock({ 'thinkle-card-336.png': pin(card), 'thinkle.svg': pin(vector) });
+  assert.deepEqual(copyPortraits(root), ['thinkle-card-336.png']);
+  assert.deepEqual(files(join(root, 'assets/portraits')), [
+    `${PORTRAITS_VERSION}/thinkle-card-336.png`,
+  ]);
+  assert.deepEqual(portraitVector(root, 'thinkle.svg'), vector);
+
+  writeFileSync(join(root, 'portraits/thinkle.svg'), '<svg>edited</svg>');
+  assert.throws(() => portraitVector(root, 'thinkle.svg'), /no longer matches/);
   assert.throws(() => copyPortraits(root), /no longer matches/);
 });
 

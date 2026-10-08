@@ -1,17 +1,20 @@
 # Brand inputs
 
-Verbatim copies from `fortemate/brand`, `dist/identity/web/`. **Do not edit
-them and do not redraw the mark here.** Regenerating it is that repository's
-job; `BRAND.md` there is the authority, and it forbids the variations that
-suggest themselves — no wordmark lockup while the typography is provisional,
-and the mark never goes inside a die, a board or another grid.
+Verbatim copies from `fortemate/brand`. **Do not edit them and do not redraw
+the mark here.** Regenerating it is that repository's job, and `BRAND.md` there
+is the authority. It prefers the mark together with the `Fortemate` name while
+recognition is still being established. It asks for one solid ink, clear space
+of one cell around the mark and the name, cells never animated one by one, and
+the mark never inside a die, a chess piece, a board or another grid. The
+wordmark typography is not settled, so the name stays ordinary type next to the
+mark and is never made into a logo of its own.
 
-| File                           | Used for                                               |
-| ------------------------------ | ------------------------------------------------------ |
-| `fortemate-mark-512-white.png` | the splash frame, composited on the board's background |
+| File                       | Copied from                                                | Used for                                                                             |
+| -------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `fortemate-mark-white.svg` | `dist/identity/fortemate-mark-white.svg` at commit cca26d5 | the splash credit, drawn at 56 px beside the name "Fortemate" (`scripts/splash.mjs`) |
 
-The application icon is no longer a brand file. Since #83 it is the game's own
-icon, which lives in `../icon/`. `BRAND.md` keeps the Fortemate mark for the
+The application icon is not a brand file. Since #83 it is the game's own icon,
+which lives in `../icon/`. `BRAND.md` keeps the Fortemate mark for the
 organization and says that game artwork is not the mark, so the mark stays on
 the splash screen and the About screen.
 

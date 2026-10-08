@@ -2,27 +2,34 @@
 
 Fortemate's code in this repository is licensed under AGPL-3.0-only (see [LICENSE](LICENSE)). The third-party material below keeps its own licence and is not covered by the AGPL.
 
-| Component                                                                  | Pinned version                | License                  | Source                                             |
-| -------------------------------------------------------------------------- | ----------------------------- | ------------------------ | -------------------------------------------------- |
-| Dice Chess engine                                                          | 0.14.0                        | AGPL-3.0-only            | https://github.com/fortemate/dicechess-engine      |
-| Vector Chess Pieces Pack, RhosGFX                                          | 1.0.0                         | CC0-1.0                  | https://rhosgfx.itch.io/vector-chess-pieces        |
-| Vector Emojis, RhosGFX                                                     | downloaded 2026-09-26         | CC0-1.0                  | https://rhosgfx.itch.io/vector-emojis              |
-| Tabletop Games SFX Pack, JDSherbert                                        | 1.1.0                         | Free with attribution    | https://jdsherbert.itch.io/tabletop-games-sfx-pack |
-| Casino Audio, Interface Sounds and Music Jingles, Kenney                   | 1.1, 1.0 and unversioned      | CC0-1.0                  | https://kenney.nl                                  |
-| Dice Chess themes, pepka-prygni                                            | 0.2.0 (four tracks)           | Permission for this game | https://www.youtube.com/@genreexplorer-h5o         |
-| Dice Chess bot voices, Fortemate, made with ElevenLabs                     | 63 lines                      | Fortemate apps only      | https://elevenlabs.io                              |
-| Dice Chess Hot Seat host Rolly, Fortemate, made with ElevenLabs            | 48 lines                      | Fortemate apps only      | https://elevenlabs.io                              |
-| Dice Chess Hot Seat host Prowla, Fortemate, made with ElevenLabs           | 54 lines                      | Fortemate apps only      | https://elevenlabs.io                              |
-| Dice Chess Hot Seat host Thinkle, Fortemate, made with ElevenLabs          | 54 lines                      | Fortemate apps only      | https://elevenlabs.io                              |
-| Dice Chess TV tutorial, taught by Thinkle, Fortemate, made with ElevenLabs | 48 lines                      | Fortemate apps only      | https://elevenlabs.io                              |
-| Dice Chess TV demo narration, Thinkle, Fortemate, made with ElevenLabs     | 15 lines                      | Fortemate apps, videos   | https://elevenlabs.io                              |
-| Dice Chess character portraits, Fortemate, made with Recraft               | 1.3.1 (five characters shown) | Fortemate apps only      | https://recraft.ai                                 |
+| Component                                                                  | Pinned version                | License                  | Source                                                 |
+| -------------------------------------------------------------------------- | ----------------------------- | ------------------------ | ------------------------------------------------------ |
+| Dice Chess engine                                                          | 0.14.0                        | AGPL-3.0-only            | https://github.com/fortemate/dicechess-engine          |
+| Vector Chess Pieces Pack, RhosGFX                                          | 1.0.0                         | CC0-1.0                  | https://rhosgfx.itch.io/vector-chess-pieces            |
+| Vector Emojis, RhosGFX                                                     | downloaded 2026-09-26         | CC0-1.0                  | https://rhosgfx.itch.io/vector-emojis                  |
+| Tabletop Games SFX Pack, JDSherbert                                        | 1.1.0                         | Free with attribution    | https://jdsherbert.itch.io/tabletop-games-sfx-pack     |
+| Casino Audio, Interface Sounds and Music Jingles, Kenney                   | 1.1, 1.0 and unversioned      | CC0-1.0                  | https://kenney.nl                                      |
+| Dice Chess themes, pepka-prygni                                            | 0.2.0 (four tracks)           | Permission for this game | https://www.youtube.com/@genreexplorer-h5o             |
+| Dice Chess bot voices, Fortemate, made with ElevenLabs                     | 63 lines                      | Fortemate apps only      | https://elevenlabs.io                                  |
+| Dice Chess Hot Seat host Rolly, Fortemate, made with ElevenLabs            | 48 lines                      | Fortemate apps only      | https://elevenlabs.io                                  |
+| Dice Chess Hot Seat host Prowla, Fortemate, made with ElevenLabs           | 54 lines                      | Fortemate apps only      | https://elevenlabs.io                                  |
+| Dice Chess Hot Seat host Thinkle, Fortemate, made with ElevenLabs          | 54 lines                      | Fortemate apps only      | https://elevenlabs.io                                  |
+| Dice Chess TV tutorial, taught by Thinkle, Fortemate, made with ElevenLabs | 48 lines                      | Fortemate apps only      | https://elevenlabs.io                                  |
+| Dice Chess TV demo narration, Thinkle, Fortemate, made with ElevenLabs     | 15 lines                      | Fortemate apps, videos   | https://elevenlabs.io                                  |
+| Dice Chess character portraits, Fortemate, made with Recraft               | 1.4.0 (five characters shown) | Fortemate apps only      | https://recraft.ai                                     |
+| Titan One font, Rodrigo Fuenzalida (splash title, build time only)         | google/fonts 931162c          | OFL-1.1                  | https://github.com/google/fonts/tree/main/ofl/titanone |
+| Arimo font, The Arimo Project Authors (splash credit, build time only)     | googlefonts/Arimo 4a6255f     | OFL-1.1                  | https://github.com/googlefonts/Arimo                   |
+| resvg-js, rasterizes the splash (development dependency)                   | 2.6.2                         | MPL-2.0                  | https://github.com/thx/resvg-js                        |
 
 The engine and RhosGFX license texts are in [AGPL-3.0](licenses/AGPL-3.0.txt), [CC0-1.0](licenses/RhosGFX-CC0.txt) and, for the emojis, [CC0-1.0](licenses/RhosGFX-Emojis-CC0.txt). Full installed-package notices are retained in node_modules, and build-generated license comments must not be removed. The package locks record the exact dependency graph.
 
 Chess pieces use 12 vector SVG pieces (White and Black Outline variants) from the RhosGFX Vector Chess Pieces Pack, dedicated to the public domain under Creative Commons CC0 1.0 Universal and bundled locally. No cburnett artwork, opening book, private model or server implementation is bundled.
 
 The faces of the three local opponents are three SVGs from the RhosGFX Vector Emojis pack, Outline set: `Zany face.svg`, `Money mouth face.svg` and `Smiling face with horns.svg`. They are bundled unchanged, under shorter names, in `src/assets/faces/rhosgfx/`, and drawn by the components `native/scripts/generate-faces.mjs` writes to `native/src/faces/`. The pack is dedicated to the public domain under CC0 1.0. Its notice, in `licenses/RhosGFX-Emojis-CC0.txt` with LF line endings, is the one RhosGFX ships with the pack: it names the Vector Ranks Pack, whose notice it copies, and the pack's own page states the same terms. The whole pack is kept, with the download's SHA-256, in the private asset repository. A build with the opponents' portraits, below, draws a face only where a portrait does not load.
+
+## Splash
+
+The launch splash is drawn at build time by `native/scripts/splash.mjs` and ships as one PNG. Its title is set in Titan One and the Fortemate name in Arimo Regular, both under the SIL Open Font License 1.1 and copied unchanged into `native/splash/fonts/` with their licences; `native/splash/README.md` records their sources and digests. The fonts themselves are not in the package. `@resvg/resvg-js` 2.6.2 renders the frame; it is a development dependency under MPL-2.0, its full licence stays in the installed package, and the application does not import it. The splash draws Thinkle from the private portrait pack (below) and three RhosGFX pieces (above); a build without the portraits draws a hat instead.
 
 ## Sounds
 
