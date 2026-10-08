@@ -155,11 +155,14 @@ export function createSounds({
   let muted = startMuted;
   let voices = startVoices;
   let suspended = false;
+  let suspension = 0;
   // Counts the steps play() has been told about. A delayed cue starts only if
   // no step came after its own, so a resignation's jingle on the result player
   // is not cut short by the empty roll just before it.
   let steps = 0;
   const loaded = new Map<Slot, string>();
+  const ready = new Map<Slot, Player>();
+  const onEffects = new Map<Slot, number>();
   // Counts the lines asked for. A line waiting or being said is still the
   // current one only while no other came after it, and nothing stopped it.
   let lines = 0;
@@ -187,7 +190,10 @@ export function createSounds({
       return [
         channel,
         player.initialize().then(
-          () => player,
+          () => {
+            ready.set(channel, player);
+            return player;
+          },
           (error: unknown) => {
             report(
               `sound: ${channel} player not initialised: ${String(error)}`,
@@ -199,14 +205,14 @@ export function createSounds({
     }),
   );
 
-  const start = async (cue: Cue) => {
+  const start = async (cue: Cue, generation: number) => {
     const files = CUE_FILES[cue];
     const file =
       files[Math.min(files.length - 1, Math.max(0, pick(files.length)))];
     const channel = CHANNEL[cue];
     const player = await players.get(channel);
     // Muting can happen while a player is still initialising.
-    if (!player || muted || suspended) return;
+    if (!player || muted || suspended || generation !== suspension) return;
     try {
       const src = `${ROOT}/${file}`;
       if (loaded.get(channel) === src) {
@@ -216,7 +222,13 @@ export function createSounds({
         player.src = src;
         loaded.set(channel, src);
       }
+      onEffects.set(channel, generation);
       await player.play();
+      if (
+        (generation !== suspension || muted || suspended) &&
+        onEffects.get(channel) === generation
+      )
+        player.pause();
     } catch (error) {
       report(`sound: ${cue} did not play: ${String(error)}`);
     }
@@ -227,18 +239,22 @@ export function createSounds({
     suspended || (channel === 'voice' ? !voices : muted);
 
   const stop = (channels: readonly Slot[]) => {
-    for (const channel of channels)
-      void players.get(channel)?.then((player) => {
-        // A player still initialising when the stop was asked for had nothing
-        // playing. If sound is back on by the time it is ready, a cue started
-        // since then is left to play.
-        if (!player || !silent(channel)) return;
-        try {
-          player.pause();
-        } catch (error) {
-          report(`sound: ${channel} did not stop: ${String(error)}`);
-        }
-      });
+    const pause = (channel: Slot, player: Player | null) => {
+      // A player still initialising when the stop was asked for had nothing
+      // playing. If sound is back on by the time it is ready, a cue started
+      // since then is left to play.
+      if (!player || !silent(channel)) return;
+      try {
+        player.pause();
+      } catch (error) {
+        report(`sound: ${channel} did not stop: ${String(error)}`);
+      }
+    };
+    for (const channel of channels) {
+      const player = ready.get(channel);
+      if (player) pause(channel, player);
+      else void players.get(channel)?.then((next) => pause(channel, next));
+    }
   };
 
   // The line the voice player was last started on.
@@ -308,17 +324,18 @@ export function createSounds({
   return {
     play(cues) {
       const step = ++steps;
+      const generation = suspension;
       if (muted || suspended) return;
       for (const cue of cues) {
         const wait = CUE_DELAY_MS[cue];
         if (!wait) {
-          void start(cue);
+          void start(cue, generation);
           continue;
         }
         // Dropped if another step comes first. start() checks muting again, so
         // a cue muted while it waits is not heard either.
         later(() => {
-          if (step === steps) void start(cue);
+          if (step === steps) void start(cue, generation);
         }, wait);
       }
     },
@@ -346,6 +363,8 @@ export function createSounds({
     setSuspended(value) {
       suspended = value;
       if (!value) return;
+      steps++;
+      suspension++;
       stop(CHANNELS);
       hush();
     },

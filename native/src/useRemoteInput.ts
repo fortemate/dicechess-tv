@@ -18,13 +18,20 @@
 // Two channels that were tried and rejected: `UserInputManager.addListener`
 // aborts the JS thread on 0.24, and subscribing `useAddUserInputListenerCallback`
 // to every key delivers nothing while `useTVEventHandler` is also mounted.
-import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+} from 'react';
 import {
   useTVEventHandler,
   useKeplerBackHandler,
   type HWEvent,
 } from '@amazon-devices/react-native-kepler';
 import type { BoardKey } from '../../src/core/boardInput';
+import { ActivityContext } from './activity';
 
 // OK arrives under three names, and all of them mean the same to the board:
 // `select` from a physical remote, as Amazon documents it; `enter` from the
@@ -72,6 +79,7 @@ export function useRemoteInput(
   onKey: (key: BoardKey) => void,
   options: RemoteInputOptions = {},
 ): void {
+  const activity = useContext(ActivityContext);
   // Reading the handlers through refs keeps a new callback identity on every
   // render from resubscribing mid-press. The refs are updated once a render has
   // been committed, not while it runs: a render can be thrown away, and a key
@@ -87,19 +95,23 @@ export function useRemoteInput(
   });
 
   useTVEventHandler(
-    useCallback((event: HWEvent) => {
-      const key = KEYS[String(event.eventType)];
-      if (!key) return;
-      if (key === 'select') {
-        // Down, and every repeat while held, only shows the press; the release
-        // is the press itself, delivered once.
-        if (event.eventKeyAction === DOWN) press.current?.(true);
-        if (event.eventKeyAction !== UP) return;
-        press.current?.(false);
-      }
-      const wanted = REPEATABLE.has(key) ? DOWN : UP;
-      if (event.eventKeyAction === wanted) handler.current(key);
-    }, []),
+    useCallback(
+      (event: HWEvent) => {
+        if (!activity.isActive()) return;
+        const key = KEYS[String(event.eventType)];
+        if (!key) return;
+        if (key === 'select') {
+          // Down, and every repeat while held, only shows the press; the release
+          // is the press itself, delivered once.
+          if (event.eventKeyAction === DOWN) press.current?.(true);
+          if (event.eventKeyAction !== UP) return;
+          press.current?.(false);
+        }
+        const wanted = REPEATABLE.has(key) ? DOWN : UP;
+        if (event.eventKeyAction === wanted) handler.current(key);
+      },
+      [activity],
+    ),
   );
 
   const backHandler = useKeplerBackHandler();
@@ -107,6 +119,7 @@ export function useRemoteInput(
     const subscription = backHandler.addEventListener(
       'hardwareBackPress',
       () => {
+        if (!activity.isActive()) return false;
         // No handler means the screen has nowhere to go back to, and the app
         // should close.
         if (!back.current) {
@@ -117,5 +130,13 @@ export function useRemoteInput(
       },
     );
     return () => subscription.remove();
-  }, [backHandler]);
+  }, [backHandler, activity]);
+
+  useEffect(
+    () =>
+      activity.subscribe(() => {
+        if (!activity.isActive()) press.current?.(false);
+      }),
+    [activity],
+  );
 }

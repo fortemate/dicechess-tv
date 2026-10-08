@@ -226,14 +226,14 @@ export type ScreenOptions = {
   newId: () => string;
   // Runs a step after about `wait` milliseconds: the opponent's next step, or the
   // end of a guard. The app spaces them out so the player can watch; a test
-  // runs them immediately.
-  schedule: (step: () => void, wait: number) => void;
+  // runs them immediately. A scheduler may return a cancellation function.
+  schedule: (step: () => void, wait: number) => void | (() => void);
   // The colour a person gets on choosing Random. Injected like the dice.
   side: () => Side;
   // Runs one small piece of background work soon, between frames: a step of
   // measuring the danger to a king (#76). Without it the work runs at once,
   // which is what a test wants.
-  background?: (step: () => void) => void;
+  background?: (step: () => void) => void | (() => void);
   // The time in milliseconds, to measure how much of the opponent's step wait
   // its search has already used. Without it no time counts as used, which is
   // what a test that does not look at the clock wants.

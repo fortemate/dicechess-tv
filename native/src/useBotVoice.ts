@@ -9,6 +9,7 @@ import {
 import { isBotMode, type Game } from '../../src/core/game';
 import { opponentOf } from '../../src/core/opponents';
 import type { Level } from '../../src/core/danger';
+import { ActivityContext, afterDelay, scheduleActive } from './activity';
 
 export const DISMISS_DELAY_MS = 2800;
 
@@ -36,10 +37,11 @@ export function useBotVoice(
   dangerLevel: Level = 'calm',
   options?: UseBotVoiceOptions,
 ): VoiceLine | null {
+  const activity = React.useContext(ActivityContext);
   const [activeLine, setActiveLine] = React.useState<VoiceLine | null>(null);
   const voiceState = React.useRef<BotVoiceState>(INITIAL_BOT_VOICE_STATE);
   const lastGame = React.useRef<Game | null>(null);
-  const timer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timer = React.useRef<(() => void) | null>(null);
 
   const timeoutMs = options?.timeoutMs ?? DISMISS_DELAY_MS;
   const live = options?.live ?? true;
@@ -53,26 +55,31 @@ export function useBotVoice(
     onVoiceLineRef.current = options?.onVoiceLine;
   });
 
-  const showLine = React.useCallback((line: VoiceLine) => {
-    setActiveLine(line);
-    onVoiceLineRef.current?.(line);
-    if (timer.current) clearTimeout(timer.current);
-    timer.current = null;
-    if (lastWord(line)) return;
-    const hold = holdMsRef.current?.(line) ?? 0;
-    timer.current = setTimeout(
-      () => {
-        setActiveLine(null);
-        timer.current = null;
-      },
-      Math.max(timeoutMsRef.current, hold),
-    );
-  }, []);
+  const showLine = React.useCallback(
+    (line: VoiceLine) => {
+      setActiveLine(line);
+      onVoiceLineRef.current?.(line);
+      timer.current?.();
+      timer.current = null;
+      if (lastWord(line)) return;
+      const hold = holdMsRef.current?.(line) ?? 0;
+      timer.current = scheduleActive(
+        activity,
+        afterDelay,
+        () => {
+          setActiveLine(null);
+          timer.current = null;
+        },
+        Math.max(timeoutMsRef.current, hold),
+      );
+    },
+    [activity],
+  );
 
   React.useEffect(() => {
     if (!isBotMode(game.mode)) {
       if (timer.current) {
-        clearTimeout(timer.current);
+        timer.current();
         timer.current = null;
       }
       lastGame.current = game;
@@ -95,7 +102,7 @@ export function useBotVoice(
         lastLines: voiceState.current.lastLines,
       };
       if (timer.current) {
-        clearTimeout(timer.current);
+        timer.current();
         timer.current = null;
       }
       const cue = botVoiceCue(
@@ -131,7 +138,7 @@ export function useBotVoice(
   React.useEffect(() => {
     return () => {
       if (timer.current) {
-        clearTimeout(timer.current);
+        timer.current();
         timer.current = null;
       }
     };

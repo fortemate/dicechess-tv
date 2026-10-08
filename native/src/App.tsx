@@ -41,6 +41,7 @@ import {
 } from './musicSetting';
 import { randomSource } from './randomSource';
 import type { ScreenOptions } from './screen';
+import { ActivityContext, createActivity } from './activity';
 
 const KEY = 'dicechess-tv.game.v2';
 const LEDGER_KEY = 'dicechess-tv.ledger.v1';
@@ -85,11 +86,13 @@ export const App = ({
       // Space the opponent's steps out so the player watches it roll and move
       // rather than seeing the board jump; the screen says how long each waits.
       schedule: (step, wait) => {
-        setTimeout(step, wait);
+        const timer = setTimeout(step, wait);
+        return () => clearTimeout(timer);
       },
       // One roll of the danger search per slot between frames (#76).
       background: (step) => {
-        setTimeout(step, 0);
+        const timer = setTimeout(step, 0);
+        return () => clearTimeout(timer);
       },
       // The opponent's search counts against its step wait (#253).
       now: () => Date.now(),
@@ -268,7 +271,11 @@ export const App = ({
   // sound, which Amazon's pre-submission checks require. Coming back is a warm
   // start, reported like the cool one, and sound resumes as the setting says.
   const appState = useKeplerAppStateManager();
-  React.useEffect(() => {
+  const activity = React.useMemo(
+    () => createActivity(appState.getCurrentState() === 'active'),
+    [appState],
+  );
+  React.useLayoutEffect(() => {
     let away = false;
     // Music plays only while the app is both active and focused (#76). Vega
     // sends blur before the change to background and focus after the return
@@ -276,16 +283,21 @@ export const App = ({
     // the order, it stays stopped until both are back.
     let active = appState.getCurrentState() === 'active';
     let focused = true;
-    const sync = () => music.setSuspended(!(active && focused));
+    const sync = () => {
+      const ready = active && focused;
+      sounds.setSuspended(!ready);
+      music.setSuspended(!ready);
+      activity.setActive(ready);
+      onState?.(`activity ${ready ? 'active' : 'paused'}`);
+    };
+    sync();
     const subscription = appState.addEventListener('change', (state) => {
       if (state === 'active') {
-        sounds.setSuspended(false);
         active = true;
         sync();
         if (away) reportFullyDrawn();
         away = false;
-      } else if (state === 'background' || state === 'inactive') {
-        sounds.setSuspended(true);
+      } else {
         active = false;
         sync();
         away = true;
@@ -303,8 +315,11 @@ export const App = ({
       subscription.remove();
       blur.remove();
       focus.remove();
+      sounds.setSuspended(true);
+      music.setSuspended(true);
+      activity.setActive(false);
     };
-  }, [appState, sounds, music, reportFullyDrawn]);
+  }, [appState, sounds, music, activity, reportFullyDrawn, onState]);
 
   const onCommit = React.useCallback(
     (game: Game) => {
@@ -315,27 +330,29 @@ export const App = ({
   );
 
   return (
-    <GameScreen
-      options={options}
-      initial={opened.game}
-      onCommit={onCommit}
-      ledger={ledger}
-      onState={onState}
-      sounds={sounds}
-      initialSound={initialSound}
-      onSound={onSound}
-      initialTurnBoard={initialTurnBoard}
-      onTurnBoard={onTurnBoard}
-      initialVoices={initialVoices}
-      onVoices={onVoices}
-      initialHost={initialHost}
-      onHost={onHost}
-      music={music}
-      initialMusic={initialMusic}
-      onMusic={onMusic}
-      musicAvailable={musicAvailable}
-      offerTutorial={offerTutorial}
-      onTutorialOffered={onTutorialOffered}
-    />
+    <ActivityContext.Provider value={activity}>
+      <GameScreen
+        options={options}
+        initial={opened.game}
+        onCommit={onCommit}
+        ledger={ledger}
+        onState={onState}
+        sounds={sounds}
+        initialSound={initialSound}
+        onSound={onSound}
+        initialTurnBoard={initialTurnBoard}
+        onTurnBoard={onTurnBoard}
+        initialVoices={initialVoices}
+        onVoices={onVoices}
+        initialHost={initialHost}
+        onHost={onHost}
+        music={music}
+        initialMusic={initialMusic}
+        onMusic={onMusic}
+        musicAvailable={musicAvailable}
+        offerTutorial={offerTutorial}
+        onTutorialOffered={onTutorialOffered}
+      />
+    </ActivityContext.Provider>
   );
 };

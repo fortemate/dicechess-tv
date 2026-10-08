@@ -213,23 +213,53 @@ test('away from the foreground, nothing plays, and the setting is kept', async (
   assert.equal(plays().length, 1);
 });
 
-test('back before the players are ready, a waiting cue plays to the end', async () => {
+test('a cue waiting for initialization is dropped across suspension, even after a quick return', async () => {
   resetAudio();
   holdAudio();
   const sounds = createSounds({ pick: () => 0 });
   sounds.play(['dice_roll']);
-  // Away and back while the players are still initialising: the stop asked for
-  // on leaving no longer applies once they are ready.
+  // Away and back while the players are still initialising: an old cue must
+  // not start late after the overlay has closed (#254).
   sounds.setSuspended(true);
   sounds.setSuspended(false);
   releaseAudio();
   await settle();
-  const [roll] = plays();
-  assert.ok(roll, 'the waiting cue plays');
-  const afterwards = log()
-    .slice(log().indexOf(roll) + 1)
-    .filter((entry) => entry.player === roll.player);
-  assert.deepEqual(afterwards, [], 'nothing pauses it');
+  assert.equal(plays().length, 0, 'the old roll is never heard');
+  sounds.play(['dice_roll']);
+  await settle();
+  assert.equal(plays().length, 1, 'a new roll still plays');
+});
+
+test('a delayed effect is discarded across blur/focus, rather than replayed on return', async () => {
+  resetAudio();
+  const time = clock();
+  const sounds = createSounds({ pick: () => 0, later: time.later });
+  sounds.play(['dice_roll', 'no_move']);
+  await settle();
+  sounds.setSuspended(true);
+  sounds.setSuspended(false);
+  time.elapse();
+  await settle();
+  assert.equal(plays().length, 1, 'the delayed no-move cue is dropped');
+  sounds.play(['piece_move']);
+  await settle();
+  assert.equal(plays().length, 2, 'the next live move is heard');
+});
+
+test('a quick blur/focus still pauses an already playing effect and voice synchronously', async () => {
+  resetAudio();
+  const sounds = createSounds({ pick: () => 0 });
+  sounds.play(['dice_roll']);
+  await settle();
+  const before = log().length;
+  sounds.setSuspended(true);
+  sounds.setSuspended(false);
+  assert.ok(
+    log()
+      .slice(before)
+      .some((entry) => entry.event === 'pause'),
+    'pause reaches ready players before focus can return',
+  );
 });
 
 test('a take is chosen among several, and a bad pick cannot fall off the list', async () => {
