@@ -21,7 +21,9 @@ export function createActivity(initial: boolean) {
     setActive(next: boolean) {
       if (next === active) return;
       active = next;
-      for (const listener of [...listeners]) listener();
+      // A resume callback may subscribe the next task. Notify only the
+      // listeners that belonged to this transition.
+      [...listeners].forEach((listener) => listener());
     },
   };
 }
