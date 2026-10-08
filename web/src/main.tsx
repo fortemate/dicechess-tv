@@ -81,7 +81,6 @@ const useScale = (host: React.RefObject<HTMLElement | null>) => {
 const LABELS: Record<MarkName, string> = {
   movable: 'Can move',
   selected: 'Picked up',
-  arrow: 'Arrow',
   destination: 'Can go to',
   cursor: 'Cursor',
   lastMove: 'Last move',

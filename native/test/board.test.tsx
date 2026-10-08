@@ -110,135 +110,16 @@ test('each overlay state draws its own distinct mark', () => {
   assert.equal(
     overlays(root, (s) => s.backgroundColor === THEME.selected).length,
     1,
-    'the source square has its own warm fill',
   );
 
-  // The source is a fill; only focus carries green brackets.
-  assert.equal(
-    overlays(root, (s) => s.borderColor === THEME.boardCursor).length,
-    2,
-  );
-  assert.equal(arrows(root).length, 0);
-});
-
-// The arrow from the picked-up piece to the cursor, as drawn.
-const arrows = (root: Instance): Instance[] =>
-  root.findAll(
-    (node) => isHost(node, 'View') && node.props.testID === 'move-arrow',
-  );
-
-// The square at a position, from White's side: rank 8 is rendered first.
-const squareAt = (root: Instance, square: string): Instance =>
-  squares(root)[
-    (8 - Number(square[1])) * 8 + square.charCodeAt(0) - 'a'.charCodeAt(0)
-  ];
-
-test('the board focus has green brackets and a faint fill on one square', () => {
-  const root = render({ cursor: 'e4' });
-  const e4 = squareAt(root, 'e4');
-  const brackets = overlays(e4, (s) => s.borderColor === THEME.boardCursor);
-  assert.equal(brackets.length, 2);
-  assert.equal(
-    overlays(root, (s) => s.backgroundColor === THEME.boardFocusFill).length,
-    1,
-  );
-  const [left, right] = brackets.map(styleOf);
-  assert.ok(left.borderLeftWidth && right.borderRightWidth);
-  assert.equal(left.borderRightWidth, undefined);
-  assert.equal(right.borderLeftWidth, undefined);
-  assert.ok((left.width as number) < EDGE / 2, 'open across the middle');
-  assert.equal(left.height, right.height);
-  assert.equal(left.top, right.top);
-});
-
-// WCAG 2.2 relative luminance and contrast ratio, of opaque #rrggbb colours.
-const luminance = (hex: string) => {
-  const [r, g, b] = [1, 3, 5].map((at) => {
-    const c = parseInt(hex.slice(at, at + 2), 16) / 255;
-    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
-  });
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-};
-const contrast = (a: string, b: string) => {
-  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
-  return (hi + 0.05) / (lo + 0.05);
-};
-
-test('green brackets contrast with both square colours', () => {
-  for (const square of [THEME.light, THEME.dark])
-    assert.ok(contrast(THEME.boardCursor, square) >= 3);
-});
-
-test('the source stays marked while focus moves, with its piece at normal size', () => {
-  for (const cursor of ['a3', 'c3']) {
-    const root = render({ legal: ['b1a3', 'b1c3'], selected: 'b1', cursor });
-    const b1 = squareAt(root, 'b1');
-    assert.equal(
-      overlays(b1, (s) => s.backgroundColor === THEME.selected).length,
-      1,
-    );
-    assert.equal(
-      overlays(b1, (s) => s.borderBottomColor === THEME.selectedLine).length,
-      1,
-    );
-    assert.equal(
-      overlays(b1, (s) => s.borderColor === THEME.boardCursor).length,
-      0,
-    );
-    const knight = b1.findByType(PIECES.N as never);
-    assert.equal(knight.props.size, Math.round(EDGE * 0.92));
-    assert.ok(
-      b1.children.some((child) => (child as Instance).type === PIECES.N),
-    );
-    assert.equal(arrows(root).length, 0);
-  }
-});
-
-test('the focused destination loses its dot while the other pawn step keeps one', () => {
-  for (const cursor of ['e3', 'e4']) {
-    const root = render({ legal: ['e2e3', 'e2e4'], selected: 'e2', cursor });
-    const dot = (s: Style) => s.backgroundColor === THEME.destination;
-    assert.equal(overlays(squareAt(root, cursor), dot).length, 0);
-    assert.equal(overlays(root, dot).length, 1);
-    assert.equal(arrows(root).length, 0);
-  }
-});
-
-test('a focused capture keeps the target piece visible, with brackets instead of a ring', () => {
-  const root = render({
-    board: '4k3/8/8/3p4/8/8/8/3RK3',
-    selected: 'd1',
-    cursor: 'd5',
-    legal: ['d1d2', 'd1d5'],
-  });
-  const target = squareAt(root, 'd5');
-  assert.equal(target.findAllByType(PIECES.p as never).length, 1);
-  assert.equal(
-    overlays(target, (s) => s.borderColor === THEME.destination).length,
-    0,
-  );
-  assert.equal(
-    overlays(target, (s) => s.borderColor === THEME.boardCursor).length,
-    2,
-  );
-});
-
-test('source and focus marks follow the board when viewed from Black', () => {
-  const root = render({
-    selected: 'b1',
-    cursor: 'c3',
-    legal: ['b1a3', 'b1c3'],
-    flipped: true,
-  });
-  const all = squares(root);
-  assert.equal(
-    overlays(all[6], (s) => s.backgroundColor === THEME.selected).length,
-    1,
-  );
-  assert.equal(
-    overlays(all[2 * 8 + 5], (s) => s.borderColor === THEME.boardCursor).length,
-    2,
-  );
+  // The cursor square and the selected square each get a ring, and the selected
+  // one is twice as thick so the two are told apart.
+  const rings = overlays(root, (s) => s.borderColor === THEME.cursor);
+  assert.equal(rings.length, 2);
+  const widths = rings
+    .map((ring) => styleOf(ring).borderWidth as number)
+    .sort((a, b) => a - b);
+  assert.equal(widths[1], widths[0] * 2, `ring widths ${widths}`);
 });
 
 test('an empty destination gets a dot, and a piece that would be taken a ring', () => {

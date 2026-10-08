@@ -11,23 +11,15 @@ A television is read from three metres away, often by several people at once, an
 
 The squares use the brown palette of Chessground, the board of the open-source chess site Lichess, which many players already know. Each mark on the board looks different, not only a different colour:
 
-| Mark                  | How it looks                                                                  |
-| --------------------- | ----------------------------------------------------------------------------- |
-| The cursor            | Dark green square brackets, with a faint fill under the piece                 |
-| A piece that can move | A translucent green fill                                                      |
-| The piece in hand     | A warm fill and dark baseline on its source square; normal piece size         |
-| A destination         | A dot on an empty square; a capture ring; focus replaces either with brackets |
-| The last move         | A translucent yellow-green tint on both of its squares                        |
+| Mark                  | How it looks                                                        |
+| --------------------- | ------------------------------------------------------------------- |
+| The cursor            | A cyan frame around the square                                      |
+| A piece that can move | A translucent green fill                                            |
+| The piece in hand     | A translucent cyan fill                                             |
+| A destination         | A dot on an empty square; a ring around a piece that would be taken |
+| The last move         | A translucent yellow-green tint on both of its squares              |
 
-A dot covers 32 % of its square, and a capture ring 94 %, drawn under the piece so that it does not cover the piece's edges. The destination under the cursor carries brackets instead of a dot or ring, so only one mark says where OK will move the piece.
-
-### The cursor and the piece in hand
-
-The remote's focus uses dark green `[ ]` brackets, whether choosing a piece or its destination. The picked-up piece stays at its normal size, on a warm fill with a dark baseline. Source and focus therefore differ by shape as well as colour.
-
-There is no move arrow. The earlier design (#121) raised the piece and connected it to the cursor with an arrow, redrawing destination dots over it. The new marks keep the board clear on long sliding moves and leave intervening pieces visible.
-
-Menus keep their cyan focus. The board uses the same brackets in play and the tutorial; there is no additional setting.
+A dot covers 32 % of its square, and a capture ring 94 %, drawn under the piece so that it does not cover the piece's edges.
 
 ## The dice
 

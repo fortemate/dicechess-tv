@@ -26,7 +26,6 @@ test('a variant survives the round trip through the address', () => {
     marks: {
       movable: 'corners',
       selected: 'lift',
-      arrow: 'on',
       destination: 'fill',
       cursor: 'two-tone',
       lastMove: 'none',
@@ -38,7 +37,7 @@ test('a variant survives the round trip through the address', () => {
   const search = formatBench(bench);
   assert.equal(
     search,
-    '?movable=corners&selected=lift&arrow=on&dest=fill&cursor=two-tone&last=none&palette=okabe-ito&cvd=deuteranopia&ui=0',
+    '?movable=corners&selected=lift&dest=fill&cursor=two-tone&last=none&palette=okabe-ito&cvd=deuteranopia&ui=0',
   );
   assert.deepEqual(parseBench(search), bench);
 });
@@ -86,11 +85,8 @@ test('the tv palette is the television theme', async () => {
   const { THEME } = await import('../../native/src/theme.ts');
   const tv = PALETTES.tv;
   assert.equal(tv.movable, THEME.movable);
+  assert.equal(tv.selected, THEME.selected);
   assert.equal(tv.destination, THEME.destination);
   assert.equal(tv.cursor, THEME.cursor);
-  assert.equal(tv.cursorInner, THEME.cursorLine);
-  assert.equal(tv.destinationLine, THEME.boardCursor);
-  assert.equal(tv.warmFill, THEME.selected);
-  assert.equal(tv.warmLine, THEME.selectedLine);
   assert.equal(tv.lastMove, THEME.lastMove);
 });

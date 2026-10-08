@@ -177,9 +177,9 @@ test('OK on the board rolls the dice', () => {
   );
 });
 
-test('no board focus before the roll; after it brackets wait on a movable piece (#206)', () => {
+test('no cursor frame before the roll; after it the frame waits on a movable piece (#206)', () => {
   const frames = (root: Instance) =>
-    overlays(root, (s) => s.borderColor === THEME.boardCursor).length / 2;
+    overlays(root, (s) => s.borderColor === THEME.cursor).length;
 
   // A hotseat turn: nothing to choose until the dice are rolled.
   const { root, state } = mount();
@@ -217,10 +217,10 @@ test('arrows move the focus, OK picks a piece up and marks its destinations', ()
     overlays(root, (s) => s.backgroundColor === THEME.selected).length,
     1,
   );
-  // The focused destination uses brackets; the other keeps its dot.
+  // A dot on each of the knight's two empty destinations.
   assert.equal(
     overlays(root, (s) => s.backgroundColor === THEME.destination).length,
-    1,
+    2,
   );
 });
 
@@ -515,6 +515,6 @@ test('the pieces that can move are marked until one is picked up', () => {
   assert.equal(marked(), 0);
   assert.equal(
     overlays(root, (s) => s.backgroundColor === THEME.destination).length,
-    1,
+    2,
   );
 });

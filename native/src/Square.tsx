@@ -7,8 +7,9 @@ import type { SquareView } from '../../src/core/boardView';
 import { PIECES } from './pieces';
 import { THEME } from './theme';
 
-// A destination dot's diameter, in squares.
-export const DOT = 0.32;
+// Ring thickness and piece inset scale with the board so the board stays
+// legible whether it is sized for a 1080p panel or a smaller window.
+const ring = (size: number) => Math.max(2, Math.round(size / 240));
 
 // A legal destination, marked the way most chess programs mark one: a dot on an
 // empty square, and a ring around a piece that would be taken, since a dot would
@@ -21,7 +22,7 @@ const Destination = ({
   edge: number;
   occupied: boolean;
 }) => {
-  const size = Math.round(edge * (occupied ? 0.94 : DOT));
+  const size = Math.round(edge * (occupied ? 0.94 : 0.32));
   const offset = Math.round((edge - size) / 2);
   return (
     <View
@@ -43,70 +44,10 @@ const Destination = ({
   );
 };
 
-// The remote's focus, whether choosing a piece or its destination: two dark
-// green square brackets. Their open top and bottom leave the piece visible.
-export const FocusBrackets = ({
-  edge,
-  color = THEME.boardCursor,
-}: {
-  edge: number;
-  color?: string;
-}) => {
-  const width = Math.max(2, Math.round(edge * 0.085));
-  const inset = Math.round(edge * 0.06);
-  const top = Math.round(edge * 0.13);
-  return (
-    <>
-      {[true, false].map((left) => (
-        <View
-          key={String(left)}
-          style={{
-            position: 'absolute',
-            ...(left ? { left: inset } : { right: inset }),
-            top,
-            width: Math.round(edge * 0.2),
-            height: edge - top * 2,
-            borderColor: color,
-            borderTopWidth: width,
-            borderBottomWidth: width,
-            ...(left
-              ? { borderLeftWidth: width }
-              : { borderRightWidth: width }),
-          }}
-        />
-      ))}
-    </>
-  );
-};
-
-// The source stays marked while focus moves: a warm fill and a dark baseline,
-// distinct in shape from the focus brackets. The piece keeps its normal size.
-export const PickedUp = ({
-  edge,
-  fill = THEME.selected,
-  line = THEME.selectedLine,
-}: {
-  edge: number;
-  fill?: string;
-  line?: string;
-}) => (
-  <View
-    style={{
-      position: 'absolute',
-      left: 0,
-      top: 0,
-      width: edge,
-      height: edge,
-      backgroundColor: fill,
-      borderBottomWidth: Math.max(2, Math.round(edge * 0.085)),
-      borderBottomColor: line,
-    }}
-  />
-);
-
 export const Square = ({ view, edge }: { view: SquareView; edge: number }) => {
   const Piece = view.piece ? PIECES[view.piece as keyof typeof PIECES] : null;
-  const piece = Piece ? <Piece size={Math.round(edge * 0.92)} /> : null;
+  const width = ring(edge * 8);
+  const focus = view.cursor || view.selected;
   return (
     <View
       style={{
@@ -129,7 +70,7 @@ export const Square = ({ view, edge }: { view: SquareView; edge: number }) => {
       ) : null}
       {view.movable ? (
         // A piece that can move now (#68): a fill under the piece, a shape the
-        // cursor's brackets and the destination dots do not share.
+        // cursor's ring and the destination dots do not share.
         <View
           style={{
             position: 'absolute',
@@ -139,22 +80,31 @@ export const Square = ({ view, edge }: { view: SquareView; edge: number }) => {
           }}
         />
       ) : null}
-      {view.selected ? <PickedUp edge={edge} /> : null}
-      {view.cursor ? (
+      {view.selected ? (
         <View
           style={{
             position: 'absolute',
             width: edge,
             height: edge,
-            backgroundColor: THEME.boardFocusFill,
+            backgroundColor: THEME.selected,
           }}
         />
       ) : null}
-      {view.destination && !view.cursor ? (
+      {view.destination ? (
         <Destination edge={edge} occupied={view.piece !== null} />
       ) : null}
-      {piece}
-      {view.cursor ? <FocusBrackets edge={edge} /> : null}
+      {Piece ? <Piece size={Math.round(edge * 0.92)} /> : null}
+      {focus ? (
+        <View
+          style={{
+            position: 'absolute',
+            width: edge,
+            height: edge,
+            borderWidth: view.selected ? width * 2 : width,
+            borderColor: THEME.cursor,
+          }}
+        />
+      ) : null}
     </View>
   );
 };

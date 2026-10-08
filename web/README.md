@@ -65,34 +65,22 @@ is written, so the bare address is the game as it ships. **Tester link** copies
 the current marks with the controls hidden (`ui=0`), for handing one exact
 variant to someone.
 
-| Parameter  | Mark                            | Options (first is the television's)                                            |
-| ---------- | ------------------------------- | ------------------------------------------------------------------------------ |
-| `movable`  | a piece that can move now       | `fill`, `fill-corners`, `corners`, `outline`, `badge`, `none`                  |
-| `selected` | the picked-up piece             | `warm-fill`, `raised`, `tint-frame`, `frame`, `solid`, `lift`, `ghost`, `warm` |
-| `arrow`    | the arrow from it to the cursor | `off`, `on`                                                                    |
-| `dest`     | where it can go                 | `dot`, `dot-large`, `fill`, `corners`, `outline`                               |
-| `cursor`   | the remote's cursor             | `brackets`, `bold`, `frame`, `thick`, `two-tone`, `fill`                       |
-| `last`     | both squares of the last action | `tint`, `outline`, `none`                                                      |
-| `palette`  | the colours of all of them      | `tv`, `okabe-ito`, `high-contrast`                                             |
-| `cvd`      | colour-vision simulation        | `none`, `protanopia`, `deuteranopia`, `tritanopia`, `achromatopsia`            |
-| `ui`       | `0` hides the bench's controls  |                                                                                |
+| Parameter  | Mark                            | Options (first is the television's)                                 |
+| ---------- | ------------------------------- | ------------------------------------------------------------------- |
+| `movable`  | a piece that can move now       | `fill`, `fill-corners`, `corners`, `outline`, `badge`, `none`       |
+| `selected` | the picked-up piece             | `tint-frame`, `frame`, `solid`, `lift`                              |
+| `dest`     | where it can go                 | `dot`, `dot-large`, `fill`, `corners`, `outline`                    |
+| `cursor`   | the remote's cursor             | `frame`, `thick`, `two-tone`                                        |
+| `last`     | both squares of the last action | `tint`, `outline`, `none`                                           |
+| `palette`  | the colours of all of them      | `tv`, `okabe-ito`, `high-contrast`                                  |
+| `cvd`      | colour-vision simulation        | `none`, `protanopia`, `deuteranopia`, `tritanopia`, `achromatopsia` |
+| `ui`       | `0` hides the bench's controls  |                                                                     |
 
 `fill`, `fill-corners` and `corners` are variants A, B and C of the
 colour-vision check on the project site (#105, #108). With every mark at its
 first option and the `tv` palette, the board is drawn by
 `native/src/Square.tsx` itself; any other choice is drawn by
 [`src/Square.tsx`](src/Square.tsx) in the same layers.
-
-**Raised piece and arrow (#121)** reproduces the previous design. The current native application has warm source fills, green focus brackets and no arrow.
-
-**Before #121** sets the cursor and the picked-up piece back to how the
-television drew them until #121: `frame`, `tint-frame` and no arrow.
-
-`gallery.html` draws one position at both steps of a move, choosing a piece and
-choosing where it goes, in each variant compared for #121, side by side. It
-takes `?step=choose` or `?step=move` for one step, `?only=<id>` for one board
-(`1a` to `1e`, `2a` to `2h`) and `?cvd=` for a simulation, so a screenshot of it
-shows exactly one variant.
 
 The simulation uses the severity-1 matrices of Machado, Oliveira and Fernandes
 (2009) for the three dichromacies, and luminance alone for achromatopsia. It
@@ -101,7 +89,9 @@ those deficiencies.
 
 ## How it is put together
 
-- [`vite.config.ts`](vite.config.ts) aliases every `@amazon-devices/*` package to a stand-in in `src/shims/`, and swaps the native board's squares for `src/Square.tsx` (`SWAPPED`). Its screen imports use the bench's `src/Board.tsx` wrapper, which can add the historical arrow for design comparisons. The native application contains no arrow renderer. `test/config.test.ts` checks the square exports and the wrapper routing.
+- [`vite.config.ts`](vite.config.ts) aliases every `@amazon-devices/*` package to a
+  stand-in in [`src/shims/`](src/shims/), and swaps one import:
+  `native/src/Board.tsx` draws its squares with `src/Square.tsx` here.
 - `react-native` is react-native-web, except that the window is always 960 x 540,
   the size Vega reports.
 - The sounds are the vendored cues in `native/sounds/`, played on HTML audio
