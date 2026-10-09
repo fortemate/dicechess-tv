@@ -24,6 +24,7 @@ import {
   type Mode,
   type Side,
 } from '../../src/core/game';
+import { diceOf, type Die } from '../../src/core/dice';
 import { OPPONENTS } from '../../src/core/opponents';
 import {
   boardInput,
@@ -188,6 +189,25 @@ export type ScreenState = {
   // OK is ignored: a roll has just left nothing to play. The app clears it
   // after OK_GUARD_MS; the other keys work throughout.
   guarded: boolean;
+  // The dice played on the latest finished turn, shown dimmed until the next
+  // roll so a player can inspect what the bot (or the other side) rolled (#297).
+  lastDice: LastDice | null;
+};
+
+export type LastDice = {
+  dice: Die[];
+  side: Side;
+};
+
+// The dice of a finished turn, as they are drawn at the handoff: all spent or
+// leftover, so they can stay on screen dimmed until the next roll (#297).
+export const lastDiceOf = (game: Game): LastDice | null => {
+  if (!game.roll.length) return null;
+  const view = viewGame(game);
+  return {
+    dice: diceOf(game.roll, view.remaining, view.playable),
+    side: view.side,
+  };
 };
 
 // What a new game keeps: the settings, and whether this build has music.
@@ -339,6 +359,7 @@ const board = (
   voices,
   host,
   guarded: false,
+  lastDice: null,
 });
 
 // A played move clears the selection, and the cursor settles for the next
@@ -359,6 +380,7 @@ const played = (
   voices: state.voices,
   host: state.host,
   guarded: emptyRoll(game),
+  lastDice: state.lastDice,
 });
 
 const step = (key: BoardKey, index: number, length: number): number =>
@@ -408,6 +430,7 @@ export const initialState = (
     voices,
     host,
     guarded: false,
+    lastDice: null,
   };
 };
 
@@ -446,7 +469,10 @@ function botStep(
       guarded: emptyRoll(next),
     };
   }
-  if (game.phase === 'handoff') return { ...state, game: nextTurn(game) };
+  if (game.phase === 'handoff') {
+    const lastDice = lastDiceOf(game) ?? state.lastDice;
+    return { ...state, game: nextTurn(game), lastDice };
+  }
 
   // Decide the whole turn at once and check it as a whole: applyBotReply
   // rejects a stale or incomplete path. Its result is discarded and the path is
@@ -842,8 +868,9 @@ const onBoard = (
     const rolled = rollGame(next, options.roll());
     return played(state, rolled, settled(focusSeed, rolled, state.turnHotseat));
   }
+  const lastDice = lastDiceOf(game) ?? state.lastDice;
   const next = nextTurn(game);
-  return played(state, next);
+  return { ...played(state, next), lastDice };
 };
 
 export function screenReducer(

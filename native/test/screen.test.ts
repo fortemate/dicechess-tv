@@ -1438,3 +1438,35 @@ test('a saved hotseat game resumes in the right orientation when Turn board in h
   });
   assert.equal(flipped(resumedOff.game, resumedOff.turnHotseat), false);
 });
+
+test('lastDice is null at the start of a game, so the first roll opens on empty slots', () => {
+  const initial = initialState(options);
+  assert.equal(initial.lastDice, null);
+
+  const started = drive(initial, 'select');
+  assert.equal(started.lastDice, null);
+});
+
+test('after the bot’s turn finishes, lastDice retains the bot’s played dice dimmed until the next roll (#297)', () => {
+  const pawns: ScreenOptions = { ...options, roll: () => [1, 1, 1] };
+  const steps = settleSteps(handedToBot(), pawns);
+  const finished = steps[steps.length - 1];
+
+  assert.equal(finished.game.turn, 3);
+  assert.equal(finished.game.phase, 'roll');
+  assert.equal(finished.game.roll.length, 0);
+  assert.equal(viewGame(finished.game).side, 'w');
+
+  assert.notEqual(finished.lastDice, null);
+  assert.equal(finished.lastDice!.side, 'b');
+  assert.equal(finished.lastDice!.dice.length, 3);
+  // All three dice were spent or leftover, so each is dimmed
+  assert.ok(
+    finished.lastDice!.dice.every((die) => die.spent || die.leftover),
+    'every die is dimmed (spent or leftover)',
+  );
+  assert.ok(
+    finished.lastDice!.dice.every((die) => die.piece === 'P'),
+    'each die shows the rolled piece',
+  );
+});

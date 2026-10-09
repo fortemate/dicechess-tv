@@ -64,6 +64,7 @@ import {
   BOT_STEP_MS,
   OK_GUARD_MS,
   type GameChoice,
+  type LastDice,
   type Overlay,
   type ScreenAction,
   type ScreenOptions,
@@ -342,7 +343,15 @@ const ModeLine = ({ line }: { line: string }) => (
 // nothing to play; or, once the game is over, who won and how (#235). The
 // result of a game against the bot stands above the choice of what comes next
 // (#163), and a hotseat result stays on the board.
-const Status = ({ game, view }: { game: Game; view: GameView }) => {
+const Status = ({
+  game,
+  view,
+  lastDice,
+}: {
+  game: Game;
+  view: GameView;
+  lastDice?: LastDice | null;
+}) => {
   const { result } = game;
   if (result)
     return (
@@ -351,13 +360,15 @@ const Status = ({ game, view }: { game: Game; view: GameView }) => {
         <Text style={REASON_LINE}>{reasonOf(game, result)}</Text>
       </>
     );
+  const dice =
+    game.roll.length > 0
+      ? diceOf(game.roll, view.remaining, view.playable)
+      : (lastDice?.dice ?? []);
+  const side = game.roll.length > 0 ? view.side : (lastDice?.side ?? view.side);
   return (
     <>
       <Text style={HEADLINE}>{headline(game, view)}</Text>
-      <Dice
-        dice={diceOf(game.roll, view.remaining, view.playable)}
-        side={view.side}
-      />
+      <Dice dice={dice} side={side} />
       {emptyRoll(game) ? <Text style={REASON_LINE}>{NO_MOVE_LINE}</Text> : null}
     </>
   );
@@ -644,6 +655,7 @@ export const GameScreen = ({
       host,
       guarded,
       pending,
+      lastDice,
     },
     dispatch,
   ] = React.useReducer(reduce, initial, (restored) =>
@@ -993,7 +1005,7 @@ export const GameScreen = ({
             host={hostLine?.host}
             header={<ModeLine line={modeLine(game, false)} />}
           >
-            <Status game={game} view={state} />
+            <Status game={game} view={state} lastDice={lastDice} />
             <Panel
               overlay={overlay}
               game={game}
