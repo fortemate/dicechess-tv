@@ -6,16 +6,7 @@ import { Dice } from '../src/Dice';
 import { PIECES } from '../src/pieces';
 import { THEME } from '../src/theme';
 import type { Die } from '../../src/core/dice';
-
-type Instance = renderer.ReactTestInstance;
-type Style = Record<string, string | number | undefined>;
-
-(
-  globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
-).IS_REACT_ACT_ENVIRONMENT = true;
-
-const styleOf = (node: Instance): Style => (node.props.style ?? {}) as Style;
-const isHost = (node: Instance) => (node.type as unknown as string) === 'View';
+import { isHost, styleOf, type Instance } from './support';
 
 const mount = (dice: Die[], side: 'w' | 'b', size = 72): Instance => {
   let tree!: renderer.ReactTestRenderer;
@@ -28,11 +19,13 @@ const mount = (dice: Die[], side: 'w' | 'b', size = 72): Instance => {
 // A face is the view that carries the die's colour; a slot outline has none.
 const faces = (root: Instance) =>
   root.findAll(
-    (node) => isHost(node) && styleOf(node).backgroundColor === THEME.die,
+    (node) =>
+      isHost(node, 'View') && styleOf(node).backgroundColor === THEME.die,
   );
 const slots = (root: Instance) =>
   root.findAll(
-    (node) => isHost(node) && styleOf(node).borderColor === THEME.dieSlot,
+    (node) =>
+      isHost(node, 'View') && styleOf(node).borderColor === THEME.dieSlot,
   );
 
 test('before the roll there are three empty slots', () => {
@@ -78,7 +71,7 @@ test('a spent die dims and shrinks, and only an unspent one carries a ring', () 
   assert.equal(
     root.findAll(
       (node) =>
-        isHost(node) &&
+        isHost(node, 'View') &&
         styleOf(node).width === 72 &&
         styleOf(node).backgroundColor === undefined,
     ).length >= 3,

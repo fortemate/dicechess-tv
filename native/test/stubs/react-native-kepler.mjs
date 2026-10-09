@@ -19,7 +19,12 @@ export function useTVEventHandler(callback) {
   }, [callback]);
 }
 
+// Back is not delivered here: it has a channel of its own (pressBack, below),
+// and the screens ignore it on this one, so a Back sent here would do nothing
+// and the test would pass without it.
 const deliver = (event) => {
+  if (event.eventType === 'back')
+    throw new Error('Back does not arrive as a TV event: use pressBack()');
   if (!handlers.size) throw new Error('No TV event handler registered');
   for (const handler of [...handlers]) handler(event);
 };
@@ -142,4 +147,11 @@ export function useKeplerAppStateManager() {
 export function setAppState(state) {
   appState = state;
   for (const listener of [...appStateListeners]) listener(state);
+}
+
+// Test-only: as the platform is when an app starts: in the foreground, and not
+// closed by a Back nobody claimed.
+export function resetPlatform() {
+  appState = 'active';
+  exited = false;
 }

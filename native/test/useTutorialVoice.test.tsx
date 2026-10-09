@@ -1,11 +1,9 @@
 // Thinkle says the tutorial aloud (#264): when his lines start, the order they
 // come in, what cuts them, and what stops them.
-import { test, mock, beforeEach, afterEach } from 'node:test';
+import { test, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
-import renderer, { act } from 'react-test-renderer';
-import { press, pressBack } from './stubs/react-native-kepler.mjs';
-import { reset } from './stubs/react-native-mmkv.mjs';
+import { act } from 'react-test-renderer';
 import { TutorialScreen } from '../src/TutorialScreen';
 import { nextLineMs, type TutorialVoice } from '../src/useTutorialVoice';
 import {
@@ -15,10 +13,10 @@ import {
   tutorLinesAt,
 } from '../../src/core/tutorial';
 import type { SpokenLine } from '../src/sound';
+import { fakeTimers, mount, send, text, unmount } from './support';
 
-(
-  globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
-).IS_REACT_ACT_ENVIRONMENT = true;
+// His lines follow one another on the test's clock.
+fakeTimers();
 
 // A voice that records what it was asked to say, and when it was stopped.
 const recorder = () => {
@@ -30,31 +28,9 @@ const recorder = () => {
   return { calls, voice };
 };
 
-let tree: renderer.ReactTestRenderer | null = null;
 const open = (voice?: TutorialVoice, onExit = () => {}) =>
-  act(() => {
-    tree = renderer.create(
-      React.createElement(TutorialScreen, { onExit, voice }),
-    );
-  });
-const send = (...keys: string[]) => {
-  for (const key of keys)
-    act(() => {
-      if (key === 'back') pressBack();
-      else press(key);
-    });
-};
+  mount(React.createElement(TutorialScreen, { onExit, voice }));
 const tick = (ms: number) => act(() => mock.timers.tick(ms));
-
-beforeEach(() => {
-  reset();
-  mock.timers.enable({ apis: ['setTimeout'] });
-});
-afterEach(() => {
-  if (tree) act(() => tree!.unmount());
-  tree = null;
-  mock.timers.reset();
-});
 
 const [first] = TUTORIAL;
 const opening = tutorLinesAt(first, stepGame(first), false);
@@ -103,8 +79,7 @@ test('leaving the tutorial stops him', () => {
   });
   send('back');
   assert.ok(left);
-  act(() => tree!.unmount());
-  tree = null;
+  unmount();
   assert.equal(calls.at(-1), 'stop');
   // No line comes after he has stopped.
   const count = calls.length;
@@ -123,12 +98,8 @@ test('his closing words come after the last lesson', () => {
 });
 
 test('without a voice the tutorial is silent, and his bubble still shows', () => {
-  open(undefined);
-  const texts = tree!.root
-    .findAll((node) => (node.type as unknown as string) === 'Text')
-    .map((node) => String(node.props.children))
-    .join('\n');
-  assert.match(texts, /Welcome, my friend! I am Thinkle/);
+  const { root } = open(undefined);
+  assert.match(text(root), /Welcome, my friend! I am Thinkle/);
 });
 
 test('every line he says has a clip, so none is skipped', () => {

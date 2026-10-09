@@ -4,8 +4,29 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { registerHooks } from 'node:module';
+import { format } from 'node:util';
 import { decode, encode } from '@jridgewell/sourcemap-codec';
 import { transformSync } from 'esbuild';
+
+// Every test renders inside act(): React 19 commits there, and create() outside
+// it leaves the tree unmounted.
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
+// An update outside act() is one the test did not wait for: a timer or a
+// promise that fired on its own, which a device would have drawn and the test
+// never looked at. React only warns, and a warning in the log is read by
+// nobody, so it fails the test instead. The other message is react-test-renderer
+// announcing on every create() that it is deprecated; there is nothing to act on.
+const report = console.error;
+console.error = (...args) => {
+  const [message] = args;
+  if (typeof message === 'string') {
+    if (message.startsWith('react-test-renderer is deprecated')) return;
+    if (message.includes('not wrapped in act('))
+      throw new Error(format(...args));
+  }
+  report(...args);
+};
 
 const STUBS = {
   'react-native': new URL('./stubs/react-native.mjs', import.meta.url).href,

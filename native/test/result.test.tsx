@@ -3,11 +3,8 @@
 // matchup HUD like the game itself.
 import { test, mock } from 'node:test';
 import assert from 'node:assert/strict';
-import React from 'react';
-import renderer, { act } from 'react-test-renderer';
-import { press, pressBack } from './stubs/react-native-kepler.mjs';
+import { act } from 'react-test-renderer';
 import { reset } from './stubs/react-native-mmkv.mjs';
-import { App } from '../src/App';
 import { MmkvSnapshotStore } from '../src/mmkvStore';
 import { DISMISS_DELAY_MS } from '../src/useBotVoice';
 import { voiceLinesFor, type VoiceEvent } from '../../src/core/botVoice';
@@ -20,54 +17,24 @@ import {
   type Game,
 } from '../../src/core/game';
 import type { ScreenOptions } from '../src/screen';
+import {
+  fakeTimers,
+  fixedOptions,
+  isHost,
+  launch,
+  send,
+  text,
+  type Instance,
+} from './support';
 
-type Instance = renderer.ReactTestInstance;
-
-(
-  globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
-).IS_REACT_ACT_ENVIRONMENT = true;
+// The bots' and the host's lines go on the voices' own timers.
+fakeTimers();
 
 // Every game gets an id of its own, so a rematch is a new game to the voice.
-const optionsWithIds = (): ScreenOptions => {
+const withIds = (): ScreenOptions => {
   let ids = 0;
-  return {
-    roll: () => [5, 4, 2],
-    newId: () => 'resulttest' + ++ids,
-    schedule: (step) => step(),
-    // Random draws White.
-    side: () => 'w',
-  };
+  return fixedOptions({ newId: () => 'resulttest' + ++ids });
 };
-
-// A launch replaces the app a previous test left mounted, as a relaunch does.
-let mounted: renderer.ReactTestRenderer | null = null;
-const launch = (): Instance => {
-  if (mounted) act(() => mounted!.unmount());
-  let tree!: renderer.ReactTestRenderer;
-  act(() => {
-    tree = renderer.create(
-      React.createElement(App, { options: optionsWithIds() }),
-    );
-  });
-  mounted = tree;
-  return tree.root;
-};
-
-const send = (...keys: string[]) => {
-  for (const key of keys)
-    act(() => {
-      if (key === 'back') pressBack();
-      else press(key);
-    });
-};
-
-const text = (root: Instance) =>
-  root
-    .findAll((node) => (node.type as unknown as string) === 'Text', {
-      deep: true,
-    })
-    .map((node) => String(node.props.children))
-    .join('\n');
 
 // Elements drawn with a testID, counted once: the stubs pass it on to the host
 // element they render.
@@ -81,7 +48,7 @@ const linesAt = (root: Instance, size: number, color?: string): string[] =>
   root
     .findAll(
       (node) =>
-        (node.type as unknown as string) === 'Text' &&
+        isHost(node, 'Text') &&
         node.props.style?.fontSize === size &&
         (color === undefined || node.props.style?.color === color),
       { deep: true },
@@ -123,7 +90,7 @@ const resign = () => send('back', 'down', 'select', 'down', 'select');
 
 test('the result of a game against the bot leads with who won, in the person’s words', () => {
   reset();
-  const root = launch();
+  const { root } = launch({ options: withIds() });
   playRolly();
   resign();
 
@@ -141,49 +108,39 @@ test('the result of a game against the bot leads with who won, in the person’s
 });
 
 test("the bot's last word shows under its badge and stays with the result", () => {
-  mock.timers.enable({ apis: ['setTimeout'] });
-  try {
-    reset();
-    const root = launch();
-    playRolly();
-    resign();
+  reset();
+  const { root } = launch({ options: withIds() });
+  playRolly();
+  resign();
 
-    const said = bubble(root);
-    assert.ok(said, 'expected the bot to have the last word');
-    assert.ok(linesOf('win').includes(said), `not a win line: ${said}`);
+  const said = bubble(root);
+  assert.ok(said, 'expected the bot to have the last word');
+  assert.ok(linesOf('win').includes(said), `not a win line: ${said}`);
 
-    // Long after an ordinary line would have gone, it is still there.
-    act(() => {
-      mock.timers.tick(DISMISS_DELAY_MS * 3);
-    });
-    assert.equal(bubble(root), said);
-  } finally {
-    mock.timers.reset();
-  }
+  // Long after an ordinary line would have gone, it is still there.
+  act(() => {
+    mock.timers.tick(DISMISS_DELAY_MS * 3);
+  });
+  assert.equal(bubble(root), said);
 });
 
 test('a rematch replaces the last word with the new game opening line', () => {
-  mock.timers.enable({ apis: ['setTimeout'] });
-  try {
-    reset();
-    const root = launch();
-    playRolly();
-    resign();
-    assert.ok(linesOf('win').includes(bubble(root) ?? ''));
+  reset();
+  const { root } = launch({ options: withIds() });
+  playRolly();
+  resign();
+  assert.ok(linesOf('win').includes(bubble(root) ?? ''));
 
-    // OK on Rematch, which has the focus.
-    send('enter');
-    const said = bubble(root);
-    assert.ok(said && linesOf('intro').includes(said), `not an intro: ${said}`);
-    assert.doesNotMatch(text(root), /What next\?/);
-  } finally {
-    mock.timers.reset();
-  }
+  // OK on Rematch, which has the focus.
+  send('enter');
+  const said = bubble(root);
+  assert.ok(said && linesOf('intro').includes(said), `not an intro: ${said}`);
+  assert.doesNotMatch(text(root), /What next\?/);
 });
 
 test('Main menu leaves the result, and the last word with it', () => {
   reset();
-  const root = launch();
+  const { root } = launch({ options: withIds() });
   playRolly();
   resign();
   assert.ok(bubble(root));
@@ -195,7 +152,7 @@ test('Main menu leaves the result, and the last word with it', () => {
 
 test('resigning as Black is a loss to the bot, not a colour’s win', () => {
   reset();
-  const root = launch();
+  const { root } = launch({ options: withIds() });
   // Rolly plays White and opens; then the person rolls, and resigns.
   playRollyAsBlack();
   send('enter');
@@ -221,7 +178,7 @@ test('a king taken from the bot is the person’s win, with the bot conceding', 
   assert.deepEqual(viewGame(saved).legal, ['b7d8']);
   save(saved);
 
-  const root = launch();
+  const { root } = launch({ options: withIds() });
   // Resume, pick up the knight, and take the king.
   send('enter', 'enter', 'enter');
 
@@ -243,7 +200,7 @@ test('a king the bot takes from the person playing Black is the bot’s win', ()
     ),
   );
 
-  const root = launch();
+  const { root } = launch({ options: withIds() });
   // Resume: Rolly takes the king at once.
   send('enter');
 
@@ -270,7 +227,7 @@ test('a draw by the hundred moves says so in plain words, playing White', () => 
     ),
   );
 
-  const root = launch();
+  const { root } = launch({ options: withIds() });
   // Resume, pick up the rook, and play it.
   send('enter', 'enter', 'enter');
 
@@ -297,7 +254,7 @@ test('a draw by the hundred moves reads the same playing Black', () => {
     ),
   );
 
-  const root = launch();
+  const { root } = launch({ options: withIds() });
   send('enter', 'enter', 'enter');
 
   assert.deepEqual(outcomeOf(root), {
@@ -325,7 +282,7 @@ test('a draw at the turn limit names the limit', () => {
     ),
   );
 
-  const root = launch();
+  const { root } = launch({ options: withIds() });
   send('enter', 'enter', 'enter');
 
   assert.deepEqual(outcomeOf(root), {
@@ -340,7 +297,7 @@ test('a king taken in hotseat names both colours', () => {
     rollGame(newGame('hotseat', 'hotseatking', WHITE_TAKES_KING), [2, 2, 2]),
   );
 
-  const root = launch();
+  const { root } = launch({ options: withIds() });
   send('enter', 'enter', 'enter');
 
   assert.deepEqual(outcomeOf(root), {
@@ -352,38 +309,33 @@ test('a king taken in hotseat names both colours', () => {
 
 // The Hot Seat host's last word is heard, not shown (#202): soundApp.test.tsx.
 test('a hotseat result stays on the board, with the host’s last word beside her (#213)', () => {
-  mock.timers.enable({ apis: ['setTimeout'] });
-  try {
-    reset();
-    const root = launch();
-    // A new hotseat game, and its first roll.
-    send('enter', 'enter');
-    resign();
-    // Her result waits for her greeting to be said: she never talks over
-    // herself (#202).
-    act(() => {
-      mock.timers.tick(10_000);
-    });
+  reset();
+  const { root } = launch({ options: withIds() });
+  // A new hotseat game, and its first roll.
+  send('enter', 'enter');
+  resign();
+  // Her result waits for her greeting to be said: she never talks over
+  // herself (#202).
+  act(() => {
+    mock.timers.tick(10_000);
+  });
 
-    const shown = text(root);
-    assert.match(shown, /HOT SEAT · TURN 1/);
-    assert.deepEqual(outcomeOf(root), {
-      headline: 'Black wins',
-      reason: 'White resigned',
-    });
-    assert.match(shown, /OK: back to the menu/);
-    assert.doesNotMatch(shown, /What next\?/);
-    // No bot speaks in hotseat: the one bubble is the host's, with the result.
-    const lastWord = bubble(root);
-    assert.ok(
-      HOST_CATALOGUE.some(
-        (line) =>
-          line.text === lastWord &&
-          /^prowla_host_(black_wins|win)_/.test(line.id),
-      ),
-      `the host cheers the result: ${lastWord}`,
-    );
-  } finally {
-    mock.timers.reset();
-  }
+  const shown = text(root);
+  assert.match(shown, /HOT SEAT · TURN 1/);
+  assert.deepEqual(outcomeOf(root), {
+    headline: 'Black wins',
+    reason: 'White resigned',
+  });
+  assert.match(shown, /OK: back to the menu/);
+  assert.doesNotMatch(shown, /What next\?/);
+  // No bot speaks in hotseat: the one bubble is the host's, with the result.
+  const lastWord = bubble(root);
+  assert.ok(
+    HOST_CATALOGUE.some(
+      (line) =>
+        line.text === lastWord &&
+        /^prowla_host_(black_wins|win)_/.test(line.id),
+    ),
+    `the host cheers the result: ${lastWord}`,
+  );
 });

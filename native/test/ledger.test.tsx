@@ -1,61 +1,16 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import React from 'react';
-import renderer, { act } from 'react-test-renderer';
-import { press, pressBack } from './stubs/react-native-kepler.mjs';
 import { reset } from './stubs/react-native-mmkv.mjs';
-import { App } from '../src/App';
 import { MmkvSnapshotStore } from '../src/mmkvStore';
 import { decodeLedger, type Ledger } from '../../src/core/ledger';
 import { decodeGame, type Game } from '../../src/core/game';
-import type { ScreenOptions } from '../src/screen';
+import { fakeTimers, fixedOptions, launch, send, text } from './support';
 
-type Instance = renderer.ReactTestInstance;
+// Each launch is a fresh process against the same storage, which is what a
+// relaunch is. The app's sounds, music and voices run on the test's clock.
+fakeTimers();
 
-(
-  globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
-).IS_REACT_ACT_ENVIRONMENT = true;
-
-const options: ScreenOptions = {
-  roll: () => [5, 4, 2],
-  newId: () => 'ledgertest',
-  schedule: (step) => step(),
-  // Random draws White unless a test says otherwise.
-  side: () => 'w',
-};
-
-// Each mount is a fresh process against the same storage, which is what a
-// relaunch is.
-// A launch replaces the app a previous launch left mounted, as a relaunch does.
-// A tree left mounted would still hear every key and write the same storage.
-let mounted: renderer.ReactTestRenderer | null = null;
-const launch = (opts: ScreenOptions = options): Instance => {
-  if (mounted) act(() => mounted!.unmount());
-  let tree!: renderer.ReactTestRenderer;
-  act(() => {
-    tree = renderer.create(React.createElement(App, { options: opts }));
-  });
-  mounted = tree;
-  return tree.root;
-};
-
-// Back arrives on its own channel: Vega routes it through a hook that lets the
-// app claim the press, which is what stops the system closing the app.
-const send = (...keys: string[]) => {
-  for (const key of keys)
-    act(() => {
-      if (key === 'back') pressBack();
-      else press(key);
-    });
-};
-
-const text = (root: Instance) =>
-  root
-    .findAll((node) => (node.type as unknown as string) === 'Text', {
-      deep: true,
-    })
-    .map((node) => String(node.props.children))
-    .join('\n');
+const options = fixedOptions({ newId: () => 'ledgertest' });
 
 const ledger = (): Ledger | null =>
   new MmkvSnapshotStore<Ledger>({
@@ -71,7 +26,7 @@ const playAndResign = () => {
 
 test('a finished game is counted, and the home screen shows no hotseat record', () => {
   reset();
-  const root = launch();
+  const { root } = launch({ options });
   assert.equal(ledger(), null);
 
   playAndResign();
@@ -86,20 +41,20 @@ test('a finished game is counted, and the home screen shows no hotseat record', 
 
 test('a result already on screen when the app dies is counted exactly once', () => {
   reset();
-  launch();
+  launch({ options });
   playAndResign();
   assert.equal(ledger()?.hotseat.black, 1);
   assert.equal(ledger()?.lastCountedId, 'ledgertest');
 
   // The game ended, and the app is killed while still showing the result.
   // Every relaunch offers that same finished game again.
-  for (let i = 0; i < 3; i++) launch();
+  for (let i = 0; i < 3; i++) launch({ options });
   assert.equal(ledger()?.hotseat.black, 1);
 });
 
 test('a game ended before the ledger was written is counted on the next launch', () => {
   reset();
-  launch();
+  launch({ options });
   playAndResign();
   const counted = ledger()!;
 
@@ -110,14 +65,14 @@ test('a game ended before the ledger was written is counted on the next launch',
   }).clear();
   assert.equal(ledger(), null);
 
-  launch();
+  launch({ options });
   assert.deepEqual(ledger()?.hotseat, counted.hotseat);
   assert.equal(ledger()?.lastCountedId, 'ledgertest');
 });
 
 test('an abandoned game is never counted', () => {
   reset();
-  launch();
+  launch({ options });
   // Start a game, roll, then replace it without finishing.
   send('enter', 'enter');
   send('back', 'down', 'down', 'down', 'select', 'down', 'select');
@@ -126,7 +81,7 @@ test('an abandoned game is never counted', () => {
 
 test('a game played as Black is counted under Black', () => {
   reset();
-  launch({ ...options, side: () => 'b' });
+  launch({ options: { ...options, side: () => 'b' } });
   // Play the computer, Rolly, Random on the colour choice (drawn Black); the
   // bot, White, takes its turn. Then resign.
   send('down', 'enter', 'enter', 'enter');
@@ -139,7 +94,7 @@ test('a game played as Black is counted under Black', () => {
 test('a rematch counts the finished game once, and its own result after it', () => {
   reset();
   let ids = 0;
-  launch({ ...options, newId: () => 'rematch' + ++ids });
+  launch({ options: { ...options, newId: () => 'rematch' + ++ids } });
   // Play the computer, Rolly, Random on the colour choice (drawn White), then
   // resign.
   send('down', 'enter', 'enter', 'enter');
