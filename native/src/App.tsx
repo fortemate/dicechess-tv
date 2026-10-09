@@ -44,6 +44,8 @@ import type { ScreenOptions } from './screen';
 
 const KEY = 'dicechess-tv.game.v2';
 const LEDGER_KEY = 'dicechess-tv.ledger.v1';
+// Where a ledger that no longer decodes is kept, unchanged.
+const DAMAGED_LEDGER_KEY = 'dicechess-tv.ledger.v1.damaged';
 
 type Opened = { game: Game | null; damaged: string | null };
 
@@ -119,8 +121,12 @@ export const App = ({
     try {
       return ledgerStore.read() ?? emptyLedger();
     } catch {
-      // A ledger that no longer decodes is left on disk rather than
-      // overwritten: losing a record silently is worse than showing none.
+      // A ledger that no longer decodes (a later build's, say) is copied aside
+      // unchanged before the next result can be saved over it, and a new
+      // record starts: losing a record silently is worse than showing none.
+      // The copy is made here, before anything can save; a later damaged
+      // ledger replaces an earlier copy.
+      ledgerStore.keepAside(DAMAGED_LEDGER_KEY);
       return emptyLedger();
     }
   });
