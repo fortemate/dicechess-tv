@@ -3,67 +3,21 @@
 // and a player who has a game saved is never asked.
 import { test, mock } from 'node:test';
 import assert from 'node:assert/strict';
-import React from 'react';
-import renderer, { act } from 'react-test-renderer';
-import {
-  press,
-  pressBack,
-  hasExited,
-  clearExit,
-} from './stubs/react-native-kepler.mjs';
+import { act } from 'react-test-renderer';
+import { hasExited, clearExit } from './stubs/react-native-kepler.mjs';
 import { MMKV, reset } from './stubs/react-native-mmkv.mjs';
-import { App } from '../src/App';
 import { MmkvSnapshotStore } from '../src/mmkvStore';
 import { readTutorialOffered } from '../src/tutorialOfferSetting';
-import type { ScreenOptions } from '../src/screen';
 import type { Sounds } from '../src/sound';
 import { nextLineMs } from '../src/useTutorialVoice';
 import { portraitPath } from '../src/Portrait';
 import { decodeGame, newGame, rollGame, type Game } from '../../src/core/game';
 import { OFFER_LINES, OFFER_SPEECH } from '../../src/core/tutorial';
 import { focusedLabel, optionViews } from './options';
+import { fakeTimers, launch, send, text, type Instance } from './support';
 
-type Instance = renderer.ReactTestInstance;
-
-(
-  globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
-).IS_REACT_ACT_ENVIRONMENT = true;
-
-const options: ScreenOptions = {
-  roll: () => [5, 4, 2],
-  newId: () => 'offer',
-  schedule: (fn) => fn(),
-  // Random draws White unless a test says otherwise.
-  side: () => 'w',
-};
-
-// A launch replaces the app a previous launch left mounted, as a relaunch does.
-let mounted: renderer.ReactTestRenderer | null = null;
-const launch = (sounds?: Sounds): Instance => {
-  if (mounted) act(() => mounted!.unmount());
-  let tree!: renderer.ReactTestRenderer;
-  act(() => {
-    tree = renderer.create(React.createElement(App, { options, sounds }));
-  });
-  mounted = tree;
-  return tree.root;
-};
-
-const send = (...keys: string[]) => {
-  for (const key of keys)
-    act(() => {
-      if (key === 'back') pressBack();
-      else press(key);
-    });
-};
-
-const text = (root: Instance) =>
-  root
-    .findAll((node) => (node.type as unknown as string) === 'Text', {
-      deep: true,
-    })
-    .map((node) => String(node.props.children))
-    .join('\n');
+// Thinkle says his lines one after the other, on the test's clock.
+fakeTimers();
 
 const labels = (root: Instance) => optionViews(root).map(({ label }) => label);
 
@@ -87,7 +41,7 @@ test('the stub keeps the answer under the key the app reads', () => {
 
 test('a fresh install opens on Thinkle offering to teach the game', () => {
   reset({ firstLaunch: true });
-  const root = launch();
+  const { root } = launch();
   assert.match(text(root), /Dice Chess/);
   assert.match(text(root), /THINKLE\nYour teacher/);
   assert.match(text(root), OFFER);
@@ -109,7 +63,7 @@ test('a fresh install opens on Thinkle offering to teach the game', () => {
 
 test('Learn to play opens the tutorial, and the offer is not made again', () => {
   reset({ firstLaunch: true });
-  let root = launch();
+  let root = launch().root;
   send('enter');
   assert.match(text(root), TUTORIAL_OPEN);
   assert.equal(readTutorialOffered(new MMKV()), true);
@@ -117,14 +71,14 @@ test('Learn to play opens the tutorial, and the offer is not made again', () => 
   send('back');
   assert.equal(focusedLabel(root), 'New Hot Seat game');
 
-  root = launch();
+  root = launch().root;
   assert.doesNotMatch(text(root), OFFER);
   assert.equal(focusedLabel(root), 'New Hot Seat game');
 });
 
 test('Skip goes to the home screen, and the offer is not made again', () => {
   reset({ firstLaunch: true });
-  let root = launch();
+  let root = launch().root;
   // The arrows walk the two answers, wrapping.
   send('down');
   assert.equal(focusedLabel(root), 'Skip');
@@ -136,7 +90,7 @@ test('Skip goes to the home screen, and the offer is not made again', () => {
   // Learn to play is still on the home screen.
   assert.ok(labels(root).includes('Learn to play'));
 
-  root = launch();
+  root = launch().root;
   assert.doesNotMatch(text(root), OFFER);
   assert.equal(focusedLabel(root), 'New Hot Seat game');
 });
@@ -144,7 +98,7 @@ test('Skip goes to the home screen, and the offer is not made again', () => {
 test('Back on the offer goes to the home screen and never closes the app', () => {
   reset({ firstLaunch: true });
   clearExit();
-  let root = launch();
+  let root = launch().root;
   send('back');
   assert.equal(hasExited(), false, 'Back on the offer closed the app');
   assert.doesNotMatch(text(root), OFFER);
@@ -154,13 +108,13 @@ test('Back on the offer goes to the home screen and never closes the app', () =>
   assert.equal(hasExited(), true);
   clearExit();
 
-  root = launch();
+  root = launch().root;
   assert.doesNotMatch(text(root), OFFER);
 });
 
 test('Menu on the offer goes to the home screen too', () => {
   reset({ firstLaunch: true });
-  const root = launch();
+  const { root } = launch();
   send('menu');
   assert.doesNotMatch(text(root), OFFER);
   assert.equal(focusedLabel(root), 'New Hot Seat game');
@@ -171,7 +125,7 @@ test('an offer left unanswered is made again on the next launch', () => {
   reset({ firstLaunch: true });
   launch();
   send('down');
-  const root = launch();
+  const { root } = launch();
   assert.match(text(root), OFFER);
   assert.equal(focusedLabel(root), 'Learn to play');
 });
@@ -179,7 +133,7 @@ test('an offer left unanswered is made again on the next launch', () => {
 test('a player with a game saved is never offered the tutorial', () => {
   reset({ firstLaunch: true });
   void games().save(rollGame(newGame('hotseat', 'played'), [5, 4, 2]));
-  const root = launch();
+  const { root } = launch();
   assert.doesNotMatch(text(root), OFFER);
   assert.equal(focusedLabel(root), 'Resume game');
 });
@@ -187,7 +141,7 @@ test('a player with a game saved is never offered the tutorial', () => {
 test('nor is one whose saved game no longer reads', () => {
   reset({ firstLaunch: true });
   new MMKV().set('dicechess-tv.game.v2', 'not a game');
-  const root = launch();
+  const { root } = launch();
   assert.doesNotMatch(text(root), OFFER);
   assert.equal(focusedLabel(root), 'New Hot Seat game');
 });
@@ -212,23 +166,18 @@ const listener = () => {
 };
 
 test('Thinkle says the offer aloud, one line after the other', () => {
-  mock.timers.enable({ apis: ['setTimeout'] });
-  try {
-    reset({ firstLaunch: true });
-    const { said, sounds } = listener();
-    launch(sounds);
-    assert.deepEqual(said, ['thinkle_tutor_offer_1']);
-    act(() => mock.timers.tick(nextLineMs(OFFER_LINES[0])!));
-    assert.deepEqual(said, ['thinkle_tutor_offer_1', 'thinkle_tutor_offer_2']);
-  } finally {
-    mock.timers.reset();
-  }
+  reset({ firstLaunch: true });
+  const { said, sounds } = listener();
+  launch({ sounds });
+  assert.deepEqual(said, ['thinkle_tutor_offer_1']);
+  act(() => mock.timers.tick(nextLineMs(OFFER_LINES[0])!));
+  assert.deepEqual(said, ['thinkle_tutor_offer_1', 'thinkle_tutor_offer_2']);
 });
 
 test('an answer stops him: Skip in silence, Learn to play with the welcome', () => {
   reset({ firstLaunch: true });
   const skipped = listener();
-  launch(skipped.sounds);
+  launch({ sounds: skipped.sounds });
   const before = skipped.stopped();
   send('down', 'enter');
   assert.ok(skipped.stopped() > before, 'Skip did not stop the offer');
@@ -236,7 +185,7 @@ test('an answer stops him: Skip in silence, Learn to play with the welcome', () 
 
   reset({ firstLaunch: true });
   const learning = listener();
-  launch(learning.sounds);
+  launch({ sounds: learning.sounds });
   send('enter');
   assert.deepEqual(learning.said, [
     'thinkle_tutor_offer_1',
@@ -246,7 +195,7 @@ test('an answer stops him: Skip in silence, Learn to play with the welcome', () 
 
 test('a first launch can go from the offer, through every lesson, to a game against Rolly', () => {
   reset({ firstLaunch: true });
-  const root = launch();
+  const { root } = launch();
   send('enter');
   assert.match(text(root), TUTORIAL_OPEN);
   // Each OK rolls, picks up the piece the cursor waits on, plays the move it

@@ -13,9 +13,8 @@ import { CUE_DELAY_MS } from '../src/sound';
 import { THEME } from '../src/theme';
 import type { Die } from '../../src/core/dice';
 import type { Side } from '../../src/core/game';
+import { isHost, styleOf, type Instance } from './support';
 
-type Instance = renderer.ReactTestInstance;
-type Style = Record<string, unknown>;
 type Held = {
   config: {
     toValue: number;
@@ -27,13 +26,11 @@ type Held = {
   stopped: boolean;
 };
 const globals = globalThis as {
-  IS_REACT_ACT_ENVIRONMENT?: boolean;
   __holdSlides?: boolean;
   __heldSlides?: Held[];
   __reduceMotion?: boolean;
   __reduceMotionQuery?: 'pending' | 'fails' | 'throws';
 };
-globals.IS_REACT_ACT_ENVIRONMENT = true;
 
 beforeEach(() => {
   globals.__holdSlides = true;
@@ -54,10 +51,6 @@ const AFTER_KNIGHT: Die[] = [
   { piece: 'R', spent: false, leftover: false },
   { piece: 'N', spent: true, leftover: false },
 ];
-
-const isHost = (node: Instance, name: string) =>
-  (node.type as unknown as string) === name;
-const styleOf = (node: Instance): Style => (node.props.style ?? {}) as Style;
 
 // Mounts the dice, lets the platform answer whether it asks for less motion,
 // and returns what shows the next dice.

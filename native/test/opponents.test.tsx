@@ -10,16 +10,7 @@ import { FACES } from '../src/faces';
 import { THEME } from '../src/theme';
 import { OPPONENTS } from '../../src/core/opponents';
 import { emptyLedger, type Ledger } from '../../src/core/ledger';
-
-type Instance = renderer.ReactTestInstance;
-type Style = Record<string, unknown>;
-
-const isHost = (node: Instance, name: string) =>
-  (node.type as unknown as string) === name;
-
-(
-  globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
-).IS_REACT_ACT_ENVIRONMENT = true;
+import { isHost, type Instance, type Style } from './support';
 
 const mount = (
   props: { index: number; pressed?: boolean; ledger?: Ledger } = { index: 0 },

@@ -60,6 +60,17 @@ export const Easing = {
   cubic: (t) => t,
 };
 
+// An answer that is already there: then() calls back at once rather than on a
+// later microtask. A resolved Promise settles only after act() has returned
+// and the test has gone on, so the app would be tested as it is before the
+// platform answers, with nothing moving — which a device shows for a moment at
+// most.
+const answered = (value) => ({
+  then(onAnswer) {
+    return answered(onAnswer ? onAnswer(value) : value);
+  },
+});
+
 // globalThis.__reduceMotion stands for the platform's setting, and
 // globalThis.__reduceMotionQuery for how asking for it goes: answered at once
 // when unset, 'pending' until globalThis.__answerReduceMotion is called,
@@ -74,7 +85,7 @@ export const AccessibilityInfo = {
       return new Promise((resolve) => {
         globalThis.__answerReduceMotion = resolve;
       });
-    return Promise.resolve(Boolean(globalThis.__reduceMotion));
+    return answered(Boolean(globalThis.__reduceMotion));
   },
   addEventListener: () => ({ remove() {} }),
 };

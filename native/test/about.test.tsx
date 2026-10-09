@@ -4,18 +4,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
-import renderer, { act } from 'react-test-renderer';
+import { act } from 'react-test-renderer';
 import { AboutScreen } from '../src/AboutScreen';
 import { PIECES, PIECES_AND_FACES, PORTRAITS } from '../../src/core/credits';
-
-type Instance = renderer.ReactTestInstance;
-
-(
-  globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
-).IS_REACT_ACT_ENVIRONMENT = true;
-
-const isHost = (node: Instance, name: string) =>
-  (node.type as unknown as string) === name;
+import { isHost, mount, type Instance } from './support';
 
 const texts = (root: Instance): string[] =>
   root
@@ -25,22 +17,17 @@ const texts = (root: Instance): string[] =>
 const images = (root: Instance): Instance[] =>
   root.findAll((node) => isHost(node, 'Image'));
 
-const mount = (reports: string[]): renderer.ReactTestRenderer => {
-  let tree!: renderer.ReactTestRenderer;
-  act(() => {
-    tree = renderer.create(
-      React.createElement(AboutScreen, {
-        onExit: () => {},
-        onState: (report: string) => reports.push(report),
-      }),
-    );
-  });
-  return tree;
-};
+const open = (reports: string[]) =>
+  mount(
+    React.createElement(AboutScreen, {
+      onExit: () => {},
+      onState: (report: string) => reports.push(report),
+    }),
+  );
 
 test('a build with the portraits shows them in their credit, and the RhosGFX card names only the pieces', () => {
   const reports: string[] = [];
-  const tree = mount(reports);
+  const tree = open(reports);
   const shown = texts(tree.root);
 
   assert.ok(
@@ -67,7 +54,7 @@ test('a build with the portraits shows them in their credit, and the RhosGFX car
 
 test('a build without the portraits credits the RhosGFX faces instead, and shows no face in their place', () => {
   const reports: string[] = [];
-  const tree = mount(reports);
+  const tree = open(reports);
   // One portrait that does not load is enough: the build has none.
   act(() => images(tree.root)[1].props.onError());
   const shown = texts(tree.root);

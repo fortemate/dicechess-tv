@@ -1,16 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import React from 'react';
-import renderer, { act } from 'react-test-renderer';
+import { act } from 'react-test-renderer';
 import {
-  press,
-  pressBack,
   listenerCount,
   hasExited,
   clearExit,
 } from './stubs/react-native-kepler.mjs';
 import { reset } from './stubs/react-native-mmkv.mjs';
-import { App } from '../src/App';
 import { MmkvSnapshotStore } from '../src/mmkvStore';
 import { decodeGame, viewGame, type Game } from '../../src/core/game';
 import { decodeLedger, type Ledger } from '../../src/core/ledger';
@@ -30,54 +26,12 @@ import {
   type BoardKey,
 } from '../../src/core/boardInput';
 import { route, RULE } from '../../src/core/cursor';
-import type { ScreenOptions } from '../src/screen';
 import { RULES } from '../../src/core/rules';
 import { focusedLabel, optionViews } from './options';
+import { fakeTimers, launch, send, text } from './support';
 
-type Instance = renderer.ReactTestInstance;
-
-(
-  globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
-).IS_REACT_ACT_ENVIRONMENT = true;
-
-const options: ScreenOptions = {
-  roll: () => [5, 4, 2],
-  newId: () => 'tut',
-  schedule: (fn) => fn(),
-  // Random draws White unless a test says otherwise.
-  side: () => 'w',
-};
-
-// A launch replaces the app a previous launch left mounted, as a relaunch does.
-// A tree left mounted would still hear every key and write the same storage.
-let mounted: renderer.ReactTestRenderer | null = null;
-const launch = (): Instance => {
-  if (mounted) act(() => mounted!.unmount());
-  let tree!: renderer.ReactTestRenderer;
-  act(() => {
-    tree = renderer.create(React.createElement(App, { options }));
-  });
-  mounted = tree;
-  return tree.root;
-};
-
-// Back arrives on its own channel: Vega routes it through a hook that lets the
-// app claim the press, which is what stops the system closing the app.
-const send = (...keys: string[]) => {
-  for (const key of keys)
-    act(() => {
-      if (key === 'back') pressBack();
-      else press(key);
-    });
-};
-
-const text = (root: Instance) =>
-  root
-    .findAll((node) => (node.type as unknown as string) === 'Text', {
-      deep: true,
-    })
-    .map((node) => String(node.props.children))
-    .join('\n');
+// Thinkle says his lines one after the other, on the test's clock.
+fakeTimers();
 
 // The tutorial is open: Thinkle's name is on screen.
 const TUTORIAL_OPEN = /THINKLE/;
@@ -175,7 +129,7 @@ test('a lesson is played on its own game, not on a real one', () => {
 
 test('playing the tutorial changes neither the saved game nor the record', () => {
   reset();
-  const root = launch();
+  const { root } = launch();
   // Play a real game to a result first, so there is something to protect.
   send('enter', 'enter');
   send('back', 'down', 'select', 'down', 'select');
@@ -204,7 +158,7 @@ test('playing the tutorial changes neither the saved game nor the record', () =>
 
 test('the tutorial takes the remote, so a press is not handled twice', () => {
   reset();
-  const root = launch();
+  const { root } = launch();
   // Trees from earlier tests stay mounted, so count the change rather than the
   // total.
   const before = listenerCount();
@@ -225,7 +179,7 @@ test('the tutorial takes the remote, so a press is not handled twice', () => {
 
 test('leaving the tutorial returns to the home screen', () => {
   reset();
-  const root = launch();
+  const { root } = launch();
   send('down', 'down', 'enter');
   assert.match(text(root), TUTORIAL_OPEN);
   send('back');
@@ -235,7 +189,7 @@ test('leaving the tutorial returns to the home screen', () => {
 
 test('the panel says which of the two things Back will do', () => {
   reset();
-  const root = launch();
+  const { root } = launch();
   send('down', 'down', 'enter');
   assert.match(text(root), /Back: leave the tutorial/);
 
@@ -255,7 +209,7 @@ test('the panel says which of the two things Back will do', () => {
 
 test('Back leaves from a finished lesson too', () => {
   reset();
-  const root = launch();
+  const { root } = launch();
   send('down', 'down', 'enter');
   // Play the first lesson: roll, then three pawn moves. The cursor waits on a
   // pawn, lands on a square it may go to, and stays on it after the move.
@@ -267,7 +221,7 @@ test('Back leaves from a finished lesson too', () => {
 
 test('the rules guide opens, moves between topics and returns', () => {
   reset();
-  const root = launch();
+  const { root } = launch();
   // Home: new hotseat, Play the computer, Learn to play, Rules reference.
   send('down', 'down', 'down', 'enter');
   assert.match(text(root), /RULES/);
@@ -305,7 +259,7 @@ test('the rules guide opens, moves between topics and returns', () => {
 
 test('the guide never touches a game or the record', () => {
   reset();
-  const root = launch();
+  const { root } = launch();
   send('enter', 'enter');
   send('back', 'down', 'select', 'down', 'select');
   send('enter');
@@ -331,7 +285,7 @@ test('the guide never touches a game or the record', () => {
 test('the About screen shows the credits and returns on Back or OK', () => {
   reset();
   clearExit();
-  const root = launch();
+  const { root } = launch();
   // About is the last item and the menu wraps, so Up from the top reaches it
   // however many items are added above.
   send('up', 'enter');
@@ -361,7 +315,7 @@ test('the About screen shows the credits and returns on Back or OK', () => {
 
 test('Thinkle teaches: his portrait, his name and the lesson number', () => {
   reset();
-  const root = launch();
+  const { root } = launch();
   send('down', 'down', 'enter');
   const teacher = root.find(
     (node) => typeof node.type === 'string' && node.props.testID === 'teacher',
@@ -387,7 +341,7 @@ test('Thinkle teaches: his portrait, his name and the lesson number', () => {
 
 test('the first lesson opens on the roll, and Thinkle follows it through', () => {
   reset();
-  const root = launch();
+  const { root } = launch();
   send('down', 'down', 'enter');
   const { speech } = TUTORIAL[0];
   // Before the roll: his welcome, and the task asks for the roll.
@@ -414,7 +368,7 @@ test('the first lesson opens on the roll, and Thinkle follows it through', () =>
 
 test('the second lesson opens on its roll too, and Thinkle explains the grey dice', () => {
   reset();
-  const root = launch();
+  const { root } = launch();
   send('down', 'down', 'enter');
   // The first lesson: the roll and three pawn moves, then on to the next.
   send('enter', 'enter', 'enter', 'enter', 'enter', 'enter', 'enter');
@@ -437,7 +391,7 @@ test('the second lesson opens on its roll too, and Thinkle explains the grey dic
 
 test('the third lesson: a pawn clears the way for the bishop and the queen', () => {
   reset();
-  const root = launch();
+  const { root } = launch();
   send('down', 'down', 'enter');
   // Lessons 1 and 2, each from its roll.
   send('enter', 'enter', 'enter', 'enter', 'enter', 'enter', 'enter');
@@ -483,7 +437,7 @@ test('the fourth lesson: no die can be used, and OK passes the turn', () => {
 
 test('on a roll no die can use, the hint says what OK does', () => {
   reset();
-  const root = launch();
+  const { root } = launch();
   send('down', 'down', 'enter');
   // Lessons 1 to 3, each from its roll.
   send('enter', 'enter', 'enter', 'enter', 'enter', 'enter', 'enter', 'enter');
@@ -624,7 +578,7 @@ test('the closing screen offers a first game, or the main menu', () => {
 
 test('the last lesson says finish, and the closing screen has choices, not dice', () => {
   reset();
-  const root = launch();
+  const { root } = launch();
   send('down', 'down', 'enter');
   playEveryLesson();
   assert.match(text(root), /Lesson 6 of 6/);
@@ -649,7 +603,7 @@ test('the last lesson says finish, and the closing screen has choices, not dice'
 
 test('Play Rolly at the end of the tutorial starts a game against Rolly, as White', () => {
   reset();
-  const root = launch();
+  const { root } = launch();
   send('down', 'down', 'enter');
   playEveryLesson();
   send('enter', 'enter');
@@ -665,7 +619,7 @@ test('Play Rolly at the end of the tutorial starts a game against Rolly, as Whit
 
 test('Play a friend at the end of the tutorial starts a hotseat game', () => {
   reset();
-  const root = launch();
+  const { root } = launch();
   send('down', 'down', 'enter');
   playEveryLesson();
   send('enter', 'down', 'enter');
@@ -677,7 +631,7 @@ test('Play a friend at the end of the tutorial starts a hotseat game', () => {
 
 test('Main menu at the end of the tutorial returns home and starts nothing', () => {
   reset();
-  const root = launch();
+  const { root } = launch();
   send('down', 'down', 'enter');
   playEveryLesson();
   // Up from the first choice wraps to the last.
@@ -694,7 +648,7 @@ test('over a game in play, a game chosen at the end of the tutorial asks first',
   send('enter', 'enter');
   const before = JSON.stringify(savedGame());
   // On the next launch the home screen offers Resume game first.
-  const root = launch();
+  const { root } = launch();
   send('down', 'down', 'down', 'enter');
   assert.match(text(root), TUTORIAL_OPEN);
   playEveryLesson();

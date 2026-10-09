@@ -18,17 +18,7 @@ import { THEME } from '../src/theme';
 import { FACES } from '../src/faces';
 import { FACE_OF, portraitPath } from '../src/Portrait';
 import { newGame, type Game } from '../../src/core/game';
-
-type Instance = renderer.ReactTestInstance;
-type Style = Record<string, unknown>;
-
-(
-  globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
-).IS_REACT_ACT_ENVIRONMENT = true;
-
-const isHost = (node: Instance, name: string) =>
-  (node.type as unknown as string) === name;
-const styleOf = (node: Instance): Style => (node.props.style ?? {}) as Style;
+import { isHost, styleOf, type Instance } from './support';
 
 const mount = (props: MatchupProps): renderer.ReactTestRenderer => {
   let tree!: renderer.ReactTestRenderer;
