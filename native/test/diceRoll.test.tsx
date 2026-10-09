@@ -21,6 +21,7 @@ type Held = {
     toValue: number;
     duration: number;
     delay?: number;
+    easing: (t: number) => number;
     useNativeDriver: boolean;
   };
   done: ((result: { finished: boolean }) => void) | null;
@@ -114,15 +115,24 @@ test('a roll tumbles each die onto its own face, left to right, on the native dr
   dice.show(ROLLED);
   assert.equal(tumbles(dice.root()).length, 3);
   const held = globals.__heldSlides ?? [];
-  assert.deepEqual(
-    held.map(({ config }) => config.delay ?? 0),
-    [0, TUMBLE_STAGGER_MS, 2 * TUMBLE_STAGGER_MS],
-  );
-  for (const { config } of held) {
-    assert.equal(config.duration, TUMBLE_MS);
+  assert.equal(held.length, 3);
+  for (const [slot, { config }] of held.entries()) {
+    // No delay, which React Native waits out on a JS timer: each die stays
+    // still for the beats of the dice on its left within its own animation,
+    // so all three start on the native side together.
+    assert.equal(config.delay, undefined);
+    const wait = slot * TUMBLE_STAGGER_MS;
+    assert.equal(config.duration, wait + TUMBLE_MS);
+    const at = (ms: number) => config.easing(ms / config.duration);
+    assert.equal(at(0), 0);
+    assert.equal(at(wait), 0);
+    assert.ok(at(wait + TUMBLE_MS / 2) > 0);
+    assert.equal(at(wait + TUMBLE_MS), 1);
     assert.equal(config.toValue, 1);
     assert.equal(config.useNativeDriver, true);
   }
+  // The last die lands when the roll is over.
+  assert.equal(held[2].config.duration, ROLL_MS);
   // The faces are the rolled pieces all the way in: nothing else flashes up.
   for (const [slot, piece] of ['Q', 'R', 'N'].entries())
     assert.equal(
