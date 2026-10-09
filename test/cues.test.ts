@@ -11,6 +11,7 @@ import {
   viewGame,
   type Game,
   type Mode,
+  type Side,
 } from '../src/core/game.ts';
 
 const PAWN = 1;
@@ -22,9 +23,14 @@ const KING = 6;
 const OPENING = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
 // A rolled game from a position, so each cue is checked against what the engine
-// actually does rather than against a hand-built state.
-const rolled = (start: string, roll: number[], mode: Mode = 'hotseat') =>
-  rollGame(newGame(mode, 'cues', start), roll);
+// actually does rather than against a hand-built state. Against the bot the
+// person plays White unless `human` says otherwise.
+const rolled = (
+  start: string,
+  roll: number[],
+  mode: Mode = 'hotseat',
+  human?: Side,
+) => rollGame(newGame(mode, 'cues', start, human), roll);
 
 // Play one move the engine offers, and hear what it sounds like.
 const hear = (game: Game, move: string) => {
@@ -95,14 +101,15 @@ test('the bot taking the king is a capture and then a loss', () => {
 });
 
 test('the side a person plays decides win or loss, not the colour', () => {
-  // The same Black victory, heard by someone who played Black.
+  // The same Black victory, heard by someone who played Black. The side is the
+  // game's own, so no caller can hear it from the other one.
   const game = rolled(
     'K7/8/8/8/8/8/8/r3k3 b - - 0 1',
     [ROOK, ROOK, ROOK],
     'random',
+    'b',
   );
-  const after = moveGame(game, 'a1a8');
-  assert.deepEqual(cues(game, after, 'b'), ['piece_capture', 'game_win']);
+  assert.deepEqual(hear(game, 'a1a8'), ['piece_capture', 'game_win']);
 });
 
 test('a decisive hotseat game ends on the winning jingle, whoever won', () => {

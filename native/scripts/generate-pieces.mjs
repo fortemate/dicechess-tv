@@ -32,6 +32,11 @@ for (const file of names) {
   const children = convert(svg);
   // Import only the elements this piece draws.
   const used = usedComponents(children);
+  // Memoized (#312): a square redrawn for its marks keeps its piece's SVG tree,
+  // which only a new size changes. The comparison is spelled out rather than
+  // left to React's default because a memo with its own comparison stays the
+  // element's type in the rendered tree, so findAllByType(PIECES.K) keeps
+  // finding a piece; a plain memo is reported as the function inside it.
   writeFileSync(
     join(TARGET, name + '.tsx'),
     `// Generated from src/assets/pieces/rhosgfx/${file}.
@@ -42,11 +47,13 @@ import React from 'react';
 import { ${['Svg', ...used].join(', ')} } from '@amazon-devices/react-native-svg';
 import type { PieceProps } from './types';
 
-export const ${name} = ({ size }: PieceProps) => (
+const ${name}Svg = ({ size }: PieceProps) => (
   <Svg width={size} height={size} viewBox="${viewBox}">
 ${children}
   </Svg>
 );
+
+export const ${name} = React.memo(${name}Svg, (a, b) => a.size === b.size);
 `,
   );
   console.log('wrote', name + '.tsx');

@@ -10,7 +10,7 @@
 // opens, the handoff prompt shows, a roll with nothing to play is announced, the
 // result is written out.
 
-import { emptyRoll, viewGame, type Game, type Side } from './game.ts';
+import { emptyRoll, viewGame, type Game } from './game.ts';
 import { fileOf, pieceAt } from './board.ts';
 
 export type Cue =
@@ -25,10 +25,10 @@ export type Cue =
   | 'game_loss'
   | 'game_draw';
 
-// `humanSide` is the side a person plays against the bot. Today that is always
-// White; it is a parameter so that choosing a colour later changes one caller,
-// not this function. It means nothing in hotseat, where both sides are people.
-export function cues(before: Game, after: Game, humanSide: Side = 'w'): Cue[] {
+// Win or loss is heard from the side the person plays against the bot, which
+// the game itself holds, so no caller can hear it from the other side. It means
+// nothing in hotseat, where both sides are people.
+export function cues(before: Game, after: Game): Cue[] {
   // A different game — a new one started, or one restored at launch — is not a
   // step of either, and makes no sound.
   if (before.id !== after.id) return [];
@@ -53,7 +53,7 @@ export function cues(before: Game, after: Game, humanSide: Side = 'w'): Cue[] {
   // A step can both move and end the game — a king taken, or the move that
   // completes the hundredth quiet half-move — and then both are heard.
   if (after.phase === 'ended' && before.phase !== 'ended' && after.result)
-    heard.push(resultCue(after, humanSide));
+    heard.push(resultCue(after));
   return heard;
 }
 
@@ -94,11 +94,11 @@ function moveCue(before: Game, move: string): Cue {
   return 'piece_move';
 }
 
-function resultCue(game: Game, humanSide: Side): Cue {
+function resultCue(game: Game): Cue {
   const winner = game.result?.winner ?? null;
   if (winner === null) return 'game_draw';
   // Two people at one television: whoever won, somebody in the room did, so a
   // decisive hotseat game ends on the winning jingle rather than the losing one.
   if (game.mode === 'hotseat') return 'game_win';
-  return winner === humanSide ? 'game_win' : 'game_loss';
+  return winner === game.human ? 'game_win' : 'game_loss';
 }

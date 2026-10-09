@@ -791,8 +791,7 @@ export const GameScreen = ({
     const before = committed.current;
     committed.current = game;
     onCommit?.(game);
-    // Win or loss is heard from the side the person plays against the bot.
-    sounds?.play(cues(before, game, game.human ?? 'w'));
+    sounds?.play(cues(before, game));
   }, [game, onCommit, sounds]);
 
   // Seeded like the game, so opening the screen is not reported as a change.
