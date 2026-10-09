@@ -447,8 +447,13 @@ function botStep(
   if (!botOwes(game)) return state;
 
   // Mid-path: reveal the next action. moveGame revalidates it against the
-  // position it is actually applied to.
+  // position it is actually applied to. A path that no longer fits is dropped
+  // rather than thrown (#255): none of it has been shown, and the next step
+  // asks for the rest of the turn again, checked as a whole, as a relaunch in
+  // the middle of the opponent's turn does.
   if (pending.length) {
+    if (!viewGame(game).legal.includes(pending[0]))
+      return { ...state, pending: [] };
     const next = moveGame(game, pending[0]);
     return {
       ...state,
@@ -479,6 +484,10 @@ function botStep(
   // replayed a move at a time, so the check covers what is about to be shown.
   // A reply worked out while the step waited is the same question asked sooner;
   // one that no longer fits the position is not trusted, and is asked for again.
+  // A reply just asked for that is still rejected is the engine's fault, not a
+  // stale answer, and it throws to the game screen's fallback (#255): returning
+  // the state unchanged would leave the opponent "playing" with nothing to ask
+  // it again.
   const reply = given && replyFits(game, given) ? given : botReply(game);
   applyBotReply(game, reply);
   const next = moveGame(game, reply.moves[0]);

@@ -531,6 +531,26 @@ test('an interrupted turn is recomputed rather than resumed half-played', () => 
   assert.equal(finished.game.turn, 3);
 });
 
+test('a pending path that no longer fits is dropped, and the rest of the turn asked for again', () => {
+  const pawns: ScreenOptions = { ...options, roll: () => [1, 1, 1] };
+  const rolled = screenReducer(handedToBot(), { kind: 'bot' }, pawns);
+  const midway = screenReducer(rolled, { kind: 'bot' }, pawns);
+  assert.equal(midway.pending.length, 2);
+
+  // An action no position of this turn allows: the step does not throw to the
+  // game screen's fallback (#255), plays nothing and forgets the path.
+  const stale: ScreenState = { ...midway, pending: ['a1a8', 'a1a8'] };
+  const dropped = screenReducer(stale, { kind: 'bot' }, pawns);
+  assert.deepEqual(dropped.pending, []);
+  assert.equal(dropped.game, midway.game);
+
+  // The next steps finish the turn from where it was left.
+  const finished = settle(dropped, pawns);
+  assert.equal(finished.game.moves.length, 0);
+  assert.equal(viewGame(finished.game).side, 'w');
+  assert.equal(finished.game.turn, 3);
+});
+
 test('a reply worked out ahead is played exactly as given', () => {
   const pawns: ScreenOptions = { ...options, roll: () => [1, 1, 1] };
   const rolled = screenReducer(handedToBot(), { kind: 'bot' }, pawns);
