@@ -17,7 +17,11 @@ import { BOT_STEP_MS, type ScreenOptions } from '../src/screen';
 import type { Sounds } from '../src/sound';
 import type { Music } from '../src/music';
 import { MMKV, reset } from './stubs/react-native-mmkv.mjs';
-import { appEvent, setAppState } from './stubs/react-native-kepler.mjs';
+import {
+  appEvent,
+  hasExited,
+  setAppState,
+} from './stubs/react-native-kepler.mjs';
 import { nextLineMs } from '../src/useTutorialVoice';
 import { stepGame, TUTORIAL, tutorLinesAt } from '../../src/core/tutorial';
 import { fixedOptions, launch, mount, send, unmount } from './support';
@@ -267,6 +271,20 @@ test('initially inactive, the app is silent and ignores keys until it becomes ac
     rig.state('active');
     rig.send('enter');
     assert.ok(rig.save());
+  } finally {
+    rig.close();
+  }
+});
+
+test('Back behind Alexa is ignored, not taken as leave to close the app', () => {
+  const rig = harness();
+  try {
+    rig.event('blur');
+    rig.send('back');
+    assert.equal(hasExited(), false, 'the app stays open behind the overlay');
+    rig.event('focus');
+    rig.send('back');
+    assert.equal(hasExited(), true, 'Back on the home screen closes it again');
   } finally {
     rig.close();
   }

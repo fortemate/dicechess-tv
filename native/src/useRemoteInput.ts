@@ -119,7 +119,10 @@ export function useRemoteInput(
     const subscription = backHandler.addEventListener(
       'hardwareBackPress',
       () => {
-        if (!activity.isActive()) return false;
+        // Behind an overlay such as Alexa's the game ignores Back like any
+        // other key. Leaving it unclaimed would not ignore it: it would close
+        // the app.
+        if (!activity.isActive()) return true;
         // No handler means the screen has nowhere to go back to, and the app
         // should close.
         if (!back.current) {
