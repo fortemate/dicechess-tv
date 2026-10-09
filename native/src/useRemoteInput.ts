@@ -18,14 +18,20 @@
 // Two channels that were tried and rejected: `UserInputManager.addListener`
 // aborts the JS thread on 0.24, and subscribing `useAddUserInputListenerCallback`
 // to every key delivers nothing while `useTVEventHandler` is also mounted.
-import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+} from 'react';
 import {
   useTVEventHandler,
   useKeplerBackHandler,
-  useKeplerAppStateManager,
   type HWEvent,
 } from '@amazon-devices/react-native-kepler';
 import type { BoardKey } from '../../src/core/boardInput';
+import { ActivityContext } from './activity';
 
 // OK arrives under three names, and all of them mean the same to the board:
 // `select` from a physical remote, as Amazon documents it; `enter` from the
@@ -77,6 +83,7 @@ export function useRemoteInput(
   onKey: (key: BoardKey, repeat: boolean) => void,
   options: RemoteInputOptions = {},
 ): void {
+  const activity = useContext(ActivityContext);
   // Reading the handlers through refs keeps a new callback identity on every
   // render from resubscribing mid-press. The refs are updated once a render has
   // been committed, not while it runs: a render can be thrown away, and a key
@@ -84,7 +91,6 @@ export function useRemoteInput(
   // subscription below is made, so no key can arrive before they are set.
   const held = useRef(new Set<BoardKey>());
   const selectHeld = useRef(false);
-  const ready = useRef(true);
   const handler = useRef(onKey);
   const back = useRef(options.onBack);
   const press = useRef(options.onPress);
@@ -100,68 +106,53 @@ export function useRemoteInput(
   }, []);
   useLayoutEffect(reset, [reset, options.scope]);
 
-  const appState = useKeplerAppStateManager();
-  useEffect(() => {
-    let active = appState.getCurrentState() === 'active';
-    let focused = true;
-    const sync = () => {
-      ready.current = active && focused;
-      if (!ready.current) reset();
-    };
-    sync();
-    const change = appState.addEventListener('change', (state) => {
-      active = state === 'active';
-      sync();
-    });
-    const blur = appState.addEventListener('blur', () => {
-      focused = false;
-      sync();
-    });
-    const focus = appState.addEventListener('focus', () => {
-      focused = true;
-      sync();
-    });
-    return () => {
-      change.remove();
-      blur.remove();
-      focus.remove();
-    };
-  }, [appState, reset]);
+  // The app's foreground gate (#254): App decides from Vega's app state and
+  // focus whether the app is in front, and keys count only while it is.
+  useEffect(
+    () =>
+      activity.subscribe(() => {
+        if (!activity.isActive()) reset();
+      }),
+    [activity, reset],
+  );
 
   useTVEventHandler(
-    useCallback((event: HWEvent) => {
-      const key = KEYS[String(event.eventType)];
-      if (!key) return;
-      if (REPEATABLE.has(key)) {
-        // Scope/focus changes are not physical releases. Keep tracking these
-        // events while inactive so a continuing hold cannot become a new press.
-        if (event.eventKeyAction === UP) held.current.delete(key);
-        if (event.eventKeyAction !== DOWN) return;
-        const repeat = held.current.has(key);
-        held.current.add(key);
-        if (ready.current) handler.current(key, repeat);
-        return;
-      }
-      if (key === 'select') {
-        // Arm once on the physical down, and confirm on release. A canceled OK
-        // must not re-arm on a repeat after a scope or lifecycle change.
-        if (event.eventKeyAction === DOWN) {
+    useCallback(
+      (event: HWEvent) => {
+        const key = KEYS[String(event.eventType)];
+        if (!key) return;
+        if (REPEATABLE.has(key)) {
+          // Scope/focus changes are not physical releases. Keep tracking these
+          // events while inactive so a continuing hold cannot become a new press.
+          if (event.eventKeyAction === UP) held.current.delete(key);
+          if (event.eventKeyAction !== DOWN) return;
           const repeat = held.current.has(key);
           held.current.add(key);
-          if (!ready.current || repeat) return;
-          selectHeld.current = true;
-          press.current?.(true);
+          if (activity.isActive()) handler.current(key, repeat);
           return;
         }
-        if (event.eventKeyAction !== UP) return;
-        held.current.delete(key);
-        if (!ready.current || !selectHeld.current) return;
-        selectHeld.current = false;
-        press.current?.(false);
-      }
-      if (!ready.current) return;
-      if (event.eventKeyAction === UP) handler.current(key, false);
-    }, []),
+        if (key === 'select') {
+          // Arm once on the physical down, and confirm on release. A canceled OK
+          // must not re-arm on a repeat after a scope or lifecycle change.
+          if (event.eventKeyAction === DOWN) {
+            const repeat = held.current.has(key);
+            held.current.add(key);
+            if (!activity.isActive() || repeat) return;
+            selectHeld.current = true;
+            press.current?.(true);
+            return;
+          }
+          if (event.eventKeyAction !== UP) return;
+          held.current.delete(key);
+          if (!activity.isActive() || !selectHeld.current) return;
+          selectHeld.current = false;
+          press.current?.(false);
+        }
+        if (!activity.isActive()) return;
+        if (event.eventKeyAction === UP) handler.current(key, false);
+      },
+      [activity],
+    ),
   );
 
   const backHandler = useKeplerBackHandler();
@@ -169,9 +160,10 @@ export function useRemoteInput(
     const subscription = backHandler.addEventListener(
       'hardwareBackPress',
       () => {
-        // Inactive input must also claim Back: letting it fall through would
-        // invoke the platform's default app exit while another surface owns it.
-        if (!ready.current) return true;
+        // Behind an overlay such as Alexa's the game ignores Back like any
+        // other key. Leaving it unclaimed would not ignore it: it would close
+        // the app while another surface owns the remote.
+        if (!activity.isActive()) return true;
         // No handler means the screen has nowhere to go back to, and the app
         // should close.
         if (!back.current) {
@@ -182,5 +174,5 @@ export function useRemoteInput(
       },
     );
     return () => subscription.remove();
-  }, [backHandler]);
+  }, [backHandler, activity]);
 }

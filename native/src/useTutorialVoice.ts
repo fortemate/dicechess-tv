@@ -9,6 +9,7 @@
 import React from 'react';
 import type { TutorLine } from '../../src/core/tutorial';
 import { LINE_START_MS, speechTiming, type Sounds } from './sound';
+import { ActivityContext, afterDelay, scheduleActive } from './activity';
 
 export type TutorialVoice = Pick<Sounds, 'say' | 'stopLine'>;
 
@@ -24,6 +25,7 @@ export function useTutorialVoice(
   voice: TutorialVoice | undefined,
   lines: readonly TutorLine[],
 ): void {
+  const activity = React.useContext(ActivityContext);
   // The lines change identity on every render; what they say does not.
   const key = lines.map((line) => line.id).join(' ');
   const linesRef = React.useRef(lines);
@@ -34,21 +36,30 @@ export function useTutorialVoice(
   React.useEffect(() => {
     if (!voice) return;
     const said = linesRef.current;
-    let timer: ReturnType<typeof setTimeout> | null = null;
+    let cancel: () => void = () => undefined;
     const sayFrom = (index: number) => {
-      timer = null;
       const line = said[index];
       if (!line) return;
       voice.say(line);
       const wait = nextLineMs(line);
       // A line without a clip ends what he says: the next would come too soon.
       if (wait !== null && index + 1 < said.length)
-        timer = setTimeout(() => sayFrom(index + 1), wait);
+        cancel = scheduleActive(
+          activity,
+          afterDelay,
+          () => sayFrom(index + 1),
+          wait,
+        );
     };
-    sayFrom(0);
+    const cancelStart = scheduleActive(
+      activity,
+      (run) => run(),
+      () => sayFrom(0),
+    );
     return () => {
-      if (timer) clearTimeout(timer);
+      cancelStart();
+      cancel();
       voice.stopLine();
     };
-  }, [voice, key]);
+  }, [voice, key, activity]);
 }

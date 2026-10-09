@@ -36,6 +36,7 @@ import {
   type HostState,
 } from '../../src/core/hostVoice';
 import { DISMISS_DELAY_MS } from './useBotVoice';
+import { ActivityContext, afterDelay, scheduleActive } from './activity';
 
 export type UseHostVoiceOptions = {
   // The board is on screen with nothing over it.
@@ -72,8 +73,8 @@ const pausing = (picked: Picked, game: Game): boolean =>
 
 type Box<T> = { current: T };
 
-const stopTimer = (timer: Box<ReturnType<typeof setTimeout> | null>) => {
-  if (timer.current) clearTimeout(timer.current);
+const stopTimer = (timer: Box<(() => void) | null>) => {
+  timer.current?.();
   timer.current = null;
 };
 
@@ -89,12 +90,13 @@ export function useHostVoice(
   game: Game,
   options: UseHostVoiceOptions,
 ): HostLine | null {
+  const activity = React.useContext(ActivityContext);
   const state = React.useRef<HostState>(INITIAL_HOST_STATE);
   // The last game seen while the board was on screen and the host on.
   const lastGame = React.useRef<Game | null>(null);
   const speaking = React.useRef<Picked | null>(null);
   const pending = React.useRef<Picked | null>(null);
-  const timer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timer = React.useRef<(() => void) | null>(null);
   // The line being said, for the screen to show.
   const [shown, setShown] = React.useState<HostLine | null>(null);
 
@@ -110,35 +112,40 @@ export function useHostVoice(
     optionsRef.current = options;
   });
 
-  const speak = React.useCallback((first: Picked) => {
-    function begin(next: Picked): void {
-      speaking.current = next;
-      setShown(next.line);
-      optionsRef.current.onVoiceLine?.(next.line);
-      stopTimer(timer);
-      // The last word holds while the result shows; a new game replaces it.
-      if (isResultLine(next.line)) return;
-      const hold = optionsRef.current.holdMs?.(next.line) ?? 0;
-      timer.current = setTimeout(
-        () => {
-          timer.current = null;
-          speaking.current = null;
-          setShown(null);
-          const waiting = pending.current;
-          if (!waiting || !liveRef.current || !onRef.current) return;
-          // The game moved on, and the effect below has not seen it yet.
-          if (!pausing(waiting, gameRef.current)) {
-            restorePending(state, pending);
-            return;
-          }
-          pending.current = null;
-          begin(waiting);
-        },
-        Math.max(optionsRef.current.timeoutMs ?? DISMISS_DELAY_MS, hold),
-      );
-    }
-    begin(first);
-  }, []);
+  const speak = React.useCallback(
+    (first: Picked) => {
+      function begin(next: Picked): void {
+        speaking.current = next;
+        setShown(next.line);
+        optionsRef.current.onVoiceLine?.(next.line);
+        stopTimer(timer);
+        // The last word holds while the result shows; a new game replaces it.
+        if (isResultLine(next.line)) return;
+        const hold = optionsRef.current.holdMs?.(next.line) ?? 0;
+        timer.current = scheduleActive(
+          activity,
+          afterDelay,
+          () => {
+            timer.current = null;
+            speaking.current = null;
+            setShown(null);
+            const waiting = pending.current;
+            if (!waiting || !liveRef.current || !onRef.current) return;
+            // The game moved on, and the effect below has not seen it yet.
+            if (!pausing(waiting, gameRef.current)) {
+              restorePending(state, pending);
+              return;
+            }
+            pending.current = null;
+            begin(waiting);
+          },
+          Math.max(optionsRef.current.timeoutMs ?? DISMISS_DELAY_MS, hold),
+        );
+      }
+      begin(first);
+    },
+    [activity],
+  );
 
   const clear = React.useCallback(() => {
     stopTimer(timer);

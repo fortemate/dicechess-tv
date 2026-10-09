@@ -4,19 +4,30 @@ import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 import { mount, unmount } from './support';
 import { useRemoteInput } from '../src/useRemoteInput';
+import { ActivityContext, createActivity } from '../src/activity';
 import type { BoardKey } from '../../src/core/boardInput';
 import {
   hold,
   release,
   press,
   pressBack,
-  appEvent,
-  setAppState,
 } from './stubs/react-native-kepler.mjs';
 
 (
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
 ).IS_REACT_ACT_ENVIRONMENT = true;
+
+// The app's foreground gate, held by the test. App opens and closes it from
+// Vega's app state and focus (lifecycle.test.tsx); the hook only obeys it.
+const gated = () => {
+  const activity = createActivity(true);
+  const within = (element: React.ReactElement) => (
+    <ActivityContext.Provider value={activity}>
+      {element}
+    </ActivityContext.Provider>
+  );
+  return { activity, within };
+};
 
 test('directions remain held across input-context changes until release', () => {
   const events: [BoardKey, boolean][] = [];
@@ -54,9 +65,10 @@ test('directions remain held across input-context changes until release', () => 
   }
 });
 
-test('blur and inactivity cancel OK but preserve direction holds without exiting on Back', () => {
+test('a closed gate cancels OK but preserves direction holds without exiting on Back', () => {
   const events: [BoardKey, boolean][] = [];
   const pressed: boolean[] = [];
+  const { activity, within } = gated();
   const Probe = () => {
     useRemoteInput((key, repeat) => events.push([key, repeat]), {
       onPress: (p) => pressed.push(p),
@@ -65,23 +77,21 @@ test('blur and inactivity cancel OK but preserve direction holds without exiting
     return null;
   };
   act(() => {
-    mount(<Probe />);
+    mount(within(<Probe />));
   });
   try {
     act(() => hold('right', 1));
     act(() => hold('select', 1));
-    act(() => appEvent('blur'));
+    act(() => activity.setActive(false));
     assert.equal(pressed.at(-1), false);
     act(() => {
       hold('right');
       release('select');
     });
     act(() => assert.equal(pressBack(), true));
-    act(() => setAppState('background'));
-    // Focus may come first, but background input is still ignored.
-    act(() => appEvent('focus'));
+    // Still away: nothing pressed meanwhile is taken.
     act(() => press('left'));
-    act(() => setAppState('active'));
+    act(() => activity.setActive(true));
     act(() => {
       hold('right', 1);
       release('right');
@@ -97,29 +107,26 @@ test('blur and inactivity cancel OK but preserve direction holds without exiting
       ['right', false],
       ['select', false],
     ]);
-    act(() => setAppState('inactive'));
+    act(() => activity.setActive(false));
     act(() => hold('right', 1));
-    act(() => setAppState('active'));
+    act(() => activity.setActive(true));
     act(() => hold('right', 1));
     assert.deepEqual(events.at(-1), ['right', true]);
     // A release received while inactive still ends the physical hold.
-    act(() => setAppState('inactive'));
+    act(() => activity.setActive(false));
     act(() => release('right'));
-    act(() => setAppState('active'));
+    act(() => activity.setActive(true));
     act(() => press('right'));
     assert.deepEqual(events.at(-1), ['right', false]);
   } finally {
-    act(() => {
-      setAppState('active');
-      appEvent('focus');
-      unmount();
-    });
+    unmount();
   }
 });
 
 test('a canceled OK cannot re-arm on held repeats after context or focus changes', () => {
   const events: [BoardKey, boolean][] = [];
   const pressed: boolean[] = [];
+  const { activity, within } = gated();
   const Probe = ({ scope }: { scope: string }) => {
     useRemoteInput((key, repeat) => events.push([key, repeat]), {
       scope,
@@ -129,12 +136,12 @@ test('a canceled OK cannot re-arm on held repeats after context or focus changes
   };
   let tree!: renderer.ReactTestRenderer;
   act(() => {
-    tree = mount(<Probe scope="board" />);
+    tree = mount(within(<Probe scope="board" />));
   });
   try {
     act(() => hold('enter', 3));
     assert.equal(pressed.at(-1), true);
-    act(() => tree.update(<Probe scope="menu" />));
+    act(() => tree.update(within(<Probe scope="menu" />)));
     act(() => hold('select', 3));
     assert.equal(pressed.at(-1), false);
     act(() => release('select'));
@@ -143,8 +150,8 @@ test('a canceled OK cannot re-arm on held repeats after context or focus changes
     assert.deepEqual(events, [['select', false]]);
 
     act(() => hold('select', 1));
-    act(() => appEvent('blur'));
-    act(() => appEvent('focus'));
+    act(() => activity.setActive(false));
+    act(() => activity.setActive(true));
     act(() => hold('select', 3));
     assert.equal(pressed.at(-1), false);
     act(() => release('select'));

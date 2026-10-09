@@ -21,6 +21,7 @@ Long-form technical documentation, platform findings, performance benchmarks and
 | Path                           | Purpose                                                                                      |
 | ------------------------------ | -------------------------------------------------------------------------------------------- |
 | `src/App.tsx`                  | The root: reads saves before first render; owns randomness, sound and music.                 |
+| `src/activity.ts`              | Foreground gate: pauses scheduled work and preserves its unfinished wait.                    |
 | `src/GameScreen.tsx`           | The board and side status panel, with menus, dialogs, and prompts.                           |
 | `src/Matchup.tsx`              | Matchup HUD: the bot's dialogue block or a badge per side; turn frame; the host.             |
 | `src/SpeechBubble.tsx`         | A line beside its speaker's portrait: 20 dp, three rows for a bot, two for the host.         |
@@ -164,3 +165,29 @@ vega virtual-device stop
 ```
 
 See [Building on Vega](https://dicechess-tv.fortemate.com/technology/vega/#scripted-virtual-device-automation) for gRPC injection details, UI transition waiting (`vvd wait-change`), and frame streaming (`vvd frames`).
+
+## Loss of focus
+
+The foreground gate requires both an app in front and focus (#254). A
+`blur` alone stops effects, voices and music, holds the bot's pending steps and
+danger search, and ignores game input, Back included. Returning preserves the
+unfinished wait and the current turn. Interrupted speech is stopped; old
+effects are discarded rather than replayed. Future tutorial sentences retain
+their remaining wait.
+
+The return is signalled by `focus`, not by the `change` to `active`. On a Fire
+TV Stick (2026-10-09) the app-state manager reported `unknown` at launch, and
+after Home it received `blur` and `change` to `background`, but on the return
+only `focus`: Vega opens a new surface for the app, and `change` reaches that
+surface, not the manager bound to the first one. A gate that waited for
+`active` ignored every key after the first return from Home.
+
+On SDK 0.24.12044's Virtual Device, Home was checked with
+`vega device run-cmd -d VirtualDevice -c 'inputd-cli button_press KEY_HOMEPAGE'`:
+the same key through `vvd press` did not leave the app. A local `App.onState`
+probe showed no steps or further speech while on Home, both after the bot's
+roll and during Thinkle's opening sentence. Relaunching recreated the app in
+this run; Resume game restored the unchanged dice and turn and continued play.
+D-pad, OK and Back were checked on the installed package. This does not verify
+a blur-only Alexa overlay: that event sequence is covered by the lifecycle
+tests, while physical-device audio needs a separate listening check.

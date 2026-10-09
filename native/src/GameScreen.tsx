@@ -40,6 +40,7 @@ import {
 import type { Music } from './music';
 import { MUSIC_STEPS, type MusicSetting } from './musicSetting';
 import { useDanger } from './useDanger';
+import { activeClock, scheduleActive, useActivity } from './activity';
 import { cues } from '../../src/core/cues';
 import { useRemoteInput } from './useRemoteInput';
 import { THEME } from './theme';
@@ -386,6 +387,11 @@ const pieceOn = (view: GameView, square: string): string => {
 // The opponent is at work on its turn: rolling, deciding or playing. Once the
 // turn is over it still owes the handoff, but only waits for its last move to
 // be seen, and the screen says the turn is over (#232), not that it plays on.
+const boardActivity = (active: boolean, kind: Overlay['kind']) => ({
+  live: active && kind === 'none',
+  voiceLive: active && (kind === 'none' || kind === 'result'),
+});
+
 const botPlaying = (game: Game): boolean =>
   botOwes(game) && game.phase !== 'handoff';
 
@@ -636,6 +642,7 @@ export const GameScreen = ({
   offerTutorial = false,
   onTutorialOffered,
 }: GameScreenProps) => {
+  const { activity, active } = useActivity();
   const { width, height } = useWindowDimensions();
   const reduce = React.useCallback(
     (state: ScreenState, action: ScreenAction) =>
@@ -748,31 +755,51 @@ export const GameScreen = ({
     if (overlay.kind !== 'none' || !botOwes(game)) return;
     let cancelled = false;
     if (game.phase !== 'move' || pending.length) {
-      options.schedule(() => {
-        if (!cancelled) dispatch({ kind: 'bot' });
-      }, BOT_STEP_MS);
-      return () => {
-        cancelled = true;
-      };
+      return scheduleActive(
+        activity,
+        options.schedule,
+        () => {
+          if (!cancelled) dispatch({ kind: 'bot' });
+        },
+        BOT_STEP_MS,
+        options.now,
+      );
     }
     if (thinking.current?.game !== game)
       thinking.current = { game, reply: null, used: 0 };
     const hold = thinking.current;
-    const clock = options.now ?? (() => 0);
-    const began = clock();
-    (options.background ?? ((step) => step()))(() => {
-      if (cancelled) return;
-      const reply = (hold.reply ??= botReply(game));
-      const wait = Math.max(0, BOT_STEP_MS - hold.used - (clock() - began));
-      options.schedule(() => {
-        if (!cancelled) dispatch({ kind: 'bot', reply });
-      }, wait);
-    });
+    const clock = activeClock(activity, options.now ?? (() => 0));
+    const began = clock.now();
+    let cancelMove: () => void = () => undefined;
+    const cancelSearch = scheduleActive(
+      activity,
+      options.background ?? ((step) => step()),
+      () => {
+        if (cancelled) return;
+        const reply = (hold.reply ??= botReply(game));
+        const wait = Math.max(
+          0,
+          BOT_STEP_MS - hold.used - (clock.now() - began),
+        );
+        cancelMove = scheduleActive(
+          activity,
+          options.schedule,
+          () => {
+            if (!cancelled) dispatch({ kind: 'bot', reply });
+          },
+          wait,
+          options.now,
+        );
+      },
+    );
     return () => {
       cancelled = true;
-      hold.used += clock() - began;
+      cancelSearch();
+      cancelMove();
+      hold.used += clock.now() - began;
+      clock.dispose();
     };
-  }, [game, pending, overlay.kind, options]);
+  }, [game, pending, overlay.kind, options, activity]);
 
   // After a roll with nothing to play, OK comes back once the guard
   // has run out (#85). A menu opened meanwhile does not stop the clock.
@@ -861,11 +888,11 @@ export const GameScreen = ({
   // Lines are picked only while the board is on screen (#202), so a game
   // waiting behind the home screen says nothing. A bot's last word is said with
   // the result over the board.
-  const live = overlay.kind === 'none';
+  const { live, voiceLive } = boardActivity(active, overlay.kind);
   const voiceLine = useBotVoice(game, level, {
     onVoiceLine: say,
     holdMs: bubbleHoldMs,
-    live: live || overlay.kind === 'result',
+    live: voiceLive,
   });
   // The Hot Seat host (#202): her line is said, and shown with her portrait
   // above the bottom badge while it lasts (#213). The bot's hook speaks only
