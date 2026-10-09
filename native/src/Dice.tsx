@@ -38,6 +38,25 @@ export const ROLL_MS = TUMBLE_MS + 2 * TUMBLE_STAGGER_MS;
 // The turn each die makes on its way in, so that the three do not move in step.
 const TURNS = ['-100deg', '80deg', '-60deg'];
 
+// One die's way in, from the roll: still while the dice on its left start, then
+// its tumble. The beat is part of the animation rather than a delay before it,
+// because React Native waits out a delay on a JS timer even on the native
+// driver. On a Fire TV Stick the JS thread is busy right after a roll, with the
+// music's danger search and the bot's search, and that timer held the second
+// and third dice back. The easing is sampled into frames as the animation
+// starts, so all three play on the native side from the same moment.
+const throwOf = (slot: number) => {
+  const wait = slot * TUMBLE_STAGGER_MS;
+  const tumble = Easing.out(Easing.cubic);
+  return {
+    duration: wait + TUMBLE_MS,
+    easing: (t: number) => {
+      const into = t * (wait + TUMBLE_MS) - wait;
+      return into <= 0 ? 0 : tumble(into / TUMBLE_MS);
+    },
+  };
+};
+
 const Face = ({ die, side, size }: { die: Die; side: Side; size: number }) => {
   const letter = side === 'w' ? die.piece : die.piece.toLowerCase();
   const Piece = PIECES[letter as keyof typeof PIECES];
@@ -154,9 +173,7 @@ const useTumble = (dice: readonly Die[], side: Side): Tumble | null => {
     const throws = tumble.progress.map((progress, slot) =>
       Animated.timing(progress, {
         toValue: 1,
-        duration: TUMBLE_MS,
-        delay: slot * TUMBLE_STAGGER_MS,
-        easing: Easing.out(Easing.cubic),
+        ...throwOf(slot),
         useNativeDriver: true,
       }),
     );
