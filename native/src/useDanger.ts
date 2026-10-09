@@ -6,10 +6,41 @@
 // remote up: on the virtual device a whole search took up to 1.6 s. A new turn,
 // or leaving the game, abandons a search still running.
 import React from 'react';
-import { finish, settle, turnDanger, type Level } from '../../src/core/danger';
+import {
+  finish,
+  settle,
+  turnDanger,
+  type DangerSearch,
+  type Level,
+} from '../../src/core/danger';
 import type { Game } from '../../src/core/game';
 import type { ScreenOptions } from './screen';
 import { ActivityContext, activeClock, scheduleActive } from './activity';
+
+// The danger only chooses how the music plays, and the game plays the same
+// without it. So a search that throws, an engine fault, ends as a calm turn and
+// is reported, rather than closing the app: its steps run between frames, where
+// no error boundary sees a throw (#331). Rethrown into a render, it would put
+// the fallback up over a game that still plays, and again after every recovery,
+// because the home screen measures the same position behind it.
+function failSafe(
+  begin: () => DangerSearch,
+  report?: (line: string) => void,
+): DangerSearch {
+  let search: DangerSearch | undefined;
+  return {
+    step() {
+      try {
+        search ??= begin();
+        return search.step();
+      } catch (error) {
+        report?.(`danger search failed: ${String(error)}`);
+        search = { step: () => 'calm' };
+        return 'calm';
+      }
+    },
+  };
+}
 
 export function useDanger(
   game: Game,
@@ -30,7 +61,10 @@ export function useDanger(
     if (!live) return;
     let cancelled = false;
     let cancelStep: () => void = () => undefined;
-    const search = turnDanger({ start, human, phase: 'roll' });
+    const search = failSafe(
+      () => turnDanger({ start, human, phase: 'roll' }),
+      report,
+    );
     const clock = activeClock(activity, Date.now);
     const began = clock.now();
     let steps = 0;
