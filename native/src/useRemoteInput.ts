@@ -73,10 +73,14 @@ export type RemoteInputOptions = {
   // just before the press is delivered. A screen shows its focused item pressed
   // meanwhile, so the press is seen before its choice takes effect (#51).
   onPress?: (pressed: boolean) => void;
+  // A different input context (board phase, selection or overlay) cancels OK
+  // feedback. Direction keys remain held until release; cursor movement itself
+  // must not change this token.
+  scope?: string;
 };
 
 export function useRemoteInput(
-  onKey: (key: BoardKey) => void,
+  onKey: (key: BoardKey, repeat: boolean) => void,
   options: RemoteInputOptions = {},
 ): void {
   const activity = useContext(ActivityContext);
@@ -85,6 +89,8 @@ export function useRemoteInput(
   // been committed, not while it runs: a render can be thrown away, and a key
   // must never reach a handler from one that was. Layout effects run before any
   // subscription below is made, so no key can arrive before they are set.
+  const held = useRef(new Set<BoardKey>());
+  const selectHeld = useRef(false);
   const handler = useRef(onKey);
   const back = useRef(options.onBack);
   const press = useRef(options.onPress);
@@ -94,21 +100,56 @@ export function useRemoteInput(
     press.current = options.onPress;
   });
 
+  const reset = useCallback(() => {
+    selectHeld.current = false;
+    press.current?.(false);
+  }, []);
+  useLayoutEffect(reset, [reset, options.scope]);
+
+  // The app's foreground gate (#254): App decides from Vega's app state and
+  // focus whether the app is in front, and keys count only while it is.
+  useEffect(
+    () =>
+      activity.subscribe(() => {
+        if (!activity.isActive()) reset();
+      }),
+    [activity, reset],
+  );
+
   useTVEventHandler(
     useCallback(
       (event: HWEvent) => {
-        if (!activity.isActive()) return;
         const key = KEYS[String(event.eventType)];
         if (!key) return;
+        if (REPEATABLE.has(key)) {
+          // Scope/focus changes are not physical releases. Keep tracking these
+          // events while inactive so a continuing hold cannot become a new press.
+          if (event.eventKeyAction === UP) held.current.delete(key);
+          if (event.eventKeyAction !== DOWN) return;
+          const repeat = held.current.has(key);
+          held.current.add(key);
+          if (activity.isActive()) handler.current(key, repeat);
+          return;
+        }
         if (key === 'select') {
-          // Down, and every repeat while held, only shows the press; the release
-          // is the press itself, delivered once.
-          if (event.eventKeyAction === DOWN) press.current?.(true);
+          // Arm once on the physical down, and confirm on release. A canceled OK
+          // must not re-arm on a repeat after a scope or lifecycle change.
+          if (event.eventKeyAction === DOWN) {
+            const repeat = held.current.has(key);
+            held.current.add(key);
+            if (!activity.isActive() || repeat) return;
+            selectHeld.current = true;
+            press.current?.(true);
+            return;
+          }
           if (event.eventKeyAction !== UP) return;
+          held.current.delete(key);
+          if (!activity.isActive() || !selectHeld.current) return;
+          selectHeld.current = false;
           press.current?.(false);
         }
-        const wanted = REPEATABLE.has(key) ? DOWN : UP;
-        if (event.eventKeyAction === wanted) handler.current(key);
+        if (!activity.isActive()) return;
+        if (event.eventKeyAction === UP) handler.current(key, false);
       },
       [activity],
     ),
@@ -121,12 +162,12 @@ export function useRemoteInput(
       () => {
         // Behind an overlay such as Alexa's the game ignores Back like any
         // other key. Leaving it unclaimed would not ignore it: it would close
-        // the app.
+        // the app while another surface owns the remote.
         if (!activity.isActive()) return true;
         // No handler means the screen has nowhere to go back to, and the app
         // should close.
         if (!back.current) {
-          handler.current('back');
+          handler.current('back', false);
           return true;
         }
         return back.current();
@@ -134,12 +175,4 @@ export function useRemoteInput(
     );
     return () => subscription.remove();
   }, [backHandler, activity]);
-
-  useEffect(
-    () =>
-      activity.subscribe(() => {
-        if (!activity.isActive()) press.current?.(false);
-      }),
-    [activity],
-  );
 }

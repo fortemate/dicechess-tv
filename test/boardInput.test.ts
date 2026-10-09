@@ -44,12 +44,12 @@ const drive = (
 // Knights only, as after a roll of queen, rook and knight at the start.
 const OPENING = ['b1a3', 'b1c3', 'g1f3', 'g1h3'];
 
-test('arrows jump between the pieces that can move, and stay when none lies ahead', () => {
+test('arrows jump between movable pieces, cycling horizontally at an end', () => {
   assert.equal(boardInput(at('b1'), 'right', OPENING).focus.cursor, 'g1');
   assert.equal(boardInput(at('g1'), 'left', OPENING).focus.cursor, 'b1');
   // Both knights stand on the first rank: nothing lies above or below them.
   assert.equal(boardInput(at('b1'), 'up', OPENING).focus.cursor, 'b1');
-  assert.equal(boardInput(at('b1'), 'left', OPENING).focus.cursor, 'b1');
+  assert.equal(boardInput(at('b1'), 'left', OPENING).focus.cursor, 'g1');
   // From a square that holds no choice, a press still lands on one.
   assert.equal(boardInput(at('e4'), 'down', OPENING).focus.cursor, 'g1');
 });
@@ -59,7 +59,7 @@ test('with a piece picked up, arrows jump between its destinations only', () => 
   assert.deepEqual(result.focus, at('c3', 'b1'));
   assert.deepEqual(result.action, { type: 'none' });
   // g1 can move too, but it is not a destination of the b1 knight.
-  assert.equal(boardInput(at('c3', 'b1'), 'right', OPENING).focus.cursor, 'c3');
+  assert.equal(boardInput(at('c3', 'b1'), 'right', OPENING).focus.cursor, 'a3');
 });
 
 test('select picks up a piece and lands on its central destination', () => {
@@ -141,7 +141,7 @@ test('on the board turned for Black, the arrows follow the screen', () => {
   const black = ['b8a6', 'b8c6', 'g8f6', 'g8h6'];
   // Seen from Black, g8 is on the left of b8.
   assert.equal(boardInput(at('b8'), 'left', black, true).focus.cursor, 'g8');
-  assert.equal(boardInput(at('b8'), 'right', black, true).focus.cursor, 'b8');
+  assert.equal(boardInput(at('b8'), 'right', black, true).focus.cursor, 'g8');
   // The picked-up knight lands on the destination further left on the screen.
   assert.deepEqual(
     boardInput(at('b8'), 'select', black, true).focus,
@@ -303,8 +303,8 @@ test('the worked example in #68: the pieces that can move follow maximal dice us
   const rolled = rollGame(newGame('hotseat', 'example'), [1, 3, 5]);
   const movable = (game = rolled) => movableSquares(viewGame(game).legal);
   assert.deepEqual(movable(), ['b2', 'd2', 'e2']);
-  // The central pawn is d2: one press from each of the others.
-  assert.deepEqual(waitingFocus('h8', viewGame(rolled).legal), at('d2'));
+  // Cycling makes all three one press apart; e2 is nearest to h8.
+  assert.deepEqual(waitingFocus('h8', viewGame(rolled).legal), at('e2'));
   // After b2b3 only the bishop can move; after d2d4 the bishop and the queen.
   assert.deepEqual(movable(moveGame(rolled, 'b2b3')), ['c1']);
   assert.deepEqual(movable(moveGame(rolled, 'd2d4')), ['c1', 'd1']);
@@ -323,4 +323,33 @@ test('menu drops a picked-up piece and asks to exit the board', () => {
   const result = boardInput(at('c3', 'b1'), 'menu', OPENING);
   assert.deepEqual(result.focus, at('b1', null));
   assert.deepEqual(result.action, { type: 'exit' });
+});
+
+test('a held arrow walks ahead but cannot cycle in either selection phase', () => {
+  const pawns = [...'abcdefgh'].map((file) => `${file}2${file}4`);
+  const repeat = (focus: BoardFocus, key: BoardKey, legal: string[]) =>
+    boardInput(focus, key, legal, false, null, { repeat: true });
+  assert.equal(repeat(at('g2'), 'right', pawns).focus.cursor, 'h2');
+  assert.equal(repeat(at('h2'), 'right', pawns).focus.cursor, 'h2');
+  assert.equal(repeat(at('a2'), 'left', pawns).focus.cursor, 'a2');
+  assert.deepEqual(boardInput(at('h2'), 'right', pawns), {
+    focus: at('a2'),
+    action: { type: 'none' },
+  });
+  assert.equal(boardInput(at('a2'), 'left', pawns).focus.cursor, 'h2');
+  assert.equal(repeat(at('c3', 'b1'), 'right', OPENING).focus.cursor, 'c3');
+  assert.deepEqual(boardInput(at('c3', 'b1'), 'right', OPENING), {
+    focus: at('a3', 'b1'),
+    action: { type: 'none' },
+  });
+  assert.deepEqual(boardInput(at('a3', 'b1'), 'left', OPENING), {
+    focus: at('c3', 'b1'),
+    action: { type: 'none' },
+  });
+});
+
+test('waiting focus retains a movable piece and otherwise uses the cyclic graph', () => {
+  const legal = ['b2b4', 'd2d4', 'e2e4'];
+  assert.deepEqual(waitingFocus('d2', legal), at('d2'));
+  assert.deepEqual(waitingFocus('e1', legal), at('e2'));
 });

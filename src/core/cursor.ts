@@ -28,6 +28,8 @@ export type JumpRule = 'axis' | 'cone' | 'nearest';
 export type Layout = {
   rule?: JumpRule;
   flipped?: boolean;
+  // Discrete horizontal presses may cycle at an end of the visible row.
+  wrap?: boolean;
 };
 
 const pointOf = (
@@ -38,7 +40,7 @@ const pointOf = (
     ? [7 - fileOf(square), 7 - rankOf(square)]
     : [fileOf(square), rankOf(square)];
 
-// Presses when every press moves the cursor one square, as it does today.
+// Presses under the historical square-by-square navigation.
 export const steps = (from: string, to: string): number =>
   Math.abs(fileOf(from) - fileOf(to)) + Math.abs(rankOf(from) - rankOf(to));
 
@@ -56,14 +58,14 @@ function measure(rule: JumpRule, ahead: number, aside: number): number[] {
   return [ahead + 2 * aside];
 }
 
-// The option a press lands on, or null when none lies ahead and the cursor
-// stays. Ties go to the option nearer the pressed line, then to reading order:
+// The ordinary option ahead, else a horizontal cycle when enabled, else null.
+// Directional ties go to the option nearer the pressed line, then to reading order:
 // higher on the screen first, then further left.
 export function jump(
   from: string,
   options: readonly string[],
   direction: Direction,
-  { rule = 'axis', flipped = false }: Layout = {},
+  { rule = 'axis', flipped = false, wrap = false }: Layout = {},
 ): string | null {
   const [fx, fy] = pointOf(from, flipped);
   const [dx, dy] = UNIT[direction];
@@ -75,6 +77,18 @@ export function jump(
     if (ahead <= 0) continue;
     const aside = Math.abs((x - fx) * dy - (y - fy) * dx);
     const key = [...measure(rule, ahead, aside), aside, -y, x];
+    if (best === null || before(key, bestKey)) {
+      best = option;
+      bestKey = key;
+    }
+  }
+  // Ordinary candidates, even off this row, always take precedence.
+  if (best !== null || !wrap || dy !== 0) return best;
+  for (const option of options) {
+    const [x, y] = pointOf(option, flipped);
+    if (y !== fy || x === fx) continue;
+    // Right cycles to the leftmost option; Left to the rightmost.
+    const key = [x * dx];
     if (best === null || before(key, bestKey)) {
       best = option;
       bestKey = key;

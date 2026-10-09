@@ -8,7 +8,13 @@ import {
 } from './stubs/react-native-kepler.mjs';
 import { reset } from './stubs/react-native-mmkv.mjs';
 import { MmkvSnapshotStore } from '../src/mmkvStore';
-import { decodeGame, viewGame, type Game } from '../../src/core/game';
+import {
+  decodeGame,
+  viewGame,
+  newGame,
+  rollGame,
+  type Game,
+} from '../../src/core/game';
 import { decodeLedger, type Ledger } from '../../src/core/ledger';
 import { TUTORIAL, isComplete, stepGame } from '../../src/core/tutorial';
 import { portraitPath } from '../src/Portrait';
@@ -26,6 +32,7 @@ import {
   type BoardKey,
 } from '../../src/core/boardInput';
 import { route, RULE } from '../../src/core/cursor';
+import type { Square } from '../../src/core/board';
 import { RULES } from '../../src/core/rules';
 import { focusedLabel, optionViews } from './options';
 import { fakeTimers, launch, send, text } from './support';
@@ -671,4 +678,18 @@ test('over a game in play, a game chosen at the end of the tutorial asks first',
   const game = savedGame();
   assert.equal(game?.mode, 'random');
   assert.equal(game?.human, 'w');
+});
+
+test('the tutorial forwards held repeats to the same destination boundary rule', () => {
+  const game = rollGame(newGame('hotseat', 'wrap-lesson'), [5, 4, 2]);
+  const selected = {
+    ...initialTutorial(),
+    game,
+    focus: { cursor: 'c3' as Square, selected: 'b1' as Square },
+  };
+  assert.equal(
+    tutorialReducer(selected, { key: 'right', repeat: true }).focus.cursor,
+    'c3',
+  );
+  assert.equal(tutorialReducer(selected, { key: 'right' }).focus.cursor, 'a3');
 });

@@ -151,6 +151,8 @@ const chunk = (type, body) => {
 };
 
 // Opaque RGB, so the frame carries no alpha the compositor would have to blend.
+// node:zlib compresses the same pixels to a different size depending on how
+// Node was built (../splash/README.md, Size).
 const encodePng = (width, height, rgb) => {
   const stride = width * 3;
   const raw = Buffer.alloc(height * (stride + 1));

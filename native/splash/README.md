@@ -49,11 +49,22 @@ both: a stand-in portrait and the hat.
 
 ## Size
 
-Each frame is a whole PNG of about 118 KB with Thinkle, and the archive stores
-them as they are: about 2.95 MB for the 25. In #290 an archive of 17 MB made the
-service prepare the splash only after the game was already on screen, so the
-test holds it under 3 MB. More frames, a higher frame rate or a shadow under
-the title would not fit.
+Each frame is a whole PNG of 109 to 128 KB with Thinkle, and the archive stores
+them as they are: 3,020,363 bytes for the 25. In #290 an archive of 17 MB made
+the service prepare the splash only after the game was already on screen, so
+the test holds it under 3,100,000 bytes. That fits the archive the owner
+approved on the Stick in #293, but not one more frame.
+
+The size depends on how Node was built, because `node:zlib` compresses with
+the zlib Node carries. The official builds, which CI and mise install, carry
+Chromium's zlib and write 3,020,363 bytes. Homebrew's Node links the system
+zlib and writes 2,946,334 bytes from the same pixels. Measure with the Node
+from `mise.toml` (`process.versions.zlib` tells them apart).
+
+On the Stick, a smaller archive did not prepare faster: with frames compressed
+to 2.82 MB, "Time to initialize assets" had a median of 996 ms over five cold
+starts, against 948 ms for the 3.02 MB archive (#324). Without the portraits,
+as in CI, the archive is about 2.1 MB.
 
 ## Changing it
 

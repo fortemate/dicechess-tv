@@ -966,7 +966,7 @@ test('playing Black: the bot opens, the cursor starts on e7, and the arrows foll
   // Seen from Black's side, the h-file is on the left and rank 1 at the top:
   // b8 lies to the right of g8, and nothing lies above or below it.
   assert.equal(drive(rolled, 'right').focus.cursor, 'b8');
-  assert.equal(drive(rolled, 'left').focus.cursor, 'g8');
+  assert.equal(drive(rolled, 'left').focus.cursor, 'b8');
   assert.equal(drive(rolled, 'up').focus.cursor, 'g8');
 });
 

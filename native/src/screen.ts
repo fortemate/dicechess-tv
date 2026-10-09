@@ -89,7 +89,7 @@ const settled = (
 // It also learns whether the build has music at all, which the app finds out
 // after launch.
 export type ScreenAction =
-  | { kind: 'key'; key: BoardKey }
+  | { kind: 'key'; key: BoardKey; repeat?: boolean }
   // A game started from outside the menus: the tutorial's last screen offers
   // one against Rolly or a friend (#244).
   | ({ kind: 'newGame' } & GameChoice)
@@ -806,7 +806,11 @@ const onResult: Handler<'result'> = (state, overlay, key, options) => {
 // Choosing a piece and a square. Back is not intercepted here: boardInput
 // cancels a selection first and only asks to leave when there is nothing to
 // cancel, which is the behaviour the web probe already ships.
-const onMove = (state: ScreenState, key: BoardKey): ScreenState => {
+const onMove = (
+  state: ScreenState,
+  key: BoardKey,
+  repeat: boolean,
+): ScreenState => {
   const { game } = state;
   const { legal, dfen } = viewGame(game);
   const result = boardInput(
@@ -815,6 +819,7 @@ const onMove = (state: ScreenState, key: BoardKey): ScreenState => {
     legal,
     flipped(game, state.turnHotseat),
     dfen.split(' ')[0],
+    { repeat },
   );
   const focused = { ...state, focus: result.focus };
   switch (result.action.type) {
@@ -838,6 +843,7 @@ const onBoard = (
   state: ScreenState,
   key: BoardKey,
   options: ScreenOptions,
+  repeat: boolean,
 ): ScreenState => {
   const { game } = state;
   if (game.phase === 'ended')
@@ -845,7 +851,7 @@ const onBoard = (
       ? show(state, HOME)
       : state;
   const bot = botOwes(game);
-  if (game.phase === 'move' && !bot) return onMove(state, key);
+  if (game.phase === 'move' && !bot) return onMove(state, key, repeat);
   // Otherwise Back opens the menu, and OK rolls the dice or passes the turn.
   // While the opponent owes an action the board takes no input but Back or Menu, so a
   // player cannot move its pieces for it; while a guard is up, no OK either.
@@ -920,6 +926,6 @@ export function screenReducer(
     case 'result':
       return onResult(state, overlay, key, options);
     case 'none':
-      return onBoard(state, key, options);
+      return onBoard(state, key, options, action.repeat ?? false);
   }
 }

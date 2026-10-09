@@ -55,7 +55,7 @@ const jumping: Strategy = {
   rule: 'axis',
 };
 const STRATEGIES: [string, Strategy][] = [
-  ['today: a square per press, cursor stays', CURRENT],
+  ['historical: a square per press, cursor stays', CURRENT],
   [
     'a square per press, cursor on the central piece',
     { ...CURRENT, start: 'central' },
@@ -91,6 +91,16 @@ const STRATEGIES: [string, Strategy][] = [
   [
     'cone rule: jump + destinations, central',
     { ...jumping, start: 'central', destinations: 'jump', rule: 'cone' },
+  ],
+  [
+    'current: cone + horizontal cycling, sticky',
+    {
+      ...jumping,
+      start: 'sticky',
+      destinations: 'jump',
+      rule: 'cone',
+      wrap: true,
+    },
   ],
   [
     'nearest rule: jump + destinations, central',

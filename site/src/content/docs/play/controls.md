@@ -22,11 +22,11 @@ Dice Chess TV is designed from the ground up for a television remote. The entire
 
 Moving square-by-square across an 8x8 chessboard is frustrating on a remote. Dice Chess TV replaces grid stepping with **smart directional jumps**:
 
-- **Between movable pieces:** When no piece is selected, pressing an arrow jumps directly to the nearest piece permitted to move by your current dice roll. In simulations across 200 random games, this reduced remote presses from **23.0 to 9.2 per turn** (60% fewer).
+- **Between movable pieces:** When no piece is selected, pressing an arrow jumps directly to the nearest piece permitted to move by your current dice roll. In the original simulation before horizontal cycling, across 200 random games, jumping reduced remote presses from **23.0 to 9.2 per turn** (60% fewer).
 - **Between destinations:** Once a piece is picked up, the arrows jump only between that piece's valid destination squares (marked with dots for quiet moves or rings for captures).
 - **In menus and cards:** Moves focus through menu options, difficulty cards, and rules topics. Holding an arrow repeats smoothly.
 
-On the board, an arrow with no available choice ahead leaves the cursor where it is; there is currently no cyclic edge transition. Holding an arrow repeats jumps until that end is reached. The [Board selection algorithm](/design/board-selection/) gives the exact directional and cursor-placement rules, with examples.
+At the end of the available choices, a new Left or Right press cycles to the opposite end of the same row. For example, with all starting pawns available, Right from `h2` selects `a2`. This also works between a selected piece’s destinations. Holding an arrow walks to the end and stops: release and press again to cycle. Ordinary choices ahead take priority, and Up/Down keep their directional behavior. The [Board selection algorithm](/design/board-selection/) gives the exact directional and cursor-placement rules, with examples.
 
 ### 2. OK / Select (Center Button)
 
