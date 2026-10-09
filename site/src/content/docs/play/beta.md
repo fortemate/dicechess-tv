@@ -42,5 +42,5 @@ Say which build you played, and whether on a Fire TV Stick or on the Virtual Dev
 ## What this build is
 
 - **Tested on** the Vega Virtual Device so far, and not yet on a Fire TV Stick.
-- **Private:** it has no network code, no accounts and no analytics. Games, results and settings stay on the TV.
+- **Private:** it has no network code, no accounts and no analytics. Games, results and settings stay on the TV. The [privacy policy](/privacy/) has the details.
 - **English only** for now.
