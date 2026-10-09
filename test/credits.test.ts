@@ -4,11 +4,8 @@ import { readFileSync } from 'node:fs';
 import {
   APP,
   CREDITS,
-  ENGINE,
   PIECES,
   PIECES_AND_FACES,
-  PORTRAITS,
-  VOICES,
   creditsFor,
 } from '../src/core/credits.ts';
 
@@ -18,13 +15,7 @@ const notices = readFileSync(
 );
 
 // Every credit the About screen can show, with the portraits or without them.
-const SHOWN = [
-  ...creditsFor(true),
-  ...creditsFor(false),
-  ENGINE,
-  VOICES,
-  PORTRAITS,
-];
+const SHOWN = [...creditsFor(true), ...creditsFor(false)];
 
 test('every credit on the screen is also in the notices', () => {
   // The About screen and THIRD_PARTY_NOTICES.md say the same thing to two
@@ -79,10 +70,28 @@ test('the pieces, and the faces where they show, are credited to their author ev
     assert.equal(creditsFor(portraits).length, 4);
 });
 
-test('the portraits are named as Fortemate’s own and AI-generated, as the voices are', () => {
-  assert.match(PORTRAITS.line, /made with Recraft/);
-  assert.equal(PORTRAITS.licence, VOICES.licence);
-  assert.ok(!CREDITS.includes(PORTRAITS), 'not on a card of other authors');
+test('the About screen names the game as the launcher does, without "TV"', () => {
+  // The player-facing name is "Dice Chess" (2026-10-09). The package id,
+  // com.fortemate.dicechesstv, stays: changing it would break upgrades.
+  const manifest = readFileSync(
+    new URL('../native/manifest.toml', import.meta.url),
+    'utf8',
+  );
+  assert.equal(APP.title, 'Dice Chess');
+  assert.match(manifest, /^title = "Dice Chess"$/m);
+  assert.match(manifest, /^id = "com\.fortemate\.dicechesstv"$/m);
+});
+
+test('the cards credit other authors only', () => {
+  // The engine, the voices and the portraits are Fortemate's own: the
+  // maker's line covers them, and neither ElevenLabs nor Recraft asks for
+  // credit on the paid plan they were made on.
+  for (const credit of SHOWN)
+    assert.doesNotMatch(
+      Object.values(credit).join(' '),
+      /Fortemate|ElevenLabs|Recraft|dicechess-engine/,
+      credit.subject,
+    );
 });
 
 test('the vendored music is credited as its permission asks', () => {
@@ -152,19 +161,20 @@ const voicePacks = (
   ) as {
     packs: Record<
       string,
-      { generator: string; license: string; licenseFile: string }
+      { attributionRequired: boolean; generator: string; licenseFile: string }
     >;
   }
 ).packs;
 
-test('the vendored voices are named with their source', () => {
-  // Every pack is Fortemate's, made with ElevenLabs and licensed to
-  // Fortemate's Dice Chess apps only: the About screen says so beside the
-  // engine, once for all of them.
+test('no vendored voice pack asks for credit, which the About screen does not give', () => {
+  // The voices are Fortemate's, made with ElevenLabs on a paid plan, which
+  // asks for no credit. A pack that did would need its line back.
   assert.ok(Object.keys(voicePacks).length > 0);
-  for (const [pack, { generator, license }] of Object.entries(voicePacks)) {
-    assert.ok(VOICES.line.includes(generator), pack);
-    assert.equal(VOICES.licence, license, pack);
+  for (const [pack, { attributionRequired, generator }] of Object.entries(
+    voicePacks,
+  )) {
+    assert.equal(attributionRequired, false, pack);
+    assert.equal(generator, 'ElevenLabs', pack);
   }
 });
 

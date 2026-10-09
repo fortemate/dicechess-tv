@@ -24,7 +24,7 @@ Dice Chess TV combines open-source code with public domain and permitted creativ
 
 - **Source:** Portrait pack 1.4.0, drawn for Dice Chess by Fortemate with [Recraft](https://www.recraft.ai) on a paid plan. The app shows five characters from it: the opponents Rolly, Grabby and Rampage, Prowla the cat, who hosts Hot Seat games, and Thinkle the wizard, who teaches the tutorial.
 - **Licence:** Fortemate's own, for Fortemate's Dice Chess apps only. Not covered by the AGPL or by any other open licence. A fork or copy of this repository may not use, publish or distribute them.
-- **Usage:** The opponent cards and the game screen show them, the Hot Seat host's beside the host's line. Thinkle's stands above his bubble in the tutorial and in its offer on a first launch, and the launch splash shows him in a large medallion, drawn at build time from his vector, which the game does not ship. While the repository is public the portrait files are kept out of it. A build without them shows the opponents' emoji faces below instead. Prowla and Thinkle have no such face, so their place stays empty, at the portrait's size. The About screen shows the portraits beside Recraft's name, with the engine and the voices, so that a player knows they are AI-generated. The screenshots on this site show them as the app draws them, and so does the demo video's picture. Those pictures are Fortemate's too, and not under the AGPL.
+- **Usage:** The opponent cards and the game screen show them, the Hot Seat host's beside the host's line. Thinkle's stands above his bubble in the tutorial and in its offer on a first launch, and the launch splash shows him in a large medallion, drawn at build time from his vector, which the game does not ship. While the repository is public the portrait files are kept out of it. A build without them shows the opponents' emoji faces below instead. Prowla and Thinkle have no such face, so their place stays empty, at the portrait's size. Recraft asks for no credit on a paid plan, and the About screen gives none: its "Made by Fortemate" covers them. The screenshots on this site show them as the app draws them, and so does the demo video's picture. Those pictures are Fortemate's too, and not under the AGPL.
 
 ### Splash typography
 
@@ -71,7 +71,7 @@ Dice Chess TV combines open-source code with public domain and permitted creativ
   - Thinkle the wizard as the Hot Seat host (54 lines)
   - Thinkle the wizard, who teaches the tutorial and offers it on a first launch (48 lines)
 - **Licence:** Fortemate's own, for Fortemate's Dice Chess apps only, on the same terms for every pack. Not covered by the AGPL or by any other open licence. A fork or copy of this repository may not use, publish or distribute them, and must replace them with audio of its own.
-- **Usage:** The packs are vendored under `native/voices/`, each beside its own licence file. ElevenLabs asks for no credit on a paid plan, but the About screen names it beside the engine, so that a player knows the voices are synthetic.
+- **Usage:** The packs are vendored under `native/voices/`, each beside its own licence file. ElevenLabs asks for no credit on a paid plan, and the About screen gives none: its "Made by Fortemate" covers them.
 - **Demo video:** A sixth pack, Thinkle's narration of the demo video, is vendored under `scripts/demo-video/narration/`: 15 lines, heard in the video and never in the game. Its licence is the other packs', and also allows the videos that present Fortemate's Dice Chess applications.
 
 ## Platform Dependencies & SDK

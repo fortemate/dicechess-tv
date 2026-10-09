@@ -24,44 +24,15 @@ export type Credit = {
 };
 
 export const APP = {
-  title: 'Dice Chess TV',
+  title: 'Dice Chess',
   maker: 'Made by Fortemate',
 } as const;
 
-// The rules engine is Fortemate's own, like the app, so the About screen names it
-// under the maker rather than on a card: the four cards go to other authors.
-export const ENGINE: Credit = {
-  subject: 'Rules engine',
-  line: 'Dice Chess engine by Fortemate',
-  licence: 'AGPL-3.0-only',
-  source: 'github.com/fortemate/dicechess-engine',
-};
-
-// The voices, the bots', the Hot Seat hosts' and Thinkle's in the tutorial, are
-// Fortemate's own too, made for this game with ElevenLabs (#187, #202, #258,
-// #264, #279) and licensed to Fortemate's Dice
-// Chess apps only. They are named with the engine, which leaves the four cards
-// to other authors. ElevenLabs asks for no credit on a paid plan; the line says
-// the voices are synthetic, and made with what.
-export const VOICES: Credit = {
-  subject: 'Voices',
-  line: 'Voices made with ElevenLabs',
-  licence: 'Fortemate apps only',
-  source: 'elevenlabs.io',
-};
-
-// The opponents' portraits are Fortemate's own as well: Rolly, Grabby and
-// Rampage, drawn for this game with Recraft on a paid plan
-// (fortemate/dicechess-assets#31) and licensed to Fortemate's Dice Chess apps
-// only. Like the voices' line, theirs says they are AI-generated, and made with
-// what. They are named with the voices, and only in a build that has them
-// (#212).
-export const PORTRAITS: Credit = {
-  subject: 'Opponent portraits',
-  line: 'Portraits made with Recraft',
-  licence: 'Fortemate apps only',
-  source: 'recraft.ai',
-};
+// The About screen credits other authors only. The rules engine, the voices
+// (made with ElevenLabs) and the characters' portraits (made with Recraft) are
+// Fortemate's own, like the app, so the maker's line covers them; neither tool
+// asks for credit on the paid plan they were made on. THIRD_PARTY_NOTICES.md
+// records all three.
 
 // Two packs by one artist, the chess pieces and the opponents' faces. A build
 // with the portraits shows no face, so its card names only the pieces.
