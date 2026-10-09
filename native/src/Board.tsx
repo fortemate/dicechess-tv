@@ -212,8 +212,9 @@ const useFlipFade = (flipped: boolean) => {
 };
 
 // Memoized (#312): the game screen renders on every key, bot step and timer,
-// and the board's inputs are primitives or memoized there, so it renders only
-// when one of them changes.
+// and the board's inputs are primitives or memoized there, so those renders
+// skip the board unless one of them changed. Its own state still renders it:
+// a slide landing, the board turning.
 export const Board = React.memo(function Board({ size, ...input }: BoardProps) {
   const edge = Math.floor(size / 8);
   const { displayed: flipped, opacity } = useFlipFade(input.flipped ?? false);

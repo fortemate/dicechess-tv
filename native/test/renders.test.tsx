@@ -1,6 +1,7 @@
 // How much of the board a key redraws (#312). The game screen renders on every
-// key, bot step and timer; the board renders only when its inputs change, and
-// then only the squares whose view changed.
+// key, bot step and timer; those renders skip the board unless its inputs
+// changed, and then draw only the squares whose view changed. The board's own
+// state, a slide landing or the board turning, renders it as well.
 import { afterEach, test } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
