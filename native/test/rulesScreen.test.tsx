@@ -21,10 +21,6 @@ import {
 import { RULES } from '../../src/core/rules';
 import { Option } from '../src/Option';
 
-(
-  globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
-).IS_REACT_ACT_ENVIRONMENT = true;
-
 test('rulesReducer: starts at index 0 and exit false', () => {
   assert.deepEqual(INITIAL_RULES_STATE, { index: 0, exit: false });
 });

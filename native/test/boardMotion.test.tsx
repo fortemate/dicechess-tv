@@ -9,6 +9,7 @@ import renderer, { act } from 'react-test-renderer';
 import { Board, SLIDE_MS } from '../src/Board';
 import { PIECES } from '../src/pieces';
 import { BOT_STEP_MS } from '../src/screen';
+import { isHost, styleOf, type Instance } from './support';
 
 const SIZE = 800;
 const EDGE = Math.floor(SIZE / 8);
@@ -16,8 +17,6 @@ const INITIAL = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
 const AFTER_E4 = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR';
 const AFTER_E5 = 'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR';
 
-type Instance = renderer.ReactTestInstance;
-type Style = Record<string, unknown>;
 type Range = { interpolation: { outputRange: number[] } };
 type Held = {
   value: { value: number; setValue(value: number): void };
@@ -26,14 +25,12 @@ type Held = {
   stopped: boolean;
 };
 const globals = globalThis as {
-  IS_REACT_ACT_ENVIRONMENT?: boolean;
   __holdSlides?: boolean;
   __heldSlides?: Held[];
   __reduceMotion?: boolean;
   __reduceMotionQuery?: 'pending' | 'fails' | 'throws';
   __answerReduceMotion?: (value: boolean) => void;
 };
-globals.IS_REACT_ACT_ENVIRONMENT = true;
 
 beforeEach(() => {
   globals.__holdSlides = true;
@@ -41,10 +38,6 @@ beforeEach(() => {
   globals.__reduceMotion = false;
   globals.__reduceMotionQuery = undefined;
 });
-
-const isHost = (node: Instance, name: string) =>
-  (node.type as unknown as string) === name;
-const styleOf = (node: Instance): Style => (node.props.style ?? {}) as Style;
 
 // Mounts the board on one position, lets the platform answer whether it asks
 // for less motion, and returns what moves the board on.

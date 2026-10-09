@@ -13,10 +13,6 @@ import { newGame, type Game } from '../../src/core/game';
 import type { Level } from '../../src/core/danger';
 import type { VoiceLine } from '../../src/core/botVoice';
 
-(
-  globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
-).IS_REACT_ACT_ENVIRONMENT = true;
-
 type HarnessProps = {
   game: Game;
   dangerLevel?: Level;

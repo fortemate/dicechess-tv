@@ -5,7 +5,7 @@
 // probe branch, would have shipped in all three tester packages.
 //
 // The generator runs on a temporary root holding copies of its inputs, so this
-// never touches the real assets/, which test/splash.test.ts reads back.
+// never touches the real assets/.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {

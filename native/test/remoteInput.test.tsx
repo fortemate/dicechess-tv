@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
+import { mount, unmount } from './support';
 import { useRemoteInput } from '../src/useRemoteInput';
 import type { BoardKey } from '../../src/core/boardInput';
 import {
@@ -25,7 +26,7 @@ test('direction releases and input-context changes reset the held press', () => 
   };
   let tree!: renderer.ReactTestRenderer;
   act(() => {
-    tree = renderer.create(<Probe scope="board" />);
+    tree = mount(<Probe scope="board" />);
   });
   try {
     act(() => hold('right', 3));
@@ -47,7 +48,7 @@ test('direction releases and input-context changes reset the held press', () => 
       ['left', false],
     ]);
   } finally {
-    act(() => tree.unmount());
+    unmount();
   }
 });
 
@@ -63,7 +64,7 @@ test('blur and inactivity discard held state and stale OK without exiting on Bac
   };
   let tree!: renderer.ReactTestRenderer;
   act(() => {
-    tree = renderer.create(<Probe />);
+    tree = mount(<Probe />);
   });
   try {
     act(() => hold('right', 1));
@@ -99,7 +100,7 @@ test('blur and inactivity discard held state and stale OK without exiting on Bac
     act(() => {
       setAppState('active');
       appEvent('focus');
-      tree.unmount();
+      unmount();
     });
   }
 });
