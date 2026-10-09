@@ -49,4 +49,7 @@ If a later version of the app handles information differently, this page will sa
 
 ## Contact
 
-Questions about this policy go to [hello@fortemate.com](mailto:hello@fortemate.com).
+<!-- Owner: replace the placeholder below with the support channel chosen for the store listing,
+an email address or a page on fortemate.com, before this page is merged. -->
+
+Questions about this policy go to **[support contact to be decided]**.
