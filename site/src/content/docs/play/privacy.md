@@ -1,6 +1,6 @@
 ---
 title: Privacy policy
-description: What the Dice Chess TV app for Fire TV does with information about you. It collects none, and what it keeps stays on your TV.
+description: What the Dice Chess app for Fire TV does with information about you. It collects none, and what it keeps stays on your TV.
 # The Amazon Appstore listing links to this address, so it does not depend on
 # the sidebar group.
 slug: privacy
@@ -10,7 +10,7 @@ sidebar:
 
 Last updated: 9 October 2026.
 
-This policy covers the Dice Chess TV app for Amazon Fire TV, made by Fortemate. It does not cover this website, or the services of Amazon that the app is installed and runs with.
+This policy covers Dice Chess, the game for Amazon Fire TV made by Fortemate. It does not cover this website, or the services of Amazon that the app is installed and runs with.
 
 ## In short
 
