@@ -6,10 +6,18 @@
 // Every assertion here reads the file that was actually written, not the
 // buffer that was meant to be written, except where a test draws the scene
 // itself to try both medallions: CI has no private portraits.
-import { test } from 'node:test';
+import { after, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { readFileSync, statSync } from 'node:fs';
+import {
+  cpSync,
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  statSync,
+} from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 // @ts-expect-error — a build script, deliberately plain JavaScript.
@@ -27,7 +35,25 @@ import {
 
 const NATIVE = join(dirname(fileURLToPath(import.meta.url)), '..');
 
-const built = main() as {
+// The generator runs on a temporary root holding copies of its inputs, as in
+// test/assets.test.ts, so a test run never rewrites the real assets/ that a
+// build packages. The portraits come too when this checkout has them, so the
+// medallion is the one this checkout would build.
+const root = mkdtempSync(join(tmpdir(), 'dicechess-tv-splash-'));
+after(() => rmSync(root, { recursive: true, force: true }));
+for (const input of [
+  'icon',
+  'brand',
+  'splash',
+  'sounds',
+  'music',
+  'voices',
+  'portraits',
+])
+  if (existsSync(join(NATIVE, input)))
+    cpSync(join(NATIVE, input), join(root, input), { recursive: true });
+
+const built = main(root) as {
   framePaths: string[];
   descriptorPath: string;
   destination: string;
