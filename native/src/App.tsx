@@ -42,6 +42,7 @@ import {
 import { randomSource } from './randomSource';
 import type { ScreenOptions } from './screen';
 import { ActivityContext, createActivity } from './activity';
+import { GameBoundary, type Recovery } from './Recovery';
 
 const KEY = 'dicechess-tv.game.v2';
 const LEDGER_KEY = 'dicechess-tv.ledger.v1';
@@ -379,30 +380,81 @@ export const App = ({
     [count, store],
   );
 
+  // A game screen that fails is replaced by a fallback, and the player's
+  // choice there opens a new one (#255): over the saved game, or without it.
+  // Each attempt is a new screen, opened as a relaunch would open it: on what
+  // is stored now, the settings included, which the player may have changed
+  // since the launch.
+  const [attempt, setAttempt] = React.useState(() => ({
+    n: 0,
+    game: opened.game,
+    sound: initialSound,
+    turnBoard: initialTurnBoard,
+    voices: initialVoices,
+    host: initialHost,
+    music: initialMusic,
+  }));
+  const onError = React.useCallback(
+    (error: unknown) => onState?.(`error ${String(error)}`),
+    [onState],
+  );
+  const onRecover = React.useCallback(
+    (choice: Recovery) => {
+      let game: Game | null = null;
+      try {
+        // Starting fresh is the only way the fallback deletes the saved game.
+        if (choice === 'fresh') store.clear();
+        else game = store.read();
+      } catch {
+        // The menu opens all the same, on a new game, and nothing is deleted
+        // that the player did not choose to delete.
+      }
+      const next = {
+        game,
+        sound: readSound(settings),
+        turnBoard: readTurnBoard(settings),
+        voices: readVoices(settings),
+        host: readHost(settings),
+        music: readMusic(settings),
+      };
+      setAttempt(({ n }) => ({ n: n + 1, ...next }));
+    },
+    [store, settings],
+  );
+
   return (
     <ActivityContext.Provider value={activity}>
-      <GameScreen
-        options={options}
-        initial={opened.game}
-        onCommit={onCommit}
-        ledger={ledger}
+      <GameBoundary
+        key={attempt.n}
+        onError={onError}
+        onRecover={onRecover}
         onState={onState}
-        sounds={sounds}
-        initialSound={initialSound}
-        onSound={onSound}
-        initialTurnBoard={initialTurnBoard}
-        onTurnBoard={onTurnBoard}
-        initialVoices={initialVoices}
-        onVoices={onVoices}
-        initialHost={initialHost}
-        onHost={onHost}
-        music={music}
-        initialMusic={initialMusic}
-        onMusic={onMusic}
-        musicAvailable={musicAvailable}
-        offerTutorial={offerTutorial}
-        onTutorialOffered={onTutorialOffered}
-      />
+      >
+        <GameScreen
+          options={options}
+          initial={attempt.game}
+          onCommit={onCommit}
+          ledger={ledger}
+          onState={onState}
+          sounds={sounds}
+          initialSound={attempt.sound}
+          onSound={onSound}
+          initialTurnBoard={attempt.turnBoard}
+          onTurnBoard={onTurnBoard}
+          initialVoices={attempt.voices}
+          onVoices={onVoices}
+          initialHost={attempt.host}
+          onHost={onHost}
+          music={music}
+          initialMusic={attempt.music}
+          onMusic={onMusic}
+          musicAvailable={musicAvailable}
+          // A recovery goes to the menu, never back to the first launch's
+          // offer of the tutorial.
+          offerTutorial={offerTutorial && attempt.n === 0}
+          onTutorialOffered={onTutorialOffered}
+        />
+      </GameBoundary>
     </ActivityContext.Provider>
   );
 };

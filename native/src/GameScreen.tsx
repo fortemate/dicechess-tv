@@ -776,7 +776,16 @@ export const GameScreen = ({
       options.background ?? ((step) => step()),
       () => {
         if (cancelled) return;
-        const reply = (hold.reply ??= botReply(game));
+        // A search that throws here, between frames, would reach no error
+        // boundary and close the app. The step goes ahead without a reply
+        // instead, and the reducer asks again while the screen renders, where a
+        // second failure reaches the fallback (#255).
+        let reply: BotReply | undefined;
+        try {
+          reply = hold.reply ??= botReply(game);
+        } catch {
+          // No reply: the reducer asks for one itself.
+        }
         const wait = Math.max(
           0,
           BOT_STEP_MS - hold.used - (clock.now() - began),
