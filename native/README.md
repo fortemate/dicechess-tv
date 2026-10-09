@@ -168,11 +168,19 @@ See [Building on Vega](https://dicechess-tv.fortemate.com/technology/vega/#scrip
 
 ## Loss of focus
 
-The foreground gate requires both an active app state and focus (#254). A
+The foreground gate requires both an app in front and focus (#254). A
 `blur` alone stops effects, voices and music, holds the bot's pending steps and
-danger search, and ignores game input. Returning preserves the unfinished wait
-and the current turn. Interrupted speech is stopped; old effects are discarded
-rather than replayed. Future tutorial sentences retain their remaining wait.
+danger search, and ignores game input, Back included. Returning preserves the
+unfinished wait and the current turn. Interrupted speech is stopped; old
+effects are discarded rather than replayed. Future tutorial sentences retain
+their remaining wait.
+
+The return is signalled by `focus`, not by the `change` to `active`. On a Fire
+TV Stick (2026-10-09) the app-state manager reported `unknown` at launch, and
+after Home it received `blur` and `change` to `background`, but on the return
+only `focus`: Vega opens a new surface for the app, and `change` reaches that
+surface, not the manager bound to the first one. A gate that waited for
+`active` ignored every key after the first return from Home.
 
 On SDK 0.24.12044's Virtual Device, Home was checked with
 `vega device run-cmd -d VirtualDevice -c 'inputd-cli button_press KEY_HOMEPAGE'`:

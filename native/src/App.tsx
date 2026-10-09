@@ -51,6 +51,11 @@ const DAMAGED_LEDGER_KEY = 'dicechess-tv.ledger.v1.damaged';
 type Opened = { game: Game | null; damaged: string | null };
 type OpenedLedger = { ledger: Ledger; copyPending: boolean };
 
+// The app states that mean the app is out of sight. `unknown` is not one of
+// them: a Fire TV Stick reports it at launch, with the app on screen.
+const isAway = (state: unknown) =>
+  state === 'background' || state === 'inactive';
+
 // Copies a ledger that no longer decodes aside, unchanged. False when storage
 // fails: the app still opens, and the caller saves nothing over the ledger
 // until a later copy succeeds.
@@ -302,18 +307,24 @@ export const App = ({
   // start, reported like the cool one, and sound resumes as the setting says.
   const appState = useKeplerAppStateManager();
   const activity = React.useMemo(
-    () => createActivity(appState.getCurrentState() === 'active'),
+    () => createActivity(!isAway(appState.getCurrentState())),
     [appState],
   );
   React.useLayoutEffect(() => {
     let away = false;
-    // Sound, voices and music play only while the app is both active and
-    // focused (#76, #254). Vega sends blur before the change to background and
-    // focus after the return to active, so everything stops on the first sign
-    // of leaving; and whatever the order, it stays stopped until both are back.
-    // The Alexa overlay sends blur alone, and its answer must not be heard
-    // over the game's.
-    let active = appState.getCurrentState() === 'active';
+    // Sound, voices, music, the remote and the game's own work run only while
+    // the app is both in front and focused (#76, #254). Vega sends blur before
+    // the change to background, so everything stops on the first sign of
+    // leaving. The Alexa overlay sends blur alone, and its answer must not be
+    // heard over the game's.
+    //
+    // The way back is focus, not the change to active. The manager stays bound
+    // to the surface the app first opened on; Vega destroys that surface in the
+    // background and opens a new one on the return, and from then on `change`
+    // reaches only the new surface while focus and blur still reach this
+    // manager. On a Fire TV Stick the return from Home brought focus and no
+    // change at all, and a game that waited for `active` ignored every key.
+    let active = !isAway(appState.getCurrentState());
     let focused = true;
     const sync = () => {
       const ready = active && focused;
@@ -322,14 +333,19 @@ export const App = ({
       activity.setActive(ready);
       onState?.(`activity ${ready ? 'active' : 'paused'}`);
     };
+    // Coming back from the background is a warm start, reported once however
+    // it was signalled.
+    const back = () => {
+      if (away) reportFullyDrawn();
+      away = false;
+    };
     sync();
     const subscription = appState.addEventListener('change', (state) => {
       if (state === 'active') {
         active = true;
         sync();
-        if (away) reportFullyDrawn();
-        away = false;
-      } else {
+        back();
+      } else if (isAway(state)) {
         active = false;
         sync();
         away = true;
@@ -341,7 +357,9 @@ export const App = ({
     });
     const focus = appState.addEventListener('focus', () => {
       focused = true;
+      active = true;
       sync();
+      back();
     });
     return () => {
       subscription.remove();

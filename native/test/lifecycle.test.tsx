@@ -69,7 +69,7 @@ test('blur alone silences the effects and lines as well as the music', () => {
   assert.deepEqual(told, { sounds: false, music: false });
 });
 
-test('neither active nor focus alone brings sound back; both together do', () => {
+test('active alone does not bring sound back from behind the overlay; focus does', () => {
   reset();
   setAppState('active');
   const told = listen();
@@ -79,23 +79,31 @@ test('neither active nor focus alone brings sound back; both together do', () =>
   assert.deepEqual(told, { sounds: true, music: true });
   act(() => appEvent('focus'));
   assert.deepEqual(told, { sounds: false, music: false });
-  // Home: blur, then the background. Focus while still away: still silent.
-  act(() => appEvent('blur'));
-  act(() => setAppState('background'));
-  act(() => appEvent('focus'));
-  assert.deepEqual(told, { sounds: true, music: true });
-  act(() => setAppState('active'));
-  assert.deepEqual(told, { sounds: false, music: false });
-  // Any state but active is away, inactive and one with no name here too.
+  // Background and inactive are away; unknown, which a Stick reports at
+  // launch, changes nothing.
   act(() => setAppState('inactive'));
   assert.deepEqual(told, { sounds: true, music: true });
   act(() => setAppState('active'));
   assert.deepEqual(told, { sounds: false, music: false });
   act(() => setAppState('unknown'));
-  assert.deepEqual(told, { sounds: true, music: true });
+  assert.deepEqual(told, { sounds: false, music: false });
 });
 
-const harness = (initial: 'active' | 'inactive' = 'active') => {
+// On a Fire TV Stick the return from Home brings focus and no change to
+// active: Vega opens a new surface for the app, and `change` reaches only that
+// one, while focus and blur still reach the app-state manager it started with.
+test('back from Home on focus alone, sound returns', () => {
+  reset();
+  setAppState('active');
+  const told = listen();
+  act(() => appEvent('blur'));
+  act(() => setAppState('background'));
+  assert.deepEqual(told, { sounds: true, music: true });
+  act(() => appEvent('focus'));
+  assert.deepEqual(told, { sounds: false, music: false });
+});
+
+const harness = (initial: 'active' | 'inactive' | 'unknown' = 'active') => {
   reset();
   setAppState(initial);
   const waiting: { run: () => void; wait: number }[] = [];
@@ -259,6 +267,32 @@ test('a search not yet started waits for focus and does not spend its presentati
   }
 });
 
+test('a launch reported as unknown, as on a Stick, takes the remote at once', () => {
+  const rig = harness('unknown');
+  try {
+    assert.equal(rig.soundStates.at(-1), false);
+    rig.send('enter');
+    assert.ok(rig.save());
+  } finally {
+    rig.close();
+  }
+});
+
+test('back from Home on focus alone, the remote works again', () => {
+  const rig = harness();
+  try {
+    rig.event('blur');
+    rig.state('background');
+    rig.send('enter');
+    assert.equal(rig.save(), undefined, 'no key is taken while away');
+    rig.event('focus');
+    rig.send('enter');
+    assert.ok(rig.save(), 'the first key after the return is taken');
+  } finally {
+    rig.close();
+  }
+});
+
 test('initially inactive, the app is silent and ignores keys until it becomes active', () => {
   const rig = harness('inactive');
   try {
@@ -266,8 +300,6 @@ test('initially inactive, the app is silent and ignores keys until it becomes ac
     rig.send('enter');
     assert.equal(rig.save(), undefined);
     assert.equal(rig.said.length, 0);
-    rig.event('focus');
-    assert.equal(rig.soundStates.at(-1), true);
     rig.state('active');
     rig.send('enter');
     assert.ok(rig.save());

@@ -111,7 +111,7 @@ test('blur stops the music at once, and focus or a return to active brings it ba
   assert.equal(music.suspended, false);
 });
 
-test('music resumes only when the app is both active and focused, whatever the order', () => {
+test('after a blur only focus brings the music back, and focus is also the way back from away', () => {
   reset();
   const music = recorder();
   launch({ options, music });
@@ -121,10 +121,10 @@ test('music resumes only when the app is both active and focused, whatever the o
   assert.equal(music.suspended, true);
   act(() => appEvent('focus'));
   assert.equal(music.suspended, false);
-  // inactive, then focus while still inactive: silent until active again.
+  // Away, then focus alone: on a Fire TV Stick the return from the background
+  // brings focus and no change to active (#254), so focus brings it back.
   act(() => setAppState('inactive'));
-  act(() => appEvent('focus'));
   assert.equal(music.suspended, true);
-  act(() => setAppState('active'));
+  act(() => appEvent('focus'));
   assert.equal(music.suspended, false);
 });
