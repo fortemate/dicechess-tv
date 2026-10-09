@@ -4,7 +4,7 @@ Fortemate's code in this repository is licensed under AGPL-3.0-only (see [LICENS
 
 | Component                                                                  | Pinned version                | License                  | Source                                                 |
 | -------------------------------------------------------------------------- | ----------------------------- | ------------------------ | ------------------------------------------------------ |
-| Dice Chess engine                                                          | 0.14.0                        | AGPL-3.0-only            | https://github.com/fortemate/dicechess-engine          |
+| Dice Chess engine                                                          | 0.14.5                        | AGPL-3.0-only            | https://github.com/fortemate/dicechess-engine          |
 | Vector Chess Pieces Pack, RhosGFX                                          | 1.0.0                         | CC0-1.0                  | https://rhosgfx.itch.io/vector-chess-pieces            |
 | Vector Emojis, RhosGFX                                                     | downloaded 2026-09-26         | CC0-1.0                  | https://rhosgfx.itch.io/vector-emojis                  |
 | Tabletop Games SFX Pack, JDSherbert                                        | 1.1.0                         | Free with attribution    | https://jdsherbert.itch.io/tabletop-games-sfx-pack     |
@@ -41,7 +41,7 @@ JDSherbert's licence requires visible credit, given on the About screen as "Soun
 
 The game's four music tracks are vendored under `native/music/` from the private asset repository `fortemate/dicechess-assets`, at the commit recorded in `native/music/music.json`, beside the pack's manifest and licence file (#76). They are Warm anticipation for the menus, and Clear Space, Tightening Layers and Tense Minor Pulse for the game.
 
-The tracks were made by pepka-prygni with Suno, on the author's paid plan. On 26 September 2026 the author gave written permission to use them in this game, with the credit "Music by pepka-prygni" and a link to his YouTube channel, which the About screen shows. That permission covers this project only: the files are not licensed under the AGPL or any other open licence, and using them anywhere else needs the author's permission. `native/music/pepka-prygni-dicechess/LICENSE.txt` records the terms. Suno keeps a licence of its own to everything made with it, and requires its "made with suno" metadata to stay in every copy; the MP3 files keep it.
+The tracks were made by pepka-prygni with Suno, on the author's paid plan. On 26 September 2026 the author gave written permission to use them in this game, with the credit "Music by pepka-prygni" and a link to his YouTube channel, which the About screen shows. That permission covers this project only: the files are not licensed under the AGPL or any other open licence, and using them anywhere else needs the author's permission. `native/music/pepka-prygni-dicechess/LICENSE.txt` records the terms. Suno keeps a licence of its own to everything made with it, and forbids removing the metadata it adds in order to hide where a song came from. The MP3 files keep its "made with suno" tag.
 
 ## Voices
 
