@@ -70,7 +70,7 @@ We turn findings into issues and link each one in its discussion, so you can see
 ## What this build is
 
 - **Version.** 0.1.0, a beta for the tester round ([#107](https://github.com/fortemate/dicechess-tv/issues/107)).
-- **Tested on.** So far, the app's tests and the Vega Virtual Device. It has not yet run on a Fire TV Stick ([#10](https://github.com/fortemate/dicechess-tv/issues/10)).
+- **Tested on.** Automated tests and the Vega Virtual Device, with physical Fire TV Stick testing also reported by the owner on 9 October 2026. Candidate-build navigation checks and their remaining physical scenarios are recorded in [Horizontal cycling validation](board-navigation-validation-299.md); they do not establish that every scenario has passed on every released beta.
 - **Privacy.** It has no network code, no accounts and no analytics: games, results and settings stay on the device.
 - **The opponents.** Rolly plays one of its legal turns at random, Grabby takes the most valuable piece it can, and Rampage hunts your pieces and goes for your king. Each is an algorithm of the rules engine, running on the device.
 - **The music.** Four themes by pepka-prygni, used with his permission. Against the computer the music follows the danger to your own king; with two players, to either king.

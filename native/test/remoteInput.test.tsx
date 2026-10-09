@@ -62,9 +62,8 @@ test('blur and inactivity discard held state and stale OK without exiting on Bac
     });
     return null;
   };
-  let tree!: renderer.ReactTestRenderer;
   act(() => {
-    tree = mount(<Probe />);
+    mount(<Probe />);
   });
   try {
     act(() => hold('right', 1));
