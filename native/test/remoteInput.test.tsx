@@ -116,3 +116,42 @@ test('blur and inactivity cancel OK but preserve direction holds without exiting
     });
   }
 });
+
+test('a canceled OK cannot re-arm on held repeats after context or focus changes', () => {
+  const events: [BoardKey, boolean][] = [];
+  const pressed: boolean[] = [];
+  const Probe = ({ scope }: { scope: string }) => {
+    useRemoteInput((key, repeat) => events.push([key, repeat]), {
+      scope,
+      onPress: (p) => pressed.push(p),
+    });
+    return null;
+  };
+  let tree!: renderer.ReactTestRenderer;
+  act(() => {
+    tree = mount(<Probe scope="board" />);
+  });
+  try {
+    act(() => hold('enter', 3));
+    assert.equal(pressed.at(-1), true);
+    act(() => tree.update(<Probe scope="menu" />));
+    act(() => hold('select', 3));
+    assert.equal(pressed.at(-1), false);
+    act(() => release('select'));
+    assert.deepEqual(events, []);
+    act(() => press('select'));
+    assert.deepEqual(events, [['select', false]]);
+
+    act(() => hold('select', 1));
+    act(() => appEvent('blur'));
+    act(() => appEvent('focus'));
+    act(() => hold('select', 3));
+    assert.equal(pressed.at(-1), false);
+    act(() => release('select'));
+    assert.equal(events.length, 1);
+    act(() => press('select'));
+    assert.equal(events.length, 2);
+  } finally {
+    unmount();
+  }
+});

@@ -142,18 +142,24 @@ export function useRemoteInput(
         if (ready.current) handler.current(key, repeat);
         return;
       }
-      if (!ready.current) return;
       if (key === 'select') {
-        // Down, and every repeat while held, only shows the press; the release
-        // is the press itself, delivered once.
+        // Arm once on the physical down, and confirm on release. A canceled OK
+        // must not re-arm on a repeat after a scope or lifecycle change.
         if (event.eventKeyAction === DOWN) {
+          const repeat = held.current.has(key);
+          held.current.add(key);
+          if (!ready.current || repeat) return;
           selectHeld.current = true;
           press.current?.(true);
+          return;
         }
-        if (event.eventKeyAction !== UP || !selectHeld.current) return;
+        if (event.eventKeyAction !== UP) return;
+        held.current.delete(key);
+        if (!ready.current || !selectHeld.current) return;
         selectHeld.current = false;
         press.current?.(false);
       }
+      if (!ready.current) return;
       if (event.eventKeyAction === UP) handler.current(key, false);
     }, []),
   );
