@@ -105,8 +105,8 @@ test('results are kept apart for each opponent', () => {
     resignGame(
       rollGame(newGame(mode, `lost-${mode}`, INITIAL_POSITION, 'w'), [5, 4, 2]),
     );
-  let ledger = record(emptyLedger(), lost('greedy'), 'w');
-  ledger = record(ledger, lost('aggressive'), 'w');
+  let ledger = record(emptyLedger(), lost('greedy'));
+  ledger = record(ledger, lost('aggressive'));
   assert.deepEqual(recordAgainst(ledger, 'greedy'), {
     w: { wins: 0, draws: 0, losses: 1 },
   });

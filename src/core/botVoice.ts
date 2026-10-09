@@ -416,6 +416,13 @@ export function botVoiceCue(
     return { line, state: next, nextState: next };
   }
 
+  // An ended game says nothing more. A draw has no line of its own, and a
+  // finished game seen again (a menu opened and closed over it) is no new step:
+  // a threat or a capture line over a finished board would be wrong.
+  if (after.phase === 'ended') {
+    return { line: null, state, nextState: state };
+  }
+
   // Pacing: turn cooldown for all non-terminal events
   if (after.turn - state.lastSpokenTurn < TURN_COOLDOWN) {
     return { line: null, state, nextState: state };
