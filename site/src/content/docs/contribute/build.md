@@ -125,7 +125,7 @@ Without `resolver.nodeModulesPaths`, it fails with `Unable to resolve module @ba
 
 ### "Package version decrease" Error
 
-A device refuses a build numbered lower than the one installed, such as a beta from GitHub Releases or Live App Testing. `mise run build` and `mise run device:run` number a local build as the latest beta, so it installs over that beta and keeps its saved game. A direct `npm run build --prefix native` builds with number 0: give it the latest beta's number.
+A device refuses a build numbered lower than the one installed, such as a beta from GitHub Releases or Live App Testing, or a release from the Appstore. `mise run build` and `mise run device:run` number a local build as the latest beta or release, which they read from the tags, so it installs over that build and keeps its saved game. A beta tag ends in its build number (`v0.1.0-beta.24`) and a release tag carries it after a `+` (`v1.0.0+25`); see "Releases" in [CONTRIBUTING.md](https://github.com/fortemate/dicechess-tv/blob/main/CONTRIBUTING.md#releases). A direct `npm run build --prefix native` builds with number 0: give it the latest number.
 
 ```bash
 npm run build --prefix native -- --build-number 7

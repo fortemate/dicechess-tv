@@ -96,9 +96,10 @@ mise run device:start   # the Vega Virtual Device, if it is not running
 mise run device:run     # build, install and launch
 ```
 
-The build takes the latest beta's build number. A build numbered like the installed beta
-installs over it and keeps its saved game, as one did over beta 6 on the Vega Virtual
-Device. The device refuses a lower number with "Package version decrease".
+The build takes the highest build number among the beta and release tags (see
+[Releases](#releases)) and prints it with its tag. A build numbered like the installed
+beta or release installs over it and keeps its saved game, as one did over beta 6 on the
+Vega Virtual Device. The device refuses a lower number with "Package version decrease".
 `BUILD_NUMBER=8 mise run device:run` sets the number by hand.
 
 On the virtual device the Mac keyboard stands in for the remote: arrow keys for
@@ -113,9 +114,9 @@ presses the remote's keys and `vvd screenshot` saves the screen, after
 what it checked.
 
 Without the task, `npm run build --prefix native` builds with number 0, which the device
-refuses over beta 4 or later. Add `-- --build-number <n>` with the latest beta's number.
-`mise run build` falls back to 0 only when it finds no beta tag. Removing the app instead
-deletes its saved game.
+refuses over beta 4 or later. Add `-- --build-number <n>` with the number of the latest
+beta or release. `mise run build` falls back to 0 only when it finds no numbered tag.
+Removing the app instead deletes its saved game.
 
 Say in the pull request which kind of evidence a claim rests on — the virtual
 device, a Fire TV Stick, or a test — because they are not interchangeable.
@@ -172,25 +173,117 @@ vendor it again.
 
 ## Releases
 
-A release is cut by the owner, on a machine with the Vega SDK; CI cannot build the
-package. The version lives in `native/manifest.toml`, because that is what the
-device installs and what the store sees, so a release starts with a pull request
-that bumps it. After that merges:
+A release is cut by the owner, on a machine with the Vega SDK and the private
+portraits; CI cannot build the package. An agent may prepare a release, but never
+tags, publishes or uploads one.
+
+### Version and build number
+
+A package carries two numbers, and the Appstore wants both to rise from one submission
+to the next ([Version Your App](https://developer.amazon.com/docs/vega/0.24/app-version.html)):
+
+- **The version**, such as `1.0.0`, is `version` in `[package]` of
+  [`native/manifest.toml`](native/manifest.toml), so a release starts with a pull
+  request that raises it. The build copies it into the package's
+  `meta-info/build-info.json`. Amazon's page sets it with
+  `react-native build-vega --build-version` instead. That flag wins over the manifest
+  but leaves the manifest inside the package as it was, so do not pass it: the manifest
+  stays the one place the version lives.
+- **The build number** is a whole number the build takes as `--build-number`. A device
+  refuses a package numbered lower than the one installed, with "Package version
+  decrease".
+
+Build numbers rise across betas and releases together, never per version: beta 24 was
+build 24, 1.0.0 is build 25, and the next beta is 26 or higher, whatever its version.
+Every tag carries its build number, so that `mise run build` can number a local build
+like the newest beta or release:
+
+| Kind    | Tag                       | Example          | Published as                               |
+| ------- | ------------------------- | ---------------- | ------------------------------------------ |
+| Beta    | `v<version>-beta.<build>` | `v0.1.0-beta.24` | a GitHub pre-release, and Live App Testing |
+| Release | `v<version>+<build>`      | `v1.0.0+25`      | a GitHub release, and the Appstore         |
+
+A release tag carries its number as semver build metadata, after the `+`, which leaves
+the version alone: `v1.0.0+25` is version 1.0.0. GitHub keeps the `+` in the tag and
+writes it as `%2B` in a URL. A release tagged plain `v1.0.0` would hide its number, and
+`mise run build` would then number local builds like the last beta: lower than the
+store's, so a device with the store version would refuse them.
+
+### Building the packages
+
+One commit gives two sets of packages:
+
+- **For GitHub**: armv7, aarch64 and x86_64, with `SHA256SUMS.txt`, all without the
+  portraits, which stay out of this public repository ("Portraits" in
+  [native/README.md](native/README.md#portraits)).
+- **For the Appstore**, or Live App Testing for a beta: the armv7 package only, with
+  the portrait pack that `PORTRAITS_VERSION` in `native/src/Portrait.tsx` names,
+  vendored into `native/portraits/` first.
+
+Two traps decide the steps below:
+
+- A checkout without the vendored portraits builds without a word, and the game then
+  shows emoji faces. So count the portraits in the Appstore package.
+- The Vega build copies assets into `native/build/` and never deletes stale ones, so a
+  package built after one with portraits still ships them. So remove `native/build`
+  before each set, and count the portraits in the GitHub packages too.
+
+After the version pull request merges, choose the build number: higher than every
+earlier build, whether tagged or only in Live App Testing. For a beta, the tag is
+`v$version-beta.$build` instead. `git ls-remote` prints nothing for a new tag, and the
+packages are collected next to the checkout:
 
 ```bash
 git switch main && git pull --ff-only
-npm ci && npm ci --prefix native && npm run build --prefix native
+npm ci && npm ci --prefix native
 version=$(grep -m1 '^version = ' native/manifest.toml | sed 's/.*"\(.*\)".*/\1/')
-if git ls-remote --exit-code --tags origin "refs/tags/v$version" >/dev/null; then
-  echo "v$version already exists: bump the version in native/manifest.toml first"
+build=25
+tag="v$version+$build"
+git ls-remote --tags origin "refs/tags/$tag"
+out="../dicechess-tv-$tag" && mkdir -p "$out/appstore" "$out/github"
+```
+
+The Appstore package comes first, while the portraits are in place. Its portrait count
+must be above 0, and `vpt info` must show the version and the build number. `tar` reads
+a `.vpkg` when `zstd` is on the `PATH`.
+
+```bash
+rm -rf native/build
+npm run build --prefix native -- --build-number "$build"
+pkg=native/build/armv7-release/dicechess-tv-native_armv7.vpkg
+tar tf "$pkg" | grep -c portraits/
+vega exec vpt info "$pkg" --json
+cp "$pkg" "$out/appstore/"
+```
+
+The GitHub packages are built with the portraits moved aside, and each must count 0:
+
+```bash
+mv native/portraits "$out/portraits"
+rm -rf native/build
+npm run build --prefix native -- --build-number "$build"
+mv "$out/portraits" native/portraits
+for pkg in native/build/*-release/*.vpkg; do echo "$(tar tf "$pkg" | grep -c portraits/) $pkg"; done
+cp native/build/*-release/*.vpkg "$out/github/"
+(cd "$out/github" && shasum -a 256 *.vpkg > SHA256SUMS.txt)
+```
+
+Then publish the GitHub set, from the commit that was built, and upload
+`$out/appstore/dicechess-tv-native_armv7.vpkg` in the Amazon Developer Console: as a new
+version of the app for a release, or to Live App Testing for a beta.
+
+```bash
+if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null; then
+  echo "$tag already exists: choose a higher build number"
 else
-  gh release create "v$version" native/build/aarch64-release/dicechess-tv-native_aarch64.vpkg --target main --generate-notes
+  gh release create "$tag" "$out"/github/* --target "$(git rev-parse HEAD)" --title "Dice Chess $version" --generate-notes
 fi
 ```
 
-The tag check matters: `gh release create` would attach a new package to an
-existing tag that points at older code. The notes are grouped by the labels in
-`.github/release.yml`.
+For a beta, add `--prerelease` and say "beta" and its number in the title. The tag
+check matters: `gh release create` would attach new packages to an existing tag that
+points at older code. The notes are grouped by the labels in `.github/release.yml`;
+`--notes-file` replaces them with notes of your own.
 
 ## The project site
 
