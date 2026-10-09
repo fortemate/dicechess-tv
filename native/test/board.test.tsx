@@ -5,25 +5,11 @@ import renderer, { act } from 'react-test-renderer';
 import { Board } from '../src/Board';
 import { PIECES } from '../src/pieces';
 import { THEME } from '../src/theme';
+import { isHost, styleOf, type Instance, type Style } from './support';
 
 const INITIAL = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
 const SIZE = 800;
 const EDGE = Math.floor(SIZE / 8);
-
-type Instance = renderer.ReactTestInstance;
-type Style = Record<string, string | number | undefined>;
-
-const styleOf = (node: Instance): Style => (node.props.style ?? {}) as Style;
-
-// The stubs render host elements named after the React Native components. React's
-// own types only know DOM element names, so the comparison needs widening.
-const isHost = (node: Instance, name: string) =>
-  (node.type as unknown as string) === name;
-
-// React 19 commits inside act(), so create() outside it leaves the tree unmounted.
-(
-  globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
-).IS_REACT_ACT_ENVIRONMENT = true;
 
 const mount = (props: Record<string, unknown>): Instance => {
   let tree!: renderer.ReactTestRenderer;

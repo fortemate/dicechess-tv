@@ -21,10 +21,6 @@ import {
 } from '../../src/core/game';
 import type { HostLine } from '../../src/core/hostVoice';
 
-(
-  globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
-).IS_REACT_ACT_ENVIRONMENT = true;
-
 // Queen, rook and king: nothing in the opening can move.
 const EMPTY = [5, 4, 6];
 const HOLD = 5000;

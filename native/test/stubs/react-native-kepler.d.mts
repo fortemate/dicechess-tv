@@ -2,7 +2,7 @@ export type HWEvent = { eventType?: string; eventKeyAction?: number };
 export declare function useTVEventHandler(
   callback: (event: HWEvent) => void,
 ): void;
-/** Test-only: one full press, down then up. */
+/** Test-only: one full press, down then up. Back throws: it has pressBack(). */
 export declare function press(eventType: string): void;
 /** Test-only: hold a button, repeating the down event without releasing it. */
 export declare function hold(eventType: string, repeats?: number): void;
@@ -37,3 +37,5 @@ export declare function useKeplerAppStateManager(): {
 /** Test-only: move the app to another state, as Home or the launcher does. */
 export declare function setAppState(state: KeplerAppStateStatus): void;
 export declare function appEvent(name: 'blur' | 'focus'): void;
+/** Test-only: in the foreground, and no unclaimed Back has closed the app. */
+export declare function resetPlatform(): void;

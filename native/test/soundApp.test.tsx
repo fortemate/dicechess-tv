@@ -3,35 +3,31 @@
 // is what was asked for; hearing it is checked on the virtual device.
 import { test, mock } from 'node:test';
 import assert from 'node:assert/strict';
-import React from 'react';
-import renderer, { act } from 'react-test-renderer';
-import { press, pressBack, setAppState } from './stubs/react-native-kepler.mjs';
+import { act } from 'react-test-renderer';
+import { setAppState } from './stubs/react-native-kepler.mjs';
 import {
   fullyDrawnReports,
   resetFullyDrawnReports,
 } from './stubs/kepler-performance-api.mjs';
 import { MMKV, reset } from './stubs/react-native-mmkv.mjs';
-import { App } from '../src/App';
-import type { ScreenOptions } from '../src/screen';
 import type { Sounds } from '../src/sound';
 import type { Cue } from '../../src/core/cues';
 import { MmkvSnapshotStore } from '../src/mmkvStore';
 import { decodeGame, newGame, rollGame, type Game } from '../../src/core/game';
 import { HOST_CATALOGUE } from '../../src/core/hostVoice';
+import {
+  fakeTimers,
+  fixedOptions,
+  launch,
+  send,
+  text,
+  type Instance,
+} from './support';
 
-type Instance = renderer.ReactTestInstance;
+// The music and the voices run on the test's clock.
+fakeTimers();
 
-(
-  globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
-).IS_REACT_ACT_ENVIRONMENT = true;
-
-const options: ScreenOptions = {
-  roll: () => [2, 2, 2],
-  newId: () => 'soundtest',
-  schedule: (step) => step(),
-  // Random draws White unless a test says otherwise.
-  side: () => 'w',
-};
+const options = fixedOptions({ roll: () => [2, 2, 2] });
 
 type Recorder = Sounds & {
   played: Cue[][];
@@ -73,32 +69,6 @@ const recorder = (): Recorder => {
   return self;
 };
 
-// Each launch unmounts at the end of its test. Trees left mounted would all
-// answer the same key presses, and a relaunch would not be one.
-const launch = (sounds: Sounds) => {
-  let tree!: renderer.ReactTestRenderer;
-  act(() => {
-    tree = renderer.create(React.createElement(App, { options, sounds }));
-  });
-  return tree;
-};
-
-const send = (...keys: string[]) => {
-  for (const key of keys)
-    act(() => {
-      if (key === 'back') pressBack();
-      else press(key);
-    });
-};
-
-const text = (root: Instance) =>
-  root
-    .findAll((node) => (node.type as unknown as string) === 'Text', {
-      deep: true,
-    })
-    .map((node) => String(node.props.children))
-    .join('\n');
-
 // Elements drawn with a testID, counted once: the stubs pass it on to the host
 // element they render.
 const drawn = (root: Instance, id: string) =>
@@ -109,123 +79,114 @@ const drawn = (root: Instance, id: string) =>
 test('a real game step reaches the sounds as the cue it is', () => {
   reset();
   const sounds = recorder();
-  const tree = launch(sounds);
+  launch({ options, sounds });
   // Start a hotseat game, then roll.
   send('enter', 'enter');
   assert.deepEqual(sounds.played, [['dice_roll']]);
-  act(() => tree.unmount());
 });
 
 test('turning sound off is remembered at the next launch', () => {
   reset();
   const first = recorder();
-  let tree = launch(first);
+  let root = launch({ options, sounds: first }).root;
   assert.equal(first.muted, false, 'sound starts on');
 
   // Home, nothing saved: new hotseat, Play the computer, Learn to play, Rules reference,
   // Settings. This build has no music, so the sound effects come first.
   send('down', 'down', 'down', 'down', 'enter');
-  assert.match(text(tree.root), /Sound effects: on/);
+  assert.match(text(root), /Sound effects: on/);
   send('enter');
-  assert.match(text(tree.root), /Sound effects: off/);
+  assert.match(text(root), /Sound effects: off/);
   assert.equal(first.muted, true);
-  act(() => tree.unmount());
 
   const second = recorder();
-  tree = launch(second);
+  root = launch({ options, sounds: second }).root;
   assert.equal(second.muted, true, 'a relaunch starts muted');
   send('down', 'down', 'down', 'down', 'enter');
-  assert.match(text(tree.root), /Sound effects: off/);
-  act(() => tree.unmount());
+  assert.match(text(root), /Sound effects: off/);
 });
 
 test('the bots speak by default, and turning their voices off is remembered (#159)', () => {
   reset();
   const first = recorder();
-  let tree = launch(first);
+  let root = launch({ options, sounds: first }).root;
   assert.equal(first.voices, true, 'voices start on');
   // Settings, then the row after the sound effects.
   send('down', 'down', 'down', 'down', 'enter');
-  assert.match(text(tree.root), /Voices: on/);
+  assert.match(text(root), /Voices: on/);
   send('down', 'enter');
-  assert.match(text(tree.root), /Voices: off/);
+  assert.match(text(root), /Voices: off/);
   assert.equal(first.voices, false);
   assert.equal(first.muted, false, 'the effects are left alone');
-  act(() => tree.unmount());
 
   const second = recorder();
-  tree = launch(second);
+  root = launch({ options, sounds: second }).root;
   assert.equal(second.voices, false, 'a relaunch starts without voices');
-  act(() => tree.unmount());
 });
 
 test('Prowla hosts Hot Seat by default, Rolly, Thinkle or no one instead, and the choice is remembered (#202, #258, #279)', () => {
   reset();
   const first = recorder();
-  let tree = launch(first);
+  let root = launch({ options, sounds: first }).root;
   // Settings, then the row after the voices.
   send('down', 'down', 'down', 'down', 'enter');
-  assert.match(text(tree.root), /Hot Seat host: Prowla/);
+  assert.match(text(root), /Hot Seat host: Prowla/);
   send('down', 'down', 'enter');
-  assert.match(text(tree.root), /Hot Seat host: Rolly/);
+  assert.match(text(root), /Hot Seat host: Rolly/);
   assert.equal(new MMKV().getString('dicechess-tv.host.v1'), 'rolly');
   send('enter');
-  assert.match(text(tree.root), /Hot Seat host: Thinkle/);
+  assert.match(text(root), /Hot Seat host: Thinkle/);
   assert.equal(new MMKV().getString('dicechess-tv.host.v1'), 'thinkle');
   send('enter');
-  assert.match(text(tree.root), /Hot Seat host: off/);
-  assert.match(text(tree.root), /Voices: on/, 'the voices are left alone');
+  assert.match(text(root), /Hot Seat host: off/);
+  assert.match(text(root), /Voices: on/, 'the voices are left alone');
   assert.equal(first.voices, true);
   // Stored as the choice itself, which a later host's id would replace.
   assert.equal(new MMKV().getString('dicechess-tv.host.v1'), 'off');
-  act(() => tree.unmount());
 
   const second = recorder();
-  tree = launch(second);
+  root = launch({ options, sounds: second }).root;
   send('down', 'down', 'down', 'down', 'enter');
-  assert.match(text(tree.root), /Hot Seat host: off/);
+  assert.match(text(root), /Hot Seat host: off/);
   // Back to the home screen, up to a new hotseat game: she says nothing.
   send('back', 'up', 'up', 'up', 'up', 'enter');
-  assert.match(text(tree.root), /HOT SEAT · TURN 1/);
+  assert.match(text(root), /HOT SEAT · TURN 1/);
   assert.deepEqual(second.said, []);
-  act(() => tree.unmount());
 });
 
 test('turning the host off while she speaks stops her voice, and only hers (#202)', () => {
   reset();
   const sounds = recorder();
-  let tree = launch(sounds);
+  let root = launch({ options, sounds: sounds }).root;
   // A new hotseat game: she greets both players.
   send('enter');
   assert.match(sounds.said[0], /^prowla_host_intro_[1-5]$/);
   // The game menu, up to its Settings, and down to her row.
   send('back', 'up', 'enter', 'down', 'down');
-  assert.match(text(tree.root), /Hot Seat host: Prowla/);
+  assert.match(text(root), /Hot Seat host: Prowla/);
   assert.equal(sounds.stopped, 0, 'a menu alone leaves the line alone');
   // Another host lets the line being said finish (#258), and so does a third.
   send('enter');
-  assert.match(text(tree.root), /Hot Seat host: Rolly/);
+  assert.match(text(root), /Hot Seat host: Rolly/);
   assert.equal(sounds.stopped, 0);
   send('enter');
-  assert.match(text(tree.root), /Hot Seat host: Thinkle/);
+  assert.match(text(root), /Hot Seat host: Thinkle/);
   assert.equal(sounds.stopped, 0);
   send('enter');
-  assert.match(text(tree.root), /Hot Seat host: off/);
+  assert.match(text(root), /Hot Seat host: off/);
   assert.equal(sounds.stopped, 1);
   assert.equal(sounds.voices, true, 'the Voices setting is left alone');
-  act(() => tree.unmount());
 
   // Against the computer the line is the bot's, which the host's setting
   // never stops.
   reset();
   const bot = recorder();
-  tree = launch(bot);
+  root = launch({ options, sounds: bot }).root;
   send('down', 'enter', 'enter', 'enter');
   assert.match(bot.said[0], /^rolly_intro_[123]$/);
   send('back', 'up', 'enter', 'down', 'down', 'enter', 'enter', 'enter');
-  assert.match(text(tree.root), /Hot Seat host: off/);
+  assert.match(text(root), /Hot Seat host: off/);
   assert.equal(bot.stopped, 0);
-  act(() => tree.unmount());
 });
 
 test('a fresh launch says nothing behind the home screen (#202)', () => {
@@ -243,123 +204,106 @@ test('a fresh launch says nothing behind the home screen (#202)', () => {
     reset();
     if (saved) store.save(saved);
     const sounds = recorder();
-    const tree = launch(sounds);
-    assert.match(text(tree.root), /Dice Chess/);
+    const { root } = launch({ options, sounds });
+    assert.match(text(root), /Dice Chess/);
     assert.deepEqual(sounds.said, [], saved?.id ?? 'nothing saved');
-    act(() => tree.unmount());
   }
 });
 
 test('a new hotseat game opens with the host greeting both players (#202)', () => {
   reset();
   const sounds = recorder();
-  const tree = launch(sounds);
+  launch({ options, sounds });
   send('enter');
   assert.equal(sounds.said.length, 1);
   assert.match(sounds.said[0], /^prowla_host_intro_[1-5]$/);
-  act(() => tree.unmount());
 });
 
 test('the Hot Seat host is seen while she speaks, above the bottom badge, and nothing else moves (#213)', () => {
-  mock.timers.enable({ apis: ['setTimeout'] });
   reset();
   const sounds = recorder();
-  const tree = launch(sounds);
+  const { root } = launch({ options, sounds });
   const textOf = (id: string) =>
     HOST_CATALOGUE.find((line) => line.id === id)?.text;
-  try {
-    // Her portrait and her line stand in the free space above the bottom
-    // badge, placed over it rather than in the flow, so the dice and the
-    // prompt keep their place; the turn line stands where it always does.
-    const speaking = (id: string, turn: RegExp) => {
-      const [block] = drawn(tree.root, 'host-block');
-      assert.ok(block, 'she shows while she speaks');
-      assert.equal(block.props.style.position, 'absolute');
-      assert.equal(drawn(block, 'portrait-cat').length, 1);
-      assert.equal(text(block), textOf(id));
-      const [line] = drawn(tree.root, 'turn-line');
-      assert.match(text(line), turn);
-    };
-    // A new hotseat game: she greets both players.
-    send('enter');
-    assert.equal(sounds.said.length, 1);
-    assert.match(sounds.said[0], /^prowla_host_intro_[1-5]$/);
-    speaking(sounds.said[0], /HOT SEAT · TURN 1/);
-    // Her greeting said, she leaves the screen; the turn line stays.
-    act(() => {
-      mock.timers.tick(10_000);
-    });
-    assert.equal(drawn(tree.root, 'host-block').length, 0);
-    assert.match(text(drawn(tree.root, 'turn-line')[0]), /HOT SEAT · TURN 1/);
-    // White rolls and resigns: her last word shows with the result, and holds.
-    send('enter', 'back', 'down', 'select', 'down', 'select');
-    assert.match(text(tree.root), /Black wins/);
-    assert.equal(sounds.said.length, 2);
-    assert.match(sounds.said[1], /^prowla_host_(black_wins|win)_\d$/);
-    speaking(sounds.said[1], /HOT SEAT · TURN 1/);
-    act(() => {
-      mock.timers.tick(10_000);
-    });
-    speaking(sounds.said[1], /HOT SEAT · TURN 1/);
-  } finally {
-    act(() => tree.unmount());
-    mock.timers.reset();
-  }
+  // Her portrait and her line stand in the free space above the bottom
+  // badge, placed over it rather than in the flow, so the dice and the
+  // prompt keep their place; the turn line stands where it always does.
+  const speaking = (id: string, turn: RegExp) => {
+    const [block] = drawn(root, 'host-block');
+    assert.ok(block, 'she shows while she speaks');
+    assert.equal(block.props.style.position, 'absolute');
+    assert.equal(drawn(block, 'portrait-cat').length, 1);
+    assert.equal(text(block), textOf(id));
+    const [line] = drawn(root, 'turn-line');
+    assert.match(text(line), turn);
+  };
+  // A new hotseat game: she greets both players.
+  send('enter');
+  assert.equal(sounds.said.length, 1);
+  assert.match(sounds.said[0], /^prowla_host_intro_[1-5]$/);
+  speaking(sounds.said[0], /HOT SEAT · TURN 1/);
+  // Her greeting said, she leaves the screen; the turn line stays.
+  act(() => {
+    mock.timers.tick(10_000);
+  });
+  assert.equal(drawn(root, 'host-block').length, 0);
+  assert.match(text(drawn(root, 'turn-line')[0]), /HOT SEAT · TURN 1/);
+  // White rolls and resigns: her last word shows with the result, and holds.
+  send('enter', 'back', 'down', 'select', 'down', 'select');
+  assert.match(text(root), /Black wins/);
+  assert.equal(sounds.said.length, 2);
+  assert.match(sounds.said[1], /^prowla_host_(black_wins|win)_\d$/);
+  speaking(sounds.said[1], /HOT SEAT · TURN 1/);
+  act(() => {
+    mock.timers.tick(10_000);
+  });
+  speaking(sounds.said[1], /HOT SEAT · TURN 1/);
 });
 
 test('Rolly, chosen, hosts in her own voice, and her portrait shows with her line (#258)', () => {
   reset();
   new MMKV().set('dicechess-tv.host.v1', 'rolly');
   const sounds = recorder();
-  const tree = launch(sounds);
-  try {
-    send('enter');
-    assert.equal(sounds.said.length, 1);
-    assert.match(sounds.said[0], /^host_intro_[1-5]$/);
-    const [block] = drawn(tree.root, 'host-block');
-    assert.ok(block, 'she shows while she speaks');
-    assert.equal(drawn(block, 'portrait-rolly').length, 1);
-    assert.equal(drawn(block, 'portrait-cat').length, 0);
-    assert.equal(
-      text(block),
-      HOST_CATALOGUE.find((line) => line.id === sounds.said[0])?.text,
-    );
-  } finally {
-    act(() => tree.unmount());
-  }
+  const { root } = launch({ options, sounds });
+  send('enter');
+  assert.equal(sounds.said.length, 1);
+  assert.match(sounds.said[0], /^host_intro_[1-5]$/);
+  const [block] = drawn(root, 'host-block');
+  assert.ok(block, 'she shows while she speaks');
+  assert.equal(drawn(block, 'portrait-rolly').length, 1);
+  assert.equal(drawn(block, 'portrait-cat').length, 0);
+  assert.equal(
+    text(block),
+    HOST_CATALOGUE.find((line) => line.id === sounds.said[0])?.text,
+  );
 });
 
 test('Thinkle, chosen, hosts in his own voice, and his portrait shows with his line (#279)', () => {
   reset();
   new MMKV().set('dicechess-tv.host.v1', 'thinkle');
   const sounds = recorder();
-  const tree = launch(sounds);
-  try {
-    send('enter');
-    assert.equal(sounds.said.length, 1);
-    assert.match(sounds.said[0], /^thinkle_host_intro_[1-5]$/);
-    const [block] = drawn(tree.root, 'host-block');
-    assert.ok(block, 'he shows while he speaks');
-    assert.equal(drawn(block, 'portrait-thinkle').length, 1);
-    assert.equal(drawn(block, 'portrait-cat').length, 0);
-    assert.equal(
-      text(block),
-      HOST_CATALOGUE.find((line) => line.id === sounds.said[0])?.text,
-    );
-  } finally {
-    act(() => tree.unmount());
-  }
+  const { root } = launch({ options, sounds });
+  send('enter');
+  assert.equal(sounds.said.length, 1);
+  assert.match(sounds.said[0], /^thinkle_host_intro_[1-5]$/);
+  const [block] = drawn(root, 'host-block');
+  assert.ok(block, 'he shows while he speaks');
+  assert.equal(drawn(block, 'portrait-thinkle').length, 1);
+  assert.equal(drawn(block, 'portrait-cat').length, 0);
+  assert.equal(
+    text(block),
+    HOST_CATALOGUE.find((line) => line.id === sounds.said[0])?.text,
+  );
 });
 
 test('a line the bot says is handed to the voice', () => {
   reset();
   const sounds = recorder();
-  const tree = launch(sounds);
+  launch({ options, sounds });
   // Play the computer, Rolly, on Random: the game opens with Rolly's intro.
   send('down', 'enter', 'enter', 'enter');
   assert.equal(sounds.said.length, 1);
   assert.match(sounds.said[0], /^rolly_intro_[123]$/);
-  act(() => tree.unmount());
 });
 
 test('a win as Black is heard as a win', () => {
@@ -375,7 +319,7 @@ test('a win as Black is heard as a win', () => {
     decode: decodeGame,
   }).save(saved);
   const sounds = recorder();
-  const tree = launch(sounds);
+  launch({ options, sounds });
   // Resume, then walk from e7 to a1 and on to a8 on the board seen from
   // Black's side, where up on the screen is towards rank 1.
   send('enter');
@@ -384,14 +328,13 @@ test('a win as Black is heard as a win', () => {
   send('down', 'down', 'down', 'down', 'down', 'down', 'down');
   send('enter');
   assert.deepEqual(sounds.played.at(-1), ['piece_capture', 'game_win']);
-  act(() => tree.unmount());
 });
 
 test('leaving the foreground stops the sound, and coming back is a warm start', () => {
   reset();
   resetFullyDrawnReports();
   const sounds = recorder();
-  const tree = launch(sounds);
+  launch({ options, sounds });
   // The cool start is fully drawn by the first render.
   assert.equal(fullyDrawnReports(), 1);
 
@@ -410,5 +353,4 @@ test('leaving the foreground stops the sound, and coming back is a warm start', 
   // Active again without having been away is not another start.
   act(() => setAppState('active'));
   assert.equal(fullyDrawnReports(), 3);
-  act(() => tree.unmount());
 });

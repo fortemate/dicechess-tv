@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
-import renderer, { act } from 'react-test-renderer';
+import { act } from 'react-test-renderer';
 import {
   press,
   pressBack,
@@ -9,96 +9,46 @@ import {
   release,
   isSubscribed,
   hasExited,
-  clearExit,
 } from './stubs/react-native-kepler.mjs';
 import { focusedLabel, optionViews } from './options';
 import { GameScreen } from '../src/GameScreen';
 import { THEME } from '../src/theme';
 import { PIECES } from '../src/pieces';
-import type { ScreenOptions } from '../src/screen';
 import { newGame, rollGame } from '../../src/core/game';
 import { Dice } from '../src/Dice';
+import {
+  fakeTimers,
+  fixedOptions,
+  isHost,
+  mount,
+  reporter,
+  send,
+  styleOf,
+  type Instance,
+  type Style,
+} from './support';
 
-type Instance = renderer.ReactTestInstance;
-type Style = Record<string, string | number | undefined>;
+// The host's lines run on the test's clock.
+fakeTimers();
 
-const styleOf = (node: Instance): Style => (node.props.style ?? {}) as Style;
-const isHost = (node: Instance, name: string) =>
-  (node.type as unknown as string) === name;
+const options = fixedOptions();
 
-(
-  globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
-).IS_REACT_ACT_ENVIRONMENT = true;
-
-// A fixed instructional roll: queen, rook, knight. Not production randomness.
-const options: ScreenOptions = {
-  roll: () => [5, 4, 2],
-  newId: () => 'test',
-  // The opponent steps immediately in tests; the app spaces the steps out.
-  schedule: (step) => step(),
-  // Random draws White unless a test says otherwise.
-  side: () => 'w',
-};
-
-// Assertions read the screen's own state report rather than panel wording, so
-// they test behaviour instead of copy.
 type Mounted = { root: Instance; state: () => string };
 
-// One screen at a time, as on a device. A tree left mounted from an earlier
-// test would still be listening, and would claim presses meant for this one.
-let mounted: renderer.ReactTestRenderer | null = null;
-const replace = (create: () => renderer.ReactTestRenderer) => {
-  if (mounted) act(() => mounted!.unmount());
-  let tree!: renderer.ReactTestRenderer;
-  act(() => {
-    tree = create();
-  });
-  mounted = tree;
-  return tree;
-};
-
-const mount = (): Mounted => {
-  const reports: string[] = [];
-  const tree = replace(() =>
-    renderer.create(
-      React.createElement(GameScreen, {
-        options,
-        onState: (line: string) => reports.push(line),
-      }),
-    ),
-  );
-  const view = {
-    root: tree.root,
-    state: () => reports[reports.length - 1] ?? '',
-  };
-  // Every launch opens on the home screen; these tests are about the board, so
-  // they start a hotseat game first.
-  act(() => press('enter'));
-  return view;
-};
-
-// The same, stopped on the home screen.
+// The screen on its own, stopped on the home screen where every launch opens.
 const mountHome = (): Mounted => {
-  const reports: string[] = [];
-  const tree = replace(() =>
-    renderer.create(
-      React.createElement(GameScreen, {
-        options,
-        onState: (line: string) => reports.push(line),
-      }),
-    ),
+  const reports = reporter();
+  const tree = mount(
+    React.createElement(GameScreen, { options, onState: reports.onState }),
   );
-  return { root: tree.root, state: () => reports[reports.length - 1] ?? '' };
+  return { root: tree.root, state: reports.state };
 };
 
-// Back arrives on its own channel: Vega routes it through a hook that lets the
-// app claim the press, which is what stops the system closing the app.
-const send = (...keys: string[]) => {
-  for (const key of keys)
-    act(() => {
-      if (key === 'back') pressBack();
-      else press(key);
-    });
+// These tests are about the board, so most start a hotseat game first.
+const hotseat = (): Mounted => {
+  const view = mountHome();
+  send('enter');
+  return view;
 };
 
 const overlays = (root: Instance, match: (style: Style) => boolean) =>
@@ -121,13 +71,13 @@ const Back = 'back';
 const Menu = 'menu';
 
 test('the screen subscribes to the TV event channel', () => {
-  mount();
+  hotseat();
   assert.equal(isSubscribed(), true);
 });
 
 test('OK arrives as enter, kpenter or select', () => {
   for (const ok of ['enter', 'kpenter', 'select']) {
-    const { state } = mount();
+    const { state } = hotseat();
     send(ok);
     assert.match(state(), /dice "QRN"/, ok);
   }
@@ -140,7 +90,7 @@ test('holding a direction repeats it; holding OK acts once', () => {
   act(() => hold('down', 3));
   assert.match(home.state(), /overlay home#3/);
 
-  const { state } = mount();
+  const { state } = hotseat();
   send(Select);
   // Holding OK repeats the down event, but nothing happens until release.
   act(() => hold('enter', 3));
@@ -148,11 +98,18 @@ test('holding a direction repeats it; holding OK acts once', () => {
 });
 
 test('an unknown key is ignored', () => {
-  const { state } = mount();
+  const { state } = hotseat();
   send(Select);
   const before = state();
   send('playpause');
   assert.equal(state(), before);
+});
+
+// The screens ignore Back on the TV event channel, so a test that sent it there
+// would pass without pressing it.
+test('Back never arrives as a TV event', () => {
+  hotseat();
+  assert.throws(() => press('back'), /pressBack/);
 });
 
 test('it opens on the home screen and starts the mode that was chosen', () => {
@@ -168,7 +125,7 @@ test('it opens on the home screen and starts the mode that was chosen', () => {
 });
 
 test('OK on the board rolls the dice', () => {
-  const { state } = mount();
+  const { state } = hotseat();
   assert.match(state(), /overlay none \| turn 1 \| phase roll/);
   send(Select);
   assert.match(
@@ -182,7 +139,7 @@ test('no cursor frame before the roll; after it the frame waits on a movable pie
     overlays(root, (s) => s.borderColor === THEME.cursor).length;
 
   // A hotseat turn: nothing to choose until the dice are rolled.
-  const { root, state } = mount();
+  const { root, state } = hotseat();
   assert.match(state(), /phase roll/);
   assert.equal(frames(root), 0, 'no frame before the roll');
   send(Select);
@@ -202,7 +159,7 @@ test('no cursor frame before the roll; after it the frame waits on a movable pie
 });
 
 test('arrows move the focus, OK picks a piece up and marks its destinations', () => {
-  const { root, state } = mount();
+  const { root, state } = hotseat();
   send(Select);
 
   // e2 holds a pawn with no die for it, so after the roll the cursor waits on
@@ -225,7 +182,7 @@ test('arrows move the focus, OK picks a piece up and marks its destinations', ()
 });
 
 test('Back cancels a selection before it opens the menu', () => {
-  const { state } = mount();
+  const { state } = hotseat();
   send(Select, Down, Left, Left, Left, Select);
   assert.match(state(), /selected b1/);
 
@@ -239,7 +196,7 @@ test('Back cancels a selection before it opens the menu', () => {
 });
 
 test('Menu drops a selection and opens the menu immediately', () => {
-  const { state } = mount();
+  const { state } = hotseat();
   send(Select, Down, Left, Left, Left, Select);
   assert.match(state(), /selected b1/);
 
@@ -253,7 +210,7 @@ test('Menu drops a selection and opens the menu immediately', () => {
 });
 
 test('HUD opponent and player badges hide when an in-game menu overlay is opened', () => {
-  const { root, state } = mount();
+  const { root, state } = hotseat();
   send(Select);
   assert.match(state(), /overlay none/);
 
@@ -281,7 +238,7 @@ test('HUD opponent and player badges hide when an in-game menu overlay is opened
 });
 
 test('a complete turn plays out on the remote and hands over', () => {
-  const { root, state } = mount();
+  const { root, state } = hotseat();
   send(Select);
 
   send(Down, Left, Left, Left, Select, Up, Up, Right, Select);
@@ -307,7 +264,7 @@ test('a complete turn plays out on the remote and hands over', () => {
 });
 
 test('with a piece in hand the cursor lands only on its destinations', () => {
-  const { state } = mount();
+  const { state } = hotseat();
   send(Select, Left, Select);
   assert.match(state(), /cursor a3 \| selected b1/);
 
@@ -333,7 +290,6 @@ const back = (): boolean => {
 };
 
 test('Back at the home screen lets the app close, as it should on a TV', () => {
-  clearExit();
   mountHome();
   // Nothing claims it, so the platform does what Back means at the top of an
   // app. Suppressing that would trap a viewer in the app.
@@ -342,8 +298,7 @@ test('Back at the home screen lets the app close, as it should on a TV', () => {
 });
 
 test('Back anywhere else is claimed, so the app stays open', () => {
-  clearExit();
-  const { state } = mount();
+  const { state } = hotseat();
   send(Select);
   assert.equal(back(), true);
   assert.equal(hasExited(), false);
@@ -358,18 +313,16 @@ const lines = (root: Instance): string[] =>
 
 test('the promotion choice names the pieces, with the queen first', () => {
   const reports: string[] = [];
-  const tree = replace(() =>
-    renderer.create(
-      React.createElement(GameScreen, {
-        options,
-        // One step from promotion, with pawns rolled.
-        initial: rollGame(
-          newGame('hotseat', 'promotion', '4k3/P7/8/8/8/8/8/4K3 w - - 0 1'),
-          [1, 1, 1],
-        ),
-        onState: (line: string) => reports.push(line),
-      }),
-    ),
+  const tree = mount(
+    React.createElement(GameScreen, {
+      options,
+      // One step from promotion, with pawns rolled.
+      initial: rollGame(
+        newGame('hotseat', 'promotion', '4k3/P7/8/8/8/8/8/4K3 w - - 0 1'),
+        [1, 1, 1],
+      ),
+      onState: (line: string) => reports.push(line),
+    }),
   );
   // Resume, walk from e2 to a7, pick the pawn up and put it on a8.
   send(Select, Left, Left, Left, Left, Up, Up, Up, Up, Up, Select, Up, Select);
@@ -400,22 +353,16 @@ test('the promotion choice names the pieces, with the queen first', () => {
 
 test('the promotion choice draws Black pieces when Black promotes', () => {
   const reports: string[] = [];
-  const tree = replace(() =>
-    renderer.create(
-      React.createElement(GameScreen, {
-        options,
-        // One step from promotion for Black, with pawns rolled.
-        initial: rollGame(
-          newGame(
-            'hotseat',
-            'promotion-black',
-            '4k3/8/8/8/8/8/p7/4K3 b - - 0 1',
-          ),
-          [1, 1, 1],
-        ),
-        onState: (line: string) => reports.push(line),
-      }),
-    ),
+  const tree = mount(
+    React.createElement(GameScreen, {
+      options,
+      // One step from promotion for Black, with pawns rolled.
+      initial: rollGame(
+        newGame('hotseat', 'promotion-black', '4k3/8/8/8/8/8/p7/4K3 b - - 0 1'),
+        [1, 1, 1],
+      ),
+      onState: (line: string) => reports.push(line),
+    }),
   );
   // Resume, walk from e2 to a2, pick the pawn up and put it on a1.
   send(Select, Left, Left, Left, Left, Select, Down, Select);
@@ -445,13 +392,11 @@ test('the promotion choice draws Black pieces when Black promotes', () => {
 
 test('a focused option is framed, and holding OK shows it pressed until the release acts', () => {
   const reports: string[] = [];
-  const tree = replace(() =>
-    renderer.create(
-      React.createElement(GameScreen, {
-        options,
-        onState: (line: string) => reports.push(line),
-      }),
-    ),
+  const tree = mount(
+    React.createElement(GameScreen, {
+      options,
+      onState: (line: string) => reports.push(line),
+    }),
   );
   // Home, nothing saved: the first option has focus, and nothing is held.
   assert.deepEqual(optionViews(tree.root)[0], {
@@ -474,14 +419,14 @@ test('a focused option is framed, and holding OK shows it pressed until the rele
 
 test('a finished game says who won, then how it ended (#235)', () => {
   // From the menu of a hotseat game: Resume game, Resign, Agree a draw, New game.
-  const drawn = mount();
+  const drawn = hotseat();
   send(Back, Down, Down, Select);
   assert.match(drawn.state(), /result agreed-draw/);
   assert.ok(lines(drawn.root).includes('Draw'));
   assert.ok(lines(drawn.root).includes('Both players agreed'));
 
   // White is to move, so White resigns.
-  const resigned = mount();
+  const resigned = hotseat();
   send(Back, Down, Select, Down, Select);
   assert.match(resigned.state(), /result resigned/);
   assert.ok(lines(resigned.root).includes('Black wins'));
@@ -491,7 +436,7 @@ test('a finished game says who won, then how it ended (#235)', () => {
 test('the panel shows the roll as dice, not words', () => {
   // The home screen is a menu and leaves the dice out.
   assert.equal(mountHome().root.findAllByType(Dice as never).length, 0);
-  const { root } = mount();
+  const { root } = hotseat();
   const dice = () => root.findByType(Dice as never).props.dice as unknown[];
   // Before the roll: three empty slots.
   assert.equal(dice().length, 0);
@@ -501,7 +446,7 @@ test('the panel shows the roll as dice, not words', () => {
 });
 
 test('the pieces that can move are marked until one is picked up', () => {
-  const { root } = mount();
+  const { root } = hotseat();
   const marked = () =>
     overlays(root, (s) => s.backgroundColor === THEME.movable).length;
   assert.equal(marked(), 0, 'nothing is marked before the roll');
