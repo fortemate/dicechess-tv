@@ -77,15 +77,15 @@ vega device launch-app -d <DeviceId> -a com.fortemate.dicechesstv.main
 
 ## Security Audit & Tooling Advisories
 
-Running `npm audit` inside `native/` reports 22 advisories (in packages such as `lodash`, `minimatch`, `toml`, `ajv`, `fast-xml-parser`, and `uuid`).
+On 9 October 2026, `npm audit --omit=dev` inside `native/` listed 49 vulnerable packages (1 critical, 34 high, 14 moderate), and `npm audit` 55. Their advisories are in `ajv`, `braces`, `fast-xml-parser`, `lodash`, `minimatch`, `shell-quote` and `sprintf-js`, and among the development dependencies also `toml` and `uuid`. Every other package on the list depends on one of them.
 
 ### Why Zero Vulnerable Code Ships to Devices
 
 None of these packages reach the device package:
 
 - The compiled package bundle contains our JavaScript/Hermes bytecode, artwork, sound assets, `libreact-native-mmkv-kepler.so`, and manifest metadata.
-- The build source map lists 141 modules in the application bundle. React Native and system modules are deployed directly by the Vega OS platform runtime on the device.
-- The flagged packages belong exclusively to developer tooling (e.g. `@microsoft/api-extractor`, manifest generators, and CLI formatters) running on the local host machine during build time.
+- The source map of that day's release build lists 172 modules in the application bundle, and none of them comes from a package with an advisory. React Native and system modules are deployed directly by the Vega OS platform runtime on the device.
+- The packages with advisories belong to developer tooling (e.g. `@microsoft/api-extractor`, `jscodeshift`, manifest generators, and CLI formatters) running on the local host machine during build time. Three Amazon packages in the bundle, `react-native-kepler`, `react-native-mmkv` and `keplerscript-turbomodule-api`, are listed only because they depend on such tools.
 
 :::caution[Do Not Run npm audit fix --force]
 Never execute `npm audit fix --force` in `native/`. The automated npm solver attempts to resolve dependencies by downgrading `@amazon-devices/react-native-kepler` to `2.1.0` (the older SDK 0.23 line). SDK 0.23 suffers from severe WebView crashes that forced the move to native React Native on SDK 0.24.

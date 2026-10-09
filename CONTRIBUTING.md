@@ -14,9 +14,10 @@ and bots are exempt.
 ## Setup
 
 - Tools from [`mise.toml`](mise.toml): `mise install`, then `mise run setup`. That
-  runs `npm ci` at the root and in `native/`, and registers the Git hooks. Every
-  dependency, Amazon's `@amazon-devices/*` packages and the Dice Chess engine
-  included, comes from the public npm registry, so no token is needed.
+  runs `npm ci` at the root, in `native/` and in `web/`, and registers the Git
+  hooks. Every dependency, Amazon's `@amazon-devices/*` packages and the Dice
+  Chess engine included, comes from the public npm registry, so no token is
+  needed.
 - The hooks ([`lefthook.yml`](lefthook.yml)) scan each commit for secrets and for
   Cyrillic text, format the staged files with Prettier and lint changed workflows;
   a push first checks the formatting of the whole repository. This repository is
@@ -60,21 +61,26 @@ Vega documentation, and tools that read performance traces
 
 CI runs these on every pull request. Run them before pushing:
 
-| Where  | Command                         | What it proves                                                        |
-| ------ | ------------------------------- | --------------------------------------------------------------------- |
-| root   | `npm run check`                 | Types, and that `src/core/` uses no DOM or Node global                |
-| root   | `npm run lint`                  | ESLint with typescript-eslint's recommended rules                     |
-| root   | `npm run format:check`          | Prettier formatting                                                   |
-| root   | `npm test`                      | The shared core against the real engine                               |
-| native | `npm run check --prefix native` | Types of the application, its tests and the core together             |
-| native | `npm run lint --prefix native`  | ESLint with React's hooks rules and Amazon's Vega rules               |
-| native | `npm test --prefix native`      | Screens, input and sound, rendered with `react-test-renderer`         |
-| root   | `npm run coverage`              | Both packages' tests with coverage, which CI sends to SonarQube Cloud |
-| native | `npm run build --prefix native` | The installable package. It needs the Vega SDK, so CI does not run it |
-| site   | `npm run build --prefix site`   | The project site, after `npm ci --prefix site`; see below             |
+| Where  | Command                          | What it proves                                                                 |
+| ------ | -------------------------------- | ------------------------------------------------------------------------------ |
+| root   | `git diff --check`               | No trailing whitespace or conflict markers; CI checks what a pull request adds |
+| root   | `npm run check`                  | Types, and that `src/core/` uses no DOM or Node global                         |
+| root   | `npm run lint`                   | ESLint with typescript-eslint's recommended rules, over the bench's code too   |
+| root   | `npm run format:check`           | Prettier formatting                                                            |
+| root   | `npm test`                       | The shared core against the real engine                                        |
+| native | `npm run check --prefix native`  | Types of the application, its tests and the core together                      |
+| native | `npm run lint --prefix native`   | ESLint with React's hooks rules and Amazon's Vega rules                        |
+| native | `npm test --prefix native`       | Screens, input and sound, rendered with `react-test-renderer`                  |
+| native | `npm run bundle --prefix native` | Metro still bundles the application and the shared core, without the Vega SDK  |
+| web    | `npm test --prefix web`          | The browser test bench's own tests                                             |
+| web    | `npm run build --prefix web`     | The test bench typechecks and builds                                           |
+| root   | `npm run coverage`               | Both packages' tests with coverage, which CI sends to SonarQube Cloud          |
+| native | `npm run build --prefix native`  | The installable package. It needs the Vega SDK, so CI does not run it          |
+| site   | `npm run build --prefix site`    | The project site, after `npm ci --prefix site`; see below                      |
 
-`mise run check` runs all of them except the build, and `mise tasks` lists every
-task with what it does. The SonarQube Cloud analysis
+`mise run check` runs all of them except the coverage, the build and the site, and
+`mise tasks` lists every task with what it does. Locally it checks the whitespace
+of what is not committed yet. The SonarQube Cloud analysis
 that CI runs with that coverage is informational: it does not fail the build.
 
 ## Check it on a device

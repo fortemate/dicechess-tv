@@ -33,7 +33,7 @@ GitHub Actions runs these workflows. The checks in `ci.yaml` run on every pull r
 ```text
 GitHub Actions
 ├── Checks (.github/workflows/ci.yaml): pull requests and pushes to main
-│   ├── core: tsc (twice), ESLint, Prettier check, core tests (the English-only check among them)
+│   ├── core: whitespace check of the change, tsc (twice), ESLint, Prettier check, core tests (the English-only check among them)
 │   ├── native-board: tsc, ESLint with Amazon's Vega rules, app tests, JavaScript bundle for the kepler platform
 │   ├── web-bench: bench tests, then tsc and the Vite build
 │   └── sonar: coverage of the core and app suites, then the SonarCloud scan (informational)

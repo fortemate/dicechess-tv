@@ -23,8 +23,9 @@ trim_trailing_whitespace = unset
 indent_style = unset
 indent_size = unset
 
-# Third-party bytes, kept exactly as published: vendored sounds and licence texts.
-[{native/sounds/**,licenses/**}]
+# Third-party bytes, kept exactly as published: the vendored sounds, music,
+# voices, fonts and narration, the voice audition, and the licence texts.
+[{native/sounds/**,native/music/**,native/voices/**,native/splash/fonts/**,scripts/demo-video/narration/**,site/public/voices/**,site/src/voices/audition.json,licenses/**}]
 charset = unset
 end_of_line = unset
 insert_final_newline = unset

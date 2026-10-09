@@ -29,7 +29,8 @@ jobs:
       !endsWith(github.event.pull_request.user.login, '[bot]') &&
       !contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'),
                 github.event.pull_request.author_association)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
     steps:
       - name: Verify the PR author has signed the CLA
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
