@@ -413,6 +413,63 @@ test('human winning triggers bot loss line and bypasses cooldown', () => {
   assert.equal(res.line?.bot, 'greedy');
 });
 
+// A draw has no line of its own, so the step that ends a game in one, and the
+// ended game seen again (a menu opened and closed over it), stay quiet: no
+// threat or capture line is said over a finished board.
+test('a bot game that ends in a draw says no line, on the last step or after it', () => {
+  const rolly = opponentOf('random');
+  // The bot plays Black. Its rook's quiet move is the hundredth half-move, and
+  // no pawn is left for the other two dice, so the turn ends there.
+  const game = rollGame(
+    newGame(
+      'random',
+      'halfmove-draw-test',
+      'r6k/8/8/8/8/8/8/7K b - - 99 1',
+      'w',
+    ),
+    [ROOK, PAWN, PAWN],
+  );
+  const drawn = moveGame(game, 'a8a7');
+  assert.equal(drawn.phase, 'ended');
+  assert.deepEqual(drawn.result, { winner: null, reason: '100-halfmoves' });
+
+  // The person's king was in danger at the start of the turn, and no threat
+  // has been said yet: in play, that would be a threat line.
+  const quiet: BotVoiceState = {
+    lastSpokenTurn: -99,
+    threatSpoken: false,
+    introSpoken: true,
+  };
+  const last = botVoiceCue(game, drawn, rolly, 'critical', quiet, () => 0);
+  assert.equal(last.line, null);
+  assert.deepEqual(last.nextState, quiet);
+
+  const again = botVoiceCue(drawn, drawn, rolly, 'critical', quiet, () => 0);
+  assert.equal(again.line, null);
+});
+
+test('a bot capture that ends the game in a draw at the turn limit says no line', () => {
+  const grabby = opponentOf('greedy');
+  // The bot's rook takes the person's queen on the last turn a game may last.
+  const position = 'r6k/8/8/8/8/8/8/Q6K b - - 0 1';
+  const game = rollGame(
+    { ...newGame('greedy', 'turn-limit-test', position, 'w'), turn: 5000 },
+    [ROOK, PAWN, PAWN],
+  );
+  const drawn = moveGame(game, 'a8a1');
+  assert.deepEqual(drawn.result, { winner: null, reason: 'turn-limit' });
+
+  const res = botVoiceCue(
+    game,
+    drawn,
+    grabby,
+    'calm',
+    INITIAL_BOT_VOICE_STATE,
+    () => 0,
+  );
+  assert.equal(res.line, null);
+});
+
 test('anti-spam enforces turn cooldown between non-terminal lines', () => {
   const rolly = opponentOf('random');
   const position = '2b4k/8/8/5P2/8/8/8/7K b - - 0 1';

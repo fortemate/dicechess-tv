@@ -11,6 +11,7 @@
     "assets": "node scripts/generate-assets.mjs",
     "build": "npm run assets && react-native build-vega --build-type Release",
     "build:debug": "npm run assets && react-native build-vega --build-type Debug",
+    "bundle": "react-native bundle --entry-file index.js --platform kepler --dev false --bundle-output build/metro/index.bundle",
     "start": "react-native start"
   },
   "dependencies": {
@@ -24,7 +25,7 @@
   },
   "devDependencies": {
     "@amazon-devices/eslint-plugin-kepler": "0.1.15",
-    "@amazon-devices/kepler-cli-platform": "^0",
+    "@amazon-devices/kepler-cli-platform": "~0.22.14",
     "@eslint/js": "9.39.5",
     "@jridgewell/sourcemap-codec": "1.6.0",
     "@react-native-community/cli": "20.0.2",
@@ -32,15 +33,15 @@
     "@react-native/metro-config": "0.83.10",
     "@resvg/resvg-js": "2.6.2",
     "@types/react": "19.2.2",
-    "@types/react-test-renderer": "^19.3.0",
+    "@types/react-test-renderer": "19.1.0",
     "esbuild": "0.28.2",
     "eslint": "9.39.5",
     "eslint-plugin-react-hooks": "7.1.1",
-    "globals": "17.12.0",
+    "globals": "17.13.0",
     "jsonc-eslint-parser": "3.3.0",
     "react-test-renderer": "19.2.8",
     "typescript": "5.8.3",
-    "typescript-eslint": "8.71.0"
+    "typescript-eslint": "8.71.1"
   },
   "engines": {
     "node": ">=20"

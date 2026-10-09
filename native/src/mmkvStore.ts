@@ -56,4 +56,11 @@ export class MmkvSnapshotStore<T> implements SnapshotStore<T> {
   clear(): void {
     this.store.delete(this.key);
   }
+
+  // Copies the stored value, unchanged and without decoding it, to another key,
+  // so a value that no longer decodes is kept when a save replaces it.
+  keepAside(key: string): void {
+    const raw = this.store.getString(this.key);
+    if (raw !== undefined) this.store.set(key, raw);
+  }
 }

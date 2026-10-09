@@ -6,6 +6,12 @@ on:
 permissions:
   contents: read
 
+# A newer push to a pull request cancels the run it replaces. Every run on main
+# has a group of its own, so no commit there loses its result.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 # `vars.RUNS_ON` resolves to the organization's default, a GitHub-hosted image.
 # This repository is public, so it must never be pointed at the organization's
 # self-hosted runner. Dependabot always gets a hosted runner.
@@ -13,6 +19,11 @@ permissions:
 # CI does not build the installable package: that needs the Vega SDK, which
 # hosted runners do not have. It is built locally before a release; see
 # "Releases" in CONTRIBUTING.md.
+#
+# Every job installs Node alone: lefthook, betterleaks and actionlint in
+# mise.toml serve the Git hooks, which CI does not run. npm's download cache is
+# kept per job and keyed on the lockfiles; `npm ci` still checks every package
+# against the integrity hash its lockfile records.
 jobs:
   # The shared core, checked on its own. `check` runs tsc twice: once over the
   # core and its tests, and once over the core alone with no ambient types, so a
@@ -21,8 +32,23 @@ jobs:
     runs-on: ${{ fromJSON(github.actor == 'dependabot[bot]' && '["ubuntu-24.04"]' || vars.RUNS_ON || '["ubuntu-24.04"]') }}
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v7
-      - uses: jdx/mise-action@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          # The commit and its parents, for the whitespace check below.
+          fetch-depth: 2
+      - uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+        with:
+          install_args: node
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ github.job }}-${{ hashFiles('package-lock.json', 'native/package-lock.json', 'web/package-lock.json') }}
+          restore-keys: npm-${{ runner.os }}-${{ github.job }}-
+      # The gate's `git diff --check`, over what the change adds: on a pull
+      # request, the merge commit against the base branch; on main, the newest
+      # commit against its parent. Vendored files are exempt (.gitattributes).
+      - run: git diff --check HEAD^1 HEAD
       - run: npm ci
       - run: npm run check
       - run: npm run lint
@@ -33,8 +59,17 @@ jobs:
     runs-on: ${{ fromJSON(github.actor == 'dependabot[bot]' && '["ubuntu-24.04"]' || vars.RUNS_ON || '["ubuntu-24.04"]') }}
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v7
-      - uses: jdx/mise-action@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+        with:
+          install_args: node
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ github.job }}-${{ hashFiles('package-lock.json', 'native/package-lock.json', 'web/package-lock.json') }}
+          restore-keys: npm-${{ runner.os }}-${{ github.job }}-
       # The native package imports the shared core, which imports the engine from
       # the root install, so both installs are needed.
       - run: npm ci
@@ -46,8 +81,7 @@ jobs:
       # Bundling needs no Vega SDK, so it runs even on a hosted runner, and it
       # catches what tsc cannot: a Metro configuration that no longer reaches the
       # shared core outside this directory. Removing `watchFolders` fails here.
-      - run: npx react-native bundle --entry-file index.js --platform kepler --dev false --bundle-output "${RUNNER_TEMP}/bundle.js"
-        working-directory: native
+      - run: npm run bundle --prefix native
 
   # The browser test bench in web/ (web/README.md). It draws native/src/ on
   # react-native-web, so a change there that the bench can no longer build fails
@@ -56,8 +90,17 @@ jobs:
     runs-on: ${{ fromJSON(github.actor == 'dependabot[bot]' && '["ubuntu-24.04"]' || vars.RUNS_ON || '["ubuntu-24.04"]') }}
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v7
-      - uses: jdx/mise-action@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+        with:
+          install_args: node
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ github.job }}-${{ hashFiles('package-lock.json', 'native/package-lock.json', 'web/package-lock.json') }}
+          restore-keys: npm-${{ runner.os }}-${{ github.job }}-
       # The engine comes from the root install, as it does for the core.
       - run: npm ci
       - run: npm ci --prefix web
@@ -74,18 +117,28 @@ jobs:
     runs-on: ${{ fromJSON(vars.RUNS_ON || '["ubuntu-24.04"]') }}
     timeout-minutes: 15
     env:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      # Whether there is a token, not the token: only the scan step is given it.
+      HAS_SONAR: ${{ secrets.SONAR_TOKEN != '' }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           # Full history, for new-code detection and blame.
           fetch-depth: 0
-      - uses: jdx/mise-action@v4
+      - uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+        with:
+          install_args: node
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ github.job }}-${{ hashFiles('package-lock.json', 'native/package-lock.json', 'web/package-lock.json') }}
+          restore-keys: npm-${{ runner.os }}-${{ github.job }}-
       - run: npm ci
       - run: npm ci --prefix native
       - run: npm run coverage
       - name: SonarQube Scan
-        if: env.SONAR_TOKEN != ''
+        if: env.HAS_SONAR == 'true'
         continue-on-error: true
         uses: SonarSource/sonarqube-scan-action@d209202bc7d53ff1cc128f7f907dac145c9d6ae9 # v8.3.0
-
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

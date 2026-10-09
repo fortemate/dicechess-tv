@@ -44,8 +44,23 @@ import type { ScreenOptions } from './screen';
 
 const KEY = 'dicechess-tv.game.v2';
 const LEDGER_KEY = 'dicechess-tv.ledger.v1';
+// Where a ledger that no longer decodes is kept, unchanged.
+const DAMAGED_LEDGER_KEY = 'dicechess-tv.ledger.v1.damaged';
 
 type Opened = { game: Game | null; damaged: string | null };
+type OpenedLedger = { ledger: Ledger; copyPending: boolean };
+
+// Copies a ledger that no longer decodes aside, unchanged. False when storage
+// fails: the app still opens, and the caller saves nothing over the ledger
+// until a later copy succeeds.
+const keptAside = (store: MmkvSnapshotStore<Ledger>): boolean => {
+  try {
+    store.keepAside(DAMAGED_LEDGER_KEY);
+    return true;
+  } catch {
+    return false;
+  }
+};
 
 export type AppProps = {
   // Injected by tests so a roll is known; the app builds its own from the best
@@ -115,23 +130,39 @@ export const App = ({
 
   // The ledger is read once and kept here, so recording a result is one write
   // that both counts it and remembers it was counted.
-  const [ledger, setLedger] = React.useState<Ledger>(() => {
+  const [openedLedger] = React.useState<OpenedLedger>(() => {
     try {
-      return ledgerStore.read() ?? emptyLedger();
+      return {
+        ledger: ledgerStore.read() ?? emptyLedger(),
+        copyPending: false,
+      };
     } catch {
-      // A ledger that no longer decodes is left on disk rather than
-      // overwritten: losing a record silently is worse than showing none.
-      return emptyLedger();
+      // A ledger that no longer decodes (a later build's, say) is copied aside
+      // unchanged before the next result can be saved over it, and a new
+      // record starts: losing a record silently is worse than showing none.
+      // The copy is made here, before anything can save; a later damaged
+      // ledger replaces an earlier copy. If storage fails, the app opens all
+      // the same and the copy is tried again before the first result.
+      return { ledger: emptyLedger(), copyPending: !keptAside(ledgerStore) };
     }
   });
+  const [ledger, setLedger] = React.useState(openedLedger.ledger);
+  const copyPending = React.useRef(openedLedger.copyPending);
 
   // A result is recorded whenever one is seen, including on the launch after a
   // game ended while the app was gone. record() is a no-op for a game already
-  // counted, so running it every time is safe.
+  // counted, so running it every time is safe. Until the damaged ledger is
+  // copied aside nothing is counted, so nothing is saved over it: a result
+  // seen meanwhile counts only when it is seen again, as a finished game still
+  // saved is at the next launch.
   const count = React.useCallback(
     (game: Game) => {
+      if (copyPending.current) {
+        if (!keptAside(ledgerStore)) return;
+        copyPending.current = false;
+      }
       setLedger((current) => {
-        const next = record(current, game, game.human ?? 'w');
+        const next = record(current, game);
         if (next !== current)
           void ledgerStore.save(next).catch(() => undefined);
         return next;
@@ -144,7 +175,6 @@ export const App = ({
   // is one path that records a result. It sets state from an effect, once, and
   // only when a finished game was never counted: one extra render at launch.
   React.useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (opened.game) count(opened.game);
   }, [count, opened.game]);
 
@@ -270,22 +300,26 @@ export const App = ({
   const appState = useKeplerAppStateManager();
   React.useEffect(() => {
     let away = false;
-    // Music plays only while the app is both active and focused (#76). Vega
-    // sends blur before the change to background and focus after the return
-    // to active, so music stops on the first sign of leaving; and whatever
-    // the order, it stays stopped until both are back.
+    // Sound, voices and music play only while the app is both active and
+    // focused (#76, #254). Vega sends blur before the change to background and
+    // focus after the return to active, so everything stops on the first sign
+    // of leaving; and whatever the order, it stays stopped until both are back.
+    // The Alexa overlay sends blur alone, and its answer must not be heard
+    // over the game's.
     let active = appState.getCurrentState() === 'active';
     let focused = true;
-    const sync = () => music.setSuspended(!(active && focused));
+    const sync = () => {
+      const ready = active && focused;
+      sounds.setSuspended(!ready);
+      music.setSuspended(!ready);
+    };
     const subscription = appState.addEventListener('change', (state) => {
       if (state === 'active') {
-        sounds.setSuspended(false);
         active = true;
         sync();
         if (away) reportFullyDrawn();
         away = false;
       } else if (state === 'background' || state === 'inactive') {
-        sounds.setSuspended(true);
         active = false;
         sync();
         away = true;

@@ -14,8 +14,8 @@ actionlint = "1.7.12" # workflow linting in the pre-commit hook
 # --- Setup ---
 
 [tasks.setup]
-description = "📦 Install both packages' dependencies and register the Git hooks"
-run = ["npm ci", "npm ci --prefix native", "lefthook install"]
+description = "📦 Install the core's, the application's and the test bench's dependencies, and register the Git hooks"
+run = ["npm ci", "npm ci --prefix native", "npm ci --prefix web", "lefthook install"]
 
 [tasks."hook:install"]
 description = "🪝 Register the Git hooks (lefthook)"
@@ -28,15 +28,20 @@ run = "lefthook run pre-commit --all-files"
 # --- Checks: the same as CI ---
 
 [tasks.check]
-description = "✅ Run every check CI runs, in both packages: types, lint, format and tests"
+description = "✅ Run every check CI runs: types, lint, format, tests, the Metro bundle and the test bench"
 run = [
   "npm run check",
   "npm run lint",
   "npm run format:check",
   "npm test",
+  # Tracked files only: stage a new file, or mark it with `git add -N`, first.
+  "git diff --check HEAD",
   "npm run check --prefix native",
   "npm run lint --prefix native",
   "npm test --prefix native",
+  "npm run bundle --prefix native",
+  "npm test --prefix web",
+  "npm run build --prefix web",
 ]
 
 [tasks.test]

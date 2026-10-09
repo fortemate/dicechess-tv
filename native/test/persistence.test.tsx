@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { reset } from './stubs/react-native-mmkv.mjs';
+import { MMKV, reset } from './stubs/react-native-mmkv.mjs';
 import { MmkvSnapshotStore } from '../src/mmkvStore';
 import {
   newGame,
@@ -9,6 +9,7 @@ import {
   decodeGame,
   type Game,
 } from '../../src/core/game';
+import { decodeLedger, type Ledger } from '../../src/core/ledger';
 import { fakeTimers, launch, send, type Launched } from './support';
 
 // Each launch is a fresh process against the same storage, which is what a
@@ -101,6 +102,74 @@ test('a damaged save is surfaced and cleared, not silently played over', () => {
   // Only a new game is offered, because there is nothing left to resume.
   send('enter');
   assert.match(second.state(), /overlay none \| turn 1 \| phase roll/);
+});
+
+test('a damaged ledger is kept aside, not written over by the next result', () => {
+  reset();
+  // A ledger this build cannot read, as a later build's schema would be.
+  const damaged = JSON.stringify({ schema: 2, lastCountedId: 'old' });
+  new MMKV().set('dicechess-tv.ledger.v1', damaged);
+
+  // Start a hotseat game, roll, then resign through the menu.
+  enter(launch());
+  send('enter', 'back', 'down', 'select', 'down', 'select');
+
+  // The result starts a new record, and the one that no longer reads is still
+  // there, unchanged, beside it.
+  const ledger = new MmkvSnapshotStore<Ledger>({
+    key: 'dicechess-tv.ledger.v1',
+    decode: decodeLedger,
+  }).read();
+  assert.deepEqual(ledger?.hotseat, { white: 0, draws: 0, black: 1 });
+  assert.equal(new MMKV().getString('dicechess-tv.ledger.v1.damaged'), damaged);
+
+  // A relaunch reads the new record, and leaves the kept copy alone.
+  launch();
+  assert.equal(new MMKV().getString('dicechess-tv.ledger.v1.damaged'), damaged);
+});
+
+test('a damaged ledger that cannot be kept aside neither stops the app nor is saved over', () => {
+  reset();
+  const damaged = JSON.stringify({ schema: 2, lastCountedId: 'old' });
+  new MMKV().set('dicechess-tv.ledger.v1', damaged);
+  // Storage refuses the copy, as a full disk would.
+  const set = MMKV.prototype.set;
+  MMKV.prototype.set = function (key: string, value: string) {
+    if (key === 'dicechess-tv.ledger.v1.damaged') throw new Error('No space');
+    set.call(this, key, value);
+  };
+  try {
+    const launched = enter(launch());
+    assert.match(launched.state(), /overlay none \| turn 1 \| phase roll/);
+    send('enter', 'back', 'down', 'select', 'down', 'select');
+    // Without its copy, the damaged ledger is not saved over.
+    assert.equal(new MMKV().getString('dicechess-tv.ledger.v1'), damaged);
+  } finally {
+    MMKV.prototype.set = set;
+  }
+
+  // Once the copy can be made, the finished game is counted on the next launch.
+  launch();
+  assert.equal(new MMKV().getString('dicechess-tv.ledger.v1.damaged'), damaged);
+  const ledger = new MmkvSnapshotStore<Ledger>({
+    key: 'dicechess-tv.ledger.v1',
+    decode: decodeLedger,
+  }).read();
+  assert.deepEqual(ledger?.hotseat, { white: 0, draws: 0, black: 1 });
+});
+
+test('a ledger that storage cannot read does not stop the app', () => {
+  reset();
+  const getString = MMKV.prototype.getString;
+  MMKV.prototype.getString = function (key: string) {
+    if (key === 'dicechess-tv.ledger.v1') throw new Error('I/O error');
+    return getString.call(this, key);
+  };
+  try {
+    assert.match(launch().state(), /overlay home/);
+  } finally {
+    MMKV.prototype.getString = getString;
+  }
 });
 
 test('a damaged snapshot never replaces a good one', async () => {
