@@ -298,11 +298,13 @@ test('the About screen shows the credits and returns on Back or OK', () => {
   send('up', 'enter');
   assert.match(text(root), /ABOUT/);
   // The credit a licence requires is only met if it is on the screen. No
-  // portrait failed to load here, so the screen credits the portraits and the
-  // pieces alone to RhosGFX; test/about.test.tsx covers a build without them.
+  // portrait failed to load here, so the screen credits the pieces alone to
+  // RhosGFX; test/about.test.tsx covers a build without the portraits.
+  assert.match(text(root), /^Dice Chess$/m);
+  assert.match(text(root), /Made by Fortemate/);
   assert.match(text(root), /Pieces by RhosGFX/);
-  assert.match(text(root), /Portraits made with Recraft/);
-  assert.match(text(root), /Dice Chess engine by Fortemate/);
+  assert.match(text(root), /Sounds by JDSherbert/);
+  assert.match(text(root), /Free with attribution/);
   assert.match(text(root), /CC0 1\.0/);
 
   // Back returns to the menu, and is claimed — it must not close the app.

@@ -1,13 +1,14 @@
-// The About screen's credits for the opponents (#212): a build with their
-// portraits names them with the maker and credits only the pieces to RhosGFX,
-// and one without them credits the RhosGFX faces with the pieces.
+// The About screen: the game's name, its maker, and cards for other authors
+// only. Whether the build has the characters' portraits (#212) decides the
+// RhosGFX card: with them it names only the pieces, and without them it
+// credits the RhosGFX faces the game shows in their place.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import { act } from 'react-test-renderer';
 import { AboutScreen } from '../src/AboutScreen';
-import { PIECES, PIECES_AND_FACES, PORTRAITS } from '../../src/core/credits';
-import { isHost, mount, type Instance } from './support';
+import { APP, PIECES, PIECES_AND_FACES } from '../../src/core/credits';
+import { isHost, mount, styleOf, type Instance } from './support';
 
 const texts = (root: Instance): string[] =>
   root
@@ -17,6 +18,12 @@ const texts = (root: Instance): string[] =>
 const images = (root: Instance): Instance[] =>
   root.findAll((node) => isHost(node, 'Image'));
 
+// Whether a host View above the node draws it transparent.
+const unseen = (node: Instance | null): boolean =>
+  node !== null &&
+  ((isHost(node, 'View') && styleOf(node).opacity === 0) ||
+    unseen(node.parent));
+
 const open = (reports: string[]) =>
   mount(
     React.createElement(AboutScreen, {
@@ -25,47 +32,47 @@ const open = (reports: string[]) =>
     }),
   );
 
-test('a build with the portraits shows them in their credit, and the RhosGFX card names only the pieces', () => {
+test('the screen names the game and its maker, and nothing of Fortemate’s own beyond them', () => {
+  const shown = texts(open([]).root);
+
+  assert.ok(shown.includes(APP.title));
+  assert.ok(shown.includes(APP.maker));
+  // The engine, the voices and the portraits are Fortemate's own: the maker's
+  // line covers them.
+  for (const gone of [
+    /\bTV\b/,
+    /engine/i,
+    /AGPL/,
+    /ElevenLabs/,
+    /Recraft/,
+    /Fortemate apps only/,
+  ])
+    assert.ok(!shown.some((line) => gone.test(line)), String(gone));
+});
+
+test('a build with the portraits shows none, and the RhosGFX card names only the pieces', () => {
   const reports: string[] = [];
   const tree = open(reports);
   const shown = texts(tree.root);
 
-  assert.ok(
-    shown.includes(
-      `${PORTRAITS.line} · ${PORTRAITS.licence} · ${PORTRAITS.source}`,
-    ),
-  );
-  assert.deepEqual(
-    images(tree.root).map((image) => image.props.testID),
-    // The opponents, then Prowla, who hosts (#258), then Thinkle, who teaches
-    // the tutorial (#264).
-    [
-      'portrait-rolly',
-      'portrait-grabby',
-      'portrait-rampage',
-      'portrait-cat',
-      'portrait-thinkle',
-    ],
-  );
+  // One portrait is loaded to learn whether the build has them, and it is not
+  // seen.
+  const [probe, ...others] = images(tree.root);
+  assert.equal(others.length, 0);
+  assert.equal(probe.props.testID, 'portrait-thinkle');
+  assert.ok(unseen(probe), 'the portrait is seen');
   assert.ok(shown.includes(PIECES.line));
   assert.ok(!shown.includes(PIECES_AND_FACES.line));
   assert.equal(reports.at(-1), 'about | credits 4 | portraits true');
 });
 
-test('a build without the portraits credits the RhosGFX faces instead, and shows no face in their place', () => {
+test('a build without the portraits credits the RhosGFX faces instead', () => {
   const reports: string[] = [];
   const tree = open(reports);
-  // One portrait that does not load is enough: the build has none.
-  act(() => images(tree.root)[1].props.onError());
+  act(() => images(tree.root)[0].props.onError());
   const shown = texts(tree.root);
 
-  assert.ok(!shown.some((line) => line.includes('Recraft')));
   assert.equal(images(tree.root).length, 0);
-  assert.equal(
-    tree.root.findAll((node) => node.props?.testID === 'portraits-credit')
-      .length,
-    0,
-  );
   assert.ok(shown.includes(PIECES_AND_FACES.line));
   assert.ok(!shown.includes(PIECES.line));
   assert.equal(reports.at(-1), 'about | credits 4 | portraits false');

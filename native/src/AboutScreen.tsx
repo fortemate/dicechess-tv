@@ -8,30 +8,11 @@
 // One page, nothing to navigate. OK or Back leaves.
 import React from 'react';
 import { View, Text } from 'react-native';
-import {
-  APP,
-  ENGINE,
-  PORTRAITS,
-  VOICES,
-  creditsFor,
-} from '../../src/core/credits';
+import { APP, creditsFor } from '../../src/core/credits';
 import type { BoardKey } from '../../src/core/boardInput';
-import { BOT_MODES } from '../../src/core/game';
-import { PORTRAIT_OF, Portrait, type CharacterId } from './Portrait';
-import { HOSTS } from './hostSetting';
+import { Portrait } from './Portrait';
 import { useRemoteInput } from './useRemoteInput';
 import { THEME } from './theme';
-
-// The faces beside the portraits' credit: every character the game shows, the
-// opponents, then the hosts who are not one of them, then Thinkle, who teaches
-// the tutorial (#264).
-const CREDITED: readonly CharacterId[] = [
-  ...new Set<CharacterId>([
-    ...BOT_MODES.map((mode) => PORTRAIT_OF[mode]),
-    ...HOSTS.map((host) => host.portrait),
-    'thinkle',
-  ]),
-];
 
 export type AboutScreenProps = {
   onExit: () => void;
@@ -58,9 +39,9 @@ export const AboutScreen = ({ onExit, onState }: AboutScreenProps) => {
     if (leaving) onExit();
   }, [leaving, onExit]);
 
-  // Whether this build has the opponents' portraits, found as the game finds
-  // it: by loading them. The screen starts with them, as every build made for
-  // players has them, and credits the RhosGFX faces instead if one does not
+  // Whether this build has the characters' portraits, found as the game finds
+  // it: by loading one. The screen starts with them, as every build made for
+  // players has them, and credits the RhosGFX faces instead if it does not
   // load (#212).
   const [portraits, setPortraits] = React.useState(true);
   const noPortraits = React.useCallback(() => setPortraits(false), []);
@@ -90,36 +71,22 @@ export const AboutScreen = ({ onExit, onState }: AboutScreenProps) => {
         ABOUT
       </Text>
       <Text style={{ color: '#f0f4f8', fontSize: 36 }}>{APP.title}</Text>
-      <Text style={{ color: '#aab8c9', fontSize: 22 }}>{APP.maker}</Text>
-      {/* The engine, the voices and the portraits are Fortemate's own too, so
-          they are named with the maker. The portraits' line shows them. */}
-      <View style={{ marginBottom: 18 }}>
-        <Text style={{ color: '#aab8c9', fontSize: 20 }}>
-          {`${ENGINE.line} · ${ENGINE.licence} · ${ENGINE.source}`}
-        </Text>
-        <Text style={{ color: '#aab8c9', fontSize: 20 }}>
-          {`${VOICES.line} · ${VOICES.licence} · ${VOICES.source}`}
-        </Text>
-        {portraits ? (
-          <View
-            testID="portraits-credit"
-            style={{ flexDirection: 'row', alignItems: 'center' }}
-          >
-            {CREDITED.map((character) => (
-              <View key={character} style={{ marginRight: 4 }}>
-                <Portrait
-                  character={character}
-                  kind="badge"
-                  size={24}
-                  onMissing={noPortraits}
-                />
-              </View>
-            ))}
-            <Text style={{ color: '#aab8c9', fontSize: 20, marginLeft: 4 }}>
-              {`${PORTRAITS.line} · ${PORTRAITS.licence} · ${PORTRAITS.source}`}
-            </Text>
-          </View>
-        ) : null}
+      <Text style={{ color: '#aab8c9', fontSize: 22, marginBottom: 18 }}>
+        {APP.maker}
+      </Text>
+      {/* Not seen: one portrait, loaded only to learn whether the build has
+          them. It is drawn transparent rather than at no size, since an image
+          with no size may never be loaded. */}
+      <View
+        style={{ position: 'absolute', opacity: 0 }}
+        importantForAccessibility="no-hide-descendants"
+      >
+        <Portrait
+          character="thinkle"
+          kind="badge"
+          size={1}
+          onMissing={noPortraits}
+        />
       </View>
 
       {/* Two columns: four credits in one column would not fit a television
