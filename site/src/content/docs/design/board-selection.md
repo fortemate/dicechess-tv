@@ -1,0 +1,209 @@
+---
+title: Board selection algorithm
+description: The exact current rules for directional jumps, cursor placement, destination selection and remote confirmation, with formulas and worked examples.
+sidebar:
+  order: 2
+---
+
+This reference describes the implementation on 9 October 2026 at [source revision `9372ecf`](https://github.com/fortemate/dicechess-tv/tree/9372ecf2dfa8e06158c6ca40eaa6f6432353e521). It gives the current behavior for discussion and implementation review. [Designing for the remote](/design/remote/) explains the design decisions and historical measurements; [Controls](/play/controls/) explains how to play.
+
+Horizontal cycling is planned in [issue 299](https://github.com/fortemate/dicechess-tv/issues/299). The implementation described here stops when no candidate lies ahead. Optional [automatic rolls, issue 301](https://github.com/fortemate/dicechess-tv/issues/301), and [automatic play of a unique legal action, issue 302](https://github.com/fortemate/dicechess-tv/issues/302), are also absent from this revision; both are proposed to default off.
+
+## The choices and the focus state
+
+The board keeps two squares: `cursor`, the square in focus, and `selected`, the piece in hand, or `null` before a piece is chosen. A full action normally contains two choices: choose a piece with OK, then choose its destination with OK.
+
+The canonical engine supplies the legal actions. `viewGame` walks the prefix tree returned by `DiceChess.getLegalTurnTree`, following every action already played during this three-dice turn. The keys of the current node are the actions that may come next. These actions already obey whole-turn constraints, including maximal dice use; the board does not generate ordinary chess moves or infer permissions from a die face alone.
+
+An action is a UCI string such as `b2b4`, with an optional promotion suffix such as `a7a8q`.
+
+| Selection phase  | Candidate squares                                                                 |
+| ---------------- | --------------------------------------------------------------------------------- |
+| No piece in hand | The distinct starting squares of all current legal actions, sorted by square name |
+| Piece in hand    | The distinct destination squares of legal actions starting at that piece          |
+
+Duplicates are removed. Four promotion actions to the same square therefore produce one destination marker, but still require a later choice of promotion piece. Arrows change focus only; they never apply a move.
+
+### A whole-turn example
+
+In the starting position with pawn, bishop and queen dice (`[1, 3, 5]`), the legal first actions are `b2b3`, `b2b4`, `d2d3`, `d2d4`, `e2e3` and `e2e4`. The selectable pieces are therefore `b2`, `d2` and `e2`, rather than all eight pawns. These pawns open a continuation that can use the other dice.
+
+After `b2b3`, the first-choice set becomes `c1`; after `d2d4`, it becomes `c1` and `d1`. The same navigation algorithm is applied to the newly supplied set after each action.
+
+## Screen coordinates
+
+For White's orientation, a file has index `0` through `7` for `a` through `h`, and a rank has index `0` through `7` for `1` through `8`. The point of a square is `(x, y) = (file, rank)`: `x` grows to the right, and `y` grows up the screen.
+
+For a flipped board, transform both coordinates:
+
+```text
+x = 7 - file
+y = 7 - rank
+```
+
+All directional scoring and screen-order ties use these transformed coordinates. Against a bot, a person playing Black sees a flipped board. Hot Seat flips for Black when its board-turning setting is enabled.
+
+## What one arrow does
+
+The shipped board explicitly uses the `cone` rule. The lower-level `jump` helper defaults to `axis` when called without a rule; that default is not the board's playing rule.
+
+Let the cursor be `(fx, fy)`, the candidate be `(x, y)`, and the pressed direction have unit vector `(dx, dy)`:
+
+| Arrow | `(dx, dy)` |
+| ----- | ---------- |
+| Up    | `(0, 1)`   |
+| Down  | `(0, -1)`  |
+| Left  | `(-1, 0)`  |
+| Right | `(1, 0)`   |
+
+For each candidate calculate:
+
+```text
+ahead = (x - fx) * dx + (y - fy) * dy
+aside = abs((x - fx) * dy - (y - fy) * dx)
+distanceSquared = ahead * ahead + aside * aside
+```
+
+Discard candidates with `ahead <= 0`. A square directly sideways, behind the cursor or under it cannot be chosen by this press.
+
+Rank the remaining candidates by the following keys, from smallest to largest, comparing entries in order:
+
+```text
+inside the 45-degree cone, aside <= ahead:
+    [0, distanceSquared, aside, -y, x]
+
+outside the cone:
+    [1, ahead + 2 * aside, aside, -y, x]
+```
+
+This means:
+
+1. Any candidate inside the cone beats every candidate outside it, even if the outside candidate is physically nearer.
+2. Inside the cone, the smallest Euclidean distance wins. Squared distance gives the same order without a square root.
+3. If the cone is empty, minimize forward distance plus twice sideways distance.
+4. An equal score prefers the smaller sideways distance, then the square higher on the screen, then the square further left.
+
+If no candidate survives, `jump` returns `null` and the board keeps its cursor. There is no current edge wrap and no fallback search behind the cursor. The boundary is the end of the available candidates in a direction, which can occur before file `a` or `h`.
+
+### Directional examples
+
+| Cursor and candidates                 | Press | Result and reason                                            |
+| ------------------------------------- | ----- | ------------------------------------------------------------ |
+| `d2`; `b2`, `d2`, `e2`                | Left  | `b2`: the next legal choice ahead                            |
+| `d2`; `b2`, `d2`, `e2`                | Right | `e2`                                                         |
+| `e2`; `b2`, `d2`, `e2`                | Right | Stays at `e2`, although the board continues to `h2`          |
+| `d2`; `b3`, `d6`                      | Up    | `d6`: inside the cone; nearer `b3` is outside it             |
+| `d4`; `e3`, `e5`                      | Right | `e5`: equal distance and sideways distance, higher on screen |
+| `d4`; `c5`, `e5`                      | Up    | `c5`: equal scores and height, further left                  |
+| Flipped board, `d7`; `b7`, `d7`, `e7` | Left  | `e7`, which is to the left as displayed                      |
+
+## How the central square is chosen
+
+“Central” means economical to navigate from. It does not mean closest to the middle of the board or to the average geometric position.
+
+For a fixed candidate set, create a directed graph. Each candidate has up to four outgoing edges: the results of its Up, Down, Left and Right jumps. A breadth-first search counts the fewest arrow presses from a proposed starting candidate to each other candidate. An edge need not be reversible with the opposite arrow.
+
+`pressesFrom` includes the starting square at cost zero. `route` also returns a shortest sequence of directions, or `null` when there is no route. When several shortest routes exist, the search tries Up, Down, Left and Right in that order; this affects the returned route, not its length.
+
+For each possible central candidate, calculate this key:
+
+```text
+[sumOfPresses, worstPressCount, distanceFromPreviousSquare, -y, x]
+```
+
+- `sumOfPresses`: the sum of shortest-path arrow counts to every candidate, including itself at zero.
+- `worstPressCount`: the largest of those counts.
+- An unreachable candidate contributes `64` to the sum and worst count.
+- `distanceFromPreviousSquare`: file distance plus rank distance (Manhattan distance) to the supplied `near` square. This tie-break uses geometric steps, not jump counts. Without a `near` square it is zero.
+- Final ties prefer higher on screen, then further left.
+
+Choose the smallest key lexicographically. An empty set returns `null`. The evaluator can request a historical `stepwise` variant that substitutes Manhattan distance for graph press counts; the playing board uses graph counts.
+
+For `b2`, `d2`, `e2`:
+
+| Starting candidate | Presses to the three candidates | Sum | Worst |
+| ------------------ | ------------------------------- | --: | ----: |
+| `b2`               | `0`, `1`, `2`                   |   3 |     2 |
+| `d2`               | `1`, `0`, `1`                   |   2 |     1 |
+| `e2`               | `2`, `1`, `0`                   |   3 |     2 |
+
+The central candidate is `d2`. With two equally central choices, `c3` and `f3`, a previous cursor at `g1` breaks the tie in favor of `f3`; one at `b1` favors `c3`.
+
+## Where the cursor waits after a roll or action
+
+When the human side is in the move phase, `waitingFocus` applies a sticky policy:
+
+1. If the current cursor square is still a movable piece, keep it.
+2. Otherwise choose the central movable piece, using the current cursor as `near`.
+3. With no movable piece, keep the cursor square.
+4. Clear the piece in hand.
+
+A new game seeds focus at `e2` for the normal orientation, or `e7` for the flipped orientation. The seed is subsequently settled onto a legal choice. For the pawn/bishop/queen example, `e2` itself is legal, so the cursor stays on `e2` even though `d2` is the central candidate. In the opening with only the `b1` and `g1` knights available, the `e2` seed settles on `g1` because it is nearer.
+
+After a move, the old cursor is normally its destination. It remains there if that square now holds a piece that can act again during this turn. Otherwise it settles onto a central movable piece. On the bot's turn or outside the move phase, the screen clears selection without choosing a new human candidate.
+
+The cursor frame is hidden before the roll, at the handoff, on the bot's turn, after the game ends, and behind a menu. It appears when there is a human board choice.
+
+## Where OK lands after picking up a piece
+
+Let `D` be the distinct legal destinations of the chosen piece. With the current board available, the board tries a likely destination before the general centrality calculation:
+
+1. Find destinations that capture an opposing piece. Their ranking values are pawn `1`, knight `3`, bishop `3`, rook `5`, queen `9`, king `100`. These are cursor-placement values; capturing a king ends Dice Chess.
+2. Prefer the highest-valued capture. For equally valued captures, run `central` over only those tied capture squares, with the chosen piece as `near`.
+3. A legal pawn move to a different file onto an empty square counts as an en-passant pawn capture.
+4. With no capture, prefer a legal two-square push by a pawn on its starting rank: White's rank 2 or Black's rank 7.
+5. If neither applies, use `central(D, chosenPiece)`.
+
+There is a reachability check before accepting a likely capture or double push: `pressesFrom(preferred, D)` must contain every destination. If it does not, use `central(D, chosenPiece)` instead. Without the board field, the helper also goes straight to centrality because it cannot identify captures or pawns.
+
+The fallback is an optimization with an unreachable penalty, not a mathematical promise that every arbitrary candidate set is navigable from every starting square. Historical random-set checks also do not prove that universal claim.
+
+| Position or available actions                           | Initial destination                                     |
+| ------------------------------------------------------- | ------------------------------------------------------- |
+| Starting `e2` pawn with `e2e3`, `e2e4`                  | `e4`; Down reaches `e3` in the normal orientation       |
+| Same actions, but no board field supplied to the helper | `e3`, the nearer of two equally central destinations    |
+| Pawn can capture a knight or push two                   | The knight capture                                      |
+| `e5d6` is en passant and `e5e6` is quiet                | `d6`                                                    |
+| Rook can capture the king on `a8` or queen on `h1`      | `a8`, if every destination remains reachable from there |
+| Piece has one destination and one complete legal action | That destination; OK to pick up, then OK to move        |
+
+## Confirmation, promotion and cancellation
+
+With a piece selected, OK searches the legal actions for its starting square and the cursor's destination. One matching action emits a move intent for the controller to validate and apply. Multiple matches emit a promotion choice, ordered queen, rook, bishop, knight; the highlighted destination alone does not settle that choice.
+
+When the cursor is not a destination of the selected piece but stands on another piece that can act, OK can pick up that piece instead. Normal directional navigation with a piece in hand remains confined to its destinations; it does not separately cycle through other pieces.
+
+Back with a piece in hand puts it down and returns the cursor to its starting square. Back with no selection opens the game menu. Menu opens the game menu immediately and also puts down a selected piece. On the home screen, Back allows the application to exit.
+
+## Native key events and pacing
+
+`useRemoteInput` maps `select`, `enter` and `kpenter` to OK. Direction keys are delivered on key-down (`eventKeyAction === 0`) and on repeats while held. OK is delivered once on release (`eventKeyAction === 1`); its down/repeat events only show the pressed state. Menu is also delivered on release. Back uses the consuming `useKeplerBackHandler` channel.
+
+Currently a held arrow repeatedly applies the same jump rule and stops when there is no candidate ahead. The core receives a direction without distinguishing a new press from its repeats. Planned horizontal cycling needs that distinction at the native input boundary.
+
+Human rolls require OK. In Hot Seat, OK at the handoff both changes the side to move and rolls that player's dice. Against a bot, OK after the human turn hands play to the bot, which already rolls and moves automatically; after a normal bot turn, the human is left waiting to roll. A bot's empty roll stays visible until the human's OK passes it and rolls the human's dice. After any empty roll, a `700 ms` OK guard prevents a quick second press from dismissing the notice immediately.
+
+Even a unique human action currently needs confirmation. A single destination removes the arrow presses, but still needs OK to pick up the piece and OK to play, with promotion resolved separately when necessary.
+
+## What the press measurements mean
+
+The evaluator in `scripts/cursor-presses.ts` replays seeded games and uses the same navigation helpers. An action's cost includes arrow presses, one OK to choose a piece and one OK to choose a destination; a promotion adds another OK. If a target is unreachable under an evaluated strategy, the evaluator records that fact and uses square-by-square distance for its cost fallback.
+
+The figures on [Designing for the remote](/design/remote/) are the recorded simulation of the existing designs, including their initial placement and landing policies. They do not measure physical Stick usability, animation time, hesitation, held-key duration, or the benefit of proposed cycling and automation settings.
+
+For future comparisons, retain the same positions and moves, distinguish the two selection phases, and report changes to both shortest routes and initial cursor placement. Altering navigation edges can also change which candidate `central` chooses and whether a likely landing passes its reachability check.
+
+## Sources and validation boundaries
+
+The source links below are pinned to the described revision:
+
+- [Legal turn-tree traversal: `src/core/game.ts`](https://github.com/fortemate/dicechess-tv/blob/9372ecf2dfa8e06158c6ca40eaa6f6432353e521/src/core/game.ts).
+- [Directional scoring, shortest paths and centrality: `src/core/cursor.ts`](https://github.com/fortemate/dicechess-tv/blob/9372ecf2dfa8e06158c6ca40eaa6f6432353e521/src/core/cursor.ts).
+- [Candidates, landing and board intent: `src/core/boardInput.ts`](https://github.com/fortemate/dicechess-tv/blob/9372ecf2dfa8e06158c6ca40eaa6f6432353e521/src/core/boardInput.ts).
+- [Phase transitions and cursor seeds: `native/src/screen.ts`](https://github.com/fortemate/dicechess-tv/blob/9372ecf2dfa8e06158c6ca40eaa6f6432353e521/native/src/screen.ts).
+- [Cursor visibility: `native/src/GameScreen.tsx`](https://github.com/fortemate/dicechess-tv/blob/9372ecf2dfa8e06158c6ca40eaa6f6432353e521/native/src/GameScreen.tsx).
+- [Key normalization and repeats: `native/src/useRemoteInput.ts`](https://github.com/fortemate/dicechess-tv/blob/9372ecf2dfa8e06158c6ca40eaa6f6432353e521/native/src/useRemoteInput.ts).
+- [Press accounting: `src/core/presses.ts`](https://github.com/fortemate/dicechess-tv/blob/9372ecf2dfa8e06158c6ca40eaa6f6432353e521/src/core/presses.ts).
+- [Cursor examples](https://github.com/fortemate/dicechess-tv/blob/9372ecf2dfa8e06158c6ca40eaa6f6432353e521/test/cursor.test.ts) and [board-input examples](https://github.com/fortemate/dicechess-tv/blob/9372ecf2dfa8e06158c6ca40eaa6f6432353e521/test/boardInput.test.ts).
+
+This is a description checked against source and tests. Earlier design validation includes the Vega Virtual Device; on 9 October 2026 the owner reported ongoing physical Fire TV Stick testing and the end-of-row feedback tracked in issue 299. That report is separate from independent validation of each scenario in this reference.
