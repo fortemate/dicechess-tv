@@ -103,13 +103,10 @@ const bump = (record: BotRecord | undefined, field: keyof BotRecord) => {
 
 // Records a finished game. Unfinished games, and games already counted, return
 // the ledger unchanged, so a caller may run this after every state change and
-// on every launch without keeping track of what it has already done.
-export function record(
-  ledger: Ledger,
-  game: Game,
-  // Which side the player held. Hotseat has no single human side and ignores it.
-  humanSide: Side = 'w',
-): Ledger {
+// on every launch without keeping track of what it has already done. Against an
+// opponent the side the person held is the game's own, so no caller can count
+// it from the other side.
+export function record(ledger: Ledger, game: Game): Ledger {
   if (game.phase !== 'ended' || !game.result) return ledger;
   if (ledger.lastCountedId === game.id) return ledger;
 
@@ -124,6 +121,10 @@ export function record(
     };
   }
 
+  // decodeGame refuses a game against an opponent without the person's side,
+  // so this only narrows the type.
+  const humanSide = game.human;
+  if (!humanSide) return ledger;
   const opponent = game.mode;
   const sides = ledger.bots[opponent] ?? {};
   const field = botField(winner, humanSide);

@@ -131,7 +131,7 @@ export const App = ({
   const count = React.useCallback(
     (game: Game) => {
       setLedger((current) => {
-        const next = record(current, game, game.human ?? 'w');
+        const next = record(current, game);
         if (next !== current)
           void ledgerStore.save(next).catch(() => undefined);
         return next;
