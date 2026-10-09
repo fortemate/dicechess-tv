@@ -49,7 +49,4 @@ If a later version of the app handles information differently, this page will sa
 
 ## Contact
 
-<!-- Owner: replace the placeholder below with the support channel chosen for the store listing,
-an email address or a page on fortemate.com, before this page is merged. -->
-
-Questions about this policy go to **[support contact to be decided]**.
+Questions about this policy go to [dicechess@fortemate.com](mailto:dicechess@fortemate.com).
