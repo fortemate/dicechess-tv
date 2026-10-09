@@ -317,9 +317,12 @@ test('the descriptor says what the animation service expects', () => {
 });
 
 // Vega has to unpack the whole archive before the first frame; a 17 MB one
-// appeared only after the game did (#290). The frames stay under 3 MB.
-test('the archive stays under 3 MB', () => {
-  assert.ok(statSync(built.destination).size < 3_000_000);
+// appeared only after the game did (#290). With Thinkle the archive is about
+// 3.02 MB, the size the Stick showed when the animation was approved (#293).
+// The limit leaves room for either Node's zlib, but not for one more frame.
+test('the archive stays under 3.1 MB', () => {
+  const size = statSync(built.destination).size;
+  assert.ok(size < 3_100_000, `the archive is ${size} bytes`);
 });
 
 test('the archive has no wrapping folder and keeps the frames in playback order', () => {

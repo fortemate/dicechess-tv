@@ -10,10 +10,9 @@ credit never move, so a cut at any frame shows them whole.
 
 `scripts/splash.mjs` draws the 25 frames at build time with `@resvg/resvg-js`
 2.6.2 (MPL-2.0, a development dependency), and `scripts/generate-assets.mjs`
-compresses them with `fflate` 0.8.3 (MIT, a development dependency) and packs
-them, in playback order, into `assets/raw/SplashScreenImages.zip` at 8 fps.
-Nothing here, the fonts and Thinkle's vector included, goes into the package:
-the device gets pixels.
+packs them, in playback order, into `assets/raw/SplashScreenImages.zip` at
+8 fps. Nothing here, the fonts and Thinkle's vector included, goes into the
+package: the device gets pixels.
 
 ## Why a loop
 
@@ -50,20 +49,22 @@ both: a stand-in portrait and the hat.
 
 ## Size
 
-Each frame is a whole PNG of 101 to 120 KB with Thinkle, and the archive stores
-them as they are: 2,816,296 bytes for the 25. In #290 an archive of 17 MB made
+Each frame is a whole PNG of 109 to 128 KB with Thinkle, and the archive stores
+them as they are: 3,020,363 bytes for the 25. In #290 an archive of 17 MB made
 the service prepare the splash only after the game was already on screen, so
-the test holds it under 3,000,000 bytes. That leaves about 180 KB, roughly one
-more frame.
+the test holds it under 3,100,000 bytes. That fits the archive the owner
+approved on the Stick in #293, but not one more frame.
 
-The frames are compressed with fflate rather than Node's own zlib, because
-Node's deflate depends on how Node was built. The same 25 frames came to
-3,020,363 bytes with the zlib in Node's official builds, which CI and mise
-install, and to 2,946,334 bytes with Homebrew's Node, which links the system
-zlib. #293 was measured with the second and built for the Stick with the
-first, so the build the owner approved carried the larger archive. fflate is
-plain JavaScript and writes the same bytes on every machine. The pixels are
-the same with any of the three.
+The size depends on how Node was built, because `node:zlib` compresses with
+the zlib Node carries. The official builds, which CI and mise install, carry
+Chromium's zlib and write 3,020,363 bytes. Homebrew's Node links the system
+zlib and writes 2,946,334 bytes from the same pixels. Measure with the Node
+from `mise.toml` (`process.versions.zlib` tells them apart).
+
+On the Stick, a smaller archive did not prepare faster: with frames compressed
+to 2.82 MB, "Time to initialize assets" had a median of 996 ms over five cold
+starts, against 948 ms for the 3.02 MB archive (#324). Without the portraits,
+as in CI, the archive is about 2.1 MB.
 
 ## Changing it
 
