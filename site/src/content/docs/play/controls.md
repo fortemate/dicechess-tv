@@ -26,6 +26,8 @@ Moving square-by-square across an 8x8 chessboard is frustrating on a remote. Dic
 - **Between destinations:** Once a piece is picked up, the arrows jump only between that piece's valid destination squares (marked with dots for quiet moves or rings for captures).
 - **In menus and cards:** Moves focus through menu options, difficulty cards, and rules topics. Holding an arrow repeats smoothly.
 
+On the board, an arrow with no available choice ahead leaves the cursor where it is; there is currently no cyclic edge transition. Holding an arrow repeats jumps until that end is reached. The [Board selection algorithm](/design/board-selection/) gives the exact directional and cursor-placement rules, with examples.
+
 ### 2. OK / Select (Center Button)
 
 The primary action button handles roll initiation, piece selection, and move execution:

@@ -100,7 +100,7 @@ vega device launch-app -d VirtualDevice -a com.fortemate.dicechesstv.main
 
 Verified end-to-end: builds from a clean checkout, installs, and launches in 227 ms with no crash record.
 
-_Note on `npm audit`:_ Running `npm audit` in `native/` reports 22 tooling advisories in build tools (`lodash`, `toml`, `uuid`, etc.). None of these packages reach the device bundle (only 141 modules bundled; system libraries resolved on-device). Never run `npm audit fix --force`, as it attempts to downgrade to the crash-prone SDK 0.23 line. See [Security Audit Explanation](https://dicechess-tv.fortemate.com/contribute/build/#security-audit--tooling-advisories).
+_Note on `npm audit`:_ On 9 October 2026, `npm audit --omit=dev` in `native/` listed 49 vulnerable packages (1 critical, 34 high, 14 moderate), and `npm audit` 55. Every advisory is in build and test tooling: `ajv`, `braces`, `fast-xml-parser`, `lodash`, `minimatch`, `shell-quote` and `sprintf-js`, and among the development dependencies also `toml` and `uuid`. Every other package on the list depends on one of them. None of them reaches the device bundle. The source map of that day's release build (`npm run build --prefix native`, in `build/debugging/Release/srcmap/`) lists 172 modules, none from those packages; the system libraries are resolved on the device. Three Amazon packages in the bundle (`react-native-kepler`, `react-native-mmkv` and `keplerscript-turbomodule-api`) are listed only for build tools they depend on, such as `jscodeshift` and `@microsoft/api-extractor`. Never run `npm audit fix --force`, as it attempts to downgrade to the crash-prone SDK 0.23 line. See [Security Audit Explanation](https://dicechess-tv.fortemate.com/contribute/build/#security-audit--tooling-advisories).
 
 ---
 

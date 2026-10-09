@@ -9,6 +9,7 @@ import renderer, { act } from 'react-test-renderer';
 import { Board, SLIDE_MS } from '../src/Board';
 import { PIECES } from '../src/pieces';
 import { BOT_STEP_MS } from '../src/screen';
+import { isHost, styleOf, type Instance } from './support';
 
 const SIZE = 800;
 const EDGE = Math.floor(SIZE / 8);
@@ -16,23 +17,20 @@ const INITIAL = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
 const AFTER_E4 = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR';
 const AFTER_E5 = 'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR';
 
-type Instance = renderer.ReactTestInstance;
-type Style = Record<string, unknown>;
 type Range = { interpolation: { outputRange: number[] } };
 type Held = {
+  value: { value: number; setValue(value: number): void };
   config: { toValue: number; duration: number; useNativeDriver: boolean };
   done: ((result: { finished: boolean }) => void) | null;
   stopped: boolean;
 };
 const globals = globalThis as {
-  IS_REACT_ACT_ENVIRONMENT?: boolean;
   __holdSlides?: boolean;
   __heldSlides?: Held[];
   __reduceMotion?: boolean;
   __reduceMotionQuery?: 'pending' | 'fails' | 'throws';
   __answerReduceMotion?: (value: boolean) => void;
 };
-globals.IS_REACT_ACT_ENVIRONMENT = true;
 
 beforeEach(() => {
   globals.__holdSlides = true;
@@ -40,10 +38,6 @@ beforeEach(() => {
   globals.__reduceMotion = false;
   globals.__reduceMotionQuery = undefined;
 });
-
-const isHost = (node: Instance, name: string) =>
-  (node.type as unknown as string) === name;
-const styleOf = (node: Instance): Style => (node.props.style ?? {}) as Style;
 
 // Mounts the board on one position, lets the platform answer whether it asks
 // for less motion, and returns what moves the board on.
@@ -216,19 +210,84 @@ test('where the platform cannot answer, pieces slide', async () => {
   }
 });
 
-test('when the board flips with full motion, it fades out and back in', async () => {
+// The opacity the whole board is drawn with.
+const opacity = (root: Instance) =>
+  root.find(
+    (node) =>
+      isHost(node, 'Animated.View') && styleOf(node).opacity !== undefined,
+  ).props.style.opacity as Held['value'];
+
+// Whether the board is drawn turned as each animation starts. The stub adds an
+// animation by assigning a new list, so a setter sees every start.
+const watchStarts = (root: () => Instance) => {
+  const turned: boolean[] = [];
+  let held: Held[] = globals.__heldSlides ?? [];
+  Object.defineProperty(globals, '__heldSlides', {
+    configurable: true,
+    get: () => held,
+    set: (next: Held[]) => {
+      held = next;
+      turned.push(pieceOn(square(root(), 'e1', true)) === 'K');
+    },
+  });
+  return {
+    turned,
+    stop: () => {
+      delete globals.__heldSlides;
+      globals.__heldSlides = held;
+    },
+  };
+};
+
+test('when the board flips with full motion, it fades out, turns and fades back in', async () => {
+  const board = await mount({ board: INITIAL, lastMove: null, flipped: false });
+  const starts = watchStarts(board.root);
+  try {
+    board.move({ board: INITIAL, lastMove: null, flipped: true });
+    const [fadeOut] = globals.__heldSlides!;
+    assert.equal(fadeOut.config.toValue, 0);
+    // It turns only once it has faded out.
+    assert.equal(pieceOn(square(board.root(), 'e1')), 'K');
+
+    await act(async () => {
+      fadeOut.value.setValue(0);
+      fadeOut.done?.({ finished: true });
+    });
+    assert.equal(pieceOn(square(board.root(), 'e1', true)), 'K');
+    // Then it fades back in, and nothing cuts that short: the fade is not
+    // stopped and the board does not jump back to full opacity (#120).
+    assert.equal(globals.__heldSlides!.length, 2);
+    const fadeIn = globals.__heldSlides![1];
+    assert.equal(fadeIn.config.toValue, 1);
+    assert.equal(fadeIn.stopped, false);
+    assert.equal(opacity(board.root()).value, 0);
+    // The fade in starts on the turned board, so the side it left never shows
+    // again on the way in.
+    assert.deepEqual(starts.turned, [false, true]);
+
+    await act(async () => {
+      fadeIn.value.setValue(1);
+      fadeIn.done?.({ finished: true });
+    });
+    assert.equal(fadeIn.stopped, false);
+    assert.equal(opacity(board.root()).value, 1);
+    assert.equal(pieceOn(square(board.root(), 'e1', true)), 'K');
+  } finally {
+    starts.stop();
+  }
+});
+
+test('a board turned back while it fades out stays as it was, fully shown', async () => {
   const board = await mount({ board: INITIAL, lastMove: null, flipped: false });
   board.move({ board: INITIAL, lastMove: null, flipped: true });
-  assert.ok(globals.__heldSlides!.length > 0);
-  const fadeOut = globals.__heldSlides![0];
-  assert.equal(fadeOut.config.toValue, 0);
-  await act(async () => {
-    fadeOut.done?.({ finished: true });
-  });
-  // After fade out completes, fade in is scheduled
-  assert.ok(globals.__heldSlides!.length > 1);
-  const fadeIn = globals.__heldSlides![1];
-  assert.equal(fadeIn.config.toValue, 1);
+  const [fadeOut] = globals.__heldSlides!;
+  fadeOut.value.setValue(0.5);
+
+  board.move({ board: INITIAL, lastMove: null, flipped: false });
+  assert.equal(fadeOut.stopped, true);
+  assert.equal(globals.__heldSlides!.length, 1);
+  assert.equal(opacity(board.root()).value, 1);
+  assert.equal(pieceOn(square(board.root(), 'e1')), 'K');
 });
 
 test('when the platform asks for less motion, the board flips at once', async () => {

@@ -246,20 +246,26 @@ test('a delayed effect is discarded across blur/focus, rather than replayed on r
   assert.equal(plays().length, 2, 'the next live move is heard');
 });
 
-test('a quick blur/focus still pauses an already playing effect and voice synchronously', async () => {
+test('a quick blur/focus still pauses an already playing effect and line', async () => {
   resetAudio();
   const sounds = createSounds({ pick: () => 0 });
   sounds.play(['dice_roll']);
+  sounds.say({ id: 'host_intro_1', event: 'intro' });
   await settle();
+  const [roll, said] = plays();
+  assert.match(roll.src ?? '', /dice_throw_1\.mp3$/);
+  assert.match(said.src ?? '', /host_intro_1\.mp3$/);
   const before = log().length;
+  // Focus is back before a promise callback could run: the pause must already
+  // have reached the players that are making sound.
   sounds.setSuspended(true);
   sounds.setSuspended(false);
-  assert.ok(
-    log()
-      .slice(before)
-      .some((entry) => entry.event === 'pause'),
-    'pause reaches ready players before focus can return',
-  );
+  const paused = log()
+    .slice(before)
+    .filter((entry) => entry.event === 'pause')
+    .map((entry) => entry.player);
+  assert.ok(paused.includes(roll.player), 'the dice stop');
+  assert.ok(paused.includes(said.player), 'the line stops');
 });
 
 test('a take is chosen among several, and a bad pick cannot fall off the list', async () => {

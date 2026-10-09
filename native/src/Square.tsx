@@ -44,7 +44,22 @@ const Destination = ({
   );
 };
 
-export const Square = ({ view, edge }: { view: SquareView; edge: number }) => {
+type SquareProps = { view: SquareView; edge: number };
+
+// boardView() builds a new SquareView for every square on every render, so the
+// comparison is by value, over every field there is: a mark added to SquareView
+// later is compared without being listed here. A cursor move then redraws the
+// two squares it changes, not all 64 (#312).
+const sameSquare = (prev: SquareProps, next: SquareProps): boolean => {
+  if (prev.edge !== next.edge) return false;
+  const keys = Object.keys(next.view) as (keyof SquareView)[];
+  return (
+    keys.length === Object.keys(prev.view).length &&
+    keys.every((key) => prev.view[key] === next.view[key])
+  );
+};
+
+export const Square = React.memo(function Square({ view, edge }: SquareProps) {
   const Piece = view.piece ? PIECES[view.piece as keyof typeof PIECES] : null;
   const width = ring(edge * 8);
   const focus = view.cursor || view.selected;
@@ -107,4 +122,4 @@ export const Square = ({ view, edge }: { view: SquareView; edge: number }) => {
       ) : null}
     </View>
   );
-};
+}, sameSquare);

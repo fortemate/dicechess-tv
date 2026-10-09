@@ -8,21 +8,13 @@ import {
   HOST_BUBBLE_ROWS,
   SpeechBubble,
 } from '../src/SpeechBubble';
-
-type Instance = renderer.ReactTestInstance;
-type Style = Record<string, unknown>;
-
-(
-  globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
-).IS_REACT_ACT_ENVIRONMENT = true;
+import { styleOf, type Instance } from './support';
 
 const byTestId = (root: Instance, id: string): Instance => {
   const match = root.find((node) => node.props && node.props.testID === id);
   assert.ok(match, `expected element with testID="${id}"`);
   return match;
 };
-
-const styleOf = (node: Instance): Style => (node.props.style ?? {}) as Style;
 
 test('renders speech bubble structure and text correctly', () => {
   let tree!: renderer.ReactTestRenderer;

@@ -8,17 +8,28 @@ import {
   type Ledger,
 } from '../src/core/ledger.ts';
 import {
+  INITIAL_POSITION,
   newGame,
   rollGame,
+  moveGame,
   resignGame,
   agreeDraw,
   type Game,
   type Mode,
+  type Side,
 } from '../src/core/game.ts';
 
-// A finished game of the given mode, without playing one out.
-const ended = (mode: Mode, id: string, how: 'resign' | 'draw' = 'resign') => {
-  const game = rollGame(newGame(mode, id), [5, 4, 2]);
+const ROOK = 4;
+
+// A finished game of the given mode, without playing one out. Against an
+// opponent the person plays White unless `human` says otherwise.
+const ended = (
+  mode: Mode,
+  id: string,
+  how: 'resign' | 'draw' = 'resign',
+  human?: Side,
+) => {
+  const game = rollGame(newGame(mode, id, INITIAL_POSITION, human), [5, 4, 2]);
   return how === 'draw' ? agreeDraw(game) : resignGame(game);
 };
 
@@ -68,15 +79,32 @@ test('hotseat is reported by colour, not by player', () => {
 test('a game against an opponent is recorded under that opponent and the side played', () => {
   let ledger = emptyLedger();
   // In Random mode resigning is always the human's, so the human loses.
-  ledger = record(ledger, ended('random', 'r1'), 'w');
+  ledger = record(ledger, ended('random', 'r1'));
   assert.deepEqual(ledger.bots.random?.w, { wins: 0, draws: 0, losses: 1 });
   assert.deepEqual(ledger.hotseat, { white: 0, draws: 0, black: 0 });
 
   // The same opponent played from the other side is a separate record, because
-  // one number would hide how it plays each colour.
-  ledger = record(ledger, ended('random', 'r2'), 'b');
+  // one number would hide how it plays each colour. Here the person plays Black
+  // and takes White's king.
+  const won = moveGame(
+    rollGame(newGame('random', 'r2', '4k3/8/8/8/8/8/8/r3K3 b - - 0 1', 'b'), [
+      ROOK,
+      ROOK,
+      ROOK,
+    ]),
+    'a1e1',
+  );
+  ledger = record(ledger, won);
   assert.deepEqual(ledger.bots.random?.b, { wins: 1, draws: 0, losses: 0 });
   assert.deepEqual(ledger.bots.random?.w, { wins: 0, draws: 0, losses: 1 });
+});
+
+test("the person's side is the game's own, so no caller can count it from the other side", () => {
+  // The person plays Black and resigns: a loss as Black, whoever records it.
+  const ledger = record(emptyLedger(), ended('greedy', 'g1', 'resign', 'b'));
+  assert.deepEqual(ledger.bots.greedy, {
+    b: { wins: 0, draws: 0, losses: 1 },
+  });
 });
 
 test('a draw against an opponent counts for neither side', () => {
@@ -86,7 +114,7 @@ test('a draw against an opponent counts for neither side', () => {
     ...ended('random', 'd1'),
     result: { winner: null, reason: '100-halfmoves' },
   };
-  const ledger = record(emptyLedger(), drawn, 'w');
+  const ledger = record(emptyLedger(), drawn);
   assert.deepEqual(ledger.bots.random?.w, { wins: 0, draws: 1, losses: 0 });
 });
 
@@ -118,7 +146,7 @@ test('a ledger that no longer decodes is refused rather than reset to zero', () 
 test('the summary lists each opponent and side a game was played from', () => {
   let ledger: Ledger = emptyLedger();
   ledger = record(ledger, ended('hotseat', 's1'));
-  ledger = record(ledger, ended('random', 's2'), 'w');
+  ledger = record(ledger, ended('random', 's2'));
   const view = summary(ledger);
   assert.deepEqual(view.hotseat, { white: 0, draws: 0, black: 1 });
   assert.equal(view.bots.length, 1);

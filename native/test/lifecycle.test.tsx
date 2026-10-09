@@ -1,27 +1,95 @@
-// Physical Alexa reproduction, with controlled delivery of Vega events and
-// already queued callbacks. No wall-clock wait or screenshot substitutes for
-// checking the saved position, dice, revision and the pending bot path.
+// Focus and the app state through the whole app (#254): the Alexa overlay
+// sends blur alone, and the game's effects, lines and music must all fall
+// silent under it, not only the music, and the game must not move on behind
+// it. A test cannot hear, so what is checked is what the players were told;
+// hearing it is checked on a device.
+//
+// The game's half reproduces Alexa on a physical Stick, with controlled
+// delivery of Vega events and already queued callbacks. No wall-clock wait or
+// screenshot substitutes for checking the saved position, dice, revision and
+// the pending bot path.
 import { test, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
-import renderer, { act } from 'react-test-renderer';
+import { act } from 'react-test-renderer';
 import { App } from '../src/App';
 import { BOT_STEP_MS, type ScreenOptions } from '../src/screen';
 import type { Sounds } from '../src/sound';
 import type { Music } from '../src/music';
 import { MMKV, reset } from './stubs/react-native-mmkv.mjs';
-import {
-  appEvent,
-  press,
-  pressBack,
-  setAppState,
-} from './stubs/react-native-kepler.mjs';
+import { appEvent, setAppState } from './stubs/react-native-kepler.mjs';
 import { nextLineMs } from '../src/useTutorialVoice';
 import { stepGame, TUTORIAL, tutorLinesAt } from '../../src/core/tutorial';
+import { fixedOptions, launch, mount, send, unmount } from './support';
 
-(
-  globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
-).IS_REACT_ACT_ENVIRONMENT = true;
+const options = fixedOptions({ roll: () => [2, 2, 2] });
+
+// The app, with players that keep what they were last told: suspended or not,
+// and null before anything.
+const listen = () => {
+  const told: { sounds: boolean | null; music: boolean | null } = {
+    sounds: null,
+    music: null,
+  };
+  const sounds: Sounds = {
+    play() {},
+    setMuted() {},
+    say() {},
+    stopLine() {},
+    setVoices() {},
+    setSuspended(value) {
+      told.sounds = value;
+    },
+  };
+  const music: Music = {
+    setRole() {},
+    setEnabled() {},
+    setVolume() {},
+    setCatalogue() {},
+    setDucked() {},
+    setSuspended(value) {
+      told.music = value;
+    },
+  };
+  launch({ options, sounds, music });
+  return told;
+};
+
+test('blur alone silences the effects and lines as well as the music', () => {
+  reset();
+  setAppState('active');
+  const told = listen();
+  act(() => appEvent('blur'));
+  assert.deepEqual(told, { sounds: true, music: true });
+  act(() => appEvent('focus'));
+  assert.deepEqual(told, { sounds: false, music: false });
+});
+
+test('neither active nor focus alone brings sound back; both together do', () => {
+  reset();
+  setAppState('active');
+  const told = listen();
+  // The overlay is up, and the app is told it is active: still silent.
+  act(() => appEvent('blur'));
+  act(() => setAppState('active'));
+  assert.deepEqual(told, { sounds: true, music: true });
+  act(() => appEvent('focus'));
+  assert.deepEqual(told, { sounds: false, music: false });
+  // Home: blur, then the background. Focus while still away: still silent.
+  act(() => appEvent('blur'));
+  act(() => setAppState('background'));
+  act(() => appEvent('focus'));
+  assert.deepEqual(told, { sounds: true, music: true });
+  act(() => setAppState('active'));
+  assert.deepEqual(told, { sounds: false, music: false });
+  // Any state but active is away, inactive and one with no name here too.
+  act(() => setAppState('inactive'));
+  assert.deepEqual(told, { sounds: true, music: true });
+  act(() => setAppState('active'));
+  assert.deepEqual(told, { sounds: false, music: false });
+  act(() => setAppState('unknown'));
+  assert.deepEqual(told, { sounds: true, music: true });
+});
 
 const harness = (initial: 'active' | 'inactive' = 'active') => {
   reset();
@@ -72,17 +140,14 @@ const harness = (initial: 'active' | 'inactive' = 'active') => {
       musicStates.push(on);
     },
   };
-  let tree!: renderer.ReactTestRenderer;
-  act(() => {
-    tree = renderer.create(
-      <App
-        options={options}
-        sounds={sounds}
-        music={music}
-        onState={(line) => reports.push(line)}
-      />,
-    );
-  });
+  const tree = mount(
+    <App
+      options={options}
+      sounds={sounds}
+      music={music}
+      onState={(line) => reports.push(line)}
+    />,
+  );
   return {
     tree,
     waiting,
@@ -94,13 +159,7 @@ const harness = (initial: 'active' | 'inactive' = 'active') => {
     pass: (ms: number) => {
       time += ms;
     },
-    send: (...keys: string[]) => {
-      for (const key of keys)
-        act(() => {
-          if (key === 'back') pressBack();
-          else press(key);
-        });
-    },
+    send,
     event: (name: 'blur' | 'focus') => act(() => appEvent(name)),
     state: (name: 'active' | 'inactive' | 'background' | 'unknown') =>
       act(() => setAppState(name)),
@@ -111,34 +170,9 @@ const harness = (initial: 'active' | 'inactive' = 'active') => {
       for (const run of background.splice(0)) act(() => run());
     },
     save: () => new MMKV().getString('dicechess-tv.game.v2'),
-    close: () => {
-      act(() => tree.unmount());
-      setAppState('active');
-    },
+    close: unmount,
   };
 };
-
-test('blur alone pauses both audio players; neither active nor focus alone can resume them', () => {
-  const rig = harness();
-  try {
-    rig.event('blur');
-    assert.equal(rig.soundStates.at(-1), true);
-    assert.equal(rig.musicStates.at(-1), true);
-    rig.state('active');
-    assert.equal(rig.soundStates.at(-1), true);
-    rig.event('focus');
-    assert.equal(rig.soundStates.at(-1), false);
-    rig.state('inactive');
-    rig.event('focus');
-    assert.equal(rig.soundStates.at(-1), true);
-    rig.state('active');
-    assert.equal(rig.soundStates.at(-1), false);
-    rig.state('unknown');
-    assert.equal(rig.soundStates.at(-1), true);
-  } finally {
-    rig.close();
-  }
-});
 
 test('a bot roll cannot run behind Alexa, even before React commits the blur; the saved game is untouched', () => {
   const rig = harness();

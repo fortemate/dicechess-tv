@@ -7,6 +7,8 @@ sidebar:
 
 A TV remote has four arrows, OK and Back. On a chessboard that is a long way from a mouse. With a cursor that moved one square per press, a turn of Dice Chess took 23 presses on average in simulated games. The board now takes about 9.
 
+For the complete current behavior, including the scoring formulas, every tie-break, centrality, landing and held-key semantics, see the [Board selection algorithm](/design/board-selection/). The measurements here describe the original simulated designs, before the proposed horizontal cycling and optional automation.
+
 ## The problem
 
 - A turn is up to three actions, and each action is two choices: a piece, then a square.
@@ -77,7 +79,7 @@ The last row shows what the landing rules below cost in these games. A random mo
 - **The cursor waits where it helps.** It stays on its square while that piece can still move, and otherwise moves to the central piece, the one fewest presses from all the others.
 - **OK lands on the likely destination.** Picking a piece up puts the cursor where players usually go: on the most valuable piece it can take, the king above all, since taking it wins. A pawn that cannot take but can advance two squares lands on that push, the usual choice over the single step. Any other piece lands on its central destination, so a piece with a single destination plays with OK, then OK. The arrows do not reach every destination from every square, so a landing that would leave one out of reach gives way to the central destination. Back puts the piece down, with the cursor back on it.
 
-The rules live in the app's core (`src/core/cursor.ts`, `src/core/boardInput.ts`), are covered by its tests, and were played on the Vega Virtual Device. Nothing here has run on a Fire TV Stick yet.
+The rules live in the app's core (`src/core/cursor.ts`, `src/core/boardInput.ts`), are covered by its tests, and were played on the Vega Virtual Device. On 9 October 2026 the owner reported ongoing physical Fire TV Stick testing: the end-of-row feedback prompted [horizontal cycling, issue 299](https://github.com/fortemate/dicechess-tv/issues/299). That change is pending; the rules above still describe the existing navigation.
 
 ## A mark that was dropped
 

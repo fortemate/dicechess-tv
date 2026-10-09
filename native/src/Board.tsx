@@ -147,10 +147,11 @@ export const FLIP_FADE_MS = 100;
 const useFlipFade = (flipped: boolean) => {
   const reduced = useReducedMotion();
   const [opacity] = React.useState(() => new Animated.Value(1));
-  // displayedRef shadows state.displayed during a two-phase animation so that
-  // committing the new orientation (setState) does not re-run this effect and
-  // inadvertently cancel the fade-in that is still in progress (#120).
+  // The orientation on screen, and whether the board has faded out to turn, as
+  // the effects below know them. Refs, so that turning the board does not re-run
+  // the fade out, whose cleanup would stop the fade in (#120).
   const displayedRef = React.useRef(flipped);
+  const fadedOut = React.useRef(false);
   const [state, setState] = React.useState<{
     target: boolean;
     displayed: boolean;
@@ -163,55 +164,63 @@ const useFlipFade = (flipped: boolean) => {
     });
   }
 
+  const fade = React.useCallback(
+    (toValue: number) =>
+      Animated.timing(opacity, {
+        toValue,
+        duration: FLIP_FADE_MS,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    [opacity],
+  );
+
+  // The board fades out on the side it is leaving, and only then turns.
   React.useEffect(() => {
     if (reduced !== false || displayedRef.current === state.target) {
+      // With less motion the board turns at once; and a fade out cut short by
+      // turning back leaves the board as it was. Either way it is fully shown.
+      displayedRef.current = state.target;
+      fadedOut.current = false;
       opacity.setValue(1);
       return;
     }
 
     let live = true;
-    const fadeOut = Animated.timing(opacity, {
-      toValue: 0,
-      duration: FLIP_FADE_MS,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: true,
-    });
-    const fadeIn = Animated.timing(opacity, {
-      toValue: 1,
-      duration: FLIP_FADE_MS,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: true,
-    });
-
+    const fadeOut = fade(0);
     fadeOut.start(({ finished }) => {
-      if (!live) return;
-      if (finished) {
-        // Update the ref first so that the setState below does not cause this
-        // effect to re-run (state.displayed is the effect dependency, not the
-        // ref), keeping fadeIn alive through the full duration.
-        displayedRef.current = state.target;
-        setState((current) => ({ ...current, displayed: current.target }));
-        fadeIn.start(() => {
-          if (live) opacity.setValue(1);
-        });
-      } else {
-        opacity.setValue(1);
-      }
+      if (!live || !finished) return;
+      displayedRef.current = state.target;
+      fadedOut.current = true;
+      setState((current) => ({ ...current, displayed: current.target }));
     });
-
     return () => {
       live = false;
       fadeOut.stop();
-      fadeIn.stop();
-      opacity.setValue(1);
     };
-  }, [state.target, state.displayed, opacity, reduced]);
+  }, [state.target, opacity, reduced, fade]);
+
+  // It fades back in once the render that turned it is done, so the side it
+  // left never shows again on the way in. Started from the fade out's end, the
+  // fade in ran ahead of that render on the Vega Virtual Device, and the old
+  // side came back for a moment before the turned board replaced it.
+  React.useEffect(() => {
+    if (!fadedOut.current || state.displayed !== state.target) return;
+    fadedOut.current = false;
+    const fadeIn = fade(1);
+    fadeIn.start();
+    return () => fadeIn.stop();
+  }, [state.displayed, state.target, fade]);
 
   const displayed = reduced !== false ? flipped : state.displayed;
   return { displayed, opacity };
 };
 
-export const Board = ({ size, ...input }: BoardProps) => {
+// Memoized (#312): the game screen renders on every key, bot step and timer,
+// and the board's inputs are primitives or memoized there, so those renders
+// skip the board unless one of them changed. Its own state still renders it:
+// a slide landing, the board turning.
+export const Board = React.memo(function Board({ size, ...input }: BoardProps) {
   const edge = Math.floor(size / 8);
   const { displayed: flipped, opacity } = useFlipFade(input.flipped ?? false);
   const motion = useMotion(input.board, input.lastMove ?? null);
@@ -239,4 +248,4 @@ export const Board = ({ size, ...input }: BoardProps) => {
       </Animated.View>
     </View>
   );
-};
+});

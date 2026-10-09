@@ -115,8 +115,9 @@ export type Sounds = {
   // The Voices setting, for every spoken line, the host's included. Off,
   // nothing is said, and a line being said stops.
   setVoices(on: boolean): void;
-  // While the app is away from the foreground nothing plays, and anything
-  // playing stops. The player's own sound setting is left alone.
+  // While the app is away from the foreground or out of focus nothing plays,
+  // anything playing stops, and a cue or line still waiting is dropped rather
+  // than heard on the way back. The player's own sound setting is left alone.
   setSuspended(suspended: boolean): void;
 };
 
@@ -155,13 +156,19 @@ export function createSounds({
   let muted = startMuted;
   let voices = startVoices;
   let suspended = false;
+  // Counts the times the app went away. A cue asked for before the last of
+  // them is never heard, even if the app is back by the time its player is
+  // ready or its wait is over (#254).
   let suspension = 0;
   // Counts the steps play() has been told about. A delayed cue starts only if
   // no step came after its own, so a resignation's jingle on the result player
   // is not cut short by the empty roll just before it.
   let steps = 0;
   const loaded = new Map<Slot, string>();
+  // The players done initialising, so that leaving pauses them at once rather
+  // than a turn of the event loop later, when focus may already be back.
   const ready = new Map<Slot, Player>();
+  // The suspension each cue player was last started in.
   const onEffects = new Map<Slot, number>();
   // Counts the lines asked for. A line waiting or being said is still the
   // current one only while no other came after it, and nothing stopped it.
@@ -224,6 +231,8 @@ export function createSounds({
       }
       onEffects.set(channel, generation);
       await player.play();
+      // Silenced while it was starting, and nothing newer is on the player:
+      // the pause sent then may have come before the clip began.
       if (
         (generation !== suspension || muted || suspended) &&
         onEffects.get(channel) === generation
@@ -363,6 +372,7 @@ export function createSounds({
     setSuspended(value) {
       suspended = value;
       if (!value) return;
+      // A cue still waiting to start is dropped, as a new step would drop it.
       steps++;
       suspension++;
       stop(CHANNELS);

@@ -128,9 +128,10 @@ ${body}
 );
 
 // Formatted like the rest of the source, so the format check passes and a
-// re-run leaves no diff.
+// re-run leaves no diff: by the repository's own Prettier, which is the root
+// package's, not this one's.
 execFileSync('npx', ['prettier', '--write', join(native, 'src/cueFiles.ts')], {
-  cwd: native,
+  cwd: join(native, '..'),
   stdio: 'ignore',
 });
 

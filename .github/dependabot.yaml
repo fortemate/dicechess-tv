@@ -1,5 +1,6 @@
-# Three npm projects live here: the repository root holds the shared core and its engine,
-# `/native` is the React Native for Vega application, and `/site` is the project site.
+# Four npm projects live here: the repository root holds the shared core and its engine,
+# `/native` is the React Native for Vega application, `/web` is the browser test bench, and
+# `/site` is the project site.
 version: 2
 updates:
   # ── The Vega application ────────────────────────────────────────────────────────────────────────
@@ -51,6 +52,9 @@ updates:
         update-types:
           ['version-update:semver-major', 'version-update:semver-minor']
       - dependency-name: '@types/react'
+        update-types:
+          ['version-update:semver-major', 'version-update:semver-minor']
+      - dependency-name: '@types/react-test-renderer'
         update-types:
           ['version-update:semver-major', 'version-update:semver-minor']
       - dependency-name: 'typescript'
@@ -118,6 +122,46 @@ updates:
           - '@eslint/*'
           - 'typescript-eslint'
           - 'globals'
+
+  # ── The browser test bench ──────────────────────────────────────────────────────────────────────
+  - package-ecosystem: 'npm'
+    directory: '/web'
+    schedule:
+      interval: 'monthly'
+      day: 'friday'
+      time: '08:00'
+    open-pull-requests-limit: 3
+    labels:
+      - 'dependencies'
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+    assignees:
+      - 'rabestro'
+    rebase-strategy: 'auto'
+    ignore:
+      # The bench draws native/src/, so it runs on the React that native/ pins. React stays on
+      # that minor here and moves with native/, by hand.
+      - dependency-name: 'react'
+        update-types:
+          ['version-update:semver-major', 'version-update:semver-minor']
+      - dependency-name: 'react-dom'
+        update-types:
+          ['version-update:semver-major', 'version-update:semver-minor']
+      - dependency-name: '@types/react'
+        update-types:
+          ['version-update:semver-major', 'version-update:semver-minor']
+      - dependency-name: '@types/react-dom'
+        update-types:
+          ['version-update:semver-major', 'version-update:semver-minor']
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major']
+    groups:
+      # One pull request a month for the whole bench. Nothing here reaches the device, and CI
+      # builds the bench on every pull request, so a breaking update fails there.
+      web:
+        patterns:
+          - '*'
 
   # ── The project site ────────────────────────────────────────────────────────────────────────────
   - package-ecosystem: 'npm'
