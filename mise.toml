@@ -63,15 +63,22 @@ run = "npm run coverage"
 # --- The application on a Vega Virtual Device (needs the Vega SDK) ---
 
 [tasks.build]
-description = "🔨 Build the installable package (native/build/aarch64-release/), numbered as the latest beta"
+description = "🔨 Build the installable package (native/build/aarch64-release/), numbered as the latest beta or release"
 # A device refuses a build numbered lower than the one installed, so a plain local
-# build (number 0) will not install over a beta. This one takes the latest beta's
-# number from the tags, on GitHub or, offline, in the clone: it installs over that
-# beta, and the next beta, numbered higher, installs over it. BUILD_NUMBER overrides.
+# build (number 0) will not install over a beta or a store release. This one takes
+# the highest build number among the tags, on GitHub or, offline, in the clone: it
+# installs over that build, and the next one, numbered higher, installs over it.
+# A beta tag ends in its number, v0.1.0-beta.24, and a release tag carries it as
+# build metadata, v1.0.0+25 (CONTRIBUTING.md, "Releases"). BUILD_NUMBER overrides.
 run = '''
-n="${BUILD_NUMBER:-$( { git ls-remote --tags origin 'v*-beta.*' 2>/dev/null || git show-ref --tags; } | sed -nE 's#.*refs/tags/v[^[:space:]]*-beta\.([0-9]+)$#\1#p' | sort -n | tail -1)}"
-echo "build number ${n:-0}"
-npm run build --prefix native -- --build-number "${n:-0}"
+if [ -n "${BUILD_NUMBER:-}" ]; then
+  n="$BUILD_NUMBER" from=BUILD_NUMBER
+else
+  set -- $( { git ls-remote --tags origin 'v*' 2>/dev/null || git show-ref --tags; } | sed -nE 's#.*refs/tags/(v[^[:space:]]*(-beta[.]|[+])([0-9]+))$#\3 \1#p' | sort -n | tail -1)
+  n="${1:-0}" from="${2:-no numbered tag}"
+fi
+echo "build number $n ($from)"
+npm run build --prefix native -- --build-number "$n"
 '''
 
 [tasks."device:start"]
