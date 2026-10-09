@@ -25,11 +25,21 @@ import {
   copyPortraits,
   portraitVector,
   portraitsVersion,
+  shownPortraits,
   // @ts-expect-error — a build script, deliberately plain JavaScript.
 } from '../scripts/generate-assets.mjs';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
-import { PORTRAITS_VERSION } from '../src/Portrait';
+import { basename } from 'node:path';
+import {
+  CHARACTERS,
+  PORTRAIT_OF,
+  PORTRAITS_VERSION,
+  portraitPath,
+  type PortraitKind,
+} from '../src/Portrait';
+import { HOSTS } from '../src/hostSetting';
+import { TEACHER } from '../src/Teacher';
 
 const NATIVE = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -126,11 +136,15 @@ test('portraits ship as the lock pinned them, and not at all without one', (t) =
       files: { 'rolly-card-336.png': { sha256 } },
     }),
   );
-  assert.deepEqual(copyPortraits(root), ['rolly-card-336.png']);
+  const shown = ['rolly-card-336.png'];
+  assert.deepEqual(copyPortraits(root, PORTRAITS_VERSION, shown), shown);
   assert.deepEqual(files(target), [`${PORTRAITS_VERSION}/rolly-card-336.png`]);
 
   writeFileSync(join(root, 'portraits/rolly-card-336.png'), 'edited by hand');
-  assert.throws(() => copyPortraits(root), /no longer matches/);
+  assert.throws(
+    () => copyPortraits(root, PORTRAITS_VERSION, shown),
+    /no longer matches/,
+  );
 });
 
 // Since pack 1.4.0 Thinkle comes as a vector too. The splash draws him from it
@@ -158,7 +172,8 @@ test('a portrait vector is read for the splash and never shipped', (t) => {
   assert.equal(portraitVector(root, 'thinkle.svg'), null, 'not pinned');
 
   lock({ 'thinkle-card-336.png': pin(card), 'thinkle.svg': pin(vector) });
-  assert.deepEqual(copyPortraits(root), ['thinkle-card-336.png']);
+  const shown = ['thinkle-card-336.png'];
+  assert.deepEqual(copyPortraits(root, PORTRAITS_VERSION, shown), shown);
   assert.deepEqual(files(join(root, 'assets/portraits')), [
     `${PORTRAITS_VERSION}/thinkle-card-336.png`,
   ]);
@@ -166,7 +181,75 @@ test('a portrait vector is read for the splash and never shipped', (t) => {
 
   writeFileSync(join(root, 'portraits/thinkle.svg'), '<svg>edited</svg>');
   assert.throws(() => portraitVector(root, 'thinkle.svg'), /no longer matches/);
-  assert.throws(() => copyPortraits(root), /no longer matches/);
+  assert.throws(
+    () => copyPortraits(root, PORTRAITS_VERSION, shown),
+    /no longer matches/,
+  );
+});
+
+// The pack holds characters the game has not introduced, Ashby and two more
+// cats among them. Only the portraits a screen shows ship (#262), and a pack
+// without one of those is refused rather than built into a game that shows an
+// emoji face or an empty place where the portrait belongs.
+test('only the portraits the app shows ship, and a pack missing one is refused', (t) => {
+  const root = mkdtempSync(join(tmpdir(), 'dicechess-tv-portraits-'));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const shown: string[] = shownPortraits();
+  const unshown = [
+    'ashby-badge-128.png',
+    'ashby-card-336.png',
+    'cat-blue-badge-128.png',
+    'cat-green-card-336.png',
+    'thinkle.svg',
+  ];
+  mkdirSync(join(root, 'portraits'));
+  const pinned: Record<string, { sha256: string }> = {};
+  for (const name of [...shown, ...unshown]) {
+    const bytes = Buffer.from(name);
+    writeFileSync(join(root, 'portraits', name), bytes);
+    pinned[name] = { sha256: createHash('sha256').update(bytes).digest('hex') };
+  }
+  const lock = (files: object) =>
+    writeFileSync(
+      join(root, 'portraits/portraits.lock.json'),
+      JSON.stringify({ source: { version: PORTRAITS_VERSION }, files }),
+    );
+
+  lock(pinned);
+  assert.deepEqual(copyPortraits(root).sort(), [...shown].sort());
+  assert.deepEqual(
+    files(join(root, 'assets/portraits')),
+    shown.map((name) => `${PORTRAITS_VERSION}/${name}`).sort(),
+  );
+
+  delete pinned['cat-card-336.png'];
+  lock(pinned);
+  assert.throws(() => copyPortraits(root), /holds no cat-card-336\.png/);
+  assert.equal(existsSync(join(root, 'assets/portraits')), false);
+});
+
+// The build names the files from src/Portrait.tsx; the app names them with
+// portraitPath. Two readings of one list must name the same files.
+test('the build ships the portrait files the app loads', () => {
+  const kinds: readonly PortraitKind[] = ['badge', 'card'];
+  assert.deepEqual(
+    shownPortraits(),
+    CHARACTERS.flatMap((character) =>
+      kinds.map((kind) => basename(portraitPath(character, kind))),
+    ),
+  );
+});
+
+// A character in CHARACTERS ships, so each one needs a screen that shows it:
+// an opponent, a Hot Seat host or the tutorial's teacher. One that no screen
+// shows would ship a character the game has not introduced.
+test('every character whose portrait ships is one a screen shows', () => {
+  const onScreen = new Set([
+    ...Object.values(PORTRAIT_OF),
+    ...HOSTS.map((host) => host.portrait),
+    TEACHER,
+  ]);
+  assert.deepEqual([...CHARACTERS].sort(), [...onScreen].sort());
 });
 
 // A pack the app does not look for would ship and never load, and the game
@@ -208,5 +291,20 @@ test(
   () => {
     const { source } = JSON.parse(readFileSync(LOCK, 'utf8'));
     assert.equal(source.version, PORTRAITS_VERSION);
+  },
+);
+
+// And it has to hold every portrait the app shows. Run on a copy, so the real
+// assets/ is not touched.
+test(
+  'the vendored pack has every portrait the app shows, and only those ship',
+  { skip: !existsSync(LOCK) && 'no portraits in this checkout' },
+  (t) => {
+    const root = mkdtempSync(join(tmpdir(), 'dicechess-tv-portraits-'));
+    t.after(() => rmSync(root, { recursive: true, force: true }));
+    cpSync(join(NATIVE, 'portraits'), join(root, 'portraits'), {
+      recursive: true,
+    });
+    assert.deepEqual(copyPortraits(root).sort(), [...shownPortraits()].sort());
   },
 );

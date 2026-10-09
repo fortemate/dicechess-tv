@@ -308,22 +308,28 @@ export const copyMusic = (root = native) => {
   return copied;
 };
 
-// The opponents' portraits (dicechess-assets#31), when this checkout has them:
-// scripts/vendor-portraits.mjs puts them in portraits/ with a lock, and git
-// ignores that directory while the repository is public. They go to
-// assets/portraits/<pack version>/, which is /pkg/assets/portraits/ on the
-// device, and only if each still has the bytes the lock pinned. A checkout
-// without them builds a game that shows the RhosGFX emoji faces
-// (src/Portrait.tsx).
+// The characters' portraits (dicechess-assets#31), when this checkout has them:
+// scripts/vendor-portraits.mjs puts the whole pack in portraits/ with a lock,
+// and git ignores that directory while the repository is public. The files the
+// app can load, `shownPortraits`, go to assets/portraits/<pack version>/, which
+// is /pkg/assets/portraits/ on the device, and only if each still has the bytes
+// the lock pinned. A checkout without them builds a game that shows the RhosGFX
+// emoji faces (src/Portrait.tsx).
 //
 // The app looks for them only under the version src/Portrait.tsx names
 // (`portraitsVersion`). A pack of any other version would ship and never load,
 // and the game would show the emoji faces without a word, so the build refuses
-// it instead.
+// it instead. It refuses a pack without a portrait the app shows for the same
+// reason.
 //
-// A vector (an .svg, since pack 1.4.0) is a build input for the splash and
-// does not ship: the app draws only the PNG exports.
-export const copyPortraits = (root = native, expected = portraitsVersion()) => {
+// Nothing else in the pack ships (#262): not the characters the game has not
+// introduced, and not a vector (an .svg, since pack 1.4.0), which is a build
+// input for the splash. Every pinned file is still checked against the lock.
+export const copyPortraits = (
+  root = native,
+  expected = portraitsVersion(),
+  shown = shownPortraits(),
+) => {
   rmSync(join(root, 'assets/portraits'), { recursive: true, force: true });
   const lockPath = join(root, 'portraits/portraits.lock.json');
   if (!existsSync(lockPath)) return [];
@@ -335,6 +341,12 @@ export const copyPortraits = (root = native, expected = portraitsVersion()) => {
       `portraits/ holds portrait pack ${source.version}, but src/Portrait.tsx ` +
         `looks for ${expected}: vendor that pack, or change PORTRAITS_VERSION`,
     );
+  const missing = shown.filter((name) => !Object.hasOwn(files, name));
+  if (missing.length > 0)
+    throw new Error(
+      `portraits/ holds no ${missing.join(', ')}, which src/Portrait.tsx ` +
+        'shows: vendor a pack that has them, or change CHARACTERS',
+    );
   const target = join(root, 'assets/portraits', source.version);
   const copied = [];
   for (const [name, { sha256 }] of Object.entries(files)) {
@@ -343,7 +355,7 @@ export const copyPortraits = (root = native, expected = portraitsVersion()) => {
       throw new Error(
         `portraits/${name} no longer matches portraits/portraits.lock.json`,
       );
-    if (name.endsWith('.svg')) continue;
+    if (!shown.includes(name)) continue;
     mkdirSync(target, { recursive: true });
     writeFileSync(join(target, name), data);
     copied.push(name);
@@ -379,6 +391,26 @@ export const portraitsVersion = (root = native) => {
   return match[1];
 };
 
+// The portrait files the app can load: a badge and a card, as FILE names them
+// in src/Portrait.tsx, for each character in its CHARACTERS. Read from the
+// source, like the version, so the app and the build cannot hold two lists.
+export const shownPortraits = (root = native) => {
+  const source = readFileSync(join(root, 'src/Portrait.tsx'), 'utf8');
+  const quoted = (pattern, name) => {
+    const match = pattern.exec(source);
+    if (!match) throw new Error(`src/Portrait.tsx names no ${name}`);
+    return [...match[1].matchAll(/'([\w-]+)'/g)].map(([, value]) => value);
+  };
+  const characters = quoted(
+    /export const CHARACTERS = \[([^\]]*)\] as const;/,
+    'CHARACTERS',
+  );
+  const files = quoted(/const FILE: [^=]+= \{([^}]*)\};/, 'FILE');
+  return characters.flatMap((character) =>
+    files.map((file) => `${character}-${file}.png`),
+  );
+};
+
 // The bots' voices (#159), vendored by scripts/vendor-voices.mjs into voices/.
 // Their clips go to assets/voices/, which is /pkg/assets/voices/ on the device,
 // and only if each still has the bytes voices/voices.json pinned.
@@ -405,7 +437,8 @@ if (
   process.argv[1] &&
   resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
-  const { destination, icon, thinkle, sounds, music, voices } = main();
+  const { destination, icon, thinkle, sounds, music, voices, portraits } =
+    main();
   const shown = (path) => path.replace(`${native}/`, '');
   console.log(`icon:   ${shown(icon)}`);
   console.log(`sounds: ${sounds.length} files -> assets/sfx/`);
@@ -415,6 +448,11 @@ if (
       : 'music:  none in this checkout (native/music/music.json absent)',
   );
   console.log(`voices: ${voices.length} clips -> assets/voices/`);
+  console.log(
+    portraits.length
+      ? `portraits: ${portraits.length} files -> assets/portraits/${portraitsVersion()}/`
+      : 'portraits: none in this checkout (native/portraits/ absent)',
+  );
   console.log(
     `splash: ${WIDTH}x${HEIGHT}, ${MOTION.frames} frames at ${FPS} fps, ${thinkle ? 'Thinkle' : "Thinkle's hat (no portraits in this checkout)"} -> ${shown(destination)}`,
   );

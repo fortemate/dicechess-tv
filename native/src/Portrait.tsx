@@ -17,8 +17,21 @@ import { Image, View } from 'react-native';
 import type { BotMode } from '../../src/core/game';
 import { FACES, type FaceId } from './faces';
 
-// The characters the game shows, by their ids in the asset pack.
-export type CharacterId = 'rolly' | 'grabby' | 'rampage' | 'cat' | 'thinkle';
+// The characters the game shows, by their ids in the asset pack: the
+// opponents in PORTRAIT_OF, the Hot Seat hosts (src/hostSetting.ts) and
+// Thinkle, who teaches the tutorial (src/Teacher.tsx). The build ships the
+// portraits of these characters and no others (#262), reading this list from
+// the source as it reads PORTRAITS_VERSION. A portrait drawn for anyone else
+// does not type-check, and test/assets.test.ts fails for a character here that
+// no screen shows.
+export const CHARACTERS = [
+  'rolly',
+  'grabby',
+  'rampage',
+  'cat',
+  'thinkle',
+] as const;
+export type CharacterId = (typeof CHARACTERS)[number];
 
 // Each opponent's emoji face, from RhosGFX's Vector Emojis (CC0).
 export const FACE_OF: Readonly<Record<BotMode, FaceId>> = {
