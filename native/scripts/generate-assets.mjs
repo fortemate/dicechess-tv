@@ -21,6 +21,12 @@
 // The PNG work is done by hand here: the frames are written as plain RGB, and
 // the tests read them back with the decoder below. `zip` is on every machine that can
 // build this package.
+//
+// The frames are compressed with fflate, not node:zlib, whose output depends on
+// how Node was built: the official builds, CI's included, carry Chromium's
+// zlib, Homebrew's links the system one, and the same frames came out 74 KB
+// apart. fflate is plain JavaScript, so every machine writes the same archive,
+// and a smaller one (../splash/README.md, Size).
 import { execFileSync } from 'node:child_process';
 import {
   copyFileSync,
@@ -33,8 +39,9 @@ import {
 } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { crc32, deflateSync, inflateSync } from 'node:zlib';
+import { crc32, inflateSync } from 'node:zlib';
 import { createHash } from 'node:crypto';
+import { zlibSync } from 'fflate';
 import { MOTION, splashRenderer } from './splash.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -166,7 +173,7 @@ const encodePng = (width, height, rgb) => {
   return Buffer.concat([
     Buffer.from('89504e470d0a1a0a', 'hex'),
     chunk('IHDR', header),
-    chunk('IDAT', deflateSync(raw, { level: 9 })),
+    chunk('IDAT', Buffer.from(zlibSync(raw, { level: 9 }))),
     chunk('IEND', Buffer.alloc(0)),
   ]);
 };

@@ -10,9 +10,10 @@ credit never move, so a cut at any frame shows them whole.
 
 `scripts/splash.mjs` draws the 25 frames at build time with `@resvg/resvg-js`
 2.6.2 (MPL-2.0, a development dependency), and `scripts/generate-assets.mjs`
-packs them, in playback order, into `assets/raw/SplashScreenImages.zip` at
-8 fps. Nothing here, the fonts and Thinkle's vector included, goes into the
-package: the device gets pixels.
+compresses them with `fflate` 0.8.3 (MIT, a development dependency) and packs
+them, in playback order, into `assets/raw/SplashScreenImages.zip` at 8 fps.
+Nothing here, the fonts and Thinkle's vector included, goes into the package:
+the device gets pixels.
 
 ## Why a loop
 
@@ -49,11 +50,20 @@ both: a stand-in portrait and the hat.
 
 ## Size
 
-Each frame is a whole PNG of about 118 KB with Thinkle, and the archive stores
-them as they are: about 2.95 MB for the 25. In #290 an archive of 17 MB made the
-service prepare the splash only after the game was already on screen, so the
-test holds it under 3 MB. More frames, a higher frame rate or a shadow under
-the title would not fit.
+Each frame is a whole PNG of 101 to 120 KB with Thinkle, and the archive stores
+them as they are: 2,816,296 bytes for the 25. In #290 an archive of 17 MB made
+the service prepare the splash only after the game was already on screen, so
+the test holds it under 3,000,000 bytes. That leaves about 180 KB, roughly one
+more frame.
+
+The frames are compressed with fflate rather than Node's own zlib, because
+Node's deflate depends on how Node was built. The same 25 frames came to
+3,020,363 bytes with the zlib in Node's official builds, which CI and mise
+install, and to 2,946,334 bytes with Homebrew's Node, which links the system
+zlib. #293 was measured with the second and built for the Stick with the
+first, so the build the owner approved carried the larger archive. fflate is
+plain JavaScript and writes the same bytes on every machine. The pixels are
+the same with any of the three.
 
 ## Changing it
 

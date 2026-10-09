@@ -20,6 +20,7 @@ Fortemate's code in this repository is licensed under AGPL-3.0-only (see [LICENS
 | Titan One font, Rodrigo Fuenzalida (splash title, build time only)         | google/fonts 931162c          | OFL-1.1                  | https://github.com/google/fonts/tree/main/ofl/titanone |
 | Arimo font, The Arimo Project Authors (splash credit, build time only)     | googlefonts/Arimo 4a6255f     | OFL-1.1                  | https://github.com/googlefonts/Arimo                   |
 | resvg-js, rasterizes the splash (development dependency)                   | 2.6.2                         | MPL-2.0                  | https://github.com/thx/resvg-js                        |
+| fflate, compresses the splash frames (development dependency)              | 0.8.3                         | MIT                      | https://github.com/101arrowz/fflate                    |
 
 The engine and RhosGFX license texts are in [AGPL-3.0](licenses/AGPL-3.0.txt), [CC0-1.0](licenses/RhosGFX-CC0.txt) and, for the emojis, [CC0-1.0](licenses/RhosGFX-Emojis-CC0.txt). Full installed-package notices are retained in node_modules, and build-generated license comments must not be removed. The package locks record the exact dependency graph.
 
@@ -29,7 +30,7 @@ The faces of the three local opponents are three SVGs from the RhosGFX Vector Em
 
 ## Splash
 
-The launch splash is drawn at build time by `native/scripts/splash.mjs` and ships as 25 PNG frames. Its title is set in Titan One and the Fortemate name in Arimo Regular, both under the SIL Open Font License 1.1 and copied unchanged into `native/splash/fonts/` with their licences; `native/splash/README.md` records their sources and digests. The fonts themselves are not in the package. `@resvg/resvg-js` 2.6.2 renders the frames; it is a development dependency under MPL-2.0, its full licence stays in the installed package, and the application does not import it. The splash draws Thinkle from the private portrait pack (below) and three RhosGFX pieces (above); a build without the portraits draws a hat instead.
+The launch splash is drawn at build time by `native/scripts/splash.mjs` and ships as 25 PNG frames. Its title is set in Titan One and the Fortemate name in Arimo Regular, both under the SIL Open Font License 1.1 and copied unchanged into `native/splash/fonts/` with their licences; `native/splash/README.md` records their sources and digests. The fonts themselves are not in the package. `@resvg/resvg-js` 2.6.2 renders the frames; it is a development dependency under MPL-2.0, its full licence stays in the installed package, and the application does not import it. `fflate` 0.8.3 compresses them; it is a development dependency under MIT, and the application does not import it either. The splash draws Thinkle from the private portrait pack (below) and three RhosGFX pieces (above); a build without the portraits draws a hat instead.
 
 ## Sounds
 
