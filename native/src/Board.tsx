@@ -211,7 +211,10 @@ const useFlipFade = (flipped: boolean) => {
   return { displayed, opacity };
 };
 
-export const Board = ({ size, ...input }: BoardProps) => {
+// Memoized (#312): the game screen renders on every key, bot step and timer,
+// and the board's inputs are primitives or memoized there, so it renders only
+// when one of them changes.
+export const Board = React.memo(function Board({ size, ...input }: BoardProps) {
   const edge = Math.floor(size / 8);
   const { displayed: flipped, opacity } = useFlipFade(input.flipped ?? false);
   const motion = useMotion(input.board, input.lastMove ?? null);
@@ -239,4 +242,4 @@ export const Board = ({ size, ...input }: BoardProps) => {
       </Animated.View>
     </View>
   );
-};
+});
