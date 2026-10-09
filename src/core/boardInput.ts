@@ -158,7 +158,7 @@ export function waitingFocus(
   const pieces = movableSquares(legal);
   const square = pieces.includes(cursor)
     ? cursor
-    : (central(pieces, cursor, { rule: RULE, flipped }) ?? cursor);
+    : (central(pieces, cursor, { rule: RULE, flipped, wrap: true }) ?? cursor);
   return { cursor: square as Square, selected: null };
 }
 
@@ -172,8 +172,9 @@ export function boardInput(
   legal: readonly string[],
   flipped = false,
   board: string | null = null,
+  { repeat = false }: { repeat?: boolean } = {},
 ): BoardInputResult {
-  const layout = { rule: RULE, flipped };
+  const layout = { rule: RULE, flipped, wrap: true };
   if (key === 'menu') {
     // Menu opens the menu overlay immediately: if a piece was picked up, it
     // is put back down first so the board is clean when returning.
@@ -200,7 +201,10 @@ export function boardInput(
     const options = focus.selected
       ? destinationsOf(legal, focus.selected)
       : movableSquares(legal);
-    const cursor = jump(focus.cursor, options, key, layout) ?? focus.cursor;
+    // A held press may keep walking ahead, but only a new press can cycle.
+    const cursor =
+      jump(focus.cursor, options, key, { ...layout, wrap: !repeat }) ??
+      focus.cursor;
     return {
       focus: { ...focus, cursor: cursor as Square },
       action: { type: 'none' },

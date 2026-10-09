@@ -5,6 +5,7 @@ import {
   jump,
   pressesFrom,
   route,
+  RULE,
   steps,
 } from '../src/core/cursor.ts';
 
@@ -91,4 +92,39 @@ test('a route lists the presses that reach an option, in order', () => {
   const box = ['d5', 'd7', 'e6', 'g5', 'g7', 'h7'];
   assert.equal(route('d5', 'e6', box, { rule: 'axis' }), null);
   assert.equal(route('d5', 'e6', box, { rule: 'cone' })?.length, 1);
+});
+
+test('horizontal cycling is an explicit fallback on the same visible row', () => {
+  const options = ['b2', 'd2', 'f2'];
+  const layout = { rule: RULE, wrap: true };
+  assert.equal(jump('f2', options, 'right', layout), 'b2');
+  assert.equal(jump('b2', options, 'left', layout), 'f2');
+  assert.equal(jump('d2', options, 'right', layout), 'f2');
+  assert.equal(jump('f2', options, 'right'), null);
+  // An ordinary candidate on a different rank still wins.
+  assert.equal(jump('f2', [...options, 'g8'], 'right', layout), 'g8');
+  assert.equal(jump('b2', [...options, 'a8'], 'left', layout), 'a8');
+  for (const choices of [[], ['f2'], ['f2', 'b3']])
+    assert.equal(jump('f2', choices, 'right', layout), null);
+  assert.equal(jump('f2', options, 'up', layout), null);
+  assert.equal(jump('b2', options, 'down', layout), null);
+});
+
+test('cycling follows Black screen coordinates', () => {
+  const layout = { rule: RULE, flipped: true, wrap: true };
+  assert.equal(jump('b7', ['b7', 'd7', 'f7'], 'right', layout), 'f7');
+  assert.equal(jump('f7', ['b7', 'd7', 'f7'], 'left', layout), 'b7');
+});
+
+test('shortest routes and centrality include discrete cyclic presses', () => {
+  const layout = { rule: RULE, wrap: true };
+  assert.deepEqual(route('e2', 'b2', PAWNS, layout), ['right']);
+  assert.deepEqual(Object.fromEntries(pressesFrom('e2', PAWNS, layout)), {
+    e2: 0,
+    d2: 1,
+    b2: 1,
+  });
+  // All three are one press apart now; geometric proximity breaks the tie.
+  assert.equal(central(PAWNS, 'e2', layout), 'e2');
+  assert.equal(central(PAWNS, null, layout), 'b2');
 });

@@ -81,10 +81,14 @@ const atStep = (index: number): TutorialState => {
 
 export const initialTutorial = (): TutorialState => atStep(0);
 
+export type TutorialInput = BoardKey | { key: BoardKey; repeat?: boolean };
+
 export function tutorialReducer(
   state: TutorialState,
-  key: BoardKey,
+  input: TutorialInput,
 ): TutorialState {
+  const key = typeof input === 'string' ? input : input.key;
+  const repeat = typeof input === 'string' ? false : (input.repeat ?? false);
   if (state.exit) return state;
 
   // The closing screen: the arrows walk its choices, wrapping, as they walk a
@@ -148,7 +152,14 @@ export function tutorialReducer(
   }
 
   const { legal, dfen } = viewGame(state.game);
-  const result = boardInput(state.focus, key, legal, false, dfen.split(' ')[0]);
+  const result = boardInput(
+    state.focus,
+    key,
+    legal,
+    false,
+    dfen.split(' ')[0],
+    { repeat },
+  );
   // Back cancels a selection first and only then leaves, exactly as in a game.
   if (result.action.type === 'exit') return { ...state, exit: true };
   if (result.action.type === 'move') {
