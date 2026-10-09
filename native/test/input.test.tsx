@@ -518,3 +518,24 @@ test('selected destinations cycle on new presses and stop on held repeats', () =
   send(Back);
   assert.match(state(), /cursor b1 \| selected -/);
 });
+
+test('opening and closing a menu during a hold cannot enable cycling', () => {
+  const reports = reporter();
+  mount(
+    React.createElement(GameScreen, {
+      options: { ...options, roll: () => [1, 1, 1] },
+      onState: reports.onState,
+    }),
+  );
+  send(Select, Select);
+  act(() => hold(Right, 12));
+  assert.match(reports.state(), /cursor h2 \| selected -/);
+  send(Menu);
+  assert.match(reports.state(), /overlay menu/);
+  send(Back);
+  act(() => hold(Right, 3));
+  assert.match(reports.state(), /cursor h2 \| selected -/);
+  act(() => release(Right));
+  send(Right);
+  assert.match(reports.state(), /cursor a2 \| selected -/);
+});

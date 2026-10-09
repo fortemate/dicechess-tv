@@ -67,8 +67,9 @@ export type RemoteInputOptions = {
   // just before the press is delivered. A screen shows its focused item pressed
   // meanwhile, so the press is seen before its choice takes effect (#51).
   onPress?: (pressed: boolean) => void;
-  // A different input context (board phase, selection or overlay) forgets a
-  // held press. Cursor movement itself must not change this token.
+  // A different input context (board phase, selection or overlay) cancels OK
+  // feedback. Direction keys remain held until release; cursor movement itself
+  // must not change this token.
   scope?: string;
 };
 
@@ -94,7 +95,6 @@ export function useRemoteInput(
   });
 
   const reset = useCallback(() => {
-    held.current.clear();
     selectHeld.current = false;
     press.current?.(false);
   }, []);
@@ -131,15 +131,18 @@ export function useRemoteInput(
   useTVEventHandler(
     useCallback((event: HWEvent) => {
       const key = KEYS[String(event.eventType)];
-      if (!key || !ready.current) return;
+      if (!key) return;
       if (REPEATABLE.has(key)) {
+        // Scope/focus changes are not physical releases. Keep tracking these
+        // events while inactive so a continuing hold cannot become a new press.
         if (event.eventKeyAction === UP) held.current.delete(key);
         if (event.eventKeyAction !== DOWN) return;
         const repeat = held.current.has(key);
         held.current.add(key);
-        handler.current(key, repeat);
+        if (ready.current) handler.current(key, repeat);
         return;
       }
+      if (!ready.current) return;
       if (key === 'select') {
         // Down, and every repeat while held, only shows the press; the release
         // is the press itself, delivered once.

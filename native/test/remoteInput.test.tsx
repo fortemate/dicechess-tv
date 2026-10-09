@@ -18,7 +18,7 @@ import {
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
 ).IS_REACT_ACT_ENVIRONMENT = true;
 
-test('direction releases and input-context changes reset the held press', () => {
+test('directions remain held across input-context changes until release', () => {
   const events: [BoardKey, boolean][] = [];
   const Probe = ({ scope }: { scope: string }) => {
     useRemoteInput((key, repeat) => events.push([key, repeat]), { scope });
@@ -38,12 +38,14 @@ test('direction releases and input-context changes reset the held press', () => 
     });
     act(() => hold('left', 1));
     act(() => release('left'));
+    act(() => press('left'));
     assert.deepEqual(events, [
       ['right', false],
       ['right', true],
       ['right', true],
       ['right', false],
       ['left', false],
+      ['left', true],
       ['left', true],
       ['left', false],
     ]);
@@ -52,7 +54,7 @@ test('direction releases and input-context changes reset the held press', () => 
   }
 });
 
-test('blur and inactivity discard held state and stale OK without exiting on Back', () => {
+test('blur and inactivity cancel OK but preserve direction holds without exiting on Back', () => {
   const events: [BoardKey, boolean][] = [];
   const pressed: boolean[] = [];
   const Probe = () => {
@@ -81,17 +83,28 @@ test('blur and inactivity discard held state and stale OK without exiting on Bac
     act(() => press('left'));
     act(() => setAppState('active'));
     act(() => {
+      hold('right', 1);
+      release('right');
       release('select');
+      press('left');
       press('right');
       press('select');
     });
     assert.deepEqual(events, [
       ['right', false],
+      ['right', true],
+      ['left', false],
       ['right', false],
       ['select', false],
     ]);
     act(() => setAppState('inactive'));
-    act(() => press('right'));
+    act(() => hold('right', 1));
+    act(() => setAppState('active'));
+    act(() => hold('right', 1));
+    assert.deepEqual(events.at(-1), ['right', true]);
+    // A release received while inactive still ends the physical hold.
+    act(() => setAppState('inactive'));
+    act(() => release('right'));
     act(() => setAppState('active'));
     act(() => press('right'));
     assert.deepEqual(events.at(-1), ['right', false]);
