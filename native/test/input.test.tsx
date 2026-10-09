@@ -314,7 +314,7 @@ test('with a piece in hand the cursor lands only on its destinations', () => {
   // Nothing but c3 lies ahead of a3 among the knight's destinations, so no
   // press can reach a square the knight cannot go to.
   send(Up, Up, Right, Right, Down);
-  assert.match(state(), /cursor c3 \| selected b1/);
+  assert.match(state(), /cursor a3 \| selected b1/);
   assert.match(state(), /dice "QRN"/);
 
   // Back puts the knight down and the cursor goes back to it.
@@ -517,4 +517,61 @@ test('the pieces that can move are marked until one is picked up', () => {
     overlays(root, (s) => s.backgroundColor === THEME.destination).length,
     2,
   );
+});
+
+test('holding across a pawn row stops; release and a new press cycle once', () => {
+  const reports: string[] = [];
+  replace(() =>
+    renderer.create(
+      React.createElement(GameScreen, {
+        options: { ...options, roll: () => [1, 1, 1] },
+        onState: (line: string) => reports.push(line),
+      }),
+    ),
+  );
+  const state = () => reports.at(-1) ?? '';
+  send(Select, Select);
+  assert.match(state(), /cursor e2/);
+  act(() => hold(Right, 12));
+  assert.match(state(), /cursor h2 \| selected -/);
+  act(() => release(Right));
+  // A fresh press starting at the end crosses once, then held repeats walk
+  // the next row traversal and stop at the other end of that same cycle.
+  act(() => hold(Right, 1));
+  assert.match(state(), /cursor a2/);
+  act(() => hold(Right, 12));
+  assert.match(state(), /cursor h2 \| selected -/);
+  act(() => release(Right));
+  send(Right);
+  assert.match(state(), /cursor a2/);
+  act(() => hold(Left, 1));
+  assert.match(state(), /cursor h2/);
+  act(() => hold(Left, 12));
+  assert.match(state(), /cursor a2/);
+  act(() => release(Left));
+  send(Left);
+  assert.match(state(), /cursor h2/);
+  // OK still picks up and confirms the pawn; arrows did not spend a die.
+  assert.match(state(), /dice "PPP"/);
+  send(Select);
+  assert.match(state(), /cursor h4 \| selected h2/);
+  send(Back);
+  assert.match(state(), /cursor h2 \| selected -/);
+  send(Select, Select);
+  assert.match(state(), /last h2h4/);
+});
+
+test('selected destinations cycle on new presses and stop on held repeats', () => {
+  const { state } = mount();
+  send(Select, Left, Select);
+  assert.match(state(), /cursor a3 \| selected b1/);
+  act(() => hold(Right, 4));
+  assert.match(state(), /cursor c3 \| selected b1/);
+  act(() => release(Right));
+  send(Right);
+  assert.match(state(), /cursor a3 \| selected b1/);
+  send(Left);
+  assert.match(state(), /cursor c3 \| selected b1/);
+  send(Back);
+  assert.match(state(), /cursor b1 \| selected -/);
 });

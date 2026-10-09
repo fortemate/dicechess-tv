@@ -86,12 +86,13 @@ export const TutorialScreen = ({
 
   // The tutorial always has somewhere to go back to, so it never lets Back
   // close the app.
-  useRemoteInput(onKey as (key: BoardKey) => void, {
+  useRemoteInput((key: BoardKey, repeat: boolean) => onKey({ key, repeat }), {
     onBack: () => {
-      (onKey as (key: BoardKey) => void)('back');
+      onKey('back');
       return true;
     },
     onPress: setPressed,
+    scope: `${state.index}:${state.complete}:${state.finished}:${state.game.phase}:${state.focus.selected}`,
   });
 
   React.useEffect(() => {

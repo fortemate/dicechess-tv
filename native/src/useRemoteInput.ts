@@ -22,6 +22,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import {
   useTVEventHandler,
   useKeplerBackHandler,
+  useKeplerAppStateManager,
   type HWEvent,
 } from '@amazon-devices/react-native-kepler';
 import type { BoardKey } from '../../src/core/boardInput';
@@ -66,10 +67,13 @@ export type RemoteInputOptions = {
   // just before the press is delivered. A screen shows its focused item pressed
   // meanwhile, so the press is seen before its choice takes effect (#51).
   onPress?: (pressed: boolean) => void;
+  // A different input context (board phase, selection or overlay) forgets a
+  // held press. Cursor movement itself must not change this token.
+  scope?: string;
 };
 
 export function useRemoteInput(
-  onKey: (key: BoardKey) => void,
+  onKey: (key: BoardKey, repeat: boolean) => void,
   options: RemoteInputOptions = {},
 ): void {
   // Reading the handlers through refs keeps a new callback identity on every
@@ -77,6 +81,9 @@ export function useRemoteInput(
   // been committed, not while it runs: a render can be thrown away, and a key
   // must never reach a handler from one that was. Layout effects run before any
   // subscription below is made, so no key can arrive before they are set.
+  const held = useRef(new Set<BoardKey>());
+  const selectHeld = useRef(false);
+  const ready = useRef(true);
   const handler = useRef(onKey);
   const back = useRef(options.onBack);
   const press = useRef(options.onPress);
@@ -86,19 +93,65 @@ export function useRemoteInput(
     press.current = options.onPress;
   });
 
+  const reset = useCallback(() => {
+    held.current.clear();
+    selectHeld.current = false;
+    press.current?.(false);
+  }, []);
+  useLayoutEffect(reset, [reset, options.scope]);
+
+  const appState = useKeplerAppStateManager();
+  useEffect(() => {
+    let active = appState.getCurrentState() === 'active';
+    let focused = true;
+    const sync = () => {
+      ready.current = active && focused;
+      if (!ready.current) reset();
+    };
+    sync();
+    const change = appState.addEventListener('change', (state) => {
+      active = state === 'active';
+      sync();
+    });
+    const blur = appState.addEventListener('blur', () => {
+      focused = false;
+      sync();
+    });
+    const focus = appState.addEventListener('focus', () => {
+      focused = true;
+      sync();
+    });
+    return () => {
+      change.remove();
+      blur.remove();
+      focus.remove();
+    };
+  }, [appState, reset]);
+
   useTVEventHandler(
     useCallback((event: HWEvent) => {
       const key = KEYS[String(event.eventType)];
-      if (!key) return;
+      if (!key || !ready.current) return;
+      if (REPEATABLE.has(key)) {
+        if (event.eventKeyAction === UP) held.current.delete(key);
+        if (event.eventKeyAction !== DOWN) return;
+        const repeat = held.current.has(key);
+        held.current.add(key);
+        handler.current(key, repeat);
+        return;
+      }
       if (key === 'select') {
         // Down, and every repeat while held, only shows the press; the release
         // is the press itself, delivered once.
-        if (event.eventKeyAction === DOWN) press.current?.(true);
-        if (event.eventKeyAction !== UP) return;
+        if (event.eventKeyAction === DOWN) {
+          selectHeld.current = true;
+          press.current?.(true);
+        }
+        if (event.eventKeyAction !== UP || !selectHeld.current) return;
+        selectHeld.current = false;
         press.current?.(false);
       }
-      const wanted = REPEATABLE.has(key) ? DOWN : UP;
-      if (event.eventKeyAction === wanted) handler.current(key);
+      if (event.eventKeyAction === UP) handler.current(key, false);
     }, []),
   );
 
@@ -107,10 +160,13 @@ export function useRemoteInput(
     const subscription = backHandler.addEventListener(
       'hardwareBackPress',
       () => {
+        // Inactive input must also claim Back: letting it fall through would
+        // invoke the platform's default app exit while another surface owns it.
+        if (!ready.current) return true;
         // No handler means the screen has nowhere to go back to, and the app
         // should close.
         if (!back.current) {
-          handler.current('back');
+          handler.current('back', false);
           return true;
         }
         return back.current();

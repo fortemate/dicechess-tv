@@ -15,7 +15,7 @@ const strategy = (overrides: Partial<Strategy>): Strategy => ({
 const cost = (s: Strategy, move = 'b2b4', legal = LEGAL, cursor = CURSOR) =>
   actionCost(s, cursor, legal, move).presses;
 
-test('today: three squares to b2, OK, two squares to b4, OK', () => {
+test('historical baseline: three squares to b2, OK, two squares to b4, OK', () => {
   assert.equal(cost(CURRENT), 7);
 });
 
@@ -102,4 +102,33 @@ test('a choice jumps cannot reach is counted a square per press, and flagged', (
   // One jump to e6, OK, one square to e5, OK.
   const cone = actionCost({ ...axis, rule: 'cone' }, 'd5', legal, 'e6e5');
   assert.deepEqual(cone, { presses: 4, reachable: true });
+});
+
+test('the current cyclic strategy counts a boundary press and both OKs', () => {
+  const legal = [...'abcdefgh'].map((file) => `${file}2${file}4`);
+  const tv: Strategy = {
+    pieces: 'jump',
+    start: 'sticky',
+    destinations: 'jump',
+    rule: 'cone',
+    wrap: true,
+  };
+  assert.deepEqual(actionCost(tv, 'h2', legal, 'a2a4'), {
+    presses: 3,
+    reachable: true,
+  });
+  assert.equal(
+    actionCost({ ...tv, wrap: false }, 'h2', legal, 'a2a4').presses,
+    9,
+  );
+  assert.equal(
+    actionCost(
+      tv,
+      'a7',
+      legal.map((m) => m.replaceAll('2', '7').replaceAll('4', '5')),
+      'h7h5',
+      true,
+    ).presses,
+    3,
+  );
 });

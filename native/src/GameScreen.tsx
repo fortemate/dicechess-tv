@@ -688,9 +688,9 @@ export const GameScreen = ({
     handsOver.current = handsOff(overlay);
     overlayAtRoot.current = overlay.kind === 'home';
   });
-  const onKey = React.useCallback((key: BoardKey) => {
+  const onKey = React.useCallback((key: BoardKey, repeat: boolean) => {
     if (handsOver.current) return;
-    dispatch({ kind: 'key', key });
+    dispatch({ kind: 'key', key, repeat });
   }, []);
   const onPress = React.useCallback((down: boolean) => {
     if (!handsOver.current) setPressed(down);
@@ -721,7 +721,11 @@ export const GameScreen = ({
     return true;
   }, []);
 
-  useRemoteInput(onKey, { onBack, onPress });
+  useRemoteInput(onKey, {
+    onBack,
+    onPress,
+    scope: `${overlay.kind}:${game.phase}:${focus.selected ?? '-'}`,
+  });
 
   // The opponent takes one step at a time, scheduled rather than looped, so the
   // player watches it roll and move instead of the board jumping. It is paused
