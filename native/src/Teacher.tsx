@@ -6,8 +6,11 @@
 // it leads to.
 import React from 'react';
 import { View, Text } from 'react-native';
-import { Portrait } from './Portrait';
+import { Portrait, type CharacterId } from './Portrait';
 import { SpeechBubble } from './SpeechBubble';
+
+// Who teaches: Thinkle, whose portrait ships for this (#262).
+export const TEACHER: CharacterId = 'thinkle';
 
 // Thinkle's portrait, and the rows his bubble may take: about 170 characters,
 // in the layout the owner chose from the mockups (#264). The rows above the
@@ -44,7 +47,7 @@ export const Teacher = ({
 }) => (
   <View testID="teacher" style={{ marginBottom: 10 }}>
     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-      <Portrait character="thinkle" kind="card" size={TEACHER_PORTRAIT} />
+      <Portrait character={TEACHER} kind="card" size={TEACHER_PORTRAIT} />
       <View style={{ marginLeft: 12 }}>
         <Text
           style={{
