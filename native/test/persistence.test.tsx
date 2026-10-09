@@ -176,6 +176,54 @@ test('a damaged ledger is kept aside, not written over by the next result', () =
   assert.equal(new MMKV().getString('dicechess-tv.ledger.v1.damaged'), damaged);
 });
 
+test('a damaged ledger that cannot be kept aside neither stops the app nor is saved over', () => {
+  reset();
+  const damaged = JSON.stringify({ schema: 2, lastCountedId: 'old' });
+  new MMKV().set('dicechess-tv.ledger.v1', damaged);
+  // Storage refuses the copy, as a full disk would.
+  const set = MMKV.prototype.set;
+  MMKV.prototype.set = function (key: string, value: string) {
+    if (key === 'dicechess-tv.ledger.v1.damaged') throw new Error('No space');
+    set.call(this, key, value);
+  };
+  try {
+    const launched = enter(launch());
+    assert.match(launched.state(), /overlay none \| turn 1 \| phase roll/);
+    send('enter');
+    act(() => {
+      pressBack();
+    });
+    send('down', 'select', 'down', 'select');
+    // Without its copy, the damaged ledger is not saved over.
+    assert.equal(new MMKV().getString('dicechess-tv.ledger.v1'), damaged);
+  } finally {
+    MMKV.prototype.set = set;
+  }
+
+  // Once the copy can be made, the finished game is counted on the next launch.
+  launch();
+  assert.equal(new MMKV().getString('dicechess-tv.ledger.v1.damaged'), damaged);
+  const ledger = new MmkvSnapshotStore<Ledger>({
+    key: 'dicechess-tv.ledger.v1',
+    decode: decodeLedger,
+  }).read();
+  assert.deepEqual(ledger?.hotseat, { white: 0, draws: 0, black: 1 });
+});
+
+test('a ledger that storage cannot read does not stop the app', () => {
+  reset();
+  const getString = MMKV.prototype.getString;
+  MMKV.prototype.getString = function (key: string) {
+    if (key === 'dicechess-tv.ledger.v1') throw new Error('I/O error');
+    return getString.call(this, key);
+  };
+  try {
+    assert.match(launch().state(), /overlay home/);
+  } finally {
+    MMKV.prototype.getString = getString;
+  }
+});
+
 test('a damaged snapshot never replaces a good one', async () => {
   reset();
   const good = moveGame(
