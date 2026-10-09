@@ -6,7 +6,7 @@ import React from 'react';
 import { Svg, G, Path, Circle } from '@amazon-devices/react-native-svg';
 import type { PieceProps } from './types';
 
-export const bQ = ({ size }: PieceProps) => (
+const bQSvg = ({ size }: PieceProps) => (
   <Svg width={size} height={size} viewBox="0 0 72 72">
     <G>
       <G>
@@ -43,3 +43,5 @@ export const bQ = ({ size }: PieceProps) => (
     </G>
   </Svg>
 );
+
+export const bQ = React.memo(bQSvg, (a, b) => a.size === b.size);
