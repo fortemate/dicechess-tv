@@ -80,7 +80,8 @@ CI runs these on every pull request. Run them before pushing:
 
 `mise run check` runs all of them except the coverage, the build and the site, and
 `mise tasks` lists every task with what it does. Locally it checks the whitespace
-of what is not committed yet. The SonarQube Cloud analysis
+of uncommitted changes to tracked files; Git does not see a new file until it is
+staged or marked with `git add -N`. The SonarQube Cloud analysis
 that CI runs with that coverage is informational: it does not fail the build.
 
 ## Check it on a device

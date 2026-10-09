@@ -34,6 +34,7 @@ run = [
   "npm run lint",
   "npm run format:check",
   "npm test",
+  # Tracked files only: stage a new file, or mark it with `git add -N`, first.
   "git diff --check HEAD",
   "npm run check --prefix native",
   "npm run lint --prefix native",
