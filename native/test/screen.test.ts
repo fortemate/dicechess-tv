@@ -85,6 +85,8 @@ const settle = (
 };
 
 const fresh = () => initialState(options);
+// With Play as set to Ask, the cards open the choice of colour (#345).
+const askColour = () => initialState(options, null, { playAs: 'ask' });
 
 // A game mid-turn: rolled queen, rook, knight and played the knight.
 const started = () =>
@@ -256,8 +258,9 @@ test('starting over an unfinished game asks first, and Cancel keeps it', () => {
 
 test('cancelling a new bot game from the home screen returns there, on Play the computer', () => {
   const home = initialState(options, started());
-  // Play the computer, Rolly, Random as the colour, then the confirmation.
-  const asking = drive(home, 'down', 'down', 'select', 'select', 'select');
+  // Play the computer, then Rolly, in the colour Play as names, Random by
+  // default (#345): the confirmation comes next.
+  const asking = drive(home, 'down', 'down', 'select', 'select');
   assert.equal(asking.overlay.kind, 'confirm');
   const cancelled = drive(asking, 'select');
   assert.deepEqual(cancelled.overlay, {
@@ -326,7 +329,7 @@ test('menu key drops a picked-up piece and opens the menu', () => {
 });
 
 test('menu key on secondary overlays returns to the main menu', () => {
-  const home = fresh();
+  const home = askColour();
   const settings = drive(home, 'down', 'down', 'down', 'down', 'select');
   assert.equal(settings.overlay.kind, 'settings');
   assert.equal(drive(settings, 'menu').overlay.kind, 'home');
@@ -404,8 +407,9 @@ test('menu navigation wraps in both directions', () => {
 });
 
 test('Main menu from a game against the computer before the roll opens home with Resume game, and Resume returns to the board', () => {
-  // Start computer game: Play the computer -> Rolly -> Random colour (draws White)
-  const board = drive(fresh(), 'down', 'select', 'select', 'select');
+  // Start computer game: Play the computer -> Rolly, as Play as is Random by
+  // default (#345), which draws White.
+  const board = drive(fresh(), 'down', 'select', 'select');
   assert.equal(board.overlay.kind, 'none');
   assert.equal(board.game.phase, 'roll');
   assert.deepEqual(board.game.roll, []);
@@ -444,7 +448,7 @@ test('Main menu from a game against the computer before the roll opens home with
 
 test('Main menu from a game against the computer mid-turn preserves roll and phase, and Resume returns to the board', () => {
   // Start computer game and roll the dice (mid-turn: phase 'move')
-  const rolled = drive(fresh(), 'down', 'select', 'select', 'select', 'select');
+  const rolled = drive(fresh(), 'down', 'select', 'select', 'select');
   assert.equal(rolled.overlay.kind, 'none');
   assert.equal(rolled.game.phase, 'move');
   assert.equal(rolled.game.roll.length, 3);
@@ -528,7 +532,7 @@ test('Play the computer, then Rolly, starts a game the local opponent plays as B
 
 test('the opponent takes its whole turn and hands back to the player', () => {
   // Start Random, then play White's turn out to the handoff.
-  let state = drive(fresh(), 'down', 'select', 'select', 'select', 'select');
+  let state = drive(fresh(), 'down', 'select', 'select', 'select');
   while (state.game.phase === 'move') {
     const legal = viewGame(state.game).legal;
     const move = legal[0];
@@ -725,31 +729,21 @@ const withMusic = (state: ScreenState): ScreenState =>
 test('without music in the build, Settings offers sound effects, voices, the host, hotseat board turning and the automatic OK', () => {
   const settings = toSettings(fresh());
   assert.equal(settings.musicAvailable, false);
-  assert.deepEqual(
-    settingsOptions(
-      settings.sound,
-      settings.music,
-      settings.musicAvailable,
-      settings.turnHotseat,
-      settings.voices,
-      settings.host,
-      settings.autoSelect,
-    ),
-    [
-      'Sound effects: on',
-      'Voices: on',
-      'Host for friends: Prowla',
-      'Turn board for friends: off',
-      'Auto-select only choice: off',
-    ],
-  );
-  // Down moves from the sound effects to the voices, on to the host, and on
-  // to hotseat board turning.
+  assert.deepEqual(settingsOptions(settings), [
+    'Sound effects: on',
+    'Voices: on',
+    'Play as: Random',
+    'Host for friends: Prowla',
+    'Turn board for friends: off',
+    'Auto-select only choice: off',
+  ]);
+  // Down moves from the sound effects to the voices, on past Play as to the
+  // host, and on to hotseat board turning.
   assert.equal(drive(settings, 'select').sound, false);
   const voices = drive(settings, 'down');
   assert.equal(drive(voices, 'select').voices, false);
   assert.equal(drive(voices, 'select').sound, true);
-  const host = drive(voices, 'down');
+  const host = drive(voices, 'down', 'down');
   assert.equal(drive(host, 'select').host, 'rolly');
   assert.equal(drive(host, 'select').voices, true);
   assert.equal(drive(host, 'select').turnHotseat, false);
@@ -769,25 +763,15 @@ test('Settings opens from the home menu on music, and Back returns to it', () =>
     index: 0,
     from: 'home',
   });
-  assert.deepEqual(
-    settingsOptions(
-      settings.sound,
-      settings.music,
-      true,
-      settings.turnHotseat,
-      settings.voices,
-      settings.host,
-      settings.autoSelect,
-    ),
-    [
-      'Music: 7',
-      'Sound effects: on',
-      'Voices: on',
-      'Host for friends: Prowla',
-      'Turn board for friends: off',
-      'Auto-select only choice: off',
-    ],
-  );
+  assert.deepEqual(settingsOptions({ ...settings, musicAvailable: true }), [
+    'Music: 7',
+    'Sound effects: on',
+    'Voices: on',
+    'Play as: Random',
+    'Host for friends: Prowla',
+    'Turn board for friends: off',
+    'Auto-select only choice: off',
+  ]);
   const back = drive(settings, 'back');
   assert.equal(back.overlay.kind, 'home');
   assert.equal(
@@ -810,10 +794,10 @@ test('OK or the arrows sideways flip music, sound effects, voices and hotseat bo
   assert.equal(drive(voices, 'select').voices, false);
   assert.equal(drive(voices, 'right').voices, false);
   assert.equal(drive(voices, 'select', 'left').voices, true);
-  // Once more, the Hot Seat host, Prowla by default (#258). OK and Right step
+  // Past Play as, the Hot Seat host, Prowla by default (#258). OK and Right step
   // to the next choice, Rolly, Thinkle (#279) and then off, and Left to the one
   // before.
-  const host = drive(voices, 'down');
+  const host = drive(voices, 'down', 'down');
   assert.equal(host.host, 'prowla');
   assert.equal(drive(host, 'select').host, 'rolly');
   assert.equal(drive(host, 'right').host, 'rolly');
@@ -827,28 +811,11 @@ test('OK or the arrows sideways flip music, sound effects, voices and hotseat bo
   );
   assert.equal(drive(host, 'right', 'left').host, 'prowla');
   assert.equal(
-    settingsOptions(
-      host.sound,
-      host.music,
-      host.musicAvailable,
-      host.turnHotseat,
-      host.voices,
-      'thinkle',
-    )[3],
+    settingsOptions({ ...host, host: 'thinkle' })[4],
     'Host for friends: Thinkle',
   );
   const hostOff = drive(host, 'left');
-  assert.equal(
-    settingsOptions(
-      hostOff.sound,
-      hostOff.music,
-      hostOff.musicAvailable,
-      hostOff.turnHotseat,
-      hostOff.voices,
-      hostOff.host,
-    )[3],
-    'Host for friends: off',
-  );
+  assert.equal(settingsOptions(hostOff)[4], 'Host for friends: off');
   // And once more, hotseat board turning.
   const hotseat = drive(host, 'down');
   assert.equal(drive(hotseat, 'select').turnHotseat, true);
@@ -862,8 +829,7 @@ test('OK or the arrows sideways flip music, sound effects, voices and hotseat bo
 
 // One row for the music (#346): the rings are the volume, 0 is off, and OK
 // mutes and unmutes.
-const musicRow = (state: ScreenState): string =>
-  settingsOptions(state.sound, state.music, state.musicAvailable)[0];
+const musicRow = (state: ScreenState): string => settingsOptions(state)[0];
 
 test('the music row moves one step per press, and turns off below the first ring', () => {
   const music = toSettings(withMusic(fresh()));
@@ -1013,6 +979,7 @@ test('a new game keeps the settings', () => {
     'down',
     'select',
     'down',
+    'down',
     'select',
   );
   assert.deepEqual(changed.music, { on: false, volume: 8 });
@@ -1077,7 +1044,7 @@ test('a finished game is back in the menus', () => {
 // ── The colour against the bot (#53) ───────────────────────────────────────────
 
 test('choosing an opponent opens the choice of colour, on Random', () => {
-  const choosing = drive(fresh(), 'down', 'select', 'select');
+  const choosing = drive(askColour(), 'down', 'select', 'select');
   assert.equal(choosing.overlay.kind, 'colour');
   assert.equal('index' in choosing.overlay && choosing.overlay.index, 0);
   assert.deepEqual(colourOptions, ['Random', 'White', 'Black']);
@@ -1090,7 +1057,7 @@ test('Random takes the drawn colour; White and Black are taken as chosen', () =>
   const choose = (...keys: BoardKey[]) =>
     keys.reduce(
       (state, key) => screenReducer(state, { kind: 'key', key }, drawsBlack),
-      initialState(drawsBlack),
+      initialState(drawsBlack, null, { playAs: 'ask' }),
     );
   assert.equal(choose('down', 'select', 'select', 'select').game.human, 'b');
   assert.equal(
@@ -1104,7 +1071,7 @@ test('Random takes the drawn colour; White and Black are taken as chosen', () =>
 });
 
 test('Back from the colour returns to the cards, and from the cards to Play the computer', () => {
-  const cards = drive(fresh(), 'down', 'select', 'right', 'select', 'back');
+  const cards = drive(askColour(), 'down', 'select', 'right', 'select', 'back');
   assert.deepEqual(cards.overlay, { kind: 'opponent', index: 1, from: 'home' });
   assert.deepEqual(drive(cards, 'back').overlay, {
     kind: 'home',
@@ -1114,7 +1081,7 @@ test('Back from the colour returns to the cards, and from the cards to Play the 
 
 test('playing Black: the bot opens, the cursor starts on e7, and the arrows follow the turned board', () => {
   const black = drive(
-    fresh(),
+    askColour(),
     'down',
     'select',
     'select',
@@ -1146,7 +1113,7 @@ test('playing Black: the bot opens, the cursor starts on e7, and the arrows foll
 });
 
 test('replacing a game in play asks after the colour, and keeps the choice', () => {
-  const inPlay = initialState(options, started());
+  const inPlay = initialState(options, started(), { playAs: 'ask' });
   const choosing = drive(inPlay, 'down', 'down', 'select', 'select');
   assert.equal(choosing.overlay.kind, 'colour');
   const confirming = drive(choosing, 'down', 'down', 'select');
@@ -1253,7 +1220,7 @@ const resign = (opts: ScreenOptions, state: ScreenState): ScreenState =>
 test('a game against the bot ends on the offer of a rematch, with Rematch first', () => {
   // Rolly, as Black; the bot, White, opens.
   const black = settle(
-    drive(fresh(), 'down', 'select', 'select', 'down', 'down', 'select'),
+    drive(askColour(), 'down', 'select', 'select', 'down', 'down', 'select'),
   );
   assert.equal(black.game.human, 'b');
   assert.equal(black.game.colour, 'b');

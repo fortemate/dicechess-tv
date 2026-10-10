@@ -30,6 +30,7 @@ import { HOST_BUBBLE_ROWS, SpeechBubble } from './SpeechBubble';
 import { DISMISS_DELAY_MS, useBotVoice } from './useBotVoice';
 import { useHostVoice } from './useHostVoice';
 import { DEFAULT_HOST, type HostChoice } from './hostSetting';
+import { DEFAULT_PLAY_AS, type PlayAs } from './playAsSetting';
 import {
   LINE_START_MS,
   speechTiming,
@@ -112,6 +113,9 @@ export type GameScreenProps = {
   // Whether OK presses itself when the board offers only one choice (#302).
   initialAutoSelect?: boolean;
   onAutoSelect?: (on: boolean) => void;
+  // The colour a person plays against the computer, or Ask (#345).
+  initialPlayAs?: PlayAs;
+  onPlayAs?: (choice: PlayAs) => void;
   // The adaptive music (#76). The screen says which theme fits what it shows;
   // whether music is on and how loud is the app's to apply and save.
   music?: Music;
@@ -458,6 +462,7 @@ const Panel = ({
   voices,
   host,
   autoSelect,
+  playAs,
   auto,
   selected,
   pressed,
@@ -475,6 +480,7 @@ const Panel = ({
   // The setting, and whether OK is about to press itself now (#302).
   autoSelect: boolean;
   auto: boolean;
+  playAs: PlayAs;
   selected: string | null;
   // OK is held: the focused option of an open menu shows it.
   pressed: boolean;
@@ -503,15 +509,16 @@ const Panel = ({
         <Choices
           title="Settings"
           note={hasMusic ? 'Left and Right change the volume.' : undefined}
-          options={settingsOptions(
+          options={settingsOptions({
             sound,
             music,
-            hasMusic,
+            musicAvailable: hasMusic,
             turnHotseat,
             voices,
             host,
             autoSelect,
-          )}
+            playAs,
+          })}
           index={overlay.index}
           pressed={pressed}
           afters={
@@ -659,6 +666,8 @@ export const GameScreen = ({
   onHost,
   initialAutoSelect = false,
   onAutoSelect,
+  initialPlayAs = DEFAULT_PLAY_AS,
+  onPlayAs,
   music,
   initialMusic,
   onMusic,
@@ -688,6 +697,7 @@ export const GameScreen = ({
           voices: initialVoices,
           host: initialHost,
           autoSelect: initialAutoSelect,
+          playAs: initialPlayAs,
         },
         offerTutorial,
       ),
@@ -703,6 +713,7 @@ export const GameScreen = ({
     voices,
     host,
     autoSelect,
+    playAs,
     guarded,
     pending,
     lastDice,
@@ -919,6 +930,14 @@ export const GameScreen = ({
   }, [autoSelect, onAutoSelect]);
 
   // Seeded like the sound, so opening the screen is not reported as a change.
+  const playAsSetting = React.useRef(playAs);
+  React.useEffect(() => {
+    if (playAs === playAsSetting.current) return;
+    playAsSetting.current = playAs;
+    onPlayAs?.(playAs);
+  }, [playAs, onPlayAs]);
+
+  // Seeded like the sound, so opening the screen is not reported as a change.
   const voiceSetting = React.useRef(voices);
   React.useEffect(() => {
     if (voices === voiceSetting.current) return;
@@ -1013,7 +1032,9 @@ export const GameScreen = ({
   // The choice of opponent takes the whole screen: three cards need the width
   // the board would take. The remote stays with this screen and its reducer.
   if (overlay.kind === 'opponent')
-    return <OpponentScreen index={overlay.index} pressed={pressed} />;
+    return (
+      <OpponentScreen index={overlay.index} pressed={pressed} playAs={playAs} />
+    );
 
   const size = boardSide(width, height);
   const insets = safeInsets(width, height);
@@ -1082,6 +1103,7 @@ export const GameScreen = ({
               voices={voices}
               host={host}
               autoSelect={autoSelect}
+              playAs={playAs}
               auto={auto !== null}
               selected={focus.selected}
               pressed={pressed}
@@ -1119,6 +1141,7 @@ export const GameScreen = ({
               voices={voices}
               host={host}
               autoSelect={autoSelect}
+              playAs={playAs}
               auto={auto !== null}
               selected={focus.selected}
               pressed={pressed}

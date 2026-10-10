@@ -5,7 +5,7 @@
 // who play on one TV change from one evening to the next.
 //
 // Like the menus, the screen only draws what the reducer in screen.ts says:
-// the focused card and whether OK is held on it.
+// the focused card, whether OK is held on it, and what OK will do.
 import React from 'react';
 import { View, Text, useWindowDimensions } from 'react-native';
 import { OPPONENTS } from '../../src/core/opponents';
@@ -13,8 +13,21 @@ import type { Opponent } from '../../src/core/opponents';
 import { PORTRAIT_OF, Portrait } from './Portrait';
 import { THEME } from './theme';
 import { safeInsets } from './layout';
+import type { PlayAs } from './playAsSetting';
 
 const LEVELS = ['Easy', 'Medium', 'Hard'] as const;
+
+// What OK on a card does, as the hint says it (#345): it plays in the colour
+// Settings names, or, set to Ask, opens the choice of colour.
+const OK_DOES: Readonly<Record<PlayAs, string>> = {
+  ask: 'choose a colour',
+  random: 'play',
+  w: 'play White',
+  b: 'play Black',
+};
+
+export const opponentHint = (playAs: PlayAs): string =>
+  `Arrows: choose · OK: ${OK_DOES[playAs]} · Back: return`;
 const GAP = 24;
 
 // The level as filled and empty rings, which read the same whatever the
@@ -97,11 +110,14 @@ const Card = ({
 export const OpponentScreen = ({
   index,
   pressed,
+  playAs = 'random',
 }: {
   // The focused card.
   index: number;
   // OK is held on it.
   pressed: boolean;
+  // The colour Settings names, which says what OK does.
+  playAs?: PlayAs;
 }) => {
   const { width, height } = useWindowDimensions();
   const insets = safeInsets(width, height);
@@ -133,7 +149,7 @@ export const OpponentScreen = ({
         ))}
       </View>
       <Text style={{ color: '#aab8c9', fontSize: 20, marginTop: 20 }}>
-        Arrows: choose · OK: play · Back: return
+        {opponentHint(playAs)}
       </Text>
     </View>
   );

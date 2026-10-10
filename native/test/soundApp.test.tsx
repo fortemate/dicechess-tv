@@ -128,10 +128,10 @@ test('Prowla hosts Hot Seat by default, Rolly, Thinkle or no one instead, and th
   reset();
   const first = recorder();
   let root = launch({ options, sounds: first }).root;
-  // Settings, then the row after the voices.
+  // Settings, then the host's row, after the voices and Play as (#345).
   send('down', 'down', 'down', 'down', 'enter');
   assert.match(text(root), /Host for friends: Prowla/);
-  send('down', 'down', 'enter');
+  send('down', 'down', 'down', 'enter');
   assert.match(text(root), /Host for friends: Rolly/);
   assert.equal(new MMKV().getString('dicechess-tv.host.v1'), 'rolly');
   send('enter');
@@ -162,7 +162,7 @@ test('turning the host off while she speaks stops her voice, and only hers (#202
   send('enter');
   assert.match(sounds.said[0], /^prowla_host_intro_[1-5]$/);
   // The game menu, up to its Settings, and down to her row.
-  send('back', 'up', 'enter', 'down', 'down');
+  send('back', 'up', 'enter', 'down', 'down', 'down');
   assert.match(text(root), /Host for friends: Prowla/);
   assert.equal(sounds.stopped, 0, 'a menu alone leaves the line alone');
   // Another host lets the line being said finish (#258), and so does a third.
@@ -182,9 +182,20 @@ test('turning the host off while she speaks stops her voice, and only hers (#202
   reset();
   const bot = recorder();
   root = launch({ options, sounds: bot }).root;
-  send('down', 'enter', 'enter', 'enter');
+  // Play the computer, then Rolly: Play as is Random (#345).
+  send('down', 'enter', 'enter');
   assert.match(bot.said[0], /^rolly_intro_[123]$/);
-  send('back', 'up', 'enter', 'down', 'down', 'enter', 'enter', 'enter');
+  send(
+    'back',
+    'up',
+    'enter',
+    'down',
+    'down',
+    'down',
+    'enter',
+    'enter',
+    'enter',
+  );
   assert.match(text(root), /Host for friends: off/);
   assert.equal(bot.stopped, 0);
 });

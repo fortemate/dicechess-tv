@@ -31,9 +31,9 @@ A person alone plays one of three opponents that run on the TV. They are chosen 
 
 Each is an algorithm of the Dice Chess rules engine. Each has a portrait drawn for the game, and in a game it talks from beside it at the top of the screen. A build without the portraits shows RhosGFX's Vector Emojis, by the artist of the pieces, in their place. Every opponent shows its turn one action at a time, and each piece slides to its new square, the opponent's and yours alike, so a turn can be followed from the sofa. Frames recorded on the virtual device show Grabby's knight sliding onto a queen it took in under a quarter of a second, and the tests cover captures, castling, en passant and promotion.
 
-Before the game you choose White or Black, or let the app pick a colour. Playing Black turns the board so that your pieces are at the bottom.
+The app draws your colour at random, so OK on an opponent's card starts the game. **Play as** in Settings can name White or Black instead, or Ask, which brings back the choice of colour before each game. Playing Black turns the board so that your pieces are at the bottom. The tests check each setting, and on the Virtual Device a card started the game in the colour Settings named.
 
-![The colour choice before a game against Grabby: Random, White or Black](../../../assets/screenshots/play-as.png)
+![The colour choice before a game against Grabby, with Play as set to Ask: Random, White or Black](../../../assets/screenshots/play-as.png)
 
 ![Playing Black against Grabby, with the board turned so that Black is at the bottom and Grabby's portrait, name and level at the top](../../../assets/screenshots/play-black.png)
 
@@ -89,6 +89,6 @@ Sound stops when the app leaves the screen. The tests check that the players pau
 
 ## Rematch
 
-A game against the computer ends on a choice: a rematch or the main menu. A rematch keeps your colour choice; if you chose Random, it picks again. In a game against a friend, a finished game stays on the board, and OK returns to the main menu.
+A game against the computer ends on a choice: a rematch or the main menu. A rematch keeps the colour option of the game it repeats; if that was Random, it picks again. In a game against a friend, a finished game stays on the board, and OK returns to the main menu.
 
 ![After resigning as Black against Grabby: Grabby wins, You resigned, Grabby's last word, Ha! I'll have this whole game framed!, beside its portrait, and the choice of Rematch or Main menu](../../../assets/screenshots/rematch.png)

@@ -11,6 +11,7 @@ import { AUTO_PROMPT, modeLine, promptFor } from '../src/GameScreen';
 import { settingsOptions } from '../src/screen';
 import { DEFAULT_MUSIC } from '../src/musicSetting';
 import { HOST_CHOICES } from '../src/hostSetting';
+import { PLAY_AS_CHOICES } from '../src/playAsSetting';
 import { hint } from '../src/TutorialScreen';
 import { initialTutorial, type TutorialState } from '../src/tutorial';
 import {
@@ -109,17 +110,19 @@ test('every row of Settings is one line, whatever it says', () => {
   const rows = new Set<string>();
   for (const on of [false, true])
     for (const host of HOST_CHOICES)
-      for (const row of settingsOptions(
-        on,
-        DEFAULT_MUSIC,
-        true,
-        on,
-        on,
-        host,
-        on,
-      ))
-        rows.add(row);
+      for (const playAs of PLAY_AS_CHOICES)
+        for (const row of settingsOptions({
+          sound: on,
+          music: DEFAULT_MUSIC,
+          turnHotseat: on,
+          voices: on,
+          host,
+          autoSelect: on,
+          playAs,
+        }))
+          rows.add(row);
   assert.ok(rows.has('Auto-select only choice: off'));
+  assert.ok(rows.has('Play as: Random'));
   // The two rows for games against a friend name the mode as the home screen
   // does (#344), with the longest host's name.
   assert.ok(rows.has('Host for friends: Thinkle'));
@@ -141,7 +144,7 @@ test('the music row and its rings are one line, at every volume', () => {
   const rows = new Set<string>();
   for (let volume = 0; volume <= 10; volume++)
     for (const on of [false, true])
-      rows.add(settingsOptions(true, { on, volume })[0]);
+      rows.add(settingsOptions({ music: { on, volume } })[0]);
   assert.ok(rows.has('Music: off'));
   assert.ok(rows.has('Music: 10'));
   for (const row of rows) {

@@ -149,9 +149,9 @@ test('no cursor frame before the roll; after it the frame waits on a movable pie
 
   // Against the bot, after its turn: the person's roll is next, with no frame.
   const bot = mountHome();
-  // Play the computer, Rolly, then Random on the colour choice, which draws
+  // Play the computer, then Rolly: Play as is Random (#345), which draws
   // White; the person rolls and plays, and the bot answers at once.
-  send(Down, Select, Select, Select);
+  send(Down, Select, Select);
   assert.match(bot.state(), /phase roll/);
   assert.equal(frames(bot.root), 0, 'no frame before the first roll');
   send(Select);

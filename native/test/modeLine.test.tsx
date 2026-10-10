@@ -4,7 +4,7 @@
 // that has ended, have none.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { reset } from './stubs/react-native-mmkv.mjs';
+import { reset, setStored } from './stubs/react-native-mmkv.mjs';
 import { focusedLabel, optionViews } from './options';
 import {
   fakeTimers,
@@ -65,6 +65,8 @@ test('a launch with no saved game shows no line over the home screen or its sett
 
 test('the choice of colour names the opponent chosen', () => {
   reset();
+  // The choice of colour shows only with Play as set to Ask (#345).
+  setStored({ 'dicechess-tv.playAs.v1': 'ask' });
   const { root } = launch();
   toGrabbyColours();
   assert.deepEqual(titles(root), ['Play Grabby as']);
@@ -86,6 +88,7 @@ test('over a game to resume, the home screen and its settings name that game', (
 
 test('over a game to resume, the colour choice names the new opponent and the confirmation the game it replaces', () => {
   reset();
+  setStored({ 'dicechess-tv.playAs.v1': 'ask' });
   let root = launch().root;
   // Rolly, as White, rolled; then the app closed and opened again.
   send('down', 'enter', 'enter', 'enter', 'enter');
@@ -102,8 +105,9 @@ test('over a game to resume, the colour choice names the new opponent and the co
 test('a game that has ended leaves the home screen without a line', () => {
   reset();
   const { root } = launch();
-  // Rolly, as White: roll, resign, Yes; then Main menu.
-  send('down', 'enter', 'enter', 'enter', 'enter');
+  // Rolly, as White (Play as is Random, which draws it): roll, resign, Yes;
+  // then Main menu.
+  send('down', 'enter', 'enter', 'enter');
   send('back', 'down', 'enter', 'down', 'enter');
   assert.ok(optionViews(root).some((option) => option.label === 'Rematch'));
   send('down', 'enter');

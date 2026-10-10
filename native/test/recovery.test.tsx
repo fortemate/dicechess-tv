@@ -20,7 +20,7 @@ import { RESUME_OPTION } from '../src/screen';
 import type { Music } from '../src/music';
 import { decodeGame, newGame, rollGame, type Game } from '../../src/core/game';
 import { hasExited, pressBack } from './stubs/react-native-kepler.mjs';
-import { reset } from './stubs/react-native-mmkv.mjs';
+import { reset, setStored } from './stubs/react-native-mmkv.mjs';
 import { focusedLabel, optionViews } from './options';
 import {
   fakeTimers,
@@ -231,6 +231,7 @@ test('Back on the fallback closes the app, and the saved game is there at the ne
 test('a search that fails between frames reaches the fallback instead of closing the app', (t) => {
   quietBoundaries(t);
   reset();
+  setStored({ 'dicechess-tv.playAs.v1': 'b' });
   t.mock.method(DiceChess, 'getBestMove', () => {
     throw new Error('engine fault');
   });
@@ -248,8 +249,9 @@ test('a search that fails between frames reaches the fallback instead of closing
     music: quietMusic(),
     onState: (line) => lines.push(line),
   });
-  // Play the computer, the first opponent, as Black: the computer opens.
-  send('down', 'enter', 'enter', 'down', 'down', 'enter');
+  // Play the computer, the first opponent, with Play as set to Black (#345):
+  // the computer opens.
+  send('down', 'enter', 'enter');
   assert.match(app.state(), /overlay none \| turn 1 \| phase move \| side w/);
   act(() => mock.timers.tick(1));
   assert.match(text(app.root), new RegExp(RECOVERY_TITLE));

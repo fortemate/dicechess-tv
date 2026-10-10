@@ -108,9 +108,9 @@ test('against the bot the person’s turn is over and OK starts the bot’s, whi
   reset();
   const clock = scheduler();
   const { root } = launch({ options: optionsFor([2, 6, 6], clock) });
-  // Play the computer, Rolly, on Random, which draws White; roll, and play
-  // the knight.
-  send('down', 'enter', 'enter', 'enter', 'enter', 'enter', 'enter');
+  // Play the computer, Rolly: Play as is Random (#345), which draws White;
+  // roll, and play the knight.
+  send('down', 'enter', 'enter', 'enter', 'enter', 'enter');
   assert.equal(headline(root), 'Your turn is over');
   assert.equal(prompt(root), "OK: Rolly's turn");
   assert.doesNotMatch(text(root), /to play/);
