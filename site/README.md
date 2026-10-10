@@ -39,13 +39,13 @@ is plain Markdown.
 Screenshots live in `src/assets/screenshots/` as 1280 x 720 PNGs, and Astro
 converts them to WebP when it builds. They are captured on the Vega Virtual
 Device with scripted presses of the remote, from the interface as it ships, and
-the pages say so: nothing is claimed for a physical Fire TV device before it has
-been tested on one (#10). Retake a screenshot when the screen it shows changes.
+the pages say so: nothing is claimed for a Fire TV Stick that was not checked on
+one. Retake a screenshot when the screen it shows changes.
 
 To retake one, reach the screen with `vvd press` and capture it with
 `vvd screenshot`, from
 [vega-vvd-driver](https://github.com/fortemate/vega-vvd-driver);
-[native/README.md](../native/README.md#checking-from-a-script) sets it up. The
+[native/README.md](../native/README.md#scripted-virtual-device-automation) sets it up. The
 capture is 1920 x 1080, and ImageMagick scales it. For the rules guide on "Use
 as many dice as you can", from the home screen as the app opens:
 
@@ -57,7 +57,9 @@ magick rules-1080.png -resize 1280x720 src/assets/screenshots/rules.png
 
 On 28 September 2026, captures from beta 5 on SDK 0.24.12112, scaled this way,
 matched `rules.png` and `tutorial.png`: 105 and 118 of their 921,600 pixels
-differed, none visibly, so neither was replaced.
+differed, none visibly, so neither was replaced. On 10 October 2026, eleven
+screenshots that showed the old "hotseat" labels or had drifted from `main` were
+retaken this way on the Vega Virtual Device, from main 125b4f6 (#351).
 
 ## The friction log
 
@@ -99,8 +101,8 @@ script and the owner's sheet, and the page read the script's reply
 ([#109](https://github.com/fortemate/dicechess-tv/issues/109)).
 
 **The pictures** in `src/assets/check/` are Release builds on the Vega Virtual
-Device, one Hot Seat game played on through three builds that differ only in the
-mark. A worked example, `example.png`, comes first: it is the position the
+Device, one game against a friend (then called Hot Seat) played on through three
+builds that differ only in the mark. A worked example, `example.png`, comes first: it is the position the
 legends are cut from, not a scored picture.
 [`src/check/items.ts`](src/check/items.ts) lists what each picture shows and
 scores an answer; the marked squares were read from the pictures' pixels and
@@ -129,12 +131,18 @@ one the script's tests accept; the live script is the owner's to update.
 ## Deployment
 
 A Cloudflare Worker with static assets only, configured in
-[`wrangler.jsonc`](wrangler.jsonc), serves `dist/` from the root of its
-workers.dev address. The workflow deploys it with two repository secrets, set
-once under **Settings → Secrets and variables → Actions → Secrets**:
+[`wrangler.jsonc`](wrangler.jsonc), serves `dist/` from the root of its custom
+domain, <https://dicechess-tv.fortemate.com/>, and of its first workers.dev
+address, which the published demo video and other repositories still cite.
+`wrangler.jsonc` declares the domain as a route: Wrangler treats the file as the
+source of truth for routes, so a domain attached only in the Cloudflare dashboard
+would be dropped by the next deploy. The workflow deploys it with two repository
+secrets, set once under **Settings → Secrets and variables → Actions → Secrets**:
 
 - `CLOUDFLARE_API_TOKEN`: an API token made from the **Edit Cloudflare Workers**
-  template, limited to the account that owns the Worker;
+  template, limited to the account that owns the Worker, with **Workers Routes**
+  and **DNS** edit rights on the fortemate.com zone added, which attaching the
+  domain needs;
 - `CLOUDFLARE_ACCOUNT_ID`: that account's ID, from the Cloudflare dashboard.
 
 Without them the build still runs and the deployment fails.

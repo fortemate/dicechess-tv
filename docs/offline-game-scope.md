@@ -1,5 +1,7 @@
 # Offline game scope
 
+> **Historical record.** These are the requirements agreed on 21 September 2026, and the status lines below describe the WebView prototype of that time. The WebView probe has been removed. The scope as built is in the README's [Product scope](../README.md#product-scope), and the game is the React Native for Vega application in `native/`, released as 1.0.0 on 10 October 2026.
+
 The [agreed delivery roadmap](roadmap.md) supersedes the delivery order below: Random is sufficient for the hackathon minimum; Aggressive and personalization are stretch goals. Rules, basic interactive onboarding and one polished visual/audio set belong to the minimum.
 
 Status: requirements agreed on 21 September 2026. Hotseat and Random now have a full-game implementation; see [behavior and verification](full-game.md). Aggressive, the result ledger and W/D/L remain planned.

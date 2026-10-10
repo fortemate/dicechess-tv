@@ -110,11 +110,11 @@ From a script, or for a coding agent, use
 [vega-vvd-driver](https://github.com/fortemate/vega-vvd-driver): `vvd press`
 presses the remote's keys and `vvd screenshot` saves the screen, after
 `vvd enable-grpc` once per start of the device.
-[native/README.md](native/README.md#checking-from-a-script) shows a session and
-what it checked.
+[native/README.md](native/README.md#scripted-virtual-device-automation) shows a
+session.
 
 Without the task, `npm run build --prefix native` builds with number 0, which the device
-refuses over beta 4 or later. Add `-- --build-number <n>` with the number of the latest
+refuses over beta 4 or later and over 1.0.0. Add `-- --build-number <n>` with the number of the latest
 beta or release. `mise run build` falls back to 0 only when it finds no numbered tag.
 Removing the app instead deletes its saved game.
 
@@ -128,7 +128,9 @@ Never edit these by hand. Change the script, rerun it, and commit what it writes
 | Path                                                                   | Written by                                                                     |
 | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
 | `native/src/pieces/*.tsx`                                              | `native/scripts/generate-pieces.mjs`, from `src/assets/pieces/rhosgfx/`        |
+| `native/src/faces/*.tsx`, `native/src/faces/index.ts`                  | `native/scripts/generate-faces.mjs`, from `src/assets/faces/rhosgfx/`          |
 | `native/sounds/`, `native/src/cueFiles.ts`                             | `native/scripts/vendor-sounds.mjs`, from one pinned commit of dicechess-assets |
+| `native/music/`                                                        | `native/scripts/vendor-music.mjs`, from one pinned commit of dicechess-assets  |
 | `native/voices/`, `native/src/voiceFiles.ts`, `src/core/hostPacing.ts` | `native/scripts/vendor-voices.mjs`, from one pinned commit of dicechess-assets |
 | `site/public/voices/`, `site/src/voices/audition.json`                 | `site/scripts/vendor-voices.mjs`, from one pinned commit of dicechess-assets   |
 | `native/assets/` (not committed)                                       | `native/scripts/generate-assets.mjs`, which every build runs                   |
@@ -150,8 +152,10 @@ licences page, which `test/credits.test.ts` checks.
 ## The voices
 
 Five voice packs are vendored from fortemate/dicechess-assets, which keeps them for
-every client: the bots', one for each Hot Seat host, Prowla (#258), Rolly (#202)
-and Thinkle (#279), and the tutorial's, which Thinkle the wizard teaches (#264).
+every client: the bots', one for each host of a game against a friend, Prowla
+(#258), Rolly (#202) and Thinkle (#279), and the tutorial's, which Thinkle the
+wizard teaches (#264). Players see that mode as "Play a friend" (#348); the code
+still calls it hotseat, and the packs' own notices say Hot Seat.
 
 The bots' lines are written here, in `src/core/botVoice.ts`, and their voices are
 synthesized from those lines in dicechess-assets. Whenever a line changes, commit
@@ -202,20 +206,24 @@ to the next ([Version Your App](https://developer.amazon.com/docs/vega/0.24/app-
   decrease".
 
 Build numbers rise across betas and releases together, never per version: beta 24 was
-build 24, 1.0.0 is build 25, and the next beta is 26 or higher, whatever its version.
-Every tag carries its build number, so that `mise run build` can number a local build
-like the newest beta or release:
+build 24, 1.0.0 is build 26, and the next upload, beta or release, must be 27 or
+higher, whatever its version. Every tag carries its build number, so that
+`mise run build` can number a local build like the newest beta or release:
 
-| Kind    | Tag                       | Example          | Published as                               |
-| ------- | ------------------------- | ---------------- | ------------------------------------------ |
-| Beta    | `v<version>-beta.<build>` | `v0.1.0-beta.24` | a GitHub pre-release, and Live App Testing |
-| Release | `v<version>+<build>`      | `v1.0.0+25`      | a GitHub release, and the Appstore         |
+| Kind    | Tag                       | Example         | Published as                               |
+| ------- | ------------------------- | --------------- | ------------------------------------------ |
+| Beta    | `v<version>-beta.<build>` | `v0.1.0-beta.8` | a GitHub pre-release, and Live App Testing |
+| Release | `v<version>+<build>`      | `v1.0.0+26`     | a GitHub release, and the Appstore         |
 
 A release tag carries its number as semver build metadata, after the `+`, which leaves
-the version alone: `v1.0.0+25` is version 1.0.0. GitHub keeps the `+` in the tag and
+the version alone: `v1.0.0+26` is version 1.0.0. GitHub keeps the `+` in the tag and
 writes it as `%2B` in a URL. A release tagged plain `v1.0.0` would hide its number, and
 `mise run build` would then number local builds like the last beta: lower than the
 store's, so a device with the store version would refuse them.
+
+Tag every upload, betas included. Beta 24 went to Live App Testing only and was never
+tagged, so until `v1.0.0+26` existed `mise run build` numbered local builds 8, after
+`v0.1.0-beta.8`, below the store's.
 
 ### Building the packages
 
@@ -237,7 +245,9 @@ Two traps decide the steps below:
   before each set, and count the portraits in the GitHub packages too.
 
 After the version pull request merges, choose the build number: higher than every
-earlier build, whether tagged or only in Live App Testing. For a beta, the tag is
+earlier build, whether tagged or only in Live App Testing. The commands below take the
+newest tag's number plus one, 27 after `v1.0.0+26`; raise it by hand if Live App
+Testing holds an untagged build above that. For a beta, the tag is
 `v$version-beta.$build` instead. `git ls-remote` prints nothing for a new tag, and the
 packages are collected next to the checkout:
 
@@ -245,15 +255,18 @@ packages are collected next to the checkout:
 git switch main && git pull --ff-only
 npm ci && npm ci --prefix native
 version=$(grep -m1 '^version = ' native/manifest.toml | sed 's/.*"\(.*\)".*/\1/')
-build=25
+last=$(git ls-remote --tags origin 'v*' | sed -nE 's#.*refs/tags/v[^[:space:]]*(-beta[.]|[+])([0-9]+)$#\2#p' | sort -n | tail -1)
+build=$((last + 1))
 tag="v$version+$build"
+commit=$(git rev-parse HEAD)
 git ls-remote --tags origin "refs/tags/$tag"
 out="../dicechess-tv-$tag" && mkdir -p "$out/appstore" "$out/github"
 ```
 
 The Appstore package comes first, while the portraits are in place. Its portrait count
-must be above 0, and `vpt info` must show the version and the build number. `tar` reads
-a `.vpkg` when `zstd` is on the `PATH`.
+must be 10, a badge and a card for each of the five characters in `CHARACTERS` in
+`native/src/Portrait.tsx` (#334), as 1.0.0's was, and `vpt info` must show the version
+and the build number. `tar` reads a `.vpkg` when `zstd` is on the `PATH`.
 
 ```bash
 rm -rf native/build
@@ -276,22 +289,31 @@ cp native/build/*-release/*.vpkg "$out/github/"
 (cd "$out/github" && shasum -a 256 *.vpkg > SHA256SUMS.txt)
 ```
 
-Then publish the GitHub set, from the commit that was built, and upload
-`$out/appstore/dicechess-tv-native_armv7.vpkg` in the Amazon Developer Console: as a new
-version of the app for a release, or to Live App Testing for a beta.
+Upload `$out/appstore/dicechess-tv-native_armv7.vpkg` in the Amazon Developer Console:
+as a new version of the app for a release, or to Live App Testing for a beta. Then tag
+the commit that was built and publish the GitHub set on that tag, as 1.0.0 was: an
+annotated, signed tag, pushed first, and the release made on the existing tag. Write
+the notes to `$out/RELEASE_NOTES.md` first.
 
 ```bash
 if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null; then
   echo "$tag already exists: choose a higher build number"
 else
-  gh release create "$tag" "$out"/github/* --target "$(git rev-parse HEAD)" --title "Dice Chess $version" --generate-notes
+  git tag -s "$tag" "$commit" -m "Dice Chess $version, build $build"
+  git push origin "refs/tags/$tag"
+  gh release create "$tag" "$out"/github/* --verify-tag --title "Dice Chess $version" --notes-file "$out/RELEASE_NOTES.md"
 fi
 ```
 
 For a beta, add `--prerelease` and say "beta" and its number in the title. The tag
-check matters: `gh release create` would attach new packages to an existing tag that
-points at older code. The notes are grouped by the labels in `.github/release.yml`;
-`--notes-file` replaces them with notes of your own.
+check matters: a tag that already exists may point at older code, and the new packages
+would be published as if built from it. `--verify-tag` makes `gh release create`
+abort unless the tag is already on GitHub, so it never creates a tag of its own from
+the default branch; `--target` only says where such a tag would go, and is not needed.
+`v1.0.0+26` is an annotated tag on dac3302 with an SSH signature, and its release was
+made on it with `--verify-tag`.
+`--generate-notes` instead of `--notes-file` groups the merged pull requests by the
+labels in `.github/release.yml`.
 
 ## The project site
 
@@ -302,7 +324,9 @@ and add a page.
 
 ## What the platform does
 
-[native/README.md](native/README.md) is the record of how Vega actually behaves —
-remote input, saving, randomness, sound, icon and splash — each finding measured on
-a device, with what was tried and failed. Something new learned about the platform
-goes there, with how it was measured.
+The site's [Building on Vega](https://dicechess-tv.fortemate.com/technology/vega/)
+page, `site/src/content/docs/technology/vega.md`, is the record of how Vega actually
+behaves — remote input, sound, the icon and the splash, scripted automation — each finding
+measured on a device, with what was tried and failed (it moved there from
+native/README.md in #93). Something new learned about the platform goes there, with
+how it was measured and on which device.
