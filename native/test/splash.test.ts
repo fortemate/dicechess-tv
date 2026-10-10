@@ -32,6 +32,8 @@ import {
   splashRenderer,
   // @ts-expect-error — a build script, deliberately plain JavaScript.
 } from '../scripts/splash.mjs';
+// @ts-expect-error — a build script, deliberately plain JavaScript.
+import { NATIVE_NOTICES } from '../scripts/notices.mjs';
 
 const NATIVE = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -48,10 +50,13 @@ for (const input of [
   'sounds',
   'music',
   'voices',
+  'licenses',
   'portraits',
 ])
   if (existsSync(join(NATIVE, input)))
     cpSync(join(NATIVE, input), join(root, input), { recursive: true });
+for (const { from } of NATIVE_NOTICES)
+  cpSync(join(NATIVE, from), join(root, from));
 
 const built = main(root) as {
   framePaths: string[];

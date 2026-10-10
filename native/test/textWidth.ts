@@ -15,6 +15,7 @@ const WIDTHS: Readonly<Record<string, number>> = {
   ',': 278,
   '-': 333,
   '.': 278,
+  '/': 278,
   ':': 278,
   '?': 556,
   '·': 278,

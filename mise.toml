@@ -79,6 +79,9 @@ else
 fi
 echo "build number $n ($from)"
 npm run build --prefix native -- --build-number "$n"
+# The Vega build bundles otherwise than Metro does: the notices must name what
+# it packaged too (native/scripts/notices.mjs, #338).
+node native/scripts/notices.mjs --build
 '''
 
 [tasks."device:start"]

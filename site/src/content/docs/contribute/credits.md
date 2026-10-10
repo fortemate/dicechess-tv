@@ -74,6 +74,46 @@ Dice Chess TV combines open-source code with public domain and permitted creativ
 - **Usage:** The packs are vendored under `native/voices/`, each beside its own licence file. ElevenLabs asks for no credit on a paid plan, and the About screen gives none: its "Made by Fortemate" covers them.
 - **Demo video:** A sixth pack, Thinkle's narration of the demo video, is vendored under `scripts/demo-video/narration/`: 15 lines, heard in the video and never in the game. Its licence is the other packs', and also allows the videos that present Fortemate's Dice Chess applications.
 
+## Open-Source Software in the App
+
+The app is built with the npm packages below. Their licences come with the app: its package carries every one of them in `assets/licenses/THIRD_PARTY_NOTICES.txt`, and the About screen points to this page, which names them all.
+
+| Package                                             | Licence                                    |
+| --------------------------------------------------- | ------------------------------------------ |
+| `@amazon-devices/kepler-compatibility-metro-config` | Amazon Program Materials License Agreement |
+| `@amazon-devices/kepler-media-controls`             | Amazon Program Materials License Agreement |
+| `@amazon-devices/kepler-performance-api`            | Amazon Program Materials License Agreement |
+| `@amazon-devices/keplermediadescriptor`             | Amazon Program Materials License Agreement |
+| `@amazon-devices/keplerscript-turbomodule-api`      | Amazon Program Materials License Agreement |
+| `@amazon-devices/react-native-kepler`               | Amazon Program Materials License Agreement |
+| `@amazon-devices/react-native-mmkv`                 | Amazon Program Materials License Agreement |
+| `@amazon-devices/react-native-svg`                  | Amazon Program Materials License Agreement |
+| `@amazon-devices/react-native-w3cmedia`             | Amazon Program Materials License Agreement |
+| `@babel/runtime`                                    | MIT                                        |
+| `@react-native/assets-registry`                     | MIT                                        |
+| `@react-native/js-polyfills`                        | MIT                                        |
+| `@react-native/normalize-colors`                    | MIT                                        |
+| `@react-native/virtualized-lists`                   | MIT                                        |
+| `abort-controller`                                  | MIT                                        |
+| `base64-js`                                         | MIT                                        |
+| `buffer`                                            | MIT                                        |
+| `event-target-shim`                                 | MIT                                        |
+| `eventemitter3`                                     | MIT                                        |
+| `ieee754`                                           | BSD-3-Clause                               |
+| `invariant`                                         | MIT                                        |
+| `memoize-one`                                       | MIT                                        |
+| `metro-runtime`                                     | MIT                                        |
+| `nullthrows`                                        | MIT                                        |
+| `promise`                                           | MIT                                        |
+| `react`                                             | MIT                                        |
+| `regenerator-runtime`                               | MIT                                        |
+| `scheduler`                                         | MIT                                        |
+| `stacktrace-parser`                                 | MIT                                        |
+| `warn-once`                                         | MIT                                        |
+| `whatwg-fetch`                                      | MIT                                        |
+
+Three of Amazon's packages are built on MIT projects, whose notices follow Amazon's in that file: `@amazon-devices/react-native-kepler` on React Native 0.83, `@amazon-devices/react-native-svg` on react-native-svg 15.11.1, and `@amazon-devices/react-native-mmkv` on react-native-mmkv 3.0.2. Beside it, the package carries Amazon's notices for the MMKV native library that comes with the app: Tencent's MMKV under BSD-3-Clause, and the components it names. Most of React Native for Vega, and `react-native-svg`, `react-native-w3cmedia` and the media packages they use, are system bundles: the device provides them, and the app's own bundle leaves them out, but the notices name them all the same. The Dice Chess engine is Fortemate's own, listed above.
+
 ## Platform Dependencies & SDK
 
 - **Amazon Vega Platform Packages:** Packages under `@amazon-devices/*` (e.g. `react-native-kepler`, `react-native-mmkv`, `react-native-svg`, `react-native-w3cmedia`, `kepler-performance-api`) are installed from the public npm registry under Amazon's Program Materials License Agreement.

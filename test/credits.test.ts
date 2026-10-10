@@ -1,9 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import {
   APP,
   CREDITS,
+  OPEN_SOURCE,
   PIECES,
   PIECES_AND_FACES,
   creditsFor,
@@ -184,4 +185,49 @@ test('the notices name the licence of every vendored voice pack', () => {
       notices.includes(`native/voices/${pack}/${licenseFile}`),
       `THIRD_PARTY_NOTICES.md does not name native/voices/${pack}/${licenseFile}`,
     );
+});
+
+// The licences of the software in the app (#338). The package carries them, in
+// the file native/scripts/notices.mjs writes from the bundle, and the About
+// screen gives the address of the site's page that lists them.
+const shipped = readFileSync(
+  new URL('../native/licenses/THIRD_PARTY_NOTICES.txt', import.meta.url),
+  'utf8',
+);
+const shippedPackages = [...shipped.matchAll(/^={78}\n(.+)$/gm)].map(
+  ([, name]) => name,
+);
+
+test('the About screen gives the address of the site page that lists the licences', () => {
+  const astro = readFileSync(
+    new URL('../site/astro.config.mjs', import.meta.url),
+    'utf8',
+  );
+  const [, host] = /site: 'https:\/\/([^']+)'/.exec(astro) ?? [];
+  const [domain, ...path] = OPEN_SOURCE.source.split('/');
+  assert.equal(domain, host);
+  assert.ok(
+    existsSync(
+      new URL(`../site/src/content/docs/${path.join('/')}.md`, import.meta.url),
+    ),
+    `no site page at /${path.join('/')}`,
+  );
+});
+
+test('the notices and the site name every package whose licence ships', () => {
+  const page = readFileSync(
+    new URL('../site/src/content/docs/contribute/credits.md', import.meta.url),
+    'utf8',
+  );
+  assert.ok(shippedPackages.length > 0);
+  for (const name of shippedPackages) {
+    assert.ok(
+      notices.includes(`\`${name}\``),
+      `THIRD_PARTY_NOTICES.md does not name ${name}`,
+    );
+    assert.ok(
+      page.includes(`\`${name}\``),
+      `the site's credits page does not name ${name}`,
+    );
+  }
 });

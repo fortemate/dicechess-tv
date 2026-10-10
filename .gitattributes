@@ -37,6 +37,7 @@ native/music/** -text linguist-vendored
 scripts/demo-video/narration/** -text linguist-vendored
 # The licence texts, kept as published.
 licenses/** -text
+native/licenses/upstream/** -text
 
 # Written by scripts rather than by hand: collapsed in pull-request diffs and left
 # out of the language statistics. Change the script and regenerate instead.
@@ -45,6 +46,8 @@ native/src/faces/*.tsx  linguist-generated
 native/src/cueFiles.ts  linguist-generated
 native/src/voiceFiles.ts linguist-generated
 src/core/hostPacing.ts linguist-generated
+# The notices the package ships, from the bundle's source map (#338).
+native/licenses/THIRD_PARTY_NOTICES.txt linguist-generated
 # The voice audition of /voices/ keeps its upstream bytes (#172).
 site/public/voices/** -text linguist-vendored
 
