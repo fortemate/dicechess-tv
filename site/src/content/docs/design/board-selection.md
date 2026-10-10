@@ -214,6 +214,15 @@ It applies only on the board while a person chooses an action: never to a bot, a
 
 While a press is pending the prompt reads "Only one choice · Back: stop". Back then only stops it: the cursor and any piece in hand stay where they are, and a second Back puts the piece down or opens the menu as usual. At any other point of an action, Back and Menu do what they always do and also leave the rest of that action to the person, so a piece picked up automatically and put down with Back stays down, and Back can always reach the menu. Back from the choice of promotion piece does the same, leaving the pawn in hand. Automatic presses return when the game revision changes, with the next action.
 
+What this rests on:
+
+- **Tests.** `test/boardInput.test.ts` checks `onlyChoice` and replays the rook, rook and knight example against the engine. `native/test/autoSelect.test.tsx` checks through the reducer that a press scheduled for an older revision or another piece in hand does nothing, the Back, Menu and promotion rules, and that bots, rolls and handoffs are left alone. Through the whole app, it checks that one press at a time is scheduled with a wait of `AUTO_SELECT_MS` and that Back cancels it. The tests check the wait the app asks for, not the time that passes on a device.
+- **Vega Virtual Device**, 10 October 2026, build 12 of `8c58ea6`. Captured frames showed a chain's steps about 0.6 s apart, and a rook went to g1 and back to h1 with no press, like the example above.
+- **Fire TV Stick**, the same day, armv7 build 25 of `8c58ea6`, checked through a throwaway build that also wrote the screen's state to the device log. Presses came 0.68–1.25 s after the state they were scheduled from. Other work on the JavaScript thread delayed them, as it delays the bot's steps. Back during the wait, and Back after an automatic pick, behaved as described above.
+- **Tests alone:** promotion and Menu during the wait.
+
+[Pull request 342](https://github.com/fortemate/dicechess-tv/pull/342) records both device sessions.
+
 ## What the press measurements mean
 
 The evaluator in `scripts/cursor-presses.ts` replays seeded games and uses the same navigation helpers. An action's cost includes arrow presses, one OK to choose a piece and one OK to choose a destination; a promotion adds another OK. If a target is unreachable under an evaluated strategy, the evaluator records that fact and uses square-by-square distance for its cost fallback.
