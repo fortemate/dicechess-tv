@@ -90,8 +90,10 @@ description = "⏹️  Stop the Vega Virtual Device"
 run = "vega virtual-device stop"
 
 [tasks."device:install"]
-description = "📥 Install the built package on the virtual device"
-run = "vega device install-app -d VirtualDevice -p native/build/aarch64-release/dicechess-tv-native_aarch64.vpkg"
+# The package built for the device's processor: the wrong one installs without a
+# word and crashes at start (native/scripts/install.mjs, friction log FL-30).
+description = "📥 Install the built package that suits the virtual device"
+run = "node native/scripts/install.mjs"
 
 [tasks."device:launch"]
 description = "▶️  Launch the application on the virtual device"
@@ -100,7 +102,4 @@ run = "vega device launch-app -d VirtualDevice -a com.fortemate.dicechesstv.main
 [tasks."device:run"]
 description = "🚀 Build, install and launch on the virtual device"
 depends = ["build"]
-run = [
-  "vega device install-app -d VirtualDevice -p native/build/aarch64-release/dicechess-tv-native_aarch64.vpkg",
-  "vega device launch-app -d VirtualDevice -a com.fortemate.dicechesstv.main",
-]
+run = "node native/scripts/install.mjs --launch"

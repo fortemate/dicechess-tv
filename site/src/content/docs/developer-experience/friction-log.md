@@ -59,6 +59,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 | [FL-27](#fl-27) | MP3 encoder padding is played, not trimmed                                   | Audio                             | Low      | Worked around |
 | [FL-28](#fl-28) | `launch-app` restarts a background app, and the emulator's Home does nothing | CLI, Virtual Device               | Medium   | Worked around |
 | [FL-29](#fl-29) | Adaptive Display cannot be set on the Virtual Device, or VoiceView by `vdcm` | Virtual Device, docs              | Medium   | Open          |
+| [FL-30](#fl-30) | `install-app` takes a package built for another processor; it then crashes   | CLI, Virtual Device               | Medium   | Worked around |
 
 ## Entries
 
@@ -805,6 +806,63 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   still checking. The suggested improvements stand: the release notes explain the failures, but
   nothing says so where a developer meets them, on the Virtual Device or in the WebView
   accessibility guide.
+
+### FL-30 · `install-app` takes a package built for another processor, and the app then crashes at start {#fl-30}
+
+- **Date and environment:** 2026-10-09, reproduced on purpose on 2026-10-10 · SDK 0.24.12112, Vega CLI
+  1.3.4 · Virtual Device (OS 1.2) on a MacBook Air with Apple silicon, where the Virtual Device is
+  aarch64.
+- **Tool / SDK / component version:** `vega device install-app` and `launch-app`;
+  `@amazon-devices/react-native-mmkv` 1.0.x on React Native for Vega 0.83
+  (`@amazon-devices/react-native-kepler` 4.0.x).
+- **User task:** check a change on the Virtual Device with a Release build. The same build also makes
+  the armv7 package for a Fire TV Stick.
+- **Minimal reproduction steps:**
+  - `npx react-native build-vega --build-type Release`, which writes an aarch64, an armv7 and an x86_64
+    package;
+  - `vega device install-app -d VirtualDevice -p build/armv7-release/<app>_armv7.vpkg` on an
+    Apple-silicon Mac;
+  - `vega device launch-app -d VirtualDevice -a <component id>`.
+- **Expected result:** `install-app` refuses a package whose native libraries are for another
+  processor than the device's, or at least warns. Failing that, the crash at launch names the missing
+  library or the processor.
+- **Actual result and evidence:**
+  - `install-app` reports success, and so does `launch-app` ([FL-02](#fl-02)). The launcher stays on
+    screen.
+  - The device log shows the JS thread aborting (SIGABRT). `ModuleNotFoundError` is raised in
+    react-native-mmkv's `getMMKVTurboModule` (`MmkvCxx`), and building that error then fails an
+    `invariant` in react-native-kepler's `NativeModules` getter. Nothing mentions a processor.
+  - Each package carries `libreact-native-mmkv-kepler.so` only under `lib/<arch>/` for its own
+    processor. The crash report lists no library loaded from the package, only its
+    `index.hermes.bundle`.
+  - We took it for a broken Virtual Device. A restart changed nothing, and neither did an uninstall
+    with a clean install, which deletes the saved game, the results and the settings.
+  - The aarch64 package of the same build, installed over the armv7 one, ran at once, and the saved
+    game was intact.
+  - `vega device list` does show the Virtual Device as `tv - aarch64`, but nothing connects that to the
+    package.
+
+  Evidence: the Virtual Device's crash reports of 9 and 10 October, and pull request
+  "Install the package built for the device's processor", which reproduces the crash with one
+  commit: armv7 crashes, aarch64 runs.
+
+- **Severity and user impact:** Medium.
+  - It cost hours.
+  - It led to an uninstall that deleted test data.
+  - The Virtual Device was recorded as broken until the next day, which held back a pull request's
+    device check.
+- **Workaround:** `npm run device --prefix native` (`native/scripts/install.mjs`). It asks the device
+  for its processor (`uname -m`), installs the package built for it, and refuses a package for another
+  one.
+- **Suggested improvement:**
+  - `install-app`, or the device's package manager, compares the package's native libraries with the
+    device's processor, and refuses or warns;
+  - `vpt info` names the processors a package is built for;
+  - a missing native module at start-up says that the package has no library for this processor,
+    rather than only `ModuleNotFoundError`;
+  - the build-and-run docs say which package goes on which device, the Virtual Device on Apple
+    silicon included.
+- **Current status:** worked around.
 
 ## What worked well
 

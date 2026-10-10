@@ -26,9 +26,8 @@ It needs the Vega SDK 0.24 and either a Vega Virtual Device or a Fire TV Stick i
 ```bash
 npm ci && npm ci --prefix native
 npm run build --prefix native
-# The aarch64 package is for an Apple silicon Mac; native/README.md names the one for Linux and Intel Macs
-vega device install-app -d VirtualDevice -p native/build/aarch64-release/dicechess-tv-native_aarch64.vpkg
-vega device launch-app -d VirtualDevice -a com.fortemate.dicechesstv.main
+# Installs the package built for the Virtual Device's processor, then launches it
+npm run device --prefix native -- --launch
 ```
 
 The whole game is playable with three controls (D-pad, OK, and Back), while the remote Menu button provides a fourth control:

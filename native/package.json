@@ -11,6 +11,7 @@
     "assets": "node scripts/generate-assets.mjs",
     "build": "npm run assets && react-native build-vega --build-type Release",
     "build:debug": "npm run assets && react-native build-vega --build-type Debug",
+    "device": "node scripts/install.mjs",
     "bundle": "react-native bundle --entry-file index.js --platform kepler --dev false --bundle-output build/metro/index.bundle",
     "start": "react-native start"
   },
