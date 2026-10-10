@@ -70,7 +70,7 @@ const SHARED_TEXT = [
 // Amazon's packages are under its Program Materials License Agreement. Three
 // are built on open-source projects whose notice they do not all carry, so the
 // project's notice follows Amazon's.
-const AMAZON = /^@amazon-devices\//;
+const AMAZON = '@amazon-devices/';
 const AMAZON_LICENCE = 'Amazon Program Materials License Agreement';
 const UPSTREAM = {
   // React Native 0.83, as its version, 4.0.1+rn0.83.0, says. Its files carry
@@ -92,7 +92,11 @@ const UPSTREAM = {
   },
 };
 
-const FIRST_PARTY = /^@fortemate\//;
+const FIRST_PARTY = '@fortemate/';
+
+// Paths and names in code-unit order, the same on every machine and locale.
+const inOrder = (a, b) => (a < b ? -1 : Number(a > b));
+const byName = (a, b) => inOrder(a.name, b.name);
 
 // The package each source belongs to: the name after its last node_modules/,
 // and the directory that ends with it.
@@ -105,14 +109,14 @@ export const packagesIn = (sources) => {
     const name = parts[0].startsWith('@')
       ? `${parts[0]}/${parts[1]}`
       : parts[0];
-    if (FIRST_PARTY.test(name)) continue;
+    if (name.startsWith(FIRST_PARTY)) continue;
     const dir = source.slice(0, at + 'node_modules/'.length + name.length);
     if (!found.has(name)) found.set(name, new Set());
     found.get(name).add(dir);
   }
   return [...found.entries()]
-    .map(([name, dirs]) => ({ name, dirs: [...dirs].sort() }))
-    .sort((a, b) => (a.name < b.name ? -1 : 1));
+    .map(([name, dirs]) => ({ name, dirs: [...dirs].sort(inOrder) }))
+    .sort(byName);
 };
 
 // The packages the notices name: those of Metro's bundle, and what the Vega
@@ -122,7 +126,7 @@ export const shippedPackages = (sources, root = native) => {
   for (const name of BUILD_ADDS)
     if (!found.some((one) => one.name === name))
       found.push({ name, dirs: [join(root, 'node_modules', name)] });
-  return found.sort((a, b) => (a.name < b.name ? -1 : 1));
+  return found.sort(byName);
 };
 
 // A licence as it is printed: line endings, trailing spaces and blank lines at
@@ -154,7 +158,7 @@ const licenceOf = (name, dir, root) => {
   const { license } = JSON.parse(
     readFileSync(join(dir, 'package.json'), 'utf8'),
   );
-  const called = AMAZON.test(name) ? AMAZON_LICENCE : license;
+  const called = name.startsWith(AMAZON) ? AMAZON_LICENCE : license;
   if (typeof called !== 'string' || /^see licen[cs]e/i.test(called))
     throw new Error(`${name}: no licence named in its package.json`);
   return { called, text: tidy(text) };
@@ -205,7 +209,7 @@ export const noticesFor = (packages, root = native) => {
 
 // The packages named in a notices file, in its order.
 export const packagesNamed = (notices) =>
-  [...notices.matchAll(new RegExp(`^${RULE}\\n(.+)$`, 'gm'))].map(
+  [...notices.matchAll(new RegExp(String.raw`^${RULE}\n(.+)$`, 'gm'))].map(
     (match) => match[1],
   );
 
