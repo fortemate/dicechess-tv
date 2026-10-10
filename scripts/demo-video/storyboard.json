@@ -6,7 +6,7 @@
     "seconds": 7,
     "title": "Dice Chess for Fire TV",
     "link": "dicechess-tv.fortemate.com",
-    "footer": "Recorded on the Vega Virtual Device on macOS \u00b7 Music by pepka-prygni\nSounds by Kenney & JDSherbert \u00b7 Voices: ElevenLabs \u00b7 Portraits: Recraft",
+    "footer": "Recorded on the Vega Virtual Device on macOS · Music by pepka-prygni\nSounds by Kenney & JDSherbert · Voices: ElevenLabs · Portraits: Recraft",
     "music": {
       "file": "native/music/pepka-prygni-dicechess/warm_anticipation.mp3",
       "gainDb": -6,
@@ -32,8 +32,8 @@
         },
         {
           "take": "built",
-          "from": 8.0,
-          "to": 11.0
+          "from": 7.0,
+          "to": 10.0
         }
       ]
     },
@@ -47,35 +47,35 @@
       "clips": [
         {
           "take": "tutorial",
-          "from": 16.1,
-          "to": 28.0,
+          "from": 14.95,
+          "to": 26.75,
           "audio": [
             {
               "line": "thinkle_tutor_move_opening_1",
-              "at": 16.448
+              "at": 15.1919
             },
             {
               "line": "thinkle_tutor_move_opening_2",
-              "at": 19.344
+              "at": 18.0879
             },
             {
               "line": "thinkle_tutor_move_opening_3",
-              "at": 24.304
+              "at": 23.0639
             }
           ]
         },
         {
           "take": "tutorial",
-          "from": 30.85,
-          "to": 40.85,
+          "from": 29.24,
+          "to": 39.45,
           "audio": [
             {
               "line": "thinkle_tutor_move_rolled_1",
-              "at": 31.073
+              "at": 29.4639
             },
             {
               "line": "thinkle_tutor_move_rolled_2",
-              "at": 36.993
+              "at": 35.5759
             }
           ]
         }
@@ -91,12 +91,12 @@
       "clips": [
         {
           "take": "hotseat",
-          "from": 5.4,
-          "to": 11.2,
+          "from": 8.8,
+          "to": 14.4,
           "audio": [
             {
-              "line": "prowla_host_intro_3",
-              "at": 5.747
+              "line": "prowla_host_intro_1",
+              "at": 9.2588
             }
           ]
         }
@@ -112,23 +112,20 @@
       "clips": [
         {
           "take": "hotseat",
-          "from": 11.2,
-          "to": 21.35,
+          "from": 14.4,
+          "to": 24.6,
           "audio": [
             {
               "file": "native/sounds/kenney-casino-audio/dice_throw_1.mp3",
-              "at": 12.9445,
-              "gainDb": -1
+              "at": 15.568
             },
             {
-              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
-              "at": 15.372,
-              "gainDb": -1
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_1.mp3",
+              "at": 18.4021
             },
             {
-              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
-              "at": 18.9423,
-              "gainDb": -1
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_1.mp3",
+              "at": 22.0012
             }
           ]
         }
@@ -144,22 +141,36 @@
       "clips": [
         {
           "take": "flip",
-          "from": 12.4,
-          "to": 23.4,
+          "from": 14.6,
+          "to": 25.2,
           "audio": [
             {
-              "file": "native/sounds/kenney-casino-audio/dice_throw_3.mp3",
-              "at": 12.8456,
-              "gainDb": -1
+              "file": "native/sounds/kenney-casino-audio/dice_throw_1.mp3",
+              "at": 15.608
             },
             {
               "line": "prowla_host_handoff_2",
-              "at": 15.378
+              "at": 16.0395
+            },
+            {
+              "file": "native/sounds/kenney-interface-sounds/glass_004.mp3",
+              "at": 16.4844
+            },
+            {
+              "file": "native/sounds/kenney-casino-audio/dice_throw_2.mp3",
+              "at": 16.935
             },
             {
               "file": "native/sounds/jdsherbert-tabletop/piece_move_1.mp3",
-              "at": 21.3555,
-              "gainDb": -1
+              "at": 19.6628
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
+              "at": 22.1588
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
+              "at": 24.5219
             }
           ]
         }
@@ -175,17 +186,29 @@
       "clips": [
         {
           "take": "opponents",
-          "from": 4.3,
-          "to": 12.0
+          "from": 3.7,
+          "to": 10.6
         },
         {
           "take": "opponents",
-          "from": 18.65,
-          "to": 24.2,
+          "from": 15.15,
+          "to": 20.2,
           "audio": [
             {
-              "line": "grabby_intro_2",
-              "at": 18.971
+              "line": "grabby_intro_3",
+              "at": 15.5827
+            },
+            {
+              "file": "native/sounds/kenney-casino-audio/dice_throw_1.mp3",
+              "at": 15.628
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
+              "at": 16.71
+            },
+            {
+              "file": "native/sounds/kenney-casino-audio/dice_grab_2.mp3",
+              "at": 17.39
             }
           ]
         }
@@ -200,19 +223,25 @@
       },
       "clips": [
         {
-          "take": "resume",
-          "from": 0.2,
-          "to": 3.0
+          "take": "flip",
+          "from": 46.3,
+          "to": 48.9,
+          "audio": [
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_impact_2.mp3",
+              "at": 48.2388
+            }
+          ]
         },
         {
           "take": "resume",
-          "from": 10.9,
-          "to": 18.5
+          "from": 7.9,
+          "to": 15.5
         },
         {
           "take": "rules",
-          "from": 17.3,
-          "to": 23.6
+          "from": 8.1,
+          "to": 14.4
         }
       ]
     },
@@ -226,80 +255,72 @@
       "clips": [
         {
           "take": "rampage",
-          "from": 53.8,
-          "to": 88.3,
+          "from": 30.0,
+          "to": 65.5,
           "audio": [
             {
-              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
-              "at": 55.851,
-              "gainDb": -1
-            },
-            {
-              "file": "native/sounds/jdsherbert-tabletop/piece_move_1.mp3",
-              "at": 59.6122,
-              "gainDb": -1
+              "file": "native/sounds/kenney-casino-audio/dice_grab_2.mp3",
+              "at": 30.4379
             },
             {
               "file": "native/sounds/kenney-casino-audio/dice_throw_1.mp3",
-              "at": 62.2249,
-              "gainDb": -1
-            },
-            {
-              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
-              "at": 63.0682,
-              "gainDb": -1
-            },
-            {
-              "file": "native/sounds/jdsherbert-tabletop/piece_impact_1.mp3",
-              "at": 63.6923,
-              "gainDb": -1
-            },
-            {
-              "line": "rampage_capture_3",
-              "at": 63.893
+              "at": 31.028
             },
             {
               "file": "native/sounds/jdsherbert-tabletop/piece_move_1.mp3",
-              "at": 69.2922,
-              "gainDb": -1
+              "at": 34.5226
             },
             {
               "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
-              "at": 73.0523,
-              "gainDb": -1
+              "at": 37.5213
             },
             {
-              "file": "native/sounds/jdsherbert-tabletop/piece_impact_1.mp3",
-              "at": 76.5083,
-              "gainDb": -1
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_1.mp3",
+              "at": 40.4333
             },
             {
-              "file": "native/sounds/kenney-casino-audio/dice_grab_2.mp3",
-              "at": 78.3211,
-              "gainDb": -1
+              "line": "rampage_threat_3",
+              "at": 41.994
             },
             {
-              "line": "rampage_threat_1",
-              "at": 78.373
+              "file": "native/sounds/kenney-casino-audio/dice_throw_2.mp3",
+              "at": 42.115
             },
             {
               "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
-              "at": 80.4925,
-              "gainDb": -1
+              "at": 43.6813
+            },
+            {
+              "file": "native/sounds/kenney-casino-audio/dice_throw_1.mp3",
+              "at": 45.328
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_1.mp3",
+              "at": 49.1853
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
+              "at": 52.0653
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
+              "at": 54.8448
+            },
+            {
+              "file": "native/sounds/kenney-casino-audio/dice_throw_3.mp3",
+              "at": 57.1419
             },
             {
               "file": "native/sounds/jdsherbert-tabletop/piece_impact_2.mp3",
-              "at": 80.9085,
-              "gainDb": -1
+              "at": 57.6333
             },
             {
               "file": "native/sounds/kenney-music-jingles/pizzicato_01.mp3",
-              "at": 81.0251,
-              "gainDb": 0
+              "at": 58.3419
             },
             {
               "line": "rampage_win_1",
-              "at": 82.021
+              "at": 59.546
             }
           ]
         }
@@ -325,7 +346,7 @@
         "role": "critical",
         "scene": "Music that follows the game",
         "clip": 0,
-        "at": 65.239
+        "at": 45.0
       }
     ]
   }
