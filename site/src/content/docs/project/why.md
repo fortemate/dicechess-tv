@@ -17,7 +17,7 @@ Skill still matters. A player chooses among the moves the dice allow, and keeps 
 
 ## One television, one remote
 
-The living room is where a family is already together. In a Hot Seat game two players pass one remote, turn by turn. A person alone can play the on-device bot. Nothing needs an account, and the app's source contains no network calls. All of this runs on the Vega Virtual Device today; testing on a Fire TV Stick is still to come.
+The living room is where a family is already together. In a Hot Seat game two players pass one remote, turn by turn. A person alone can play the on-device bot. Nothing needs an account, and the app's source contains no network calls. All of this was played on the Vega Virtual Device. Since 6 October 2026 the game has also run on a Fire TV Stick 4K Select, where it has been played with the Stick's own remote ([Performance](/technology/performance/#response-to-the-remote)).
 
 ## What existed before, and what is new
 

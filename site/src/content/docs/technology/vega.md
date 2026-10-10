@@ -5,7 +5,7 @@ sidebar:
   order: 2
 ---
 
-This page records how Vega OS behaved for Dice Chess on the Vega Virtual Device (SDK 0.24.12112, OS 1.2). Where a statement rests on something else, such as unit tests, Amazon's documentation or Amazon's developer forum, it says so. Nothing here has been checked on a Fire TV Stick yet. The [friction log](/friction-log/) has the steps and evidence for the obstacles linked from this page.
+This page records how Vega OS behaved for Dice Chess on the Vega Virtual Device (SDK 0.24.12112, OS 1.2). Where a statement rests on something else, such as unit tests, Amazon's documentation or Amazon's developer forum, it says so. Unless a section says otherwise, nothing here has been checked on a Fire TV Stick, although the game has run on a Fire TV Stick 4K Select since 6 October 2026. The [friction log](/friction-log/) has the steps and evidence for the obstacles linked from this page.
 
 ## Remote Input & Navigation
 
@@ -30,7 +30,7 @@ Amazon staff said on Amazon's developer forum on 31 August 2026, in [another dev
 
 `native/src/useRemoteInput.ts` treats all three names as OK, so the app acts on OK under any of them.
 
-_Verification:_ on the Virtual Device, `enter` from a Mac keyboard drove a whole turn on 22 September 2026, and on 24 September a diagnostic build that printed raw events showed `kpenter` from the on-screen remote. `kpenter` was also checked with `KEY_KPENTER` sent through the emulator's gRPC API. A unit test (`native/test/input.test.tsx`) checks that all three names act as OK; it runs against stand-ins for the Vega packages, so it checks the mapping, not what Vega sends. What a Fire TV Stick's remote sends has not been checked.
+_Verification:_ on the Virtual Device, `enter` from a Mac keyboard drove a whole turn on 22 September 2026, and on 24 September a diagnostic build that printed raw events showed `kpenter` from the on-screen remote. `kpenter` was also checked with `KEY_KPENTER` sent through the emulator's gRPC API. A unit test (`native/test/input.test.tsx`) checks that all three names act as OK; it runs against stand-ins for the Vega packages, so it checks the mapping, not what Vega sends. On a Fire TV Stick 4K Select, a game has been played with the Stick's own remote ([Performance](/technology/performance/#response-to-the-remote)), but which of the three names its OK arrives under has not been recorded.
 
 ### Handling the Back Button
 
@@ -111,7 +111,9 @@ _Note:_ `canPlayType()` cannot be relied upon on Vega; it returns `"probably"` f
 
 ### Leaving the Foreground
 
-Amazon's pre-submission test cases ask for no audio from the app on the Fire TV launcher or over the screensaver, and none overlapping another app when switching apps ([Test before submission](https://developer.amazon.com/docs/vega/0.24/test-before-submission.html)). The app listens to `useKeplerAppStateManager`. On `blur` the music stops. On `background` or `inactive` the sound effects and spoken lines stop as well, and none starts again until the app is `active` (`native/src/App.tsx`). Music comes back 300 ms after the app is both active and focused. On the Virtual Device, bringing the launcher to the front delivered `blur` and then `background` on each of four trips, and the music stopped ([FL-28](/friction-log/#fl-28)). That nothing is heard over the launcher has not yet been confirmed by ear, and none of this has run on a Fire TV Stick.
+Amazon's pre-submission test cases ask for no audio from the app on the Fire TV launcher or over the screensaver, and none overlapping another app when switching apps ([Test before submission](https://developer.amazon.com/docs/vega/0.24/test-before-submission.html)). The app listens to `useKeplerAppStateManager` and counts itself in front only while it is both active and focused (`native/src/App.tsx`, [#296](https://github.com/fortemate/dicechess-tv/pull/296)). On `blur`, `background` or `inactive`, the sound effects, the spoken lines and the music stop, the game ignores the remote, and the opponent's next step and the danger search hold what was left of their wait; the return picks the turn up where it was. Music comes back 300 ms after the app is both active and focused.
+
+On the Virtual Device, bringing the launcher to the front delivered `blur` and then `background` on each of four trips, and the music stopped ([FL-28](/friction-log/#fl-28)). On a Fire TV Stick 4K Select on 9 October 2026, the app-state manager reported `unknown` at launch. After Home it received `blur` and a `change` to `background`, but on the return only `focus`, and a build that waited for the `change` to `active` ignored every key after the first return from Home. So the app takes `focus` as the return (`native/README.md`, Loss of focus), and its own reports on the Stick then showed it pausing and resuming with the saved game kept. That nothing is heard over the launcher has not yet been confirmed by ear, and the owner's listening check on the Stick with an Alexa overlay, which can send `blur` alone, is still to come.
 
 ## Icon & Splash Screen Traps
 

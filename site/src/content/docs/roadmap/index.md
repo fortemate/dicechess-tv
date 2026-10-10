@@ -7,7 +7,7 @@ The app was built during [Build, Ship, Shape: Amazon Developer Hackathon 2026](h
 
 ## Done
 
-Every feature here was played on the Vega Virtual Device, and the app's automated tests cover it. None has run on a Fire TV Stick yet.
+Every feature here was played on the Vega Virtual Device, and the app's automated tests cover it. Since 6 October 2026 the game has also run on a Fire TV Stick 4K Select, though not every feature has been checked there yet.
 
 - **A native board** in React Native for Vega, played entirely with the remote.
 - **Hot Seat** on one remote, **saving** after every action, and the record of results.
@@ -23,7 +23,7 @@ Every feature here was played on the Vega Virtual Device, and the app's automate
 ## Now
 
 - **The tester round:** people who have never seen the game play it, on the Vega Virtual Device and, through Live App Testing, on their own Fire TV Sticks. See [Play the beta](/play/beta/).
-- **Testing on a physical Fire TV Stick**, including how fast the game runs there.
+- **Testing on a Fire TV Stick**, under way since 6 October 2026: the launch and the response to the remote have been measured there, and the opponents' and the danger search's timings are still to come ([Performance](/technology/performance/)).
 
 ## Next
 
