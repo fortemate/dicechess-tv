@@ -133,6 +133,26 @@ test('every row of Settings is one line, whatever it says', () => {
   }
 });
 
+// The music row carries its ten rings after the label (#346): 10 dp each with
+// 4 dp after it, and 10 dp before the first (VolumeRings in src/GameScreen.tsx).
+const RINGS_DP = 10 + 10 * (10 + 4);
+
+test('the music row and its rings are one line, at every volume', () => {
+  const rows = new Set<string>();
+  for (let volume = 0; volume <= 10; volume++)
+    for (const on of [false, true])
+      rows.add(settingsOptions(true, { on, volume })[0]);
+  assert.ok(rows.has('Music: off'));
+  assert.ok(rows.has('Music: 10'));
+  for (const row of rows) {
+    const width = textWidth(row, OPTION_DP) + RINGS_DP + OPTION_INSET_DP;
+    assert.ok(
+      width <= FITS_DP,
+      `"${row}" is about ${Math.round(width)} dp with its rings, over ${FITS_DP}`,
+    );
+  }
+});
+
 // The mode line is 20 dp with 2 dp between letters (src/GameScreen.tsx).
 const MODE_LINE_DP = 20;
 const MODE_LINE_SPACING_DP = 2;

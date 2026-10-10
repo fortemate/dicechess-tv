@@ -780,8 +780,7 @@ test('Settings opens from the home menu on music, and Back returns to it', () =>
       settings.autoSelect,
     ),
     [
-      'Music: on',
-      'Music volume: 7',
+      'Music: 7',
       'Sound effects: on',
       'Voices: on',
       'Host for friends: Prowla',
@@ -801,8 +800,8 @@ test('OK or the arrows sideways flip music, sound effects, voices and hotseat bo
   const settings = toSettings(withMusic(fresh()));
   const musicOff = drive(settings, 'select');
   assert.equal(musicOff.music.on, false);
-  assert.equal(drive(musicOff, 'right').music.on, true);
-  const effects = drive(settings, 'down', 'down');
+  assert.equal(drive(musicOff, 'select').music.on, true);
+  const effects = drive(settings, 'down');
   assert.equal(drive(effects, 'select').sound, false);
   assert.equal(drive(effects, 'left').sound, false);
   // Down once more reaches the voices, which are on by default.
@@ -835,7 +834,7 @@ test('OK or the arrows sideways flip music, sound effects, voices and hotseat bo
       host.turnHotseat,
       host.voices,
       'thinkle',
-    )[4],
+    )[3],
     'Host for friends: Thinkle',
   );
   const hostOff = drive(host, 'left');
@@ -847,7 +846,7 @@ test('OK or the arrows sideways flip music, sound effects, voices and hotseat bo
       hostOff.turnHotseat,
       hostOff.voices,
       hostOff.host,
-    )[4],
+    )[3],
     'Host for friends: off',
   );
   // And once more, hotseat board turning.
@@ -861,16 +860,51 @@ test('OK or the arrows sideways flip music, sound effects, voices and hotseat bo
   assert.equal(drive(hotseat, 'select').overlay.kind, 'settings');
 });
 
-test('the volume moves one step per press and stops at both ends', () => {
-  const volume = drive(toSettings(withMusic(fresh())), 'down');
-  assert.equal(drive(volume, 'right').music.volume, 8);
-  assert.equal(drive(volume, 'left', 'left').music.volume, 5);
-  const top = drive(volume, 'right', 'right', 'right', 'right', 'right');
-  assert.equal(top.music.volume, 10);
-  const bottom = drive(volume, ...(Array(12).fill('left') as BoardKey[]));
-  assert.equal(bottom.music.volume, 0);
-  // OK on the volume changes nothing.
-  assert.deepEqual(drive(volume, 'select'), volume);
+// One row for the music (#346): the rings are the volume, 0 is off, and OK
+// mutes and unmutes.
+const musicRow = (state: ScreenState): string =>
+  settingsOptions(state.sound, state.music, state.musicAvailable)[0];
+
+test('the music row moves one step per press, and turns off below the first ring', () => {
+  const music = toSettings(withMusic(fresh()));
+  assert.equal(musicRow(music), 'Music: 7');
+  assert.deepEqual(drive(music, 'right').music, { on: true, volume: 8 });
+  assert.deepEqual(drive(music, 'left', 'left').music, { on: true, volume: 5 });
+  const top = drive(music, 'right', 'right', 'right', 'right', 'right');
+  assert.deepEqual(top.music, { on: true, volume: 10 });
+  assert.equal(musicRow(top), 'Music: 10');
+  // Seven steps down reach silence: the music is off, and says so.
+  const bottom = drive(music, ...(Array(7).fill('left') as BoardKey[]));
+  assert.equal(bottom.music.on, false);
+  assert.equal(musicRow(bottom), 'Music: off');
+  // Left goes no lower, and Right from off fills the first ring.
+  assert.deepEqual(drive(bottom, 'left', 'left').music, bottom.music);
+  assert.deepEqual(drive(bottom, 'right').music, { on: true, volume: 1 });
+  assert.equal(musicRow(drive(bottom, 'right')), 'Music: 1');
+});
+
+test('OK on the music row mutes it and brings it back at the level it had', () => {
+  const music = drive(toSettings(withMusic(fresh())), 'right', 'right');
+  const muted = drive(music, 'select');
+  assert.deepEqual(muted.music, { on: false, volume: 9 });
+  assert.equal(musicRow(muted), 'Music: off');
+  assert.deepEqual(drive(muted, 'select').music, { on: true, volume: 9 });
+  // Turned off with Left, it comes back at the first ring.
+  const lowest = drive(
+    toSettings(withMusic(fresh())),
+    ...(Array(7).fill('left') as BoardKey[]),
+  );
+  assert.deepEqual(drive(lowest, 'select').music, { on: true, volume: 1 });
+});
+
+test('music an earlier build stored as on at 0 is off, and OK brings the default', () => {
+  const silent = toSettings(
+    withMusic(initialState(options, null, { music: { on: true, volume: 0 } })),
+  );
+  assert.equal(musicRow(silent), 'Music: off');
+  assert.deepEqual(drive(silent, 'select').music, { on: true, volume: 7 });
+  assert.deepEqual(drive(silent, 'right').music, { on: true, volume: 1 });
+  assert.deepEqual(drive(silent, 'left').music, silent.music);
 });
 
 test('Settings from the game menu never asks to replace the game, and Back returns to the menu', () => {
@@ -972,9 +1006,8 @@ test('a new game keeps the settings', () => {
   const settings = toSettings(withMusic(fresh()));
   const changed = drive(
     settings,
-    'select',
-    'down',
     'right',
+    'select',
     'down',
     'select',
     'down',

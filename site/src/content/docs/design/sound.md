@@ -47,7 +47,7 @@ The game has adaptive music. The menus have their own theme. Over a game the the
 
 Against the computer the music follows the danger to your own king. In Hot Seat, where both players are in the room, it follows the danger to either king. It rises at once and falls one step per turn, so one quiet turn does not drop a tense game to calm. Themes crossfade over two seconds, and a new theme starts from its beginning, as chosen by ear; after a result the music waits, so the jingle is heard on its own.
 
-The Settings screen switches music on or off and sets its volume, apart from the sound effects. Music stops at once when the app leaves the screen.
+One row of Settings holds the music, apart from the sound effects: Left and Right set its volume, down to off, and OK mutes it and brings it back at the same level (#346). The tests check each press, and on the Virtual Device the music fell silent at off and came back at its level. Music stops at once when the app leaves the screen: the tests check that the players pause, and on the Virtual Device the music's own reports showed it stopping for the launcher (#76).
 
 The four themes are by pepka-prygni, made with Suno and used with his permission: Warm anticipation in the menus, then Clear Space, Tightening Layers and Tense Minor Pulse as the danger grows. A build without them plays no music, and its Settings offer only the sound effects.
 

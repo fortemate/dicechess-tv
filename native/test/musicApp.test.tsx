@@ -5,7 +5,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { act } from 'react-test-renderer';
 import { setAppState, appEvent } from './stubs/react-native-kepler.mjs';
-import { reset } from './stubs/react-native-mmkv.mjs';
+import { reset, setStored } from './stubs/react-native-mmkv.mjs';
 import type { Music } from '../src/music';
 import { RESULT_SILENCE_MS } from '../src/GameScreen';
 import { musicGain } from '../src/musicSetting';
@@ -80,13 +80,16 @@ test('music settings reach the player and survive a relaunch', () => {
   // Music starts on, at the default volume.
   assert.equal(first.enabled, true);
   assert.equal(first.volume, musicGain(7));
-  // Settings, then music off, and the volume up two steps.
+  // Settings, the volume up two steps on the music row (#346), then OK mutes it.
   send('down', 'down', 'down', 'down', 'enter');
-  send('enter', 'down', 'right', 'right');
+  send('right', 'right');
+  assert.equal(first.enabled, true);
+  assert.equal(first.volume, musicGain(9));
+  assert.match(text(root), /Music: 9/);
+  send('enter');
   assert.equal(first.enabled, false);
   assert.equal(first.volume, musicGain(9));
   assert.match(text(root), /Music: off/);
-  assert.match(text(root), /Music volume: 9/);
 
   const second = recorder();
   root = launch({ options, music: second }).root;
@@ -94,7 +97,43 @@ test('music settings reach the player and survive a relaunch', () => {
   assert.equal(second.volume, musicGain(9));
   send('down', 'down', 'down', 'down', 'enter');
   assert.match(text(root), /Music: off/);
-  assert.match(text(root), /Music volume: 9/);
+  // OK brings it back at the level it had before the relaunch.
+  send('enter');
+  assert.equal(second.enabled, true);
+  assert.match(text(root), /Music: 9/);
+});
+
+test('music an earlier build saved reads as it was heard (#346)', () => {
+  // Turned off, at the default volume: off, and OK brings that volume back.
+  reset();
+  setStored({
+    'dicechess-tv.music.v1': 'off',
+    'dicechess-tv.musicVolume.v1': '7',
+  });
+  const off = recorder();
+  let root = launch({ options, music: off }).root;
+  assert.equal(off.enabled, false);
+  send('down', 'down', 'down', 'down', 'enter');
+  assert.match(text(root), /Music: off/);
+  send('enter');
+  assert.equal(off.enabled, true);
+  assert.equal(off.volume, musicGain(7));
+
+  // On, at 0, which the volume row allowed: silent, so off, and the player is
+  // not left running at no gain.
+  reset();
+  setStored({
+    'dicechess-tv.music.v1': 'on',
+    'dicechess-tv.musicVolume.v1': '0',
+  });
+  const silent = recorder();
+  root = launch({ options, music: silent }).root;
+  assert.equal(silent.enabled, false);
+  send('down', 'down', 'down', 'down', 'enter');
+  assert.match(text(root), /Music: off/);
+  send('enter');
+  assert.equal(silent.enabled, true);
+  assert.equal(silent.volume, musicGain(7));
 });
 
 test('blur stops the music at once, and focus or a return to active brings it back', () => {

@@ -25,3 +25,9 @@ export function reset({ firstLaunch = false } = {}) {
   store.clear();
   if (!firstLaunch) store.set(OFFER_KEY, 'answered');
 }
+
+// Test-only: store values as an earlier build left them, before a launch reads
+// them.
+export function setStored(values) {
+  for (const [key, value] of Object.entries(values)) store.set(key, value);
+}
