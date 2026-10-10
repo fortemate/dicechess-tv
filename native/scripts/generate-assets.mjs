@@ -1,6 +1,7 @@
 // Builds what the package ships under assets/: the application icon, the native
-// splash screen, the game's sounds, its music, the bots' voices and, when the
-// checkout has them, the opponents' portraits. The build packages the whole
+// splash screen, the game's sounds, its music, the bots' voices, the notices of
+// the third-party software in it and, when the checkout has them, the
+// characters' portraits. The build packages the whole
 // directory, so it belongs to this script alone: every run deletes it and writes
 // it afresh (#122).
 //
@@ -36,6 +37,7 @@ import { fileURLToPath } from 'node:url';
 import { crc32, deflateSync, inflateSync } from 'node:zlib';
 import { createHash } from 'node:crypto';
 import { MOTION, splashRenderer } from './splash.mjs';
+import { NATIVE_NOTICES, NOTICES } from './notices.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 // The application's directory. The functions below take it as `root`, so a test
@@ -250,6 +252,7 @@ export const main = (root = native) => {
     sounds: copySounds(root),
     music: copyMusic(root),
     voices: copyVoices(root),
+    notices: copyNotices(root),
     portraits,
   };
 };
@@ -432,13 +435,40 @@ export const copyVoices = (root = native) => {
   return copied;
 };
 
+// The notices of the third-party software in the package (#338), which
+// ./notices.mjs writes from the bundle. They go to assets/licenses/, which is
+// /pkg/assets/licenses/ on the device, with Amazon's notices for the MMKV native
+// library beside them, copied unchanged from the installed package.
+export const copyNotices = (root = native) => {
+  const target = join(root, 'assets/licenses');
+  rmSync(target, { recursive: true, force: true });
+  mkdirSync(target, { recursive: true });
+  const copied = [];
+  for (const [from, to] of [
+    [NOTICES, basename(NOTICES)],
+    ...NATIVE_NOTICES.map((notice) => [notice.from, notice.to]),
+  ]) {
+    copyFileSync(join(root, from), join(target, to));
+    copied.push(to);
+  }
+  return copied;
+};
+
 // Only when run as a script, so a test can import the pieces above.
 if (
   process.argv[1] &&
   resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
-  const { destination, icon, thinkle, sounds, music, voices, portraits } =
-    main();
+  const {
+    destination,
+    icon,
+    thinkle,
+    sounds,
+    music,
+    voices,
+    notices,
+    portraits,
+  } = main();
   const shown = (path) => path.replace(`${native}/`, '');
   console.log(`icon:   ${shown(icon)}`);
   console.log(`sounds: ${sounds.length} files -> assets/sfx/`);
@@ -448,6 +478,7 @@ if (
       : 'music:  none in this checkout (native/music/music.json absent)',
   );
   console.log(`voices: ${voices.length} clips -> assets/voices/`);
+  console.log(`notices: ${notices.length} files -> assets/licenses/`);
   console.log(
     portraits.length
       ? `portraits: ${portraits.length} files -> assets/portraits/${portraitsVersion()}/`

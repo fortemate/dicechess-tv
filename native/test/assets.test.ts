@@ -28,6 +28,8 @@ import {
   shownPortraits,
   // @ts-expect-error — a build script, deliberately plain JavaScript.
 } from '../scripts/generate-assets.mjs';
+// @ts-expect-error — a build script, deliberately plain JavaScript.
+import { NATIVE_NOTICES } from '../scripts/notices.mjs';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { basename } from 'node:path';
@@ -55,8 +57,18 @@ test('a run leaves nothing under assets/ that it did not write', (t) => {
   t.after(() => rmSync(root, { recursive: true, force: true }));
   // Copied rather than linked, so nothing the generator deletes can reach the
   // real inputs.
-  for (const input of ['icon', 'brand', 'splash', 'sounds', 'music', 'voices'])
+  for (const input of [
+    'icon',
+    'brand',
+    'splash',
+    'sounds',
+    'music',
+    'voices',
+    'licenses',
+  ])
     cpSync(join(NATIVE, input), join(root, input), { recursive: true });
+  for (const { from } of NATIVE_NOTICES)
+    cpSync(join(NATIVE, from), join(root, from));
 
   // What gets left behind: a folder of its own, a loose file, and a file next to
   // the icon and one next to the splash, in folders nothing used to empty.
@@ -76,6 +88,7 @@ test('a run leaves nothing under assets/ that it did not write', (t) => {
     sounds: string[];
     music: string[];
     voices: string[];
+    notices: string[];
   };
 
   assert.deepEqual(
@@ -87,6 +100,7 @@ test('a run leaves nothing under assets/ that it did not write', (t) => {
       ...built.music.map((file) => `music/${file}`),
       'music/music.json',
       ...built.voices.map((file) => `voices/${file}`),
+      ...built.notices.map((file) => `licenses/${file}`),
     ].sort(),
   );
   assert.equal(

@@ -1,9 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import {
   APP,
   CREDITS,
+  OPEN_SOURCE,
   PIECES,
   PIECES_AND_FACES,
   creditsFor,
@@ -184,4 +185,71 @@ test('the notices name the licence of every vendored voice pack', () => {
       notices.includes(`native/voices/${pack}/${licenseFile}`),
       `THIRD_PARTY_NOTICES.md does not name native/voices/${pack}/${licenseFile}`,
     );
+});
+
+// The licences of the software in the app (#338). The package carries them, in
+// the file native/scripts/notices.mjs writes from the bundle, and the About
+// screen gives the address of the site's page that lists them.
+const shipped = readFileSync(
+  new URL('../native/licenses/THIRD_PARTY_NOTICES.txt', import.meta.url),
+  'utf8',
+);
+// Each shipped package and its licence, as the file names them.
+const shippedLicences = new Map(
+  [...shipped.matchAll(/^={78}\n(.+)\n(.+)\n-{78}$/gm)].map(
+    ([, name, licence]) => [name, licence],
+  ),
+);
+
+// The part of a Markdown page under one heading, up to the next of its level.
+const section = (page: string, heading: string): string => {
+  const start = page.indexOf(`${heading}\n`);
+  assert.ok(start >= 0, `no heading "${heading}"`);
+  const level = heading.slice(0, heading.indexOf(' ') + 1);
+  const end = page.indexOf(`\n${level}`, start + heading.length);
+  return page.slice(start, end < 0 ? undefined : end);
+};
+
+test('the About screen gives the address of the site page that lists the licences', () => {
+  const astro = readFileSync(
+    new URL('../site/astro.config.mjs', import.meta.url),
+    'utf8',
+  );
+  const [, host] = /site: 'https:\/\/([^']+)'/.exec(astro) ?? [];
+  const [domain, ...path] = OPEN_SOURCE.source.split('/');
+  assert.equal(domain, host);
+  assert.ok(
+    existsSync(
+      new URL(`../site/src/content/docs/${path.join('/')}.md`, import.meta.url),
+    ),
+    `no site page at /${path.join('/')}`,
+  );
+});
+
+test('the site lists every package whose licence ships, each with that licence', () => {
+  const page = readFileSync(
+    new URL('../site/src/content/docs/contribute/credits.md', import.meta.url),
+    'utf8',
+  );
+  const rows = [
+    ...section(page, '## Open-Source Software in the App').matchAll(
+      /^\| `([^`]+)` +\| (.+?) +\|$/gm,
+    ),
+  ].map(([, name, licence]) => [name, licence] as const);
+
+  assert.ok(shippedLicences.size > 0);
+  assert.equal(rows.length, shippedLicences.size, 'a row too many or too few');
+  assert.deepEqual(new Map(rows), shippedLicences);
+});
+
+test('THIRD_PARTY_NOTICES.md lists every package whose licence ships, under that licence', () => {
+  const listed = new Map<string, string>();
+  for (const [, licence, names] of section(
+    notices,
+    '## Open-source packages in the app',
+  ).matchAll(/^- ([^:]+): (.+)$/gm))
+    for (const [, name] of names.matchAll(/`([^`]+)`/g))
+      listed.set(name, licence);
+
+  assert.deepEqual(listed, shippedLicences);
 });

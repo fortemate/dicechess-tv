@@ -71,7 +71,7 @@ CI runs these on every pull request. Run them before pushing:
 | native | `npm run check --prefix native`  | Types of the application, its tests and the core together                      |
 | native | `npm run lint --prefix native`   | ESLint with React's hooks rules and Amazon's Vega rules                        |
 | native | `npm test --prefix native`       | Screens, input and sound, rendered with `react-test-renderer`                  |
-| native | `npm run bundle --prefix native` | Metro still bundles the application and the shared core, without the Vega SDK  |
+| native | `npm run bundle --prefix native` | Metro bundles the app and the core without the Vega SDK; the notices match it  |
 | web    | `npm test --prefix web`          | The browser test bench's own tests                                             |
 | web    | `npm run build --prefix web`     | The test bench typechecks and builds                                           |
 | root   | `npm run coverage`               | Both packages' tests with coverage, which CI sends to SonarQube Cloud          |
@@ -132,12 +132,20 @@ Never edit these by hand. Change the script, rerun it, and commit what it writes
 | `native/voices/`, `native/src/voiceFiles.ts`, `src/core/hostPacing.ts` | `native/scripts/vendor-voices.mjs`, from one pinned commit of dicechess-assets |
 | `site/public/voices/`, `site/src/voices/audition.json`                 | `site/scripts/vendor-voices.mjs`, from one pinned commit of dicechess-assets   |
 | `native/assets/` (not committed)                                       | `native/scripts/generate-assets.mjs`, which every build runs                   |
+| `native/licenses/THIRD_PARTY_NOTICES.txt`                              | `native/scripts/notices.mjs`, from the source map `npm run bundle` writes      |
 
 Third-party files — the RhosGFX pieces, the brand images in `native/brand/`, the
 vendored sounds and the licence texts in `licenses/` — are kept byte for byte, and
 `.gitattributes` stops Git from rewriting their line endings. A new asset needs its
 licence recorded in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and, when the
 licence asks for credit, a line on the About screen (`src/core/credits.ts`).
+
+The package carries the notices of every npm package in the bundle (#338). When a
+dependency change brings a package in or takes one out, `npm run bundle --prefix
+native` fails and says which, and `mise run build` fails when the Vega build's own
+bundle has a package the notices do not name. Rewrite the notices with `npm run notices --prefix native`, read the diff,
+and name the package in THIRD_PARTY_NOTICES.md and on the site's Credits and
+licences page, which `test/credits.test.ts` checks.
 
 ## The voices
 
