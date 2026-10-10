@@ -58,7 +58,6 @@ import {
   colourOptions,
   resultOptions,
   flipped,
-  resumable,
   handsOff,
   botOwes,
   autoChoice,
@@ -323,12 +322,16 @@ const modeLine = (game: Game, overlayOpen: boolean): string => {
 // from it, that is the game Resume would return to: a first launch, or a game
 // that has ended, has none. The choice of colour is for a new game, whatever is
 // behind it, so it names that game's opponent and no turn.
-const menuLine = (game: Game, overlay: Overlay): string | null => {
+const menuLine = (
+  game: Game,
+  overlay: Overlay,
+  resumableGame: boolean,
+): string | null => {
   if (overlay.kind === 'colour')
     return `VS ${opponentOf(overlay.mode).name.toUpperCase()}`;
   const overHome =
     overlay.kind === 'home' || ('from' in overlay && overlay.from === 'home');
-  return overHome && !resumable(game) ? null : modeLine(game, true);
+  return overHome && !resumableGame ? null : modeLine(game, true);
 };
 
 // The mode and the turn. Over an open menu it is the only line: a menu, its
@@ -445,6 +448,7 @@ const CONFIRM = {
 const Panel = ({
   overlay,
   game,
+  resumableGame,
   view,
   sound,
   music,
@@ -459,6 +463,7 @@ const Panel = ({
 }: {
   overlay: Overlay;
   game: Game;
+  resumableGame: boolean;
   view: GameView;
   sound: boolean;
   music: MusicSetting;
@@ -478,7 +483,7 @@ const Panel = ({
       return (
         <Choices
           title="Dice Chess"
-          options={homeOptions(resumable(game))}
+          options={homeOptions(resumableGame)}
           index={overlay.index}
           pressed={pressed}
         />
@@ -699,6 +704,7 @@ export const GameScreen = ({
     guarded,
     pending,
     lastDice,
+    resumable: screenResumable,
   } = screenState;
   React.useEffect(() => {
     dispatch({ kind: 'musicAvailable', available: musicAvailable });
@@ -1012,7 +1018,8 @@ export const GameScreen = ({
   // The result of a game against the bot is drawn in the matchup HUD like the
   // game itself, so the bot's last word shows under its badge (#163).
   const result = overlay.kind === 'result' ? game.result : null;
-  const overMenu = menuLine(game, overlay);
+  const resumableGame = screenResumable && game.phase !== 'ended';
+  const overMenu = menuLine(game, overlay, resumableGame);
   const isFlipped = flipped(game, turnHotseat);
   const screen = {
     flex: 1,
@@ -1064,6 +1071,7 @@ export const GameScreen = ({
             <Panel
               overlay={overlay}
               game={game}
+              resumableGame={resumableGame}
               view={state}
               sound={sound}
               music={musicSetting}
@@ -1100,6 +1108,7 @@ export const GameScreen = ({
             <Panel
               overlay={overlay}
               game={game}
+              resumableGame={resumableGame}
               view={state}
               sound={sound}
               music={musicSetting}

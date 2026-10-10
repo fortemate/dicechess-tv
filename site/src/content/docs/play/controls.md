@@ -46,7 +46,7 @@ The Back button provides clean, predictable reversal at every stage of the game:
 
 - **Deselect piece:** If you have picked up a piece, pressing Back puts the piece down and returns the cursor to its starting square.
 - **Stop an automatic OK:** While the prompt reads _Only one choice · Back: stop_, Back stops the press that was coming and changes nothing else. Press Back again to put the piece down or open the menu.
-- **In-game menu:** When no piece is in hand during active play, pressing Back opens the pause menu (Resume game, Resign, Agree a draw in Hot Seat, New game, Rules reference, Settings).
+- **In-game menu:** When no piece is in hand during active play, pressing Back opens the pause menu (Resume game, Resign, Agree a draw in Hot Seat, New game, Main menu, Rules reference, Settings).
 - **Submenus and guides:** Inside Settings, the Rules guide, or About screen, Back navigates up one level.
 - **Exit application:** On the Home screen, pressing Back returns `false` to Vega OS, allowing the app to close and returning you to the Fire TV launcher.
 
