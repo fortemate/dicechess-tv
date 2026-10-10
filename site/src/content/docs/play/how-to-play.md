@@ -37,7 +37,7 @@ In Dice Chess, you **must use as many dice as the position legally allows**:
 ### Dimmed Dice & Empty Rolls
 
 - **Unplayable dice dim at once:** As soon as the dice land, the engine evaluates the position. Any die that cannot be spent by any legal sequence of moves dims immediately, so you never waste time looking for moves that do not exist.
-- **Empty rolls:** If no die rolled can be used by any piece on the board (which happens in about 1 in 12 rolls, and nearly 1 in 3 opening rolls), the turn passes with a "No legal moves" announcement, which stays until you press OK. When it is the computer that has nothing to play, that OK also throws your dice.
+- **Empty rolls:** If no die rolled can be used by any piece on the board (about 1 roll in 12, and nearly 1 opening roll in 3, measured over 300 simulated games: see [Learning the game](/design/learning/)), the turn passes with a "No legal moves" announcement, which stays until you press OK. When it is the computer that has nothing to play, that OK also throws your dice.
 
 ## No Check, No Checkmate: Capture the King
 
@@ -47,6 +47,7 @@ Dice Chess fundamentally redefines how games are won:
 - **No check:** A king under attack is **not** in check, and the game will not warn either player.
 - **Moving into attack:** You are permitted to leave your king attacked, and you are permitted to move your king onto an attacked square.
 - **No checkmate or stalemate:** There is no checkmate. Guarding your king against surprise rolls is a matter of player judgement, not a platform rule.
+- **Resigning:** A player may resign from the game menu (**Resign**, then **Yes**), and the other player wins. Against the computer it is you who resigns; in a game against a friend it is the side whose turn it is, so each player resigns on their own turn.
 
 ## Special Moves
 
@@ -75,8 +76,8 @@ When a pawn reaches the eighth rank (or first rank for Black), it immediately pr
 
 ## How a Game Draws
 
-Because king capture is required to win, stalemate and three-fold repetition do not cause automatic draws:
+Because king capture is required to win, stalemate, three-fold repetition and insufficient material do not draw a game. A game draws in three ways:
 
-1. **Agreed Draw:** In a game against a friend, the two players may agree to a draw at any time via the in-game menu.
+1. **Agreed Draw:** In a game against a friend, the two players may agree to a draw at any time: **Agree a draw** in the game menu ends the game at once, with no confirmation. A game against the computer cannot be drawn this way.
 2. **Hundred-move rule:** A game draws automatically when a turn ends 100 moves after the last pawn move or capture. Each die played is one move, and a turn that passes plays none. With three moves a turn, that can be as few as 34 turns, 17 for each side, not the 50 moves each of chess. The result screen reads "100 moves, no capture or pawn move".
 3. **Turn limit:** A game still going at the end of its 5,000th turn is drawn.

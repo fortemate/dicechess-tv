@@ -1,17 +1,17 @@
 ---
 title: What it does
-description: 'A tour of Dice Chess for Fire TV: Play a friend on one remote, with Prowla, Rolly or Thinkle as host, three computer opponents as either colour, the tutorial and the rules guide, saving, sound, music that follows the danger to the king, and rematch.'
+description: 'A tour of Dice Chess for Fire TV: Play a friend on one remote, with Prowla, Rolly or Thinkle as host, three computer opponents as either colour, the tutorial and the rules guide, saving and the main menu, OK on the only choice, sound, music that follows the danger to the king, and rematch.'
 sidebar:
   order: 2
 ---
 
-Every screenshot here comes from the Vega Virtual Device, from a build with the opponents' portraits, captured with scripted presses of the remote. Each is taken again when its screen changes: most were retaken on 10 October 2026, from version 1.0.0, once the friend game had its name. A test build set the first rolls, so that a roll with nothing to play and a knight with a capture came up when they were needed; apart from the dice, each screen is the app as it ships. Each feature was also played there, and the app's automated tests cover it; where a check is still open, the section says so. The game has also run on a Fire TV Stick 4K Select since 6 October 2026, but no screenshot here was taken on it; [Performance](/technology/performance/) has what was measured there.
+Every screenshot here comes from the Vega Virtual Device, from a build with the opponents' portraits, captured with scripted presses of the remote. Each is taken again when its screen changes: most were retaken on 10 October 2026, from version 1.0.0, once the friend game had its name. A test build set the first rolls, so that a roll with nothing to play and a knight with a capture came up when they were needed; apart from the dice, each screen is the app as it ships. Each feature was also played there, and the app's automated tests cover it; where a check is still open, the section says so. The game has also run on a Fire TV Stick 4K Select since 6 October 2026, but no screenshot here was taken on it; [Performance](/technology/performance/) has what was measured there. On 10 October 2026 the Appstore build of 1.0.0 was checked on the Stick: Settings with the music row and Play as, muting and unmuting the music, Main menu and Resume game, the opponent cards, and the confirmation before a game in play is replaced ([release notes](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.0%2B26)).
 
 ## Play a friend on one remote
 
 Two players share the remote and take turns. OK rolls three dice; the pieces the dice let you move are marked green, and a die that no legal turn can use dims at once. The arrows jump between those pieces. OK picks one up and lands on one of its destinations, the arrows jump between those, and OK plays the move. Back puts a piece down again.
 
-For living-room sofa play where players prefer to view the board from their own side, a switch in **Settings** allows turning the board so the mover's pieces sit at the bottom. When enabled, the board fades out and back in over 200 ms as the turn passes to Black or back to White, while D-pad arrow directions remain locked to the physical television screen.
+For living-room sofa play where players prefer to view the board from their own side, **Turn board for friends** in Settings turns the board so the mover's pieces sit at the bottom. When enabled, the board fades out and back in over 200 ms as the turn passes to Black or back to White, while D-pad arrow directions remain locked to the physical television screen.
 
 ![A game against a friend: Black's knight is picked up, its destinations are dotted, the cursor rests on the ringed capture of White's knight, and three dice sit beside the board](../../../assets/screenshots/hotseat.png)
 
@@ -31,7 +31,7 @@ A person alone plays one of three opponents that run on the TV. They are chosen 
 
 Each is an algorithm of the Dice Chess rules engine. Each has a portrait drawn for the game, and in a game it talks from beside it at the top of the screen. A build without the portraits shows RhosGFX's Vector Emojis, by the artist of the pieces, in their place. Every opponent shows its turn one action at a time, and each piece slides to its new square, the opponent's and yours alike, so a turn can be followed from the sofa. Frames recorded on the virtual device show Grabby's knight sliding onto a queen it took in under a quarter of a second, and the tests cover captures, castling, en passant and promotion.
 
-The app draws your colour at random, so OK on an opponent's card starts the game. **Play as** in Settings can name White or Black instead, or Ask, which brings back the choice of colour before each game. Playing Black turns the board so that your pieces are at the bottom. The tests check each setting, and on the Virtual Device a card started the game in the colour Settings named.
+The app draws your colour at random, so OK on an opponent's card starts the game. **Play as** in Settings can name White or Black instead, or Ask, which brings back the choice of colour before each game. Over a game in play, _Replace this game?_ comes last, right before that game is replaced. Playing Black turns the board so that your pieces are at the bottom. The tests check each setting, and on the Virtual Device a card started the game in the colour Settings named. On the Fire TV Stick, on 10 October 2026, the Play as row, the opponent cards and that confirmation were checked too.
 
 ![The colour choice before a game against Grabby, with Play as set to Ask: Random, White or Black](../../../assets/screenshots/play-as.png)
 
@@ -66,9 +66,17 @@ Nine topics, from how a game ends to castling, promotion, en passant and draws. 
 
 ## Saving and resuming
 
-The game is saved after every action. The app opens on the home screen, where "Resume game" continues where the game stopped: on the virtual device, a game force-stopped mid-turn and relaunched came back as it was. The app also counts the results of finished games, but shows them nowhere for now: a count cannot tell who was holding the remote, and the people who play on one TV change from one evening to the next.
+The game is saved after every action. The app opens on the home screen, where "Resume game" continues where the game stopped: on the virtual device, a game force-stopped mid-turn and relaunched came back as it was. Only a first launch opens on Thinkle's offer of the tutorial instead, and Skip goes to the home screen. The app also counts the results of finished games, but shows them nowhere for now: a count cannot tell who was holding the remote, and the people who play on one TV change from one evening to the next.
+
+**Main menu** in the game menu leaves a game for the home screen without a confirmation, and "Resume game" there comes back to it with its roll and turn as they were ([pull request 349](https://github.com/fortemate/dicechess-tv/pull/349)). The tests check this before and during a turn, against the computer and a friend; the virtual device played both, and it was checked on the Fire TV Stick on 10 October 2026.
 
 ![The home screen with Resume game focused over a game in progress](../../../assets/screenshots/resume.png)
+
+## OK on the only choice
+
+Some steps of a turn leave nothing to decide: one piece is the only one the dice let move, or the piece in hand has one square to go to. **Auto-select only choice** in Settings, off by default, lets OK press itself on those steps, one at a time at the computer opponent's pace, and the prompt reads _Only one choice · Back: stop_ while a press is coming. It never rolls the dice, hands the turn over or chooses a promotion. [Controls](/play/controls/#auto-select-only-choice-optional) has every rule.
+
+The tests check each step and the Back that stops it. On the virtual device, with rook, king and rook rolled in a game against a friend, a rook was picked up and played twice with no press, and the handoff still waited for OK. On a Fire TV Stick 4K Select, on 10 October 2026, the only piece was picked up by itself, a pawn with one square was played there, and Back stopped a press that was coming ([pull request 342](https://github.com/fortemate/dicechess-tv/pull/342)).
 
 ## Sound
 
@@ -81,9 +89,9 @@ Short cues mark each step:
 
 Each was chosen by ear, and they have been heard from the virtual device through a computer's speakers, not yet from a television. Every cue also has something to see on the screen, and the Settings screen, opened from both menus, turns them all off.
 
-Music follows the danger to your king: calm, tense when a roll could take it within a turn, and critical when it is attacked. The four themes are by pepka-prygni, used with his permission. One row of Settings holds the music: Left and Right set its volume, down to off, and OK mutes it and brings it back at the same level. The tests check each press, and on the Virtual Device the music fell silent at off and came back at its level.
+Music follows the danger to your king: calm, tense when a roll could take it within a turn, and critical when it is attacked. The four themes are by pepka-prygni, used with his permission. One row of Settings holds the music: Left and Right set its volume, down to off, and OK mutes it and brings it back at the same level. The tests check each press, and on the Virtual Device the music fell silent at off and came back at its level. On the Fire TV Stick, on 10 October 2026, the row was checked with OK muting the music and bringing it back.
 
-Sound stops when the app leaves the screen. The tests check that the players pause, and on the virtual device the app came back from the launcher as it left; that nothing plays over the launcher is still to be confirmed by ear.
+Sound stops when the app leaves the screen. The tests check that the players pause, and on the virtual device the app came back from the launcher as it left. On a Fire TV Stick the app's own reports showed it pausing when it left the screen and resuming when it came back, with the saved game kept ([pull request 296](https://github.com/fortemate/dicechess-tv/pull/296)); that nothing plays over the launcher is still to be confirmed by ear.
 
 ![The game menu with Settings focused](../../../assets/screenshots/menu-settings.png)
 

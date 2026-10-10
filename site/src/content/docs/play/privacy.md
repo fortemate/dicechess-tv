@@ -25,7 +25,7 @@ So that you can carry on where you stopped, the app keeps these in its own stora
 - the number of games against a friend won by White, won by Black and drawn, which is not tied to who sat at the remote;
 - your settings: sound effects, music and its volume, voices, the colour you play against the computer, the host of games against a friend, whether the board turns for friends, whether OK presses itself when there is only one choice, and whether you have answered the offer of the tutorial.
 
-If a saved record can no longer be read, the app keeps a copy of it on the TV rather than deleting it. None of this leaves the TV, and Fortemate cannot see it. Uninstalling the app deletes it.
+If the record of results can no longer be read, the app keeps a copy of it on the TV rather than deleting it, and starts a new record. A saved game that can no longer be read is cleared, and a setting that can no longer be read goes back to its default. None of this leaves the TV, and Fortemate cannot see it. Uninstalling the app deletes it.
 
 ## What the app does not do
 
@@ -41,7 +41,7 @@ The game is made for players of every age, children included. Because the app co
 
 ## Amazon
 
-You get the app from the Amazon Appstore and play it on a Fire TV. Amazon's services, such as your Amazon account, the Appstore, the Fire TV itself and Alexa, handle information under [Amazon's Privacy Notice](https://www.amazon.com/privacy), not under this policy. The app plays its sounds through the Fire TV's own media player, which is part of Amazon's system.
+You get the app as a package from GitHub, or from the Amazon Appstore once it is available there, and play it on a Fire TV. Amazon's services, such as your Amazon account, the Appstore, the Fire TV itself and Alexa, handle information under [Amazon's Privacy Notice](https://www.amazon.com/privacy), not under this policy. The app plays its sounds through the Fire TV's own media player, which is part of Amazon's system.
 
 ## Changes
 
