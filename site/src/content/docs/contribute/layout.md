@@ -21,8 +21,7 @@ dicechess-tv/
 ├── docs/                # Architecture records, specifications, and feasibility reports
 ├── licenses/            # Full-text licenses of third-party assets
 ├── THIRD_PARTY_NOTICES.md
-├── CLA.md
-└── LICENSE              # AGPL-3.0-only
+└── LICENSE              # All rights reserved, Fortemate
 ```
 
 ## Directory Deep Dive

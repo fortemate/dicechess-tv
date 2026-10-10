@@ -4,12 +4,7 @@ Branches, pull requests and issues follow the organization's
 [contributing guide](https://github.com/fortemate/.github/blob/main/CONTRIBUTING.md).
 This file adds what is specific to a Fire TV application.
 
-The code is licensed under AGPL-3.0-only (see [Licensing](README.md#licensing)).
-Before a first pull request can be accepted, sign the
-[Contributor License Agreement](CLA.md): add yourself to
-[`.github/cla-signatures.json`](.github/cla-signatures.json) in that pull request,
-and the `CI: CLA` check verifies it. Owners, organization members, collaborators
-and bots are exempt.
+The code is Fortemate's, all rights reserved (see [Licensing](README.md#licensing)).
 
 ## Setup
 
