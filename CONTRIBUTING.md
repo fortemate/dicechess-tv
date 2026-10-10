@@ -142,8 +142,8 @@ licence asks for credit, a line on the About screen (`src/core/credits.ts`).
 
 The package carries the notices of every npm package in the bundle (#338). When a
 dependency change brings a package in or takes one out, `npm run bundle --prefix
-native` fails and says which, and `mise run build` does for the Vega build's own
-bundle. Rewrite the notices with `npm run notices --prefix native`, read the diff,
+native` fails and says which, and `mise run build` fails when the Vega build's own
+bundle has a package the notices do not name. Rewrite the notices with `npm run notices --prefix native`, read the diff,
 and name the package in THIRD_PARTY_NOTICES.md and on the site's Credits and
 licences page, which `test/credits.test.ts` checks.
 
