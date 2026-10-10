@@ -1,13 +1,13 @@
 ---
 title: Performance
-description: What has been measured of the app's launch, its opponents, the danger search and the animations; the launch on a Fire TV Stick, the rest on the Vega Virtual Device and in Node.
+description: What has been measured of the app's launch, its response to the remote, its opponents, the danger search and the animations; the launch and the response to the remote on a Fire TV Stick, the rest on the Vega Virtual Device and in Node.
 sidebar:
   order: 3
 ---
 
-This page sets out what has been measured of the app's launch, its opponents, its animations and the danger search behind the music, and what each figure rests on.
+This page sets out what has been measured of the app's launch, its response to the remote, its opponents, its animations and the danger search behind the music, and what each figure rests on.
 
-Each measured figure says where it was measured: on a Fire TV Stick 4K Select (Vega OS 1.2), on the Vega Virtual Device (SDK 0.24.12112, 1920 x 1080, on an Apple silicon Mac) or in Node. Only the launch has been measured on the Stick so far, and the Virtual Device's timings are not a Stick's: the launch section shows how far apart they can be.
+Each measured figure says where it was measured: on a Fire TV Stick 4K Select (Vega OS 1.2), on the Vega Virtual Device (SDK 0.24.12112, 1920 x 1080, on an Apple silicon Mac) or in Node. On the Stick, only the launch and the response to the remote have been measured so far, and the Virtual Device's timings are not a Stick's: the launch section shows how far apart they can be.
 
 ## Launch Key Performance Indicators (KPIs)
 
@@ -45,6 +45,17 @@ The run still ended in `VALUE VALIDATION FAILED`, because the validator counts a
 1. **No network calls.** The app makes none, at launch or later: no sign-in, no telemetry, no remote assets. Its only `fetch` reads the music catalogue from its own package (`file://`).
 2. **Synchronous reads.** Game state, the record of completed games and the settings are stored in `@amazon-devices/react-native-mmkv`. MMKV memory-maps the data file, so they are read synchronously during the first render. On the Stick, reading and parsing the saved game took about a millisecond; the engine call that checks its turn is what the launch waited for with engine 0.14.0 (above).
 3. **No loading state.** The saved game and the settings are there before the first frame, so the app draws no spinner or splash of its own, and its first frame is the home screen, ready for the remote. On the Virtual Device, an earlier version that rendered nothing until it had read storage never received remote input ([FL-07](/friction-log/#fl-07)).
+
+## Response to the remote
+
+Measured on a Fire TV Stick 4K Select (Vega OS 1.2) on 9 October 2026, on Release builds from just before and just after the board was memoized ([#326](https://github.com/fortemate/dicechess-tv/pull/326)). Before, every render of the game screen, for a key, an opponent's step, a timer or a danger update, drew the board's 64 squares and every piece again. Since then the board, its squares and the pieces skip a render when their inputs have not changed, so a cursor move draws only the two squares it leaves and reaches. The keys were sent with `inputd-cli`, 1.3 s apart, in a game against Grabby with the music on.
+
+| Per cursor move                                                                                | Before                               | After                                  |
+| ---------------------------------------------------------------------------------------------- | ------------------------------------ | -------------------------------------- |
+| Key to the frame that shows it (the OS's `last_input_to_frame_latency`, from a Perfetto trace) | median 152 ms (139–166 ms, 9 moves)  | median **59 ms** (45–125 ms, 13 moves) |
+| JavaScript time of the renders it caused                                                       | median 110 ms (102–132 ms, 22 moves) | median **24 ms** (20–51 ms, 23 moves)  |
+
+The JavaScript times come from instrumentation added to both builds for the measurement and never committed: it timed each commit from its first render to its last layout effect. On the second build, about four minutes of a game played with the Stick's own remote gave a median of 28 ms per cursor move. The JavaScript times leave out how long a key can wait behind the danger search or the opponent's search on the JavaScript thread, which the change did not touch.
 
 ## Opponents' decision time
 
@@ -84,14 +95,17 @@ Every animation uses `Animated.timing` with React Native's native driver (`useNa
 | **Dice Roll Tumble** | **260 ms**    | Each die turns and grows onto its face in 200 ms, starting 30 ms after the die on its left. A die no legal turn can spend dims once the tumble is over. On the Virtual Device on 29 September 2026, a roll took about 260 ms.                                                |
 | **Menu Focus State** | No transition | The focused item is framed in cyan over a faint fill. While OK is held, it fills more strongly and is drawn at 97 % of its size. This is a style change, not an animation.                                                                                                   |
 
+On a Fire TV Stick, testers saw a roll's first die tumble in at once and the other two after a pause, together. Each die's tumble used to start after a `delay` of 30 ms per die, and React Native 0.83 waits out an animation's delay with a JavaScript timer even on the native driver (`TimingAnimation.start()` in `react-native` 0.83.10), so a busy JavaScript thread held the dice back. Since [#306](https://github.com/fortemate/dicechess-tv/pull/306) the three tumbles start together and each die's wait is part of its easing, so the native driver plays all of it. The owner played that build on the Stick on 9 October 2026 and reported that it works; there is no frame capture from the Stick. The Virtual Device never showed the fault.
+
 ### Accessibility: Reduced Motion
 
 `useReducedMotion.ts` asks `AccessibilityInfo.isReduceMotionEnabled` and listens for `reduceMotionChanged`. When the answer is yes, and until an answer arrives, pieces are drawn on their new squares without sliding, the dice appear without tumbling, and the board turns without fading. React Native for Vega 0.83's [AccessibilityInfo](https://developer.amazon.com/docs/react-native-vega/0.83/accessibilityinfo.html) page lists neither the query among its implemented methods nor the event among its events. On the Vega Virtual Device the query answers `false` and there is no setting to change it, so only unit tests cover the reduced-motion branch. Whether a Fire TV Stick offers the setting is not yet checked.
 
 ## Physical Device Verification Roadmap
 
-The launch KPIs, cool and warm, have been measured on a Fire TV Stick 4K Select; every other device figure above comes from the Vega Virtual Device. On a Stick (32-bit `armv7`, models AFTCA002 and AFTCL001), these checks are still to come:
+The launch KPIs, cool and warm, and the response to a cursor key have been measured on a Fire TV Stick 4K Select, and the dice's stagger was checked there by eye; every other device figure above comes from the Vega Virtual Device. On a Stick (32-bit `armv7`, models AFTCA002 and AFTCL001), these checks are still to come:
 
 - Finding what the remaining 2.65 s of a cool start are spent on.
+- Measuring the launch again on a build with the animated splash ([#293](https://github.com/fortemate/dicechess-tv/pull/293)) and engine 0.14.5: the launch figures above predate both.
 - Checking that a slide stays smooth, and timing the opponents' decisions and the danger search.
 - Checking the safe area on a television with overscan, and whether the Stick offers a reduced-motion setting.

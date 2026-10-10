@@ -5,7 +5,7 @@ sidebar:
   order: 1
 ---
 
-Most checks run in Node: unit tests of the shared core and of the app's screens, type checks and lint, on every pull request. What the television shows is checked on the Vega Virtual Device, by hand or from scripts. The game has not yet run on a Fire TV Stick.
+Most checks run in Node: unit tests of the shared core and of the app's screens, type checks and lint, on every pull request. What the television shows is checked on the Vega Virtual Device, by hand or from scripts, and since 6 October 2026 on a Fire TV Stick 4K Select as well (see the end of this page).
 
 ## The Test Suite
 
@@ -88,4 +88,4 @@ What the television shows is checked on the Vega Virtual Device, by hand or from
 
 - **Scripted sessions:** Amazon's `vega` CLI starts the Virtual Device (also without its window, with `--no-gui`), installs the package and launches the app. `vvd enable-grpc` turns on the emulator's gRPC endpoint, and `vvd press` sends remote keys as Linux evdev codes, the route the Virtual Device's own on-screen remote uses. On 28 September 2026 a script drove beta 5 this way through Settings, the rules guide, About, a resumed game and the tutorial's first move.
 - **Screenshots and the safe area:** `vvd screenshot` saves the 1920x1080 screen as a PNG, and `vvd wait-change` exits once the screen changes, so a script can tell that a press did something. `vvd safe-area` counts the pixels in the outer 5% of each edge that differ from a solid background colour; in the same session on 28 September 2026, it found the margins clear on the rules guide, About and the tutorial's first lesson. A unit test, `native/test/layout.test.ts`, checks the 48 dp and 27 dp insets the layout keeps.
-- **Fire TV Stick:** through Live App Testing, owners of a Fire TV Stick 4K Select or a Fire TV Stick HD (2nd generation) can install the beta from the Amazon Appstore by invitation (see [Play the beta](/play/beta/)). The game has been tested on the Vega Virtual Device so far, and not yet on a Fire TV Stick.
+- **Fire TV Stick:** through Live App Testing, owners of a Fire TV Stick 4K Select or a Fire TV Stick HD (2nd generation) can install the beta from the Amazon Appstore by invitation (see [Play the beta](/play/beta/)). The owner's Fire TV Stick 4K Select has run the game since 6 October 2026. Checks there read the device log, the OS's traces or reports from the app itself, and the owner watches the television. They include the launch and the response to a cursor key ([Performance](/technology/performance/)), the dice's stagger, horizontal cycling on the board ([Board selection algorithm](/design/board-selection/)) and the return from Home ([Building on Vega](/technology/vega/#leaving-the-foreground)).

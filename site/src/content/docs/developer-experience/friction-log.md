@@ -9,7 +9,7 @@ sidebar:
 
 This is the friction log of Dice Chess for Fire TV, kept while we built the app for [Build, Ship, Shape: Amazon Developer Hackathon 2026](https://amazonappdev2026.devpost.com/). It records the reproducible obstacles we met in Amazon's Vega SDK, its tools and its documentation. Our own bugs are not here.
 
-Each entry has the fields the [rules](https://amazonappdev2026.devpost.com/rules) ask for: the task attempted, the steps taken, the expected and actual results, a severity, the workaround and an actionable suggestion. Entries were written when the obstacle happened, while the versions, steps and workaround were still known. Where an entry gives evidence, it names where the finding is recorded: a file, commit, pull request or issue of this project's repository, or a thread on Amazon's developer forum. Pointers into `native/README.md` name commit `04b0a88`, the last version that held its long-form platform records, before they were condensed into this site's Technology and Build and run pages. Where an entry involves a device, it is the Vega Virtual Device: nothing here has been checked on a Fire TV Stick yet.
+Each entry has the fields the [rules](https://amazonappdev2026.devpost.com/rules) ask for: the task attempted, the steps taken, the expected and actual results, a severity, the workaround and an actionable suggestion. Entries were written when the obstacle happened, while the versions, steps and workaround were still known. Where an entry gives evidence, it names where the finding is recorded: a file, commit, pull request or issue of this project's repository, or a thread on Amazon's developer forum. Pointers into `native/README.md` name commit `04b0a88`, the last version that held its long-form platform records, before they were condensed into this site's Technology and Build and run pages. Where an entry involves a device, it is the Vega Virtual Device unless the entry says otherwise. The game has run on a Fire TV Stick 4K Select since 6 October 2026; every entry is older. FL-20 and FL-21 have updates from the Stick; the others have not been checked on it.
 
 Severity: **Blocker** stopped the chosen approach; **High** cost a day or would break the app for users; **Medium** cost hours or needed a workaround; **Low** is friction without lasting cost.
 
@@ -549,6 +549,10 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 - **Suggested improvement:** report "not applicable" for network calls when an app makes none, rather
   than failing validation.
 - **Current status:** open.
+- **Update, 2026-10-06:** on a Fire TV Stick 4K Select (Vega OS 1.2), the same tool's cool-start runs
+  of a later Release build, still without network calls, passed its validation, also without
+  `--certification` ([Performance](/technology/performance/#on-a-fire-tv-stick)). The failure above
+  was seen on the Virtual Device.
 
 ### FL-21 · Warm-start KPIs cannot be measured on the Virtual Device {#fl-21}
 
@@ -571,6 +575,10 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 - **Workaround:** test the warm-start report in unit tests, and measure on a Fire TV Stick.
 - **Suggested improvement:** detect the launcher on the target device, or accept it as a parameter.
 - **Current status:** open.
+- **Update, 2026-10-06:** on a Fire TV Stick 4K Select (Vega OS 1.2), the warm-start runs completed,
+  with a median of 413 ms to first frame over 10 launches. The tool recorded no fully drawn time for
+  them, so they ended in `VALUE VALIDATION FAILED`
+  ([Performance](/technology/performance/#on-a-fire-tv-stick)).
 
 ### FL-22 · The Builder Tools telemetry switch is undocumented and shared with the SDK {#fl-22}
 

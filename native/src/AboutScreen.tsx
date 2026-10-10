@@ -3,12 +3,14 @@
 // It exists because a licence requires it. The sound pack's licence asks for
 // visible credit, and the asset repository asks every client to show it on an
 // About or Licenses screen. So this is a place a viewer can actually reach with
-// a remote, not a file in the source.
+// a remote, not a file in the source. The open-source software the app is built
+// from asks for its notices to travel with every copy: the package carries
+// them, and the screen says where they are (#338).
 //
 // One page, nothing to navigate. OK or Back leaves.
 import React from 'react';
 import { View, Text } from 'react-native';
-import { APP, creditsFor } from '../../src/core/credits';
+import { APP, OPEN_SOURCE, creditsFor } from '../../src/core/credits';
 import type { BoardKey } from '../../src/core/boardInput';
 import { Portrait } from './Portrait';
 import { useRemoteInput } from './useRemoteInput';
@@ -113,6 +115,16 @@ export const AboutScreen = ({ onExit, onState }: AboutScreenProps) => {
           </View>
         ))}
       </View>
+
+      {/* The notices themselves are far too long for a television, so this
+          only says where they are. The whole width of the screen holds the
+          address without a break. */}
+      <Text style={{ color: '#8dc9b6', fontSize: 20, letterSpacing: 1 }}>
+        {OPEN_SOURCE.subject}
+      </Text>
+      <Text style={{ color: '#aab8c9', fontSize: 20 }}>
+        {`${OPEN_SOURCE.line} ${OPEN_SOURCE.source}`}
+      </Text>
 
       <Text style={{ color: '#98a9ba', fontSize: 20, marginTop: 'auto' }}>
         OK or Back: return
