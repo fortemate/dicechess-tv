@@ -57,7 +57,7 @@ test('a fresh install opens on Thinkle offering to teach the game', () => {
   assert.deepEqual(labels(root), ['Learn to play', 'Skip']);
   assert.equal(focusedLabel(root), 'Learn to play');
   // No game is in play, so no mode or turn is shown, and nothing is saved.
-  assert.doesNotMatch(text(root), /HOT SEAT|TURN/);
+  assert.doesNotMatch(text(root), /FRIEND GAME|TURN/);
   assert.equal(games().read(), null);
 });
 
@@ -69,11 +69,11 @@ test('Learn to play opens the tutorial, and the offer is not made again', () => 
   assert.equal(readTutorialOffered(new MMKV()), true);
   // Leaving the tutorial goes to the home screen.
   send('back');
-  assert.equal(focusedLabel(root), 'New Hot Seat game');
+  assert.equal(focusedLabel(root), 'Play a friend');
 
   root = launch().root;
   assert.doesNotMatch(text(root), OFFER);
-  assert.equal(focusedLabel(root), 'New Hot Seat game');
+  assert.equal(focusedLabel(root), 'Play a friend');
 });
 
 test('Skip goes to the home screen, and the offer is not made again', () => {
@@ -86,13 +86,13 @@ test('Skip goes to the home screen, and the offer is not made again', () => {
   assert.equal(focusedLabel(root), 'Learn to play');
   send('up', 'enter');
   assert.doesNotMatch(text(root), OFFER);
-  assert.equal(focusedLabel(root), 'New Hot Seat game');
+  assert.equal(focusedLabel(root), 'Play a friend');
   // Learn to play is still on the home screen.
   assert.ok(labels(root).includes('Learn to play'));
 
   root = launch().root;
   assert.doesNotMatch(text(root), OFFER);
-  assert.equal(focusedLabel(root), 'New Hot Seat game');
+  assert.equal(focusedLabel(root), 'Play a friend');
 });
 
 test('Back on the offer goes to the home screen and never closes the app', () => {
@@ -102,7 +102,7 @@ test('Back on the offer goes to the home screen and never closes the app', () =>
   send('back');
   assert.equal(hasExited(), false, 'Back on the offer closed the app');
   assert.doesNotMatch(text(root), OFFER);
-  assert.equal(focusedLabel(root), 'New Hot Seat game');
+  assert.equal(focusedLabel(root), 'Play a friend');
   // Back on the home screen is the one that closes the app.
   send('back');
   assert.equal(hasExited(), true);
@@ -117,7 +117,7 @@ test('Menu on the offer goes to the home screen too', () => {
   const { root } = launch();
   send('menu');
   assert.doesNotMatch(text(root), OFFER);
-  assert.equal(focusedLabel(root), 'New Hot Seat game');
+  assert.equal(focusedLabel(root), 'Play a friend');
   assert.equal(readTutorialOffered(new MMKV()), true);
 });
 
@@ -143,7 +143,7 @@ test('nor is one whose saved game no longer reads', () => {
   new MMKV().set('dicechess-tv.game.v2', 'not a game');
   const { root } = launch();
   assert.doesNotMatch(text(root), OFFER);
-  assert.equal(focusedLabel(root), 'New Hot Seat game');
+  assert.equal(focusedLabel(root), 'Play a friend');
 });
 
 // Sounds that note what was said, and how often a line was stopped.

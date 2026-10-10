@@ -96,7 +96,7 @@ test('a launch opens on the home screen, and resume is offered only when there i
   // asking them to choose it.
   assert.deepEqual(homeOptions(resumable(started())), [
     'Resume game',
-    'New Hot Seat game',
+    'Play a friend',
     'Play the computer',
     'Learn to play',
     'Rules reference',
@@ -104,7 +104,7 @@ test('a launch opens on the home screen, and resume is offered only when there i
     'About',
   ]);
   assert.deepEqual(homeOptions(false), [
-    'New Hot Seat game',
+    'Play a friend',
     'Play the computer',
     'Learn to play',
     'Rules reference',
@@ -210,7 +210,7 @@ test('over a game in play, a game chosen at the end of the tutorial asks first',
   assert.equal(hotseat.overlay.kind, 'confirm');
   assert.deepEqual(drive(hotseat, 'back').overlay, {
     kind: 'home',
-    index: homeOptions(true).indexOf('New Hot Seat game'),
+    index: homeOptions(true).indexOf('Play a friend'),
   });
 });
 
@@ -244,7 +244,7 @@ test('starting over an unfinished game asks first, and Cancel keeps it', () => {
   assert.deepEqual(kept.game.moves, ['b1c3']);
   assert.deepEqual(kept.overlay, {
     kind: 'home',
-    index: homeOptions(true).indexOf('New Hot Seat game'),
+    index: homeOptions(true).indexOf('Play a friend'),
   });
   assert.deepEqual(drive(asking, 'back'), kept);
 
@@ -620,8 +620,8 @@ test('without music in the build, Settings offers sound effects, voices, the hos
     [
       'Sound effects: on',
       'Voices: on',
-      'Hot Seat host: Prowla',
-      'Turn board in Hot Seat: off',
+      'Host for friends: Prowla',
+      'Turn board for friends: off',
       'Auto-select only choice: off',
     ],
   );
@@ -666,8 +666,8 @@ test('Settings opens from the home menu on music, and Back returns to it', () =>
       'Music volume: 7',
       'Sound effects: on',
       'Voices: on',
-      'Hot Seat host: Prowla',
-      'Turn board in Hot Seat: off',
+      'Host for friends: Prowla',
+      'Turn board for friends: off',
       'Auto-select only choice: off',
     ],
   );
@@ -718,7 +718,7 @@ test('OK or the arrows sideways flip music, sound effects, voices and hotseat bo
       host.voices,
       'thinkle',
     )[4],
-    'Hot Seat host: Thinkle',
+    'Host for friends: Thinkle',
   );
   const hostOff = drive(host, 'left');
   assert.equal(
@@ -730,7 +730,7 @@ test('OK or the arrows sideways flip music, sound effects, voices and hotseat bo
       hostOff.voices,
       hostOff.host,
     )[4],
-    'Hot Seat host: off',
+    'Host for friends: off',
   );
   // And once more, hotseat board turning.
   const hotseat = drive(host, 'down');

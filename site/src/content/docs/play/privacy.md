@@ -22,8 +22,8 @@ So that you can carry on where you stopped, the app keeps these in its own stora
 
 - the game in progress, with its dice roll and whose turn it is;
 - your results against each computer opponent, by the colour you played;
-- the number of Hot Seat games won by White, won by Black and drawn, which is not tied to who sat at the remote;
-- your settings: sound effects, music and its volume, voices, the Hot Seat host, whether the board turns in Hot Seat, and whether you have answered the offer of the tutorial.
+- the number of games against a friend won by White, won by Black and drawn, which is not tied to who sat at the remote;
+- your settings: sound effects, music and its volume, voices, the host of games against a friend, whether the board turns for friends, and whether you have answered the offer of the tutorial.
 
 If a saved record can no longer be read, the app keeps a copy of it on the TV rather than deleting it. None of this leaves the TV, and Fortemate cannot see it. Uninstalling the app deletes it.
 

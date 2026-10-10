@@ -321,7 +321,7 @@ test('a hotseat result stays on the board, with the host’s last word beside he
   });
 
   const shown = text(root);
-  assert.match(shown, /HOT SEAT · TURN 1/);
+  assert.match(shown, /FRIEND GAME · TURN 1/);
   assert.deepEqual(outcomeOf(root), {
     headline: 'Black wins',
     reason: 'White resigned',

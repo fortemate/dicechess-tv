@@ -28,7 +28,7 @@ const TOPICS: Record<string, Omit<RulesTopic, 'id'>> = {
     lines: [
       'Capture the enemy king and you win immediately.',
       'There is no checkmate. The king is taken like any other piece.',
-      'A player may resign, and in hotseat both players may agree a draw.',
+      'A player may resign, and in a game against a friend both players may agree a draw.',
       'A turn that ends 100 half-moves after the last capture or pawn move draws.',
     ],
   },
@@ -96,7 +96,7 @@ const TOPICS: Record<string, Omit<RulesTopic, 'id'>> = {
   draws: {
     title: 'Draws',
     lines: [
-      'In hotseat, both players may agree a draw from the menu.',
+      'In a game against a friend, both players may agree a draw from the menu.',
       'A draw also comes when a turn ends 100 half-moves after the last capture or pawn move.',
       'Stalemate, repetition and insufficient material do not draw here.',
     ],

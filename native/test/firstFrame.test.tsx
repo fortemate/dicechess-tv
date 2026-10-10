@@ -54,7 +54,7 @@ const firstFrame = (Root: React.ComponentType<AppProps>) => {
 test('a returning player’s first frame is the home screen, its first option in focus', () => {
   const { first } = firstFrame(App);
   assert.match(first.text, /Dice Chess/);
-  assert.equal(first.focused, 'New Hot Seat game');
+  assert.equal(first.focused, 'Play a friend');
 });
 
 test('a first launch’s first frame is Thinkle’s offer, its first answer in focus', () => {
@@ -79,5 +79,5 @@ test('the probe catches a root that draws nothing until an effect has run', () =
   assert.equal(first.focused, undefined);
   // Yet once act() is over it shows the home screen like the app: a test that
   // only looks then cannot tell the two apart.
-  assert.equal(focusedLabel(settled), 'New Hot Seat game');
+  assert.equal(focusedLabel(settled), 'Play a friend');
 });

@@ -255,7 +255,7 @@ test('hotseat has no dialogue block: the turn line stands under the top badge', 
   const tree = mount({
     game: newGame('hotseat', 'game-quiet'),
     side: 'w',
-    header: turnLine('HOT SEAT · TURN 1'),
+    header: turnLine('FRIEND GAME · TURN 1'),
   });
 
   assert.equal(
@@ -263,7 +263,7 @@ test('hotseat has no dialogue block: the turn line stands under the top badge', 
     0,
   );
   assert.deepEqual(texts(byTestId(tree.root, 'turn-line')), [
-    'HOT SEAT · TURN 1',
+    'FRIEND GAME · TURN 1',
   ]);
 });
 

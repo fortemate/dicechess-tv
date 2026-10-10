@@ -400,7 +400,7 @@ test('a focused option is framed, and holding OK shows it pressed until the rele
   );
   // Home, nothing saved: the first option has focus, and nothing is held.
   assert.deepEqual(optionViews(tree.root)[0], {
-    label: 'New Hot Seat game',
+    label: 'Play a friend',
     focused: true,
     pressed: false,
   });
