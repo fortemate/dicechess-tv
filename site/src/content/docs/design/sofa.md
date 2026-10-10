@@ -43,7 +43,7 @@ The app lays out a 960 x 540 dp screen, which is how a 1920 x 1080 television re
 
 ## Focus
 
-![The home menu with OK held down on Rules: the focused item is framed, filled more strongly while the button is held, and slightly smaller](../../../assets/screenshots/focus-pressed.png)
+![The home menu with OK held down on Rules reference: the focused item is framed, filled more strongly while the button is held, and slightly smaller](../../../assets/screenshots/focus-pressed.png)
 
 - **Focus.** A focused menu item or rules topic is framed and filled, not only coloured.
 - **Press.** While OK is held down, the item fills more strongly and shrinks a little, so the press shows before its choice takes effect.
