@@ -912,12 +912,19 @@ function onMove(
 ): ScreenState {
   const { game } = state;
   const { legal, dfen } = viewGame(game);
-  // Back or Menu while OK is about to press itself stops it, and Back does
-  // nothing more (#302): the action in progress is the person's to finish,
-  // and a second Back puts down or leaves as it always has.
-  if ((key === 'back' || key === 'menu') && autoChoice(state, legal) !== null) {
+  // With OK pressing itself (#302), Back or Menu leaves the rest of the
+  // action to the person. Otherwise a piece picked up for them and put down
+  // with Back would be picked up again, and Back could never reach the menu.
+  // While a press is pending, Back only stops it; a second Back puts down or
+  // leaves as it always has.
+  if (
+    (key === 'back' || key === 'menu') &&
+    state.autoSelect &&
+    state.autoStopped !== game.revision
+  ) {
     const stopped = { ...state, autoStopped: game.revision };
-    return key === 'back' ? stopped : onMove(stopped, key, repeat);
+    if (key === 'back' && autoChoice(state, legal) !== null) return stopped;
+    return onMove(stopped, key, repeat);
   }
   const result = boardInput(
     state.focus,

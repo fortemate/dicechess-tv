@@ -207,6 +207,24 @@ test('Back with the piece in hand about to move keeps it in hand; a second Back 
   assert.equal(drive(stopped, 'back').focus.selected, null);
 });
 
+test('a piece picked up for the person and put down with Back stays down, and a second Back opens the menu', () => {
+  // The lone knight is picked up for the person; it has three squares, so
+  // nothing is pending when Back puts it down. Seen on the Virtual Device with
+  // the king: without this, it was picked up again 600 ms later.
+  const holding = auto(resumed(rolled([2, 2, 2], LONE_KNIGHT)));
+  assert.equal(holding.focus.selected, 'b1');
+  assert.equal(autoChoice(holding), null);
+  const down = drive(holding, 'back');
+  assert.equal(down.focus.selected, null);
+  assert.equal(down.overlay.kind, 'none');
+  assert.equal(autoChoice(down), null);
+  assert.equal(drive(down, 'back').overlay.kind, 'menu');
+  // OK still picks it up, and the knight's next action is automatic again.
+  const played = drive(down, 'select', 'select');
+  assert.equal(played.game.moves.length, 1);
+  assert.ok(autoChoice(played));
+});
+
 test('Menu stops it too, on its way to the menu', () => {
   const waiting = knightPlayed();
   const menu = drive(waiting, 'menu');

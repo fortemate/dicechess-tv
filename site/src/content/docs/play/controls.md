@@ -91,7 +91,7 @@ Some steps of a turn leave nothing to decide: one piece is the only one the dice
 - **The piece in hand has one destination:** it is played there, whether you picked it up or it was picked up for you.
 - **A pawn promotes on its only square:** the _Promote to_ choice opens, and the piece is always yours to choose.
 - **One step at a time:** each automatic press waits 600 ms, the computer opponent's pace, so a chain of them can be followed. With rook, rook and knight in the starting position, you choose the knight and its square; the two rook moves that follow, four presses of OK, play themselves.
-- **Back stops it:** while the prompt reads _Only one choice · Back: stop_, Back stops the coming press and leaves the rest of that move to you. Menu stops it too. The next move is automatic again.
+- **Back stops it:** while the prompt reads _Only one choice · Back: stop_, Back stops the coming press and leaves the rest of that move to you. Back or Menu at any other point of a move also leaves the rest of it to you, so a piece put down with Back stays down. The next move is automatic again.
 - **Never for anything else:** it does not roll the dice, hand the turn over, play for the computer opponent, or act behind a menu or in the tutorial.
 - The setting is saved to device storage via MMKV and persists across application restarts.
 
