@@ -26,6 +26,7 @@ import { MmkvSnapshotStore } from './mmkvStore';
 import { createSounds, type Sounds } from './sound';
 import { readSound, saveSound } from './soundSetting';
 import { readTurnBoard, saveTurnBoard } from './turnSetting';
+import { readAutoSelect, saveAutoSelect } from './autoSelectSetting';
 import { readVoices, saveVoices } from './voiceSetting';
 import { readHost, saveHost, type HostChoice } from './hostSetting';
 import {
@@ -294,6 +295,13 @@ export const App = ({
     [settings],
   );
 
+  // Whether OK presses itself when the board offers only one choice (#302).
+  const [initialAutoSelect] = React.useState(() => readAutoSelect(settings));
+  const onAutoSelect = React.useCallback(
+    (on: boolean) => saveAutoSelect(settings, on),
+    [settings],
+  );
+
   // Time To Fully Drawn, one of the KPIs Amazon measures. A cool start is fully
   // drawn by the first render, since the saved game and the settings are read
   // synchronously and there is no loading frame.
@@ -391,6 +399,7 @@ export const App = ({
     turnBoard: initialTurnBoard,
     voices: initialVoices,
     host: initialHost,
+    autoSelect: initialAutoSelect,
     music: initialMusic,
   }));
   const onError = React.useCallback(
@@ -414,6 +423,7 @@ export const App = ({
         turnBoard: readTurnBoard(settings),
         voices: readVoices(settings),
         host: readHost(settings),
+        autoSelect: readAutoSelect(settings),
         music: readMusic(settings),
       };
       setAttempt(({ n }) => ({ n: n + 1, ...next }));
@@ -443,6 +453,8 @@ export const App = ({
           onVoices={onVoices}
           initialHost={attempt.host}
           onHost={onHost}
+          initialAutoSelect={attempt.autoSelect}
+          onAutoSelect={onAutoSelect}
           music={music}
           initialMusic={attempt.music}
           onMusic={onMusic}

@@ -7,7 +7,7 @@ sidebar:
 
 This reference describes the implementation with deliberate horizontal cycling ([issue 299](https://github.com/fortemate/dicechess-tv/issues/299)). It gives the current behavior for discussion and implementation review. [Designing for the remote](/design/remote/) explains the design decisions and historical measurements; [Controls](/play/controls/) explains how to play.
 
-Optional [automatic rolls, issue 301](https://github.com/fortemate/dicechess-tv/issues/301), and [automatic play of a unique legal action, issue 302](https://github.com/fortemate/dicechess-tv/issues/302), are absent from this revision; both are proposed to default off.
+Optional [automatic rolls, issue 301](https://github.com/fortemate/dicechess-tv/issues/301), are absent from this revision and proposed to default off. The optional automatic OK on the only choice, [issue 302](https://github.com/fortemate/dicechess-tv/issues/302), is described under [The only choice](#the-only-choice); it is off by default.
 
 ## The choices and the focus state
 
@@ -197,13 +197,28 @@ Changing the input context (selection, phase or overlay), losing app focus, or e
 
 Human rolls require OK. In Hot Seat, OK at the handoff both changes the side to move and rolls that player's dice. Against a bot, OK after the human turn hands play to the bot, which already rolls and moves automatically; after a normal bot turn, the human is left waiting to roll. A bot's empty roll stays visible until the human's OK passes it and rolls the human's dice. After any empty roll, a `700 ms` OK guard prevents a quick second press from dismissing the notice immediately.
 
-Even a unique human action currently needs confirmation. A single destination removes the arrow presses, but still needs OK to pick up the piece and OK to play, with promotion resolved separately when necessary.
+### The only choice
+
+With **Auto-select only choice** off, the default, even a unique human action needs confirmation. A single destination removes the arrow presses, but still needs OK to pick up the piece and OK to play, with promotion resolved separately when necessary.
+
+With the setting on, OK presses itself whenever the press has exactly one possible target. `onlyChoice` in `src/core/boardInput.ts` reads the same candidate sets the arrows walk:
+
+| Selection phase  | OK presses itself when                   | What the press does                                                                                  |
+| ---------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| No piece in hand | Exactly one square starts a legal action | Picks that piece up; the cursor lands as for a manual pick                                           |
+| Piece in hand    | That piece has exactly one destination   | Plays the action to it, or, when several promotions reach that square, opens the choice of promotion |
+
+Uniqueness is judged at each step, not over the whole action: a lone piece with several destinations is picked up, and the destination stays the person's choice. A piece in hand qualifies however it was picked up. The promotion piece is never chosen automatically. In the starting position with rook, rook and knight (`[4, 4, 2]`), the two knights and then the knight's two destinations are the person's choices; after `b1c3` only `a1` can act, only on `b1`, and the second rook die can only take it back to `a1`, so four presses of OK are made automatically.
+
+It applies only on the board while a person chooses an action: never to a bot, a roll, a handoff, an ended game, behind an overlay, or in the tutorial, whose board has its own reducer and stays manual. Each automatic press is scheduled `600 ms` (the bot's step) after the state it was computed from, through the same foreground-aware scheduling as the bot's steps, and names the game revision and the piece in hand it was computed for. A press of the person's own, an action played, or a callback that arrives late finds nothing to do, and the next press is scheduled for the state on screen, so a chain plays one visible step at a time.
+
+While a press is pending the prompt reads "Only one choice · Back: stop". Back then only stops it: the cursor and any piece in hand stay where they are, and a second Back puts the piece down or opens the menu as usual. Menu stops it on the way to the menu, and Back from the choice of promotion piece stops it with the pawn in hand. A stopped action is the person's to finish; automatic presses return when the game revision changes, with the next action.
 
 ## What the press measurements mean
 
 The evaluator in `scripts/cursor-presses.ts` replays seeded games and uses the same navigation helpers. An action's cost includes arrow presses, one OK to choose a piece and one OK to choose a destination; a promotion adds another OK. If a target is unreachable under an evaluated strategy, the evaluator records that fact and uses square-by-square distance for its cost fallback.
 
-The figures on [Designing for the remote](/design/remote/) are the recorded simulation of the existing designs, including their initial placement and landing policies. They do not measure physical Stick usability, animation time, hesitation, held-key duration, or the benefit of the added cycling or proposed automation settings.
+The figures on [Designing for the remote](/design/remote/) are the recorded simulation of the existing designs, including their initial placement and landing policies. They do not measure physical Stick usability, animation time, hesitation, held-key duration, or the benefit of the added cycling, the automatic OK on the only choice, or the proposed automatic roll.
 
 The evaluator has an explicit `wrap` flag, defaulting off for historical strategies; its current cyclic strategy enables it for placement, landing and paths. The old rows retain their original graph. New cyclic measurements have not replaced the historical figures. For future comparisons, retain the same positions and moves, distinguish the two selection phases, and report changes to both shortest routes and initial cursor placement. Altering navigation edges can also change which candidate `central` chooses and whether a likely landing passes its reachability check.
 

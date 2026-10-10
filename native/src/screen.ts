@@ -28,6 +28,7 @@ import { diceOf, type Die } from '../../src/core/dice';
 import { OPPONENTS } from '../../src/core/opponents';
 import {
   boardInput,
+  onlyChoice,
   waitingFocus,
   type BoardFocus,
   type BoardKey,
@@ -82,8 +83,48 @@ const settled = (
       )
     : { ...focus, selected: null };
 
-// The screen advances on a key, on the local opponent taking its turn, or on
-// the guard after a roll with nothing to play running out.
+// The square OK is about to press itself on (#302), if any: with the setting
+// on, on the board, while the person chooses, unless they stopped it for this
+// action, and only when the board offers exactly one choice. `legal` saves
+// working out the view again where it is to hand.
+export const autoChoice = (
+  state: ScreenState,
+  legal?: readonly string[],
+): Square | null => {
+  const { game } = state;
+  if (
+    !state.autoSelect ||
+    state.overlay.kind !== 'none' ||
+    state.autoStopped === game.revision ||
+    game.phase !== 'move' ||
+    botToAct(game)
+  )
+    return null;
+  return onlyChoice(legal ?? viewGame(game).legal, state.focus.selected);
+};
+
+// OK pressed for the person (#302), on the state it was scheduled for. A press
+// of their own since, or an action played, leaves this one nothing to do: the
+// screen schedules again for what it shows now.
+const autoSelected = (
+  state: ScreenState,
+  revision: number,
+  selected: Square | null,
+): ScreenState => {
+  if (state.game.revision !== revision || state.focus.selected !== selected)
+    return state;
+  const square = autoChoice(state);
+  if (square === null) return state;
+  return onMove(
+    { ...state, focus: { ...state.focus, cursor: square } },
+    'select',
+    false,
+  );
+};
+
+// The screen advances on a key, on the local opponent taking its turn, on OK
+// pressing itself when the board offers one choice, or on the guard after a
+// roll with nothing to play running out.
 // The opponent's step may carry the reply the screen worked out while it waited;
 // without one the reducer asks for it.
 // It also learns whether the build has music at all, which the app finds out
@@ -94,6 +135,9 @@ export type ScreenAction =
   // one against Rolly or a friend (#244).
   | ({ kind: 'newGame' } & GameChoice)
   | { kind: 'bot'; reply?: BotReply }
+  // OK pressed for the person (#302), on the game revision and the piece in
+  // hand it was scheduled for.
+  | { kind: 'auto'; revision: number; selected: Square | null }
   | { kind: 'unguard' }
   | { kind: 'musicAvailable'; available: boolean };
 
@@ -103,6 +147,11 @@ export type GameChoice = { mode: Mode; colour: ColourChoice };
 // How long the opponent's next step waits, in milliseconds: long enough to watch
 // each roll and move land.
 export const BOT_STEP_MS = 600;
+
+// How long OK waits before it presses itself on the only choice (#302): the
+// opponent's pace, so each pick and move is seen to land, and Back has a moment
+// to stop it.
+export const AUTO_SELECT_MS = BOT_STEP_MS;
 
 // The opponent owes a step, which the screen takes for it on a timer. Its roll
 // with nothing to play is not one: the notice stays until the person presses
@@ -143,8 +192,9 @@ export type Overlay =
   // starts. Back returns to the cards; `from` is where the cards return.
   | { kind: 'colour'; index: number; mode: BotMode; from: 'home' | 'menu' }
   | { kind: 'promotion'; moves: string[]; index: number }
-  // Music, its volume, the sound effects, the voices, the Hot Seat host and
-  // turning the board (#76, #159, #202, #120). `from` is where Back returns.
+  // Music, its volume, the sound effects, the voices, the Hot Seat host,
+  // turning the board and OK pressing itself on the only choice (#76, #159,
+  // #202, #120, #302). `from` is where Back returns.
   | { kind: 'settings'; index: number; from: 'home' | 'menu' }
   // After a game against the bot: a rematch, or back to the main menu.
   | { kind: 'result'; index: number }
@@ -186,6 +236,12 @@ export type ScreenState = {
   voices: boolean;
   // Who hosts Hot Seat games, or 'off' (#202).
   host: HostChoice;
+  // Whether OK presses itself when the board offers only one choice (#302).
+  autoSelect: boolean;
+  // The game revision on which the person stopped that with Back or Menu: the
+  // action in progress is theirs to finish, and the next one is automatic
+  // again. Null when they have not.
+  autoStopped: number | null;
   // OK is ignored: a roll has just left nothing to play. The app clears it
   // after OK_GUARD_MS; the other keys work throughout.
   guarded: boolean;
@@ -213,7 +269,13 @@ export const lastDiceOf = (game: Game): LastDice | null => {
 // What a new game keeps: the settings, and whether this build has music.
 export type ScreenSettings = Pick<
   ScreenState,
-  'sound' | 'music' | 'musicAvailable' | 'turnHotseat' | 'voices' | 'host'
+  | 'sound'
+  | 'music'
+  | 'musicAvailable'
+  | 'turnHotseat'
+  | 'voices'
+  | 'host'
+  | 'autoSelect'
 >;
 
 // Sound effects, music, the voices and who hosts Hot Seat are set on a screen
@@ -227,6 +289,7 @@ export const settingsOptions = (
   turnHotseat = false,
   voices = true,
   host: HostChoice = DEFAULT_HOST,
+  autoSelect = false,
 ): string[] => [
   ...(musicAvailable
     ? [`Music: ${music.on ? 'on' : 'off'}`, `Music volume: ${music.volume}`]
@@ -235,6 +298,7 @@ export const settingsOptions = (
   `Voices: ${voices ? 'on' : 'off'}`,
   `Hot Seat host: ${hostName(host)}`,
   `Turn board in Hot Seat: ${turnHotseat ? 'on' : 'off'}`,
+  `Auto-select only choice: ${autoSelect ? 'on' : 'off'}`,
 ];
 
 export type ScreenOptions = {
@@ -345,7 +409,15 @@ export const resultOptions = ['Rematch', 'Main menu'];
 // A new game keeps the settings, which are not about the game.
 const board = (
   game: Game,
-  { sound, music, musicAvailable, turnHotseat, voices, host }: ScreenSettings,
+  {
+    sound,
+    music,
+    musicAvailable,
+    turnHotseat,
+    voices,
+    host,
+    autoSelect,
+  }: ScreenSettings,
   cursor: Square = START,
 ): ScreenState => ({
   game,
@@ -358,6 +430,8 @@ const board = (
   turnHotseat,
   voices,
   host,
+  autoSelect,
+  autoStopped: null,
   guarded: false,
   lastDice: null,
 });
@@ -379,6 +453,8 @@ const played = (
   turnHotseat: state.turnHotseat,
   voices: state.voices,
   host: state.host,
+  autoSelect: state.autoSelect,
+  autoStopped: state.autoStopped,
   guarded: emptyRoll(game),
   lastDice: state.lastDice,
 });
@@ -401,6 +477,7 @@ export const initialState = (
     turnHotseat = false,
     voices = true,
     host = DEFAULT_HOST,
+    autoSelect = false,
   }: Partial<ScreenSettings> = {},
   // A first launch, which opens on the offer of the tutorial (#244).
   firstLaunch = false,
@@ -429,6 +506,8 @@ export const initialState = (
     turnHotseat,
     voices,
     host,
+    autoSelect,
+    autoStopped: null,
     guarded: false,
     lastDice: null,
   };
@@ -773,6 +852,8 @@ const changed = (
     return { ...state, host: cycleHost(state.host, key === 'left' ? -1 : 1) };
   if (row.startsWith('Turn board in Hot Seat:'))
     return { ...state, turnHotseat: !state.turnHotseat };
+  if (row.startsWith('Auto-select only choice:'))
+    return { ...state, autoSelect: !state.autoSelect };
   return state;
 };
 
@@ -789,14 +870,22 @@ const onSettings: Handler<'settings'> = (state, overlay, key) => {
     state.turnHotseat,
     state.voices,
     state.host,
+    state.autoSelect,
   );
   if (key === 'up' || key === 'down')
     return moved(state, overlay, key, rows.length);
   return changed(state, rows[overlay.index] ?? '', key);
 };
 
+// Back from the choice of piece leaves the pawn in hand. With OK pressing
+// itself (#302) it would open the choice again on its own, so the action is
+// left to the person, as Back on the board leaves it.
 const onPromotion: Handler<'promotion'> = (state, overlay, key) => {
-  if (key === 'back' || key === 'menu') return show(state, BOARD);
+  if (key === 'back' || key === 'menu')
+    return show(
+      state.autoSelect ? { ...state, autoStopped: state.game.revision } : state,
+      BOARD,
+    );
   if (key === 'select')
     return played(state, moveGame(state.game, overlay.moves[overlay.index]));
   return moved(state, overlay, key, overlay.moves.length);
@@ -812,16 +901,24 @@ const onResult: Handler<'result'> = (state, overlay, key, options) => {
   return start(state, mode, colour ?? 'random', options);
 };
 
-// Choosing a piece and a square. Back is not intercepted here: boardInput
-// cancels a selection first and only asks to leave when there is nothing to
-// cancel, which is the behaviour the web probe already ships.
-const onMove = (
+// Choosing a piece and a square. Back is intercepted here only to stop OK
+// pressing itself (#302): otherwise boardInput cancels a selection first and
+// only asks to leave when there is nothing to cancel, which is the behaviour
+// the web probe already ships.
+function onMove(
   state: ScreenState,
   key: BoardKey,
   repeat: boolean,
-): ScreenState => {
+): ScreenState {
   const { game } = state;
   const { legal, dfen } = viewGame(game);
+  // Back or Menu while OK is about to press itself stops it, and Back does
+  // nothing more (#302): the action in progress is the person's to finish,
+  // and a second Back puts down or leaves as it always has.
+  if ((key === 'back' || key === 'menu') && autoChoice(state, legal) !== null) {
+    const stopped = { ...state, autoStopped: game.revision };
+    return key === 'back' ? stopped : onMove(stopped, key, repeat);
+  }
   const result = boardInput(
     state.focus,
     key,
@@ -845,7 +942,7 @@ const onMove = (
     case 'none':
       return focused;
   }
-};
+}
 
 // The board itself.
 const onBoard = (
@@ -894,6 +991,8 @@ export function screenReducer(
   options: ScreenOptions,
 ): ScreenState {
   if (action.kind === 'bot') return botStep(state, options, action.reply);
+  if (action.kind === 'auto')
+    return autoSelected(state, action.revision, action.selected);
   if (action.kind === 'newGame')
     return startFrom(state, action.mode, action.colour, options);
   if (action.kind === 'unguard')
