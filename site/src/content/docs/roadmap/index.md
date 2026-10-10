@@ -10,7 +10,7 @@ The app was built during [Build, Ship, Shape: Amazon Developer Hackathon 2026](h
 Every feature here was played on the Vega Virtual Device, and the app's automated tests cover it. Since 6 October 2026 the game has also run on a Fire TV Stick 4K Select, though not every feature has been checked there yet.
 
 - **A native board** in React Native for Vega, played entirely with the remote.
-- **Hot Seat** on one remote, **saving** after every action, and the record of results.
+- **Hot Seat** on one remote, and **saving** after every action.
 - **A six-lesson tutorial**, offered on the first launch and leading into a first game, and a **rules guide**.
 - **Sound** for every step of the game.
 - **Three computer opponents**, Rolly, Grabby and Rampage, as either colour, each with a portrait drawn for the game, speech bubbles and a synthetic voice. They are fairy-tale characters, a pixie, a goblin and a little horned imp, and their voices act their lines. An opponent talks from beside its portrait at the top of the screen. The portraits are in the build on the Appstore Beta Hub; the public packages show emoji faces in their place for now.

@@ -28,7 +28,7 @@ Long-form technical documentation, platform findings, performance benchmarks and
 | `src/useBotVoice.ts`           | Picks the bot's lines as the game moves and how long each stays on screen.                   |
 | `src/useHostVoice.ts`          | Picks the host's lines at the pauses, says them, and returns the one to show.                |
 | `src/screen.ts`                | The screen's whole flow, as a pure reducer over state and one action.                        |
-| `src/OpponentScreen.tsx`       | Opponent selection: three cards with bot faces, difficulty, and player records.              |
+| `src/OpponentScreen.tsx`       | Opponent selection: three cards with bot faces, difficulty, and how each one plays.          |
 | `src/Portrait.tsx`             | A character's portrait, or its emoji face when the build has no portraits.                   |
 | `src/TutorialScreen.tsx`       | Six-lesson interactive tutorial taught by Thinkle, on an isolated sandbox board.             |
 | `src/tutorial.ts`              | The tutorial's flow, as a pure reducer over state and one key.                               |

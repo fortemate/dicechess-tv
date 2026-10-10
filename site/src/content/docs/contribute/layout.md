@@ -62,7 +62,7 @@ Contains the TV presentation layer built with React Native for Vega:
 | `src/screen.ts`          | Pure state reducer coordinating menu navigation, confirmations, and gameplay flow.                     |
 | `src/Board.tsx`          | 8x8 chessboard grid rendering pieces, square tints, focus rings, and move animations.                  |
 | `src/Dice.tsx`           | Three-dice tray with tumbling roll animations and dimmed unplayable dice.                              |
-| `src/OpponentScreen.tsx` | Three-card opponent selection screen showing bot faces, difficulty, and player record.                 |
+| `src/OpponentScreen.tsx` | Three-card opponent selection screen showing bot faces, difficulty, and how each one plays.            |
 | `src/TutorialScreen.tsx` | Interactive tutorial screen driving lessons on an isolated sandbox board.                              |
 | `src/TutorialOffer.tsx`  | The first launch's offer of the tutorial, made by Thinkle: Learn to play or Skip.                      |
 | `src/RulesScreen.tsx`    | Dual-pane rules guide with topics on the left and explanations on the right.                           |

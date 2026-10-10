@@ -13,7 +13,7 @@ import {
 } from '../src/core/game.ts';
 import { botReply } from '../src/core/bot.ts';
 import { emptyLedger, record } from '../src/core/ledger.ts';
-import { OPPONENTS, opponentOf, recordAgainst } from '../src/core/opponents.ts';
+import { OPPONENTS, opponentOf } from '../src/core/opponents.ts';
 
 test('the opponents are the bot modes, each an engine algorithm that is not experimental', () => {
   assert.deepEqual(
@@ -107,11 +107,8 @@ test('results are kept apart for each opponent', () => {
     );
   let ledger = record(emptyLedger(), lost('greedy'));
   ledger = record(ledger, lost('aggressive'));
-  assert.deepEqual(recordAgainst(ledger, 'greedy'), {
-    w: { wins: 0, draws: 0, losses: 1 },
+  assert.deepEqual(ledger.bots, {
+    greedy: { w: { wins: 0, draws: 0, losses: 1 } },
+    aggressive: { w: { wins: 0, draws: 0, losses: 1 } },
   });
-  assert.deepEqual(recordAgainst(ledger, 'aggressive'), {
-    w: { wins: 0, draws: 0, losses: 1 },
-  });
-  assert.deepEqual(recordAgainst(ledger, 'random'), {});
 });

@@ -33,7 +33,7 @@ test('a finished game is counted, and the home screen shows no hotseat record', 
   assert.deepEqual(ledger()?.hotseat, { white: 0, draws: 0, black: 1 });
 
   // Back to the home screen: counts by colour say nothing about who played, so
-  // the menu stands alone. The record against an opponent is on its card.
+  // the menu stands alone. Nothing else shows the record either.
   send('enter');
   assert.doesNotMatch(text(root), /COMPLETED GAMES/);
   assert.doesNotMatch(text(root), /Hotseat —/);

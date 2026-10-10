@@ -13,10 +13,12 @@
 // Hotseat is reported by colour, never by player. The seats change hands and
 // the ledger has no way to know who sat where.
 //
-// Only the record against each computer opponent is shown, on its card. The
-// hotseat counts are still kept, so the save format stays the same, but the
-// home screen no longer shows them: counts by colour say nothing about the
-// people who played, who change from one evening to the next.
+// Nothing shows the ledger. Counts by colour in hotseat say nothing about the
+// people who played, who change from one evening to the next, and the record
+// against a computer opponent has the same flaw: it counts every game played
+// on the TV, whoever held the remote. The ledger still counts, so the save
+// format stays the same and the results are there for a view that can tell
+// the players apart.
 
 import type { Game, Side } from './game.ts';
 import { hasExactKeys } from './keys.ts';

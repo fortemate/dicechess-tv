@@ -1,15 +1,15 @@
 // The choice of local opponent (#115): one card each, side by side, walked with
-// the arrows. A card shows the opponent's face, name and level, one line on how
-// it plays, and the person's record against it, so the home screen need not.
+// the arrows. A card shows the opponent's face, name and level, and one line on
+// how it plays. It shows no record against the opponent: the results are kept,
+// but a count by side cannot tell who was holding the remote, and the people
+// who play on one TV change from one evening to the next.
 //
 // Like the menus, the screen only draws what the reducer in screen.ts says:
 // the focused card and whether OK is held on it.
 import React from 'react';
 import { View, Text, useWindowDimensions } from 'react-native';
-import { OPPONENTS, recordAgainst } from '../../src/core/opponents';
+import { OPPONENTS } from '../../src/core/opponents';
 import type { Opponent } from '../../src/core/opponents';
-import type { Side } from '../../src/core/game';
-import type { BotRecord, Ledger } from '../../src/core/ledger';
 import { PORTRAIT_OF, Portrait } from './Portrait';
 import { THEME } from './theme';
 import { safeInsets } from './layout';
@@ -42,32 +42,16 @@ const Pips = ({ level }: { level: Opponent['level'] }) => {
   );
 };
 
-const line = (side: string, record: BotRecord): string =>
-  `As ${side}: ${record.wins}W ${record.draws}D ${record.losses}L`;
-
-// The record against one opponent, one line per side played.
-export const recordLines = (
-  sides: Partial<Record<Side, BotRecord>>,
-): string[] => {
-  const lines = [
-    ...(sides.w ? [line('White', sides.w)] : []),
-    ...(sides.b ? [line('Black', sides.b)] : []),
-  ];
-  return lines.length ? lines : ['Not played yet'];
-};
-
 const Card = ({
   opponent,
   width,
   focused,
   pressed,
-  ledger,
 }: {
   opponent: Opponent;
   width: number;
   focused: boolean;
   pressed: boolean;
-  ledger?: Ledger;
 }) => {
   const fill = pressed ? THEME.pressedFill : THEME.focusFill;
   return (
@@ -106,13 +90,6 @@ const Card = ({
       >
         {opponent.style}
       </Text>
-      {recordLines(ledger ? recordAgainst(ledger, opponent.mode) : {}).map(
-        (text) => (
-          <Text key={text} style={{ color: '#8dc9b6', fontSize: 20 }}>
-            {text}
-          </Text>
-        ),
-      )}
     </View>
   );
 };
@@ -120,13 +97,11 @@ const Card = ({
 export const OpponentScreen = ({
   index,
   pressed,
-  ledger,
 }: {
   // The focused card.
   index: number;
   // OK is held on it.
   pressed: boolean;
-  ledger?: Ledger;
 }) => {
   const { width, height } = useWindowDimensions();
   const insets = safeInsets(width, height);
@@ -154,7 +129,6 @@ export const OpponentScreen = ({
             width={card}
             focused={i === index}
             pressed={pressed}
-            ledger={ledger}
           />
         ))}
       </View>
