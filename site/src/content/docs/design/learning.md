@@ -28,7 +28,7 @@ Thinkle's portrait stands at the top of the panel with his words in a bubble und
 
 A first launch offers the tutorial before anything else: Thinkle asks "New to Dice Chess? I can teach you to play in a few minutes." **Learn to play** opens the first lesson. **Skip**, Back or Menu goes to the home screen, where the tutorial stays as **Learn to play**. The offer is made once, whatever the answer. It is never made to a player who already has a saved game, since they have played before.
 
-After the last lesson, the player goes straight into a first game. The choices are **Play Rolly**, the easiest opponent, as White, so the player rolls first; **Play a friend**, a Hot Seat game on the same remote; or the **Main menu**. If a game is in play, starting a new one asks first, as it does from the menus.
+After the last lesson, the player goes straight into a first game. The choices are **Play Rolly**, the easiest opponent, as White, so the player rolls first; **Play a friend**, a game for two people on the same remote; or the **Main menu**. If a game is in play, starting a new one asks first, as it does from the menus.
 
 Each lesson is a position, a roll and a goal, and the tests check each one against the engine. The position must decode, the roll must allow the action being taught, and the goal must be reachable. Every way to play each lesson ends either with it done or, when the dice are spent elsewhere, with Thinkle offering to try again, so no lesson can leave the player on a board that takes no keys. A lesson never touches a saved game or the record of completed games. Castling, promotion and en passant are left to the rules guide.
 
@@ -39,7 +39,8 @@ The lessons were played on the Vega Virtual Device, and so was a first launch af
 ![The rules guide on the topic Use as many dice as you can](../../../assets/screenshots/rules.png)
 
 - **Nine topics**, from how a game ends to castling, promotion, en passant and draws.
-- **One level deep.** Up and Down move between topics, and the text changes as they do, with nothing to open or close. OK keeps the selected topic open; Back returns to the home screen. A remote makes every extra level expensive.
+- **One level deep.** Up and Down move between topics, and the text changes as they do, with nothing to open or close. OK keeps the selected topic open. A remote makes every extra level expensive.
+- **Open from the home screen or a game.** **Rules reference** is on the home screen and, since [#285](https://github.com/fortemate/dicechess-tv/pull/285), in the game menu too, so a rule can be looked up in the middle of a turn. Back returns to the screen that opened the guide with Rules reference focused, and the game waits where it was, its roll and the actions already played kept. That rests on the app's tests (`native/test/screen.test.ts`).
 - **Checked against the engine.** The tests tie many of the guide's sentences to checks against the engine. Writing them corrected one claim: a draw by the hundred-half-move rule comes when a turn ends, not the moment the count reaches a hundred.
 
 ## A roll with nothing to play

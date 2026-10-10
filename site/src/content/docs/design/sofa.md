@@ -33,6 +33,8 @@ The roll is drawn as three dice, as the other Dice Chess clients draw it. Each f
 
 A roll tumbles in: each die turns onto its face, and the three land lit in about a quarter of a second. A die that no legal turn can use dims as it lands.
 
+Before the first roll of a game the three places show empty outlines. After that the last dice played stay on screen, as they ended and in the colour of the side that rolled them, until the person's OK throws new ones. So after the computer's turn, which plays out quickly, its roll can still be read ([#298](https://github.com/fortemate/dicechess-tv/pull/298)); the app's tests check it.
+
 ## Sizes and the safe area
 
 The app lays out a 960 x 540 dp screen, which is how a 1920 x 1080 television reports itself.

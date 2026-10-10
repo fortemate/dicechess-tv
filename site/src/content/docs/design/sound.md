@@ -35,7 +35,7 @@ The app plays on three players: board, dice and result. A capture and the win it
 ## Silence
 
 - **Mute.** The Settings screen, opened from both menus, turns every cue off, and the choice is remembered. In the game menu Settings is one press of Up away, because the menu wraps.
-- **In the background.** Sound stops when the app leaves the screen, for the launcher, the screensaver or another app, as Amazon's submission checks require.
+- **In the background.** Sound stops when the app leaves the screen, for the launcher, the screensaver or another app, and when an overlay such as Alexa's takes the focus ([#325](https://github.com/fortemate/dicechess-tv/pull/325)), as Amazon's submission checks require.
 
 ## Music that follows the danger
 
@@ -47,9 +47,9 @@ The game has adaptive music. The menus have their own theme. Over a game the the
 
 Against the computer the music follows the danger to your own king. In Hot Seat, where both players are in the room, it follows the danger to either king. It rises at once and falls one step per turn, so one quiet turn does not drop a tense game to calm. Themes crossfade over two seconds, and a new theme starts from its beginning, as chosen by ear; after a result the music waits, so the jingle is heard on its own.
 
-One row of Settings holds the music, apart from the sound effects: Left and Right set its volume, down to off, and OK mutes it and brings it back at the same level (#346). The tests check each press, and on the Virtual Device the music fell silent at off and came back at its level. Music stops at once when the app leaves the screen: the tests check that the players pause, and on the Virtual Device the music's own reports showed it stopping for the launcher (#76).
+One row of Settings holds the music, apart from the sound effects: Left and Right set its volume, down to off, and OK mutes it and brings it back at the same level (#346). The tests check each press, and on the Virtual Device the music fell silent at off and came back at its level. On a Fire TV Stick 4K Select, the release notes of 1.0.0 record the row and muting and unmuting the music, checked on the Appstore build of the release's commit. Music stops at once when the app leaves the screen: the tests check that the players pause, and on the Virtual Device the music's own reports showed it stopping for the launcher (#76).
 
-The four themes are by pepka-prygni, made with Suno and used with his permission: Warm anticipation in the menus, then Clear Space, Tightening Layers and Tense Minor Pulse as the danger grows. A build without them plays no music, and its Settings offer only the sound effects.
+The four themes are by pepka-prygni, made with Suno and used with his permission: Warm anticipation in the menus, then Clear Space, Tightening Layers and Tense Minor Pulse as the danger grows. A build without them plays no music, and its Settings have no Music row.
 
 ## The bots speak
 
@@ -58,7 +58,7 @@ Against the computer, each bot says its lines aloud as well as in its speech bub
 - **A player of its own.** A line neither cuts nor is cut by the board, dice and result cues, and a new line replaces the one being said.
 - **Over the music.** The music ducks by 9 dB while a line is said, and comes back after it. A win or a loss is said after its jingle.
 - **No repeats.** The same line is never said twice in a row for an event, including at the start of a rematch. The bubble stays until its line has been said.
-- **A setting of its own.** **Voices** in Settings switches every spoken line on or off, the bots' and the Hot Seat host's, apart from the sound effects. A bot's bubble stays either way. The voices are on by default, and they stop when the app leaves the screen.
+- **A setting of its own.** **Voices** in Settings switches every spoken line on or off, the bots', the Hot Seat host's and Thinkle's in the tutorial and its offer, apart from the sound effects. A bot's bubble, and Thinkle's, stay either way. The voices are on by default, and they stop when the app leaves the screen.
 
 On the Virtual Device the voice was measured at about 14 dB above the music, with the music lower between the words and back after the line. On 2026-10-03 the longest lines, of 55 characters, took the bubble's three rows without a cut. With the tallest panels forced, a roll with nothing to play and a result with its menu, the panel's last line stood at least 28 dp clear of the person's badge.
 
@@ -86,7 +86,7 @@ What this rests on:
 
 ## What has been heard, and where
 
-The cues have been heard from the Vega Virtual Device through a computer's speakers; no listening check from a television, on a Fire TV Stick, has been recorded yet. So has the music following the danger: in a game against Rampage recorded there for the demo video, it went from calm to tense to critical as he closed in on the king, and the owner listened to it on 5 October 2026. The tests check that the players pause when the app leaves the screen. On the Virtual Device the app came back from the launcher as it left, and on a Fire TV Stick the app's own reports showed it pausing at Home and resuming on the return ([Building on Vega](/technology/vega/#leaving-the-foreground)), but that nothing plays over the launcher is still to be confirmed by ear.
+The cues have been heard from the Vega Virtual Device through a computer's speakers, and so has the music following the danger: in a game against Rampage recorded there for the demo video, it went from calm to tense to critical as he closed in on the king, and the owner listened to it on 5 October 2026. On a Fire TV Stick, on a television, the owner heard the game's sounds on 8 October 2026: they went on over Alexa's answer, while only the music stopped; [#325](https://github.com/fortemate/dicechess-tv/pull/325) then made the sound effects and the voices stop when the app loses focus, as the music already did. Whether Alexa's answer is now heard on its own there has not been recorded. The music's row was checked there with 1.0.0 (above). The tests check that the players pause when the app leaves the screen. On the Virtual Device the app came back from the launcher as it left, and on a Fire TV Stick the app's own reports showed it pausing at Home and resuming on the return ([Building on Vega](/technology/vega/#leaving-the-foreground)), but that nothing plays over the launcher is still to be confirmed by ear.
 
 ## Sources
 

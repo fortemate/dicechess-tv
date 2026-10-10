@@ -7,39 +7,40 @@ sidebar:
 
 We welcome contributions to Dice Chess TV. Because this project is public, open source, and participates in hackathons and official competitions, all contributions must adhere to clear licensing and quality standards.
 
+[CONTRIBUTING.md](https://github.com/fortemate/dicechess-tv/blob/main/CONTRIBUTING.md) in the repository is the full guide; this page summarizes it.
+
 ## Contributor License Agreement (CLA)
 
-All contributors must agree to the project's Contributor License Agreement before contributions can be merged:
+Before a first pull request can be merged, sign the project's [Contributor License Agreement](https://github.com/fortemate/dicechess-tv/blob/main/CLA.md):
 
-- You confirm that you have the right to submit your contribution under the GNU Affero General Public License v3.0 only (AGPL-3.0-only).
-- You grant Fortemate the permissions necessary to distribute, publish, and relicense the project.
-- Third-party assets or libraries must have compatible licenses (e.g. CC0, MIT, Apache 2.0) and be explicitly documented in `THIRD_PARTY_NOTICES.md`.
+- You confirm that you are entitled to grant its licences, and that your contribution is your own work or is marked as third-party material, with its source and licence.
+- You keep your copyright and grant Fortemate the right to distribute and relicense your contribution. It always stays available under the repository's licence, the GNU Affero General Public License v3.0 only (AGPL-3.0-only).
+- To sign, add an entry for yourself to `.github/cla-signatures.json` in that first pull request: your GitHub username, your name, the date and the agreement's version. The `CI: CLA` check verifies it. Owners, organization members, collaborators and bots are exempt.
+
+### Third-party work
+
+- A new asset or library needs a licence that allows its use here, recorded in `THIRD_PARTY_NOTICES.md`. When the licence asks for credit, the line the About screen shows goes in `src/core/credits.ts`, and `test/credits.test.ts` holds the two together.
+- A dependency change that brings an npm package into the app's bundle, or takes one out, makes `npm run bundle --prefix native` fail and name it. Rewrite the notices the package ships with `npm run notices --prefix native`, read the diff, and name the package in `THIRD_PARTY_NOTICES.md` and on [Credits and licences](/contribute/credits/).
 
 ## Branch and Pull Request Conventions
 
-1. **Never commit directly to `main`:** All work happens on dedicated topic branches and enters `main` via pull requests reviewed by maintainers.
-2. **Branch naming:**
-   - `feature/<issue-number>-<short-description>`: New features (e.g. `feature/99-dice-roll-tumble`).
-   - `fix/<issue-number>-<short-description>`: Bug fixes and regressions.
-   - `docs/<issue-number>-<short-description>`: Documentation improvements.
-   - `probe/<issue-number>-<short-description>`: Throwaway experimental probes (not intended for merge).
-3. **Commit Messages & PR Descriptions:**
-   - Write clear, concise commit messages in English.
-   - Reference corresponding issue numbers (e.g. `Fixes #99` or `Addresses #92`).
-   - Explain what was changed, the rationale behind design choices, and how the change was tested.
+Branches, pull requests and issues follow the organization's [contributing guide](https://github.com/fortemate/.github/blob/main/CONTRIBUTING.md):
+
+1. **Never commit directly to `main`:** all work happens on branches and enters `main` through pull requests, which the owner reviews and merges.
+2. **Branch names:** `<type>/<short-description>`, or `<type>/<issue>-<short-description>` for work on an issue, with a type from `task`, `feat`, `bug`, `refactor`, `chore`, `docs`, `ci`, `test` or `perf` (e.g. `feat/99-dice-roll-tumble`). A branch that carries an issue number is closed by its pull request, with `Closes #<issue>`; partial work refers to the issue without closing it.
+3. **Commit messages and pull requests:** in English. Explain what changed, why, and how it was checked. Say which kind of evidence a claim about the television rests on, the Vega Virtual Device, a Fire TV Stick or a test, because they are not interchangeable.
 
 ## Repository Standards
 
 ### English-Only Enforcement
 
-The repository strictly enforces that all text files are written in English. An automated test (`test/english.test.ts`) scans every tracked and untracked file for Cyrillic characters:
+The repository is written in English. A test, `test/english.test.ts`, reads every tracked file and every new file Git does not ignore, skipping binary files, and fails on any Cyrillic character. It runs with the root tests, so CI runs it, and the pre-commit hook runs it too. To run it alone:
 
 ```bash
-# Run the check locally
-npm test -- test/english.test.ts
+node --experimental-strip-types --test test/english.test.ts
 ```
 
-Any Cyrillic characters in code, comments, documentation, or commit messages will fail continuous integration.
+It reads files, not commit messages, issues or pull requests; keep those in English as well.
 
 ### Privacy & Infrastructure Guardrails
 
@@ -51,20 +52,34 @@ Never commit:
 
 ### Verification Checklist Before Opening a PR
 
-Ensure all local checks pass cleanly before submitting your pull request:
+CI runs these checks on every pull request. With mise, one command runs them, apart from coverage, the application's build and this site:
 
 ```bash
-# 1. Typecheck pure core and native application
-npm run check
-npm run check --prefix native
+mise run check
+```
 
-# 2. Run all 193 automated tests
+Without mise, the same checks are:
+
+```bash
+# Types, lint and formatting
+npm run check
+npm run lint
+npm run format:check
+npm run check --prefix native
+npm run lint --prefix native
+
+# Tests: the core with the English-only check, the app, the test bench
 npm test
 npm test --prefix native
+npm test --prefix web
 
-# 3. Verify code formatting
-npm run format:check
+# The whitespace of the change, the app's Metro bundle and its notices, the bench's build
+git diff --check
+npm run bundle --prefix native
+npm run build --prefix web
 
-# 4. Verify site documentation build
+# This site, after npm ci --prefix site
 npm run build --prefix site
 ```
+
+A green gate is not evidence of what the television shows. For anything that changes the screen or how the remote works, also build the package and run it on a device ([Build and run](/contribute/build/)).

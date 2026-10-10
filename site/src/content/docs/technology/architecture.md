@@ -62,13 +62,15 @@ The native app makes no decisions about move legality, dice spending or how a ga
 
 ### 3. The Canonical Engine (`@fortemate/dicechess-engine`)
 
-Which actions and turns are legal is decided by Fortemate's open-source rules engine, published on npm as [`@fortemate/dicechess-engine`](https://github.com/fortemate/dicechess-engine). How a game ends is decided in `src/core/game.ts`. Besides a resignation or a draw agreed in Hot Seat, it ends on its own as in Fortemate's game service: when a king is taken, after 100 halfmoves without a capture or a pawn move, checked at the end of a turn, or at turn 5,000.
+Which actions and turns are legal is decided by Fortemate's open-source rules engine, published on npm as [`@fortemate/dicechess-engine`](https://github.com/fortemate/dicechess-engine). How a game ends is decided in `src/core/game.ts`. Besides a resignation or a draw agreed in a game between two people (Hot Seat in the code), it ends on its own as in Fortemate's game service: when a king is taken, after 100 halfmoves without a capture or a pawn move, checked at the end of a turn, or at turn 5,000.
 
 The engine provides:
 
 - Every legal turn of a roll, as a prefix tree of actions (`getLegalTurnTree`, engine 0.13.0).
 - State transitions via `applyMove`, returning the remaining dice and board position.
 - The dice some legal turn can still spend, via `getPlayableDice` (engine 0.14.0), so the others can be dimmed. `src/core/game.ts` answers from the turn tree where it can and asks the engine only when the tree does not settle it.
+
+The app pins engine 0.14.5 ([#333](https://github.com/fortemate/dicechess-tv/pull/333)), which changes no rules or search. Version 0.14.4 (6 October 2026) builds the engine's move tables faster, which cut a cool start on a Fire TV Stick from 6.05 s to 2.65 s ([Performance](/technology/performance/#on-a-fire-tv-stick)).
 
 ## The Data Flow
 
@@ -89,7 +91,7 @@ What was built during the hackathon, and what existed before it:
 
 | Component                                          | Status       | Origin                                                                                                                                                                                                                                                                                                                                                   |
 | -------------------------------------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Rules Engine (`@fortemate/dicechess-engine`)**   | Pre-existing | Open-source npm package that existed before the hackathon. The legal turn tree for JavaScript clients and `applyMove` keeping unspent dice (0.13.0, 26 September 2026) and `getPlayableDice` (0.14.0, 29 September 2026), which this app relies on, were added to it during the hackathon.                                                               |
+| **Rules Engine (`@fortemate/dicechess-engine`)**   | Pre-existing | Open-source npm package that existed before the hackathon. The legal turn tree for JavaScript clients and `applyMove` keeping unspent dice (0.13.0, 26 September 2026) and `getPlayableDice` (0.14.0, 29 September 2026), which this app relies on, were added to it during the hackathon, and so was a faster start (0.14.4).                           |
 | **Fire TV Application (`native/`)**                | New          | Written during the hackathon, starting from the Vega SDK's `helloWorld` project template, in a repository started on 21 September 2026.                                                                                                                                                                                                                  |
 | **Pure TypeScript Core (`src/core/`)**             | New          | Written during the hackathon for this app. It served the WebView probe and the native app until the probe was removed on 23 September 2026; now the native app, the browser test bench and the Node tests run it.                                                                                                                                        |
 | **Remote Navigation Model (`src/core/cursor.ts`)** | New          | Directional jumps between the pieces that can move, then between the chosen piece's destinations: 61% fewer presses than square by square, over 200 simulated games in Node (`npm run presses`).                                                                                                                                                         |
