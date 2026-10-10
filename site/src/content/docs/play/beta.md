@@ -41,6 +41,6 @@ Say which build you played, and whether on a Fire TV Stick or on the Virtual Dev
 
 ## What this build is
 
-- **Tested on** the Vega Virtual Device so far, and not yet on a Fire TV Stick.
+- **Tested on** the Vega Virtual Device and, since 6 October 2026, on a Fire TV Stick 4K Select, though not every feature has been checked on the Stick yet.
 - **Private:** it has no network code, no accounts and no analytics. Games, results and settings stay on the TV. The [privacy policy](/privacy/) has the details.
 - **English only** for now.

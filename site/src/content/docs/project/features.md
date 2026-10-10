@@ -5,7 +5,7 @@ sidebar:
   order: 2
 ---
 
-Every screenshot here comes from the Vega Virtual Device, captured with scripted presses of the remote on beta 8 with the opponents' portraits. A test build set the first rolls, so that a roll with nothing to play and a knight with a capture came up when they were needed; apart from the dice, each screen is the app as it ships. Each feature was also played there, and the app's automated tests cover it; where a check is still open, the section says so. Nothing has run on a physical Fire TV Stick yet.
+Every screenshot here comes from the Vega Virtual Device, captured with scripted presses of the remote on beta 8 with the opponents' portraits. A test build set the first rolls, so that a roll with nothing to play and a knight with a capture came up when they were needed; apart from the dice, each screen is the app as it ships. Each feature was also played there, and the app's automated tests cover it; where a check is still open, the section says so. The game has also run on a Fire TV Stick 4K Select since 6 October 2026, but no screenshot here was taken on it; [Performance](/technology/performance/) has what was measured there.
 
 ## Hot Seat on one remote
 
