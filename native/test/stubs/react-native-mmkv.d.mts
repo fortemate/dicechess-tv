@@ -8,3 +8,5 @@ export declare class MMKV {
  * offer of the tutorial has been answered; `firstLaunch` forgets that too.
  */
 export declare function reset(options?: { firstLaunch?: boolean }): void;
+/** Test-only: store values as an earlier build left them, before a launch. */
+export declare function setStored(values: Record<string, string>): void;

@@ -38,6 +38,7 @@ import {
   readMusic,
   saveMusic,
   musicGain,
+  musicHeard,
   type MusicSetting,
 } from './musicSetting';
 import { randomSource } from './randomSource';
@@ -248,7 +249,7 @@ export const App = ({
     injectedMusic !== undefined,
   );
   React.useEffect(() => {
-    music.setEnabled(initialMusic.on);
+    music.setEnabled(musicHeard(initialMusic));
     music.setVolume(musicGain(initialMusic.volume));
     if (injectedMusic) return;
     let live = true;
@@ -266,7 +267,7 @@ export const App = ({
   const onMusic = React.useCallback(
     (next: MusicSetting) => {
       saveMusic(settings, next);
-      music.setEnabled(next.on);
+      music.setEnabled(musicHeard(next));
       music.setVolume(musicGain(next.volume));
     },
     [settings, music],

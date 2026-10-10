@@ -37,7 +37,7 @@ import {
   type SpokenLine,
 } from './sound';
 import type { Music } from './music';
-import { MUSIC_STEPS, type MusicSetting } from './musicSetting';
+import { MUSIC_STEPS, musicHeard, type MusicSetting } from './musicSetting';
 import { useDanger } from './useDanger';
 import { activeClock, scheduleActive, useActivity } from './activity';
 import { cues } from '../../src/core/cues';
@@ -517,11 +517,12 @@ const Panel = ({
           afters={
             hasMusic
               ? [
-                  undefined,
+                  // One row for the music (#346): no rings filled while it is
+                  // off.
                   <VolumeRings
                     key="rings"
-                    volume={music.volume}
-                    focused={overlay.index === 1}
+                    volume={musicHeard(music) ? music.volume : 0}
+                    focused={overlay.index === 0}
                   />,
                 ]
               : []

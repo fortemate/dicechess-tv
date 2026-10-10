@@ -41,7 +41,13 @@ import {
 } from '../../src/core/bot';
 import type { Square } from '../../src/core/board';
 import type { Level } from '../../src/core/danger';
-import { DEFAULT_MUSIC, MUSIC_STEPS, type MusicSetting } from './musicSetting';
+import {
+  DEFAULT_MUSIC,
+  musicHeard,
+  stepMusic,
+  toggleMusic,
+  type MusicSetting,
+} from './musicSetting';
 import {
   DEFAULT_HOST,
   cycleHost,
@@ -295,7 +301,7 @@ export const settingsOptions = (
   autoSelect = false,
 ): string[] => [
   ...(musicAvailable
-    ? [`Music: ${music.on ? 'on' : 'off'}`, `Music volume: ${music.volume}`]
+    ? [`Music: ${musicHeard(music) ? music.volume : 'off'}`]
     : []),
   `Sound effects: ${sound ? 'on' : 'off'}`,
   `Voices: ${voices ? 'on' : 'off'}`,
@@ -858,16 +864,14 @@ const changed = (
   row: string,
   key: BoardKey,
 ): ScreenState => {
-  if (row.startsWith('Music volume')) {
-    if (key === 'select') return state;
-    const volume = Math.max(
-      0,
-      Math.min(MUSIC_STEPS, state.music.volume + (key === 'left' ? -1 : 1)),
-    );
-    return { ...state, music: { ...state.music, volume } };
-  }
   if (row.startsWith('Music:'))
-    return { ...state, music: { ...state.music, on: !state.music.on } };
+    return {
+      ...state,
+      music:
+        key === 'select'
+          ? toggleMusic(state.music)
+          : stepMusic(state.music, key === 'left' ? -1 : 1),
+    };
   if (row.startsWith('Sound effects:'))
     return { ...state, sound: !state.sound };
   if (row.startsWith('Voices:')) return { ...state, voices: !state.voices };
@@ -880,9 +884,9 @@ const changed = (
   return state;
 };
 
-// Up and Down walk the settings. The arrows sideways change the volume on its
-// row, step through the hosts on hers, and flip a switch on the others, as OK
-// does, so either habit works.
+// Up and Down walk the settings. The arrows sideways change the volume on the
+// music row, where OK mutes and unmutes (#346), step through the hosts on hers,
+// and flip a switch on the others, as OK does, so either habit works.
 const onSettings: Handler<'settings'> = (state, overlay, key) => {
   if (key === 'menu') return show(state, HOME);
   if (key === 'back') return show(state, settingsOpener(state, overlay.from));

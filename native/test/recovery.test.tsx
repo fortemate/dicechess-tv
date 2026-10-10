@@ -267,8 +267,9 @@ test('the menu after a recovery has the settings the player changed before it', 
   quietBoundaries(t);
   const app = launchOverSave();
   // Home: Resume, Play a friend, Play the computer, Learn to play, Rules
-  // reference, Settings. Sound effects is the third row of the settings.
-  send('down', 'down', 'down', 'down', 'down', 'enter', 'down', 'down');
+  // reference, Settings. Sound effects is the second row of the settings,
+  // under the music (#346).
+  send('down', 'down', 'down', 'down', 'down', 'enter', 'down');
   assert.equal(focusedLabel(app.root), 'Sound effects: on');
   send('enter');
   assert.equal(focusedLabel(app.root), 'Sound effects: off');
@@ -277,6 +278,6 @@ test('the menu after a recovery has the settings the player changed before it', 
   send('up', 'up', 'up', 'up', 'up');
   failInPlay(app);
   send('enter');
-  send('down', 'down', 'down', 'down', 'down', 'enter', 'down', 'down');
+  send('down', 'down', 'down', 'down', 'down', 'enter', 'down');
   assert.equal(focusedLabel(app.root), 'Sound effects: off');
 });

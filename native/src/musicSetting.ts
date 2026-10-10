@@ -19,6 +19,32 @@ export const DEFAULT_MUSIC: MusicSetting = {
   volume: DEFAULT_MUSIC_VOLUME,
 };
 
+// Whether the music is heard: on, and above silence. Settings shows one row for
+// it (#346), where a volume of 0 is off, so music stored as on at 0, which an
+// earlier build could save, is off too.
+export const musicHeard = (music: MusicSetting): boolean =>
+  music.on && music.volume > 0;
+
+// Left and Right on the music row (#346). The rings stand for the volume heard,
+// and none for music that is off, so Right from off fills the first ring and
+// Left from the first ring turns the music off. Off, the volume it had is kept
+// for OK to bring back.
+export const stepMusic = (music: MusicSetting, by: 1 | -1): MusicSetting => {
+  if (!musicHeard(music)) return by > 0 ? { on: true, volume: 1 } : music;
+  if (by < 0 && music.volume === 1) return { ...music, on: false };
+  return { ...music, volume: Math.min(MUSIC_STEPS, music.volume + by) };
+};
+
+// OK on the music row (#346): a quick mute that keeps the level, and back at the
+// volume it had, or at the default when it had none.
+export const toggleMusic = (music: MusicSetting): MusicSetting =>
+  musicHeard(music)
+    ? { ...music, on: false }
+    : {
+        on: true,
+        volume: music.volume > 0 ? music.volume : DEFAULT_MUSIC_VOLUME,
+      };
+
 export const readMusic = (store: KeyValueStore): MusicSetting => {
   const raw = store.getString(VOLUME);
   const step =
