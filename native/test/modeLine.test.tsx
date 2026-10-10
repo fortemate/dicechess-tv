@@ -53,7 +53,7 @@ test('a first launch shows no mode line over the offer or the home screen', () =
 test('a launch with no saved game shows no line over the home screen or its settings', () => {
   reset();
   const { root } = launch();
-  assert.equal(focusedLabel(root), 'New Hot Seat game');
+  assert.equal(focusedLabel(root), 'Play a friend');
   assert.deepEqual(modeLines(root), []);
   // Settings is the fifth option.
   send('down', 'down', 'down', 'down', 'enter');
@@ -78,10 +78,10 @@ test('over a game to resume, the home screen and its settings name that game', (
   send('enter', 'enter');
   root = launch().root;
   assert.equal(focusedLabel(root), 'Resume game');
-  assert.deepEqual(modeLines(root), ['HOT SEAT · TURN 1']);
+  assert.deepEqual(modeLines(root), ['FRIEND GAME · TURN 1']);
   send('down', 'down', 'down', 'down', 'down', 'enter');
   assert.deepEqual(titles(root), ['Settings']);
-  assert.deepEqual(modeLines(root), ['HOT SEAT · TURN 1']);
+  assert.deepEqual(modeLines(root), ['FRIEND GAME · TURN 1']);
 });
 
 test('over a game to resume, the colour choice names the new opponent and the confirmation the game it replaces', () => {
@@ -108,7 +108,7 @@ test('a game that has ended leaves the home screen without a line', () => {
   assert.ok(optionViews(root).some((option) => option.label === 'Rematch'));
   send('down', 'enter');
   assert.deepEqual(titles(root), ['Dice Chess']);
-  assert.equal(focusedLabel(root), 'New Hot Seat game');
+  assert.equal(focusedLabel(root), 'Play a friend');
   assert.deepEqual(modeLines(root), []);
 });
 
@@ -118,5 +118,5 @@ test('the menu of a game in play keeps its line', () => {
   // A new hotseat game, before its first roll: Back opens its menu.
   send('enter', 'back');
   assert.deepEqual(titles(root), ['Menu']);
-  assert.deepEqual(modeLines(root), ['HOT SEAT · TURN 1']);
+  assert.deepEqual(modeLines(root), ['FRIEND GAME · TURN 1']);
 });

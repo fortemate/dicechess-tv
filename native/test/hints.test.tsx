@@ -7,7 +7,7 @@
 // new or reworded hint is held to the same line.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { AUTO_PROMPT, promptFor } from '../src/GameScreen';
+import { AUTO_PROMPT, modeLine, promptFor } from '../src/GameScreen';
 import { settingsOptions } from '../src/screen';
 import { DEFAULT_MUSIC } from '../src/musicSetting';
 import { HOST_CHOICES } from '../src/hostSetting';
@@ -120,11 +120,37 @@ test('every row of Settings is one line, whatever it says', () => {
       ))
         rows.add(row);
   assert.ok(rows.has('Auto-select only choice: off'));
+  // The two rows for games against a friend name the mode as the home screen
+  // does (#344), with the longest host's name.
+  assert.ok(rows.has('Host for friends: Thinkle'));
+  assert.ok(rows.has('Turn board for friends: off'));
   for (const row of rows) {
     const width = textWidth(row, OPTION_DP) + OPTION_INSET_DP;
     assert.ok(
       width <= FITS_DP,
       `"${row}" is about ${Math.round(width)} dp with its frame, over ${FITS_DP}`,
+    );
+  }
+});
+
+// The mode line is 20 dp with 2 dp between letters (src/GameScreen.tsx).
+const MODE_LINE_DP = 20;
+const MODE_LINE_SPACING_DP = 2;
+
+test('the mode line is one line, at the last turn a game can reach', () => {
+  const last = (game: Game): Game => ({ ...game, turn: 5000 });
+  const lines = [
+    modeLine(last(hotseat()), false),
+    modeLine(last(hotseat()), true),
+    ...OPPONENTS.map(({ mode }) => modeLine(last(against(mode)), true)),
+  ];
+  assert.ok(lines.includes('FRIEND GAME · TURN 5000'));
+  for (const line of lines) {
+    const width =
+      textWidth(line, MODE_LINE_DP) + MODE_LINE_SPACING_DP * line.length;
+    assert.ok(
+      width <= FITS_DP,
+      `"${line}" is about ${Math.round(width)} dp, over ${FITS_DP}`,
     );
   }
 });

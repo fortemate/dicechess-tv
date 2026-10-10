@@ -130,15 +130,15 @@ test('Prowla hosts Hot Seat by default, Rolly, Thinkle or no one instead, and th
   let root = launch({ options, sounds: first }).root;
   // Settings, then the row after the voices.
   send('down', 'down', 'down', 'down', 'enter');
-  assert.match(text(root), /Hot Seat host: Prowla/);
+  assert.match(text(root), /Host for friends: Prowla/);
   send('down', 'down', 'enter');
-  assert.match(text(root), /Hot Seat host: Rolly/);
+  assert.match(text(root), /Host for friends: Rolly/);
   assert.equal(new MMKV().getString('dicechess-tv.host.v1'), 'rolly');
   send('enter');
-  assert.match(text(root), /Hot Seat host: Thinkle/);
+  assert.match(text(root), /Host for friends: Thinkle/);
   assert.equal(new MMKV().getString('dicechess-tv.host.v1'), 'thinkle');
   send('enter');
-  assert.match(text(root), /Hot Seat host: off/);
+  assert.match(text(root), /Host for friends: off/);
   assert.match(text(root), /Voices: on/, 'the voices are left alone');
   assert.equal(first.voices, true);
   // Stored as the choice itself, which a later host's id would replace.
@@ -147,10 +147,10 @@ test('Prowla hosts Hot Seat by default, Rolly, Thinkle or no one instead, and th
   const second = recorder();
   root = launch({ options, sounds: second }).root;
   send('down', 'down', 'down', 'down', 'enter');
-  assert.match(text(root), /Hot Seat host: off/);
+  assert.match(text(root), /Host for friends: off/);
   // Back to the home screen, up to a new hotseat game: she says nothing.
   send('back', 'up', 'up', 'up', 'up', 'enter');
-  assert.match(text(root), /HOT SEAT · TURN 1/);
+  assert.match(text(root), /FRIEND GAME · TURN 1/);
   assert.deepEqual(second.said, []);
 });
 
@@ -163,17 +163,17 @@ test('turning the host off while she speaks stops her voice, and only hers (#202
   assert.match(sounds.said[0], /^prowla_host_intro_[1-5]$/);
   // The game menu, up to its Settings, and down to her row.
   send('back', 'up', 'enter', 'down', 'down');
-  assert.match(text(root), /Hot Seat host: Prowla/);
+  assert.match(text(root), /Host for friends: Prowla/);
   assert.equal(sounds.stopped, 0, 'a menu alone leaves the line alone');
   // Another host lets the line being said finish (#258), and so does a third.
   send('enter');
-  assert.match(text(root), /Hot Seat host: Rolly/);
+  assert.match(text(root), /Host for friends: Rolly/);
   assert.equal(sounds.stopped, 0);
   send('enter');
-  assert.match(text(root), /Hot Seat host: Thinkle/);
+  assert.match(text(root), /Host for friends: Thinkle/);
   assert.equal(sounds.stopped, 0);
   send('enter');
-  assert.match(text(root), /Hot Seat host: off/);
+  assert.match(text(root), /Host for friends: off/);
   assert.equal(sounds.stopped, 1);
   assert.equal(sounds.voices, true, 'the Voices setting is left alone');
 
@@ -185,7 +185,7 @@ test('turning the host off while she speaks stops her voice, and only hers (#202
   send('down', 'enter', 'enter', 'enter');
   assert.match(bot.said[0], /^rolly_intro_[123]$/);
   send('back', 'up', 'enter', 'down', 'down', 'enter', 'enter', 'enter');
-  assert.match(text(root), /Hot Seat host: off/);
+  assert.match(text(root), /Host for friends: off/);
   assert.equal(bot.stopped, 0);
 });
 
@@ -241,23 +241,23 @@ test('the Hot Seat host is seen while she speaks, above the bottom badge, and no
   send('enter');
   assert.equal(sounds.said.length, 1);
   assert.match(sounds.said[0], /^prowla_host_intro_[1-5]$/);
-  speaking(sounds.said[0], /HOT SEAT · TURN 1/);
+  speaking(sounds.said[0], /FRIEND GAME · TURN 1/);
   // Her greeting said, she leaves the screen; the turn line stays.
   act(() => {
     mock.timers.tick(10_000);
   });
   assert.equal(drawn(root, 'host-block').length, 0);
-  assert.match(text(drawn(root, 'turn-line')[0]), /HOT SEAT · TURN 1/);
+  assert.match(text(drawn(root, 'turn-line')[0]), /FRIEND GAME · TURN 1/);
   // White rolls and resigns: her last word shows with the result, and holds.
   send('enter', 'back', 'down', 'select', 'down', 'select');
   assert.match(text(root), /Black wins/);
   assert.equal(sounds.said.length, 2);
   assert.match(sounds.said[1], /^prowla_host_(black_wins|win)_\d$/);
-  speaking(sounds.said[1], /HOT SEAT · TURN 1/);
+  speaking(sounds.said[1], /FRIEND GAME · TURN 1/);
   act(() => {
     mock.timers.tick(10_000);
   });
-  speaking(sounds.said[1], /HOT SEAT · TURN 1/);
+  speaking(sounds.said[1], /FRIEND GAME · TURN 1/);
 });
 
 test('Rolly, chosen, hosts in her own voice, and her portrait shows with her line (#258)', () => {

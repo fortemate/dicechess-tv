@@ -308,11 +308,12 @@ const HEADLINE = { color: '#f0f4f8', fontSize: 38, marginBottom: 16 };
 export const NO_MOVE_LINE = 'No die can be used — the turn passes';
 const REASON_LINE = { color: '#aab8c9', fontSize: 20, marginBottom: 12 };
 
-// The single line above the status or menu: mode and turn.
-const modeLine = (game: Game, overlayOpen: boolean): string => {
+// The single line above the status or menu: mode and turn. Exported for the
+// test that holds it to one line of the panel.
+export const modeLine = (game: Game, overlayOpen: boolean): string => {
   const name = opponentName(game);
   const turn = `TURN ${game.turn}`;
-  if (!name) return `HOT SEAT · ${turn}`;
+  if (!name) return `FRIEND GAME · ${turn}`;
   if (overlayOpen) return `VS ${name.toUpperCase()} · ${turn}`;
   return turn;
 };

@@ -266,7 +266,7 @@ test('a search that fails between frames reaches the fallback instead of closing
 test('the menu after a recovery has the settings the player changed before it', (t) => {
   quietBoundaries(t);
   const app = launchOverSave();
-  // Home: Resume, New Hot Seat game, Play the computer, Learn to play, Rules
+  // Home: Resume, Play a friend, Play the computer, Learn to play, Rules
   // reference, Settings. Sound effects is the third row of the settings.
   send('down', 'down', 'down', 'down', 'down', 'enter', 'down', 'down');
   assert.equal(focusedLabel(app.root), 'Sound effects: on');

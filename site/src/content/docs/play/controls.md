@@ -33,7 +33,7 @@ At the end of the available choices, a new Left or Right press cycles to the opp
 The primary action button handles roll initiation, piece selection, and move execution:
 
 - **Roll the dice:** When a turn begins, pressing OK rolls the three dice, tumbling them onto the tray in 260 ms. The board shows no cursor until then: the cyan frame appears after the roll, on a piece the dice let you move. This was seen on the Vega Virtual Device in a game against Rolly, and `native/test/input.test.tsx` checks it in Hot Seat and against Rolly.
-- **Pick up a piece:** Pressing OK on an active piece picks it up and positions the cursor on the move players usually make. If the piece can take, the cursor lands on the most valuable piece it can take, the king above all. A pawn that cannot take but can still advance two squares lands on the two-square push, and one arrow press towards the pawn reaches the single step. Any other piece lands on its most central destination square. If a landing would leave another destination out of the arrows' reach, the cursor lands on the central destination instead. On the Vega Virtual Device the two-square landing was seen in the tutorial's first step, and the capture landing in its two capture lessons and in a Hot Seat game; `test/boardInput.test.ts` and `native/test/screen.test.ts` check both.
+- **Pick up a piece:** Pressing OK on an active piece picks it up and positions the cursor on the move players usually make. If the piece can take, the cursor lands on the most valuable piece it can take, the king above all. A pawn that cannot take but can still advance two squares lands on the two-square push, and one arrow press towards the pawn reaches the single step. Any other piece lands on its most central destination square. If a landing would leave another destination out of the arrows' reach, the cursor lands on the central destination instead. On the Vega Virtual Device the two-square landing was seen in the tutorial's first step, and the capture landing in its two capture lessons and in a game against a friend; `test/boardInput.test.ts` and `native/test/screen.test.ts` check both.
 - **Play a move:** Pressing OK on a destination square executes the action. The piece smoothly slides to its new square in 220 ms on the native driver.
 - **Single-destination shortcut:** If a piece has only one legal destination, pressing **OK then OK** immediately plays the move.
 - **Only one choice (optional):** With **Auto-select only choice** turned on in Settings, OK presses itself whenever there is nothing to choose: the only piece that can move is picked up, and a piece in hand with only one destination is played there. See [Auto-select Only Choice](#auto-select-only-choice-optional) below.
@@ -46,7 +46,7 @@ The Back button provides clean, predictable reversal at every stage of the game:
 
 - **Deselect piece:** If you have picked up a piece, pressing Back puts the piece down and returns the cursor to its starting square.
 - **Stop an automatic OK:** While the prompt reads _Only one choice · Back: stop_, Back stops the press that was coming and changes nothing else. Press Back again to put the piece down or open the menu.
-- **In-game menu:** When no piece is in hand during active play, pressing Back opens the pause menu (Resume game, Resign, Agree a draw in Hot Seat, New game, Main menu, Rules reference, Settings).
+- **In-game menu:** When no piece is in hand during active play, pressing Back opens the pause menu (Resume game, Resign, Agree a draw in a game against a friend, New game, Main menu, Rules reference, Settings).
 - **Submenus and guides:** Inside Settings, the Rules guide, or About screen, Back navigates up one level.
 - **Exit application:** On the Home screen, pressing Back returns `false` to Vega OS, allowing the app to close and returning you to the Fire TV launcher.
 
@@ -74,9 +74,9 @@ _Note on Keypad Enter (`kpenter`):_ The Vega Virtual Device on-screen remote ski
 - **Sofa Legibility:** All captions and labels use a minimum font size of 20 dp (exceeding Amazon's 14 sp guideline) for effortless reading from across the living room.
 - **Framed Cyan Focus:** Focused menu items, piece squares, and difficulty cards feature a luminous cyan border frame combined with a subtle fill, ensuring focus remains obvious regardless of lighting.
 
-### Hot Seat Board Turning (Optional)
+### Turning the Board for Friends (Optional)
 
-When two players share a sofa or sit opposite each other, looking at an upside-down position can feel unnatural for the second player. In **Settings**, players can enable **Turn board in Hot Seat** (off by default):
+When two players share a sofa or sit opposite each other, looking at an upside-down position can feel unnatural for the second player. In **Settings**, players can enable **Turn board for friends** (off by default):
 
 - The board smoothly turns to the side to move at turn boundaries (fading out for 100 ms and back in for 100 ms in the new orientation).
 - Arrow navigation naturally follows the television screen (Up moves towards the top of the TV regardless of board orientation).
@@ -103,4 +103,4 @@ For players sensitive to motion or animation effects, the application detects `A
 
 - Piece moves draw immediately at their destinations rather than sliding across the board.
 - Dice land instantly without 3D tumbling animations.
-- The board flips immediately between turns in Hot Seat without fading out and back in.
+- The board flips immediately between turns in a game against a friend without fading out and back in.

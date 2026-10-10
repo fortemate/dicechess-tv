@@ -232,7 +232,10 @@ test('"promotion offers only choices that keep the turn legal" is what the engin
 });
 
 test('"a draw is agreed, and is not automatic" is what the engine does', () => {
-  claims('draws', 'In hotseat, both players may agree a draw from the menu.');
+  claims(
+    'draws',
+    'In a game against a friend, both players may agree a draw from the menu.',
+  );
   claims(
     'draws',
     'Stalemate, repetition and insufficient material do not draw here.',
@@ -254,7 +257,7 @@ test('"a draw is agreed, and is not automatic" is what the engine does', () => {
 test('"a player may resign" is what the engine does', () => {
   claims(
     'winning',
-    'A player may resign, and in hotseat both players may agree a draw.',
+    'A player may resign, and in a game against a friend both players may agree a draw.',
   );
   const game = at(
     'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',

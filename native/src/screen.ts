@@ -281,9 +281,9 @@ export type ScreenSettings = Pick<
   | 'autoSelect'
 >;
 
-// Sound effects, music, the voices and who hosts Hot Seat are set on a screen
-// of their own, opened from both menus. A label says what a setting is now,
-// which is what a viewer checks.
+// Sound effects, music, the voices and who hosts games against a friend are
+// set on a screen of their own, opened from both menus. A label says what a
+// setting is now, which is what a viewer checks.
 export const SETTINGS_OPTION = 'Settings';
 export const settingsOptions = (
   sound: boolean,
@@ -299,8 +299,8 @@ export const settingsOptions = (
     : []),
   `Sound effects: ${sound ? 'on' : 'off'}`,
   `Voices: ${voices ? 'on' : 'off'}`,
-  `Hot Seat host: ${hostName(host)}`,
-  `Turn board in Hot Seat: ${turnHotseat ? 'on' : 'off'}`,
+  `Host for friends: ${hostName(host)}`,
+  `Turn board for friends: ${turnHotseat ? 'on' : 'off'}`,
   `Auto-select only choice: ${autoSelect ? 'on' : 'off'}`,
 ];
 
@@ -327,10 +327,12 @@ export type ScreenOptions = {
   now?: () => number;
 };
 
-// The home options that start a game: a Hot Seat game at once, a game against
-// the computer through the choice of opponent and colour.
+// The home options that start a game: a game against a friend at once, and one
+// against the computer through the choice of opponent and colour. The mode two
+// people play on one remote is "Play a friend" wherever a player reads it
+// (#344); the code still calls it hotseat.
 export const RESUME_OPTION = 'Resume game';
-export const HOTSEAT_OPTION = 'New Hot Seat game';
+export const HOTSEAT_OPTION = 'Play a friend';
 export const COMPUTER_OPTION = 'Play the computer';
 export const RULES_OPTION = 'Rules reference';
 
@@ -869,9 +871,9 @@ const changed = (
   if (row.startsWith('Sound effects:'))
     return { ...state, sound: !state.sound };
   if (row.startsWith('Voices:')) return { ...state, voices: !state.voices };
-  if (row.startsWith('Hot Seat host:'))
+  if (row.startsWith('Host for friends:'))
     return { ...state, host: cycleHost(state.host, key === 'left' ? -1 : 1) };
-  if (row.startsWith('Turn board in Hot Seat:'))
+  if (row.startsWith('Turn board for friends:'))
     return { ...state, turnHotseat: !state.turnHotseat };
   if (row.startsWith('Auto-select only choice:'))
     return { ...state, autoSelect: !state.autoSelect };
