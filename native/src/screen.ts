@@ -248,6 +248,9 @@ export type ScreenState = {
   // The dice played on the latest finished turn, shown dimmed until the next
   // roll so a player can inspect what the bot (or the other side) rolled (#297).
   lastDice: LastDice | null;
+  // Whether a game is in play and can be resumed from the home screen (#343).
+  // True once a game is started, until it ends or is replaced.
+  resumable: boolean;
 };
 
 export type LastDice = {
@@ -388,12 +391,15 @@ const OPENS = new Map<string, Overlay>([
   ['About', { kind: 'about' }],
 ]);
 
+export const MAIN_MENU_OPTION = 'Main menu';
+
 export const menuOptions = (game: Game): string[] => [
   RESUME_OPTION,
   'Resign',
   // A draw needs two players to agree; there is nobody to agree with a bot.
   ...(game.mode === 'hotseat' ? ['Agree a draw'] : []),
   'New game',
+  MAIN_MENU_OPTION,
   RULES_OPTION,
   // Last: the order above is unchanged, and because the menu wraps, Up from
   // Resume game reaches this in one press — the quickest way to silence a game.
@@ -436,6 +442,7 @@ const board = (
   autoStopped: null,
   guarded: false,
   lastDice: null,
+  resumable: true,
 });
 
 // A played move clears the selection, and the cursor settles for the next
@@ -444,22 +451,26 @@ const played = (
   state: ScreenState,
   game: Game,
   nextFocus?: BoardFocus,
-): ScreenState => ({
-  game,
-  focus: nextFocus ?? settled(state.focus, game, state.turnHotseat),
-  overlay: after(game),
-  pending: [],
-  sound: state.sound,
-  music: state.music,
-  musicAvailable: state.musicAvailable,
-  turnHotseat: state.turnHotseat,
-  voices: state.voices,
-  host: state.host,
-  autoSelect: state.autoSelect,
-  autoStopped: state.autoStopped,
-  guarded: emptyRoll(game),
-  lastDice: state.lastDice,
-});
+): ScreenState => {
+  const result = game.phase === 'ended';
+  return {
+    game,
+    focus: nextFocus ?? settled(state.focus, game, state.turnHotseat),
+    overlay: after(game),
+    pending: [],
+    sound: state.sound,
+    music: state.music,
+    musicAvailable: state.musicAvailable,
+    turnHotseat: state.turnHotseat,
+    voices: state.voices,
+    host: state.host,
+    autoSelect: state.autoSelect,
+    autoStopped: state.autoStopped,
+    guarded: emptyRoll(game),
+    lastDice: state.lastDice,
+    resumable: state.resumable && !result,
+  };
+};
 
 const step = (key: BoardKey, index: number, length: number): number =>
   (index + (key === 'up' || key === 'left' ? -1 : 1) + length) % length;
@@ -467,6 +478,11 @@ const step = (key: BoardKey, index: number, length: number): number =>
 // A game worth resuming: one that has started and has not ended.
 export const resumable = (game: Game): boolean =>
   game.phase !== 'ended' && (game.roll.length > 0 || game.turn > 1);
+
+// Whether the current screen state represents a game in play that can be
+// resumed from the home screen (#343).
+export const isResumable = (state: ScreenState): boolean =>
+  state.resumable && state.game.phase !== 'ended';
 
 // The settings as the app read them; any not given start at their defaults.
 export const initialState = (
@@ -512,6 +528,7 @@ export const initialState = (
     autoStopped: null,
     guarded: false,
     lastDice: null,
+    resumable: Boolean(restored && restored.phase !== 'ended'),
   };
 };
 
@@ -525,7 +542,7 @@ function botStep(
   given?: BotReply,
 ): ScreenState {
   const { game, pending } = state;
-  if (!botOwes(game)) return state;
+  if (state.overlay.kind !== 'none' || !botOwes(game)) return state;
 
   // Mid-path: reveal the next action. moveGame revalidates it against the
   // position it is actually applied to. A path that no longer fits is dropped
@@ -541,6 +558,7 @@ function botStep(
       game: next,
       overlay: after(next),
       pending: pending.slice(1),
+      resumable: state.resumable && next.phase !== 'ended',
     };
   }
 
@@ -553,6 +571,7 @@ function botStep(
       game: next,
       overlay: after(next),
       guarded: emptyRoll(next),
+      resumable: state.resumable && next.phase !== 'ended',
     };
   }
   if (game.phase === 'handoff') {
@@ -577,6 +596,7 @@ function botStep(
     game: next,
     overlay: after(next),
     pending: reply.moves.slice(1),
+    resumable: state.resumable && next.phase !== 'ended',
   };
 }
 
@@ -643,7 +663,7 @@ type Handler<K extends Overlay['kind']> = (
 ) => ScreenState;
 
 const onHome: Handler<'home'> = (state, overlay, key, options) => {
-  const choices = homeOptions(resumable(state.game));
+  const choices = homeOptions(isResumable(state));
   if (key === 'back' || key === 'menu') return state;
   if (key !== 'select') return moved(state, overlay, key, choices.length);
   const chosen = choices[overlay.index];
@@ -658,7 +678,7 @@ const onHome: Handler<'home'> = (state, overlay, key, options) => {
     });
   if (chosen !== HOTSEAT_OPTION) return state;
   // Starting a new game over one still in play is a decision, not a keypress.
-  if (resumable(state.game))
+  if (isResumable(state))
     return show(state, {
       kind: 'confirm',
       action: 'replace',
@@ -688,7 +708,7 @@ const startFrom = (
   colour: ColourChoice,
   options: ScreenOptions,
 ): ScreenState =>
-  resumable(state.game)
+  isResumable(state)
     ? show(state, {
         kind: 'confirm',
         action: 'replace',
@@ -704,7 +724,7 @@ const openerOf = (state: ScreenState, from: 'home' | 'menu'): Overlay =>
   from === 'home'
     ? {
         kind: 'home',
-        index: homeOptions(resumable(state.game)).indexOf(COMPUTER_OPTION),
+        index: homeOptions(isResumable(state)).indexOf(COMPUTER_OPTION),
       }
     : {
         kind: 'menu',
@@ -735,7 +755,7 @@ const onColour: Handler<'colour'> = (state, overlay, key, options) => {
   if (key !== 'select') return moved(state, overlay, key, colourOptions.length);
   const colour = COLOURS[overlay.index];
   // The confirmation comes last, right before the game in play is replaced.
-  if (resumable(state.game))
+  if (isResumable(state))
     return show(state, {
       kind: 'confirm',
       action: 'replace',
@@ -757,7 +777,7 @@ const cancelled = (
     ? MENU
     : {
         kind: 'home',
-        index: homeOptions(resumable(state.game)).indexOf(
+        index: homeOptions(isResumable(state)).indexOf(
           overlay.mode === 'hotseat' ? HOTSEAT_OPTION : COMPUTER_OPTION,
         ),
       };
@@ -787,6 +807,7 @@ const onMenu: Handler<'menu'> = (state, overlay, key) => {
     return show(state, { kind: 'settings', index: 0, from: 'menu' });
   if (chosen === RULES_OPTION)
     return show(state, { kind: 'rules', from: 'menu' });
+  if (chosen === MAIN_MENU_OPTION) return show(state, HOME);
   if (chosen === 'Agree a draw') return played(state, agreeDraw(game));
   // A new game against the computer starts, like one from home, with the
   // cards, on the opponent of this game.
@@ -811,7 +832,7 @@ const rulesOpener = (state: ScreenState, from: 'home' | 'menu'): Overlay =>
   from === 'home'
     ? {
         kind: 'home',
-        index: homeOptions(resumable(state.game)).indexOf(RULES_OPTION),
+        index: homeOptions(isResumable(state)).indexOf(RULES_OPTION),
       }
     : {
         kind: 'menu',
@@ -823,7 +844,7 @@ const settingsOpener = (state: ScreenState, from: 'home' | 'menu'): Overlay =>
   from === 'home'
     ? {
         kind: 'home',
-        index: homeOptions(resumable(state.game)).indexOf(SETTINGS_OPTION),
+        index: homeOptions(isResumable(state)).indexOf(SETTINGS_OPTION),
       }
     : {
         kind: 'menu',

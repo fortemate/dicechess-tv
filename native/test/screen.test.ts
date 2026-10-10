@@ -13,6 +13,7 @@ import {
   colourOptions,
   offerOptions,
   resumable,
+  isResumable,
   botOwes,
   flipped,
   type ScreenOptions,
@@ -304,6 +305,7 @@ test('the menu opens from the board and closes back to it', () => {
     'Resign',
     'Agree a draw',
     'New game',
+    'Main menu',
     RULES_OPTION,
     'Settings',
   ]);
@@ -401,6 +403,121 @@ test('menu navigation wraps in both directions', () => {
   assert.equal(forward.overlay.kind === 'menu' ? forward.overlay.index : -1, 0);
 });
 
+test('Main menu from a game against the computer before the roll opens home with Resume game, and Resume returns to the board', () => {
+  // Start computer game: Play the computer -> Rolly -> Random colour (draws White)
+  const board = drive(fresh(), 'down', 'select', 'select', 'select');
+  assert.equal(board.overlay.kind, 'none');
+  assert.equal(board.game.phase, 'roll');
+  assert.deepEqual(board.game.roll, []);
+
+  // Back opens the in-game menu, focused on Resume game
+  const menu = drive(board, 'back');
+  assert.equal(menu.overlay.kind, 'menu');
+  assert.equal(menu.overlay.index, 0);
+
+  // Up from Resume game reaches Settings in one press
+  const wrapped = drive(menu, 'up');
+  assert.equal(wrapped.overlay.kind, 'menu');
+  assert.equal(
+    wrapped.overlay.index,
+    menuOptions(menu.game).indexOf('Settings'),
+  );
+
+  // Choose Main menu
+  const at = menuOptions(menu.game).indexOf('Main menu');
+  const moves = Array(at).fill('down') as BoardKey[];
+  const selected = drive(menu, ...moves, 'select');
+  assert.deepEqual(selected.overlay, { kind: 'home', index: 0 });
+  assert.equal(homeOptions(isResumable(selected))[0], 'Resume game');
+
+  // Opponent does not act while the home screen is up
+  const botAttempt = screenReducer(selected, { kind: 'bot' }, options);
+  assert.equal(botAttempt, selected);
+
+  // Resume game returns to the board in the same position and phase
+  const resumed = drive(selected, 'select');
+  assert.equal(resumed.overlay.kind, 'none');
+  assert.equal(resumed.game.phase, 'roll');
+  assert.deepEqual(resumed.game.roll, []);
+  assert.equal(resumed.game.id, board.game.id);
+});
+
+test('Main menu from a game against the computer mid-turn preserves roll and phase, and Resume returns to the board', () => {
+  // Start computer game and roll the dice (mid-turn: phase 'move')
+  const rolled = drive(fresh(), 'down', 'select', 'select', 'select', 'select');
+  assert.equal(rolled.overlay.kind, 'none');
+  assert.equal(rolled.game.phase, 'move');
+  assert.equal(rolled.game.roll.length, 3);
+  const originalRoll = [...rolled.game.roll];
+
+  const menu = drive(rolled, 'back');
+  const at = menuOptions(menu.game).indexOf('Main menu');
+  const home = drive(menu, ...(Array(at).fill('down') as BoardKey[]), 'select');
+  assert.deepEqual(home.overlay, { kind: 'home', index: 0 });
+  assert.equal(homeOptions(isResumable(home))[0], 'Resume game');
+
+  // Opponent does not act while the home screen is up
+  const botAttempt = screenReducer(home, { kind: 'bot' }, options);
+  assert.equal(botAttempt, home);
+
+  // Resume game returns to the board mid-turn with roll and turn phase intact
+  const resumed = drive(home, 'select');
+  assert.equal(resumed.overlay.kind, 'none');
+  assert.equal(resumed.game.phase, 'move');
+  assert.deepEqual(resumed.game.roll, originalRoll);
+});
+
+test('Main menu from Hot Seat before the roll opens home with Resume game, and Resume returns to the board', () => {
+  // Start Hot Seat game (before the roll: phase 'roll', empty roll)
+  const board = drive(fresh(), 'select');
+  assert.equal(board.overlay.kind, 'none');
+  assert.equal(board.game.phase, 'roll');
+  assert.deepEqual(board.game.roll, []);
+
+  const menu = drive(board, 'back');
+  assert.equal(menu.overlay.kind, 'menu');
+  assert.equal(menu.overlay.index, 0);
+
+  // Up from Resume game reaches Settings in one press
+  const wrapped = drive(menu, 'up');
+  assert.equal(wrapped.overlay.kind, 'menu');
+  assert.equal(
+    wrapped.overlay.index,
+    menuOptions(menu.game).indexOf('Settings'),
+  );
+
+  const at = menuOptions(menu.game).indexOf('Main menu');
+  const home = drive(menu, ...(Array(at).fill('down') as BoardKey[]), 'select');
+  assert.deepEqual(home.overlay, { kind: 'home', index: 0 });
+  assert.equal(homeOptions(isResumable(home))[0], 'Resume game');
+
+  const resumed = drive(home, 'select');
+  assert.equal(resumed.overlay.kind, 'none');
+  assert.equal(resumed.game.phase, 'roll');
+  assert.deepEqual(resumed.game.roll, []);
+  assert.equal(resumed.game.id, board.game.id);
+});
+
+test('Main menu from Hot Seat mid-turn preserves roll and phase, and Resume returns to the board', () => {
+  // Start Hot Seat game and roll the dice (mid-turn)
+  const rolled = drive(fresh(), 'select', 'select');
+  assert.equal(rolled.overlay.kind, 'none');
+  assert.equal(rolled.game.phase, 'move');
+  assert.equal(rolled.game.roll.length, 3);
+  const originalRoll = [...rolled.game.roll];
+
+  const menu = drive(rolled, 'back');
+  const at = menuOptions(menu.game).indexOf('Main menu');
+  const home = drive(menu, ...(Array(at).fill('down') as BoardKey[]), 'select');
+  assert.deepEqual(home.overlay, { kind: 'home', index: 0 });
+  assert.equal(homeOptions(isResumable(home))[0], 'Resume game');
+
+  const resumed = drive(home, 'select');
+  assert.equal(resumed.overlay.kind, 'none');
+  assert.equal(resumed.game.phase, 'move');
+  assert.deepEqual(resumed.game.roll, originalRoll);
+});
+
 test('Play the computer, then Rolly, starts a game the local opponent plays as Black', () => {
   const started = drive(fresh(), 'down', 'select', 'select', 'select');
   assert.equal(started.game.mode, 'random');
@@ -452,6 +569,7 @@ test('a draw cannot be agreed with the opponent, only with another player', () =
     'Resume game',
     'Resign',
     'New game',
+    'Main menu',
     RULES_OPTION,
     'Settings',
   ]);
