@@ -4,7 +4,7 @@
 import { test, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import { act } from 'react-test-renderer';
-import { reset } from './stubs/react-native-mmkv.mjs';
+import { reset, setStored } from './stubs/react-native-mmkv.mjs';
 import { MmkvSnapshotStore } from '../src/mmkvStore';
 import { DISMISS_DELAY_MS } from '../src/useBotVoice';
 import { voiceLinesFor, type VoiceEvent } from '../../src/core/botVoice';
@@ -80,11 +80,11 @@ const bubble = (root: Instance): string | null => {
 const linesOf = (event: VoiceEvent) =>
   voiceLinesFor('random', event).map((line) => line.text);
 
-// From the home screen: play the computer, Rolly, on Random (drawn White), or
-// as Black, the third colour.
-const playRolly = () => send('down', 'enter', 'enter', 'enter');
-const playRollyAsBlack = () =>
-  send('down', 'enter', 'enter', 'down', 'down', 'enter');
+// From the home screen: play the computer, Rolly. Play as is Random by default
+// (#345), which draws White.
+const playRolly = () => send('down', 'enter', 'enter');
+// Play as is set to Black before the launch (#345), so the card starts it.
+const playRollyAsBlack = () => send('down', 'enter', 'enter');
 // Resign through the menu: Back, Resign, then Yes on the confirmation.
 const resign = () => send('back', 'down', 'select', 'down', 'select');
 
@@ -152,6 +152,7 @@ test('Main menu leaves the result, and the last word with it', () => {
 
 test('resigning as Black is a loss to the bot, not a colour’s win', () => {
   reset();
+  setStored({ 'dicechess-tv.playAs.v1': 'b' });
   const { root } = launch({ options: withIds() });
   // Rolly plays White and opens; then the person rolls, and resigns.
   playRollyAsBlack();

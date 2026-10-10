@@ -54,6 +54,12 @@ import {
   hostName,
   type HostChoice,
 } from './hostSetting';
+import {
+  DEFAULT_PLAY_AS,
+  cyclePlayAs,
+  playAsName,
+  type PlayAs,
+} from './playAsSetting';
 
 export const START: Square = 'e2';
 
@@ -244,6 +250,9 @@ export type ScreenState = {
   host: HostChoice;
   // Whether OK presses itself when the board offers only one choice (#302).
   autoSelect: boolean;
+  // The colour a person plays against the computer, or Ask for the choice of
+  // colour before each game (#345).
+  playAs: PlayAs;
   // The game revision on which the person stopped that with Back or Menu: the
   // action in progress is theirs to finish, and the next one is automatic
   // again. Null when they have not.
@@ -285,6 +294,7 @@ export type ScreenSettings = Pick<
   | 'voices'
   | 'host'
   | 'autoSelect'
+  | 'playAs'
 >;
 
 // Sound effects, music, the voices and who hosts games against a friend are
@@ -299,12 +309,15 @@ export const settingsOptions = (
   voices = true,
   host: HostChoice = DEFAULT_HOST,
   autoSelect = false,
+  playAs: PlayAs = DEFAULT_PLAY_AS,
 ): string[] => [
   ...(musicAvailable
     ? [`Music: ${musicHeard(music) ? music.volume : 'off'}`]
     : []),
   `Sound effects: ${sound ? 'on' : 'off'}`,
   `Voices: ${voices ? 'on' : 'off'}`,
+  // Before the rows for games against a friend: it is about the computer's.
+  `Play as: ${playAsName(playAs)}`,
   `Host for friends: ${hostName(host)}`,
   `Turn board for friends: ${turnHotseat ? 'on' : 'off'}`,
   `Auto-select only choice: ${autoSelect ? 'on' : 'off'}`,
@@ -431,6 +444,7 @@ const board = (
     voices,
     host,
     autoSelect,
+    playAs,
   }: ScreenSettings,
   cursor: Square = START,
 ): ScreenState => ({
@@ -445,6 +459,7 @@ const board = (
   voices,
   host,
   autoSelect,
+  playAs,
   autoStopped: null,
   guarded: false,
   lastDice: null,
@@ -471,6 +486,7 @@ const played = (
     voices: state.voices,
     host: state.host,
     autoSelect: state.autoSelect,
+    playAs: state.playAs,
     autoStopped: state.autoStopped,
     guarded: emptyRoll(game),
     lastDice: state.lastDice,
@@ -502,6 +518,7 @@ export const initialState = (
     voices = true,
     host = DEFAULT_HOST,
     autoSelect = false,
+    playAs = DEFAULT_PLAY_AS,
   }: Partial<ScreenSettings> = {},
   // A first launch, which opens on the offer of the tutorial (#244).
   firstLaunch = false,
@@ -531,6 +548,7 @@ export const initialState = (
     voices,
     host,
     autoSelect,
+    playAs,
     autoStopped: null,
     guarded: false,
     lastDice: null,
@@ -738,16 +756,36 @@ const openerOf = (state: ScreenState, from: 'home' | 'menu'): Overlay =>
       };
 
 // The cards: the arrows walk them, OK takes one to the choice of colour.
-const onOpponent: Handler<'opponent'> = (state, overlay, key) => {
+// A game against the computer, once its colour is known. Over a game in play
+// the confirmation comes last, right before that game is replaced.
+const against = (
+  state: ScreenState,
+  mode: BotMode,
+  colour: ColourChoice,
+  from: 'home' | 'menu',
+  options: ScreenOptions,
+): ScreenState =>
+  isResumable(state)
+    ? show(state, {
+        kind: 'confirm',
+        action: 'replace',
+        index: 0,
+        mode,
+        colour,
+        from,
+      })
+    : start(state, mode, colour, options);
+
+// OK on a card plays in the colour Settings names (#345), or, set to Ask, opens
+// the choice of colour.
+const onOpponent: Handler<'opponent'> = (state, overlay, key, options) => {
   if (key === 'menu') return show(state, HOME);
   if (key === 'back') return show(state, openerOf(state, overlay.from));
   if (key !== 'select') return moved(state, overlay, key, OPPONENTS.length);
-  return show(state, {
-    kind: 'colour',
-    index: 0,
-    mode: OPPONENTS[overlay.index].mode,
-    from: overlay.from,
-  });
+  const { mode } = OPPONENTS[overlay.index];
+  if (state.playAs !== 'ask')
+    return against(state, mode, state.playAs, overlay.from, options);
+  return show(state, { kind: 'colour', index: 0, mode, from: overlay.from });
 };
 
 const onColour: Handler<'colour'> = (state, overlay, key, options) => {
@@ -759,18 +797,13 @@ const onColour: Handler<'colour'> = (state, overlay, key, options) => {
       from: overlay.from,
     });
   if (key !== 'select') return moved(state, overlay, key, colourOptions.length);
-  const colour = COLOURS[overlay.index];
-  // The confirmation comes last, right before the game in play is replaced.
-  if (isResumable(state))
-    return show(state, {
-      kind: 'confirm',
-      action: 'replace',
-      index: 0,
-      mode: overlay.mode,
-      colour,
-      from: overlay.from,
-    });
-  return start(state, overlay.mode, colour, options);
+  return against(
+    state,
+    overlay.mode,
+    COLOURS[overlay.index],
+    overlay.from,
+    options,
+  );
 };
 
 // Cancel, or Back, calls the whole action off and returns to where it began:
@@ -875,6 +908,11 @@ const changed = (
   if (row.startsWith('Sound effects:'))
     return { ...state, sound: !state.sound };
   if (row.startsWith('Voices:')) return { ...state, voices: !state.voices };
+  if (row.startsWith('Play as:'))
+    return {
+      ...state,
+      playAs: cyclePlayAs(state.playAs, key === 'left' ? -1 : 1),
+    };
   if (row.startsWith('Host for friends:'))
     return { ...state, host: cycleHost(state.host, key === 'left' ? -1 : 1) };
   if (row.startsWith('Turn board for friends:'))
@@ -898,6 +936,7 @@ const onSettings: Handler<'settings'> = (state, overlay, key) => {
     state.voices,
     state.host,
     state.autoSelect,
+    state.playAs,
   );
   if (key === 'up' || key === 'down')
     return moved(state, overlay, key, rows.length);

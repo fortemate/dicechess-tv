@@ -27,6 +27,7 @@ import { createSounds, type Sounds } from './sound';
 import { readSound, saveSound } from './soundSetting';
 import { readTurnBoard, saveTurnBoard } from './turnSetting';
 import { readAutoSelect, saveAutoSelect } from './autoSelectSetting';
+import { readPlayAs, savePlayAs, type PlayAs } from './playAsSetting';
 import { readVoices, saveVoices } from './voiceSetting';
 import { readHost, saveHost, type HostChoice } from './hostSetting';
 import {
@@ -303,6 +304,13 @@ export const App = ({
     [settings],
   );
 
+  // The colour a person plays against the computer, or Ask (#345).
+  const [initialPlayAs] = React.useState(() => readPlayAs(settings));
+  const onPlayAs = React.useCallback(
+    (choice: PlayAs) => savePlayAs(settings, choice),
+    [settings],
+  );
+
   // Time To Fully Drawn, one of the KPIs Amazon measures. A cool start is fully
   // drawn by the first render, since the saved game and the settings are read
   // synchronously and there is no loading frame.
@@ -401,6 +409,7 @@ export const App = ({
     voices: initialVoices,
     host: initialHost,
     autoSelect: initialAutoSelect,
+    playAs: initialPlayAs,
     music: initialMusic,
   }));
   const onError = React.useCallback(
@@ -425,6 +434,7 @@ export const App = ({
         voices: readVoices(settings),
         host: readHost(settings),
         autoSelect: readAutoSelect(settings),
+        playAs: readPlayAs(settings),
         music: readMusic(settings),
       };
       setAttempt(({ n }) => ({ n: n + 1, ...next }));
@@ -456,6 +466,8 @@ export const App = ({
           onHost={onHost}
           initialAutoSelect={attempt.autoSelect}
           onAutoSelect={onAutoSelect}
+          initialPlayAs={attempt.playAs}
+          onPlayAs={onPlayAs}
           music={music}
           initialMusic={attempt.music}
           onMusic={onMusic}
