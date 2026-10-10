@@ -3,7 +3,7 @@
 [![Checks](https://github.com/fortemate/dicechess-tv/actions/workflows/ci.yaml/badge.svg)](https://github.com/fortemate/dicechess-tv/actions/workflows/ci.yaml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=fortemate_dicechess-tv&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=fortemate_dicechess-tv)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=fortemate_dicechess-tv&metric=coverage)](https://sonarcloud.io/summary/new_code?id=fortemate_dicechess-tv)
-[![License: AGPL-3.0-only](https://img.shields.io/badge/License-AGPL--3.0--only-blue.svg)](LICENSE)
+[![License: All rights reserved](https://img.shields.io/badge/License-All%20rights%20reserved-lightgrey.svg)](LICENSE)
 
 Dice Chess for Amazon Fire TV: two players sharing one screen and remote, or a game against a choice of on-device bots.
 
@@ -113,9 +113,11 @@ Full decisions and the detailed schedule are maintained in the private Fortemate
 
 ## Licensing
 
-Fortemate's code in this repository is licensed under the [GNU Affero General Public License v3.0 only](LICENSE) (AGPL-3.0-only), the licence of the Dice Chess engine it runs on. Contributions are accepted under the [Contributor License Agreement](CLA.md); see [CONTRIBUTING.md](CONTRIBUTING.md).
+Fortemate's code in this repository is Copyright © 2026 Fortemate, all rights reserved (see [LICENSE](LICENSE)). So are the Fortemate name and logo, including the brand images in `native/brand/`.
 
-The Fortemate name and logo, including the brand images in `native/brand/`, are not licensed under the AGPL.
+The Dice Chess engine the game runs on, [`@fortemate/dicechess-engine`](https://github.com/fortemate/dicechess-engine), is Fortemate's own as well. This game uses it under Fortemate's own terms, as its copyright holder; the engine's published versions stay available under AGPL-3.0-only.
+
+Everything this repository published under AGPL-3.0-only while it was public, including its history and the releases v0.1.0-beta.1 to v0.1.0-beta.8, keeps that licence.
 
 Third-party material keeps its own licence, listed in the [third-party notices](THIRD_PARTY_NOTICES.md): the RhosGFX pieces and Kenney's sounds are CC0, and JDSherbert's sounds are here with the author's written permission. Amazon's `@amazon-devices/*` packages install from the public npm registry under Amazon's Program Materials License Agreement, and the Vega SDK is installed by each developer; neither is part of this repository. Check the licence of any code or asset before importing it.
 

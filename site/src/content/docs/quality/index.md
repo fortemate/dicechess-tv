@@ -38,7 +38,6 @@ GitHub Actions
 │   ├── web-bench: bench tests, then tsc and the Vite build
 │   └── sonar: coverage of the core and app suites, then the SonarCloud scan (informational)
 ├── CodeQL (GitHub default setup, no workflow file): JavaScript/TypeScript and GitHub Actions, on pull requests, pushes to main and weekly
-├── CI: CLA (.github/workflows/cla.yaml): pull requests; checks that an outside contributor has signed the licence agreement
 ├── PR Labeler (.github/workflows/labeler.yaml): pull requests
 └── CD: Deploy Site (.github/workflows/deploy-site.yaml): when the site, the bench or the code they draw changes
     └── Astro build, friction-log anchor check, bench build; deployed to Cloudflare from main

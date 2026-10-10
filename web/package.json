@@ -2,7 +2,7 @@
   "name": "@fortemate/dicechess-tv-web",
   "version": "0.0.0",
   "private": true,
-  "license": "AGPL-3.0-only",
+  "license": "UNLICENSED",
   "type": "module",
   "description": "A browser test bench for Dice Chess TV: the screens in native/src/ on react-native-web, driven from the keyboard, with switchable board marks and a colour-vision simulation. Not the product; see README.md.",
   "scripts": {

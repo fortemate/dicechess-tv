@@ -11,8 +11,7 @@ master, the manifest and the rendering notes live there. **Do not edit the icon
 here.** A change is made in the asset repository and copied again.
 
 `NOTICE.txt` is that repository's rights statement. The icon is Fortemate's
-artwork and is not licensed under the AGPL. The two RhosGFX pieces inside it
-are CC0.
+artwork. The two RhosGFX pieces inside it are CC0.
 
 The Vega launcher scales the icon to fill a 3:2 tile and crops the top and
 bottom, so everything that matters stays within y 100–412 of 512.

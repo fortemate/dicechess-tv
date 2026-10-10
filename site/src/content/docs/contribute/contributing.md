@@ -1,19 +1,15 @@
 ---
 title: Contributing
-description: Contribution guidelines, Contributor License Agreement, pull request conventions, and repository standards.
+description: Contribution guidelines, pull request conventions, and repository standards.
 sidebar:
   order: 3
 ---
 
-We welcome contributions to Dice Chess TV. Because this project is public, open source, and participates in hackathons and official competitions, all contributions must adhere to clear licensing and quality standards.
+Dice Chess TV is Fortemate's own code: Copyright © 2026 Fortemate, all rights reserved. Because it participates in hackathons and official competitions, every change must adhere to clear licensing and quality standards.
 
-## Contributor License Agreement (CLA)
+## Third-party material
 
-All contributors must agree to the project's Contributor License Agreement before contributions can be merged:
-
-- You confirm that you have the right to submit your contribution under the GNU Affero General Public License v3.0 only (AGPL-3.0-only).
-- You grant Fortemate the permissions necessary to distribute, publish, and relicense the project.
-- Third-party assets or libraries must have compatible licenses (e.g. CC0, MIT, Apache 2.0) and be explicitly documented in `THIRD_PARTY_NOTICES.md`.
+Third-party assets or libraries must have licences that allow them in the game (e.g. CC0, MIT, Apache 2.0) and be explicitly documented in `THIRD_PARTY_NOTICES.md`.
 
 ## Branch and Pull Request Conventions
 

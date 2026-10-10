@@ -77,9 +77,8 @@ export default defineConfig({
       description:
         'Dice Chess for Amazon Fire TV: chess with a roll of the dice, played on one remote or against an on-device bot.',
       // The app icon, read from where the app keeps it rather than copied:
-      // native/icon/README.md says where it comes from and why it is not
-      // licensed under the AGPL. The alt text is empty because the site title
-      // follows it.
+      // native/icon/README.md says where it comes from and whose artwork it
+      // is. The alt text is empty because the site title follows it.
       logo: { src: '../native/icon/icon-512.png', alt: '' },
       customCss: ['./src/styles/theme.css'],
       lastUpdated: true,

@@ -2,7 +2,7 @@
   "name": "@fortemate/dicechess-tv-site",
   "version": "0.0.0",
   "private": true,
-  "license": "AGPL-3.0-only",
+  "license": "UNLICENSED",
   "type": "module",
   "description": "The project site of Dice Chess TV: an Astro Starlight site, deployed to a Cloudflare Worker by .github/workflows/deploy-site.yaml.",
   "scripts": {

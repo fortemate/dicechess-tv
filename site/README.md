@@ -143,8 +143,7 @@ Without them the build still runs and the deployment fails.
 
 The logo, the favicon and the picture on the home page are the app icon,
 `native/icon/icon-512.png`, read from there rather than copied. It is Fortemate's
-artwork, not licensed under the AGPL; [its README](../native/icon/README.md) says
-where it comes from.
+artwork; [its README](../native/icon/README.md) says where it comes from.
 
 ## Formatting
 
