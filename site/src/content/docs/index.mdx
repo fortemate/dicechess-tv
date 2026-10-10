@@ -8,7 +8,7 @@ hero:
     file: ../../../../native/icon/icon-512.png
     alt: The app icon, two dice mid-roll in front of a knight and a rook
   actions:
-    - text: Play the beta
+    - text: Get the game
       link: /play/beta/
       icon: right-arrow
     - text: Watch the demo
@@ -40,12 +40,14 @@ import demo from '../../assets/screenshots/demo.png';
   </Card>
   <Card title="Three opponents on the TV" icon="puzzle">
     Rolly plays any legal turn at random, Grabby takes the most valuable piece
-    it can, and Rampage goes for your king. You can play either colour.
+    it can, and Rampage goes for your king. You can play either colour: Play as
+    in Settings draws a colour at random, names White or Black, or asks before
+    each game.
   </Card>
   <Card title="Music that follows the game" icon="seti:audio">
     Four themes by pepka-prygni: one for the menus, and three that grow tenser
-    as your king comes into danger. Settings turns the music and the sound
-    effects on or off.
+    as your king comes into danger. Settings sets the music's volume, and turns
+    the sound effects and the voices on or off.
   </Card>
   <Card title="Offline and private" icon="seti:lock">
     The rules, the computer opponents and the saved games all stay on the TV.
@@ -69,7 +71,8 @@ import demo from '../../assets/screenshots/demo.png';
     the Vega Virtual Device: the tutorial he offers on a first launch, a game
     against a friend with Prowla as the host, the music following the danger to
     a king, the computer opponents, a game resumed after a relaunch, and a cool
-    start.
+    start. It was recorded before 1.0.0, so its menus still call the game
+    against a friend Hot Seat.
   </figcaption>
 </figure>
 
@@ -103,11 +106,13 @@ import demo from '../../assets/screenshots/demo.png';
   Screenshots from the Vega Virtual Device, where each feature was played. The
   game has also run on a Fire TV Stick 4K Select since 6 October 2026:
   <a href="/technology/performance/">Performance</a> has what was measured
-  there.
+  there. On 10 October 2026 the Appstore build of 1.0.0 was checked on the Stick
+  for Settings, Play as, Main menu and Resume game, the opponent cards and the
+  confirmation before a game in play is replaced.
 </p>
 
-[Why Dice Chess on TV](/project/why/) tells the story, [What it does](/project/features/) tours every feature, [How to play](/play/how-to-play/) explains the rules, and [Controls](/play/controls/) walks through the remote navigation. Try it with [Play the beta](/play/beta/). Explore our [Architecture](/technology/architecture/), [Platform findings on Vega](/technology/vega/), [Performance](/technology/performance/), and [Quality & review](/quality/). Developers can follow the [Build & run guide](/contribute/build/) and check the [Roadmap](/roadmap/).
+[Why Dice Chess on TV](/project/why/) tells the story, [What it does](/project/features/) tours every feature, [How to play](/play/how-to-play/) explains the rules, and [Controls](/play/controls/) walks through the remote navigation. Try it with [Get the game](/play/beta/). Explore our [Architecture](/technology/architecture/), [Platform findings on Vega](/technology/vega/), [Performance](/technology/performance/), and [Quality & review](/quality/). Developers can follow the [Build & run guide](/contribute/build/) and check the [Roadmap](/roadmap/).
 
-The TV app was built during [Build, Ship, Shape: Amazon Developer Hackathon 2026](https://amazonappdev2026.devpost.com/), in a repository started on 21 September 2026. It plays by the rules of Fortemate's open-source engine, [`@fortemate/dicechess-engine`](https://github.com/fortemate/dicechess-engine), which existed before. The [friction log](/friction-log/) records the obstacles we met in Amazon's Vega SDK along the way.
+The TV app was built during [Build, Ship, Shape: Amazon Developer Hackathon 2026](https://amazonappdev2026.devpost.com/), in a repository started on 21 September 2026. Version 1.0.0 was released on GitHub on 10 October 2026 and submitted to the Amazon Appstore, where it awaits Amazon's review. It plays by the rules of Fortemate's open-source engine, [`@fortemate/dicechess-engine`](https://github.com/fortemate/dicechess-engine), which existed before. The [friction log](/friction-log/) records the obstacles we met in Amazon's Vega SDK along the way.
 
 The code is licensed under AGPL-3.0-only. The app icon, the characters' portraits and voices, and the Fortemate name and logo are not; see [Credits & licences](/contribute/credits/). The app collects no information about you: see the [privacy policy](/privacy/).

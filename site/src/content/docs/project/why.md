@@ -17,7 +17,7 @@ Skill still matters. A player chooses among the moves the dice allow, and keeps 
 
 ## One television, one remote
 
-The living room is where a family is already together. In a Hot Seat game two players pass one remote, turn by turn. A person alone can play the on-device bot. Nothing needs an account, and the app's source contains no network calls. All of this was played on the Vega Virtual Device. Since 6 October 2026 the game has also run on a Fire TV Stick 4K Select, where it has been played with the Stick's own remote ([Performance](/technology/performance/#response-to-the-remote)).
+The living room is where a family is already together. In a game against a friend two players pass one remote, turn by turn. A person alone can play one of three computer opponents. Nothing needs an account, and the app's source contains no network calls. All of this was played on the Vega Virtual Device. Since 6 October 2026 the game has also run on a Fire TV Stick 4K Select, where it has been played with the Stick's own remote ([Performance](/technology/performance/#response-to-the-remote)).
 
 ## What existed before, and what is new
 
@@ -31,6 +31,8 @@ This Fire TV app is new. Its repository started on 21 September 2026, during [Bu
 - sound;
 - saving;
 - the computer opponents' turns, shown one action at a time, with each piece sliding to its square.
+
+Version 1.0.0 was released on GitHub on 10 October 2026 and submitted to the Amazon Appstore, where it awaits Amazon's review ([Get the game](/play/beta/)).
 
 It takes the rules from the engine's npm package, so the TV app and the web game play by the same rules.
 
