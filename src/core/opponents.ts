@@ -4,8 +4,7 @@
 // Each plays the engine algorithm its mode names. The level follows the
 // engine's own difficulty rating for that algorithm (DiceChess.getAvailableBots),
 // which the tests check, so a card never promises more than the engine claims.
-import type { BotMode, Side } from './game.ts';
-import type { BotRecord, Ledger } from './ledger.ts';
+import type { BotMode } from './game.ts';
 
 export type Level = 'Easy' | 'Medium' | 'Hard';
 
@@ -44,9 +43,3 @@ export function opponentOf(mode: BotMode): Opponent {
   if (!opponent) throw new Error('No opponent for ' + mode);
   return opponent;
 }
-
-// The person's results against one opponent, by the side they played.
-export const recordAgainst = (
-  ledger: Ledger,
-  mode: BotMode,
-): Partial<Record<Side, BotRecord>> => ledger.bots[mode] ?? {};

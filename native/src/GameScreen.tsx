@@ -15,7 +15,6 @@ import {
   type Side,
 } from '../../src/core/game';
 import { opponentOf } from '../../src/core/opponents';
-import type { Ledger } from '../../src/core/ledger';
 import { pieceAt } from '../../src/core/board';
 import { movableSquares, type BoardKey } from '../../src/core/boardInput';
 import { Board } from './Board';
@@ -89,8 +88,6 @@ export type GameScreenProps = {
   // Called with every committed game, and only those: moving the cursor does
   // not produce a new game, so this does not fire for it.
   onCommit?: (game: Game) => void;
-  // Completed games so far. The screen shows it and never changes it.
-  ledger?: Ledger;
   // Diagnostic seam for device checks. Vega has no screenshot command and a
   // Release build does not route console output anywhere readable, so the only
   // way to know what the screen shows is to let it say so.
@@ -624,7 +621,6 @@ export const GameScreen = ({
   options,
   initial,
   onCommit,
-  ledger,
   onState,
   sounds,
   initialSound = true,
@@ -953,9 +949,7 @@ export const GameScreen = ({
   // The choice of opponent takes the whole screen: three cards need the width
   // the board would take. The remote stays with this screen and its reducer.
   if (overlay.kind === 'opponent')
-    return (
-      <OpponentScreen index={overlay.index} pressed={pressed} ledger={ledger} />
-    );
+    return <OpponentScreen index={overlay.index} pressed={pressed} />;
 
   const size = boardSide(width, height);
   const insets = safeInsets(width, height);

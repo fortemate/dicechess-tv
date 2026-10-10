@@ -29,7 +29,7 @@ This Fire TV app is new. Its repository started on 21 September 2026, during [Bu
 - the menus;
 - the tutorial and the rules guide;
 - sound;
-- saving, and the record against each computer opponent;
+- saving;
 - the computer opponents' turns, shown one action at a time, with each piece sliding to its square.
 
 It takes the rules from the engine's npm package, so the TV app and the web game play by the same rules.

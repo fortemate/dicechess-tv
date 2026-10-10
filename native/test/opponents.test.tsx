@@ -4,16 +4,15 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
-import { OpponentScreen, recordLines } from '../src/OpponentScreen';
+import { OpponentScreen } from '../src/OpponentScreen';
 import { FACE_OF, PORTRAIT_OF, portraitPath } from '../src/Portrait';
 import { FACES } from '../src/faces';
 import { THEME } from '../src/theme';
 import { OPPONENTS } from '../../src/core/opponents';
-import { emptyLedger, type Ledger } from '../../src/core/ledger';
 import { isHost, type Instance, type Style } from './support';
 
 const mount = (
-  props: { index: number; pressed?: boolean; ledger?: Ledger } = { index: 0 },
+  props: { index: number; pressed?: boolean } = { index: 0 },
 ): Instance => {
   let tree!: renderer.ReactTestRenderer;
   act(() => {
@@ -104,20 +103,15 @@ test('the focused card is framed in the cursor’s colour, and shrinks while OK 
   assert.deepEqual(style(held, 0).transform, [{ scale: 1 }]);
 });
 
-test('a card shows the person’s record against that opponent, by side', () => {
-  const ledger: Ledger = {
-    ...emptyLedger(),
-    bots: {
-      greedy: {
-        w: { wins: 2, draws: 0, losses: 1 },
-        b: { wins: 0, draws: 1, losses: 3 },
-      },
-    },
-  };
-  const shown = cards(mount({ index: 0, ledger }));
-  assert.ok(texts(shown[0]).includes('Not played yet'));
-  assert.ok(texts(shown[1]).includes('As White: 2W 0D 1L'));
-  assert.ok(texts(shown[1]).includes('As Black: 0W 1D 3L'));
-  assert.ok(texts(shown[2]).includes('Not played yet'));
-  assert.deepEqual(recordLines({}), ['Not played yet']);
+test('a card shows who the opponent is and how it plays, and no record', () => {
+  // A count by side cannot tell who was holding the remote, so the card says
+  // nothing about earlier games.
+  assert.deepEqual(
+    cards(mount()).map(texts),
+    OPPONENTS.map((opponent) => [
+      opponent.name,
+      opponent.level,
+      opponent.style,
+    ]),
+  );
 });

@@ -155,7 +155,9 @@ export const App = ({
       return { ledger: emptyLedger(), copyPending: !keptAside(ledgerStore) };
     }
   });
-  const [ledger, setLedger] = React.useState(openedLedger.ledger);
+  // Nothing on screen shows the ledger, so it is kept in a ref rather than in
+  // state: counting a result renders nothing.
+  const ledger = React.useRef(openedLedger.ledger);
   const copyPending = React.useRef(openedLedger.copyPending);
 
   // A result is recorded whenever one is seen, including on the launch after a
@@ -170,19 +172,16 @@ export const App = ({
         if (!keptAside(ledgerStore)) return;
         copyPending.current = false;
       }
-      setLedger((current) => {
-        const next = record(current, game);
-        if (next !== current)
-          void ledgerStore.save(next).catch(() => undefined);
-        return next;
-      });
+      const next = record(ledger.current, game);
+      if (next === ledger.current) return;
+      ledger.current = next;
+      void ledgerStore.save(next).catch(() => undefined);
     },
     [ledgerStore],
   );
 
   // Launch goes through the same count() as a game finishing in play, so there
-  // is one path that records a result. It sets state from an effect, once, and
-  // only when a finished game was never counted: one extra render at launch.
+  // is one path that records a result.
   React.useEffect(() => {
     if (opened.game) count(opened.game);
   }, [count, opened.game]);
@@ -434,7 +433,6 @@ export const App = ({
           options={options}
           initial={attempt.game}
           onCommit={onCommit}
-          ledger={ledger}
           onState={onState}
           sounds={sounds}
           initialSound={attempt.sound}
