@@ -95,8 +95,8 @@ those deficiencies.
 - `react-native` is react-native-web, except that the window is always 960 x 540,
   the size Vega reports.
 - The sounds are the vendored cues in `native/sounds/`, played on HTML audio
-  elements. The music is left out: the app finds no catalogue and leaves it out
-  of its menu.
+  elements. The music is left out: the app finds no catalogue and leaves the
+  Music row out of Settings.
 - React is pinned to the version `native/` uses, so both draw with the same
   React. The engine is not a dependency here: `src/core/` imports it from the
   root install, so the bench always plays the engine the game is checked with.

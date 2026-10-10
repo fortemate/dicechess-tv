@@ -1,5 +1,7 @@
 # Full offline game prototype
 
+> **Historical record.** This page records the full-game prototype of 21 September 2026, which ran in the Svelte + Chessground WebView on SDK 0.23. The WebView probe has been removed and nothing is built on it. The game is the React Native for Vega application in `native/`, released as 1.0.0 on 10 October 2026; the [README](../README.md) and the [project site](https://dicechess-tv.fortemate.com/) describe it as it is now.
+
 Implemented on 21 September 2026, following the one-move Vega feasibility experiment. This is still a prototype, not an Appstore release or a physical Fire TV qualification.
 
 ## Run and play

@@ -1,7 +1,8 @@
 // Whether the platform asks for less motion, or null until it has answered.
 // Where it cannot answer, because the query fails or the platform lacks it, the
 // answer is no, and things move. The board's slides (#131) and the dice roll
-// (#99) both ask; "A move slides" in native/README.md records what Vega does.
+// (#99) both ask; "Accessibility: Reduced Motion" on the site's Performance page
+// (site/src/content/docs/technology/performance.md) records what Vega does.
 import React from 'react';
 import { AccessibilityInfo } from 'react-native';
 

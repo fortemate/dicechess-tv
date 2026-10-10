@@ -68,8 +68,8 @@ description = "🔨 Build the installable package (native/build/aarch64-release/
 # build (number 0) will not install over a beta or a store release. This one takes
 # the highest build number among the tags, on GitHub or, offline, in the clone: it
 # installs over that build, and the next one, numbered higher, installs over it.
-# A beta tag ends in its number, v0.1.0-beta.24, and a release tag carries it as
-# build metadata, v1.0.0+25 (CONTRIBUTING.md, "Releases"). BUILD_NUMBER overrides.
+# A beta tag ends in its number, v0.1.0-beta.8, and a release tag carries it as
+# build metadata, v1.0.0+26 (CONTRIBUTING.md, "Releases"). BUILD_NUMBER overrides.
 run = '''
 if [ -n "${BUILD_NUMBER:-}" ]; then
   n="$BUILD_NUMBER" from=BUILD_NUMBER
