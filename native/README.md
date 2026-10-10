@@ -94,9 +94,10 @@ npm run build --prefix native
 ### Install and launch on the Virtual Device
 
 ```bash
-vega device install-app -d VirtualDevice -p native/build/aarch64-release/dicechess-tv-native_aarch64.vpkg
-vega device launch-app -d VirtualDevice -a com.fortemate.dicechesstv.main
+npm run device -- --launch
 ```
+
+`scripts/install.mjs` asks the device for its processor (`uname -m`) and installs the package built for it. Add `--device <id>` for a Fire TV Stick, with the id from `vega device list`. `vega device install-app` on its own installs any package on any device without a word, and a package for another processor then crashes at start with `ModuleNotFoundError` in `getMMKVTurboModule` (friction log FL-30). The script refuses one, `--vpkg <path>` included.
 
 Verified end-to-end: builds from a clean checkout, installs, and launches in 227 ms with no crash record.
 

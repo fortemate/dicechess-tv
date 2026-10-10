@@ -53,11 +53,8 @@ To run the app on an Apple silicon Mac using the virtual device:
 # Start the virtual device emulator
 vega virtual-device start
 
-# Install the aarch64 binary
-vega device install-app -d VirtualDevice -p native/build/aarch64-release/dicechess-tv-native_aarch64.vpkg
-
-# Launch the app by its application ID
-vega device launch-app -d VirtualDevice -a com.fortemate.dicechesstv.main
+# Install the package built for the device's processor, and launch it
+npm run device --prefix native -- --launch
 ```
 
 ### On a Physical Fire TV Stick
@@ -68,11 +65,8 @@ Connect your Fire TV Stick over the local network via ADB or the Vega CLI:
 # Discover connected target devices
 vega device list
 
-# Install the armv7 package
-vega device install-app -d <DeviceId> -p native/build/armv7-release/dicechess-tv-native_armv7.vpkg
-
-# Launch the application
-vega device launch-app -d <DeviceId> -a com.fortemate.dicechesstv.main
+# Install the armv7 package, which the script picks for a Stick, and launch it
+npm run device --prefix native -- --device <DeviceId> --launch
 ```
 
 ## Security Audit & Tooling Advisories
