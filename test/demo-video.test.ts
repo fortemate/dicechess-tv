@@ -222,7 +222,9 @@ test('the preliminary soundtrack carries music across every card', () => {
     assert.ok(readFileSync(file).length > 0);
     return 0;
   });
-  assert.equal(sounds.filter(({ voice }) => voice).length, 11);
+  // Five of Thinkle's, two of Prowla's, Grabby's greeting, and Rampage's threat
+  // and win.
+  assert.equal(sounds.filter(({ voice }) => voice).length, 10);
   assert.match(preview.end.footer, /JDSherbert/);
 });
 

@@ -2,6 +2,8 @@
 
 These scripts record and cut the demo video. The preliminary cut uses short
 title cards and the game's own sound (owner, 2026-10-08), following demo v.6.
+Its takes were recorded again on 1.0.0 on 2026-10-10, so the video shows
+Play a friend, Play as and the cards without a record.
 Prowla hosts Hot Seat; Thinkle's tutorial follows the launch animation, without
 an added narrator. Music is mixed continuously across cards and footage: menu
 through the introduction and tutorial, calm from the first Hot Seat game, then
@@ -51,7 +53,10 @@ critical at the recorded threat to the king. The earlier narrated cut is retaine
      against Rolly. A fresh install starts with music and voices on, and with
      Prowla as the Hot Seat host, whom the hotseat take that follows films.
    - The `flip` take turns the board-turning option on; run it after a fresh
-     tutorial install, where that option starts off. The `rules` take explores
+     tutorial install, where that option starts off.
+   - In a full run `resume` follows `rules`, so it opens on the rules guide,
+     not on the turn left part-way. The cut takes that turn from the end of
+     the `flip` take instead: `resume` brings back the same game. The `rules` take explores
      the guide with the remote.
    - `launch-animation` renders one complete cycle from `native/build/splash`,
      with the menu theme. It is built artwork, not a recording of startup time,

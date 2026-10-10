@@ -239,9 +239,10 @@ async function playOn(steps: number): Promise<void> {
   }
 }
 
-// A game against an opponent, from the home screen, as White, which replaces
-// the game in play after its confirmation. `card` is the opponent's place among
-// the cards: Rolly, Grabby, Rampage.
+// A game against an opponent, from the home screen, in the colour Play as
+// names (#345): Random on a fresh install. It replaces the game in play after
+// its confirmation. `card` is the opponent's place among the cards: Rolly,
+// Grabby, Rampage.
 function startAgainst(card: number, gap = 300): void {
   press(times('up', 5), gap); // Play the computer, counted from the end
   press(['ok'], 1800);
@@ -249,9 +250,7 @@ function startAgainst(card: number, gap = 300): void {
   const now = focusedCard();
   if (now > card) press(times('left', now - card), 900);
   if (now < card) press(times('right', card - now), 900);
-  press(['ok'], 1200); // the choice of colour
-  press(['down'], 1200); // White
-  press(['ok'], 1200);
+  press(['ok'], 1200); // the game, in the colour Play as names
   // Replacing a game in play asks first, starting on Cancel.
   if (focusInPanel() > 500) press(['down', 'ok'], 2000);
 }
@@ -361,7 +360,7 @@ const takes: Record<string, () => Promise<void>> = {
       index % 5 === 3 ? 'right' : 'ok',
     );
     await record('hotseat', 85, async () => {
-      press(times('up', 6), QUICK); // New Hot Seat game, counted from the end
+      press(times('up', 6), QUICK); // Play a friend, counted from the end
       press(['ok'], 1500);
       // Replacing a game in play asks first, starting on Cancel.
       if (focusInPanel() > 500) press(['down', 'ok'], 1500);
@@ -374,7 +373,9 @@ const takes: Record<string, () => Promise<void>> = {
   // leaves this setting off. Restore the emulator backup after the shoot.
   flip: async () => {
     await relaunch();
-    press(['up', 'up', 'ok', 'up', 'ok', 'back'], 500);
+    // Settings, then Turn board for friends, the second row from the end
+    // since Auto-select only choice came last (#342).
+    press(['up', 'up', 'ok', 'up', 'up', 'ok', 'back'], 500);
     await relaunch();
     await record('flip', 50, async () => {
       press(times('up', 6), QUICK);
@@ -411,8 +412,9 @@ const takes: Record<string, () => Promise<void>> = {
     });
   },
 
-  // The three opponents, and the choice of colour, which replaces the game in
-  // play with one against Grabby as White.
+  // The three opponents. OK on Grabby's card starts a game against him in the
+  // colour Play as names (#345), after the confirmation that replaces the game
+  // in play.
   opponents: async () => {
     await relaunch();
     await record('opponents', 30, () => {
@@ -423,9 +425,7 @@ const takes: Record<string, () => Promise<void>> = {
       const card = focusedCard();
       if (card) press(times('left', card), 300);
       press(['right', 'right', 'left'], 1400); // Grabby, Rampage, Grabby
-      press(['ok'], 1200); // the choice of colour
-      press(['down'], 1200); // White
-      press(['ok'], 1200);
+      press(['ok'], 1200); // the game, in the colour Play as names
       if (focusInPanel() > 500) press(['down', 'ok'], 2000);
     });
   },
