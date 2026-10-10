@@ -45,6 +45,10 @@ test("a package's processor is read from its native libraries", () => {
     'manifest.toml',
   ].join('\n');
   assert.equal(archOfListing(listing), 'armv7');
+  assert.equal(
+    archOfListing('./lib/aarch64/libreact-native-mmkv-kepler.so\n'),
+    'aarch64',
+  );
   assert.throws(
     () => archOfListing('bundle/index.hermes.bundle\nmanifest.toml'),
     /found none/,
@@ -55,13 +59,30 @@ test("a package's processor is read from its native libraries", () => {
   );
 });
 
-test('a package tar cannot open is placed by its name, or refused', () => {
+test('a package is placed by what it holds, never by its name', () => {
+  const holding = (listing: string) => () => listing;
   assert.equal(
-    archOfPackage('/nowhere/dicechess-tv-native_x86_64.vpkg'),
+    archOfPackage(
+      'any.vpkg',
+      holding('lib/x86_64/libreact-native-mmkv-kepler.so\n'),
+    ),
     'x86_64',
   );
+  // A package that cannot be listed is refused, whatever its name says.
   assert.throws(
-    () => archOfPackage('/nowhere/app.vpkg'),
-    /cannot tell which processor/,
+    () =>
+      archOfPackage('dicechess-tv-native_aarch64.vpkg', () => {
+        throw new Error('vpt cannot list dicechess-tv-native_aarch64.vpkg');
+      }),
+    /vpt cannot list/,
+  );
+  // So is one whose libraries disagree, even when its name looks right.
+  assert.throws(
+    () =>
+      archOfPackage(
+        'dicechess-tv-native_aarch64.vpkg',
+        holding('lib/aarch64/a.so\nlib/armv7/a.so\n'),
+      ),
+    /found aarch64, armv7/,
   );
 });

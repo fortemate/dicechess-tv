@@ -15,7 +15,7 @@
 // - the Virtual Device is aarch64 on an Apple silicon Mac and x86_64 elsewhere;
 // - a Fire TV Stick is armv7.
 // It refuses a package built for another processor, `--vpkg` included.
-import { execFileSync, spawnSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -27,7 +27,7 @@ export const APP = 'com.fortemate.dicechesstv.main';
 export const archOf = (machine) => {
   const name = machine.trim();
   if (name === 'aarch64' || name === 'arm64') return 'aarch64';
-  if (/^armv7/.test(name)) return 'armv7';
+  if (name.startsWith('armv7')) return 'armv7';
   if (name === 'x86_64') return 'x86_64';
   throw new Error(
     `no package is built for a "${name}" processor: expected aarch64, armv7 or x86_64`,
@@ -43,7 +43,7 @@ export const archOfListing = (listing) => {
   const arches = new Set(
     listing
       .split('\n')
-      .map((line) => /^lib\/([^/]+)\//.exec(line.trim())?.[1])
+      .map((line) => /^(?:\.\/)?lib\/([^/]+)\//.exec(line.trim())?.[1])
       .filter(Boolean),
   );
   if (arches.size !== 1)
@@ -53,27 +53,24 @@ export const archOfListing = (listing) => {
   return [...arches][0];
 };
 
-// Read from the package itself when tar can open it (a .vpkg is a
-// zstd-compressed tar, so tar needs zstd on the PATH); from the name the build
-// gives it otherwise.
-export const archOfPackage = (vpkg) => {
-  try {
-    const listing = execFileSync('tar', ['-tf', vpkg], {
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'ignore'],
-    });
-    return archOfListing(listing);
-  } catch {
-    const named = /_(aarch64|armv7|x86_64)\.vpkg$/.exec(basename(vpkg))?.[1];
-    if (named) return named;
-    throw new Error(
-      `cannot tell which processor ${vpkg} is for: tar cannot read it (is zstd on the PATH?) and its name does not say`,
-    );
-  }
-};
-
 const vega = (args, options = {}) =>
   spawnSync('vega', args, { encoding: 'utf8', ...options });
+
+// The package's file list, from the Vega SDK's own packaging tool, which reads
+// the format without any other program on the PATH.
+const listPackage = (vpkg) => {
+  const listed = vega(['exec', 'vpt', 'show-contents', vpkg]);
+  if (listed.status !== 0)
+    throw new Error(
+      `vpt cannot list ${vpkg}: ${(listed.stderr || listed.stdout).trim()}`,
+    );
+  return listed.stdout;
+};
+
+// The processor a package is for, read from inside it. A package that cannot
+// be listed is refused: its file name is not evidence of what it holds.
+export const archOfPackage = (vpkg, list = listPackage) =>
+  archOfListing(list(vpkg));
 
 // `run-cmd` prints the command's output, on stdout or stderr, after its own
 // lines: the machine name is the last line that is one word.
@@ -81,8 +78,7 @@ export const machineOf = (output) =>
   output
     .split('\n')
     .map((line) => line.trim())
-    .filter((line) => /^[A-Za-z0-9_]+$/.test(line))
-    .at(-1) ?? '';
+    .findLast((line) => /^\w+$/.test(line)) ?? '';
 
 const parse = (argv) => {
   const options = { device: 'VirtualDevice', vpkg: null, launch: false };
