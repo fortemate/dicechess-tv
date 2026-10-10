@@ -41,7 +41,7 @@ x = 7 - file
 y = 7 - rank
 ```
 
-All directional scoring and screen-order ties use these transformed coordinates. Against a bot, a person playing Black sees a flipped board. Hot Seat flips for Black when its board-turning setting is enabled.
+All directional scoring and screen-order ties use these transformed coordinates. Against a bot, a person playing Black sees a flipped board. Hot Seat flips for Black when **Turn board for friends** is on in Settings.
 
 ## What one arrow does
 
@@ -195,7 +195,7 @@ For all eight starting pawns, holding Right from `e2` walks `f2`, `g2`, `h2` and
 
 Changing the input context (selection, phase or overlay), losing app focus, or entering a non-active app state cancels OK and its pressed feedback. A direction remains physically held until its release event, including across context and lifecycle changes; opening and closing a menu during a Right hold cannot enable cycling. While inactive or blurred, direction events update this bookkeeping without moving focus; other remote events are ignored and Back is claimed so it cannot invoke the platform's default exit. A discarded OK press cannot re-arm on repeated down events or confirm anything on its later release; a fresh press after release is required. If the platform omits a release while the app is inactive, the next down remains conservatively a repeat until a release is observed. Menu repeats and OK confirmation retain their normal semantics.
 
-Human rolls require OK. In Hot Seat, OK at the handoff both changes the side to move and rolls that player's dice. Against a bot, OK after the human turn hands play to the bot, which already rolls and moves automatically; after a normal bot turn, the human is left waiting to roll. A bot's empty roll stays visible until the human's OK passes it and rolls the human's dice. After any empty roll, a `700 ms` OK guard prevents a quick second press from dismissing the notice immediately.
+Human rolls require OK. In Hot Seat, OK at the handoff both changes the side to move and rolls that player's dice. Against a bot, OK after the human turn hands play to the bot, which already rolls and moves automatically; after a normal bot turn, the human is left waiting to roll. Handing the turn to the bot without that OK is proposed in [issue 347](https://github.com/fortemate/dicechess-tv/issues/347), still open. A bot's empty roll stays visible until the human's OK passes it and rolls the human's dice. After any empty roll, a `700 ms` OK guard prevents a quick second press from dismissing the notice immediately.
 
 ### The only choice
 
@@ -233,15 +233,18 @@ The evaluator has an explicit `wrap` flag, defaulting off for historical strateg
 
 ## Sources and validation boundaries
 
-The source links below are pinned to the implementation revision:
+The source links below are pinned to `9d233da`, the revision that added the automatic OK on the only choice:
 
-- [Legal turn-tree traversal: `src/core/game.ts`](https://github.com/fortemate/dicechess-tv/blob/b7144d1e2c03f2fd83b736ad646c771e41fbc00c/src/core/game.ts).
-- [Directional scoring, shortest paths and centrality: `src/core/cursor.ts`](https://github.com/fortemate/dicechess-tv/blob/b7144d1e2c03f2fd83b736ad646c771e41fbc00c/src/core/cursor.ts).
-- [Candidates, landing and board intent: `src/core/boardInput.ts`](https://github.com/fortemate/dicechess-tv/blob/b7144d1e2c03f2fd83b736ad646c771e41fbc00c/src/core/boardInput.ts).
-- [Phase transitions and cursor seeds: `native/src/screen.ts`](https://github.com/fortemate/dicechess-tv/blob/b7144d1e2c03f2fd83b736ad646c771e41fbc00c/native/src/screen.ts).
-- [Cursor visibility: `native/src/GameScreen.tsx`](https://github.com/fortemate/dicechess-tv/blob/b7144d1e2c03f2fd83b736ad646c771e41fbc00c/native/src/GameScreen.tsx).
-- [Key normalization and repeats: `native/src/useRemoteInput.ts`](https://github.com/fortemate/dicechess-tv/blob/b7144d1e2c03f2fd83b736ad646c771e41fbc00c/native/src/useRemoteInput.ts).
-- [Press accounting: `src/core/presses.ts`](https://github.com/fortemate/dicechess-tv/blob/b7144d1e2c03f2fd83b736ad646c771e41fbc00c/src/core/presses.ts).
-- [Cursor examples](https://github.com/fortemate/dicechess-tv/blob/b7144d1e2c03f2fd83b736ad646c771e41fbc00c/test/cursor.test.ts) and [board-input examples](https://github.com/fortemate/dicechess-tv/blob/b7144d1e2c03f2fd83b736ad646c771e41fbc00c/test/boardInput.test.ts).
+- [Legal turn-tree traversal: `src/core/game.ts`](https://github.com/fortemate/dicechess-tv/blob/9d233da0a6911eb65d40c7f81000aa871026a5fd/src/core/game.ts).
+- [Directional scoring, shortest paths and centrality: `src/core/cursor.ts`](https://github.com/fortemate/dicechess-tv/blob/9d233da0a6911eb65d40c7f81000aa871026a5fd/src/core/cursor.ts).
+- [Candidates, landing, board intent and `onlyChoice`: `src/core/boardInput.ts`](https://github.com/fortemate/dicechess-tv/blob/9d233da0a6911eb65d40c7f81000aa871026a5fd/src/core/boardInput.ts).
+- [Phase transitions, cursor seeds and the automatic press: `native/src/screen.ts`](https://github.com/fortemate/dicechess-tv/blob/9d233da0a6911eb65d40c7f81000aa871026a5fd/native/src/screen.ts).
+- [Cursor visibility and scheduling the automatic press: `native/src/GameScreen.tsx`](https://github.com/fortemate/dicechess-tv/blob/9d233da0a6911eb65d40c7f81000aa871026a5fd/native/src/GameScreen.tsx).
+- [The setting, off by default: `native/src/autoSelectSetting.ts`](https://github.com/fortemate/dicechess-tv/blob/9d233da0a6911eb65d40c7f81000aa871026a5fd/native/src/autoSelectSetting.ts).
+- [Key normalization and repeats: `native/src/useRemoteInput.ts`](https://github.com/fortemate/dicechess-tv/blob/9d233da0a6911eb65d40c7f81000aa871026a5fd/native/src/useRemoteInput.ts).
+- [Press accounting: `src/core/presses.ts`](https://github.com/fortemate/dicechess-tv/blob/9d233da0a6911eb65d40c7f81000aa871026a5fd/src/core/presses.ts).
+- [Cursor examples](https://github.com/fortemate/dicechess-tv/blob/9d233da0a6911eb65d40c7f81000aa871026a5fd/test/cursor.test.ts), [board-input examples](https://github.com/fortemate/dicechess-tv/blob/9d233da0a6911eb65d40c7f81000aa871026a5fd/test/boardInput.test.ts) and [automatic-press examples](https://github.com/fortemate/dicechess-tv/blob/9d233da0a6911eb65d40c7f81000aa871026a5fd/native/test/autoSelect.test.tsx).
 
-This is a description checked against source and tests. Earlier design validation includes the Vega Virtual Device; on 9 October 2026 the owner reported physical Fire TV Stick testing and the end-of-row feedback tracked in issue 299. Physical controlled-position build 22 subsequently verified both boundaries, short presses, holds, sparse choices, destinations and flipped orientation. Normal build 23 was installed afterward and checked with D-pad, OK and Back while retaining the original saved game. Context/lifecycle hold retention and canceled OK repeats have automated regression evidence; the additional physical multi-key attempt did not establish that scenario. The [validation record](https://github.com/fortemate/dicechess-tv/blob/feat/299-horizontal-wrap/docs/board-navigation-validation-299.md) identifies the revisions, packages and sequences; tests and device results retain their distinct scopes.
+The cycling itself was validated on `b7144d1`, the revision the record below names.
+
+This is a description checked against source and tests. Earlier design validation includes the Vega Virtual Device; on 9 October 2026 the owner reported physical Fire TV Stick testing and the end-of-row feedback tracked in issue 299. Physical controlled-position build 22 subsequently verified both boundaries, short presses, holds, sparse choices, destinations and flipped orientation. Normal build 23 was installed afterward and checked with D-pad, OK and Back while retaining the original saved game. Context/lifecycle hold retention and canceled OK repeats have automated regression evidence; the additional physical multi-key attempt did not establish that scenario. The [validation record](https://github.com/fortemate/dicechess-tv/blob/main/docs/board-navigation-validation-299.md) identifies the revisions, packages and sequences; tests and device results retain their distinct scopes.

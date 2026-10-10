@@ -1,13 +1,13 @@
 ---
 title: Performance
-description: What has been measured of the app's launch, its response to the remote, its opponents, the danger search and the animations; the launch and the response to the remote on a Fire TV Stick, the rest on the Vega Virtual Device and in Node.
+description: What has been measured of the app's launch, its response to the remote, its opponents, the danger search and the animations; the launch, the response to the remote and first observations of play on a Fire TV Stick, the rest on the Vega Virtual Device and in Node.
 sidebar:
   order: 3
 ---
 
 This page sets out what has been measured of the app's launch, its response to the remote, its opponents, its animations and the danger search behind the music, and what each figure rests on.
 
-Each measured figure says where it was measured: on a Fire TV Stick 4K Select (Vega OS 1.2), on the Vega Virtual Device (SDK 0.24.12112, 1920 x 1080, on an Apple silicon Mac) or in Node. On the Stick, only the launch and the response to the remote have been measured so far, and the Virtual Device's timings are not a Stick's: the launch section shows how far apart they can be.
+Each measured figure says where it was measured: on a Fire TV Stick 4K Select (Vega OS 1.2), on the Vega Virtual Device (SDK 0.24.12112, 1920 x 1080, on an Apple silicon Mac) or in Node. On the Stick, the launch and the response to the remote have been measured, and one session of play recorded how late the app's timers ran there (below). The Virtual Device's timings are not a Stick's: the launch section and that session show how far apart they can be.
 
 ## Launch Key Performance Indicators (KPIs)
 
@@ -73,6 +73,8 @@ A probe build on the Vega Virtual Device timed Grabby's and Rampage's decisions 
 
 Each step of the opponent's turn (the roll, each action, the handoff) waits 600 ms (`BOT_STEP_MS` in `native/src/screen.ts`), so a player can follow it from the sofa. The wait comes first. At the step of its first action, the opponent then decides its whole turn at once, on the JavaScript thread, so the decision time adds to that step: Rampage's slowest decision on the Virtual Device, 339 ms, added about a third of a second to it. No separate thread is used.
 
+The wait is a JavaScript timer, so it runs late while other work holds the JavaScript thread. On a Fire TV Stick 4K Select on 10 October 2026, in games against Rolly, the opponent's steps came 1.2–1.5 s apart instead of 600 ms. The automatic OK on the only choice, which waits as long, came 0.68–1.25 s after the state it was scheduled from ([Board selection algorithm](/design/board-selection/#the-only-choice)). Both were read from a throwaway build that wrote the screen's state to the device log, while checking that feature ([#342](https://github.com/fortemate/dicechess-tv/pull/342)); they are observations from one session, not a controlled measurement.
+
 How to run a stronger opponent off the JavaScript thread is open ([FL-13](/friction-log/#fl-13)): React Native has no Web Worker, an app has no documented way to start a Vega headless task, and `@amazon-devices/react-native-worklets` is an untested candidate.
 
 ## Danger Evaluation & Threat Analysis
@@ -83,7 +85,7 @@ The music follows the danger to a king. At the start of each turn, `src/core/dan
 - **Tense:** at least 22 of the 216 ordered rolls (6 × 6 × 6) would let the attacking side take the king within its turn, in up to three actions. The search tries the 56 distinct rolls, each weighted by how many of the 216 it stands for, and stops once the answer is known.
 - **Calm:** neither.
 
-In the same probe, a search over the 56 rolls took a median of 427 ms and at most 1.6 s. That search stopped at the first roll able to take the king; the app's search counts rolls until the threshold is settled either way. A search that long, run at once, would hold up the JavaScript thread, so `useDanger.ts` advances the search one roll per step, each step scheduled with `setTimeout(step, 0)`, and a key press can be handled between steps. A key press that arrives during a step still waits for that roll's search to finish; how long one step takes has not been measured on its own. In play on the Virtual Device on 26 September 2026, a turn's search took 0.5–2 s of wall time from start to answer, and a critical answer 18–30 ms.
+In the same probe, a search over the 56 rolls took a median of 427 ms and at most 1.6 s. That search stopped at the first roll able to take the king; the app's search counts rolls until the threshold is settled either way. A search that long, run at once, would hold up the JavaScript thread, so `useDanger.ts` advances the search one roll per step, each step scheduled with `setTimeout(step, 0)`, and a key press can be handled between steps. A key press that arrives during a step still waits for that roll's search to finish; how long one step takes has not been measured on its own. In play on the Virtual Device on 26 September 2026, a turn's search took 0.5–2 s of wall time from start to answer, and a critical answer 18–30 ms. On a Fire TV Stick 4K Select, in the session of 10 October 2026 described under [Pacing](#pacing), one turn's search took 12.4 s, and the pull request puts the late timers there down to work like it on the JavaScript thread.
 
 ## UI Motion & Animation Performance
 
@@ -103,9 +105,9 @@ On a Fire TV Stick, testers saw a roll's first die tumble in at once and the oth
 
 ## Physical Device Verification Roadmap
 
-The launch KPIs, cool and warm, and the response to a cursor key have been measured on a Fire TV Stick 4K Select, and the dice's stagger was checked there by eye; every other device figure above comes from the Vega Virtual Device. On a Stick (32-bit `armv7`, models AFTCA002 and AFTCL001), these checks are still to come:
+The launch KPIs, cool and warm, and the response to a cursor key have been measured on a Fire TV Stick 4K Select, the dice's stagger was checked there by eye, and one session of play gave first observations of the opponent's pace, the automatic OK and the danger search; every other device figure above comes from the Vega Virtual Device. On a Stick (32-bit `armv7`, models AFTCA002 and AFTCL001), these checks are still to come:
 
 - Finding what the remaining 2.65 s of a cool start are spent on.
 - Measuring the launch again on a build with the animated splash ([#293](https://github.com/fortemate/dicechess-tv/pull/293)) and engine 0.14.5: the launch figures above predate both.
-- Checking that a slide stays smooth, and timing the opponents' decisions and the danger search.
+- Checking that a slide stays smooth, and timing the opponents' decisions and the danger search in controlled runs: the Stick figures above for the opponent's pace and the danger search are first observations, not measurements.
 - Checking the safe area on a television with overscan, and whether the Stick offers a reduced-motion setting.

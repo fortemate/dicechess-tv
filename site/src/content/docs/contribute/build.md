@@ -9,29 +9,31 @@ Dice Chess TV is built with Amazon's Vega SDK and React Native for Vega. This gu
 
 ## Prerequisites
 
-1. **Node.js:** Version 26 (`>=26.8.2 <27`). Check with `node -v`.
+1. **Node.js and the hook tools:** [mise](https://mise.jdx.dev) installs the versions `mise.toml` pins: Node 26.8.2, and lefthook, betterleaks and actionlint for the Git hooks. Without mise, use Node 26 (`>=26.8.2 <27`); check with `node -v`.
 2. **Amazon Vega SDK 0.24:**
    - Download and install the Vega SDK 0.24 from the [Amazon Developer Portal](https://developer.amazon.com/docs/vega/0.24/vega-get-started).
    - Ensure the SDK's `bin/` directory is in your shell `PATH` so that `vega` commands are available.
    - Note: The Vega SDK is distributed under Amazon's Program Materials License Agreement and cannot be committed to this repository.
 3. **Execution Target:**
    - **Vega Virtual Device (Emulator):** Configured for 1920x1080 (SDK 0.24.12112).
-   - **Physical Fire TV Stick:** Enabled for Developer Mode / ADB debugging.
+   - **Physical Fire TV Stick:** in Developer Mode, connected to the Vega CLI.
 
 ## Building the Application
 
-The repository contains two packages: the root package (pure TypeScript core and rules engine) and the `native/` package (the Vega native application).
+The repository holds four npm packages: the root (the shared core in `src/core/`, its tests and scripts), `native/` (the Vega application), `web/` (the browser test bench) and `site/` (this site). With mise:
 
 ```bash
-# 1. Install root dependencies (pure core & engine)
-npm ci
+# 1. Node and the hook tools
+mise install
 
-# 2. Install native shell dependencies
-npm ci --prefix native
+# 2. npm ci at the root, in native/ and in web/, and the Git hooks
+mise run setup
 
-# 3. Build target packages
-npm run build --prefix native
+# 3. Build the packages, numbered as the latest beta or release
+mise run build
 ```
+
+`mise run build` takes the highest build number among the beta and release tags, builds with it, and then checks that the licence notices name every npm package the Vega build bundled ([Credits and licences](/contribute/credits/#open-source-software-in-the-app)). Without mise, `npm ci`, `npm ci --prefix native` and `npm ci --prefix web` install the same packages, and `npm run build --prefix native` builds them, but with build number 0 and without that check. `mise tasks` lists every task, among them `mise run check`, which runs the checks CI runs apart from coverage and the site. The site is installed on its own, with `npm ci --prefix site` ([site/README.md](https://github.com/fortemate/dicechess-tv/blob/main/site/README.md)).
 
 ### Generated Package Binaries
 
@@ -57,9 +59,11 @@ vega virtual-device start
 npm run device --prefix native -- --launch
 ```
 
+`mise run device:start` starts the Virtual Device, and `mise run device:run` builds, installs and launches in one step.
+
 ### On a Physical Fire TV Stick
 
-Connect your Fire TV Stick over the local network via ADB or the Vega CLI:
+Connect your Fire TV Stick over the local network with the Vega CLI:
 
 ```bash
 # Discover connected target devices
@@ -119,13 +123,17 @@ Without `resolver.nodeModulesPaths`, it fails with `Unable to resolve module @ba
 
 ### "Package version decrease" Error
 
-A device refuses a build numbered lower than the one installed, such as a beta from GitHub Releases or Live App Testing, or a release from the Appstore. `mise run build` and `mise run device:run` number a local build as the latest beta or release, which they read from the tags, so it installs over that build and keeps its saved game. A beta tag ends in its build number (`v0.1.0-beta.24`) and a release tag carries it after a `+` (`v1.0.0+25`); see "Releases" in [CONTRIBUTING.md](https://github.com/fortemate/dicechess-tv/blob/main/CONTRIBUTING.md#releases). A direct `npm run build --prefix native` builds with number 0: give it the latest number.
+A device refuses a build numbered lower than the one installed, such as a beta or a release from GitHub Releases or the Amazon Appstore. `mise run build` and `mise run device:run` number a local build as the latest beta or release, which they read from the tags, so it installs over that build and keeps its saved game. A beta tag ends in its build number (`v0.1.0-beta.24`) and a release tag carries it after a `+` (`v1.0.0+26`); see "Releases" in [CONTRIBUTING.md](https://github.com/fortemate/dicechess-tv/blob/main/CONTRIBUTING.md#releases). A direct `npm run build --prefix native` builds with number 0: give it the latest number, 26 since 1.0.0, or a higher one.
 
 ```bash
-npm run build --prefix native -- --build-number 7
+npm run build --prefix native -- --build-number 26
 ```
 
-`BUILD_NUMBER=8 mise run device:run` sets the number by hand. Removing the app (`vega device uninstall-app -d VirtualDevice -a com.fortemate.dicechesstv.main`) also works, but it deletes the saved game, the results and the settings.
+`BUILD_NUMBER=26 mise run device:run` sets the number by hand. Removing the app (`vega device uninstall-app -d VirtualDevice -a com.fortemate.dicechesstv.main`) also works, but it deletes the saved game, the results and the settings.
+
+### The app stops at start with `ModuleNotFoundError` in `getMMKVTurboModule`
+
+`vega device install-app` installs a package built for another processor without a word, and the app then dies at start: each package carries the MMKV native library for its own processor only, so react-native-mmkv finds no TurboModule ([FL-30](/friction-log/#fl-30)). `npm run device --prefix native`, with `-- --device <DeviceId>` for a Stick, asks the device what it runs on and installs the package built for it: aarch64 for the Virtual Device on an Apple silicon Mac, x86_64 for the Virtual Device elsewhere, armv7 for a Fire TV Stick. `mise run device:install` does the same for the Virtual Device.
 
 ### The Vega SDK stops working after a macOS 27 upgrade
 

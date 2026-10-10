@@ -10,7 +10,7 @@ Dice Chess TV combines open-source code with public domain and permitted creativ
 ## Application & Core Engine
 
 - **Dice Chess TV (`fortemate/dicechess-tv`):** Licensed under the [GNU Affero General Public License v3.0 only](https://www.gnu.org/licenses/agpl-3.0.html) (AGPL-3.0-only).
-- **Rules Engine ([`@fortemate/dicechess-engine`](https://github.com/fortemate/dicechess-engine)):** Published on npm under AGPL-3.0-only.
+- **Rules Engine ([`@fortemate/dicechess-engine`](https://github.com/fortemate/dicechess-engine)):** Published on npm under AGPL-3.0-only. The app uses version 0.14.5.
 
 ## Artwork & Visual Assets
 
@@ -31,6 +31,7 @@ Dice Chess TV combines open-source code with public domain and permitted creativ
 - **Fonts:** [Titan One](https://github.com/google/fonts/tree/main/ofl/titanone) by Rodrigo Fuenzalida sets the title on the launch splash, and [Arimo](https://github.com/googlefonts/Arimo) by The Arimo Project Authors sets the Fortemate name beside the mark.
 - **Licence:** SIL Open Font License 1.1, with each licence kept beside its font in `native/splash/fonts/`.
 - **Usage:** Build time only. The splash is drawn into pictures when the app is built, so neither font is in the app.
+- **Renderer:** [`@resvg/resvg-js`](https://github.com/thx/resvg-js) 2.6.2, under the Mozilla Public License 2.0, draws those pictures. It is a development dependency: the app does not import it, and its full licence stays in the installed package.
 
 ### Opponent Bot Avatars
 
@@ -112,7 +113,7 @@ The app is built with the npm packages below. Their licences come with the app: 
 | `warn-once`                                         | MIT                                        |
 | `whatwg-fetch`                                      | MIT                                        |
 
-Three of Amazon's packages are built on MIT projects, whose notices follow Amazon's in that file: `@amazon-devices/react-native-kepler` on React Native 0.83, `@amazon-devices/react-native-svg` on react-native-svg 15.11.1, and `@amazon-devices/react-native-mmkv` on react-native-mmkv 3.0.2. Beside it, the package carries Amazon's notices for the MMKV native library that comes with the app: Tencent's MMKV under BSD-3-Clause, and the components it names. Most of React Native for Vega, and `react-native-svg`, `react-native-w3cmedia` and the media packages they use, are system bundles: the Vega build leaves them out of the app's package, and the app ran without them in it on the Vega Virtual Device, so the device supplied them there. The notices name them all the same. The Dice Chess engine is Fortemate's own, listed above.
+Three of Amazon's packages are built on MIT projects, whose notices follow Amazon's in that file: `@amazon-devices/react-native-kepler` on React Native 0.83, `@amazon-devices/react-native-svg` on react-native-svg 15.11.1, and `@amazon-devices/react-native-mmkv` on react-native-mmkv 3.0.2. Beside it, the package carries Amazon's notices for the MMKV native library that comes with the app: Tencent's MMKV under BSD-3-Clause, and the components it names. Most of React Native for Vega, and `react-native-svg`, `react-native-w3cmedia` and the media packages they use, are system bundles: the Vega build leaves them out of the app's package, and the app ran without them in it on the Vega Virtual Device, so the device supplied them there. The armv7 package of 1.0.0, build 26 of `dac3302`, leaves them out too, with the MMKV library its only native code, and the Appstore build of that commit ran on a Fire TV Stick 4K Select, so the Stick supplied them. The notices name them all the same. The Dice Chess engine is Fortemate's own, listed above.
 
 ## Platform Dependencies & SDK
 
