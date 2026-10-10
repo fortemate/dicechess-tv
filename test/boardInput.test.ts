@@ -5,6 +5,7 @@ import {
   landing,
   movableSquares,
   movesFrom,
+  onlyChoice,
   waitingFocus,
   type BoardFocus,
   type BoardKey,
@@ -274,6 +275,48 @@ test('movesFrom and movableSquares report what the squares can do', () => {
   assert.deepEqual(movesFrom(OPENING, 'b1'), ['b1a3', 'b1c3']);
   assert.deepEqual(movesFrom(OPENING, 'a1'), []);
   assert.deepEqual(movableSquares(['g1f3', 'b1c3', 'g1h3']), ['b1', 'g1']);
+});
+
+test('onlyChoice names the square OK acts on when the board offers just one', () => {
+  // Two knights: a choice of piece. Once one is in hand, a choice of square.
+  assert.equal(onlyChoice(OPENING, null), null);
+  assert.equal(onlyChoice(OPENING, 'b1'), null);
+  // One piece with several destinations: picking it up is the only choice.
+  assert.equal(onlyChoice(['b1a3', 'b1c3', 'b1d2'], null), 'b1');
+  // A piece in hand with one destination, whoever picked it up, and even with
+  // other pieces still able to move.
+  assert.equal(onlyChoice(['a1b1', 'g1f3', 'g1h3'], 'a1'), 'b1');
+  // Several promotions to one square are one square: OK opens the choice.
+  const promotions = ['a7a8q', 'a7a8r', 'a7a8b', 'a7a8n'];
+  assert.equal(onlyChoice(promotions, null), 'a7');
+  assert.equal(onlyChoice(promotions, 'a7'), 'a8');
+  // Nothing to choose: nothing for OK to do.
+  assert.equal(onlyChoice([], null), null);
+});
+
+test('rook, rook, knight at the start: after the knight, every choice is the only one (#302)', () => {
+  // The owner's example. Two knights, then two squares for the knight: the
+  // person chooses. Then only the a1 rook can go, to b1, and the second rook
+  // die can only take it back: four presses of OK with no choice behind them.
+  let game = rollGame(newGame('hotseat', 'only'), [4, 4, 2]);
+  assert.equal(onlyChoice(viewGame(game).legal, null), null);
+  assert.equal(onlyChoice(viewGame(game).legal, 'b1'), null);
+  game = moveGame(game, 'b1c3');
+  const only: string[] = [];
+  for (let focus = waitingFocus('c3', viewGame(game).legal); ;) {
+    const { legal } = viewGame(game);
+    const square = onlyChoice(legal, focus.selected);
+    if (square === null) break;
+    only.push(square);
+    const result = boardInput({ ...focus, cursor: square }, 'select', legal);
+    if (result.action.type === 'move') {
+      game = moveGame(game, result.action.move);
+      focus = waitingFocus(square, viewGame(game).legal);
+    } else focus = result.focus;
+  }
+  assert.deepEqual(only, ['a1', 'b1', 'b1', 'a1']);
+  assert.deepEqual(game.moves, ['b1c3', 'a1b1', 'b1a1']);
+  assert.equal(game.phase, 'handoff');
 });
 
 test('a full remote-driven action against the engine produces a legal move', () => {

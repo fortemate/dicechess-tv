@@ -61,6 +61,8 @@ import {
   resumable,
   handsOff,
   botOwes,
+  autoChoice,
+  AUTO_SELECT_MS,
   BOT_STEP_MS,
   OK_GUARD_MS,
   type GameChoice,
@@ -108,6 +110,9 @@ export type GameScreenProps = {
   // Who hosts Hot Seat games, or 'off' (#202).
   initialHost?: HostChoice;
   onHost?: (host: HostChoice) => void;
+  // Whether OK presses itself when the board offers only one choice (#302).
+  initialAutoSelect?: boolean;
+  onAutoSelect?: (on: boolean) => void;
   // The adaptive music (#76). The screen says which theme fits what it shows;
   // whether music is on and how loud is the app's to apply and save.
   music?: Music;
@@ -393,14 +398,17 @@ const botPlaying = (game: Game): boolean =>
   botOwes(game) && game.phase !== 'handoff';
 
 // What OK does now, and Back where a viewer would not guess it, when no menu or
-// choice is open. Each hint keeps to one line of the panel (#240): a hint on
-// two lines took the room the host's line and the bottom badge need, and the
-// arrows need no words on a television. native/test/hints.test.ts holds every
-// hint to a width measured on the Virtual Device.
+// choice is open. When OK is about to press itself on the only choice (#302),
+// the hint says why, and that Back stops it. Each hint keeps to one line of the
+// panel (#240): a hint on two lines took the room the host's line and the
+// bottom badge need, and the arrows need no words on a television.
+// native/test/hints.test.ts holds every hint to a width measured on the Virtual
+// Device.
 export const promptFor = (
   game: Game,
   view: GameView,
   selected: string | null,
+  auto = false,
 ): string => {
   // The board takes no keys while the opponent owes an action.
   if (botOwes(game))
@@ -414,6 +422,7 @@ export const promptFor = (
   if (game.phase === 'handoff')
     return `OK: ${playerOf(game, opposite(view.side))}'s turn`;
   if (game.phase === 'ended') return 'OK: back to the menu';
+  if (auto) return AUTO_PROMPT;
   // A piece in hand is named, not its square, which the board does not label
   // (#233), and OK moves it to the cursor. With the name there is no room on
   // the line for "Back: put down", and Back cancels on any television screen.
@@ -421,6 +430,8 @@ export const promptFor = (
     ? `OK: move the ${pieceOn(view, selected)} here`
     : 'OK: pick up · Back: menu';
 };
+
+export const AUTO_PROMPT = 'Only one choice · Back: stop';
 
 const CONFIRM = {
   resign: { title: 'Resign?', note: 'The other player wins.' },
@@ -441,6 +452,8 @@ const Panel = ({
   turnHotseat,
   voices,
   host,
+  autoSelect,
+  auto,
   selected,
   pressed,
 }: {
@@ -453,6 +466,9 @@ const Panel = ({
   turnHotseat: boolean;
   voices: boolean;
   host: HostChoice;
+  // The setting, and whether OK is about to press itself now (#302).
+  autoSelect: boolean;
+  auto: boolean;
   selected: string | null;
   // OK is held: the focused option of an open menu shows it.
   pressed: boolean;
@@ -488,6 +504,7 @@ const Panel = ({
             turnHotseat,
             voices,
             host,
+            autoSelect,
           )}
           index={overlay.index}
           pressed={pressed}
@@ -570,7 +587,7 @@ const Panel = ({
     default:
       return (
         <Text style={{ color: '#f0f4f8', fontSize: 24 }}>
-          {promptFor(game, view, selected)}
+          {promptFor(game, view, selected, auto)}
         </Text>
       );
   }
@@ -582,6 +599,7 @@ const report = (
   view: GameView,
   focus: ScreenState['focus'],
   overlay: Overlay,
+  auto: string | null,
 ): string =>
   [
     `overlay ${overlay.kind}${'index' in overlay ? '#' + overlay.index : ''}`,
@@ -596,6 +614,7 @@ const report = (
     `last ${game.lastMove ?? '-'}`,
     `result ${game.result?.reason ?? '-'}`,
     `human ${game.human ?? '-'}`,
+    `auto ${auto ?? '-'}`,
   ].join(' | ');
 
 type OwnScreenProps = {
@@ -631,6 +650,8 @@ export const GameScreen = ({
   onVoices,
   initialHost = DEFAULT_HOST,
   onHost,
+  initialAutoSelect = false,
+  onAutoSelect,
   music,
   initialMusic,
   onMusic,
@@ -645,37 +666,40 @@ export const GameScreen = ({
       screenReducer(state, action, options),
     [options],
   );
-  const [
-    {
-      game,
-      focus,
-      overlay,
-      sound,
-      music: musicSetting,
-      musicAvailable: hasMusic,
-      turnHotseat,
-      voices,
-      host,
-      guarded,
-      pending,
-      lastDice,
-    },
-    dispatch,
-  ] = React.useReducer(reduce, initial, (restored) =>
-    initialState(
-      options,
-      restored,
-      {
-        sound: initialSound,
-        music: initialMusic,
-        musicAvailable,
-        turnHotseat: initialTurnBoard,
-        voices: initialVoices,
-        host: initialHost,
-      },
-      offerTutorial,
-    ),
+  const [screenState, dispatch] = React.useReducer(
+    reduce,
+    initial,
+    (restored) =>
+      initialState(
+        options,
+        restored,
+        {
+          sound: initialSound,
+          music: initialMusic,
+          musicAvailable,
+          turnHotseat: initialTurnBoard,
+          voices: initialVoices,
+          host: initialHost,
+          autoSelect: initialAutoSelect,
+        },
+        offerTutorial,
+      ),
   );
+  const {
+    game,
+    focus,
+    overlay,
+    sound,
+    music: musicSetting,
+    musicAvailable: hasMusic,
+    turnHotseat,
+    voices,
+    host,
+    autoSelect,
+    guarded,
+    pending,
+    lastDice,
+  } = screenState;
   React.useEffect(() => {
     dispatch({ kind: 'musicAvailable', available: musicAvailable });
   }, [musicAvailable]);
@@ -707,6 +731,12 @@ export const GameScreen = ({
         ? movableSquares(state.legal)
         : null,
     [game, state],
+  );
+  // The square OK is about to press itself on, when the board offers only one
+  // choice and the setting is on (#302).
+  const auto = React.useMemo(
+    () => autoChoice(screenState, state.legal),
+    [screenState, state],
   );
   // The cursor frame shows only while the person chooses on the board (#206).
   // Before the roll, at the handoff, on an ended board, on the bot's turn and
@@ -806,6 +836,24 @@ export const GameScreen = ({
     };
   }, [game, pending, overlay.kind, options, activity]);
 
+  // OK presses itself on the only choice (#302) one step at a time, at the
+  // opponent's pace, so a chain of them is watched rather than jumped over, and
+  // only while the app is in front. Each press names the state it was
+  // scheduled for: one the person has pressed past, or moved on from, is
+  // dropped, and the next is scheduled for what the screen shows then.
+  React.useEffect(() => {
+    if (auto === null) return;
+    const revision = game.revision;
+    const selected = focus.selected;
+    return scheduleActive(
+      activity,
+      options.schedule,
+      () => dispatch({ kind: 'auto', revision, selected }),
+      AUTO_SELECT_MS,
+      options.now,
+    );
+  }, [auto, game.revision, focus.selected, options, activity]);
+
   // After a roll with nothing to play, OK comes back once the guard
   // has run out (#85). A menu opened meanwhile does not stop the clock.
   React.useEffect(() => {
@@ -853,6 +901,14 @@ export const GameScreen = ({
     turnSetting.current = turnHotseat;
     onTurnBoard?.(turnHotseat);
   }, [turnHotseat, onTurnBoard]);
+
+  // Seeded like the sound, so opening the screen is not reported as a change.
+  const autoSetting = React.useRef(autoSelect);
+  React.useEffect(() => {
+    if (autoSelect === autoSetting.current) return;
+    autoSetting.current = autoSelect;
+    onAutoSelect?.(autoSelect);
+  }, [autoSelect, onAutoSelect]);
 
   // Seeded like the sound, so opening the screen is not reported as a change.
   const voiceSetting = React.useRef(voices);
@@ -928,8 +984,8 @@ export const GameScreen = ({
   }, [music, role, game.phase, onState]);
 
   React.useEffect(() => {
-    onState?.(report(game, state, focus, overlay));
-  }, [onState, game, state, focus, overlay]);
+    onState?.(report(game, state, focus, overlay, auto));
+  }, [onState, game, state, focus, overlay, auto]);
 
   // Leaving a screen of its own goes back to the home screen, or into the game
   // chosen on the tutorial's last screen (#244).
@@ -1015,6 +1071,8 @@ export const GameScreen = ({
               turnHotseat={turnHotseat}
               voices={voices}
               host={host}
+              autoSelect={autoSelect}
+              auto={auto !== null}
               selected={focus.selected}
               pressed={pressed}
             />
@@ -1049,6 +1107,8 @@ export const GameScreen = ({
               turnHotseat={turnHotseat}
               voices={voices}
               host={host}
+              autoSelect={autoSelect}
+              auto={auto !== null}
               selected={focus.selected}
               pressed={pressed}
             />

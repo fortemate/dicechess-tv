@@ -7,7 +7,10 @@
 // new or reworded hint is held to the same line.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { promptFor } from '../src/GameScreen';
+import { AUTO_PROMPT, promptFor } from '../src/GameScreen';
+import { settingsOptions } from '../src/screen';
+import { DEFAULT_MUSIC } from '../src/musicSetting';
+import { HOST_CHOICES } from '../src/hostSetting';
 import { hint } from '../src/TutorialScreen';
 import { initialTutorial, type TutorialState } from '../src/tutorial';
 import {
@@ -79,6 +82,8 @@ test('the game’s hints are each one line', () => {
   );
   add(prompt(blackDone));
   add(prompt(resignGame(rolled)));
+  // OK about to press itself on the only choice (#302).
+  add(promptFor(rolled, viewGame(rolled), null, true));
 
   // Against each opponent: the person's handoff, the opponent at work and
   // waiting to hand back, and its roll with nothing to play.
@@ -93,6 +98,41 @@ test('the game’s hints are each one line', () => {
   // Every state above has a hint of its own kind; none is missing.
   assert.ok(shown.size >= 15, [...shown].join(' | '));
   for (const text of shown) fits(text, PROMPT_DP);
+});
+
+// A setting is an option of 26 dp in a frame: 12 dp of padding and a 2 dp
+// border each side (src/Option.tsx).
+const OPTION_DP = 26;
+const OPTION_INSET_DP = 2 * (12 + 2);
+
+test('every row of Settings is one line, whatever it says', () => {
+  const rows = new Set<string>();
+  for (const on of [false, true])
+    for (const host of HOST_CHOICES)
+      for (const row of settingsOptions(
+        on,
+        DEFAULT_MUSIC,
+        true,
+        on,
+        on,
+        host,
+        on,
+      ))
+        rows.add(row);
+  assert.ok(rows.has('Auto-select only choice: off'));
+  for (const row of rows) {
+    const width = textWidth(row, OPTION_DP) + OPTION_INSET_DP;
+    assert.ok(
+      width <= FITS_DP,
+      `"${row}" is about ${Math.round(width)} dp with its frame, over ${FITS_DP}`,
+    );
+  }
+});
+
+test('OK about to press itself says why, and how to stop it', () => {
+  const rolled = rollGame(hotseat(), [1, 2, 3]);
+  assert.equal(promptFor(rolled, viewGame(rolled), null, true), AUTO_PROMPT);
+  assert.equal(AUTO_PROMPT, 'Only one choice · Back: stop');
 });
 
 test('a piece in hand is named, and OK moves it there', () => {

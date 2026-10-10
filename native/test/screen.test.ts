@@ -604,7 +604,7 @@ const toSettings = (state: ScreenState): ScreenState => {
 const withMusic = (state: ScreenState): ScreenState =>
   screenReducer(state, { kind: 'musicAvailable', available: true }, options);
 
-test('without music in the build, Settings offers sound effects, voices, the host and hotseat board turning', () => {
+test('without music in the build, Settings offers sound effects, voices, the host, hotseat board turning and the automatic OK', () => {
   const settings = toSettings(fresh());
   assert.equal(settings.musicAvailable, false);
   assert.deepEqual(
@@ -615,12 +615,14 @@ test('without music in the build, Settings offers sound effects, voices, the hos
       settings.turnHotseat,
       settings.voices,
       settings.host,
+      settings.autoSelect,
     ),
     [
       'Sound effects: on',
       'Voices: on',
       'Hot Seat host: Prowla',
       'Turn board in Hot Seat: off',
+      'Auto-select only choice: off',
     ],
   );
   // Down moves from the sound effects to the voices, on to the host, and on
@@ -657,6 +659,7 @@ test('Settings opens from the home menu on music, and Back returns to it', () =>
       settings.turnHotseat,
       settings.voices,
       settings.host,
+      settings.autoSelect,
     ),
     [
       'Music: on',
@@ -665,6 +668,7 @@ test('Settings opens from the home menu on music, and Back returns to it', () =>
       'Voices: on',
       'Hot Seat host: Prowla',
       'Turn board in Hot Seat: off',
+      'Auto-select only choice: off',
     ],
   );
   const back = drive(settings, 'back');

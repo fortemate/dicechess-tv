@@ -36,6 +36,7 @@ The primary action button handles roll initiation, piece selection, and move exe
 - **Pick up a piece:** Pressing OK on an active piece picks it up and positions the cursor on the move players usually make. If the piece can take, the cursor lands on the most valuable piece it can take, the king above all. A pawn that cannot take but can still advance two squares lands on the two-square push, and one arrow press towards the pawn reaches the single step. Any other piece lands on its most central destination square. If a landing would leave another destination out of the arrows' reach, the cursor lands on the central destination instead. On the Vega Virtual Device the two-square landing was seen in the tutorial's first step, and the capture landing in its two capture lessons and in a Hot Seat game; `test/boardInput.test.ts` and `native/test/screen.test.ts` check both.
 - **Play a move:** Pressing OK on a destination square executes the action. The piece smoothly slides to its new square in 220 ms on the native driver.
 - **Single-destination shortcut:** If a piece has only one legal destination, pressing **OK then OK** immediately plays the move.
+- **Only one choice (optional):** With **Auto-select only choice** turned on in Settings, OK presses itself whenever there is nothing to choose: the only piece that can move is picked up, and a piece in hand with only one destination is played there. See [Auto-select Only Choice](#auto-select-only-choice-optional) below.
 - **Confirm menu items:** Selects the focused menu row. OK acts on release (`eventKeyAction === 1`), with a distinct 97% scale compression and highlight while held.
 - **Accidental press protection:** Following an empty roll ("No legal moves"), OK is guarded and ignored for 700 ms to prevent an unintentional double-press from skipping past the notice before you have read it.
 
@@ -44,6 +45,7 @@ The primary action button handles roll initiation, piece selection, and move exe
 The Back button provides clean, predictable reversal at every stage of the game:
 
 - **Deselect piece:** If you have picked up a piece, pressing Back puts the piece down and returns the cursor to its starting square.
+- **Stop an automatic OK:** While the prompt reads _Only one choice · Back: stop_, Back stops the press that was coming and changes nothing else. Press Back again to put the piece down or open the menu.
 - **In-game menu:** When no piece is in hand during active play, pressing Back opens the pause menu (Resume game, Resign, Agree a draw in Hot Seat, New game, Rules reference, Settings).
 - **Submenus and guides:** Inside Settings, the Rules guide, or About screen, Back navigates up one level.
 - **Exit application:** On the Home screen, pressing Back returns `false` to Vega OS, allowing the app to close and returning you to the Fire TV launcher.
@@ -80,6 +82,20 @@ When two players share a sofa or sit opposite each other, looking at an upside-d
 - Arrow navigation naturally follows the television screen (Up moves towards the top of the TV regardless of board orientation).
 - After the roll, the cursor appears on a piece of the active player that can move, on their side of the board. Two tests check this: `native/test/screen.test.ts`, that the cursor starts on Black's side when the board turns, and `native/test/input.test.tsx`, that its frame appears only after the roll.
 - The setting is saved to device storage via MMKV and persists across application restarts.
+
+### Auto-select Only Choice (Optional)
+
+Some steps of a turn leave nothing to decide: one piece is the only one the dice let move, or the piece in hand has one square to go to. In **Settings**, players can enable **Auto-select only choice** (off by default), and OK then presses itself on those steps ([issue 302](https://github.com/fortemate/dicechess-tv/issues/302)):
+
+- **Only one piece can move:** it is picked up for you, and you still choose where it goes if it has several squares.
+- **The piece in hand has one destination:** it is played there, whether you picked it up or it was picked up for you.
+- **A pawn promotes on its only square:** the _Promote to_ choice opens, and the piece is always yours to choose.
+- **One step at a time:** each automatic press waits 600 ms, the computer opponent's pace, so a chain of them can be followed. With rook, rook and knight in the starting position, you choose the knight and its square; the two rook moves that follow, four presses of OK, play themselves.
+- **Back stops it:** while the prompt reads _Only one choice · Back: stop_, Back stops the coming press and leaves the rest of that move to you. Back or Menu at any other point of a move also leaves the rest of it to you, so a piece put down with Back stays down. The next move is automatic again.
+- **Never for anything else:** it does not roll the dice, hand the turn over, play for the computer opponent, or act behind a menu or in the tutorial.
+- The setting is saved to device storage via MMKV and persists across application restarts.
+
+`native/test/autoSelect.test.tsx` checks each of these, through the screen's reducer and through the whole app.
 
 ### Reduced Motion Support
 
