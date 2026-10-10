@@ -842,9 +842,8 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   - `vega device list` does show the Virtual Device as `tv - aarch64`, but nothing connects that to the
     package.
 
-  Evidence: the Virtual Device's crash reports of 9 and 10 October, and pull request
-  "Install the package built for the device's processor", which reproduces the crash with one
-  commit: armv7 crashes, aarch64 runs.
+  Evidence: the Virtual Device's crash reports of 9 and 10 October, and pull request #337, which
+  reproduces the crash with one commit: armv7 crashes, aarch64 runs.
 
 - **Severity and user impact:** Medium.
   - It cost hours.
