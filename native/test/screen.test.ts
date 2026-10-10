@@ -729,25 +729,14 @@ const withMusic = (state: ScreenState): ScreenState =>
 test('without music in the build, Settings offers sound effects, voices, the host, hotseat board turning and the automatic OK', () => {
   const settings = toSettings(fresh());
   assert.equal(settings.musicAvailable, false);
-  assert.deepEqual(
-    settingsOptions(
-      settings.sound,
-      settings.music,
-      settings.musicAvailable,
-      settings.turnHotseat,
-      settings.voices,
-      settings.host,
-      settings.autoSelect,
-    ),
-    [
-      'Sound effects: on',
-      'Voices: on',
-      'Play as: Random',
-      'Host for friends: Prowla',
-      'Turn board for friends: off',
-      'Auto-select only choice: off',
-    ],
-  );
+  assert.deepEqual(settingsOptions(settings), [
+    'Sound effects: on',
+    'Voices: on',
+    'Play as: Random',
+    'Host for friends: Prowla',
+    'Turn board for friends: off',
+    'Auto-select only choice: off',
+  ]);
   // Down moves from the sound effects to the voices, on past Play as to the
   // host, and on to hotseat board turning.
   assert.equal(drive(settings, 'select').sound, false);
@@ -774,26 +763,15 @@ test('Settings opens from the home menu on music, and Back returns to it', () =>
     index: 0,
     from: 'home',
   });
-  assert.deepEqual(
-    settingsOptions(
-      settings.sound,
-      settings.music,
-      true,
-      settings.turnHotseat,
-      settings.voices,
-      settings.host,
-      settings.autoSelect,
-    ),
-    [
-      'Music: 7',
-      'Sound effects: on',
-      'Voices: on',
-      'Play as: Random',
-      'Host for friends: Prowla',
-      'Turn board for friends: off',
-      'Auto-select only choice: off',
-    ],
-  );
+  assert.deepEqual(settingsOptions({ ...settings, musicAvailable: true }), [
+    'Music: 7',
+    'Sound effects: on',
+    'Voices: on',
+    'Play as: Random',
+    'Host for friends: Prowla',
+    'Turn board for friends: off',
+    'Auto-select only choice: off',
+  ]);
   const back = drive(settings, 'back');
   assert.equal(back.overlay.kind, 'home');
   assert.equal(
@@ -833,28 +811,11 @@ test('OK or the arrows sideways flip music, sound effects, voices and hotseat bo
   );
   assert.equal(drive(host, 'right', 'left').host, 'prowla');
   assert.equal(
-    settingsOptions(
-      host.sound,
-      host.music,
-      host.musicAvailable,
-      host.turnHotseat,
-      host.voices,
-      'thinkle',
-    )[4],
+    settingsOptions({ ...host, host: 'thinkle' })[4],
     'Host for friends: Thinkle',
   );
   const hostOff = drive(host, 'left');
-  assert.equal(
-    settingsOptions(
-      hostOff.sound,
-      hostOff.music,
-      hostOff.musicAvailable,
-      hostOff.turnHotseat,
-      hostOff.voices,
-      hostOff.host,
-    )[4],
-    'Host for friends: off',
-  );
+  assert.equal(settingsOptions(hostOff)[4], 'Host for friends: off');
   // And once more, hotseat board turning.
   const hotseat = drive(host, 'down');
   assert.equal(drive(hotseat, 'select').turnHotseat, true);
@@ -868,8 +829,7 @@ test('OK or the arrows sideways flip music, sound effects, voices and hotseat bo
 
 // One row for the music (#346): the rings are the volume, 0 is off, and OK
 // mutes and unmutes.
-const musicRow = (state: ScreenState): string =>
-  settingsOptions(state.sound, state.music, state.musicAvailable)[0];
+const musicRow = (state: ScreenState): string => settingsOptions(state)[0];
 
 test('the music row moves one step per press, and turns off below the first ring', () => {
   const music = toSettings(withMusic(fresh()));

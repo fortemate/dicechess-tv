@@ -111,16 +111,15 @@ test('every row of Settings is one line, whatever it says', () => {
   for (const on of [false, true])
     for (const host of HOST_CHOICES)
       for (const playAs of PLAY_AS_CHOICES)
-        for (const row of settingsOptions(
-          on,
-          DEFAULT_MUSIC,
-          true,
-          on,
-          on,
+        for (const row of settingsOptions({
+          sound: on,
+          music: DEFAULT_MUSIC,
+          turnHotseat: on,
+          voices: on,
           host,
-          on,
+          autoSelect: on,
           playAs,
-        ))
+        }))
           rows.add(row);
   assert.ok(rows.has('Auto-select only choice: off'));
   assert.ok(rows.has('Play as: Random'));
@@ -145,7 +144,7 @@ test('the music row and its rings are one line, at every volume', () => {
   const rows = new Set<string>();
   for (let volume = 0; volume <= 10; volume++)
     for (const on of [false, true])
-      rows.add(settingsOptions(true, { on, volume })[0]);
+      rows.add(settingsOptions({ music: { on, volume } })[0]);
   assert.ok(rows.has('Music: off'));
   assert.ok(rows.has('Music: 10'));
   for (const row of rows) {

@@ -103,7 +103,7 @@ test('the setting is off by default, and then OK never presses itself', () => {
   assert.equal(auto(off), off);
   // The settings say so, last.
   assert.equal(
-    settingsOptions(off.sound, off.music, false).at(-1),
+    settingsOptions({ ...off, musicAvailable: false }).at(-1),
     'Auto-select only choice: off',
   );
 });

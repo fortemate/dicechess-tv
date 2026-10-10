@@ -509,16 +509,16 @@ const Panel = ({
         <Choices
           title="Settings"
           note={hasMusic ? 'Left and Right change the volume.' : undefined}
-          options={settingsOptions(
+          options={settingsOptions({
             sound,
             music,
-            hasMusic,
+            musicAvailable: hasMusic,
             turnHotseat,
             voices,
             host,
             autoSelect,
             playAs,
-          )}
+          })}
           index={overlay.index}
           pressed={pressed}
           afters={

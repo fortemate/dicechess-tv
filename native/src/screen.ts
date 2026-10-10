@@ -299,18 +299,20 @@ export type ScreenSettings = Pick<
 
 // Sound effects, music, the voices and who hosts games against a friend are
 // set on a screen of their own, opened from both menus. A label says what a
-// setting is now, which is what a viewer checks.
+// setting is now, which is what a viewer checks. The settings come as one
+// object, the screen's own state or a part of it: a setting not given reads as
+// its default.
 export const SETTINGS_OPTION = 'Settings';
-export const settingsOptions = (
-  sound: boolean,
-  music: MusicSetting,
+export const settingsOptions = ({
+  sound = true,
+  music = DEFAULT_MUSIC,
   musicAvailable = true,
   turnHotseat = false,
   voices = true,
-  host: HostChoice = DEFAULT_HOST,
+  host = DEFAULT_HOST,
   autoSelect = false,
-  playAs: PlayAs = DEFAULT_PLAY_AS,
-): string[] => [
+  playAs = DEFAULT_PLAY_AS,
+}: Partial<ScreenSettings>): string[] => [
   ...(musicAvailable
     ? [`Music: ${musicHeard(music) ? music.volume : 'off'}`]
     : []),
@@ -897,24 +899,23 @@ const changed = (
   row: string,
   key: BoardKey,
 ): ScreenState => {
+  // OK steps forward, as Right does, on the rows that step.
+  const by = key === 'left' ? -1 : 1;
   if (row.startsWith('Music:'))
     return {
       ...state,
       music:
         key === 'select'
           ? toggleMusic(state.music)
-          : stepMusic(state.music, key === 'left' ? -1 : 1),
+          : stepMusic(state.music, by),
     };
   if (row.startsWith('Sound effects:'))
     return { ...state, sound: !state.sound };
   if (row.startsWith('Voices:')) return { ...state, voices: !state.voices };
   if (row.startsWith('Play as:'))
-    return {
-      ...state,
-      playAs: cyclePlayAs(state.playAs, key === 'left' ? -1 : 1),
-    };
+    return { ...state, playAs: cyclePlayAs(state.playAs, by) };
   if (row.startsWith('Host for friends:'))
-    return { ...state, host: cycleHost(state.host, key === 'left' ? -1 : 1) };
+    return { ...state, host: cycleHost(state.host, by) };
   if (row.startsWith('Turn board for friends:'))
     return { ...state, turnHotseat: !state.turnHotseat };
   if (row.startsWith('Auto-select only choice:'))
@@ -928,16 +929,7 @@ const changed = (
 const onSettings: Handler<'settings'> = (state, overlay, key) => {
   if (key === 'menu') return show(state, HOME);
   if (key === 'back') return show(state, settingsOpener(state, overlay.from));
-  const rows = settingsOptions(
-    state.sound,
-    state.music,
-    state.musicAvailable,
-    state.turnHotseat,
-    state.voices,
-    state.host,
-    state.autoSelect,
-    state.playAs,
-  );
+  const rows = settingsOptions(state);
   if (key === 'up' || key === 'down')
     return moved(state, overlay, key, rows.length);
   return changed(state, rows[overlay.index] ?? '', key);
