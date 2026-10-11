@@ -16,6 +16,7 @@
 import React from 'react';
 import { Animated, Easing, View } from 'react-native';
 import type { Die } from '../../src/core/dice';
+import { dieLabel } from '../../src/core/announcements';
 import type { Side } from '../../src/core/game';
 import { PIECES } from './pieces';
 import { THEME } from './theme';
@@ -64,6 +65,10 @@ const Face = ({ die, side, size }: { die: Die; side: Side; size: number }) => {
   const ringed = !die.spent && !die.leftover;
   return (
     <View
+      // Named for a screen reader (#257): the piece, and whether the die is
+      // spent or cannot be, which the dimming shows.
+      role="img"
+      aria-label={dieLabel(die)}
       style={{
         width: edge,
         height: edge,

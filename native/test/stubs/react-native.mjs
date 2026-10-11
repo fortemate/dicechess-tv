@@ -71,11 +71,40 @@ const answered = (value) => ({
   },
 });
 
+// The screen reader's listeners, so a test can turn it on or off mid-game.
+const readers = new Set();
+
+// Turns the screen reader on or off, as holding Back and Menu does on a
+// device. Call it inside act().
+export const setScreenReader = (on) => {
+  globalThis.__screenReader = on;
+  for (const listener of readers) listener(on);
+};
+
+// What the app announced since the last reset, in order: the line, and whether
+// it waits for the one being said.
+export const announced = () => globalThis.__announced ?? [];
+
+export const resetAccessibility = () => {
+  readers.clear();
+  delete globalThis.__screenReader;
+  delete globalThis.__announced;
+};
+
 // globalThis.__reduceMotion stands for the platform's setting, and
 // globalThis.__reduceMotionQuery for how asking for it goes: answered at once
 // when unset, 'pending' until globalThis.__answerReduceMotion is called,
 // 'fails', or 'throws' as on a platform without the setting.
+// globalThis.__screenReader stands for VoiceView: off unless a test turns it
+// on, and answered at once.
 export const AccessibilityInfo = {
+  isScreenReaderEnabled: () => answered(Boolean(globalThis.__screenReader)),
+  announceForAccessibilityWithOptions: (text, options) => {
+    globalThis.__announced = [
+      ...announced(),
+      { text, queue: Boolean(options?.queue) },
+    ];
+  },
   isReduceMotionEnabled: () => {
     const query = globalThis.__reduceMotionQuery;
     if (query === 'throws')
@@ -87,5 +116,13 @@ export const AccessibilityInfo = {
       });
     return answered(Boolean(globalThis.__reduceMotion));
   },
-  addEventListener: () => ({ remove() {} }),
+  addEventListener: (event, listener) => {
+    if (event !== 'screenReaderChanged') return { remove() {} };
+    readers.add(listener);
+    return {
+      remove() {
+        readers.delete(listener);
+      },
+    };
+  },
 };

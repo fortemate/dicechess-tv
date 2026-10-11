@@ -12,6 +12,7 @@ import {
 } from './stubs/react-native-kepler.mjs';
 import { reset } from './stubs/react-native-mmkv.mjs';
 import { resetFullyDrawnReports } from './stubs/kepler-performance-api.mjs';
+import { resetAccessibility } from './stubs/react-native.mjs';
 import { App, type AppProps } from '../src/App';
 import type { ScreenOptions } from '../src/screen';
 import type { Sounds } from '../src/sound';
@@ -153,11 +154,13 @@ const motion = globalThis as {
 
 // The platform as a launch finds it: the app in the foreground, the storage of
 // an install that has answered the tutorial's offer, and a platform that
-// answers at once that it does not ask for less motion.
+// answers at once that it does not ask for less motion and that no screen
+// reader is on.
 const resetStubs = () => {
   resetPlatform();
   reset();
   resetFullyDrawnReports();
+  resetAccessibility();
   delete motion.__holdSlides;
   delete motion.__heldSlides;
   delete motion.__reduceMotion;

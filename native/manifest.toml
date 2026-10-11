@@ -43,6 +43,11 @@ id = "/com.amazon.kepler.kepler_media_controls_1@IKeplerMediaControls_0"
 [[needs.module]]
 id = "/com.amazon.kepler.keplermediadescriptor_1@IKeplermediadescriptor_1"
 
+# VoiceView (#257). React Native for Vega's AccessibilityInfo asks for this
+# privilege to say whether a screen reader is on and to announce to it.
+[[needs.privilege]]
+id = "com.amazon.devconf.privilege.accessibility"
+
 
 
 # System services the app connects to. Vega's service manager refuses any

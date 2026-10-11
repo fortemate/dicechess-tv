@@ -28,6 +28,13 @@ const OK_DOES: Readonly<Record<PlayAs, string>> = {
 
 export const opponentHint = (playAs: PlayAs): string =>
   `Arrows: choose · OK: ${OK_DOES[playAs]} · Back: return`;
+
+export const OPPONENT_TITLE = 'Choose your opponent';
+
+// A card as a screen reader names it (#257): what the card shows, in the order
+// it shows it, the rings of the level left to the word beside them.
+export const cardLabel = ({ name, level, style }: Opponent): string =>
+  `${name}, ${level}. ${style.replace(/\.$/, '')}`;
 const GAP = 24;
 
 // The level as filled and empty rings, which read the same whatever the
@@ -70,6 +77,11 @@ const Card = ({
   return (
     <View
       testID="opponent"
+      // No `accessible`: on Vega it makes a view focusable, and the remote's
+      // focus is the reducer's (Option.tsx).
+      role="button"
+      aria-label={cardLabel(opponent)}
+      aria-selected={focused}
       style={{
         width,
         paddingVertical: 18,
@@ -134,8 +146,11 @@ export const OpponentScreen = ({
         justifyContent: 'center',
       }}
     >
-      <Text style={{ color: '#f0f4f8', fontSize: 38, marginBottom: 20 }}>
-        Choose your opponent
+      <Text
+        role="heading"
+        style={{ color: '#f0f4f8', fontSize: 38, marginBottom: 20 }}
+      >
+        {OPPONENT_TITLE}
       </Text>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         {OPPONENTS.map((opponent, i) => (

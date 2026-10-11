@@ -9,13 +9,20 @@ import {
   sideName,
   opposite,
   emptyRoll,
-  isBotMode,
   type Game,
-  type Result,
-  type Side,
 } from '../../src/core/game';
-import { opponentOf } from '../../src/core/opponents';
+import {
+  NO_MOVE_LINE,
+  opponentName,
+  outcome,
+  playerOf,
+  reasonOf,
+  squareLabel,
+  turnOver,
+} from '../../src/core/announcements';
+import { OPPONENTS, opponentOf } from '../../src/core/opponents';
 import { pieceAt } from '../../src/core/board';
+import { boardView } from '../../src/core/boardView';
 import { movableSquares, type BoardKey } from '../../src/core/boardInput';
 import { Board } from './Board';
 import { Dice } from './Dice';
@@ -24,7 +31,12 @@ import { TutorialScreen } from './TutorialScreen';
 import { TutorialOffer } from './TutorialOffer';
 import { RulesScreen } from './RulesScreen';
 import { AboutScreen } from './AboutScreen';
-import { OpponentScreen } from './OpponentScreen';
+import {
+  OPPONENT_TITLE,
+  OpponentScreen,
+  cardLabel,
+  opponentHint,
+} from './OpponentScreen';
 import { Matchup } from './Matchup';
 import { HOST_BUBBLE_ROWS, SpeechBubble } from './SpeechBubble';
 import { DISMISS_DELAY_MS, useBotVoice } from './useBotVoice';
@@ -47,6 +59,13 @@ import { THEME } from './theme';
 import { PIECES } from './pieces';
 import { Option } from './Option';
 import { BOARD_GAP, boardSide, drawnSide, safeInsets } from './layout';
+import { announce, useScreenReader } from './announcer';
+import {
+  screenSpeech,
+  spokenHint,
+  type Choice,
+  type Heard,
+} from './screenSpeech';
 import { botReply, botToAct, type BotReply } from '../../src/core/bot';
 import {
   screenReducer,
@@ -58,6 +77,7 @@ import {
   confirmOptions,
   colourOptions,
   resultOptions,
+  offerOptions,
   flipped,
   handsOff,
   botOwes,
@@ -190,7 +210,7 @@ const Choices = ({
 }: {
   title: string;
   note?: string;
-  options: string[];
+  options: readonly string[];
   index: number;
   // OK is held on the focused option.
   pressed?: boolean;
@@ -200,7 +220,10 @@ const Choices = ({
   afters?: (React.ReactNode | undefined)[];
 }) => (
   <View style={{ marginTop: 12 }}>
-    <Text style={{ color: '#f0f4f8', fontSize: 30, marginBottom: 8 }}>
+    <Text
+      role="heading"
+      style={{ color: '#f0f4f8', fontSize: 30, marginBottom: 8 }}
+    >
       {title}
     </Text>
     {note ? (
@@ -246,70 +269,17 @@ const headline = (game: Game, view: GameView): string => {
     : `No legal moves${mover(game, view.bot)}`;
 };
 
-// A turn with no action left is over, though it is still the mover's until OK
-// hands it on (#232): the headline says so, not that the side is to play.
-// Against the bot the person's own is "your turn", in the player's words, as
-// the result is (#235).
-const turnOver = (game: Game, view: GameView): string =>
-  game.human !== null && !view.bot
-    ? 'Your turn is over'
-    : `${sideName(view.side)}'s turn is over`;
-
-// Who the person plays: nobody in hotseat, else the opponent's name.
-const opponentName = (game: Game): string | null =>
-  isBotMode(game.mode) ? opponentOf(game.mode).name : null;
-
-// Who plays a side, in the player's words (#235): against the bot the person is
-// "You" and the bot goes by its name; in hotseat each side is its colour.
-const playerOf = (game: Game, side: Side): string => {
-  if (game.human === null) return sideName(side);
-  return side === game.human ? 'You' : (opponentName(game) ?? 'The computer');
-};
-
-// A side's king, as a sentence names it: the person's is "your king".
-const kingOf = (game: Game, side: Side): string =>
-  side === game.human ? 'your king' : `${playerOf(game, side)}'s king`;
-
 type GameView = ReturnType<typeof viewGame>;
-
-// The headline of a finished game: who won, in the player's words (#235). The
-// person's win is the one cheer; a loss names the bot that won rather than
-// telling the person they lost.
-const outcome = (game: Game, { winner }: Result): string => {
-  if (!winner) return 'Draw';
-  return winner === game.human ? 'You win!' : `${playerOf(game, winner)} wins`;
-};
-
-// Why a game was drawn, in the rules guide's terms but plain words (#235). The
-// hundred is the engine's half-move clock, which counts each action that is
-// neither a capture nor a pawn move, a die each, and nothing for a turn that
-// passes (test/rules.test.ts). So it is a hundred moves in the tutorial's
-// sense, where each die is one move, not fifty turns each as in chess.
-const DRAWN = {
-  'agreed-draw': 'Both players agreed',
-  '100-halfmoves': '100 moves, no capture or pawn move',
-  'turn-limit': '5,000-turn limit reached',
-} as const;
-
-// How a game ended, the line under who won (#235). A king taken and a
-// resignation always have a winner.
-const reasonOf = (game: Game, { winner, reason }: Result): string => {
-  if (reason === 'king-captured')
-    return `${playerOf(game, winner!)} took ${kingOf(game, opposite(winner!))}`;
-  if (reason === 'resigned')
-    return `${playerOf(game, opposite(winner!))} resigned`;
-  return DRAWN[reason];
-};
 
 const HEADLINE = { color: '#f0f4f8', fontSize: 38, marginBottom: 16 };
 
-// Under the dice after a roll with nothing to play, in the rules guide's words.
-// It is a caption, 20 dp like the others (#168), which keeps it to one line of
+// Under the dice after a roll with nothing to play, in the rules guide's words,
+// which a screen reader is told too (#257). It is a caption, 20 dp like the others (#168), which keeps it to one line of
 // the panel: at 24 dp it took two, and the prompt under it ran into the bottom
 // badge (#213). How a game ended is a caption of the same size, under who won
 // (#235), so the longest of those, the draw after a hundred moves, keeps to one
 // line too.
-export const NO_MOVE_LINE = 'No die can be used — the turn passes';
+export { NO_MOVE_LINE };
 const REASON_LINE = { color: '#aab8c9', fontSize: 20, marginBottom: 12 };
 
 // The single line above the status or menu: mode and turn. Exported for the
@@ -441,6 +411,30 @@ export const promptFor = (
 
 export const AUTO_PROMPT = 'Only one choice · Back: stop';
 
+// A prompt worth saying aloud asks for a press (#257). The others say the
+// opponent is playing, which the steps of its turn already say.
+const asksForPress = (prompt: string): boolean =>
+  prompt.startsWith('OK:') || prompt === AUTO_PROMPT;
+
+// The square under the cursor as a screen reader is told it, with the marks
+// the board draws on it (#257).
+const cursorLabel = (
+  view: GameView,
+  focus: ScreenState['focus'],
+  movable: readonly string[] | null,
+): string | null => {
+  const square = boardView({
+    board: view.dfen.split(' ')[0],
+    cursor: focus.cursor,
+    selected: focus.selected,
+    legal: view.legal,
+    movable,
+  })
+    .flat()
+    .find((each) => each.cursor);
+  return square ? squareLabel(square) : null;
+};
+
 const CONFIRM = {
   resign: { title: 'Resign?', note: 'The other player wins.' },
   replace: {
@@ -449,162 +443,166 @@ const CONFIRM = {
   },
 } as const;
 
-// What sits under the status: an open menu or choice, or the prompt.
-const Panel = ({
-  overlay,
-  game,
-  resumableGame,
-  view,
-  sound,
-  music,
-  hasMusic,
-  turnHotseat,
-  voices,
-  host,
-  autoSelect,
-  playAs,
-  auto,
-  selected,
-  pressed,
-}: {
-  overlay: Overlay;
+// What the open menu or choice depends on, beyond the overlay itself.
+type ChoiceContext = {
   game: Game;
   resumableGame: boolean;
-  view: GameView;
   sound: boolean;
   music: MusicSetting;
   hasMusic: boolean;
   turnHotseat: boolean;
   voices: boolean;
   host: HostChoice;
-  // The setting, and whether OK is about to press itself now (#302).
   autoSelect: boolean;
-  auto: boolean;
   playAs: PlayAs;
+};
+
+// What an open menu or choice shows: its title, a note, its options and the
+// focused one. The panel draws it, the choice of opponent and the offer of the
+// tutorial draw their own, and a screen reader is told it (#257). Null on the
+// board and on the screens that take over.
+const choiceOf = (overlay: Overlay, context: ChoiceContext): Choice | null => {
+  switch (overlay.kind) {
+    case 'home':
+      return {
+        title: 'Dice Chess',
+        options: homeOptions(context.resumableGame),
+        index: overlay.index,
+      };
+    case 'offer':
+      return {
+        title: 'Dice Chess',
+        options: offerOptions,
+        index: overlay.index,
+      };
+    case 'menu':
+      return {
+        title: 'Menu',
+        options: menuOptions(context.game),
+        index: overlay.index,
+      };
+    case 'settings':
+      return {
+        title: 'Settings',
+        note: context.hasMusic
+          ? 'Left and Right change the volume.'
+          : undefined,
+        options: settingsOptions({
+          sound: context.sound,
+          music: context.music,
+          musicAvailable: context.hasMusic,
+          turnHotseat: context.turnHotseat,
+          voices: context.voices,
+          host: context.host,
+          autoSelect: context.autoSelect,
+          playAs: context.playAs,
+        }),
+        index: overlay.index,
+      };
+    case 'opponent':
+      return {
+        title: OPPONENT_TITLE,
+        note: spokenHint(opponentHint(context.playAs)),
+        options: OPPONENTS.map(cardLabel),
+        index: overlay.index,
+      };
+    case 'colour':
+      return {
+        title: `Play ${opponentOf(overlay.mode).name} as`,
+        note: 'Random picks a colour for you.',
+        options: colourOptions,
+        index: overlay.index,
+      };
+    case 'confirm':
+      return {
+        ...CONFIRM[overlay.action],
+        options: confirmOptions,
+        index: overlay.index,
+      };
+    case 'result':
+      return {
+        title: 'What next?',
+        options: resultOptions,
+        index: overlay.index,
+      };
+    case 'promotion':
+      return {
+        title: 'Promote to',
+        options: overlay.moves.map(
+          (move) => DIE[move.slice(4).toUpperCase() as keyof typeof DIE],
+        ),
+        index: overlay.index,
+      };
+    default:
+      return null;
+  }
+};
+
+// What sits under the status: an open menu or choice, or the prompt.
+const Panel = ({
+  overlay,
+  view,
+  context,
+  auto,
+  selected,
+  pressed,
+}: {
+  overlay: Overlay;
+  view: GameView;
+  context: ChoiceContext;
+  // Whether OK is about to press itself now (#302).
+  auto: boolean;
   selected: string | null;
   // OK is held: the focused option of an open menu shows it.
   pressed: boolean;
 }) => {
-  switch (overlay.kind) {
-    case 'home':
-      return (
-        <Choices
-          title="Dice Chess"
-          options={homeOptions(resumableGame)}
-          index={overlay.index}
-          pressed={pressed}
-        />
-      );
-    case 'menu':
-      return (
-        <Choices
-          title="Menu"
-          options={menuOptions(game)}
-          index={overlay.index}
-          pressed={pressed}
-        />
-      );
-    case 'settings':
-      return (
-        <Choices
-          title="Settings"
-          note={hasMusic ? 'Left and Right change the volume.' : undefined}
-          options={settingsOptions({
-            sound,
-            music,
-            musicAvailable: hasMusic,
-            turnHotseat,
-            voices,
-            host,
-            autoSelect,
-            playAs,
-          })}
-          index={overlay.index}
-          pressed={pressed}
-          afters={
-            hasMusic
-              ? [
-                  // One row for the music (#346): no rings filled while it is
-                  // off.
-                  <VolumeRings
-                    key="rings"
-                    volume={musicHeard(music) ? music.volume : 0}
-                    focused={overlay.index === 0}
-                  />,
-                ]
-              : []
-          }
-        />
-      );
-    case 'colour':
-      return (
-        <Choices
-          title={`Play ${opponentOf(overlay.mode).name} as`}
-          note="Random picks a colour for you."
-          options={colourOptions}
-          index={overlay.index}
-          pressed={pressed}
-        />
-      );
-    case 'confirm':
-      return (
-        <Choices
-          {...CONFIRM[overlay.action]}
-          options={confirmOptions}
-          index={overlay.index}
-          pressed={pressed}
-        />
-      );
-    case 'result':
-      return (
-        <Choices
-          title="What next?"
-          options={resultOptions}
-          index={overlay.index}
-          pressed={pressed}
-        />
-      );
-    case 'promotion': {
-      const befores = overlay.moves.map((move) => {
-        const letter =
-          view.side === 'w'
-            ? move.slice(4).toUpperCase()
-            : move.slice(4).toLowerCase();
-        const Piece = PIECES[letter as keyof typeof PIECES];
-        return Piece ? (
-          <View
-            key={letter}
-            style={{
-              width: 38,
-              height: 38,
-              marginRight: 10,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Piece size={34} />
-          </View>
-        ) : undefined;
-      });
-      return (
-        <Choices
-          title="Promote to"
-          options={overlay.moves.map(
-            (move) => DIE[move.slice(4).toUpperCase() as keyof typeof DIE],
-          )}
-          index={overlay.index}
-          pressed={pressed}
-          befores={befores}
-        />
-      );
-    }
-    default:
-      return (
-        <Text style={{ color: '#f0f4f8', fontSize: 24 }}>
-          {promptFor(game, view, selected, auto)}
-        </Text>
-      );
+  const choice = choiceOf(overlay, context);
+  if (!choice)
+    return (
+      <Text style={{ color: '#f0f4f8', fontSize: 24 }}>
+        {promptFor(context.game, view, selected, auto)}
+      </Text>
+    );
+  if (overlay.kind === 'settings' && context.hasMusic)
+    return (
+      <Choices
+        {...choice}
+        pressed={pressed}
+        afters={[
+          // One row for the music (#346): no rings filled while it is off.
+          <VolumeRings
+            key="rings"
+            volume={musicHeard(context.music) ? context.music.volume : 0}
+            focused={overlay.index === 0}
+          />,
+        ]}
+      />
+    );
+  if (overlay.kind === 'promotion') {
+    const befores = overlay.moves.map((move) => {
+      const letter =
+        view.side === 'w'
+          ? move.slice(4).toUpperCase()
+          : move.slice(4).toLowerCase();
+      const Piece = PIECES[letter as keyof typeof PIECES];
+      return Piece ? (
+        <View
+          key={letter}
+          style={{
+            width: 38,
+            height: 38,
+            marginRight: 10,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Piece size={34} />
+        </View>
+      ) : undefined;
+    });
+    return <Choices {...choice} pressed={pressed} befores={befores} />;
   }
+  return <Choices {...choice} pressed={pressed} />;
 };
 
 // One line saying what the screen shows, for device checks.
@@ -1014,6 +1012,45 @@ export const GameScreen = ({
     onState?.(report(game, state, focus, overlay, auto));
   }, [onState, game, state, focus, overlay, auto]);
 
+  // A screen reader is told what changed (#257): a step of the game, where
+  // focus went in a menu, and on the board the prompt and the square under the
+  // cursor (screenSpeech.ts). Worked out only while one is on. The screens that
+  // take over say their own, and coming back from one opens the menu afresh.
+  const reader = useScreenReader();
+  const resumableGame = screenResumable && game.phase !== 'ended';
+  const context: ChoiceContext = {
+    game,
+    resumableGame,
+    sound,
+    music: musicSetting,
+    hasMusic,
+    turnHotseat,
+    voices,
+    host,
+    autoSelect,
+    playAs,
+  };
+  const told = React.useRef<Heard | null>(null);
+  const listening = reader && !handsOff(overlay);
+  React.useEffect(() => {
+    if (!listening) {
+      told.current = null;
+      return;
+    }
+    const prompt =
+      overlay.kind === 'none'
+        ? promptFor(game, state, focus.selected, auto !== null)
+        : null;
+    const now: Heard = {
+      game,
+      choice: choiceOf(overlay, context),
+      prompt: prompt && asksForPress(prompt) ? prompt : null,
+      cursor: choosing ? cursorLabel(state, focus, movable) : null,
+    };
+    announce(screenSpeech(told.current, now));
+    told.current = now;
+  });
+
   // Leaving a screen of its own goes back to the home screen, or into the game
   // chosen on the tutorial's last screen (#244).
   const leave = React.useCallback((next?: GameChoice | null) => {
@@ -1041,7 +1078,6 @@ export const GameScreen = ({
   // The result of a game against the bot is drawn in the matchup HUD like the
   // game itself, so the bot's last word shows under its badge (#163).
   const result = overlay.kind === 'result' ? game.result : null;
-  const resumableGame = screenResumable && game.phase !== 'ended';
   const overMenu = menuLine(game, overlay, resumableGame);
   const isFlipped = flipped(game, turnHotseat);
   const screen = {
@@ -1093,17 +1129,8 @@ export const GameScreen = ({
             {overMenu ? <ModeLine line={overMenu} /> : null}
             <Panel
               overlay={overlay}
-              game={game}
-              resumableGame={resumableGame}
               view={state}
-              sound={sound}
-              music={musicSetting}
-              hasMusic={hasMusic}
-              turnHotseat={turnHotseat}
-              voices={voices}
-              host={host}
-              autoSelect={autoSelect}
-              playAs={playAs}
+              context={context}
               auto={auto !== null}
               selected={focus.selected}
               pressed={pressed}
@@ -1131,17 +1158,8 @@ export const GameScreen = ({
             <Status game={game} view={state} lastDice={lastDice} />
             <Panel
               overlay={overlay}
-              game={game}
-              resumableGame={resumableGame}
               view={state}
-              sound={sound}
-              music={musicSetting}
-              hasMusic={hasMusic}
-              turnHotseat={turnHotseat}
-              voices={voices}
-              host={host}
-              autoSelect={autoSelect}
-              playAs={playAs}
+              context={context}
               auto={auto !== null}
               selected={focus.selected}
               pressed={pressed}

@@ -50,9 +50,18 @@ declare module 'react-native-web' {
   };
   export const AccessibilityInfo: {
     isReduceMotionEnabled(): Promise<boolean>;
+    // Always answers true: react-native-web cannot tell.
+    isScreenReaderEnabled(): Promise<boolean>;
     addEventListener(
-      name: 'reduceMotionChanged',
-      handler: (reduced: boolean) => void,
+      name: 'reduceMotionChanged' | 'screenReaderChanged',
+      handler: (on: boolean) => void,
     ): { remove(): void };
+    // Does nothing on the web.
+    announceForAccessibility(announcement: string): void;
+    // Not in react-native-web.
+    announceForAccessibilityWithOptions?: (
+      announcement: string,
+      options: { queue?: boolean },
+    ) => void;
   };
 }
