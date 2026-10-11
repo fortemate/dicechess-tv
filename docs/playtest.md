@@ -60,7 +60,7 @@ Removing the app deletes its saved game, results and settings. They never leave 
    - **Play as**: Ask, Random (the default), White or Black, for games against the computer.
    - **Host for friends**: Prowla (the default), Rolly, Thinkle or off.
    - **Turn board for friends**: turns the board to the side to move in a game against a friend; off by default.
-   - **Auto-select only choice**: presses OK for you when the board offers only one choice, the only piece that can move or the only square it can go to; off by default.
+   - **Auto-select only choice**: presses OK for you when the dice leave only one move, one piece with one square to go to; off by default.
 
 The whole game uses the D-pad, OK and Back; on the Virtual Device, those are the arrow keys, Enter and Esc. Keep the sound and the music on if you can.
 

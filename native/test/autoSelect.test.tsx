@@ -1,8 +1,9 @@
-// OK presses itself when the board offers only one choice (#302): the only
-// piece that can move is picked up, and a piece in hand with only one
-// destination is played there. Off by default; each press is a visible step at
-// the opponent's pace, and Back or Menu hands the action in progress back to
-// the person.
+// OK presses itself when the board offers only one move (#302, #360): the one
+// piece that can move, with one square to go to, is picked up and played
+// there. A piece with a choice of squares, or one the person picked up, waits
+// for their OK. Off by default; each press is a visible step at the opponent's
+// pace, and OK, Back or Menu of the person's own hands the action in progress
+// back to them.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { act } from 'react-test-renderer';
@@ -81,6 +82,9 @@ const ROOK_ROOK_KNIGHT = [4, 4, 2];
 const LONE_KNIGHT = '4k3/8/8/8/8/8/8/1N2K3 w - - 0 1';
 // A pawn about to promote, alone with the kings, and three pawn dice.
 const PROMOTING = '7k/P7/8/8/8/8/8/K7 w - - 0 1';
+// A rook with one square, b1, and a knight with three, on rook, knight and
+// knight dice.
+const ROOK_AND_KNIGHT = '4k3/8/8/8/8/8/P7/R1N1K3 w - - 0 1';
 
 // The person plays the knight with OK, OK: two knights, then two squares, so
 // both are their choice.
@@ -97,8 +101,8 @@ const knightPlayed = (): ScreenState => {
 
 test('the setting is off by default, and then OK never presses itself', () => {
   assert.equal(initialState(options).autoSelect, false);
-  const off = resumed(rolled([2, 2, 2], LONE_KNIGHT), false);
-  // The lone knight is the only choice, and still waits for OK.
+  const off = resumed(rolled([1, 1, 1], PROMOTING), false);
+  // The pawn's is the only move, and still waits for OK.
   assert.equal(autoChoice(off), null);
   assert.equal(auto(off), off);
   // The settings say so, last.
@@ -108,7 +112,7 @@ test('the setting is off by default, and then OK never presses itself', () => {
   );
 });
 
-test('rook, rook, knight: after the knight, the four presses with no choice behind them play themselves', () => {
+test('rook, rook, knight: after the knight, the two only moves play themselves in four presses', () => {
   let state = knightPlayed();
   const knight = state.game.moves[0];
   // Each press is its own step: the rook is picked up and shown in hand with
@@ -134,32 +138,55 @@ test('rook, rook, knight: after the knight, the four presses with no choice behi
   assert.equal(autoChoice(state), null);
 });
 
-test('a lone knight on three knight dice is picked up, and where it goes is the person’s choice', () => {
+test('a lone knight with three squares is not picked up, so OK by habit never plays it (#360)', () => {
   let state = resumed(rolled([2, 2, 2], LONE_KNIGHT));
-  assert.equal(autoChoice(state), 'b1');
-  state = auto(state);
+  // The only piece, but three squares to choose from: nothing presses itself.
+  assert.equal(autoChoice(state), null);
+  // The person's OK picks it up and plays nothing.
+  state = drive(state, 'select');
   assert.equal(state.focus.selected, 'b1');
-  // Three squares to choose from: nothing presses itself.
+  assert.equal(state.game.moves.length, 0);
   assert.equal(autoChoice(state), null);
   state = drive(state, 'select');
   assert.equal(state.game.moves.length, 1);
-  // The knight is again the only piece, wherever it went.
-  assert.equal(autoChoice(state), state.game.moves[0].slice(2, 4));
+  // Wherever it went, the knight has a choice of squares again.
+  assert.equal(autoChoice(state), null);
 });
 
-test('a press of the person’s own wins, and the one scheduled before it does nothing', () => {
-  const waiting = resumed(rolled([2, 2, 2], LONE_KNIGHT));
+test('a piece the person picks up with one square waits for their OK while others could move (#360)', () => {
+  const state = resumed(rolled([4, 2, 2], ROOK_AND_KNIGHT));
+  assert.equal(autoChoice(state), null);
+  const rook = drive(
+    { ...state, focus: { cursor: 'a1', selected: null } },
+    'select',
+  );
+  assert.equal(rook.focus.selected, 'a1');
+  assert.equal(autoChoice(rook), null);
+  assert.equal(auto(rook), rook);
+  // OK plays it to its one square.
+  const played = drive(rook, 'select');
+  assert.deepEqual(played.game.moves, ['a1b1']);
+});
+
+test('a press of the person’s own wins, the one scheduled before it does nothing, and the piece waits for their OK', () => {
+  const waiting = knightPlayed();
+  const square = autoChoice(waiting);
+  assert.ok(square);
   const scheduled = {
     kind: 'auto',
     revision: waiting.game.revision,
     selected: waiting.focus.selected,
   } as const;
-  // OK picks the knight up before the scheduled press comes.
+  // OK picks the rook up before the scheduled press comes.
   const picked = drive(waiting, 'select');
-  assert.equal(picked.focus.selected, 'b1');
+  assert.equal(picked.focus.selected, square);
   assert.equal(screenReducer(picked, scheduled, options), picked);
+  // The person picked it up, so its one square waits for their OK (#360).
+  assert.equal(autoChoice(picked), null);
+  assert.equal(auto(picked), picked);
   // A press scheduled for an earlier revision does nothing either.
   const played = drive(picked, 'select');
+  assert.equal(played.game.moves.length, 2);
   assert.equal(
     screenReducer(
       played,
@@ -168,6 +195,8 @@ test('a press of the person’s own wins, and the one scheduled before it does n
     ),
     played,
   );
+  // The next move is automatic again.
+  assert.ok(autoChoice(played));
 });
 
 test('Back stops OK pressing itself and does nothing else; the next action is automatic again', () => {
@@ -196,7 +225,7 @@ test('Back stops OK pressing itself and does nothing else; the next action is au
   assert.ok(autoChoice(played));
 });
 
-test('Back with the piece in hand about to move keeps it in hand; a second Back puts it down', () => {
+test('Back with the piece in hand about to move keeps it in hand; a second Back puts it down, where it stays', () => {
   const holding = auto(knightPlayed());
   const piece = holding.focus.selected;
   assert.ok(piece);
@@ -204,24 +233,17 @@ test('Back with the piece in hand about to move keeps it in hand; a second Back 
   const stopped = drive(holding, 'back');
   assert.equal(stopped.focus.selected, piece);
   assert.equal(autoChoice(stopped), null);
-  assert.equal(drive(stopped, 'back').focus.selected, null);
-});
-
-test('a piece picked up for the person and put down with Back stays down, and a second Back opens the menu', () => {
-  // The lone knight is picked up for the person; it has three squares, so
-  // nothing is pending when Back puts it down. Seen on the Virtual Device with
-  // the king: without this, it was picked up again 600 ms later.
-  const holding = auto(resumed(rolled([2, 2, 2], LONE_KNIGHT)));
-  assert.equal(holding.focus.selected, 'b1');
-  assert.equal(autoChoice(holding), null);
-  const down = drive(holding, 'back');
+  // Put down, the rook is not picked up again, and a third Back opens the
+  // menu. Seen on the Virtual Device with a king under the first rule (#302):
+  // without this, it was picked up again 600 ms later.
+  const down = drive(stopped, 'back');
   assert.equal(down.focus.selected, null);
   assert.equal(down.overlay.kind, 'none');
   assert.equal(autoChoice(down), null);
   assert.equal(drive(down, 'back').overlay.kind, 'menu');
-  // OK still picks it up, and the knight's next action is automatic again.
+  // OK still picks it up and plays it, and the next move is automatic again.
   const played = drive(down, 'select', 'select');
-  assert.equal(played.game.moves.length, 1);
+  assert.equal(played.game.moves.length, 2);
   assert.ok(autoChoice(played));
 });
 
@@ -256,8 +278,8 @@ test('a promotion opens the choice of piece by itself, and the piece stays the p
 });
 
 test('only the person’s own choices: the opponent’s turn, the roll and the handoff stay as they were', () => {
-  // The opponent's lone knight is not the person's to play.
-  const bot = resumed(rolled([2, 2, 2], LONE_KNIGHT, 'random', 'b'));
+  // The opponent's only move is not the person's to play.
+  const bot = resumed(rolled([1, 1, 1], PROMOTING, 'random', 'b'));
   assert.equal(viewGame(bot.game).bot, true);
   assert.equal(autoChoice(bot), null);
   // Before the roll nothing presses itself: rolling is #301.
@@ -270,18 +292,19 @@ test('only the person’s own choices: the opponent’s turn, the roll and the h
   assert.equal(autoChoice(over), null);
 });
 
-test('Black’s only choice presses itself too, on the board turned for Black', () => {
+test('Black’s only move presses itself too, on the board turned for Black', () => {
   // Against the bot as Black, and in Hot Seat on Black's turn.
-  const black = '1n2k3/8/8/8/8/8/8/4K3 b - - 0 1';
+  const black = 'k7/8/8/8/8/8/p7/7K b - - 0 1';
   for (const [mode, human] of [
     ['random', 'b'],
     ['hotseat', null],
   ] as const) {
-    let state = resumed(rolled([2, 2, 2], black, mode, human));
+    let state = resumed(rolled([1, 1, 1], black, mode, human));
     assert.equal(viewGame(state.game).side, 'b');
-    assert.equal(autoChoice(state), 'b8');
+    assert.equal(autoChoice(state), 'a2');
     state = auto(state);
-    assert.equal(state.focus.selected, 'b8');
+    assert.equal(state.focus.selected, 'a2');
+    assert.equal(autoChoice(state), 'a1');
   }
 });
 

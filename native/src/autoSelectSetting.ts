@@ -1,6 +1,6 @@
-// Whether OK presses itself when the board offers only one choice (#302): the
-// only piece that can move is picked up, and a piece in hand with only one
-// destination is played there.
+// Whether OK presses itself when the board offers only one move (#302, #360):
+// the one piece that can move, with one square to go to, is picked up and
+// played there.
 //
 // Off by default, as the owner asked. Anything but an explicit "on" reads as
 // off, so a damaged value cannot play moves nobody pressed OK for. Remembered

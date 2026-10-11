@@ -63,19 +63,21 @@ const destinationsOf = (legal: readonly string[], square: string): string[] => [
   ...new Set(movesFrom(legal, square).map((move) => move.slice(2, 4))),
 ];
 
-// The square OK acts on when the board offers exactly one (#302): the only
-// piece that can move, or, with a piece in hand, its only destination. Null
-// when there is a choice to make, or nothing to choose. A destination reached
-// by several promotions is still one square: OK on it opens the choice of
-// piece, which stays the player's.
+// The square OK acts on when the board offers exactly one move (#302, #360):
+// the piece that makes it, then, with that piece in hand, its destination.
+// Null when there is a choice to make, of piece or of square, or nothing to
+// choose: a piece with several destinations is never picked up for the player.
+// A destination reached by several promotions is still one move: OK on it
+// opens the choice of piece, which stays the player's.
 export function onlyChoice(
   legal: readonly string[],
   selected: string | null,
 ): Square | null {
-  const options = selected
-    ? destinationsOf(legal, selected)
-    : movableSquares(legal);
-  return options.length === 1 ? (options[0] as Square) : null;
+  const moves = [...new Set(legal.map((move) => move.slice(0, 4)))];
+  if (moves.length !== 1) return null;
+  const [from, to] = [moves[0].slice(0, 2), moves[0].slice(2, 4)];
+  if (selected === null) return from as Square;
+  return selected === from ? (to as Square) : null;
 }
 
 // The square two ahead of a pawn on its starting rank, when the pawn stands on
