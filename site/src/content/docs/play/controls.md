@@ -172,7 +172,7 @@ Some moves leave nothing to decide: the dice let one piece move, and it has one 
 - **Never for anything else:** it does not roll the dice, hand the turn over, play for the computer opponent, or act behind a menu or in the tutorial.
 - The setting is saved to device storage via MMKV and read again at the next launch: the tests check it, and on the Vega Virtual Device it was still on after the app was reinstalled.
 
-`native/test/autoSelect.test.tsx` checks each of these, through the screen's reducer and through the whole app. On a Fire TV Stick 4K Select, on 10 October 2026, a pawn with one square was played there by itself, and Back stopped a press that was coming ([pull request 342](https://github.com/fortemate/dicechess-tv/pull/342)). That was under the first rule, before issue 360 narrowed it to the only move.
+`native/test/autoSelect.test.tsx` checks each of these, through the screen's reducer and through the whole app. On a Fire TV Stick 4K Select, on 10 October 2026, a pawn with one square was played there by itself, and Back stopped a press that was coming ([pull request 342](https://github.com/fortemate/dicechess-tv/pull/342)). That was under the first rule, before issue 360 narrowed it to the only move. On the Vega Virtual Device, on 11 October 2026, the narrowed rule left a lone queen with four squares for the player to pick up and send where they chose, kept a forced rook the player picked up in hand until their OK, and still played forced rook moves by itself.
 
 ### Reduced Motion Support
 
