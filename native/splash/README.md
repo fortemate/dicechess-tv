@@ -35,7 +35,7 @@ home and rise again, never a jump.
 | `fonts/arimo/Arimo-Regular.ttf`          | `googlefonts/Arimo` at `4a6255f269916ae7ad3fc2706b0935e7621396b8`, `fonts/ttf`                  | OFL-1.1, `fonts/arimo/OFL.txt`                                | `41b22bc8f0b51f932825d37bc55b5eb6ba67dfe599a626e4aff2b43b624f9f8c` |
 | `../brand/fortemate-mark-white.svg`      | `fortemate/brand`, see `../brand/README.md`                                                     | Fortemate                                                     |                                                                    |
 | `src/assets/pieces/rhosgfx/b{Q,N,R}.svg` | RhosGFX Vector Chess Pieces Pack                                                                | CC0-1.0                                                       |                                                                    |
-| `portraits/thinkle.svg`                  | portrait pack 1.4.0 in `fortemate/dicechess-assets`, vendored by `scripts/vendor-portraits.mjs` | Fortemate's Dice Chess apps only                              | pinned in `portraits/portraits.lock.json`                          |
+| `portraits/thinkle.svg`                  | portrait pack 1.4.1 in `fortemate/dicechess-assets`, vendored by `scripts/vendor-portraits.mjs` | Fortemate's Dice Chess apps only                              | pinned in `portraits/portraits.lock.json`                          |
 
 The fonts are copied unchanged, with their licences beside them. Titan One sets
 the title; Arimo sets the name next to the mark, in plain type.

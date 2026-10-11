@@ -68,9 +68,10 @@ const FILE: Readonly<Record<PortraitKind, string>> = {
 // puts in the path. A changed portrait therefore never shows the old one: on the
 // Vega Virtual Device an update left the earlier package's portraits in place
 // (2026-10-03). The build refuses a vendored pack of any other version, since
-// its portraits would never load. 1.3.1 added Prowla the cat; 1.4.0 adds
-// Thinkle's vector, which only the splash uses (scripts/splash.mjs).
-export const PORTRAITS_VERSION = '1.4.0';
+// its portraits would never load. 1.3.1 added Prowla the cat; 1.4.0 added
+// Thinkle's vector, which only the splash uses (scripts/splash.mjs); 1.4.1
+// joins the tip of a finger of his raised hand, drawn apart, to the finger.
+export const PORTRAITS_VERSION = '1.4.1';
 
 // An image needs the file:// URL. The bare /pkg/ path the sound players use
 // fails to load in Image: on the Vega Virtual Device on 2026-10-03 the badge

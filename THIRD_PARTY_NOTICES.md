@@ -16,7 +16,7 @@ Fortemate's code in this repository is licensed under AGPL-3.0-only (see [LICENS
 | Dice Chess Hot Seat host Thinkle, Fortemate, made with ElevenLabs          | 54 lines                      | Fortemate apps only      | https://elevenlabs.io                                  |
 | Dice Chess TV tutorial, taught by Thinkle, Fortemate, made with ElevenLabs | 48 lines                      | Fortemate apps only      | https://elevenlabs.io                                  |
 | Dice Chess TV demo narration, Thinkle, Fortemate, made with ElevenLabs     | 15 lines                      | Fortemate apps, videos   | https://elevenlabs.io                                  |
-| Dice Chess character portraits, Fortemate, made with Recraft               | 1.4.0 (five characters shown) | Fortemate apps only      | https://recraft.ai                                     |
+| Dice Chess character portraits, Fortemate, made with Recraft               | 1.4.1 (five characters shown) | Fortemate apps only      | https://recraft.ai                                     |
 | Titan One font, Rodrigo Fuenzalida (splash title, build time only)         | google/fonts 931162c          | OFL-1.1                  | https://github.com/google/fonts/tree/main/ofl/titanone |
 | Arimo font, The Arimo Project Authors (splash credit, build time only)     | googlefonts/Arimo 4a6255f     | OFL-1.1                  | https://github.com/googlefonts/Arimo                   |
 | resvg-js, rasterizes the splash (development dependency)                   | 2.6.2                         | MPL-2.0                  | https://github.com/thx/resvg-js                        |
