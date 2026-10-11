@@ -126,10 +126,7 @@ export const RulesScreen = ({ onExit, onState }: RulesScreenProps) => {
       </View>
 
       <View style={{ flex: 1, maxHeight: height - 80 }}>
-        <Text
-          role="heading"
-          style={{ color: '#f0f4f8', fontSize: 36, marginBottom: 18 }}
-        >
+        <Text style={{ color: '#f0f4f8', fontSize: 36, marginBottom: 18 }}>
           {current.title}
         </Text>
         {current.lines.map((line) => (

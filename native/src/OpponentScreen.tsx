@@ -146,10 +146,7 @@ export const OpponentScreen = ({
         justifyContent: 'center',
       }}
     >
-      <Text
-        role="heading"
-        style={{ color: '#f0f4f8', fontSize: 38, marginBottom: 20 }}
-      >
+      <Text style={{ color: '#f0f4f8', fontSize: 38, marginBottom: 20 }}>
         {OPPONENT_TITLE}
       </Text>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>

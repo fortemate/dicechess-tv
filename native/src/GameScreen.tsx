@@ -220,10 +220,11 @@ const Choices = ({
   afters?: (React.ReactNode | undefined)[];
 }) => (
   <View style={{ marginTop: 12 }}>
-    <Text
-      role="heading"
-      style={{ color: '#f0f4f8', fontSize: 30, marginBottom: 8 }}
-    >
+    {/* No heading role, here or on the other screens' titles: VoiceView reads
+        a heading by itself as it appears, and on the Virtual Device that cut
+        off the result announced just before it (#257). The title is
+        announced with the menu instead (screenSpeech.ts). */}
+    <Text style={{ color: '#f0f4f8', fontSize: 30, marginBottom: 8 }}>
       {title}
     </Text>
     {note ? (
