@@ -96,8 +96,8 @@ const settled = (
     : { ...focus, selected: null };
 
 // The square OK is about to press itself on (#302), if any: with the setting
-// on, on the board, while the person chooses, unless they stopped it for this
-// action, and only when the board offers exactly one choice. `legal` saves
+// on, on the board, while the person chooses, unless they took this action
+// over, and only when the board offers exactly one move (#360). `legal` saves
 // working out the view again where it is to hand.
 export const autoChoice = (
   state: ScreenState,
@@ -253,9 +253,9 @@ export type ScreenState = {
   // The colour a person plays against the computer, or Ask for the choice of
   // colour before each game (#345).
   playAs: PlayAs;
-  // The game revision on which the person stopped that with Back or Menu: the
-  // action in progress is theirs to finish, and the next one is automatic
-  // again. Null when they have not.
+  // The game revision on which the person took the action over with OK, Back
+  // or Menu: it is theirs to finish, and the next one is automatic again
+  // (#360). Null when they have not.
   autoStopped: number | null;
   // OK is ignored: a roll has just left nothing to play. The app clears it
   // after OK_GUARD_MS; the other keys work throughout.
@@ -959,10 +959,32 @@ const onResult: Handler<'result'> = (state, overlay, key, options) => {
   return start(state, mode, colour ?? 'random', options);
 };
 
-// Choosing a piece and a square. Back is intercepted here only to stop OK
-// pressing itself (#302): otherwise boardInput cancels a selection first and
-// only asks to leave when there is nothing to cancel, which is the behaviour
-// the web probe already ships.
+// A key of the person's own while they choose a piece and a square. With OK
+// pressing itself (#302), their OK, Back or Menu leaves the rest of the action
+// to them: a piece they pick up waits for their OK (#360), and a piece picked
+// up for them and put down with Back is not picked up again, so Back can
+// always reach the menu. While a press is pending, Back only stops it; a
+// second Back puts down or leaves as it always has.
+const onOwnMove = (
+  state: ScreenState,
+  key: BoardKey,
+  repeat: boolean,
+): ScreenState => {
+  const { game } = state;
+  if (
+    !state.autoSelect ||
+    state.autoStopped === game.revision ||
+    (key !== 'select' && key !== 'back' && key !== 'menu')
+  )
+    return onMove(state, key, repeat);
+  const stopped = { ...state, autoStopped: game.revision };
+  if (key === 'back' && autoChoice(state) !== null) return stopped;
+  return onMove(stopped, key, repeat);
+};
+
+// Choosing a piece and a square, by the person or by OK pressing itself.
+// boardInput cancels a selection first and only asks to leave when there is
+// nothing to cancel, which is the behaviour the web probe already ships.
 function onMove(
   state: ScreenState,
   key: BoardKey,
@@ -970,20 +992,6 @@ function onMove(
 ): ScreenState {
   const { game } = state;
   const { legal, dfen } = viewGame(game);
-  // With OK pressing itself (#302), Back or Menu leaves the rest of the
-  // action to the person. Otherwise a piece picked up for them and put down
-  // with Back would be picked up again, and Back could never reach the menu.
-  // While a press is pending, Back only stops it; a second Back puts down or
-  // leaves as it always has.
-  if (
-    (key === 'back' || key === 'menu') &&
-    state.autoSelect &&
-    state.autoStopped !== game.revision
-  ) {
-    const stopped = { ...state, autoStopped: game.revision };
-    if (key === 'back' && autoChoice(state, legal) !== null) return stopped;
-    return onMove(stopped, key, repeat);
-  }
   const result = boardInput(
     state.focus,
     key,
@@ -1022,7 +1030,7 @@ const onBoard = (
       ? show(state, HOME)
       : state;
   const bot = botOwes(game);
-  if (game.phase === 'move' && !bot) return onMove(state, key, repeat);
+  if (game.phase === 'move' && !bot) return onOwnMove(state, key, repeat);
   // Otherwise Back opens the menu, and OK rolls the dice or passes the turn.
   // While the opponent owes an action the board takes no input but Back or Menu, so a
   // player cannot move its pieces for it; while a guard is up, no OK either.

@@ -37,7 +37,7 @@ The primary action button handles roll initiation, piece selection, and move exe
 - **Pick up a piece:** Pressing OK on an active piece picks it up and positions the cursor on the move players usually make. If the piece can take, the cursor lands on the most valuable piece it can take, the king above all. A pawn that cannot take but can still advance two squares lands on the two-square push, and one arrow press towards the pawn reaches the single step. Any other piece lands on its most central destination square. If a landing would leave another destination out of the arrows' reach, the cursor lands on the central destination instead. On the Vega Virtual Device the two-square landing was seen in the tutorial's first step, and the capture landing in its two capture lessons and in a game against a friend; `test/boardInput.test.ts` and `native/test/screen.test.ts` check both.
 - **Play a move:** Pressing OK on a destination square executes the action. The piece smoothly slides to its new square in 220 ms on the native driver.
 - **Single-destination shortcut:** If a piece has only one legal destination, pressing **OK then OK** immediately plays the move.
-- **Only one choice (optional):** With **Auto-select only choice** turned on in Settings, OK presses itself whenever there is nothing to choose: the only piece that can move is picked up, and a piece in hand with only one destination is played there. See [Auto-select Only Choice](#auto-select-only-choice-optional) below.
+- **Only one move (optional):** With **Auto-select only choice** turned on in Settings, OK presses itself when the dice leave only one move: one piece with one square to go to is picked up and played there. A piece with several squares, or one you pick up yourself, waits for your OK. See [Auto-select Only Choice](#auto-select-only-choice-optional) below.
 - **Confirm menu items:** Selects the focused menu row. OK acts on release (`eventKeyAction === 1`), with a distinct 97% scale compression and highlight while held.
 - **Accidental press protection:** Following an empty roll ("No legal moves"), OK is guarded and ignored for 700 ms to prevent an unintentional double-press from skipping past the notice before you have read it.
 
@@ -162,17 +162,18 @@ When two players share a sofa or sit opposite each other, looking at an upside-d
 
 ### Auto-select Only Choice (Optional)
 
-Some steps of a turn leave nothing to decide: one piece is the only one the dice let move, or the piece in hand has one square to go to. In **Settings**, players can enable **Auto-select only choice** (off by default), and OK then presses itself on those steps ([issue 302](https://github.com/fortemate/dicechess-tv/issues/302)):
+Some moves leave nothing to decide: the dice let one piece move, and it has one square to go to. In **Settings**, players can enable **Auto-select only choice** (off by default), and OK then presses itself for such a move: the piece is picked up and played there ([issue 302](https://github.com/fortemate/dicechess-tv/issues/302), narrowed in [issue 360](https://github.com/fortemate/dicechess-tv/issues/360)):
 
-- **Only one piece can move:** it is picked up for you, and you still choose where it goes if it has several squares.
-- **The piece in hand has one destination:** it is played there, whether you picked it up or it was picked up for you.
-- **A pawn promotes on its only square:** the _Promote to_ choice opens, and the piece is always yours to choose.
+- **Only the only move:** a piece with several squares is never picked up for you, even when it is the only piece that can move. An OK you press by habit only picks it up, and where it goes stays your choice.
+- **A piece you pick up yourself waits for your OK,** even when it has only one square.
+- **A pawn promotes on its only square:** it is picked up and played there, the _Promote to_ choice opens, and the piece is always yours to choose.
 - **One step at a time:** each automatic press waits 600 ms, the computer opponent's pace, so a chain of them can be followed. With rook, rook and knight in the starting position, you choose the knight and its square; the two rook moves that follow, four presses of OK, play themselves.
-- **Back stops it:** while the prompt reads _Only one choice · Back: stop_, Back stops the coming press and leaves the rest of that move to you. Back or Menu at any other point of a move also leaves the rest of it to you, so a piece put down with Back stays down. The next move is automatic again.
+- **Back stops it:** while the prompt reads _Only one choice · Back: stop_, Back stops the coming press and leaves the rest of that move to you. OK, Back or Menu at any other point of a move also leaves the rest of it to you, so a piece put down with Back stays down. The next move is automatic again.
 - **Never for anything else:** it does not roll the dice, hand the turn over, play for the computer opponent, or act behind a menu or in the tutorial.
+- **In 1.0.0, build 26,** the first rule still applies: the only piece that can move is picked up even when it has several squares, and a piece in hand with one square is played there, whoever picked it up.
 - The setting is saved to device storage via MMKV and read again at the next launch: the tests check it, and on the Vega Virtual Device it was still on after the app was reinstalled.
 
-`native/test/autoSelect.test.tsx` checks each of these, through the screen's reducer and through the whole app. On a Fire TV Stick 4K Select, on 10 October 2026, the only piece was picked up by itself, a pawn with one square was played there, and Back stopped a press that was coming ([pull request 342](https://github.com/fortemate/dicechess-tv/pull/342)).
+`native/test/autoSelect.test.tsx` checks each of these, through the screen's reducer and through the whole app. On a Fire TV Stick 4K Select, on 10 October 2026, a pawn with one square was played there by itself, and Back stopped a press that was coming ([pull request 342](https://github.com/fortemate/dicechess-tv/pull/342)). That was under the first rule, before issue 360 narrowed it to the only move. On the Vega Virtual Device, on 11 October 2026, the narrowed rule left a lone queen with four squares for the player to pick up and send where they chose, kept a forced rook the player picked up in hand until their OK, and still played forced rook moves by itself.
 
 ### Reduced Motion Support
 
