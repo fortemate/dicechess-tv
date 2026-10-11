@@ -35,7 +35,7 @@ The full game uses IndexedDB `dicechess-tv.games`, key `active.v2`, separately f
 
 Worker replies carry request ID, game ID, revision and exact input DFEN. Every action is revalidated; incomplete or stale paths are rejected. Leaving play or opening a menu terminates the active Worker. Resuming restarts it from the saved position and roll. A 10-second watchdog reports failure and allows retry; it does not change difficulty, choose a fallback move or declare a draw.
 
-W/D/L is not implemented in this step. Only the active game's result is stored. A separate exactly-once completed-game ledger is the next milestone.
+W/D/L is not implemented in this step. Only the active game's result is stored. A separate exactly-once completed-game ledger is the next milestone. That ledger has since been built for the native application (`src/core/ledger.ts`): it counts each finished game's result exactly once, by computer opponent and side played, and by colour in games against a friend. Version 1.0.0 keeps counting W/D/L but shows none of it, because a count cannot tell who was holding the remote ([#341](https://github.com/fortemate/dicechess-tv/pull/341)).
 
 ## Engine API compatibility
 

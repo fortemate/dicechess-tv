@@ -5,11 +5,11 @@ sidebar:
   order: 3
 ---
 
-Dice Chess 1.0.0, the first release, was published on GitHub on 10 October 2026. It is free and in English, and it needs no account.
+Dice Chess 1.0.0, the first release, was published on GitHub on 10 October 2026 as build 26, and again on 11 October as build 28, which replaced it. It is free and in English, and it needs no account.
 
 ## From GitHub
 
-The [1.0.0 release](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.0%2B26) carries three packages, the same app built for three processors, and `SHA256SUMS.txt`:
+The [1.0.0 release, build 28](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.0%2B28), carries three packages, the same app built for three processors, and `SHA256SUMS.txt`:
 
 | File                               | Install it on                                       |
 | ---------------------------------- | --------------------------------------------------- |
@@ -38,7 +38,7 @@ For the Virtual Device, install the `aarch64` or the `x86_64` package instead. W
 
 ## On the Amazon Appstore
 
-Version 1.0.0, built from the same commit with the portraits, has been submitted to the Amazon Appstore and is awaiting Amazon's review. It is not in the store yet.
+Version 1.0.0, build 28, built from the same commit with the portraits, has been submitted to the Amazon Appstore and is awaiting Amazon's review. It replaced build 26, which was withdrawn from review before it went live. It is not in the store yet.
 
 ## What to try
 
@@ -59,7 +59,7 @@ Say which build you played, and whether on a Fire TV Stick or on the Virtual Dev
 
 ## What this build is
 
-- **Version 1.0.0, build 26**, built from commit `dac3302` with the Vega SDK 0.24.
-- **Tested on** the Vega Virtual Device, where each feature was played, and by the app's automated tests. On a Fire TV Stick 4K Select, on 10 October 2026, the Appstore build of the same commit was checked for Settings with the music row and Play as, muting and unmuting the music, Main menu and Resume game, the opponent cards, and the confirmation before a game in play is replaced. Earlier builds were checked on the Stick for the launch, the response to the remote, the dice's tumble, the return from Home and Auto-select only choice ([Performance](/technology/performance/)).
+- **Version 1.0.0, build 28**, built from commit `d4ffdaa` with the Vega SDK 0.24. Since build 26 it narrows Auto-select only choice to the only move, and its Appstore build redraws Thinkle's hand.
+- **Tested on** the Vega Virtual Device, where each feature was played, and by the app's automated tests. On a Fire TV Stick 4K Select, on 11 October 2026, the Appstore build of the same commit was installed over an earlier build, kept the saved game and opened on the home menu with no errors from the app in the device log ([release notes](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.0%2B28)). On 10 October the Appstore build of build 26 had been checked there for Settings with the music row and Play as, muting and unmuting the music, Main menu and Resume game, the opponent cards, and the confirmation before a game in play is replaced. Earlier builds were checked on the Stick for the launch, the response to the remote, the dice's tumble, the return from Home and Auto-select only choice ([Performance](/technology/performance/)).
 - **Private:** it has no network code, no accounts and no analytics. Games, results and settings stay on the TV. The [privacy policy](/privacy/) has the details.
 - **English only** for now.
