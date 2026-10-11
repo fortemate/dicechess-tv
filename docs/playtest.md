@@ -4,7 +4,7 @@ Thank you for trying the game. This page says which package to install and how, 
 
 ## Which package
 
-Dice Chess 1.0.0, build 26, was released on 10 October 2026. Its [release on GitHub](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.0%2B26) carries three packages: the same app, built for three processors. The characters' portraits are Fortemate's and stay out of this public repository, so these packages show the opponents' emoji faces in their place, and leave an empty space where Prowla the cat and Thinkle the wizard, who have no such face, would be. Otherwise they are the same app as the build submitted to the Amazon Appstore.
+Dice Chess 1.0.0, build 28, was released on 11 October 2026, replacing build 26 of the day before. Its [release on GitHub](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.0%2B28) carries three packages: the same app, built for three processors. The characters' portraits are Fortemate's and stay out of this public repository, so these packages show the opponents' emoji faces in their place, and leave an empty space where Prowla the cat and Thinkle the wizard, who have no such face, would be. Otherwise they are the same app as the build submitted to the Amazon Appstore.
 
 | File                               | Install it on                                         |
 | ---------------------------------- | ----------------------------------------------------- |
@@ -60,7 +60,7 @@ Removing the app deletes its saved game, results and settings. They never leave 
    - **Play as**: Ask, Random (the default), White or Black, for games against the computer.
    - **Host for friends**: Prowla (the default), Rolly, Thinkle or off.
    - **Turn board for friends**: turns the board to the side to move in a game against a friend; off by default.
-   - **Auto-select only choice**: presses OK for you when the board offers only one choice, the only piece that can move or the only square it can go to; off by default.
+   - **Auto-select only choice**: presses OK for you when the board offers only one move, one piece with one square to go to; a piece with a choice of squares, or one you pick up yourself, waits for your OK; off by default.
 
 The whole game uses the D-pad, OK and Back; on the Virtual Device, those are the arrow keys, Enter and Esc. Keep the sound and the music on if you can.
 
@@ -76,8 +76,8 @@ We turn findings into issues and link each one in its discussion, so you can see
 
 ## What this build is
 
-- **Version.** 1.0.0, build 26, the first release. It was published on GitHub on 10 October 2026 and submitted to the Amazon Appstore the same day, where it awaits Amazon's review.
-- **Tested on.** Automated tests, the Vega Virtual Device and a Fire TV Stick 4K Select. On 10 October 2026 the Appstore package of the same commit was checked on the Stick: the Settings rows, muting and unmuting the music, Play as on Random, Main menu and Resume game, the hint on the opponent cards, and the confirmation before a game in play is replaced, with Cancel. Most changes since beta 8 were checked in their pull requests on the Virtual Device, and the speed-ups on the Stick. Navigation checks and the physical scenarios still open are recorded in [Horizontal cycling validation](board-navigation-validation-299.md); they do not establish that every scenario has passed on this build.
+- **Version.** 1.0.0, build 28. It was published on GitHub on 11 October 2026 and submitted to the Amazon Appstore the same day, where it awaits Amazon's review. It replaced build 26, the first release of 1.0.0, which was withdrawn from review before it went live; build 28 narrows Auto-select only choice to the only move, and its Appstore build redraws Thinkle's hand ([release notes](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.0%2B28)).
+- **Tested on.** Automated tests, the Vega Virtual Device and a Fire TV Stick 4K Select. On 10 October 2026 the Appstore package of build 26 was checked on the Stick: the Settings rows, muting and unmuting the music, Play as on Random, Main menu and Resume game, the hint on the opponent cards, and the confirmation before a game in play is replaced, with Cancel. On 11 October the Appstore package of build 28 was installed over an earlier build there, kept the saved game and opened on the home menu with no errors from the app in the device log; its narrower Auto-select only choice was checked on the Virtual Device. Most changes since beta 8 were checked in their pull requests on the Virtual Device, and the speed-ups on the Stick. Navigation checks and the physical scenarios still open are recorded in [Horizontal cycling validation](board-navigation-validation-299.md); they do not establish that every scenario has passed on this build.
 - **Privacy.** It has no network code, no accounts and no analytics: games, results and settings stay on the device. The [privacy policy](https://dicechess-tv.fortemate.com/privacy/) lists what it keeps.
 - **The opponents.** Rolly plays one of its legal turns at random, Grabby takes the most valuable piece it can, and Rampage hunts your pieces and goes for your king. Each is an algorithm of the rules engine, running on the device.
 - **The music.** Four themes by pepka-prygni, used with his permission. Against the computer the music follows the danger to your own king; with two players, to either king.

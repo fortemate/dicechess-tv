@@ -206,8 +206,8 @@ to the next ([Version Your App](https://developer.amazon.com/docs/vega/0.24/app-
   decrease".
 
 Build numbers rise across betas and releases together, never per version: beta 24 was
-build 24, 1.0.0 is build 26, and the next upload, beta or release, must be 27 or
-higher, whatever its version. Every tag carries its build number, so that
+build 24, 1.0.0 was released as build 26 and again as build 28, and the next upload,
+beta or release, must be 29 or higher, whatever its version. Every tag carries its build number, so that
 `mise run build` can number a local build like the newest beta or release:
 
 | Kind    | Tag                       | Example         | Published as                               |
