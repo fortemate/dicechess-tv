@@ -4,6 +4,8 @@ These scripts record and cut the demo video. The preliminary cut uses short
 title cards and the game's own sound (owner, 2026-10-08), following demo v.6.
 Its takes were recorded again on 1.0.0 on 2026-10-10, so the video shows
 Play a friend, Play as and the cards without a record.
+On 2026-10-11 the launch animation was rendered again from portraits 1.4.1,
+where Thinkle's raised hand no longer seems to have six fingers (#359).
 Prowla hosts Hot Seat; Thinkle's tutorial follows the launch animation, without
 an added narrator. Music is mixed continuously across cards and footage: menu
 through the introduction and tutorial, calm from the first Hot Seat game, then
