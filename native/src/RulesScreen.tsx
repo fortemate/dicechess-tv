@@ -11,11 +11,13 @@
 import React from 'react';
 import { View, Text, useWindowDimensions } from 'react-native';
 import { RULES } from '../../src/core/rules';
+import { sentences } from '../../src/core/announcements';
 import type { BoardKey } from '../../src/core/boardInput';
 import { useRemoteInput } from './useRemoteInput';
 import { THEME } from './theme';
 import { Option } from './Option';
 import { safeInsets } from './layout';
+import { announce, useScreenReader } from './announcer';
 
 export type RulesScreenProps = {
   onExit: () => void;
@@ -68,6 +70,28 @@ export const RulesScreen = ({ onExit, onState }: RulesScreenProps) => {
   React.useEffect(() => {
     onState?.(`rules ${state.index + 1}/${RULES.length} | topic ${current.id}`);
   }, [onState, state.index, current.id]);
+
+  // A screen reader is told the topic focus moves to and what it says, the
+  // guide's name first as it opens (#257). Moving on cuts it short.
+  const reader = useScreenReader();
+  const told = React.useRef<number | null>(null);
+  React.useEffect(() => {
+    if (!reader) {
+      told.current = null;
+      return;
+    }
+    if (told.current === state.index) return;
+    const opening = told.current === null;
+    told.current = state.index;
+    announce({
+      text: sentences([
+        ...(opening ? ['Rules reference'] : []),
+        `${current.title}, ${state.index + 1} of ${RULES.length}`,
+        ...current.lines,
+      ]),
+      interrupt: true,
+    });
+  }, [reader, state.index, current]);
 
   return (
     <View

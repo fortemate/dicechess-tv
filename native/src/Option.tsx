@@ -8,6 +8,33 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { THEME } from './theme';
 
+// What an item is to a screen reader (#257). A setting that reads on or off is
+// a switch, named without the state that aria-checked carries; the music row is
+// a slider whose value is its volume or "off"; anything else is a menu item,
+// named by its own text. None of these roles has a selected state, and the
+// focused item is said aloud instead.
+//
+// No `accessible`: on Vega it makes a view focusable, and the remote's focus
+// here is the screen reducer's, not the platform's (useRemoteInput.ts). A
+// screen reader is told in words where focus moves instead (announcer.ts).
+export const optionAccessibility = (label: string) => {
+  const music = /^(Music): (\d+|off)$/.exec(label);
+  if (music)
+    return {
+      role: 'slider',
+      'aria-label': music[1],
+      'aria-valuetext': music[2],
+    } as const;
+  const setting = /^(.+): (on|off)$/.exec(label);
+  if (setting)
+    return {
+      role: 'switch',
+      'aria-label': setting[1],
+      'aria-checked': setting[2] === 'on',
+    } as const;
+  return { role: 'menuitem' } as const;
+};
+
 export type OptionProps = {
   label: string;
   focused: boolean;
@@ -33,6 +60,7 @@ export const Option = ({
   return (
     <View
       testID="option"
+      {...optionAccessibility(label)}
       style={{
         borderWidth: 2,
         borderRadius: 8,

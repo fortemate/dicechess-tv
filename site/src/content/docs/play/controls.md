@@ -184,3 +184,23 @@ For players sensitive to motion or animation effects, the application detects `A
 - The board flips immediately between turns in a game against a friend without fading out and back in.
 
 Only unit tests cover this (`native/test/boardMotion.test.tsx`). On the Vega Virtual Device the query answers no, and there is no setting to change it; whether a Fire TV Stick offers the setting is not yet checked ([Performance](/technology/performance/)).
+
+### VoiceView (Screen Reader)
+
+VoiceView, Fire TV's screen reader, reads what holds the platform's focus. Dice Chess keeps its own: the arrows move a cursor and a highlight that the game draws, so VoiceView alone would find nothing to read. So while VoiceView is on, the game tells it in words what changed, through React Native's `AccessibilityInfo` announcements ([issue 257](https://github.com/fortemate/dicechess-tv/issues/257)):
+
+- **Menus and choices:** the name of a menu as it opens, its note if it has one, then the focused item and its place: _Dice Chess. Play a friend, 1 of 6._ Moving the focus says the item, _Play the computer, 2 of 6_, and a setting changed where the focus stands says its new value, _Sound effects: off_. The confirmations, the choice of colour and of promotion, the offer of the tutorial and _What next?_ after a game work the same way.
+- **The choice of opponent:** each card's name, level and line on how it plays: _Rolly, Easy. Plays any legal turn, at random, 1 of 3._
+- **The board:** the square under the cursor, what stands on it and the mark the board shows there, since the board draws no coordinates: _g1, white knight, can move_; _f3, empty, can go here_; _d5, black knight, can take_.
+- **The game:** each roll and the dice no move can use; each move, by the person, the friend or the computer; a turn that is over and whose turn comes next; and the result. Against Rolly a turn sounds like this: _Rolly's turn. Rolly rolled queen, rook and knight. The queen can't be used. Rolly moved the knight from g8 to f6. Rolly moved the rook from h8 to g8. Your turn. OK: roll three dice._ The result uses the words on screen: _Rolly wins. You resigned._
+- **The prompts that ask for a press:** _OK: roll three dice_, _OK: move the knight here_, _OK: Black's turn_.
+- **The rules reference:** the topic and its text, as the focus moves.
+- **Short, and in order:** a move of the focus cuts short whatever is being said, so a held arrow is heard where it stops rather than square by square. The steps of a game wait their turn, so none of the computer's moves is lost.
+
+Squares, dice, menu items and opponent cards also carry accessibility labels and roles, with the on/off settings as switches. No element is made focusable for the platform: on Vega that would hand the arrows to the system's focus instead of the game's. No title carries a heading role either: VoiceView reads a heading by itself as it appears, and on the Virtual Device that cut off the result announced just before it. The words come from `src/core/announcements.ts`, the same module that words the result on screen. Nothing is worked out while VoiceView is off.
+
+Not covered yet: the tutorial, which Thinkle speaks aloud anyway, About, and the screen shown after an error.
+
+Unit tests check the wording against the engine and, with `AccessibilityInfo` stubbed, when each line is said: the home menu, a held arrow, a setting, a game against a friend, a turn of the computer's, a resignation and its result, and the rules reference (`test/announcements.test.ts`, `native/test/screenSpeech.test.ts`, `native/test/voiceView.test.tsx`).
+
+On the Vega Virtual Device, on 11 October 2026, VoiceView was turned on with the `inputd-cli` hold of Back and Menu ([FL-29](/developer-experience/friction-log/#fl-29)) and its speech was recorded with `vvd record`. With D-pad and OK: the home menu, Settings with two settings changed, the choice of opponent, two rolls that could not be used, a turn of Rampage's, a turn of the person's with the cursor moved and a pawn played, the Resign confirmation and the result of a game against the computer and of one against a friend, and the rules reference. Each press was followed by speech of the expected length and pauses, the computer's lines were queued, not lost, and with VoiceView off a press was silent. No transcript was made: the timing is the evidence, and the words were not checked by ear. The Virtual Device could not check a held arrow, since the driver's hold sent no repeats. Nothing has been checked with VoiceView on a Fire TV Stick yet.

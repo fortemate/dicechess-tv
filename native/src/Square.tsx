@@ -4,6 +4,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import type { SquareView } from '../../src/core/boardView';
+import { squareLabel } from '../../src/core/announcements';
 import { PIECES } from './pieces';
 import { THEME } from './theme';
 
@@ -65,6 +66,9 @@ export const Square = React.memo(function Square({ view, edge }: SquareProps) {
   const focus = view.cursor || view.selected;
   return (
     <View
+      // Named for a screen reader, which the board's missing coordinates leave
+      // to guess otherwise (#257); the cursor's square is also said aloud.
+      aria-label={squareLabel(view)}
       style={{
         width: edge,
         height: edge,
