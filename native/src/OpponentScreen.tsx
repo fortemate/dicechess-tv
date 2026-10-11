@@ -81,7 +81,6 @@ const Card = ({
       // focus is the reducer's (Option.tsx).
       role="button"
       aria-label={cardLabel(opponent)}
-      aria-selected={focused}
       style={{
         width,
         paddingVertical: 18,

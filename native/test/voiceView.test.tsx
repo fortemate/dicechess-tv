@@ -213,21 +213,18 @@ test('the squares and the dice are named, and the menu items say what they are',
   assert.ok(labels.includes("queen die, can't be used"));
   assert.ok(labels.includes('knight die'));
 
-  assert.deepEqual(optionAccessibility('Sound effects: on', true), {
+  assert.deepEqual(optionAccessibility('Sound effects: on'), {
     role: 'switch',
     'aria-label': 'Sound effects',
     'aria-checked': true,
-    'aria-selected': true,
   });
-  assert.deepEqual(optionAccessibility('Music: 7', false), {
+  assert.deepEqual(optionAccessibility('Music: 7'), {
     role: 'slider',
     'aria-label': 'Music',
     'aria-valuetext': '7',
-    'aria-selected': false,
   });
-  assert.deepEqual(optionAccessibility('Play a friend', false), {
+  assert.deepEqual(optionAccessibility('Play a friend'), {
     role: 'menuitem',
-    'aria-selected': false,
   });
   assert.equal(
     cardLabel(OPPONENTS[0]),

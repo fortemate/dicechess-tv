@@ -127,8 +127,9 @@ export const squareLabel = (
 // A die as a screen reader names it: the piece it lets move, and whether it is
 // spent or cannot be (#85, #140), which the screen shows by dimming it.
 export const dieLabel = (die: Die): string => {
-  const state = die.spent ? ', used' : die.leftover ? ", can't be used" : '';
-  return `${pieceName(die.piece)} die${state}`;
+  const name = `${pieceName(die.piece)} die`;
+  if (die.spent) return `${name}, used`;
+  return die.leftover ? `${name}, can't be used` : name;
 };
 
 // "queen", "queen and rook", "queen, rook and knight".

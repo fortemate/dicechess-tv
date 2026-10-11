@@ -40,7 +40,7 @@ const opened = (choice: Choice): string[] => [
 
 // A hint on screen separates its parts with a dot; spoken, that is a pause.
 export const spokenHint = (hint: string): string =>
-  hint.split(' · ').join(', ');
+  hint.replaceAll(' · ', ', ');
 
 // One utterance for one step of the screen, or null when nothing changed that
 // is said. A step of the game waits for what is being said; a move of focus
@@ -59,7 +59,7 @@ function focusSpeech(before: Heard | null, now: Heard): string[] {
   const { choice } = now;
   const was = before?.choice ?? null;
   if (choice) {
-    if (!was || was.title !== choice.title) return opened(choice);
+    if (was?.title !== choice.title) return opened(choice);
     if (was.index !== choice.index) return [itemSpeech(choice)];
     // A setting changed where focus stands: its new value.
     const option = choice.options[choice.index];
