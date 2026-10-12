@@ -23,6 +23,18 @@ export function releaseAudio() {
   for (const release of waiting) release();
 }
 
+// Test-only: keep the next plays starting until releasePlays(), as a slow
+// media pipeline would.
+let starting = null;
+export function holdPlays() {
+  starting = [];
+}
+export function releasePlays() {
+  const waiting = starting ?? [];
+  starting = null;
+  for (const release of waiting) release();
+}
+
 export class AudioPlayer {
   constructor(contentType, usage) {
     this.contentType = contentType;
@@ -59,8 +71,9 @@ export class AudioPlayer {
       src: this._src,
       from: this._time,
     });
-    return failing.play
-      ? Promise.reject(new Error('not supported'))
+    if (failing.play) return Promise.reject(new Error('not supported'));
+    return starting
+      ? new Promise((done) => starting.push(done))
       : Promise.resolve();
   }
   pause() {
@@ -80,4 +93,5 @@ export function resetAudio() {
   failing.play = false;
   failing.pause = false;
   held = null;
+  starting = null;
 }

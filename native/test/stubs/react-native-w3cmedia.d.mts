@@ -26,6 +26,10 @@ export declare function failAudio(stage: 'initialize' | 'play' | 'pause'): void;
 export declare function holdAudio(): void;
 /** Test-only: finish initialising every held player. */
 export declare function releaseAudio(): void;
+/** Test-only: keep the next plays starting until releasePlays(). */
+export declare function holdPlays(): void;
+/** Test-only: let every held play start. */
+export declare function releasePlays(): void;
 
 export declare class AudioPlayer {
   constructor(contentType?: number, usage?: number);

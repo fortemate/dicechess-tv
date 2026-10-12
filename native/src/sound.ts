@@ -359,6 +359,14 @@ export function createSounds({
   // The player the last line was said on.
   let voice: Player | null = null;
   const silentVoice = () => suspended || !voices;
+  // A line's player is let go once the line is over, however it ended, unless
+  // a newer line has let it go already. A loaded player kept paused still costs
+  // the Stick (#374).
+  const release = (player: Player) => {
+    if (voice !== player) return;
+    voice = null;
+    letGo('voice', player);
+  };
 
   // The line on the player is cut short whatever the settings say, and one
   // waiting to start is dropped: for a line replaced by another, or stopped.
@@ -390,22 +398,20 @@ export function createSounds({
       await player.play();
     } catch (error) {
       report(`sound: line ${id} did not play: ${String(error)}`);
+      release(player);
       return;
     }
     // Stopped or replaced while it was starting. A line replaced by one that
     // has not reached its player yet is stopped here, or it would go on.
     if (turn !== lines || silentVoice()) {
-      if (voice === player) pause('voice', player);
+      release(player);
       return;
     }
     speech(true);
     later(() => {
-      if (turn !== lines) return;
-      speech(false);
-      // Said: its player is let go.
-      if (voice !== player) return;
-      voice = null;
-      letGo('voice', player);
+      if (turn === lines) speech(false);
+      // Said, or stopped on the way: its player is let go.
+      release(player);
     }, ms);
   };
 

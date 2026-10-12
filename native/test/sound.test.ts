@@ -6,6 +6,8 @@ import {
   failAudio,
   holdAudio,
   releaseAudio,
+  holdPlays,
+  releasePlays,
 } from './stubs/react-native-w3cmedia.mjs';
 import {
   createSounds as createAppSounds,
@@ -771,6 +773,42 @@ test('a line without a clip, or one that refuses to play, is reported, and nothi
     'sound: line rolly_capture_3 did not play: Error: not supported',
   ]);
   assert.deepEqual(speech.heard, []);
+  // Its player is let go rather than kept loaded until the next line.
+  assert.deepEqual(
+    released(),
+    plays().map((entry) => entry.player),
+  );
+});
+
+// A loaded player kept paused still costs the Stick (#374): however a line
+// ends, its player is let go.
+test('a line stopped while its player starts is let go, and so is one stopped part way', async () => {
+  resetAudio();
+  const speech = speaking();
+  const time = clock();
+  const sounds = createSounds({ later: time.later, onSpeech: speech.onSpeech });
+  holdPlays();
+  sounds.say(line('grabby_capture_1'));
+  await settle();
+  sounds.stopLine();
+  releasePlays();
+  await settle();
+  const [starting] = plays();
+  assert.deepEqual(released(), [starting.player]);
+  assert.deepEqual(speech.heard, []);
+
+  // Said part way, then stopped: the line may finish, and its player is let go
+  // once its time is up, as a line said to the end is.
+  for (const stop of [() => sounds.stopLine(), () => sounds.setVoices(false)]) {
+    sounds.setVoices(true);
+    sounds.say(line('grabby_capture_2'));
+    await settle();
+    const said = plays().at(-1)!;
+    stop();
+    assert.ok(!released().includes(said.player));
+    time.elapse();
+    assert.ok(released().includes(said.player));
+  }
 });
 
 test("Thinkle's tutorial lines play from his own clips, and Voices off silences them", async () => {
