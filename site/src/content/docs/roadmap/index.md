@@ -33,7 +33,13 @@ Every feature here was played on the Vega Virtual Device, and the app's automate
 
 ## Next
 
-What players' findings prompt comes first. Already on the list:
+The first goal after the hackathon, which closes on 23 October 2026, is Dice Chess on more televisions, built from the same code ([#223](https://github.com/fortemate/dicechess-tv/issues/223)):
+
+- **Fire TV on Fire OS** first: most Fire TV devices run it, and it shares the Amazon Appstore;
+- **Android TV and Google TV** next, then **Apple TV**;
+- **Samsung and LG televisions** later, through the web build.
+
+What players' findings prompt is fixed along the way. Also on the list:
 
 - a cursor that stands out when many squares are highlighted;
 - a mark for the pieces that can move that reads well with colour-vision deficiency;

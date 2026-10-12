@@ -4,7 +4,7 @@ Agreed with the owner on 21 September 2026. This is planned work, not a completi
 
 **Status on 11 October 2026:** Dice Chess 1.0.0, build 28, was released on GitHub and submitted to the Amazon Appstore, where it awaits Amazon's review; it replaced build 26, released and submitted on 10 October and withdrawn from review before it went live; the hackathon submission is still to come. A Fire TV Stick 4K Select has been in use for testing since 6 October 2026, so physical-device testing no longer waits for hardware. The WebView full-game prototype this plan started from has been removed: the game is the React Native for Vega application in `native/`, described in the [README](../README.md).
 
-Minimum success is **M1 + M2 + M3**: a reliable, polished, understandable offline TV game and a reviewable contest submission. Multiple themes and advanced bots are stretch goals. M7, more TV platforms, comes after the hackathon. The existing full-game prototype is the starting point; see [verified behavior](full-game.md).
+Minimum success is **M1 + M2 + M3**: a reliable, polished, understandable offline TV game and a reviewable contest submission. Multiple themes and advanced bots are stretch goals. M7, more TV platforms, is the first priority after the hackathon. The existing full-game prototype is the starting point; see [verified behavior](full-game.md).
 
 [GitHub milestones](https://github.com/fortemate/dicechess-tv/milestones) track these delivery gates. Dates are internal targets in Europe/Riga, not promises. Do not close a milestone solely because its date has arrived.
 
@@ -46,7 +46,7 @@ Optional; no committed deadline. Consider Hunter, advanced castling/promotion/ta
 
 ## M7 – Multi-platform TV
 
-Target: after the hackathon, unscheduled.
+Target: the first priority after the hackathon (the owner's decision of 12 October 2026); not yet dated.
 
 Not part of the hackathon scope, and it never takes time from M1–M5. Ship Dice Chess TV beyond Vega from one codebase:
 

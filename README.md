@@ -87,7 +87,7 @@ The architecture, platform findings on Vega, the friction log and how the projec
 
 This repository owns TV-specific packaging, input and application integration. Reuse appropriate public components from [dicechess-play](https://github.com/fortemate/dicechess-play) and [dicechess-engine](https://github.com/fortemate/dicechess-engine) after checking their licenses. Shared fixes should return to their source repositories.
 
-Fire OS is a possible later target with a separate build. A Fire TV Stick 4K Select with Vega OS was bought for testing and has been in use since 6 October 2026 (#10); Samsung/Tizen, Raspberry Pi and further hardware purchases are deferred.
+After the hackathon, the first priority is more TV platforms, starting with Fire OS ([roadmap](docs/roadmap.md), M7). A Fire TV Stick 4K Select with Vega OS was bought for testing and has been in use since 6 October 2026 (#10); Samsung/Tizen, Raspberry Pi and further hardware purchases are deferred.
 
 ## Completed feasibility milestone
 
