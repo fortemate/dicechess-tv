@@ -30,7 +30,7 @@ The cue for a roll with nothing to play was added last. It had to sound like bad
 
 ## Heard together, cut short where it matters
 
-The cues play on three channels: board, dice and result. A capture and the win it causes are heard together, because they are on different channels. A new move on the same channel cuts the last one short instead of piling sounds up. Each sound file has a player of its own, each spoken line a fresh one, and each music theme a pair: on an updated Fire TV Stick, a player given a second clip could hang the app ([#374](https://github.com/fortemate/dicechess-tv/issues/374)).
+The cues play on three channels: board, dice and result. A capture and the win it causes are heard together, because they are on different channels. A new move on the same channel cuts the last one short instead of piling sounds up. Each cue and each spoken line plays on a fresh player, let go once it is done, and each music theme has a pair of its own: on an updated Fire TV Stick, a player given a second clip could hang the app ([#374](https://github.com/fortemate/dicechess-tv/issues/374)).
 
 ## Silence
 
