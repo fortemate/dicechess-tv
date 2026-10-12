@@ -63,18 +63,30 @@ A view of the game, the position with what may come next and the dice left, was 
 
 The figures are medians, about 30 keys each, from Release builds against Rolly with auto-select off; the keys were sent with `inputd-cli` on the Stick and with `vvd` on the Virtual Device. Instrumentation added for the measurement and never committed timed each key from the game screen's first render to its layout effect, which covers the reducer, the render and the commit, and the part of that spent working out views, in brackets.
 
-| Key                         | Actions played | Fire TV Stick, before | Virtual Device, before  | Virtual Device, after   |
-| --------------------------- | -------------- | --------------------- | ----------------------- | ----------------------- |
-| Arrow, nothing picked up    | 0              | 20.4 ms (0.6 ms)      | 2.33 ms (0.07 ms)       | 1.93 ms (0.01 ms)       |
-| Arrow, nothing picked up    | 1              | 27.6 ms (10.3 ms)     | 2.56 ms (0.84 ms)       | 0.98 ms (0.02 ms)       |
-| Arrow, nothing picked up    | 2              | 26.9 ms (18.6 ms)     | 2.66 ms (1.49 ms)       | 0.69 ms (0.01 ms)       |
-| Arrow, with a piece in hand | 0              | 19.8 ms (0.7 ms)      | 1.35 ms (0.06 ms)       | 1.99 ms (0.01 ms)       |
-| Arrow, with a piece in hand | 1              | 22.4 ms (10.9 ms)     | 2.26 ms (0.86 ms)       | 1.96 ms (0.01 ms)       |
-| Arrow, with a piece in hand | 2              | 37.0 ms (19.2 ms)     | 3.07 ms (1.45 ms)       | 1.96 ms (0.01 ms)       |
-| Pick up a piece             | 1–2            | 52–55 ms (14–20 ms)   | 4.1–4.7 ms (1.0–1.8 ms) | 3.4–3.7 ms (0.02 ms)    |
-| Play an action              | 1–2            | 91–92 ms (37–42 ms)   | not read                | 5.2–5.3 ms (0.4–0.8 ms) |
+On a Fire TV Stick 4K Select (Vega OS 1.2) on 12 October 2026, with music, sound effects and voices off:
 
-The Stick was measured on 12 October 2026 with music, sound effects and voices off; the Virtual Device the same day with sound effects and voices on. Before the change an arrow worked out five views at every point of a turn, and a played action eight to eleven; after it, an arrow and a pick-up work out one, which is already kept and calls the engine not at all, and a played action replays the turn once, for the state it leads to (`native/test/replays.test.tsx` holds every key to that). On the Virtual Device an arrow in the middle of a turn now costs no more than one at its start. The Stick has not been measured after the change yet. One view there took 2.1 ms after one action and 3.7 ms after two, about twelve times the Virtual Device, so an arrow in the middle of a turn should come down to what one at the start of a turn costs, about 20 ms: a little over one frame at 60 frames a second, the rest of which is rendering.
+| Key                                    | Actions played | Before              | After                 |
+| -------------------------------------- | -------------- | ------------------- | --------------------- |
+| Arrow, nothing picked up               | 0              | 20.4 ms (0.6 ms)    | 18.9 ms (0.1 ms)      |
+| Arrow, nothing picked up               | 1              | 27.6 ms (10.3 ms)   | 20.2 ms (0.1 ms)      |
+| Arrow, nothing picked up               | 2              | 26.9 ms (18.6 ms)   | 9.2 ms (0.1 ms)       |
+| Arrow, with a piece in hand            | 0              | 19.8 ms (0.7 ms)    | 8.8 ms (0.1 ms)       |
+| Arrow, with a piece in hand            | 1              | 22.4 ms (10.9 ms)   | 21.9 ms (0.1 ms)      |
+| Arrow, with a piece in hand            | 2              | 37.0 ms (19.2 ms)   | 19.6 ms (0.1 ms)      |
+| Pick up a piece                        | 1–2            | 52–55 ms (14–20 ms) | 39–44 ms (0.1 ms)     |
+| Play an action                         | 1–2            | 91–92 ms (37–42 ms) | 58–69 ms (4.6–8.1 ms) |
+| OK to hand the turn on, after 3 played | 3              | 50 ms (23 ms)       | 27 ms (0.1 ms)        |
+
+On the Vega Virtual Device the same day, with sound effects and voices on:
+
+| Key                         | Actions played | Before                  | After                   |
+| --------------------------- | -------------- | ----------------------- | ----------------------- |
+| Arrow, nothing picked up    | 0 / 1 / 2      | 2.33 / 2.56 / 2.66 ms   | 1.93 / 0.98 / 0.69 ms   |
+| Arrow, with a piece in hand | 0 / 1 / 2      | 1.35 / 2.26 / 3.07 ms   | 1.99 / 1.96 / 1.96 ms   |
+| Pick up a piece             | 1–2            | 4.1–4.7 ms (1.0–1.8 ms) | 3.4–3.7 ms (0.02 ms)    |
+| Play an action              | 1–2            | not read                | 5.2–5.3 ms (0.4–0.8 ms) |
+
+Before the change an arrow worked out five views at every point of a turn, and a played action eight to eleven. After it, an arrow and a pick-up work out one, which is already kept and calls the engine not at all, and a played action replays the turn once, for the state it leads to (`native/test/replays.test.tsx` holds every key to that). On both devices an arrow in the middle of a turn now costs what one at the start of a turn does: on the Stick 9–22 ms, against 22–37 ms before. The rest of a key's time is rendering, which this change did not touch; it varies from about 8 to 22 ms between rows in both runs, so an arrow can still take a little over one frame at 60 frames a second. A roll did not get cheaper: most of its 90–110 ms on the Stick is building the roll's tree of legal turns, once per roll.
 
 ## Opponents' decision time
 
