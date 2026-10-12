@@ -108,6 +108,12 @@ class FakePlayer {
     this.playing = false;
     this.log.push(`${this.id} pause`);
   }
+  deinitialize() {
+    this.released = true;
+    this.log.push(`${this.id} release`);
+    return Promise.resolve();
+  }
+  released = false;
 }
 
 const CATALOGUE: Catalogue = {
@@ -213,9 +219,10 @@ test('a theme still fading out fades back in rather than starting over', async (
   music.setRole('calm');
   await clock.advance(CROSSFADE_MS + 100);
   // calm was played once and never paused.
-  const calm = log.filter((line) => line.includes('calm'));
-  assert.equal(calm.length, 1);
-  assert.match(calm[0], /^\d+ play calm\.mp3$/);
+  assert.deepEqual(
+    log.filter((line) => line.includes('calm')),
+    ['0 play calm.mp3'],
+  );
 });
 
 // A short loop, so a seam comes quickly: from 1 s, the seam begins after 16 s.
@@ -262,27 +269,6 @@ test('a theme that went past its seam while fading out starts over rather than h
   assert.ok(fresh, 'calm starts again from its loop start');
 });
 
-// On the Stick's OS 2602000051520, setting `src` on a player that had already
-// played now and then never returned, and the app was closed as not
-// responding (#374).
-test('each theme has a pair of players, and no player is ever given a second track', async () => {
-  const { music, clock, players } = await rig(SHORT_LOOP);
-  for (const role of ['calm', 'tense', 'calm', 'tense', 'calm'] as const) {
-    music.setRole(role);
-    // Long enough for calm's 19 s loop to hand over at least once.
-    await clock.advance(25_000);
-  }
-  assert.equal(players.length, 4);
-  for (const player of players)
-    assert.ok(player.given <= 1, `player ${player.id} given ${player.given}`);
-  // Two for calm, both used by its seams, then two for tense, whose longer
-  // loop has not reached a seam: a player not needed yet has no track at all.
-  assert.deepEqual(
-    players.map((player) => player.src.split('/').pop()),
-    ['calm.mp3', 'calm.mp3', 'tense.mp3', ''],
-  );
-});
-
 test('a pass about to end hands over to a fresh pass on the other player, over 3 s', async () => {
   const { music, clock, players, playing } = await rig({
     tracks: {
@@ -302,9 +288,30 @@ test('a pass about to end hands over to a fresh pass on the other player, over 3
   await clock.advance(SEAM_MS);
   assert.deepEqual(playing(), ['calm.mp3']);
   assert.equal(first.playing, false);
-  // And the pass after that goes back to the first.
+  // Faded out, the first player is let go (#374).
+  assert.ok(first.released);
+  // And the pass after that starts on a fresh player of its own.
   await clock.advance(16_000);
-  assert.ok(first.playing, 'the first player takes the third pass');
+  const third = players.find((player) => player.playing && player !== second);
+  assert.ok(third && third !== first, 'a fresh player takes the third pass');
+});
+
+// On the Stick's OS 2602000051520, a player given a second track now and then
+// hung, and one that had loaded a track kept working even paused (#374).
+test('no music player is ever given a second track, and every silent one is let go', async () => {
+  const { music, clock, players } = await rig(SHORT_LOOP);
+  for (const role of ['calm', 'tense', 'calm', 'tense', 'calm'] as const) {
+    music.setRole(role);
+    // Long enough for calm's 19 s loop to hand over at least once.
+    await clock.advance(25_000);
+  }
+  music.setEnabled(false);
+  await clock.advance(5_000);
+  for (const player of players)
+    assert.ok(player.given <= 1, `player ${player.id} given ${player.given}`);
+  // Every player that loaded a track has been let go; the rest are ready.
+  for (const player of players.filter((each) => each.given))
+    assert.ok(player.released, `player ${player.id} kept`);
 });
 
 test('leaving the foreground stops at once; coming back waits, then resumes where it was', async () => {
