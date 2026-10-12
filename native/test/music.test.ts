@@ -65,6 +65,8 @@ const flush = async () => {
 class FakePlayer {
   volume = 1;
   playing = false;
+  // How many times a track was set (#374).
+  given = 0;
   private file = '';
   private at = 0;
   private since = 0;
@@ -77,6 +79,7 @@ class FakePlayer {
     return this.file;
   }
   set src(value: string) {
+    this.given++;
     this.file = value;
     this.at = 0;
     this.since = this.clock.now();
@@ -210,10 +213,9 @@ test('a theme still fading out fades back in rather than starting over', async (
   music.setRole('calm');
   await clock.advance(CROSSFADE_MS + 100);
   // calm was played once and never paused.
-  assert.deepEqual(
-    log.filter((line) => line.includes('calm')),
-    ['0 play calm.mp3'],
-  );
+  const calm = log.filter((line) => line.includes('calm'));
+  assert.equal(calm.length, 1);
+  assert.match(calm[0], /^\d+ play calm\.mp3$/);
 });
 
 // A short loop, so a seam comes quickly: from 1 s, the seam begins after 16 s.
@@ -258,6 +260,27 @@ test('a theme that went past its seam while fading out starts over rather than h
       each.playing && each.src.endsWith('calm.mp3') && each.currentTime < 1.5,
   );
   assert.ok(fresh, 'calm starts again from its loop start');
+});
+
+// On the Stick's OS 2602000051520, setting `src` on a player that had already
+// played now and then never returned, and the app was closed as not
+// responding (#374).
+test('each theme has a pair of players, and no player is ever given a second track', async () => {
+  const { music, clock, players } = await rig(SHORT_LOOP);
+  for (const role of ['calm', 'tense', 'calm', 'tense', 'calm'] as const) {
+    music.setRole(role);
+    // Long enough for calm's 19 s loop to hand over at least once.
+    await clock.advance(25_000);
+  }
+  assert.equal(players.length, 4);
+  for (const player of players)
+    assert.ok(player.given <= 1, `player ${player.id} given ${player.given}`);
+  // Two for calm, both used by its seams, then two for tense, whose longer
+  // loop has not reached a seam: a player not needed yet has no track at all.
+  assert.deepEqual(
+    players.map((player) => player.src.split('/').pop()),
+    ['calm.mp3', 'calm.mp3', 'tense.mp3', ''],
+  );
 });
 
 test('a pass about to end hands over to a fresh pass on the other player, over 3 s', async () => {

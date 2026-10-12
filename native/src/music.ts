@@ -7,6 +7,11 @@
 // - Its own looping loses about 0.3 s at the first seam, and `ended` comes 0.4 s
 //   late. So a track loops on two players taking turns: the next pass starts on
 //   the other player just before the loop's end and the two crossfade.
+// - On a Fire TV Stick with OS build 2602000051520, setting `src` on a player
+//   that has already played now and then never returned, and the system closed
+//   the app as not responding (#374). So each theme has its pair of players,
+//   given their track once, and a change of level crossfades to the other
+//   theme's pair rather than loading a new track.
 // - `volume` works, and a ramp of 50 ms steps holds its pace. Every fade here is
 //   such a ramp, driven by one ticker, on an equal-power curve, so a crossfade
 //   does not dip in the middle.
@@ -114,6 +119,8 @@ const musicPlayer = (): Player =>
 
 type Voice = {
   player: Player;
+  // The theme this player plays, and the only one: its track is set once.
+  theme: MusicRole;
   role: MusicRole | null;
   track: Track | null;
   // Where the fade is, 0 to 1, where it is heading, and how far per tick.
@@ -273,8 +280,10 @@ export function createMusic({
     if (!voices) return;
     duckStep();
     for (const voice of voices) if (voice.playing) fadeStep(voice);
-    const [a, b] = voices;
-    if (!handOver(a, b)) handOver(b, a);
+    for (const theme of new Set(voices.map((voice) => voice.theme))) {
+      const [a, b] = pairOf(theme);
+      if (!handOver(a, b)) handOver(b, a);
+    }
     if (voices.some((voice) => voice.playing)) return;
     stopTicker?.();
     stopTicker = null;
@@ -305,17 +314,20 @@ export function createMusic({
         fadeTo(voice, 0, ms);
   };
 
-  // Starts a theme on a voice: a silent one, or the quieter of two playing.
+  // The two voices of a theme.
+  const pairOf = (theme: MusicRole): Voice[] =>
+    (voices ?? []).filter((voice) => voice.theme === theme);
+
+  // Starts a theme on one of its voices: a silent one, or the quieter of the
+  // two when both are playing.
   const startTheme = (want: MusicRole, audible: Voice | undefined) => {
     if (!voices || !catalogue) return;
     const track = catalogue.tracks[want];
-    if (!track) return;
+    const pair = pairOf(want);
+    if (!track || !pair.length) return;
     const spare =
-      voices.find((voice) => !voice.playing) ??
-      voices.reduce(
-        (low, voice) => (voice.fade < low.fade ? voice : low),
-        voices[0],
-      );
+      pair.find((voice) => !voice.playing) ??
+      pair.reduce((low, voice) => (voice.fade < low.fade ? voice : low));
     fadeOutAllBut(spare, CROSSFADE_MS);
     // A new level starts its theme from the beginning. A return from the
     // background continues where the music stopped instead.
@@ -365,18 +377,21 @@ export function createMusic({
   const prepare = () => {
     if (voices || !catalogue) return;
     const created: Voice[] = [];
+    const themes = Object.keys(catalogue.tracks) as MusicRole[];
     try {
-      for (let i = 0; i < 2; i++)
-        created.push({
-          player: createPlayer(),
-          role: null,
-          track: null,
-          fade: 0,
-          target: 0,
-          step: 0,
-          playing: false,
-          seamed: false,
-        });
+      for (const theme of themes)
+        for (let i = 0; i < 2; i++)
+          created.push({
+            player: createPlayer(),
+            theme,
+            role: null,
+            track: null,
+            fade: 0,
+            target: 0,
+            step: 0,
+            playing: false,
+            seamed: false,
+          });
     } catch (error) {
       report(`music: player not created: ${String(error)}`);
       return;
@@ -436,10 +451,9 @@ export function createMusic({
         if (!voices || !ready) return reconcile();
         const want = role && catalogue?.tracks[role] ? role : null;
         report(want ? `music: resumed on ${want}` : 'music: resumed');
-        if (want && enabled && clock.now() >= holdUntil) {
-          const spare = voices[0];
+        const spare = want ? pairOf(want)[0] : undefined;
+        if (want && spare && enabled && clock.now() >= holdUntil)
           begin(spare, want, catalogue!.tracks[want]!, RESUME_FADE_MS);
-        }
       });
     },
     setDucked(on) {
