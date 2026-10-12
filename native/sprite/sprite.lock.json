@@ -1,0 +1,20 @@
+{
+  "file": "effects.mp3",
+  "sha256": "f8023eb41e79887fdd854531301398559d86d278e9d76fbbc75440c1331b18be",
+  "gapSeconds": 2,
+  "sources": {
+    "jdsherbert-tabletop/piece_impact_1.mp3": "3df6d469bcb7de2d3c24a854cd7a6780ab88acabe3b7d2a0c52c72d9997ef0fa",
+    "jdsherbert-tabletop/piece_impact_2.mp3": "aacd4ec780eb46cb7dba6d589c4128d52ceb74fe8af6cfa427b1e8ca89dfeb83",
+    "jdsherbert-tabletop/piece_move_1.mp3": "580117ec1dc731712224d642990db6fb5b94893da2b078e2855745e5fdb20deb",
+    "jdsherbert-tabletop/piece_move_2.mp3": "6d553ebed10670d2c8faeeb8e9706645eac3b416fd37f948de697954668d01c7",
+    "kenney-casino-audio/dice_grab_2.mp3": "bf553a7a4baca9fb3f1fe475e92f851640641eb5b6b100179ef4d1b733590a82",
+    "kenney-casino-audio/dice_throw_1.mp3": "bba01f667891a795449c2a3eb2dfe762cb469c40bfc6447665c99cdbca1d0d0b",
+    "kenney-casino-audio/dice_throw_2.mp3": "64d8983bc2906a7da24f0591900724997aaa522e60052ea91d6e7f59174a7bd5",
+    "kenney-casino-audio/dice_throw_3.mp3": "60edba77c5bf0c9b9994c83e038bdb09289459fc5ff2e74982aee4dc8ece45cb",
+    "kenney-interface-sounds/glass_004.mp3": "0bbc0cf70bc0992364f2e969055c88195744975a651ff75b89a5f190c6ee48f7",
+    "kenney-interface-sounds/maximize_006.mp3": "5370809cd3e1a29aacc79024a8ba8b72a12202464f9c514f88ff19124874ecc1",
+    "kenney-music-jingles/pizzicato_01.mp3": "caf55d540a3d590311810870b2b2a6f7d57e2771f6b2c02ac37c33fe2a23226a",
+    "kenney-music-jingles/pizzicato_02.mp3": "d3d287befbb9dc8e00ab774ebf8a8f1dc9bc3deb8a6add7a69a90fece9f29b51",
+    "kenney-music-jingles/pizzicato_03.mp3": "5cc40e6c736c50831a3ba68e1aa92d2cc387accd1460b46720701a0af4490f8f"
+  }
+}

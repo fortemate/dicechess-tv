@@ -282,6 +282,16 @@ export const copySounds = (root = native) => {
       copied.push(`${pack}/${name}`);
     }
   }
+  // The effects joined into one file, which the app plays them from (#374):
+  // scripts/sprite-effects.mjs makes it from the files above.
+  const sprite = JSON.parse(
+    readFileSync(join(root, 'sprite/sprite.lock.json'), 'utf8'),
+  );
+  const bytes = readFileSync(join(root, 'sprite', sprite.file));
+  if (createHash('sha256').update(bytes).digest('hex') !== sprite.sha256)
+    throw new Error(`sprite/${sprite.file} no longer matches sprite.lock.json`);
+  writeFileSync(join(target, sprite.file), bytes);
+  copied.push(sprite.file);
   return copied;
 };
 

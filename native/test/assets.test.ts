@@ -62,6 +62,7 @@ test('a run leaves nothing under assets/ that it did not write', (t) => {
     'brand',
     'splash',
     'sounds',
+    'sprite',
     'music',
     'voices',
     'licenses',
