@@ -15,11 +15,16 @@
 //
 // So the effects are joined into one file, an audio sprite, as Amazon advises
 // for games (scripts/sprite-effects.mjs). The cues go out on three channels,
-// each with one player that loads the sprite once: a cue rewinds its channel's
-// player to its clip, plays it, and pauses it once the clip is over. A capture
-// and the win it causes are heard together, because they are on different
-// channels; a new move on the same channel cuts the last one short instead of
-// piling sounds up.
+// each with one player that loads the sprite once, plays a cue's clip and is
+// paused once the clip is over. A capture and the win it causes are heard
+// together, because they are on different channels; a new move on the same
+// channel cuts the last one short instead of piling sounds up.
+//
+// A seek takes the media pipeline a moment, and one asked for just before
+// play() was heard to lose the start of a clip on the virtual device, now and
+// then the whole clip. So between clips each channel's player waits, paused, at
+// the start of a take of the cue it plays most, chosen in advance: that cue
+// then only has to play. Any other cue seeks first.
 //
 // The lines are the bots' (#159), the Hot Seat host's (#202), and Thinkle's as
 // he teaches the tutorial (#264). The voices have a setting of their own, so
@@ -71,6 +76,13 @@ const CHANNEL: Readonly<Record<Cue, Channel>> = {
 export const CUE_DELAY_MS: Partial<Record<Cue, number>> = { no_move: 500 };
 
 const CHANNELS: readonly Channel[] = ['board', 'dice', 'result'];
+
+// The cue a channel's player waits for between clips: the one it plays most.
+const MAIN_CUE: Readonly<Record<Channel, Cue>> = {
+  board: 'piece_move',
+  dice: 'dice_roll',
+  result: 'no_move',
+};
 
 // A clip starts this early, in the silence before it, so the start of the clip
 // is heard whether or not the decoder counts the MP3's own delay.
@@ -239,6 +251,26 @@ export function createSounds({
       );
   };
 
+  const choose = (files: readonly string[]) =>
+    files[Math.min(files.length - 1, Math.max(0, pick(files.length)))];
+
+  // The take each channel's player waits at, paused at the start of its clip.
+  // A channel has none while a clip plays, or when the wait could not be set.
+  const parked = new Map<Channel, string>();
+  const park = (channel: Channel, player: Player) => {
+    const file = choose(CUE_FILES[MAIN_CUE[channel]]);
+    const clip = EFFECT_CLIPS[file];
+    if (!clip) return;
+    try {
+      player.currentTime = Math.max(0, clip.start - CLIP_LEAD_SECONDS);
+      parked.set(channel, file);
+    } catch (error) {
+      report(
+        `sound: ${channel} did not wait at its next clip: ${String(error)}`,
+      );
+    }
+  };
+
   // Each channel's player, made up front and given the sprite once, so the
   // first cue of a game is not the one that waits for a media pipeline to come
   // up. `ready` holds the ones done, so that leaving pauses them at once rather
@@ -256,6 +288,7 @@ export function createSounds({
           return null;
         }
         ready.set(channel, player);
+        park(channel, player);
         return player;
       }),
     ]),
@@ -265,19 +298,24 @@ export function createSounds({
 
   const start = async (cue: Cue, generation: number) => {
     const files = CUE_FILES[cue];
-    const file =
-      files[Math.min(files.length - 1, Math.max(0, pick(files.length)))];
     const channel = CHANNEL[cue];
     const player = await channels.get(channel);
     // Muting can happen while a player is still initialising.
     if (!player || muted || suspended || generation !== suspension) return;
+    // The player already waits at one of this cue's takes: that is the take.
+    const waiting = parked.get(channel);
+    const atClip = waiting !== undefined && files.includes(waiting);
+    const file = atClip ? waiting : choose(files);
+    parked.delete(channel);
     const clip = EFFECT_CLIPS[file];
     if (!clip) return report(`sound: ${file} is not in the sprite`);
     const turn = (started.get(channel) ?? 0) + 1;
     started.set(channel, turn);
     try {
-      player.pause();
-      player.currentTime = Math.max(0, clip.start - CLIP_LEAD_SECONDS);
+      if (!atClip) {
+        player.pause();
+        player.currentTime = Math.max(0, clip.start - CLIP_LEAD_SECONDS);
+      }
       await player.play();
       // Silenced while it was starting, and nothing newer is on the channel:
       // the pause sent then may have come before the clip began.
@@ -292,7 +330,9 @@ export function createSounds({
     }
     endClip(
       () => {
-        if (started.get(channel) === turn) pause(channel, player);
+        if (started.get(channel) !== turn) return;
+        pause(channel, player);
+        park(channel, player);
       },
       Math.round((clip.seconds + CLIP_LEAD_SECONDS) * 1000) + CLIP_TAIL_MS,
     );

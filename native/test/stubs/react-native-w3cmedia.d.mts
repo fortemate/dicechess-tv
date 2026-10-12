@@ -3,10 +3,18 @@ export declare const AudioUsageType: { USAGE_GAME: number };
 
 /** Test-only: every call a player received, in order. */
 export declare const audioLog: Array<{
-  event: 'create' | 'initialize' | 'src' | 'play' | 'pause';
+  event:
+    | 'create'
+    | 'initialize'
+    | 'src'
+    | 'seek'
+    | 'play'
+    | 'pause'
+    | 'deinitialize';
   player: number;
   src?: string;
   from?: number;
+  to?: number;
   contentType?: number;
   usage?: number;
 }>;

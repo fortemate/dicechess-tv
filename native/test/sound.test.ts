@@ -27,6 +27,7 @@ type Entry = {
   player: number;
   src?: string;
   from?: number;
+  to?: number;
   contentType?: number;
   usage?: number;
 };
@@ -369,17 +370,102 @@ test('a quick blur/focus still pauses an already playing effect and line', async
   assert.ok(paused.includes(said.player), 'the line stops');
 });
 
+// A take is chosen when its channel's player waits for it: once the player is
+// ready, and again each time a clip ends.
 test('a take is chosen among several, and a bad pick cannot fall off the list', async () => {
   resetAudio();
+  const time = ends();
+  // Only the dice have three takes.
   const picks = [2, 7, -3];
-  const sounds = createSounds({ pick: () => picks.shift() ?? 0 });
+  const sounds = createSounds({
+    pick: (count) => (count === 3 ? (picks.shift() ?? 0) : 0),
+    endClip: time.endClip,
+  });
   for (let roll = 0; roll < 3; roll++) {
     sounds.play(['dice_roll']);
     await settle();
+    time.run();
   }
   assert.deepEqual(
     effects().map((entry) => clipOf(entry)?.split('/').pop()),
     ['dice_throw_3.mp3', 'dice_throw_3.mp3', 'dice_throw_1.mp3'],
+  );
+});
+
+const eventsOf = (player: number, after = 0) =>
+  log()
+    .slice(after)
+    .filter((entry) => entry.player === player)
+    .map(({ event, to }) => (event === 'seek' ? `seek ${to}` : event));
+
+// A seek asked for just before play() lost the start of a clip on the virtual
+// device, now and then the whole clip (#374).
+test('between clips a channel waits at a take of its main cue, which then plays with no seek', async () => {
+  resetAudio();
+  const time = ends();
+  const sounds = createSounds({ pick: () => 1, endClip: time.endClip });
+  await settle();
+  const moveAt =
+    EFFECT_CLIPS['jdsherbert-tabletop/piece_move_2.mp3'].start -
+    CLIP_LEAD_SECONDS;
+  const board = log().find(
+    (entry) => entry.event === 'seek' && entry.to === moveAt,
+  )!.player;
+  // Ready, the board's player waits at the move it will play.
+  assert.deepEqual(eventsOf(board).slice(-2), ['src', `seek ${moveAt}`]);
+
+  let before = log().length;
+  sounds.play(['piece_move']);
+  await settle();
+  assert.deepEqual(eventsOf(board, before), ['play']);
+  assert.equal(clipOf(effects()[0]), 'jdsherbert-tabletop/piece_move_2.mp3');
+
+  // Once the clip is over, it is paused and waits for the next move.
+  before = log().length;
+  time.run();
+  assert.deepEqual(eventsOf(board, before), ['pause', `seek ${moveAt}`]);
+
+  // A capture is not what it waits for: it seeks to its own clip first.
+  before = log().length;
+  sounds.play(['piece_capture']);
+  await settle();
+  const captureAt =
+    EFFECT_CLIPS['jdsherbert-tabletop/piece_impact_2.mp3'].start -
+    CLIP_LEAD_SECONDS;
+  assert.deepEqual(eventsOf(board, before), [
+    'pause',
+    `seek ${captureAt}`,
+    'play',
+  ]);
+
+  // A move that cuts a clip short finds the player playing, not waiting, and
+  // seeks too.
+  before = log().length;
+  sounds.play(['piece_move']);
+  await settle();
+  assert.deepEqual(eventsOf(board, before), [
+    'pause',
+    `seek ${moveAt}`,
+    'play',
+  ]);
+});
+
+test('each channel waits for its own main cue', async () => {
+  resetAudio();
+  createSounds({ pick: () => 0 });
+  await settle();
+  const waits = log()
+    .filter((entry) => entry.event === 'seek')
+    .map((entry) =>
+      clipOf({ event: 'play', player: entry.player, from: entry.to }),
+    );
+  assert.deepEqual(
+    waits.sort(),
+    [
+      CUE_FILES.dice_roll[0],
+      CUE_FILES.no_move[0],
+      CUE_FILES.piece_move[0],
+    ].sort(),
   );
 });
 

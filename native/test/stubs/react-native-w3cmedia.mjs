@@ -27,7 +27,7 @@ export class AudioPlayer {
   constructor(contentType, usage) {
     this.contentType = contentType;
     this.usage = usage;
-    this.currentTime = 0;
+    this._time = 0;
     this.id = audioLog.filter((entry) => entry.event === 'create').length;
     this._src = '';
     audioLog.push({ event: 'create', player: this.id, contentType, usage });
@@ -37,6 +37,13 @@ export class AudioPlayer {
     if (failing.initialize)
       return Promise.reject(new Error('media pipeline unavailable'));
     return held ? new Promise((done) => held.push(done)) : Promise.resolve();
+  }
+  get currentTime() {
+    return this._time;
+  }
+  set currentTime(seconds) {
+    this._time = seconds;
+    audioLog.push({ event: 'seek', player: this.id, to: seconds });
   }
   get src() {
     return this._src;
@@ -50,7 +57,7 @@ export class AudioPlayer {
       event: 'play',
       player: this.id,
       src: this._src,
-      from: this.currentTime,
+      from: this._time,
     });
     return failing.play
       ? Promise.reject(new Error('not supported'))
