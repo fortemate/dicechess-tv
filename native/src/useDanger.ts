@@ -5,6 +5,13 @@
 // app's background scheduler, so it runs between frames and never holds the
 // remote up: on the virtual device a whole search took up to 1.6 s. A new turn,
 // or leaving the game, abandons a search still running.
+//
+// Only the music tells tense from calm, and that is the long part of the
+// search. The level's other listener is the opponent's threat line, said on a
+// critical turn against the computer. So while no music is heard (#368), a game
+// against the computer measures critical only, one move generation, and Hot
+// Seat measures nothing. Music turned on measures the turn again at once, so the
+// theme it starts on is corrected within the turn rather than at the next one.
 import React from 'react';
 import {
   finish,
@@ -42,15 +49,24 @@ function failSafe(
   };
 }
 
+// The level one game played at one turn. `from` is the level it played before
+// the turn, null on a game's first, so that a turn measured again settles from
+// the same level and does not fall twice.
+type Heard = { id: string; start: string; from: Level | null; level: Level };
+
 export function useDanger(
   game: Game,
   background: ScreenOptions['background'],
+  // Whether music is heard: on, and in a build that has it.
+  music: boolean,
   // Diagnostics: what each measurement found and what it cost.
   report?: (line: string) => void,
 ): Level {
   const activity = React.useContext(ActivityContext);
-  const [state, setState] = React.useState<{ id: string; level: Level }>({
+  const [state, setState] = React.useState<Heard>({
     id: game.id,
+    start: game.start,
+    from: null,
     level: 'calm',
   });
   // Once per turn: the turn's starting position does not change while it is
@@ -59,25 +75,39 @@ export function useDanger(
   const live = game.phase !== 'ended';
   React.useEffect(() => {
     if (!live) return;
+    // A new game starts from its own first answer, not from the last game's.
+    const keep = (measured: Level) =>
+      setState((current) => {
+        let from: Level | null = null;
+        if (current.id === id)
+          from = current.start === start ? current.from : current.level;
+        return {
+          id,
+          start,
+          from,
+          level: from ? settle(from, measured) : measured,
+        };
+      });
+    // Nothing listens: a turn left unmeasured counts as a calm one.
+    if (!music && !human) {
+      keep('calm');
+      return;
+    }
     let cancelled = false;
     let cancelStep: () => void = () => undefined;
     const search = failSafe(
-      () => turnDanger({ start, human, phase: 'roll' }),
+      () => turnDanger({ start, human, phase: 'roll' }, music),
       report,
     );
     const clock = activeClock(activity, Date.now);
     const began = clock.now();
     let steps = 0;
-    // A new game starts from its own first answer, not from the last game's.
     const heard = (measured: Level) => {
       report?.(
         `danger ${measured} in ${steps} steps, ${clock.now() - began} ms`,
       );
       clock.dispose();
-      setState((current) => ({
-        id,
-        level: current.id === id ? settle(current.level, measured) : measured,
-      }));
+      keep(measured);
     };
     if (!background) {
       heard(finish(search));
@@ -97,6 +127,6 @@ export function useDanger(
       cancelStep();
       clock.dispose();
     };
-  }, [id, start, human, live, background, report, activity]);
+  }, [id, start, human, live, music, background, report, activity]);
   return state.id === id ? state.level : 'calm';
 }

@@ -63,6 +63,36 @@ test('the home screen asks for the menu theme, and a new game for its level', ()
   assert.equal(music.roles.length, 2);
 });
 
+test('a Hot Seat game measures its danger only while music is heard (#368)', () => {
+  // The search's steps, held as the app holds them for a frame. In Hot Seat
+  // nothing else waits there: there is no opponent to search.
+  const steps: (() => void)[] = [];
+  const held = fixedOptions({
+    roll: () => [2, 2, 2],
+    background: (step) => {
+      steps.push(step);
+    },
+  });
+  // Music on: a new game measures its first turn.
+  reset();
+  launch({ options: held, music: recorder() });
+  send('enter');
+  assert.equal(steps.length, 1);
+  // Music turned off: no search starts.
+  steps.length = 0;
+  reset();
+  setStored({ 'dicechess-tv.music.v1': 'off' });
+  launch({ options: held, music: recorder() });
+  send('enter');
+  assert.equal(steps.length, 0);
+  // A build without music: its catalogue does not load, so music on is not
+  // heard either.
+  reset();
+  launch({ options: held });
+  send('enter');
+  assert.equal(steps.length, 0);
+});
+
 test('a finished game falls silent before the menu theme returns', () => {
   reset();
   const music = recorder();

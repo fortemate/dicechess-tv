@@ -2,6 +2,7 @@
 // answers were computed independently from the engine's legal turn tree.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { DiceChess } from '@fortemate/dicechess-engine';
 import {
   ROLLS,
   TENSE_WEIGHT,
@@ -125,6 +126,43 @@ test('the search is spread over bounded steps and stops once the answer is known
   let steps = 0;
   while (!tense.step()) steps++;
   assert.ok(steps < ROLLS.length, `took ${steps} steps`);
+});
+
+test('without the tense measure, a search tells critical from calm in its first step (#368)', () => {
+  for (const p of POSITIONS) {
+    const search = searchDanger(p.dfen, p.target, false);
+    const expected = p.level === 'critical' ? 'critical' : 'calm';
+    assert.equal(search.step(), expected, p.dfen);
+    assert.equal(search.step(), expected, p.dfen);
+  }
+});
+
+const TENSE = '3rkb2/ppp3pp/3p2N1/4PP2/8/8/PPPK1PPP/RN5R b - - 1 7';
+
+test('without the tense measure, a turn against the computer costs one move generation, and keeps a critical answer (#368)', (t) => {
+  const generate = t.mock.method(DiceChess, 'generateMoves');
+  // Black to move attacks the White king on f3. On Black's turn it is the
+  // opponent's threat now, on White's as if White passed.
+  for (const [position, human, level] of [
+    ['8/8/7p/p1p5/k5p1/5K2/n7/5b2 b - - 0 18', 'w', 'critical'],
+    ['8/8/7p/p1p5/k5p1/5K2/n7/5b2 b - - 0 18', 'b', 'calm'],
+    ['8/8/7p/p1p5/k5p1/5K2/n7/5b2 w - - 0 18', 'w', 'critical'],
+    // Tense with the music: 34 of the 216 rolls take the king in three
+    // actions, and none with the first.
+    [TENSE, 'w', 'calm'],
+  ] as const) {
+    generate.mock.resetCalls();
+    const search = turnDanger(
+      newGame('greedy', 'danger', position, human),
+      false,
+    );
+    assert.equal(search.step(), level, `${position} ${human}`);
+    assert.equal(generate.mock.callCount(), 1, `${position} ${human}`);
+  }
+  assert.equal(
+    finish(turnDanger(newGame('greedy', 'danger', TENSE, 'w'))),
+    'tense',
+  );
 });
 
 test('against the computer the music hears the danger to the person, in hotseat to either king', () => {

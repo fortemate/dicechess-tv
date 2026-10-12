@@ -138,10 +138,12 @@ export type DangerSearch = { step(): Level | null };
 const settled = (level: Level): DangerSearch => ({ step: () => level });
 
 // The danger the side to move of `dfen`, a position before its roll, poses to
-// the king on `target`.
+// the king on `target`. Without `tense` it tells only critical from calm, and
+// ends after the first-action check.
 export function searchDanger(
   dfen: string,
   target: string | null,
+  tense = true,
 ): DangerSearch {
   if (!target) return settled('calm');
   let index = -1;
@@ -154,6 +156,7 @@ export function searchDanger(
       if (index < 0) {
         index = 0;
         if (firstActionWeight(dfen, target) > 0) answer = 'critical';
+        else if (!tense) answer = 'calm';
         return answer;
       }
       const { dice, weight } = ROLLS[index++];
@@ -193,8 +196,13 @@ function highest(searches: DangerSearch[]): DangerSearch {
 // when the person is, as if the person passed. The music says "your king", not
 // "a king". In hotseat both players are people in the same room, so it is the
 // greater danger to either king.
+//
+// Only the music tells tense from calm. A caller that needs only critical, for
+// the opponent's threat line while no music is heard (#368), passes `tense`
+// false, and the search is one first-action check per king.
 export function turnDanger(
   game: Pick<Game, 'phase' | 'start' | 'human'>,
+  tense = true,
 ): DangerSearch {
   if (game.phase === 'ended') return settled('calm');
   const dfen = game.start;
@@ -204,9 +212,9 @@ export function turnDanger(
   const passed = () => DiceChess.endTurn(dfen) ?? null;
   const against = (attacker: Side): DangerSearch => {
     const target = kingSquare(dfen, opposite(attacker));
-    if (attacker === mover) return searchDanger(dfen, target);
+    if (attacker === mover) return searchDanger(dfen, target, tense);
     const position = passed();
-    return position ? searchDanger(position, target) : settled('calm');
+    return position ? searchDanger(position, target, tense) : settled('calm');
   };
   if (game.human) return highest([against(opposite(game.human))]);
   return highest([against(mover), against(opposite(mover))]);
