@@ -23,6 +23,7 @@ import { fileURLToPath } from 'node:url';
 import {
   main,
   copyPortraits,
+  copySounds,
   portraitVector,
   portraitsVersion,
   shownPortraits,
@@ -323,3 +324,46 @@ test(
     assert.deepEqual(copyPortraits(root).sort(), [...shownPortraits()].sort());
   },
 );
+
+// The effects ship as the one file that joins them (#374), never as the files it
+// was made from, and only while it matches them.
+test('only the sprite ships, and only while it was made from the pinned sounds', (t) => {
+  const root = mkdtempSync(join(tmpdir(), 'dicechess-tv-sounds-'));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const sha256 = (bytes: string | Buffer) =>
+    createHash('sha256').update(bytes).digest('hex');
+  const vendor = (clip: string) => {
+    mkdirSync(join(root, 'sounds/pack'), { recursive: true });
+    writeFileSync(join(root, 'sounds/pack/a.mp3'), clip);
+    writeFileSync(
+      join(root, 'sounds/sounds.lock.json'),
+      JSON.stringify({
+        packs: { pack: { files: { 'a.mp3': { sha256: sha256(clip) } } } },
+      }),
+    );
+  };
+  vendor('a clip');
+  mkdirSync(join(root, 'sprite'));
+  writeFileSync(join(root, 'sprite/effects.mp3'), 'the clips joined');
+  writeFileSync(
+    join(root, 'sprite/sprite.lock.json'),
+    JSON.stringify({
+      file: 'effects.mp3',
+      sha256: sha256('the clips joined'),
+      sources: { 'pack/a.mp3': sha256('a clip') },
+    }),
+  );
+
+  assert.deepEqual(copySounds(root), ['effects.mp3']);
+  assert.deepEqual(files(join(root, 'assets/sfx')), ['effects.mp3']);
+
+  writeFileSync(join(root, 'sounds/pack/a.mp3'), 'edited by hand');
+  assert.throws(() => copySounds(root), /no longer matches/);
+
+  vendor('a new clip');
+  assert.throws(() => copySounds(root), /was not made from/);
+
+  vendor('a clip');
+  writeFileSync(join(root, 'sprite/effects.mp3'), 'edited by hand');
+  assert.throws(() => copySounds(root), /no longer matches/);
+});

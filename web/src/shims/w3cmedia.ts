@@ -11,8 +11,9 @@ export const AudioContentType = {
 } as const;
 export const AudioUsageType = { USAGE_GAME: 6 } as const;
 
-// The vendored cues, which the build copies to /pkg/assets/sfx/ on a device.
-const SOUNDS = import.meta.glob<string>('../../../native/sounds/*/*.mp3', {
+// The cues joined into one file (#374), which the build copies to
+// /pkg/assets/sfx/ on a device.
+const SOUNDS = import.meta.glob<string>('../../../native/sprite/*.mp3', {
   eager: true,
   query: '?url',
   import: 'default',
@@ -23,7 +24,7 @@ const DEVICE_ROOT = '/pkg/assets/sfx/';
 export function urlOf(devicePath: string): string {
   if (!devicePath.startsWith(DEVICE_ROOT)) return devicePath;
   const url =
-    SOUNDS[`../../../native/sounds/${devicePath.slice(DEVICE_ROOT.length)}`];
+    SOUNDS[`../../../native/sprite/${devicePath.slice(DEVICE_ROOT.length)}`];
   return url ?? devicePath;
 }
 
@@ -40,6 +41,14 @@ export class AudioPlayer {
   }
 
   initialize(): Promise<void> {
+    return Promise.resolve();
+  }
+
+  // Lets the file go, as the device's player lets its decoder go.
+  deinitialize(): Promise<void> {
+    this.element.pause();
+    this.element.removeAttribute('src');
+    this.element.load();
     return Promise.resolve();
   }
 
