@@ -963,8 +963,14 @@ export const GameScreen = ({
 
   // The theme for what the screen shows, and over a game the danger to the king
   // at the start of this turn (#76). When a game has just ended the music falls
-  // silent first, so the result's jingle is heard on its own.
-  const level = useDanger(game, options.background, onState);
+  // silent first, so the result's jingle is heard on its own. With no music
+  // heard, only the opponent's threat line needs the level (#368).
+  const level = useDanger(
+    game,
+    options.background,
+    hasMusic && musicHeard(musicSetting),
+    onState,
+  );
   // A bot's line is said as it shows, and its bubble stays until it has been
   // said (#159). The host's is only said (#202).
   const say = React.useCallback(
