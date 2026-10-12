@@ -39,6 +39,6 @@ What players' findings prompt comes first. Already on the list:
 - a mark for the pieces that can move that reads well with colour-vision deficiency;
 - a smoother first run;
 - board themes and piece sets;
-- translations, starting with Latvian.
+- translations into other languages.
 
 Later: online play with the Fortemate community.
