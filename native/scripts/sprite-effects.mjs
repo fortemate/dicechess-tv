@@ -12,7 +12,9 @@
 // Each clip is decoded to 44.1 kHz stereo and laid after GAP_SECONDS of silence,
 // with the same silence after the last, so a pause that comes late is still
 // silent. The sprite is encoded as constant-bitrate MP3, whose positions are
-// exact to a frame. Needs ffmpeg on the PATH. Writes:
+// exact to a frame, without the Xing frame that would tell a decoder to drop
+// the codec's delay: no player is known to read it, so the table counts the
+// delay into every start instead. Needs ffmpeg on the PATH. Writes:
 //
 // - sprite/effects.mp3, the sprite;
 // - sprite/sprite.lock.json, its digest and those of the files it was made from;
@@ -31,6 +33,10 @@ const RATE = 44_100;
 const CHANNELS = 2;
 const FRAME = 2 * CHANNELS;
 export const GAP_SECONDS = 2;
+// What LAME puts before the first sample (576) and what an MP3 decoder adds to
+// it (529): where each clip is heard when the whole file is decoded. Checked by
+// decoding the sprite: every clip lines up with its source at this offset.
+const CODEC_DELAY = 576 + 529;
 
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
@@ -74,7 +80,7 @@ let at = gap.length;
 for (const { file } of sources) {
   const pcm = decode(file);
   clips[file] = {
-    start: Number((at / FRAME / RATE).toFixed(4)),
+    start: Number(((at / FRAME + CODEC_DELAY) / RATE).toFixed(4)),
     seconds: Number((pcm.length / FRAME / RATE).toFixed(4)),
   };
   parts.push(pcm, gap);
@@ -98,6 +104,8 @@ const mp3 = execFileSync(
     'libmp3lame',
     '-b:a',
     '128k',
+    '-write_xing',
+    '0',
     '-f',
     'mp3',
     '-',
