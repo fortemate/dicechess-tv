@@ -57,6 +57,37 @@ Measured on a Fire TV Stick 4K Select (Vega OS 1.2) on 9 October 2026, on Releas
 
 The JavaScript times come from instrumentation added to both builds for the measurement and never committed: it timed each commit from its first render to its last layout effect. On the second build, about four minutes of a game played with the Stick's own remote gave a median of 28 ms per cursor move. The JavaScript times leave out how long a key can wait behind the danger search or the opponent's search on the JavaScript thread, which the change did not touch.
 
+### Working out each state of a game once
+
+A view of the game, the position with what may come next and the dice left, was worked out by replaying every action played so far in the turn, one engine call each, and a single key asked for it five times or more. Four of the five views behind an arrow only wanted to know whose turn it was. So the further a turn went, the more each key cost. Since [#367](https://github.com/fortemate/dicechess-tv/issues/367), whose turn it is comes from the position the turn started from, and each state of a turn is replayed once and its view kept for the rest of the roll.
+
+The figures are medians, about 30 keys each, from Release builds against Rolly with auto-select off; the keys were sent with `inputd-cli` on the Stick and with `vvd` on the Virtual Device. Instrumentation added for the measurement and never committed timed each key from the game screen's first render to its layout effect, which covers the reducer, the render and the commit, and the part of that spent working out views, in brackets.
+
+On a Fire TV Stick 4K Select (Vega OS 1.2) on 12 October 2026, with music, sound effects and voices off:
+
+| Key                                    | Actions played | Before              | After                 |
+| -------------------------------------- | -------------- | ------------------- | --------------------- |
+| Arrow, nothing picked up               | 0              | 20.4 ms (0.6 ms)    | 18.9 ms (0.1 ms)      |
+| Arrow, nothing picked up               | 1              | 27.6 ms (10.3 ms)   | 20.2 ms (0.1 ms)      |
+| Arrow, nothing picked up               | 2              | 26.9 ms (18.6 ms)   | 9.2 ms (0.1 ms)       |
+| Arrow, with a piece in hand            | 0              | 19.8 ms (0.7 ms)    | 8.8 ms (0.1 ms)       |
+| Arrow, with a piece in hand            | 1              | 22.4 ms (10.9 ms)   | 21.9 ms (0.1 ms)      |
+| Arrow, with a piece in hand            | 2              | 37.0 ms (19.2 ms)   | 19.6 ms (0.1 ms)      |
+| Pick up a piece                        | 1–2            | 52–55 ms (14–20 ms) | 39–44 ms (0.1 ms)     |
+| Play an action                         | 1–2            | 91–92 ms (37–42 ms) | 58–69 ms (4.6–8.1 ms) |
+| OK to hand the turn on, after 3 played | 3              | 50 ms (23 ms)       | 27 ms (0.1 ms)        |
+
+On the Vega Virtual Device the same day, with sound effects and voices on:
+
+| Key                         | Actions played | Before                  | After                   |
+| --------------------------- | -------------- | ----------------------- | ----------------------- |
+| Arrow, nothing picked up    | 0 / 1 / 2      | 2.33 / 2.56 / 2.66 ms   | 1.93 / 0.98 / 0.69 ms   |
+| Arrow, with a piece in hand | 0 / 1 / 2      | 1.35 / 2.26 / 3.07 ms   | 1.99 / 1.96 / 1.96 ms   |
+| Pick up a piece             | 1–2            | 4.1–4.7 ms (1.0–1.8 ms) | 3.4–3.7 ms (0.02 ms)    |
+| Play an action              | 1–2            | not read                | 5.2–5.3 ms (0.4–0.8 ms) |
+
+Before the change an arrow worked out five views at every point of a turn, and a played action eight to eleven. After it, an arrow and a pick-up work out one, which is already kept and calls the engine not at all, and a played action replays the turn once, for the state it leads to (`native/test/replays.test.tsx` holds every key to that). On both devices an arrow in the middle of a turn now costs what one at the start of a turn does: on the Stick 9–22 ms, against 22–37 ms before. The rest of a key's time is rendering, which this change did not touch; it varies from about 8 to 22 ms between rows in both runs, so an arrow can still take a little over one frame at 60 frames a second. A roll did not get cheaper: most of its 90–110 ms on the Stick is building the roll's tree of legal turns, once per roll.
+
 ## Opponents' decision time
 
 Dice Chess TV offers three built-in opponents: Rolly (random), Grabby (greedy capture) and Rampage (aggressive king hunter). Each is an algorithm of the engine, asked for a whole turn through `getBestMove`, and all three run on the device, on the JavaScript thread.

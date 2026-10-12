@@ -374,6 +374,46 @@ test('a roll builds its turn tree once, keeps only that one, and replays a turn 
   }
 });
 
+test('each state of a turn is replayed once, and its copies share the view (#367)', () => {
+  const applies = mock.method(DiceChess, 'applyMove');
+  try {
+    // A start of its own, so no earlier test has left views of this roll.
+    const start = '4k3/8/8/8/8/8/PPPPPPPP/4K3 w - - 0 1';
+    let game = rollGame(newGame('hotseat', 'views', start), [1, 1, 1]);
+    assert.equal(applies.mock.callCount(), 0);
+    // Each action's new state replays the turn once: one action, then two.
+    game = moveGame(game, 'e2e4');
+    assert.equal(applies.mock.callCount(), 1);
+    game = moveGame(game, 'e4e5');
+    assert.equal(applies.mock.callCount(), 3);
+    // Asked again, as a decoded save or as a spread copy, it replays nothing.
+    const view = viewGame(game);
+    assert.equal(viewGame(game), view);
+    assert.equal(viewGame(decodeGame(JSON.stringify(game))), view);
+    assert.equal(viewGame({ ...game }), view);
+    assert.equal(applies.mock.callCount(), 3);
+    // The same position with a person against the bot is a view of its own.
+    assert.equal(view.bot, false);
+    assert.equal(viewGame({ ...game, mode: 'random', human: 'b' }).bot, true);
+  } finally {
+    applies.mock.restore();
+  }
+});
+
+test('a view is shared, so no one can change it (#367)', () => {
+  const unrolled = newGame('hotseat', 'frozen');
+  const rolled = rollGame(unrolled, [1, 2, 3]);
+  for (const view of [viewGame(unrolled), viewGame(rolled)]) {
+    assert.ok(Object.isFrozen(view));
+    assert.ok(Object.isFrozen(view.legal));
+    assert.throws(() => (view.legal as string[]).push('a1a2'), TypeError);
+    assert.throws(() => {
+      (view as { dfen: string }).dfen = '';
+    }, TypeError);
+  }
+  assert.ok(viewGame(rolled).legal.length > 0);
+});
+
 test('a bot reply must be a whole turn of the tree', () => {
   // The person plays Black, so White's turn is the bot's.
   const game = rollGame(newGame('random', 'gap-bot', GAP, 'b'), [2, 1, 1]);
