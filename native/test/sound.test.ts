@@ -13,7 +13,9 @@ import {
   RESULT_LINE_DELAY_MS,
   speechTiming,
 } from '../src/sound';
+import { CUE_FILES } from '../src/cueFiles';
 import { VOICE_FILES } from '../src/voiceFiles';
+import type { Cue } from '../../src/core/cues';
 
 type Entry = {
   event: string;
@@ -28,20 +30,59 @@ const log = () => audioLog as Entry[];
 const plays = () => log().filter((entry) => entry.event === 'play');
 const settle = () => new Promise((done) => setTimeout(done, 0));
 
-test('four players are made up front, all as game sonification', async () => {
+// Every file a cue can play, each once.
+const EFFECT_FILES = new Set(Object.values(CUE_FILES).flat());
+
+test('a player per sound file, and one for the next line, are made up front, all as game sonification', async () => {
   resetAudio();
   createSounds();
   await settle();
   const created = log().filter((entry) => entry.event === 'create');
-  // Three for the cues, one for the bots' voices.
-  assert.equal(created.length, 4);
+  assert.equal(created.length, EFFECT_FILES.size + 1);
   // SONIFICATION/GAME is what connects to the audio service; the music/media
   // defaults were measured not to.
   for (const entry of created) {
     assert.equal(entry.contentType, 4);
     assert.equal(entry.usage, 6);
   }
-  assert.equal(log().filter((entry) => entry.event === 'initialize').length, 4);
+  assert.equal(
+    log().filter((entry) => entry.event === 'initialize').length,
+    EFFECT_FILES.size + 1,
+  );
+});
+
+// On the Stick's OS 2602000051520, setting `src` on a player that had already
+// played now and then never returned, and the app was closed as not
+// responding (#374).
+test('no player is ever given a second clip, however the cues and lines come', async () => {
+  resetAudio();
+  let take = 0;
+  const sounds = createSounds({ pick: () => take++, later: (run) => run() });
+  const cues = Object.keys(CUE_FILES) as Cue[];
+  for (let round = 0; round < 3; round++) {
+    for (const cue of cues) {
+      sounds.play([cue]);
+      await settle();
+    }
+    for (const id of ['grabby_capture_1', 'host_intro_1', 'grabby_capture_1']) {
+      sounds.say({ id, event: 'capture' });
+      await settle();
+    }
+  }
+  const given = new Map<number, number>();
+  for (const entry of log())
+    if (entry.event === 'src')
+      given.set(entry.player, (given.get(entry.player) ?? 0) + 1);
+  assert.ok(given.size > 0);
+  for (const [player, count] of given)
+    assert.equal(count, 1, `player ${player} was given ${count} clips`);
+  // Every file was heard, and every line.
+  assert.equal(plays().length, 3 * (cues.length + 3));
+  // A player a line was said on is let go once the next line has its own.
+  assert.equal(
+    log().filter((entry) => entry.event === 'deinitialize').length,
+    3 * 3 - 1,
+  );
 });
 
 test('a cue plays its file from the package by a plain path', async () => {
@@ -180,37 +221,50 @@ test('an empty roll muted while it waits is not heard', async () => {
 test('muted, nothing plays, and what was playing stops', async () => {
   resetAudio();
   const sounds = createSounds({ pick: () => 0 });
-  sounds.setMuted(true);
   sounds.play(['dice_roll', 'piece_move', 'game_draw']);
   await settle();
-  assert.equal(plays().length, 0);
-  assert.equal(log().filter((entry) => entry.event === 'pause').length, 3);
+  const playing = plays().map((entry) => entry.player);
+  sounds.setMuted(true);
+  assert.deepEqual(
+    log()
+      .filter((entry) => entry.event === 'pause')
+      .map((entry) => entry.player)
+      .sort(),
+    [...playing].sort(),
+  );
+  sounds.play(['dice_roll', 'piece_move', 'game_draw']);
+  await settle();
+  assert.equal(plays().length, 3);
   sounds.setMuted(false);
   sounds.play(['game_draw']);
   await settle();
-  assert.equal(plays().length, 1);
+  assert.equal(plays().length, 4);
 });
 
 test('away from the foreground, nothing plays, and the setting is kept', async () => {
   resetAudio();
-  const sounds = createSounds({ pick: () => 0 });
+  const sounds = createSounds({ pick: () => 0, later: () => undefined });
+  sounds.play(['dice_roll', 'piece_move', 'game_draw']);
+  sounds.say({ id: 'host_intro_1', event: 'intro' });
+  await settle();
+  assert.equal(plays().length, 4);
   sounds.setSuspended(true);
+  // The three channels stop, and the voice too.
+  assert.equal(log().filter((entry) => entry.event === 'pause').length, 4);
   sounds.play(['dice_roll', 'piece_move', 'game_draw']);
   await settle();
-  assert.equal(plays().length, 0);
-  // The voice stops too.
-  assert.equal(log().filter((entry) => entry.event === 'pause').length, 4);
+  assert.equal(plays().length, 4);
   // Back in the foreground, sound plays again: it was never muted.
   sounds.setSuspended(false);
   sounds.play(['game_draw']);
   await settle();
-  assert.equal(plays().length, 1);
+  assert.equal(plays().length, 5);
   // And muting still wins over coming back.
   sounds.setMuted(true);
   sounds.setSuspended(false);
   sounds.play(['game_draw']);
   await settle();
-  assert.equal(plays().length, 1);
+  assert.equal(plays().length, 5);
 });
 
 test('a cue waiting for initialization is dropped across suspension, even after a quick return', async () => {
@@ -272,10 +326,10 @@ test('a take is chosen among several, and a bad pick cannot fall off the list', 
   resetAudio();
   const picks = [2, 7, -3];
   const sounds = createSounds({ pick: () => picks.shift() ?? 0 });
-  sounds.play(['dice_roll']);
-  sounds.play(['dice_roll']);
-  sounds.play(['dice_roll']);
-  await settle();
+  for (let roll = 0; roll < 3; roll++) {
+    sounds.play(['dice_roll']);
+    await settle();
+  }
   assert.deepEqual(
     plays().map((entry) => entry.src?.split('/').pop()),
     ['dice_throw_3.mp3', 'dice_throw_3.mp3', 'dice_throw_1.mp3'],
@@ -289,7 +343,7 @@ test('a player that never initialises is reported, and nothing is thrown', async
   const sounds = createSounds({ report: (line) => reported.push(line) });
   sounds.play(['piece_move', 'dice_roll', 'game_win']);
   await settle();
-  assert.equal(reported.length, 4, 'one report per player');
+  assert.equal(reported.length, EFFECT_FILES.size + 1, 'one per player');
   assert.match(reported[0], /not initialised/);
   assert.equal(plays().length, 0);
 });
@@ -310,7 +364,15 @@ test('a player that refuses to stop is reported, and nothing is thrown', async (
   resetAudio();
   failAudio('pause');
   const reported: string[] = [];
-  const sounds = createSounds({ report: (line) => reported.push(line) });
+  const sounds = createSounds({
+    pick: () => 0,
+    later: () => undefined,
+    report: (line) => reported.push(line),
+  });
+  sounds.play(['piece_move', 'dice_roll', 'game_win']);
+  sounds.say({ id: 'host_intro_1', event: 'intro' });
+  await settle();
+  failAudio('pause');
   sounds.setSuspended(true);
   await settle();
   assert.deepEqual(reported, [
@@ -387,14 +449,17 @@ test('a new line replaces the one being said', async () => {
   await settle();
   sounds.say(line('rampage_capture_heavy_2'));
   await settle();
-  const voice = plays()[0].player;
+  // Each line on a player of its own (#374): the first is cut short, then let
+  // go.
+  const [first, second] = plays();
+  assert.notEqual(first.player, second.player);
   assert.deepEqual(
     log()
-      .filter((entry) => entry.player === voice && entry.event !== 'src')
+      .filter((entry) => entry.player === first.player)
       .map((entry) => entry.event),
-    ['create', 'initialize', 'play', 'pause', 'play'],
+    ['create', 'initialize', 'src', 'play', 'pause', 'deinitialize'],
   );
-  assert.equal(plays()[1].src?.split('/').pop(), 'rampage_capture_heavy_2.mp3');
+  assert.equal(second.src?.split('/').pop(), 'rampage_capture_heavy_2.mp3');
   // The music comes up between the two, and ducks again.
   assert.deepEqual(speech.heard, [true, false, true]);
 });

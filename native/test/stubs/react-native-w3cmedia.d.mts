@@ -26,4 +26,5 @@ export declare class AudioPlayer {
   initialize(): Promise<void>;
   play(): Promise<void>;
   pause(): void;
+  deinitialize(): Promise<void>;
 }

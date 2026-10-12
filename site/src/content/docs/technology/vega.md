@@ -96,6 +96,7 @@ id = "com.amazon.audio.control"
 - **Content and usage types:** sound effects and spoken lines use `CONTENT_TYPE_SONIFICATION` with `USAGE_GAME`; music uses `CONTENT_TYPE_MUSIC` with `USAGE_GAME`. Both play on the Virtual Device. How these types affect ducking under system sounds has not been tested.
 - **Bare file paths:** a file packaged with the app plays from its plain path (e.g. `/pkg/assets/sfx/move.mp3`). The same file as a `file:///` URL fails with error 4, and an `http://` source is refused as insecure.
 - **Event listeners:** events arrive only through `addEventListener`. Assigning a handler property such as `audio.onplaying` is silently ignored.
+- **One clip per player, on a Fire TV Stick:** after the Stick's OS was updated on 12 October 2026 (OS build `2602000051520`), setting `src` on a player that had already played took about 100 ms, and now and then it never returned. The JavaScript thread waited inside the media player until the system closed the app as not responding, within a minute of play with sound effects on, in every build back to beta 8. On a fresh player the same call took about 10 ms. So each sound file has a player of its own and each spoken line a fresh one ([#374](https://github.com/fortemate/dicechess-tv/issues/374)). The music changes `src` only on a player it has paused, and it is unchanged: no hang was seen from it on the updated Stick.
 
 ### Container & Codec Compatibility
 

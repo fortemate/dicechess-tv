@@ -60,6 +60,10 @@ export class AudioPlayer {
     if (failing.pause) throw new Error('not supported');
     audioLog.push({ event: 'pause', player: this.id });
   }
+  deinitialize() {
+    audioLog.push({ event: 'deinitialize', player: this.id });
+    return Promise.resolve();
+  }
 }
 
 // Test-only: forget every player, as a fresh launch would.
