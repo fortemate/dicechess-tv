@@ -4,12 +4,20 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  botToMove,
   decodeGame,
+  moveGame,
   newGame,
+  nextTurn,
   randomSide,
   resignGame,
+  rollGame,
+  sideToMove,
   viewGame,
   INITIAL_POSITION,
+  type Game,
+  type Mode,
+  type Side,
 } from '../src/core/game.ts';
 import { botToAct } from '../src/core/bot.ts';
 import { boardView } from '../src/core/boardView.ts';
@@ -118,4 +126,45 @@ test('a flipped board is drawn from Black’s side', () => {
   // The squares keep their colours: a1 stays dark in the top-right corner.
   assert.equal(rows[0][7].dark, true);
   assert.equal(rows[0][7].piece, 'R');
+});
+
+test('whose turn it is, read from the turn’s start, is the viewed side at every step of random games (#367)', () => {
+  let seed = 367;
+  const next = (n: number) => {
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+    return seed % n;
+  };
+  let states = 0;
+  const check = (game: Game) => {
+    const view = viewGame(game);
+    assert.equal(sideToMove(game), view.side);
+    assert.equal(botToMove(game), view.bot);
+    assert.equal(botToAct(game), game.phase !== 'ended' && view.bot);
+    states++;
+  };
+  const players: [Mode, Side | null][] = [
+    ['hotseat', null],
+    ['random', 'w'],
+    ['aggressive', 'b'],
+  ];
+  for (let round = 0; round < 3; round++)
+    for (const [mode, human] of players) {
+      let game = newGame(mode, 'turns', INITIAL_POSITION, human);
+      for (let turn = 0; turn < 300 && game.phase !== 'ended'; turn++) {
+        check(game);
+        game = rollGame(
+          game,
+          [1, 2, 3].map(() => next(6) + 1),
+        );
+        check(game);
+        while (game.phase === 'move') {
+          const legal = viewGame(game).legal;
+          game = moveGame(game, legal[next(legal.length)]);
+          check(game);
+        }
+        if (game.phase === 'handoff') game = nextTurn(game);
+      }
+      check(game);
+    }
+  assert.ok(states > 2000, `only ${states} states`);
 });

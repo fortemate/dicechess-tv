@@ -24,7 +24,7 @@ import {
   isEmptyRollStep,
   isMatchStartStep,
 } from './botVoice.ts';
-import { viewGame, type Game, type Side } from './game.ts';
+import { sideToMove, type Game, type Side } from './game.ts';
 import {
   HOST_EVENTS,
   HOST_PACING,
@@ -233,8 +233,7 @@ export function hostEvents(
   // Until the next turn begins, the side in the position is still the one that
   // moved. Each host has lines that name Black's turn, so only the end of a
   // White turn teaches the pass.
-  if (!state.handoffSaid && viewGame(after).side === 'w')
-    events.push('handoff');
+  if (!state.handoffSaid && sideToMove(after) === 'w') events.push('handoff');
   return events.sort(byPriority);
 }
 

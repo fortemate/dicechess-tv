@@ -68,6 +68,27 @@ const SCHEMA_2_FIELDS = SCHEMA_3_FIELDS.filter((field) => field !== 'human');
 export const opposite = (side: Side): Side => (side === 'w' ? 'b' : 'w');
 export const sideName = (side: Side) => (side === 'w' ? 'White' : 'Black');
 
+// Whose turn it is: the side to move where the turn started. No action within
+// a turn changes it, so asking needs neither the engine nor a view (#367).
+export const sideToMove = (game: Game): Side =>
+  game.start.split(' ')[1] as Side;
+
+// Whether the side to move belongs to the bot, as a view's `bot` says.
+export const botToMove = (game: Game): boolean =>
+  game.human !== null && sideToMove(game) !== game.human;
+
+// What a state of the game shows: the position after the actions played so
+// far, whose turn it is, what may come next and the dice left. Everyone who
+// asks about the same state gets the same view, so no one may change it.
+export type GameView = Readonly<{
+  dfen: string;
+  side: Side;
+  legal: readonly string[];
+  remaining: string;
+  playable: string;
+  bot: boolean;
+}>;
+
 // The dice as the DFEN at the start of a turn writes them: upper case, in the
 // order they were rolled.
 const diceField = (roll: readonly number[]): string =>
@@ -100,12 +121,14 @@ function afterAction(dfen: string, move: string): string {
 // action leaves open: an action legal on its own that no full turn continues
 // (#101). Built once per roll and kept for that roll only, because the largest
 // trees run to a quarter of a megabyte and every view of the game walks them.
-// With it are kept the dice still playable after each set of actions, keyed by
-// the actions, since every view asks for them too.
+// With it are kept the views already worked out for the roll, keyed by the
+// person's side and the actions played. Replaying the actions is what a view
+// costs, and a single key on the remote asks for the view of one state several
+// times (#367). A decoded or spread copy of a game finds the same view.
 type RolledTurn = {
   dfen: string;
   tree: MoveTree;
-  playable: Map<string, string>;
+  views: Map<string, GameView>;
 };
 let turn: RolledTurn | null = null;
 function turnOf(dfen: string): RolledTurn {
@@ -113,7 +136,7 @@ function turnOf(dfen: string): RolledTurn {
     turn = {
       dfen,
       tree: DiceChess.getLegalTurnTree(dfen),
-      playable: new Map(),
+      views: new Map(),
     };
   return turn;
 }
@@ -136,19 +159,11 @@ function playableDice(
   node: MoveTree,
   remaining: string,
 ): string {
-  const key = game.moves.join(' ');
-  let playable = rolled.playable.get(key);
-  if (playable === undefined) {
-    if (!Object.keys(node).length) playable = '';
-    else if (reaches(node, remaining.length)) playable = remaining;
-    else {
-      const field = DiceChess.getPlayableDice(rolled.dfen, game.moves);
-      if (field === undefined) throw new Error('Engine rejected actions');
-      playable = inRollOrder(game.roll, field);
-    }
-    rolled.playable.set(key, playable);
-  }
-  return playable;
+  if (!Object.keys(node).length) return '';
+  if (reaches(node, remaining.length)) return remaining;
+  const field = DiceChess.getPlayableDice(rolled.dfen, game.moves);
+  if (field === undefined) throw new Error('Engine rejected actions');
+  return inRollOrder(game.roll, field);
 }
 
 // The dice left, in upper case and in the order they were rolled. The engine
@@ -166,15 +181,23 @@ function inRollOrder(roll: readonly number[], left: string): string {
   return listed;
 }
 
-export function viewGame(game: Game) {
-  let dfen = game.start;
-  let rolled: RolledTurn | null = null;
-  let node: MoveTree | null = null;
-  if (game.roll.length) {
-    dfen += ' ' + diceField(game.roll);
-    rolled = turnOf(dfen);
-    node = rolled.tree;
+// The view of a game, worked out once for each state of a rolled turn and kept
+// with that turn. Before the roll there is nothing to replay.
+export function viewGame(game: Game): GameView {
+  if (!game.roll.length) return workOut(game, null);
+  const rolled = turnOf(game.start + ' ' + diceField(game.roll));
+  const key = `${game.human ?? '-'} ${game.moves.join(' ')}`;
+  let view = rolled.views.get(key);
+  if (!view) {
+    view = workOut(game, rolled);
+    rolled.views.set(key, view);
   }
+  return view;
+}
+
+function workOut(game: Game, rolled: RolledTurn | null): GameView {
+  let dfen = rolled?.dfen ?? game.start;
+  let node = rolled?.tree ?? null;
   // The actions played so far must be a path through the tree.
   for (const move of game.moves) {
     if (!node || !Object.hasOwn(node, move))
@@ -185,19 +208,19 @@ export function viewGame(game: Game) {
   const parts = dfen.split(' ');
   const side = parts[1] as Side;
   const remaining = rolled ? inRollOrder(game.roll, parts[6] ?? '') : '';
-  return {
+  return Object.freeze({
     dfen,
     side,
     // What may come next in this turn: nothing before the roll or once the turn
     // is complete, a king taken included, which always ends a turn.
-    legal: node ? Object.keys(node) : [],
+    legal: Object.freeze(node ? Object.keys(node) : []),
     remaining,
     // The dice left that some legal turn can still spend: none before the roll
     // or once the turn is complete.
     playable: rolled && node ? playableDice(rolled, game, node, remaining) : '',
     // Whether the side to move belongs to the bot.
     bot: game.human !== null && side !== game.human,
-  };
+  });
 }
 
 function automaticResult(
@@ -324,7 +347,7 @@ export function nextTurn(game: Game): Game {
 export function resignGame(game: Game): Game {
   if (game.phase === 'ended') throw new Error('Game already ended');
   // Against the bot only the person resigns; in hotseat, the side to move.
-  const loser = game.human ?? viewGame(game).side;
+  const loser = game.human ?? sideToMove(game);
   return {
     ...game,
     revision: game.revision + 1,

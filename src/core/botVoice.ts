@@ -10,11 +10,11 @@
 // The Hot Seat host's lines and pacing are in hostVoice.ts (#202), which reads
 // the turn with the same capture analysis.
 
-import { DiceChess } from '@fortemate/dicechess-engine';
 import { pieceAt } from './board.ts';
 import { isCastling, isEnPassant, isPromotion } from './cues.ts';
 import type { Level } from './danger.ts';
 import {
+  botToMove,
   emptyRoll,
   opposite,
   viewGame,
@@ -237,22 +237,16 @@ export type CaptureAnalysis = {
   castling: boolean;
 };
 
-// An action between two games, with the board it was played on.
+// An action between two games, with the board it was played on. Each board is
+// the view of the turn as far as that action, which the screen has already
+// worked out, so finding them replays nothing (#367).
 type Played = { readonly move: string; readonly board: string };
 
 function playedOn(before: Game, after: Game): Played[] {
-  if (after.moves.length <= before.moves.length) return [];
   const actions: Played[] = [];
-  let dfen = viewGame(before).dfen;
-  for (const move of after.moves.slice(before.moves.length)) {
-    actions.push({ move, board: dfen.split(' ')[0] });
-    const applied = DiceChess.applyMove(
-      dfen,
-      move.slice(0, 2),
-      move.slice(2, 4),
-      move.slice(4) || undefined,
-    );
-    if (applied) dfen = applied;
+  for (let i = before.moves.length; i < after.moves.length; i++) {
+    const { dfen } = viewGame({ ...after, moves: after.moves.slice(0, i) });
+    actions.push({ move: after.moves[i], board: dfen.split(' ')[0] });
   }
   return actions;
 }
@@ -348,7 +342,7 @@ function evaluateNonTerminalEvent(
   state: BotVoiceState,
   random: () => number,
 ): VoiceEvent | null {
-  const isBotTurn = viewGame(before).bot || viewGame(after).bot;
+  const isBotTurn = botToMove(before) || botToMove(after);
   const captures = isBotTurn
     ? analyzeCaptures(before, after)
     : { heavy: false, standard: false };

@@ -10,6 +10,7 @@ import {
   opposite,
   emptyRoll,
   type Game,
+  type GameView,
 } from '../../src/core/game';
 import {
   NO_MOVE_LINE,
@@ -269,8 +270,6 @@ const headline = (game: Game, view: GameView): string => {
     ? `${name} can't move`
     : `No legal moves${mover(game, view.bot)}`;
 };
-
-type GameView = ReturnType<typeof viewGame>;
 
 const HEADLINE = { color: '#f0f4f8', fontSize: 38, marginBottom: 16 };
 

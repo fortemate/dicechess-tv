@@ -33,7 +33,7 @@ const linesOf = (step: TutorialStep) =>
 // as OK passes it.
 const playOut = (
   step: TutorialStep,
-  choose = (legal: string[]) => legal[0],
+  choose = (legal: readonly string[]) => legal[0],
 ) => {
   let game = rolled(step);
   for (let i = 0; i < 4 && !isComplete(step, game); i++) {

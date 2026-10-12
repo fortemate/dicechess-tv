@@ -29,7 +29,9 @@ import {
   newGame,
   rollGame,
   moveGame,
+  nextTurn,
   viewGame,
+  type Game,
   type Side,
 } from '../../src/core/game';
 import { botReply, botToAct } from '../../src/core/bot';
@@ -1579,6 +1581,39 @@ test('a saved hotseat game resumes in the right orientation when Turn board in h
     turnHotseat: false,
   });
   assert.equal(flipped(resumedOff.game, resumedOff.turnHotseat), false);
+});
+
+test('a turned board follows the viewed side at every step of random hotseat games (#367)', () => {
+  let seed = 120;
+  const next = (n: number) => {
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+    return seed % n;
+  };
+  let states = 0;
+  const check = (game: Game) => {
+    assert.equal(flipped(game, true), viewGame(game).side === 'b');
+    assert.equal(flipped(game, false), false);
+    states++;
+  };
+  for (let round = 0; round < 6; round++) {
+    let game = newGame('hotseat', `turned-${round}`);
+    for (let turn = 0; turn < 300 && game.phase !== 'ended'; turn++) {
+      check(game);
+      game = rollGame(
+        game,
+        [1, 2, 3].map(() => next(6) + 1),
+      );
+      check(game);
+      while (game.phase === 'move') {
+        const legal = viewGame(game).legal;
+        game = moveGame(game, legal[next(legal.length)]);
+        check(game);
+      }
+      if (game.phase === 'handoff') game = nextTurn(game);
+    }
+    check(game);
+  }
+  assert.ok(states > 1000, `only ${states} states`);
 });
 
 test('lastDice is null at the start of a game, so the first roll opens on empty slots', () => {

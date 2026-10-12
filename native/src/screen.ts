@@ -15,6 +15,7 @@ import {
   agreeDraw,
   applyBotReply,
   viewGame,
+  sideToMove,
   emptyRoll,
   INITIAL_POSITION,
   isBotMode,
@@ -74,10 +75,11 @@ export const colourOptions = ['Random', 'White', 'Black'];
 const COLOURS: readonly ColourChoice[] = ['random', 'w', 'b'];
 
 // A person playing Black sees the board from Black's side. In hotseat, turning
-// the board flips it for Black's turn (#120).
+// the board flips it for Black's turn (#120), which the turn's start tells
+// without a view (#367).
 export const flipped = (game: Game, turnHotseat = false): boolean =>
   game.human === 'b' ||
-  (turnHotseat && game.mode === 'hotseat' && viewGame(game).side === 'b');
+  (turnHotseat && game.mode === 'hotseat' && sideToMove(game) === 'b');
 
 // Where the cursor waits once the person has a piece to choose, after a roll or
 // an action (#68): on its square while that piece can still move, otherwise on

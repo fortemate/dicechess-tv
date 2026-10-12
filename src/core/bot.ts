@@ -8,7 +8,7 @@
 // It imports the full engine entry point, as the game controller does for the
 // legal turn tree (src/core/game.ts), so every build bundles that entry.
 import { DiceChess } from '@fortemate/dicechess-engine';
-import { isBotMode, viewGame, type Game } from './game.ts';
+import { botToMove, isBotMode, viewGame, type Game } from './game.ts';
 
 // The shape applyMove-side validation expects: enough context to reject a reply
 // that belongs to a game or a position that has since moved on.
@@ -19,9 +19,10 @@ export type BotReply = {
   moves: string[];
 };
 
-// True while the local opponent, not a player, owes the next action.
+// True while the local opponent, not a player, owes the next action. Whose turn
+// it is comes from the turn's start, so asking replays nothing (#367).
 export function botToAct(game: Game): boolean {
-  return game.phase !== 'ended' && viewGame(game).bot;
+  return game.phase !== 'ended' && botToMove(game);
 }
 
 // Whether a reply, possibly worked out earlier, belongs to this very game and
