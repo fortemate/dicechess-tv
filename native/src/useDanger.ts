@@ -78,12 +78,9 @@ export function useDanger(
     // A new game starts from its own first answer, not from the last game's.
     const keep = (measured: Level) =>
       setState((current) => {
-        const from =
-          current.id !== id
-            ? null
-            : current.start === start
-              ? current.from
-              : current.level;
+        let from: Level | null = null;
+        if (current.id === id)
+          from = current.start === start ? current.from : current.level;
         return {
           id,
           start,
