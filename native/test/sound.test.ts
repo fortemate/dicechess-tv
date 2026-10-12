@@ -30,6 +30,7 @@ type Entry = {
   src?: string;
   from?: number;
   to?: number;
+  volume?: number;
   contentType?: number;
   usage?: number;
 };
@@ -37,7 +38,12 @@ type Entry = {
 const SPRITE = '/pkg/assets/sfx/effects.mp3';
 
 const log = () => audioLog as Entry[];
-const plays = () => log().filter((entry) => entry.event === 'play');
+// What is heard: a channel's player first plays a moment of silence at volume
+// zero, before it waits at its first clip.
+const plays = () =>
+  log().filter((entry) => entry.event === 'play' && entry.volume !== 0);
+const primes = () =>
+  log().filter((entry) => entry.event === 'play' && entry.volume === 0);
 const effects = () => plays().filter((entry) => entry.src === SPRITE);
 const settle = () => new Promise((done) => setTimeout(done, 0));
 
@@ -66,6 +72,13 @@ const ends = () => {
       for (const { run } of held.splice(0)) run();
     },
   };
+};
+
+// The channels' players have played their first silence and wait at their
+// first clips.
+const primed = async (time: ReturnType<typeof ends>) => {
+  await settle();
+  time.run();
 };
 
 const released = () =>
@@ -140,6 +153,7 @@ test('a cue plays its clip from the sprite, and is paused once the clip is over'
   resetAudio();
   const time = ends();
   const sounds = createSounds({ pick: () => 1, endClip: time.endClip });
+  await primed(time);
   sounds.play(['dice_roll']);
   await settle();
   const [roll] = effects();
@@ -158,6 +172,7 @@ test('a new cue on a channel rewinds its player to the new clip, and the old cli
   resetAudio();
   const time = ends();
   const sounds = createSounds({ pick: () => 0, endClip: time.endClip });
+  await primed(time);
   sounds.play(['piece_move']);
   await settle();
   sounds.play(['piece_capture']);
@@ -398,7 +413,9 @@ const eventsOf = (player: number, after = 0) =>
   log()
     .slice(after)
     .filter((entry) => entry.player === player)
-    .map(({ event, to }) => (event === 'seek' ? `seek ${to}` : event));
+    .map(({ event, to }) =>
+      event === 'seek' || event === 'volume' ? `${event} ${to}` : event,
+    );
 
 // A seek asked for just before play() lost the start of a clip on the virtual
 // device, now and then the whole clip (#374).
@@ -406,15 +423,23 @@ test('between clips a channel waits at a take of its main cue, which then plays 
   resetAudio();
   const time = ends();
   const sounds = createSounds({ pick: () => 1, endClip: time.endClip });
-  await settle();
+  await primed(time);
   const moveAt =
     EFFECT_CLIPS['jdsherbert-tabletop/piece_move_2.mp3'].start -
     CLIP_LEAD_SECONDS;
   const board = log().find(
     (entry) => entry.event === 'seek' && entry.to === moveAt,
   )!.player;
-  // Ready, the board's player waits at the move it will play.
-  assert.deepEqual(eventsOf(board).slice(-2), ['src', `seek ${moveAt}`]);
+  // Ready, the board's player plays a moment of silence it is not heard to
+  // play, and only then waits at the move it will play.
+  assert.deepEqual(eventsOf(board).slice(-6), [
+    'src',
+    'volume 0',
+    'play',
+    'pause',
+    'volume 1',
+    `seek ${moveAt}`,
+  ]);
 
   let before = log().length;
   sounds.play(['piece_move']);
@@ -452,10 +477,34 @@ test('between clips a channel waits at a take of its main cue, which then plays 
   ]);
 });
 
+test('a cue that comes during the first silence is heard, and the silence ending leaves it alone', async () => {
+  resetAudio();
+  const time = ends();
+  const sounds = createSounds({ pick: () => 0, endClip: time.endClip });
+  await settle();
+  assert.equal(primes().length, 3);
+  const silences = time.held.splice(0);
+  sounds.play(['piece_move']);
+  await settle();
+  const [move] = effects();
+  assert.equal(move.volume, 1);
+  assert.equal(clipOf(move), 'jdsherbert-tabletop/piece_move_1.mp3');
+  const before = log().length;
+  for (const { run } of silences) run();
+  assert.equal(pausesOf(move.player, before), 0);
+});
+
+test('muted, a player plays no first silence', async () => {
+  resetAudio();
+  createSounds({ muted: true });
+  await settle();
+  assert.equal(primes().length, 0);
+});
 test('each channel waits for its own main cue', async () => {
   resetAudio();
-  createSounds({ pick: () => 0 });
-  await settle();
+  const time = ends();
+  createSounds({ pick: () => 0, endClip: time.endClip });
+  await primed(time);
   const waits = log()
     .filter((entry) => entry.event === 'seek')
     .map((entry) =>
@@ -492,8 +541,13 @@ test('a clip that refuses to play is reported, and nothing is thrown', async () 
   sounds.play(['promotion']);
   await settle();
   await settle();
-  assert.deepEqual(reported.length, 1);
-  assert.match(reported[0], /promotion did not play/);
+  // The cue, and each channel's first moment of silence.
+  assert.deepEqual(reported.sort(), [
+    'sound: board did not start: Error: not supported',
+    'sound: dice did not start: Error: not supported',
+    'sound: promotion did not play: Error: not supported',
+    'sound: result did not start: Error: not supported',
+  ]);
 });
 
 test('a player that refuses to stop is reported, and nothing is thrown', async () => {
@@ -768,10 +822,13 @@ test('a line without a clip, or one that refuses to play, is reported, and nothi
   sounds.say(line('rolly_capture_3'));
   await settle();
   await settle();
-  assert.deepEqual(reported, [
-    'sound: line nobody_capture_1 has no clip',
-    'sound: line rolly_capture_3 did not play: Error: not supported',
-  ]);
+  assert.deepEqual(
+    reported.filter((entry) => entry.includes(' line ')),
+    [
+      'sound: line nobody_capture_1 has no clip',
+      'sound: line rolly_capture_3 did not play: Error: not supported',
+    ],
+  );
   assert.deepEqual(speech.heard, []);
   // Its player is let go rather than kept loaded until the next line.
   assert.deepEqual(

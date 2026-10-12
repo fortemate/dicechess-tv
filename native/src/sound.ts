@@ -24,7 +24,10 @@
 // play() was heard to lose the start of a clip on the virtual device, now and
 // then the whole clip. So between clips each channel's player waits, paused, at
 // the start of a take of the cue it plays most, chosen in advance: that cue
-// then only has to play. Any other cue seeks first.
+// then only has to play. Any other cue seeks first. A player is moved only once
+// it has played, as the music's are: the first wait, set as the sprite loaded,
+// left the first cues silent there. So each player first plays a moment of the
+// silence the sprite opens with, at volume zero, and waits from then on.
 //
 // The lines are the bots' (#159), the Hot Seat host's (#202), and Thinkle's as
 // he teaches the tutorial (#264). The voices have a setting of their own, so
@@ -174,7 +177,13 @@ export type SoundOptions = {
 
 type Player = Pick<
   AudioPlayer,
-  'initialize' | 'deinitialize' | 'play' | 'pause' | 'src' | 'currentTime'
+  | 'initialize'
+  | 'deinitialize'
+  | 'play'
+  | 'pause'
+  | 'src'
+  | 'currentTime'
+  | 'volume'
 >;
 
 export function createSounds({
@@ -271,6 +280,50 @@ export function createSounds({
     }
   };
 
+  // Counts what was started on each channel, a cue or the first moment of
+  // silence: the clip a pause belongs to.
+  const started = new Map<Channel, number>();
+  const take = (channel: Channel) => {
+    const turn = (started.get(channel) ?? 0) + 1;
+    started.set(channel, turn);
+    return turn;
+  };
+  // Once a clip is over, unless something newer is on the channel, its player
+  // is paused and waits at the next take.
+  const rest = (channel: Channel, player: Player, turn: number) => {
+    if (started.get(channel) !== turn) return;
+    pause(channel, player);
+    try {
+      loud(player);
+    } catch (error) {
+      report(`sound: ${channel} volume not set: ${String(error)}`);
+    }
+    park(channel, player);
+  };
+  // Players kept at volume zero while they play the silence the sprite opens
+  // with.
+  const quiet = new Set<Player>();
+  const prime = (channel: Channel, player: Player) => {
+    if (muted || suspended) return;
+    const turn = take(channel);
+    try {
+      player.volume = 0;
+      quiet.add(player);
+    } catch (error) {
+      report(`sound: ${channel} volume not set: ${String(error)}`);
+      return;
+    }
+    player.play().then(
+      () => endClip(() => rest(channel, player, turn), CLIP_TAIL_MS),
+      (error: unknown) =>
+        report(`sound: ${channel} did not start: ${String(error)}`),
+    );
+  };
+  const loud = (player: Player) => {
+    if (!quiet.delete(player)) return;
+    player.volume = 1;
+  };
+
   // Each channel's player, made up front and given the sprite once, so the
   // first cue of a game is not the one that waits for a media pipeline to come
   // up. `ready` holds the ones done, so that leaving pauses them at once rather
@@ -288,13 +341,11 @@ export function createSounds({
           return null;
         }
         ready.set(channel, player);
-        park(channel, player);
+        prime(channel, player);
         return player;
       }),
     ]),
   );
-  // Counts the cues started on each channel: the clip a pause belongs to.
-  const started = new Map<Channel, number>();
 
   const start = async (cue: Cue, generation: number) => {
     const files = CUE_FILES[cue];
@@ -309,9 +360,10 @@ export function createSounds({
     parked.delete(channel);
     const clip = EFFECT_CLIPS[file];
     if (!clip) return report(`sound: ${file} is not in the sprite`);
-    const turn = (started.get(channel) ?? 0) + 1;
-    started.set(channel, turn);
+    const turn = take(channel);
     try {
+      // A cue that comes while the player still plays its first silence.
+      loud(player);
       if (!atClip) {
         player.pause();
         player.currentTime = Math.max(0, clip.start - CLIP_LEAD_SECONDS);
@@ -329,11 +381,7 @@ export function createSounds({
       return;
     }
     endClip(
-      () => {
-        if (started.get(channel) !== turn) return;
-        pause(channel, player);
-        park(channel, player);
-      },
+      () => rest(channel, player, turn),
       Math.round((clip.seconds + CLIP_LEAD_SECONDS) * 1000) + CLIP_TAIL_MS,
     );
   };

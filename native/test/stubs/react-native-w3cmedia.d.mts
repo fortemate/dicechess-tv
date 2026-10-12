@@ -8,6 +8,7 @@ export declare const audioLog: Array<{
     | 'initialize'
     | 'src'
     | 'seek'
+    | 'volume'
     | 'play'
     | 'pause'
     | 'deinitialize';
@@ -15,6 +16,7 @@ export declare const audioLog: Array<{
   src?: string;
   from?: number;
   to?: number;
+  volume?: number;
   contentType?: number;
   usage?: number;
 }>;
@@ -35,6 +37,7 @@ export declare class AudioPlayer {
   constructor(contentType?: number, usage?: number);
   src: string;
   currentTime: number;
+  volume: number;
   initialize(): Promise<void>;
   play(): Promise<void>;
   pause(): void;

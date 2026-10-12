@@ -40,6 +40,7 @@ export class AudioPlayer {
     this.contentType = contentType;
     this.usage = usage;
     this._time = 0;
+    this._volume = 1;
     this.id = audioLog.filter((entry) => entry.event === 'create').length;
     this._src = '';
     audioLog.push({ event: 'create', player: this.id, contentType, usage });
@@ -57,6 +58,13 @@ export class AudioPlayer {
     this._time = seconds;
     audioLog.push({ event: 'seek', player: this.id, to: seconds });
   }
+  get volume() {
+    return this._volume;
+  }
+  set volume(gain) {
+    this._volume = gain;
+    audioLog.push({ event: 'volume', player: this.id, to: gain });
+  }
   get src() {
     return this._src;
   }
@@ -70,6 +78,7 @@ export class AudioPlayer {
       player: this.id,
       src: this._src,
       from: this._time,
+      volume: this._volume,
     });
     if (failing.play) return Promise.reject(new Error('not supported'));
     return starting
