@@ -42,7 +42,7 @@ The cues play on three channels: board, dice and result. A capture and the win i
 The game has adaptive music. The menus have their own theme. Over a game the theme follows the danger to a king, and changes at the start of each turn:
 
 - **Calm** while neither king can be taken soon.
-- **Tense** when at least a tenth of the rolls would let the side about to roll take the king within its turn.
+- **Tense** when at least a tenth of the rolls would let the side about to roll take the king within its first two actions.
 - **Critical** when the king is attacked directly, and only the right die is missing.
 
 Against the computer the music follows the danger to your own king. In Hot Seat, where both players are in the room, it follows the danger to either king. It rises at once and falls one step per turn, so one quiet turn does not drop a tense game to calm. Themes crossfade over two seconds, and a new theme starts from its beginning, as chosen by ear; after a result the music waits, so the jingle is heard on its own. On a Fire TV Stick, the danger search at the start of a new game held up the ticks that drive the fades, and the crossfade into the game took 12 s or more; since [#376](https://github.com/fortemate/dicechess-tv/issues/376) every fade and the duck under a line are worked out from the clock, so a late tick finds them where they should be by then. A new theme's player is heard a moment after it starts, so the crossfade waits for it: the theme being left plays on at its level until the new one sounds.

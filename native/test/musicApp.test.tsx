@@ -64,8 +64,8 @@ test('the home screen asks for the menu theme, and a new game for its level', ()
 });
 
 test('a Hot Seat game measures its danger only while music is heard (#368)', () => {
-  // The search's steps, held as the app holds them for a frame. In Hot Seat
-  // nothing else waits there: there is no opponent to search.
+  // The measure, held as the app holds it for a frame. In Hot Seat nothing
+  // else waits there: there is no opponent to search.
   const steps: (() => void)[] = [];
   const held = fixedOptions({
     roll: () => [2, 2, 2],

@@ -42,7 +42,7 @@ const harness = () => {
     next: () => {
       for (const { step } of waiting.splice(0)) act(() => step());
     },
-    // The opponent's search, and the danger search beside it, run `took`
+    // The opponent's search, and the danger measure beside it, run `took`
     // milliseconds after the wait began.
     search: (took: number) => {
       state.time += took;

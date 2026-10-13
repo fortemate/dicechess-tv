@@ -4,19 +4,24 @@
 //
 // - critical: some roll lets that side take the king with its first action. The
 //   king is attacked, and only the right die is missing;
-// - tense: at least TENSE_WEIGHT of the 216 rolls let it take the king somewhere
-//   in its turn, in up to three actions;
+// - tense: at least TENSE_WEIGHT of the 216 rolls let it take the king within
+//   its first two actions;
 // - calm: neither.
-//
-// The first is one pseudo-legal move generation, 0.08 ms on the Vega Virtual
-// Device. The second searches up to three actions for each of the 56 distinct
-// rolls: a median of 427 ms there, and 1.6 s at worst (#76). That is far too long
-// to do at once at a turn boundary, so it is a search the caller advances one
-// roll at a time, between frames, and it stops as soon as the answer is known.
 //
 // Both use the engine's pseudo-legal generator rather than the legal turn tree:
 // a path that takes the king is legal whatever the rule of using as many dice as
 // possible says, and on 200 engine positions the two agreed every time.
+//
+// Tense used to look three actions deep, searching each of the 56 distinct
+// rolls on its own: thousands of engine calls a turn, which on a Fire TV Stick
+// held the JavaScript thread, and the remote with it, for seconds at a time
+// (#365). Now the two actions are searched once for every roll. A position
+// without dice gives the moves of every piece type, each path to the king notes
+// the dice it spends, and the rolls holding those dice are counted. That is a
+// move generation and an application for each first action, a few dozen engine
+// calls, so the level is known at once and nothing is left to run while the
+// person plays. A threat that needs all three actions is no longer heard as
+// tense; the owner chose that trade on 13 October 2026.
 import { DiceChess } from '@fortemate/dicechess-engine';
 import { opposite, type Game, type Side } from './game.ts';
 
@@ -32,8 +37,6 @@ const LEVELS: readonly Level[] = ['calm', 'tense', 'critical'];
 // game nearly every turn, and music that is always tense is not tense.
 export const TENSE_WEIGHT = 22;
 
-const LETTER = ['', 'P', 'N', 'B', 'R', 'Q', 'K'];
-
 // How many of the 216 ordered rolls a sorted roll stands for: one when all
 // three dice agree, three when two do, six when none do.
 const weightOf = (a: number, b: number, c: number): number => {
@@ -42,20 +45,20 @@ const weightOf = (a: number, b: number, c: number): number => {
   return 6;
 };
 
-// The 56 distinct rolls, each with its weight.
-export const ROLLS: readonly { dice: string; weight: number }[] = (() => {
-  const rolls: { dice: string; weight: number }[] = [];
-  for (let a = 1; a <= 6; a++)
-    for (let b = a; b <= 6; b++)
-      for (let c = b; c <= 6; c++)
-        rolls.push({
-          dice: LETTER[a] + LETTER[b] + LETTER[c],
-          weight: weightOf(a, b, c),
-        });
-  return rolls;
-})();
+// The 56 distinct rolls, each as its three faces in ascending order, with its
+// weight.
+export const ROLLS: readonly { dice: readonly number[]; weight: number }[] =
+  (() => {
+    const rolls: { dice: number[]; weight: number }[] = [];
+    for (let a = 1; a <= 6; a++)
+      for (let b = a; b <= 6; b++)
+        for (let c = b; c <= 6; c++)
+          rolls.push({ dice: [a, b, c], weight: weightOf(a, b, c) });
+    return rolls;
+  })();
 
-const PIECE: Readonly<Record<string, number>> = {
+// The die that names each piece.
+const DIE: Readonly<Record<string, number>> = {
   p: 1,
   n: 2,
   b: 3,
@@ -63,130 +66,116 @@ const PIECE: Readonly<Record<string, number>> = {
   q: 5,
   k: 6,
 };
+const KING = DIE.k;
+const ROOK = DIE.r;
 
-// What stands on a square of a position, or null.
-function pieceAt(dfen: string, square: string): string | null {
-  const rows = dfen.split(' ')[0].split('/');
-  const row = rows[8 - Number(square[1])];
-  const file = 'abcdefgh'.indexOf(square[0]);
-  let at = 0;
-  for (const ch of row) {
-    if (/\d/.test(ch)) {
-      at += Number(ch);
-      if (at > file) return null;
-    } else {
-      if (at === file) return ch;
-      at++;
-    }
-  }
-  return null;
-}
-
-// Where a side's king stands, or null once it has been taken.
-export function kingSquare(dfen: string, side: Side): string | null {
-  const king = side === 'w' ? 'K' : 'k';
+// The pieces of a position, by square.
+function piecesOf(dfen: string): Map<string, string> {
+  const pieces = new Map<string, string>();
   const rows = dfen.split(' ')[0].split('/');
   for (let r = 0; r < 8; r++) {
     let file = 0;
     for (const ch of rows[r]) {
       if (/\d/.test(ch)) file += Number(ch);
-      else {
-        if (ch === king) return 'abcdefgh'[file] + (8 - r);
-        file++;
-      }
+      else pieces.set('abcdefgh'[file++] + (8 - r), ch);
     }
   }
+  return pieces;
+}
+
+// Where a side's king stands, or null once it has been taken.
+export function kingSquare(dfen: string, side: Side): string | null {
+  const king = side === 'w' ? 'K' : 'k';
+  for (const [square, piece] of piecesOf(dfen))
+    if (piece === king) return square;
   return null;
 }
+
+// The dice a move spends: its piece's, and a rook's as well when the king
+// castles, which moves it two files. A move from an empty square is an engine
+// fault: no dice would make every roll play it.
+function diceOf(pieces: Map<string, string>, move: string): number[] {
+  const piece = pieces.get(move.slice(0, 2));
+  if (!piece) throw new Error('No piece moves ' + move);
+  const die = DIE[piece.toLowerCase()];
+  const files = Math.abs(move.charCodeAt(0) - move.charCodeAt(2));
+  return die === KING && files === 2 ? [KING, ROOK] : [die];
+}
+
+const takes = (move: string, target: string) => move.slice(2, 4) === target;
 
 // How many of the 216 rolls let the side to move take the king on `target` with
 // its first action: those showing a die of any piece type that attacks it.
 export function firstActionWeight(dfen: string, target: string): number {
+  const pieces = piecesOf(dfen);
   const types = new Set<number>();
-  for (const move of DiceChess.generateMoves(dfen)) {
-    if (move.slice(2, 4) !== target) continue;
-    const piece = pieceAt(dfen, move.slice(0, 2));
-    if (piece) types.add(PIECE[piece.toLowerCase()]);
-  }
+  for (const move of DiceChess.generateMoves(dfen))
+    if (takes(move, target)) types.add(diceOf(pieces, move)[0]);
   return 216 - (6 - types.size) ** 3;
 }
 
-// Whether some sequence of up to `depth` actions with the position's dice takes
-// the king on `target`.
-function reaches(dfen: string, target: string, depth: number): boolean {
-  const moves = DiceChess.generateMoves(dfen);
-  if (moves.some((move) => move.slice(2, 4) === target)) return true;
-  if (depth === 1) return false;
-  for (const move of moves) {
-    const next = DiceChess.applyMove(
-      dfen,
-      move.slice(0, 2),
-      move.slice(2, 4),
-      move.slice(4) || undefined,
-    );
-    // No dice left: the turn is over.
-    if (!next?.split(' ')[6]) continue;
-    if (reaches(next, target, depth - 1)) return true;
+// Whether a roll holds every die of `dice`, a die repeated as often as it is
+// listed.
+function holds(roll: readonly number[], dice: readonly number[]): boolean {
+  const left = [...roll];
+  for (const die of dice) {
+    const at = left.indexOf(die);
+    if (at === -1) return false;
+    left.splice(at, 1);
   }
-  return false;
+  return true;
 }
 
-// A search the caller advances with step() until it returns a level. Each step
-// does a bounded piece of work: one roll, or the first-action check.
-export type DangerSearch = { step(): Level | null };
-
-const settled = (level: Level): DangerSearch => ({ step: () => level });
+// How many of the 216 rolls let the side to move of `dfen`, a position before
+// its roll, take the king on `target` within its first two actions.
+//
+// The position has no dice, so the engine gives the moves of every piece type,
+// and each path to the king is noted with the dice it spends: a roll that holds
+// them can play it. A castling spends two dice, which leaves room for the second
+// action and no more.
+export function twoActionWeight(dfen: string, target: string): number {
+  const paths: number[][] = [];
+  const pieces = piecesOf(dfen);
+  for (const first of DiceChess.generateMoves(dfen)) {
+    const spent = diceOf(pieces, first);
+    if (takes(first, target)) {
+      paths.push(spent);
+      continue;
+    }
+    const next = DiceChess.applyMove(
+      dfen,
+      first.slice(0, 2),
+      first.slice(2, 4),
+      first.slice(4) || undefined,
+    );
+    if (!next) continue;
+    const after = piecesOf(next);
+    for (const second of DiceChess.generateMoves(next)) {
+      if (takes(second, target))
+        paths.push([...spent, ...diceOf(after, second)]);
+    }
+  }
+  let weight = 0;
+  for (const { dice, weight: rolls } of ROLLS)
+    if (paths.some((path) => holds(dice, path))) weight += rolls;
+  return weight;
+}
 
 // The danger the side to move of `dfen`, a position before its roll, poses to
-// the king on `target`. Without `tense` it tells only critical from calm, and
-// ends after the first-action check.
-export function searchDanger(
+// the king on `target`. Without `tense` it tells only critical from calm, with a
+// single move generation.
+export function measureDanger(
   dfen: string,
   target: string | null,
   tense = true,
-): DangerSearch {
-  if (!target) return settled('calm');
-  let index = -1;
-  let hit = 0;
-  let left = 216;
-  let answer: Level | null = null;
-  return {
-    step() {
-      if (answer) return answer;
-      if (index < 0) {
-        index = 0;
-        if (firstActionWeight(dfen, target) > 0) answer = 'critical';
-        else if (!tense) answer = 'calm';
-        return answer;
-      }
-      const { dice, weight } = ROLLS[index++];
-      if (reaches(`${dfen} ${dice}`, target, 3)) hit += weight;
-      left -= weight;
-      if (hit >= TENSE_WEIGHT) answer = 'tense';
-      // The rolls not yet tried cannot reach the threshold any more.
-      else if (hit + left < TENSE_WEIGHT || index === ROLLS.length)
-        answer = 'calm';
-      return answer;
-    },
-  };
+): Level {
+  if (!target) return 'calm';
+  if (firstActionWeight(dfen, target) > 0) return 'critical';
+  if (!tense) return 'calm';
+  return twoActionWeight(dfen, target) >= TENSE_WEIGHT ? 'tense' : 'calm';
 }
 
-// Several searches run one after another; the answer is the highest level, and
-// a critical answer ends the rest early.
-function highest(searches: DangerSearch[]): DangerSearch {
-  let at = 0;
-  let best: Level = 'calm';
-  return {
-    step() {
-      if (at === searches.length) return best;
-      const level = searches[at].step();
-      if (level === null) return null;
-      if (RANK[level] > RANK[best]) best = level;
-      at = best === 'critical' ? searches.length : at + 1;
-      return at === searches.length ? best : null;
-    },
-  };
-}
+const highest = (a: Level, b: Level): Level => (RANK[a] >= RANK[b] ? a : b);
 
 // The danger heard at the start of a turn, from the game's position before the
 // roll.
@@ -199,34 +188,27 @@ function highest(searches: DangerSearch[]): DangerSearch {
 //
 // Only the music tells tense from calm. A caller that needs only critical, for
 // the opponent's threat line while no music is heard (#368), passes `tense`
-// false, and the search is one first-action check per king.
+// false, and the measure is one move generation per king.
 export function turnDanger(
   game: Pick<Game, 'phase' | 'start' | 'human'>,
   tense = true,
-): DangerSearch {
-  if (game.phase === 'ended') return settled('calm');
+): Level {
+  if (game.phase === 'ended') return 'calm';
   const dfen = game.start;
   const mover = dfen.split(' ')[1] as Side;
-  // The same position with the other side to move, as if the side to move had
-  // passed.
-  const passed = () => DiceChess.endTurn(dfen) ?? null;
-  const against = (attacker: Side): DangerSearch => {
+  const against = (attacker: Side): Level => {
     const target = kingSquare(dfen, opposite(attacker));
-    if (attacker === mover) return searchDanger(dfen, target, tense);
-    const position = passed();
-    return position ? searchDanger(position, target, tense) : settled('calm');
+    if (attacker === mover) return measureDanger(dfen, target, tense);
+    // The same position with the other side to move, as if the side to move
+    // had passed.
+    const passed = DiceChess.endTurn(dfen);
+    return passed ? measureDanger(passed, target, tense) : 'calm';
   };
-  if (game.human) return highest([against(opposite(game.human))]);
-  return highest([against(mover), against(opposite(mover))]);
-}
-
-// Runs a search to its end at once. For tests, and for positions known to be
-// cheap; the app spreads the steps over frames instead.
-export function finish(search: DangerSearch): Level {
-  for (;;) {
-    const level = search.step();
-    if (level) return level;
-  }
+  if (game.human) return against(opposite(game.human));
+  const first = against(mover);
+  return first === 'critical'
+    ? first
+    : highest(first, against(opposite(mover)));
 }
 
 // The level the music plays after a turn boundary, given the one it played and

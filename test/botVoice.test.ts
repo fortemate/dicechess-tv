@@ -13,7 +13,7 @@ import {
   type BotVoiceState,
   type VoiceEvent,
 } from '../src/core/botVoice.ts';
-import { finish, turnDanger } from '../src/core/danger.ts';
+import { turnDanger } from '../src/core/danger.ts';
 import {
   moveGame,
   newGame,
@@ -306,7 +306,7 @@ test("a threat follows the danger to the person's king, which turnDanger measure
   // one rook die, and it takes that king with its first action.
   const start = '4k3/8/8/8/4r3/8/8/4K3 w - - 0 1';
   const threatened = newGame('aggressive', 'threatened', start, 'w');
-  const level = finish(turnDanger(threatened));
+  const level = turnDanger(threatened);
   assert.equal(level, 'critical');
   const cue = botVoiceCue(threatened, threatened, rampage, level, quiet);
   assert.equal(cue.line?.event, 'threat');
@@ -315,7 +315,7 @@ test("a threat follows the danger to the person's king, which turnDanger measure
   // stays calm, since it measures the person's king only, and the bot is quiet.
   const other = '4k3/8/8/4R3/8/8/8/4K3 w - - 0 1';
   const threatening = newGame('aggressive', 'threatening', other, 'w');
-  const calm = finish(turnDanger(threatening));
+  const calm = turnDanger(threatening);
   assert.equal(calm, 'calm');
   assert.equal(
     botVoiceCue(threatening, threatening, rampage, calm, quiet).line,
