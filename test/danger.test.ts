@@ -10,20 +10,23 @@ import {
   kingSquare,
   measureDanger,
   settle,
+  threeActionWeight,
   turnDanger,
   twoActionWeight,
   type Level,
 } from '../src/core/danger.ts';
 import { INITIAL_POSITION, newGame, resignGame } from '../src/core/game.ts';
 
-// Positions from simulated games between engine bots. `first` and `two` are how
-// many of the 216 rolls let the side to move take the king on `target` with its
-// first action and within its first two, from the legal turn tree.
+// Positions from simulated games between engine bots. `first`, `two` and `three`
+// are how many of the 216 rolls let the side to move take the king on `target`
+// with its first action, within its first two, and within up to three actions,
+// from the legal turn tree.
 const POSITIONS: {
   dfen: string;
   target: string;
   first: number;
   two: number;
+  three: number;
   level: Level;
 }[] = [
   {
@@ -31,6 +34,7 @@ const POSITIONS: {
     target: 'f3',
     first: 91,
     two: 104,
+    three: 104,
     level: 'critical',
   },
   {
@@ -38,23 +42,26 @@ const POSITIONS: {
     target: 'd7',
     first: 91,
     two: 104,
+    three: 105,
     level: 'critical',
   },
-  // Tense while the search looked three actions deep, exactly at the
-  // threshold: 22 rolls take the king within the turn, but only 16 within two
-  // actions (#365).
+  // Tense with the three-action search restored via the engine's exact
+  // measure (#382), exactly at the threshold: 22 rolls take the king within
+  // the turn, though only 16 within two actions (#365).
   {
     dfen: 'rn1q1bnr/pppkpppp/8/3p1b2/8/5N2/PPPPPPPP/RNBQKB1R w KQ d6 2 2',
     target: 'd7',
     first: 0,
     two: 16,
-    level: 'calm',
+    three: 22,
+    level: 'tense',
   },
   {
     dfen: '3rkb2/ppp3pp/3p2N1/4PP2/8/8/PPPK1PPP/RN5R b - - 1 7',
     target: 'd2',
     first: 0,
     two: 30,
+    three: 34,
     level: 'tense',
   },
   // Some rolls take the king, but fewer than the threshold: the 16 that hold
@@ -64,6 +71,7 @@ const POSITIONS: {
     target: 'a7',
     first: 0,
     two: 16,
+    three: 16,
     level: 'calm',
   },
   {
@@ -71,6 +79,7 @@ const POSITIONS: {
     target: 'e8',
     first: 0,
     two: 16,
+    three: 16,
     level: 'calm',
   },
   {
@@ -78,6 +87,7 @@ const POSITIONS: {
     target: 'a4',
     first: 0,
     two: 0,
+    three: 0,
     level: 'calm',
   },
 ];
@@ -110,6 +120,12 @@ test('the two-action share matches the legal tree', () => {
   assert.equal(twoActionWeight(INITIAL_POSITION, 'e8'), 0);
 });
 
+test('the three-action share matches the legal tree', () => {
+  for (const p of POSITIONS)
+    assert.equal(threeActionWeight(p.dfen, p.target), p.three, p.dfen);
+  assert.equal(threeActionWeight(INITIAL_POSITION, 'e8'), 0);
+});
+
 test('each position gets the level its shares give', () => {
   for (const p of POSITIONS)
     assert.equal(measureDanger(p.dfen, p.target), p.level, p.dfen);
@@ -133,9 +149,9 @@ function reaches(dfen: string, target: string, depth: number): boolean {
     return !!next?.split(' ')[6] && reaches(next, target, depth - 1);
   });
 }
-const rollByRoll = (dfen: string, target: string): number =>
+const rollByRoll = (dfen: string, target: string, depth = 3): number =>
   ROLLS.filter(({ dice }) =>
-    reaches(`${dfen} ${dice.map((die) => L[die]).join('')}`, target, 2),
+    reaches(`${dfen} ${dice.map((die) => L[die]).join('')}`, target, depth),
   ).reduce((sum, { weight }) => sum + weight, 0);
 
 // Turn starts from games played with seeded dice, each turn a seeded path
@@ -184,64 +200,53 @@ function seededPositions(count: number): { dfen: string; target: string }[] {
 test('on 200 positions from seeded games, the share matches a search of each roll on its own', () => {
   const levels = new Set<Level>();
   for (const { dfen, target } of seededPositions(200)) {
-    const weight = twoActionWeight(dfen, target);
-    assert.equal(weight, rollByRoll(dfen, target), `${dfen} ${target}`);
+    const weight = threeActionWeight(dfen, target);
+    assert.equal(weight, rollByRoll(dfen, target, 3), `${dfen} ${target}`);
     levels.add(measureDanger(dfen, target));
   }
   // The positions cover every level.
   assert.deepEqual([...levels].sort(), ['calm', 'critical', 'tense']);
 });
 
-test('a measure goes no deeper than one action: an application and a move generation for each first action', (t) => {
-  const generate = t.mock.method(DiceChess, 'generateMoves');
-  const apply = t.mock.method(DiceChess, 'applyMove');
+test('a measure calls threatWeight at most twice, and once when critical or without tense (#368, #382)', (t) => {
+  const threat = t.mock.method(DiceChess, 'threatWeight');
   for (const p of POSITIONS) {
-    const first = DiceChess.generateMoves(p.dfen).length;
-    generate.mock.resetCalls();
-    apply.mock.resetCalls();
+    threat.mock.resetCalls();
     measureDanger(p.dfen, p.target);
     if (p.level === 'critical') {
-      assert.equal(generate.mock.callCount(), 1, p.dfen);
-      assert.equal(apply.mock.callCount(), 0, p.dfen);
-      continue;
+      assert.equal(threat.mock.callCount(), 1, p.dfen);
+    } else {
+      assert.equal(threat.mock.callCount(), 2, p.dfen);
     }
-    // The critical check, the first actions, and one generation after each.
-    assert.ok(apply.mock.callCount() <= first, p.dfen);
-    assert.equal(generate.mock.callCount(), apply.mock.callCount() + 2, p.dfen);
   }
-});
-
-test('without the tense measure, a position tells critical from calm with one move generation (#368)', (t) => {
-  const generate = t.mock.method(DiceChess, 'generateMoves');
   for (const p of POSITIONS) {
-    generate.mock.resetCalls();
-    const expected = p.level === 'critical' ? 'critical' : 'calm';
-    assert.equal(measureDanger(p.dfen, p.target, false), expected, p.dfen);
-    assert.equal(generate.mock.callCount(), 1, p.dfen);
+    threat.mock.resetCalls();
+    measureDanger(p.dfen, p.target, false);
+    assert.equal(threat.mock.callCount(), 1, p.dfen);
   }
 });
 
 const TENSE = '3rkb2/ppp3pp/3p2N1/4PP2/8/8/PPPK1PPP/RN5R b - - 1 7';
 
-test('without the tense measure, a turn against the computer costs one move generation, and keeps a critical answer (#368)', (t) => {
-  const generate = t.mock.method(DiceChess, 'generateMoves');
+test('without the tense measure, a turn against the computer costs one threat evaluation, and keeps a critical answer (#368)', (t) => {
+  const threat = t.mock.method(DiceChess, 'threatWeight');
   // Black to move attacks the White king on f3. On Black's turn it is the
   // opponent's threat now, on White's as if White passed.
   for (const [position, human, level] of [
     ['8/8/7p/p1p5/k5p1/5K2/n7/5b2 b - - 0 18', 'w', 'critical'],
     ['8/8/7p/p1p5/k5p1/5K2/n7/5b2 b - - 0 18', 'b', 'calm'],
     ['8/8/7p/p1p5/k5p1/5K2/n7/5b2 w - - 0 18', 'w', 'critical'],
-    // Tense with the music: 30 of the 216 rolls take the king within two
+    // Tense with the music: 34 of the 216 rolls take the king within three
     // actions, and none with the first.
     [TENSE, 'w', 'calm'],
   ] as const) {
-    generate.mock.resetCalls();
+    threat.mock.resetCalls();
     const measured = turnDanger(
       newGame('greedy', 'danger', position, human),
       false,
     );
     assert.equal(measured, level, `${position} ${human}`);
-    assert.equal(generate.mock.callCount(), 1, `${position} ${human}`);
+    assert.equal(threat.mock.callCount(), 1, `${position} ${human}`);
   }
   assert.equal(turnDanger(newGame('greedy', 'danger', TENSE, 'w')), 'tense');
 });

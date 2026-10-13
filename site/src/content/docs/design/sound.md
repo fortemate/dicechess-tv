@@ -42,7 +42,7 @@ The cues play on three channels: board, dice and result. A capture and the win i
 The game has adaptive music. The menus have their own theme. Over a game the theme follows the danger to a king, and changes at the start of each turn:
 
 - **Calm** while neither king can be taken soon.
-- **Tense** when at least a tenth of the rolls would let the side about to roll take the king within its first two actions.
+- **Tense** when at least a tenth of the rolls would let the side about to roll take the king within its turn, in up to three actions.
 - **Critical** when the king is attacked directly, and only the right die is missing.
 
 How the level is measured, with a diagram and a worked example, is on [Danger measure](/design/danger/).
