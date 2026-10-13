@@ -348,8 +348,8 @@ export type ScreenOptions = {
   // its search has already used. Without it no time counts as used, which is
   // what a test that does not look at the clock wants.
   now?: () => number;
-  // The opponent's reply (#261). An interface that does not block: returns a
-  // Promise or a direct BotReply. When omitted, defaults to calling botReply(game).
+  // The opponent's reply (#261). An asynchronous interface: returns a Promise
+  // or a direct BotReply. When omitted, defaults to calling botReply(game).
   reply?: (game: Game) => Promise<BotReply> | BotReply;
 };
 

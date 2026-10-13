@@ -784,15 +784,12 @@ export const GameScreen = ({
   // while an overlay is up, which is also how leaving play stops it.
   //
   // The first step of a turn needs the whole reply, which the engine works out
-  // in one piece. That search starts with the wait, between frames so the roll
-  // is already on screen, and counts against it: the first action shows
+  // in one piece. That search starts with the wait, through an asynchronous
+  // reply interface (#261), and counts against it: the first action shows
   // BOT_STEP_MS after the roll, or as soon as the reply is ready if that is
-  // The first step of a turn needs the whole reply, which the engine works out
-  // in one piece. That search starts with the wait, through a non-blocking
-  // interface (#261), and counts against it: the first action shows BOT_STEP_MS
-  // after the roll, or as soon as the reply is ready if that is later (#253).
-  // A search that is still running shows that the opponent is thinking; nothing
-  // is shown for a reply that arrives within one step wait.
+  // later (#253). While the reply is awaited past the step wait, the screen
+  // shows that the opponent is thinking; nothing is shown for a reply that
+  // arrives within one step wait.
   // The reply is kept with the game it was worked out for, together with how
   // much of the wait has gone, so a menu opened meanwhile neither loses it nor
   // asks again, and what resumes is the rest of the wait, not a new one.
