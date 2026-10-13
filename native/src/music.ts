@@ -20,6 +20,9 @@
 //   tick then stretched a 2 s crossfade to 12 s or more (#376). So every fade,
 //   and the duck, is worked out from the clock: a late tick finds it where it
 //   should be by then, and only its steps are coarser.
+// - A fresh player there is heard about a second after `play()` resolves: its
+//   position stays put until then. So a pass's fade-in starts once its position
+//   moves, and what it replaces keeps playing until then (#376).
 // - A player started at volume zero and moved to its position after `play()`
 //   cannot be heard getting there, which is simpler than seeking before the
 //   file has loaded.
@@ -109,6 +112,8 @@ export const END_FADE_MS = 1000;
 export const DUCK_DB = -9;
 export const DUCK_MS = 200;
 export const UNDUCK_MS = 600;
+// How long a pass may take to be heard before its crossfade goes ahead anyway.
+export const START_WAIT_MS = 2000;
 // Fresh players kept ready: enough for a change of level during a seam.
 export const SPARE_PLAYERS = 2;
 
@@ -142,6 +147,13 @@ type Voice = {
   from: number;
   since: number;
   ms: number;
+  // A pass not heard yet waits, silent, for its position to move from
+  // `startAt`, or for START_WAIT_MS from `waitSince`. Then its fade-in starts,
+  // and so does the fading out of what it replaces (`onStart`).
+  waiting: boolean;
+  startAt: number;
+  waitSince: number;
+  onStart: ((at: number) => void)[];
   playing: boolean;
   // The seam to the next pass has been started on the other voice.
   seamed: boolean;
@@ -233,6 +245,8 @@ export function createMusic({
     voice.fade = 0;
     voice.target = 0;
     voice.from = 0;
+    voice.waiting = false;
+    voice.onStart = [];
     const player = voice.player;
     voice.player = null;
     if (!player) return;
@@ -246,20 +260,25 @@ export function createMusic({
 
   // Where a voice's fade is at `now`.
   const fadeAt = (voice: Voice, now: number) => {
-    const moved = voice.ms <= 0 ? 1 : (now - voice.since) / voice.ms;
+    const moved = voice.ms <= 0 ? 1 : Math.max(0, now - voice.since) / voice.ms;
     return voice.from < voice.target
       ? Math.min(voice.target, voice.from + moved)
       : Math.max(voice.target, voice.from - moved);
   };
 
-  // A fade turned on its way starts from where it is now, not where the last
-  // tick left it.
-  const fadeTo = (voice: Voice, target: number, ms: number) => {
-    const now = clock.now();
-    if (voice.fade !== voice.target) voice.fade = fadeAt(voice, now);
+  // A fade turned on its way starts from where it is at that moment, not where
+  // the last tick left it. The moment is now, unless a pass heard a little
+  // before the tick that noticed dates it back.
+  const fadeTo = (
+    voice: Voice,
+    target: number,
+    ms: number,
+    at = clock.now(),
+  ) => {
+    if (voice.fade !== voice.target) voice.fade = fadeAt(voice, at);
     voice.from = voice.fade;
     voice.target = target;
-    voice.since = now;
+    voice.since = at;
     voice.ms = ms;
   };
 
@@ -284,6 +303,10 @@ export function createMusic({
     fadeTo(voice, 1, fadeMs);
     apply(voice);
     const position = from ?? positions.get(next) ?? track.loopStart;
+    voice.waiting = true;
+    voice.startAt = position;
+    voice.waitSince = clock.now();
+    voice.onStart = [];
     report(
       `music: player ${which(voice)} plays ${next} from ${position.toFixed(1)} s, fading in over ${fadeMs} ms`,
     );
@@ -301,10 +324,35 @@ export function createMusic({
 
   // One tick of a voice's fade. A voice faded out to nothing stops.
   const fadeStep = (voice: Voice, now: number) => {
+    if (voice.waiting) {
+      // Turned away before it was heard, a pass simply stops.
+      if (voice.target === 0) stop(voice);
+      return;
+    }
     if (voice.fade === voice.target) return;
     voice.fade = fadeAt(voice, now);
     apply(voice);
     if (voice.fade === 0 && voice.target === 0) stop(voice);
+  };
+
+  // A pass is heard once its player's position moves. Its fade-in is dated from
+  // then, as near as the position tells, and only then does what it replaces
+  // start to fade out. One not heard within START_WAIT_MS goes ahead anyway.
+  const heard = (voice: Voice, now: number) => {
+    if (!voice.waiting || !voice.player || voice.target === 0) return;
+    const at = voice.player.currentTime;
+    const moved = Number.isFinite(at) && at > voice.startAt + 0.01;
+    if (!moved && now - voice.waitSince < START_WAIT_MS) return;
+    const began = moved
+      ? Math.max(voice.waitSince, now - (at - voice.startAt) * 1000)
+      : now;
+    voice.waiting = false;
+    voice.fade = 0;
+    voice.from = 0;
+    voice.since = began;
+    const replaced = voice.onStart;
+    voice.onStart = [];
+    for (const run of replaced) run(began);
   };
 
   // A pass about to end hands over to a fresh pass on the other voice. Only a
@@ -314,14 +362,21 @@ export function createMusic({
     const { role: theme, track } = voice;
     if (!voice.playing || voice.target !== 1 || voice.fade < 1) return false;
     if (voice.seamed || !theme || !track || other.playing) return false;
-    if (!voice.player) return false;
-    if (voice.player.currentTime < track.loopEnd - SEAM_MS / 1000) return false;
+    const player = voice.player;
+    if (!player) return false;
+    if (player.currentTime < track.loopEnd - SEAM_MS / 1000) return false;
     // Without a fresh player the seam waits for the next tick.
     if (!begin(other, theme, track, SEAM_MS, track.loopStart)) return false;
     voice.seamed = true;
     report(`music: ${theme} loops`);
     positions.delete(theme);
-    fadeTo(voice, 0, SEAM_MS);
+    // The old pass plays on until the new one is heard, then fades out by its
+    // loop's end, where a track may end too.
+    other.onStart.push(() => {
+      if (voice.player !== player || !voice.playing) return;
+      const left = (track.loopEnd - player.currentTime) * 1000;
+      fadeTo(voice, 0, Math.max(0, Math.min(SEAM_MS, left)));
+    });
     return true;
   };
 
@@ -337,6 +392,9 @@ export function createMusic({
     if (!voices) return;
     const now = clock.now();
     duckStep(now);
+    // Every pass heard by now is noticed first, so what it replaces fades out
+    // from the same tick.
+    for (const voice of voices) if (voice.playing) heard(voice, now);
     for (const voice of voices) if (voice.playing) fadeStep(voice, now);
     const [a, b] = voices;
     if (!handOver(a, b)) handOver(b, a);
@@ -383,16 +441,25 @@ export function createMusic({
         (low, voice) => (voice.fade < low.fade ? voice : low),
         voices[0],
       );
-    fadeOutAllBut(spare, CROSSFADE_MS);
+    // What plays now keeps playing until the new theme is heard.
+    const replaced = voices
+      .filter((voice) => voice !== spare && voice.playing && voice.target > 0)
+      .map((voice) => ({ voice, player: voice.player }));
     // A new level starts its theme from the beginning. A return from the
     // background continues where the music stopped instead.
-    begin(
+    const started = begin(
       spare,
       want,
       track,
       audible ? CROSSFADE_MS : CROSSFADE_MS / 2,
       track.loopStart,
     );
+    if (!started) return;
+    spare.onStart.push((at) => {
+      for (const { voice, player } of replaced)
+        if (voice.player === player && voice.playing && voice.target > 0)
+          fadeTo(voice, 0, CROSSFADE_MS, at);
+    });
   };
 
   // A theme still fading out when its level comes back fades back in from where
@@ -419,8 +486,18 @@ export function createMusic({
       ticking();
       return;
     }
+    // The wanted theme, heard or waiting to be: any other theme still on its
+    // way in is turned away. One already fading in or out is left alone.
+    const kept = voices.find(
+      (voice) => voice.playing && voice.target > 0 && voice.role === want,
+    );
+    if (kept) {
+      for (const voice of voices)
+        if (voice.role !== want && voice.waiting && voice.target > 0)
+          fadeTo(voice, 0, CROSSFADE_MS);
+      return;
+    }
     const audible = voices.find((voice) => voice.playing && voice.target > 0);
-    if (audible?.role === want) return;
     const returning = voices.find(
       (voice) => voice.role === want && canReturn(voice),
     );
@@ -467,6 +544,10 @@ export function createMusic({
       from: 0,
       since: 0,
       ms: 0,
+      waiting: false,
+      startAt: 0,
+      waitSince: 0,
+      onStart: [],
       playing: false,
       seamed: false,
     }));
