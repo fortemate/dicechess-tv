@@ -21,6 +21,7 @@ import {
 import { MMKV } from '@amazon-devices/react-native-mmkv';
 import { useKeplerAppStateManager } from '@amazon-devices/react-native-kepler';
 import { useReportFullyDrawn } from '@amazon-devices/kepler-performance-api';
+import { botReply } from '../../src/core/bot';
 import { GameScreen } from './GameScreen';
 import { MmkvSnapshotStore } from './mmkvStore';
 import { createSounds, type Sounds } from './sound';
@@ -119,7 +120,13 @@ export const App = ({
         return () => clearTimeout(timer);
       },
       // The opponent's search counts against its step wait (#253).
-      now: () => Date.now(),
+      // The opponent's reply (#261). Defers to a macrotask so the roll render
+      // cycle completes before search computation begins; off-thread search is
+      // tracked in #260.
+      reply: (game) =>
+        new Promise((resolve) => {
+          setTimeout(() => resolve(botReply(game)), 0);
+        }),
     };
   }, [injected]);
 
