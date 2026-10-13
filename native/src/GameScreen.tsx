@@ -879,7 +879,7 @@ export const GameScreen = ({
         maybeAdvance();
       }
 
-      hold.promise.then(() => {
+      void hold.promise.then(() => {
         if (cancelled) return;
         searchDone = true;
         maybeAdvance();
