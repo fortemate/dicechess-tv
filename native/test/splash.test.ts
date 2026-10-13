@@ -48,6 +48,7 @@ for (const input of [
   'brand',
   'splash',
   'sounds',
+  'sprite',
   'music',
   'voices',
   'licenses',

@@ -65,6 +65,8 @@ const flush = async () => {
 class FakePlayer {
   volume = 1;
   playing = false;
+  // How many times a track was set (#374).
+  given = 0;
   private file = '';
   private at = 0;
   private since = 0;
@@ -77,6 +79,7 @@ class FakePlayer {
     return this.file;
   }
   set src(value: string) {
+    this.given++;
     this.file = value;
     this.at = 0;
     this.since = this.clock.now();
@@ -105,6 +108,12 @@ class FakePlayer {
     this.playing = false;
     this.log.push(`${this.id} pause`);
   }
+  deinitialize() {
+    this.released = true;
+    this.log.push(`${this.id} release`);
+    return Promise.resolve();
+  }
+  released = false;
 }
 
 const CATALOGUE: Catalogue = {
@@ -279,9 +288,30 @@ test('a pass about to end hands over to a fresh pass on the other player, over 3
   await clock.advance(SEAM_MS);
   assert.deepEqual(playing(), ['calm.mp3']);
   assert.equal(first.playing, false);
-  // And the pass after that goes back to the first.
+  // Faded out, the first player is let go (#374).
+  assert.ok(first.released);
+  // And the pass after that starts on a fresh player of its own.
   await clock.advance(16_000);
-  assert.ok(first.playing, 'the first player takes the third pass');
+  const third = players.find((player) => player.playing && player !== second);
+  assert.ok(third && third !== first, 'a fresh player takes the third pass');
+});
+
+// On the Stick's OS 2602000051520, a player given a second track now and then
+// hung, and one that had loaded a track kept working even paused (#374).
+test('no music player is ever given a second track, and every silent one is let go', async () => {
+  const { music, clock, players } = await rig(SHORT_LOOP);
+  for (const role of ['calm', 'tense', 'calm', 'tense', 'calm'] as const) {
+    music.setRole(role);
+    // Long enough for calm's 19 s loop to hand over at least once.
+    await clock.advance(25_000);
+  }
+  music.setEnabled(false);
+  await clock.advance(5_000);
+  for (const player of players)
+    assert.ok(player.given <= 1, `player ${player.id} given ${player.given}`);
+  // Every player that loaded a track has been let go; the rest are ready.
+  for (const player of players.filter((each) => each.given))
+    assert.ok(player.released, `player ${player.id} kept`);
 });
 
 test('leaving the foreground stops at once; coming back waits, then resumes where it was', async () => {

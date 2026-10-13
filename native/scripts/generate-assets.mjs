@@ -257,17 +257,20 @@ export const main = (root = native) => {
   };
 };
 
-// The vendored sounds go where the player looks for them: assets/sfx/<pack>/,
-// which is /pkg/assets/sfx/<pack>/ on the device. Only the files the lock lists,
-// and only if their bytes are still the bytes the lock pinned — a vendored file
-// edited by hand stops the build rather than shipping.
+// The sound effects go where the player looks for them, assets/sfx/, which is
+// /pkg/assets/sfx/ on the device, as the one file that joins them (#374). The
+// vendored files must still have the bytes the sounds lock pinned, and the
+// sprite must have been made from those bytes and still have its own: a file
+// edited by hand, or a sound changed without making the sprite again, stops
+// the build rather than shipping.
 export const copySounds = (root = native) => {
   const lock = JSON.parse(
     readFileSync(join(root, 'sounds/sounds.lock.json'), 'utf8'),
   );
-  const target = join(root, 'assets/sfx');
-  rmSync(target, { recursive: true, force: true });
-  const copied = [];
+  const sprite = JSON.parse(
+    readFileSync(join(root, 'sprite/sprite.lock.json'), 'utf8'),
+  );
+  const pinned = {};
   for (const [pack, { files }] of Object.entries(lock.packs)) {
     for (const [name, { sha256 }] of Object.entries(files)) {
       if (!name.endsWith('.mp3')) continue;
@@ -277,12 +280,25 @@ export const copySounds = (root = native) => {
         throw new Error(
           `sounds/${pack}/${name} no longer matches sounds.lock.json`,
         );
-      mkdirSync(join(target, pack), { recursive: true });
-      writeFileSync(join(target, pack, name), bytes);
-      copied.push(`${pack}/${name}`);
+      pinned[`${pack}/${name}`] = sha256;
     }
   }
-  return copied;
+  const made = sprite.sources;
+  if (
+    Object.keys(made).length !== Object.keys(pinned).length ||
+    Object.entries(pinned).some(([file, digest]) => made[file] !== digest)
+  )
+    throw new Error(
+      `sprite/${sprite.file} was not made from the sounds sounds.lock.json pins; run scripts/sprite-effects.mjs`,
+    );
+  const bytes = readFileSync(join(root, 'sprite', sprite.file));
+  if (createHash('sha256').update(bytes).digest('hex') !== sprite.sha256)
+    throw new Error(`sprite/${sprite.file} no longer matches sprite.lock.json`);
+  const target = join(root, 'assets/sfx');
+  rmSync(target, { recursive: true, force: true });
+  mkdirSync(target, { recursive: true });
+  writeFileSync(join(target, sprite.file), bytes);
+  return [sprite.file];
 };
 
 // The adaptive music (#76), when this checkout has it: scripts/vendor-music.mjs
@@ -471,7 +487,7 @@ if (
   } = main();
   const shown = (path) => path.replace(`${native}/`, '');
   console.log(`icon:   ${shown(icon)}`);
-  console.log(`sounds: ${sounds.length} files -> assets/sfx/`);
+  console.log(`sounds: ${sounds.join(', ')} -> assets/sfx/`);
   console.log(
     music.length
       ? `music:  ${music.length} tracks -> assets/music/`

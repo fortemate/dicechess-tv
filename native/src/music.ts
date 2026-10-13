@@ -5,8 +5,13 @@
 // (#76, the probe branch probe/76-music-player):
 //
 // - Its own looping loses about 0.3 s at the first seam, and `ended` comes 0.4 s
-//   late. So a track loops on two players taking turns: the next pass starts on
-//   the other player just before the loop's end and the two crossfade.
+//   late. So a track loops on two voices taking turns: the next pass starts on
+//   the other voice just before the loop's end and the two crossfade.
+// - On a Fire TV Stick with OS build 2602000051520 (#374), setting `src` on a
+//   player that had already played now and then never returned, and the system
+//   closed the app as not responding; and a player that had loaded a track kept
+//   the Stick's processors busy even paused. So every pass starts on a fresh
+//   player, from two kept ready, and a voice lets its player go when it stops.
 // - `volume` works, and a ramp of 50 ms steps holds its pace. Every fade here is
 //   such a ramp, driven by one ticker, on an equal-power curve, so a crossfade
 //   does not dip in the middle.
@@ -63,7 +68,13 @@ export type Music = {
 
 type Player = Pick<
   AudioPlayer,
-  'initialize' | 'play' | 'pause' | 'src' | 'currentTime' | 'volume'
+  | 'initialize'
+  | 'deinitialize'
+  | 'play'
+  | 'pause'
+  | 'src'
+  | 'currentTime'
+  | 'volume'
 >;
 
 export type Clock = {
@@ -93,6 +104,8 @@ export const END_FADE_MS = 1000;
 export const DUCK_DB = -9;
 export const DUCK_MS = 200;
 export const UNDUCK_MS = 600;
+// Fresh players kept ready: enough for a change of level during a seam.
+export const SPARE_PLAYERS = 2;
 
 const realClock: Clock = {
   now: () => Date.now(),
@@ -113,7 +126,8 @@ const musicPlayer = (): Player =>
   );
 
 type Voice = {
-  player: Player;
+  // The player of the pass on this voice, or null while it is silent.
+  player: Player | null;
   role: MusicRole | null;
   track: Track | null;
   // Where the fade is, 0 to 1, where it is heading, and how far per tick.
@@ -163,6 +177,7 @@ export function createMusic({
 
   const apply = (voice: Voice) =>
     safely('volume', () => {
+      if (!voice.player) return;
       // Turning music off fades it like any other change, so the switch is not
       // folded in here.
       voice.player.volume = voice.track
@@ -173,7 +188,7 @@ export function createMusic({
     });
 
   const remember = (voice: Voice) => {
-    if (!voice.role || !voice.track) return;
+    if (!voice.role || !voice.track || !voice.player) return;
     const at = voice.player.currentTime;
     const { loopStart, loopEnd } = voice.track;
     positions.set(
@@ -186,16 +201,29 @@ export function createMusic({
 
   const which = (voice: Voice) => voices?.indexOf(voice) ?? -1;
 
+  // The players made ready, and how many are still initialising.
+  const spares: Player[] = [];
+  let pending = 0;
+
+  // A voice that stops lets its player go: one that has loaded a track keeps
+  // working even paused.
   const stop = (voice: Voice) => {
     if (voice.playing) {
       remember(voice);
-      safely('pause', () => voice.player.pause());
       report(`music: player ${which(voice)} stops ${voice.role}`);
     }
     voice.playing = false;
     voice.fade = 0;
     voice.target = 0;
-    apply(voice);
+    const player = voice.player;
+    voice.player = null;
+    if (!player) return;
+    safely('pause', () => player.pause());
+    player
+      .deinitialize()
+      .catch((error: unknown) =>
+        report(`music: player not released: ${String(error)}`),
+      );
   };
 
   const fadeTo = (voice: Voice, target: number, ms: number) => {
@@ -203,14 +231,20 @@ export function createMusic({
     voice.step = ms <= 0 ? 1 : TICK_MS / ms;
   };
 
+  // Starts a pass on a voice, on a fresh player. False when none is ready yet:
+  // the music catches up once one is.
   const begin = (
     voice: Voice,
     next: MusicRole,
     track: Track,
     fadeMs: number,
     from?: number,
-  ) => {
-    if (voice.playing) stop(voice);
+  ): boolean => {
+    const player = spares.shift();
+    if (!player) return false;
+    refill();
+    stop(voice);
+    voice.player = player;
     voice.role = next;
     voice.track = track;
     voice.fade = 0;
@@ -222,15 +256,15 @@ export function createMusic({
       `music: player ${which(voice)} plays ${next} from ${position.toFixed(1)} s, fading in over ${fadeMs} ms`,
     );
     safely('play', () => {
-      const src = `${root}/${track.file}`;
-      if (voice.player.src !== src) voice.player.src = src;
-      void voice.player.play().then(
-        () => safely('seek', () => (voice.player.currentTime = position)),
+      player.src = `${root}/${track.file}`;
+      void player.play().then(
+        () => safely('seek', () => (player.currentTime = position)),
         (error: unknown) => report(`music: play failed: ${String(error)}`),
       );
     });
     voice.playing = true;
     ticking();
+    return true;
   };
 
   // One tick of a voice's fade. A voice faded out to nothing stops.
@@ -251,11 +285,13 @@ export function createMusic({
     const { role: theme, track } = voice;
     if (!voice.playing || voice.target !== 1 || voice.fade < 1) return false;
     if (voice.seamed || !theme || !track || other.playing) return false;
+    if (!voice.player) return false;
     if (voice.player.currentTime < track.loopEnd - SEAM_MS / 1000) return false;
+    // Without a fresh player the seam waits for the next tick.
+    if (!begin(other, theme, track, SEAM_MS, track.loopStart)) return false;
     voice.seamed = true;
     report(`music: ${theme} loops`);
     positions.delete(theme);
-    begin(other, theme, track, SEAM_MS, track.loopStart);
     fadeTo(voice, 0, SEAM_MS);
     return true;
   };
@@ -309,7 +345,8 @@ export function createMusic({
   const startTheme = (want: MusicRole, audible: Voice | undefined) => {
     if (!voices || !catalogue) return;
     const track = catalogue.tracks[want];
-    if (!track) return;
+    // Without a fresh player the theme starts once one is ready.
+    if (!track || !spares.length) return;
     const spare =
       voices.find((voice) => !voice.playing) ??
       voices.reduce(
@@ -339,6 +376,7 @@ export function createMusic({
     voice.playing &&
     !voice.seamed &&
     voice.track !== null &&
+    voice.player !== null &&
     voice.player.currentTime < voice.track.loopEnd - SEAM_MS / 1000;
 
   // Makes what plays agree with what was asked for.
@@ -362,34 +400,45 @@ export function createMusic({
     ticking();
   };
 
+  // Makes players until SPARE_PLAYERS are ready or on their way.
+  function refill() {
+    while (spares.length + pending < SPARE_PLAYERS) {
+      let player: Player;
+      try {
+        player = createPlayer();
+      } catch (error) {
+        report(`music: player not created: ${String(error)}`);
+        return;
+      }
+      pending++;
+      player.initialize().then(
+        () => {
+          pending--;
+          spares.push(player);
+          ready = true;
+          reconcile();
+        },
+        (error: unknown) => {
+          pending--;
+          report(`music: player not initialised: ${String(error)}`);
+        },
+      );
+    }
+  }
+
   const prepare = () => {
     if (voices || !catalogue) return;
-    const created: Voice[] = [];
-    try {
-      for (let i = 0; i < 2; i++)
-        created.push({
-          player: createPlayer(),
-          role: null,
-          track: null,
-          fade: 0,
-          target: 0,
-          step: 0,
-          playing: false,
-          seamed: false,
-        });
-    } catch (error) {
-      report(`music: player not created: ${String(error)}`);
-      return;
-    }
-    voices = created;
-    Promise.all(created.map((voice) => voice.player.initialize())).then(
-      () => {
-        ready = true;
-        reconcile();
-      },
-      (error: unknown) =>
-        report(`music: player not initialised: ${String(error)}`),
-    );
+    voices = [0, 1].map(() => ({
+      player: null,
+      role: null,
+      track: null,
+      fade: 0,
+      target: 0,
+      step: 0,
+      playing: false,
+      seamed: false,
+    }));
+    refill();
   };
 
   return {
