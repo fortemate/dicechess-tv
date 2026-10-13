@@ -15,6 +15,11 @@
 // - `volume` works, and a ramp of 50 ms steps holds its pace. Every fade here is
 //   such a ramp, driven by one ticker, on an equal-power curve, so a crossfade
 //   does not dip in the middle.
+// - On a Fire TV Stick the ticker can be held up for a second and more while
+//   the danger search runs at the start of a turn (#365). A fade moved a step a
+//   tick then stretched a 2 s crossfade to 12 s or more (#376). So every fade,
+//   and the duck, is worked out from the clock: a late tick finds it where it
+//   should be by then, and only its steps are coarser.
 // - A player started at volume zero and moved to its position after `play()`
 //   cannot be heard getting there, which is simpler than seeking before the
 //   file has loaded.
@@ -130,10 +135,13 @@ type Voice = {
   player: Player | null;
   role: MusicRole | null;
   track: Track | null;
-  // Where the fade is, 0 to 1, where it is heading, and how far per tick.
+  // Where the fade is, 0 to 1, and where it is heading. It moves a whole way
+  // in `ms`, from `from` at `since`.
   fade: number;
   target: number;
-  step: number;
+  from: number;
+  since: number;
+  ms: number;
   playing: boolean;
   // The seam to the next pass has been started on the other voice.
   seamed: boolean;
@@ -160,9 +168,18 @@ export function createMusic({
   let cancelHold: (() => void) | null = null;
   let cancelResume: (() => void) | null = null;
   let stopTicker: (() => void) | null = null;
-  // How far the music is ducked, 0 to 1, and where that is heading.
+  // How far the music is ducked, 0 to 1, and where that is heading. It moves
+  // from `duckFrom` at `duckSince`, when the duck last turned.
   let duck = 0;
   let ducked = false;
+  let duckFrom = 0;
+  let duckSince = 0;
+  const duckAt = (now: number) => {
+    const moved = (now - duckSince) / (ducked ? DUCK_MS : UNDUCK_MS);
+    return ducked
+      ? Math.min(1, duckFrom + moved)
+      : Math.max(0, duckFrom - moved);
+  };
   // Where each theme was left, so coming back to it continues rather than
   // starting over.
   const positions = new Map<MusicRole, number>();
@@ -215,6 +232,7 @@ export function createMusic({
     voice.playing = false;
     voice.fade = 0;
     voice.target = 0;
+    voice.from = 0;
     const player = voice.player;
     voice.player = null;
     if (!player) return;
@@ -226,9 +244,23 @@ export function createMusic({
       );
   };
 
+  // Where a voice's fade is at `now`.
+  const fadeAt = (voice: Voice, now: number) => {
+    const moved = voice.ms <= 0 ? 1 : (now - voice.since) / voice.ms;
+    return voice.from < voice.target
+      ? Math.min(voice.target, voice.from + moved)
+      : Math.max(voice.target, voice.from - moved);
+  };
+
+  // A fade turned on its way starts from where it is now, not where the last
+  // tick left it.
   const fadeTo = (voice: Voice, target: number, ms: number) => {
+    const now = clock.now();
+    if (voice.fade !== voice.target) voice.fade = fadeAt(voice, now);
+    voice.from = voice.fade;
     voice.target = target;
-    voice.step = ms <= 0 ? 1 : TICK_MS / ms;
+    voice.since = now;
+    voice.ms = ms;
   };
 
   // Starts a pass on a voice, on a fresh player. False when none is ready yet:
@@ -268,12 +300,9 @@ export function createMusic({
   };
 
   // One tick of a voice's fade. A voice faded out to nothing stops.
-  const fadeStep = (voice: Voice) => {
+  const fadeStep = (voice: Voice, now: number) => {
     if (voice.fade === voice.target) return;
-    voice.fade =
-      voice.fade < voice.target
-        ? Math.min(voice.target, voice.fade + voice.step)
-        : Math.max(voice.target, voice.fade - voice.step);
+    voice.fade = fadeAt(voice, now);
     apply(voice);
     if (voice.fade === 0 && voice.target === 0) stop(voice);
   };
@@ -297,18 +326,18 @@ export function createMusic({
   };
 
   // One tick of the duck, which every playing voice follows.
-  const duckStep = () => {
+  const duckStep = (now: number) => {
     const target = ducked ? 1 : 0;
     if (duck === target || !voices) return;
-    const step = TICK_MS / (ducked ? DUCK_MS : UNDUCK_MS);
-    duck = ducked ? Math.min(1, duck + step) : Math.max(0, duck - step);
+    duck = duckAt(now);
     for (const voice of voices) if (voice.playing) apply(voice);
   };
 
   const tick = () => {
     if (!voices) return;
-    duckStep();
-    for (const voice of voices) if (voice.playing) fadeStep(voice);
+    const now = clock.now();
+    duckStep(now);
+    for (const voice of voices) if (voice.playing) fadeStep(voice, now);
     const [a, b] = voices;
     if (!handOver(a, b)) handOver(b, a);
     if (voices.some((voice) => voice.playing)) return;
@@ -316,6 +345,7 @@ export function createMusic({
     stopTicker = null;
     // Nothing is heard, so a duck under way can simply arrive.
     duck = ducked ? 1 : 0;
+    duckFrom = duck;
   };
 
   const ticking = () => {
@@ -434,7 +464,9 @@ export function createMusic({
       track: null,
       fade: 0,
       target: 0,
-      step: 0,
+      from: 0,
+      since: 0,
+      ms: 0,
       playing: false,
       seamed: false,
     }));
@@ -493,9 +525,15 @@ export function createMusic({
     },
     setDucked(on) {
       if (on === ducked) return;
+      const now = clock.now();
+      const heard = voices?.some((voice) => voice.playing) ?? false;
+      // Turned on its way, the duck moves on from where it is now. With nothing
+      // heard it can simply arrive.
+      duck = heard ? duckAt(now) : on ? 1 : 0;
+      duckFrom = duck;
+      duckSince = now;
       ducked = on;
-      if (voices?.some((voice) => voice.playing)) ticking();
-      else duck = on ? 1 : 0;
+      if (heard) ticking();
     },
     setCatalogue(next) {
       const roles = next ? Object.keys(next.tracks).join(', ') : '';

@@ -57,6 +57,18 @@ class FakeClock implements Clock {
   }
 }
 
+// A clock whose ticker comes only every `period` ms, however often it was
+// asked for: a JavaScript thread held up by the danger search, as on a Fire TV
+// Stick (#376). Timers set with `after` still keep their time.
+class LateClock extends FakeClock {
+  constructor(private readonly period: number) {
+    super();
+  }
+  every(_ms: number, run: () => void) {
+    return super.every(this.period, run);
+  }
+}
+
 const flush = async () => {
   for (let i = 0; i < 5; i++) await Promise.resolve();
 };
@@ -130,8 +142,10 @@ const CATALOGUE: Catalogue = {
   },
 };
 
-const rig = async (catalogue: Catalogue | null = CATALOGUE) => {
-  const clock = new FakeClock();
+const rig = async (
+  catalogue: Catalogue | null = CATALOGUE,
+  clock: FakeClock = new FakeClock(),
+) => {
   const log: string[] = [];
   const players: FakePlayer[] = [];
   const reports: string[] = [];
@@ -294,6 +308,63 @@ test('a pass about to end hands over to a fresh pass on the other player, over 3
   await clock.advance(16_000);
   const third = players.find((player) => player.playing && player !== second);
   assert.ok(third && third !== first, 'a fresh player takes the third pass');
+});
+
+// On a Stick the ticker was held up for a second and more while the danger
+// search ran, and a fade moved a step a tick took 12 s or more to cross over
+// (#376). Worked out from the clock, a fade is where it should be whenever a
+// tick comes.
+test('a change of level still crosses over in two seconds when the ticks come late', async () => {
+  const { music, clock, players, playing } = await rig(
+    CATALOGUE,
+    new LateClock(1000),
+  );
+  music.setRole('calm');
+  await clock.advance(10_000);
+  const calm = players.find((each) => each.playing)!;
+  assert.ok(Math.abs(calm.volume - 1) < 1e-9);
+  music.setRole('tense');
+  await clock.advance(1000);
+  const tense = players.find((each) => each.src.endsWith('tense.mp3'))!;
+  // Halfway, on the one tick that came: both heard at the same level.
+  assert.ok(Math.abs(calm.volume - tense.volume / 10 ** (-2 / 20)) < 1e-9);
+  await clock.advance(CROSSFADE_MS - 1000);
+  assert.deepEqual(playing(), ['tense.mp3']);
+  assert.ok(Math.abs(tense.volume - 10 ** (-2 / 20)) < 1e-9);
+});
+
+test('the duck keeps its time when the ticks come late', async () => {
+  const { music, clock, players } = await rig(CATALOGUE, new LateClock(1000));
+  music.setRole('calm');
+  await clock.advance(3000);
+  const calm = players.find((each) => each.playing)!;
+  const ducked = 10 ** (DUCK_DB / 20);
+  music.setDucked(true);
+  await clock.advance(1000);
+  assert.ok(Math.abs(calm.volume - ducked) < 1e-9, `ducked to ${calm.volume}`);
+  music.setDucked(false);
+  await clock.advance(1000);
+  assert.ok(Math.abs(calm.volume - 1) < 1e-9, `back to ${calm.volume}`);
+});
+
+test('a seam still crosses over in three seconds when the ticks come late', async () => {
+  const { music, clock, players, playing } = await rig(
+    {
+      tracks: {
+        calm: { file: 'calm.mp3', loopStart: 1, loopEnd: 20, gainDb: 0 },
+      },
+    },
+    new LateClock(1000),
+  );
+  music.setRole('calm');
+  // The first tick past 16 s of play starts the seam.
+  await clock.advance(17_000);
+  const [first, second] = players;
+  assert.ok(first.playing && second.playing);
+  await clock.advance(SEAM_MS);
+  assert.deepEqual(playing(), ['calm.mp3']);
+  assert.equal(first.playing, false);
+  assert.ok(Math.abs(second.volume - 1) < 1e-9);
 });
 
 // On the Stick's OS 2602000051520, a player given a second track now and then
