@@ -9,7 +9,7 @@ sidebar:
 
 This is the friction log of Dice Chess for Fire TV, kept while we built the app for [Build, Ship, Shape: Amazon Developer Hackathon 2026](https://amazonappdev2026.devpost.com/). It records the reproducible obstacles we met in Amazon's Vega SDK, its tools and its documentation. Our own bugs are not here.
 
-Each entry has the fields the [rules](https://amazonappdev2026.devpost.com/rules) ask for: the task attempted, the steps taken, the expected and actual results, a severity, the workaround and an actionable suggestion. Entries were written when the obstacle happened, while the versions, steps and workaround were still known. Where an entry gives evidence, it names where the finding is recorded: a file, commit, pull request or issue of this project's repository, or a thread on Amazon's developer forum. Pointers into `native/README.md` name commit `04b0a88`, the last version that held its long-form platform records, before they were condensed into this site's Technology and Build and run pages. Where an entry involves a device, it is the Vega Virtual Device unless the entry says otherwise. The game has run on a Fire TV Stick 4K Select since 6 October 2026, and every entry before FL-30 is older. FL-20 and FL-21 have updates from the Stick. FL-30 was found on the Virtual Device, and only its workaround was tried on the Stick. The others have not been checked on it.
+Each entry has the fields the [rules](https://amazonappdev2026.devpost.com/rules) ask for: the task attempted, the steps taken, the expected and actual results, a severity, the workaround and an actionable suggestion. Entries were written when the obstacle happened, while the versions, steps and workaround were still known. Where an entry gives evidence, it names where the finding is recorded: a file, commit, pull request or issue of this project's repository, or a thread on Amazon's developer forum. Pointers into `native/README.md` name commit `04b0a88`, the last version that held its long-form platform records, before they were condensed into this site's Technology and Build and run pages. Where an entry involves a device, it is the Vega Virtual Device unless the entry says otherwise. The game has run on a Fire TV Stick 4K Select since 6 October 2026, and every entry before FL-30 is older. FL-20 and FL-21 have updates from the Stick. FL-30 was found on the Virtual Device, and only its workaround was tried on the Stick. FL-31 and FL-32 were found on the Stick. The others have not been checked on it.
 
 Severity: **Blocker** stopped the chosen approach; **High** cost a day or would break the app for users; **Medium** cost hours or needed a workaround; **Low** is friction without lasting cost.
 
@@ -21,6 +21,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 | Vega SDK         | 0.24.12112; 0.24.12044 and 0.23.9221 in the WebView comparison                            |
 | Vega CLI         | 1.3.4 on macOS, 1.4.2 on Ubuntu                                                           |
 | Virtual Device   | 1920x1080, OS 1.2 (SDK 0.24 image)                                                        |
+| Fire TV Stick    | 4K Select (armv7), OS build 2301020004820; 2602000051520 (OS 2.0) from 12 October 2026    |
 | App stack        | React Native 0.83 through `@amazon-devices/react-native-kepler` 4.0.x, React 19.2, Hermes |
 | Vega packages    | `react-native-svg` 3.0.x, `react-native-mmkv` 1.0.x, `react-native-w3cmedia` 2.3.2        |
 | Lint             | `@amazon-devices/eslint-plugin-kepler` 0.1.15                                             |
@@ -60,6 +61,8 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 | [FL-28](#fl-28) | `launch-app` restarts a background app, and the emulator's Home does nothing | CLI, Virtual Device               | Medium   | Worked around |
 | [FL-29](#fl-29) | Adaptive Display cannot be set on the Virtual Device, or VoiceView by `vdcm` | Virtual Device, docs              | Medium   | Open          |
 | [FL-30](#fl-30) | `install-app` takes a package built for another processor; it then crashes   | CLI, Virtual Device               | Medium   | Worked around |
+| [FL-31](#fl-31) | After an OS update, `src` on a used `AudioPlayer` can hang the app           | Media, Fire TV Stick              | Blocker  | Worked around |
+| [FL-32](#fl-32) | `install-app` leaves each package in the device's `/tmp`, which is RAM       | CLI, Fire TV Stick                | Medium   | Worked around |
 
 ## Entries
 
@@ -871,6 +874,102 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   - the build-and-run docs say which package goes on which device, the Virtual Device on Apple
     silicon included.
 - **Current status:** worked around.
+
+### FL-31 · After an OS update, `src` on a used `AudioPlayer` can hang the app, and every way round costs something {#fl-31}
+
+- **Date and environment:** 2026-10-12 and 2026-10-13 · SDK 0.24.12112 · a Fire TV Stick 4K Select
+  (armv7). The Stick updated itself on 12 October 2026, from OS build `2301020004820` to
+  `2602000051520` (OS 2.0, TV Ship/515, built 2 October 2026).
+- **Tool / SDK / component version:** `@amazon-devices/react-native-w3cmedia` 2.3.2, with the media
+  player's system bundle that the OS ships. Its `AudioPlayer` was made with `CONTENT_TYPE_SONIFICATION`
+  or `CONTENT_TYPE_MUSIC`, and `USAGE_GAME`.
+- **User task:** play the game's sound effects, its spoken lines and its looping music, as the app
+  had done since September.
+- **Minimal reproduction steps:**
+  - make an `AudioPlayer`, `await initialize()`, set `src` to a packaged MP3 and `await play()`;
+  - a few seconds later, set `src` to another packaged MP3 on the same player and `play()` again;
+  - repeat, a few seconds apart.
+- **Expected result:** `src` loads the new file and returns, as it does on a fresh player and as it
+  did before the update.
+- **Actual result and evidence:**
+  - **The hang.** Within a minute of play with sound effects on, the system closed the app:
+    `AppNotResponding`, `LCM_ANR_THREAD_NAME: JSReactThread`, `LCM_ANR_REASON: Thread Monitor`. In 13
+    crash reports the JavaScript thread waits inside `libkepler_media_player`. Every build back to 3
+    October hung the same way. That included the build submitted to the Appstore, and the submission
+    was withdrawn.
+  - **The call.** A probe build timed each media call. On a player that had already played, `src`
+    took 87–115 ms and now and then never returned. On a fresh player it took 6–13 ms, and `pause()`
+    and `currentTime` about 1 ms.
+  - **Every way round had a cost on the Stick:**
+    - **A player for each sound file (13).** It never hung. But once the players had played, paused
+      or not, the load average stayed above 20 with the game idle, against about 7 before, and CPU
+      pressure stayed near 80–90 %.
+    - **A fresh player for every cue, released with `deinitialize()`.** It never hung, but a released
+      player seems to be reclaimed slowly. With every sound on, the app's tasks and CPU pressure grew
+      every minute, to about 270 threads after five minutes against about 100. The app was closed as
+      not responding after 5–9 minutes.
+    - **The effects in one file, an audio sprite, on three players.** This is what Amazon advises
+      for games. It never hung, and the load stayed flat over 10 minutes against the computer and 10
+      in Hot Seat. On the Virtual Device, though, a seek asked for just before `play()` lost the start
+      of a clip, and now and then the whole clip.
+  - **The late start.** A fresh music player's position stays at 0 for 0.3–1.4 s after `play()`
+    resolves, so the start of a fade-in is lost.
+
+  Evidence: Issues #374 and #376, pull requests #375 and #377, the crash reports and their
+  symbolicated stack, and a draft bug report for the forum, kept by the owner.
+
+- **Severity and user impact:** Blocker for the release.
+  - The submitted build hung on every Stick that had updated.
+  - It took two days to work around.
+- **Workaround:** pull requests #375 and #377.
+  - No player is ever given a second `src`.
+  - The effects play from one sprite on three players, one for each channel. Between clips each
+    player waits, paused, at the start of its likeliest next clip, so that cue only has to call
+    `play()`. Before it first waits, a player plays a moment of the silence the sprite opens with, at
+    volume zero.
+  - Each spoken line and each pass of a music theme plays on a fresh player, released once it ends.
+  - A crossfade starts once the new player's position moves.
+- **Suggested improvement:**
+  - fix `src` on a used player, or document that a player takes one source and must then be
+    replaced;
+  - document what players that have played cost while paused, and how soon `deinitialize()` frees
+    one;
+  - offer an API for short sounds, like Android's `SoundPool`, or guidance for game sound effects on
+    `AudioPlayer`;
+  - announce, in release notes, OS updates that change the media player.
+- **Current status:** worked around. The forum bug report is drafted but not posted.
+
+### FL-32 · `install-app` leaves each package in the device's `/tmp`, which is RAM {#fl-32}
+
+- **Date and environment:** 2026-10-13 · Vega CLI 1.3.4 · a Fire TV Stick 4K Select, OS
+  `2602000051520`, reached over Wi-Fi.
+- **Tool / SDK / component version:** `vega device install-app`.
+- **User task:** install one build after another on a Stick over a day of testing, and measure each.
+- **Minimal reproduction steps:**
+  - install a 31 MB package about 15 times with `vega device install-app -d <stick> -p <path>`;
+  - run `vega exec vda -s <stick> shell "df -h /tmp; ls /tmp"`.
+- **Expected result:** the package is removed once it is installed, or it is kept where it takes no
+  memory.
+- **Actual result and evidence:**
+  - Each package stays as `/tmp/<name>.vpkg`.
+  - On the Stick, `/tmp` is a 476 MB tmpfs, and the device has 998 MB of RAM. After about 15
+    installs, `/tmp` was 97 % full (458 MB). The next install failed with
+    `remote write failed: No space left on device`.
+  - Until then the device had run with half its memory taken. With the files removed, a fresh music
+    player was heard 0.33 s after `play()` rather than 1.2–1.4 s, and the danger search's steps were
+    shorter. Device timings taken in the meantime were inflated.
+
+  Evidence: the Performance page and Issue #376.
+
+- **Severity and user impact:** Medium.
+  - It cost hours of measurements that later had to be qualified.
+  - On a test device, installs fail until the files are removed or the device restarts.
+- **Workaround:** `vega exec vda -s <device> shell "rm -f /tmp/<name>.vpkg"` after each install.
+- **Suggested improvement:**
+  - `install-app` removes the package it pushed once it is installed, or installs it as it streams;
+  - the CLI documentation says where packages are copied, and that `/tmp` is memory on a Fire TV
+    Stick.
+- **Current status:** worked around by hand.
 
 ## What worked well
 
