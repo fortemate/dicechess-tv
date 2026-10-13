@@ -54,7 +54,7 @@ Removing the app deletes its saved game, results and settings. They never leave 
 3. If someone is with you, choose **Play a friend** and pass the remote after each turn. Prowla the cat hosts: she greets you both, cheers the big moments when a turn ends, and cheers you both at the end. **Settings** can choose Rolly or Thinkle instead, or no host.
 4. During a game, Back opens the game menu: **Resume game**, **Resign**, **Agree a draw** in a game against a friend, **New game**, **Main menu**, **Rules reference** and **Settings**. **Main menu** leaves the game for the home screen, and **Resume game** there brings it back. Starting a new game while one is in play asks **Replace this game?** first, and **Cancel** keeps the game you have.
 5. Look something up in **Rules reference**.
-6. Listen to the music follow the game: calm, then tense when a roll could take a king, then critical when a king is attacked. **Settings**, in the home menu and in the game menu, has these rows:
+6. Listen to the music follow the game: calm, then tense when enough rolls could take a king within their first two actions, then critical when a king is attacked. The tense measure uses the position at the start of the turn. **Settings**, in the home menu and in the game menu, has these rows:
    - **Music**: Left and Right set the volume from off to 10, and OK mutes it and brings it back at the same level.
    - **Sound effects** and **Voices**: on or off.
    - **Play as**: Ask, Random (the default), White or Black, for games against the computer.
@@ -63,6 +63,40 @@ Removing the app deletes its saved game, results and settings. They never leave 
    - **Auto-select only choice**: presses OK for you when the board offers only one move, one piece with one square to go to; a piece with a choice of squares, or one you pick up yourself, waits for your OK; off by default.
 
 The whole game uses the D-pad, OK and Back; on the Virtual Device, those are the arrow keys, Enter and Esc. Keep the sound and the music on if you can.
+
+## Release candidate checks on a Fire TV Stick
+
+For a candidate following an OS update, run these on the physical Stick with the
+package intended for the Appstore. Record the app version, build number, Stick
+model and OS build before starting. Keep a copy of the earlier package and note
+your saved game's position, dice, results and settings before installing over it.
+
+1. **Update and restart.** Install over the earlier build without uninstalling.
+   Check that the saved game, its remaining dice, results and settings survive.
+   Force-close the app and launch it again; resume a partially played turn.
+2. **Sustained play with all audio on.** Play a friend for at least ten minutes
+   and Rampage for at least ten minutes, then try Rolly and Grabby. Check D-pad
+   response, dice tumbles, move slides and the opponent's pace throughout.
+   Report any freeze, unexpected exit or response that gets slower with play.
+3. **Listen to each kind of sound.** Check rolls, rolls with nothing to play,
+   moves, captures, castling, promotion and the result jingles. Listen for a
+   missing start, another cue leaking after a clip, repeated speech or gaps in
+   the music. Try each host and the tutorial's narration. Check music transitions
+   and at least one loop of a theme.
+4. **Settings while playing.** Independently mute and restore music, effects and
+   voices. Change the music volume and the host. Close and reopen Settings, then
+   relaunch, and check that the choices were kept. Restore your earlier settings.
+5. **Leave and return.** Press Home during speech, a roll and the opponent's
+   turn. No game audio should continue over the launcher. Return and check that
+   the same game and dice resume, with no old cue or line replayed. Repeat this
+   several times. Check Back and Menu during play, and Resume from each menu.
+6. **Complete the screen flow.** Try all six tutorial lessons, Rules reference,
+   About and the licence notices. Finish a game, check its result and record,
+   then try Rematch. Check that Cancel keeps a game when replacing it or resigning.
+
+Record which checks passed and which were not exercised. Include the exact
+buttons and position for a failure. Technical playback logs do not establish
+that every cue was audible; the listening checks need someone at the television.
 
 ## Telling us what you found
 
