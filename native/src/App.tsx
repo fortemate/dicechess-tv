@@ -21,6 +21,7 @@ import {
 import { MMKV } from '@amazon-devices/react-native-mmkv';
 import { useKeplerAppStateManager } from '@amazon-devices/react-native-kepler';
 import { useReportFullyDrawn } from '@amazon-devices/kepler-performance-api';
+import { botReply } from '../../src/core/bot';
 import { GameScreen } from './GameScreen';
 import { MmkvSnapshotStore } from './mmkvStore';
 import { createSounds, type Sounds } from './sound';
@@ -120,6 +121,8 @@ export const App = ({
       },
       // The opponent's search counts against its step wait (#253).
       now: () => Date.now(),
+      // The opponent's reply (#261).
+      reply: (game) => Promise.resolve().then(() => botReply(game)),
     };
   }, [injected]);
 

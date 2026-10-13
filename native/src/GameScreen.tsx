@@ -722,6 +722,8 @@ export const GameScreen = ({
   }, [musicAvailable]);
   // OK held down, shown on the focused option of an open menu (#51).
   const [pressed, setPressed] = React.useState(false);
+  // Whether the opponent search is currently running past one step wait (#261).
+  const [searching, setSearching] = React.useState(false);
   // While the tutorial is up it owns the remote. This screen stays subscribed —
   // a hook cannot be conditional — so it ignores keys instead, or every press
   // would be handled twice. Both refs follow committed renders only, like the
@@ -785,7 +787,12 @@ export const GameScreen = ({
   // in one piece. That search starts with the wait, between frames so the roll
   // is already on screen, and counts against it: the first action shows
   // BOT_STEP_MS after the roll, or as soon as the reply is ready if that is
-  // later (#253). Nothing about the search changes, only when it runs.
+  // The first step of a turn needs the whole reply, which the engine works out
+  // in one piece. That search starts with the wait, through a non-blocking
+  // interface (#261), and counts against it: the first action shows BOT_STEP_MS
+  // after the roll, or as soon as the reply is ready if that is later (#253).
+  // A search that is still running shows that the opponent is thinking; nothing
+  // is shown for a reply that arrives within one step wait.
   // The reply is kept with the game it was worked out for, together with how
   // much of the wait has gone, so a menu opened meanwhile neither loses it nor
   // asks again, and what resumes is the rest of the wait, not a new one.
@@ -793,6 +800,8 @@ export const GameScreen = ({
     game: Game;
     reply: BotReply | null;
     used: number;
+    done: boolean;
+    promise: Promise<BotReply | undefined> | null;
   } | null>(null);
   React.useEffect(() => {
     if (overlay.kind !== 'none' || !botOwes(game)) return;
@@ -809,20 +818,88 @@ export const GameScreen = ({
       );
     }
     if (thinking.current?.game !== game)
-      thinking.current = { game, reply: null, used: 0 };
+      thinking.current = {
+        game,
+        reply: null,
+        used: 0,
+        done: false,
+        promise: null,
+      };
     const hold = thinking.current;
     const clock = activeClock(activity, options.now ?? (() => 0));
     const began = clock.now();
+    let cancelTimer: () => void = () => undefined;
+
+    if (options.reply) {
+      if (!hold.promise) {
+        try {
+          hold.promise = Promise.resolve(options.reply(game))
+            .then((rep) => {
+              hold.reply = rep;
+              hold.done = true;
+              return rep;
+            })
+            .catch(() => {
+              hold.done = true;
+              return undefined;
+            });
+        } catch {
+          hold.done = true;
+          hold.promise = Promise.resolve(undefined);
+        }
+      }
+
+      const wait = Math.max(0, BOT_STEP_MS - hold.used);
+      let waitDone = wait === 0;
+      let searchDone = hold.done;
+
+      const maybeAdvance = () => {
+        if (cancelled) return;
+        if (waitDone && searchDone) {
+          setSearching(false);
+          dispatch({ kind: 'bot', reply: hold.reply ?? undefined });
+        } else if (waitDone && !searchDone) {
+          setSearching(true);
+        }
+      };
+
+      if (wait > 0) {
+        cancelTimer = scheduleActive(
+          activity,
+          options.schedule,
+          () => {
+            if (cancelled) return;
+            waitDone = true;
+            maybeAdvance();
+          },
+          wait,
+          options.now,
+        );
+      } else {
+        maybeAdvance();
+      }
+
+      hold.promise.then(() => {
+        if (cancelled) return;
+        searchDone = true;
+        maybeAdvance();
+      });
+
+      return () => {
+        cancelled = true;
+        cancelTimer();
+        hold.used += clock.now() - began;
+        clock.dispose();
+        setSearching(false);
+      };
+    }
+
     let cancelMove: () => void = () => undefined;
     const cancelSearch = scheduleActive(
       activity,
       options.background ?? ((step) => step()),
       () => {
         if (cancelled) return;
-        // A search that throws here, between frames, would reach no error
-        // boundary and close the app. The step goes ahead without a reply
-        // instead, and the reducer asks again while the screen renders, where a
-        // second failure reaches the fallback (#255).
         let reply: BotReply | undefined;
         try {
           reply = hold.reply ??= botReply(game);
@@ -1149,7 +1226,7 @@ export const GameScreen = ({
             game={game}
             side={state.side}
             flipped={isFlipped}
-            thinking={botPlaying(game)}
+            thinking={options.reply ? searching : botPlaying(game)}
             speechBubble={
               voiceLine ? <SpeechBubble text={voiceLine.text} /> : undefined
             }
