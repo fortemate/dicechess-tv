@@ -15,6 +15,9 @@
 // - the Virtual Device is aarch64 on an Apple silicon Mac and x86_64 elsewhere;
 // - a Fire TV Stick is armv7.
 // It refuses a package built for another processor, `--vpkg` included.
+//
+// It also removes the copy of the package that `vega device install-app` leaves
+// in the device's /tmp, which on a Fire TV Stick is held in RAM (#379).
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
@@ -80,6 +83,62 @@ export const machineOf = (output) =>
     .map((line) => line.trim())
     .findLast((line) => /^\w+$/.test(line)) ?? '';
 
+// `vega device install-app` copies the package to the device's /tmp and installs
+// it from there (SDK 0.24: `vda push`, then `vpm install`), and never deletes the
+// copy. On a Fire TV Stick /tmp is a tmpfs held in RAM, about half of its 1 GB.
+// Fifteen installs of a 31 MB package filled it: every measurement taken on the
+// Stick meanwhile ran short of memory, and the next install failed with "No space
+// left on device" (#379). So the copy is removed after every install.
+export const pushedPath = (vpkg) => `/tmp/${basename(vpkg)}`;
+
+// The device command that removes the copy. `run-cmd` hands it to the device's
+// shell inside single quotes, so a name these double quotes cannot carry is
+// refused rather than sent.
+export const removeCommand = (vpkg) => {
+  const path = pushedPath(vpkg);
+  if (/["'$`\\]/.test(path))
+    throw new Error(`cannot quote ${path} for the device's shell`);
+  return `rm -f "${path}"`;
+};
+
+// Installs the package, then removes its copy from the device, after a failed
+// install as well. `run-cmd` takes the same device id as `install-app`, so the
+// Virtual Device is `VirtualDevice` here too, not its vda serial. Returns the
+// install's exit status: a copy left behind is reported, and never fails an
+// install that worked.
+export const installPackage = (
+  device,
+  vpkg,
+  { run = vega, log = console.log, warn = console.warn } = {},
+) => {
+  const install = run(['device', 'install-app', '-d', device, '-p', vpkg], {
+    stdio: 'inherit',
+  });
+  const copy = pushedPath(vpkg);
+  try {
+    const removed = run([
+      'device',
+      'run-cmd',
+      '-d',
+      device,
+      '-c',
+      removeCommand(vpkg),
+    ]);
+    if (removed.status !== 0)
+      throw new Error(
+        removed.error?.message ||
+          `${removed.stderr || removed.stdout || ''}`.trim() ||
+          `exit status ${removed.status}`,
+      );
+    log(`removed ${copy} from ${device}`);
+  } catch (error) {
+    warn(
+      `install: ${copy} is still on ${device}, in its memory (${error.message}). Remove it with: vega device run-cmd -d ${device} -c 'rm -f ${copy}'`,
+    );
+  }
+  return install.status ?? 1;
+};
+
 const parse = (argv) => {
   const options = { device: 'VirtualDevice', vpkg: null, launch: false };
   for (let i = 0; i < argv.length; i++) {
@@ -114,10 +173,8 @@ export const main = (argv = process.argv.slice(2)) => {
       `${basename(path)} is built for ${built}, but ${device} runs on ${arch}: it would install and then crash at start (friction log FL-30)`,
     );
   console.log(`${device} runs on ${arch}: installing ${path}`);
-  const install = vega(['device', 'install-app', '-d', device, '-p', path], {
-    stdio: 'inherit',
-  });
-  if (install.status !== 0) process.exit(install.status ?? 1);
+  const status = installPackage(device, path);
+  if (status !== 0) process.exit(status);
   if (launch) {
     const run = vega(['device', 'launch-app', '-d', device, '-a', APP], {
       stdio: 'inherit',

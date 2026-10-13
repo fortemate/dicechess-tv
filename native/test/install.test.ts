@@ -1,15 +1,19 @@
 // scripts/install.mjs picks the package a device can run. The wrong one installs
 // without a word and crashes at start (friction log FL-30), so the choice is
 // held here without a device: what `uname -m` says, which package that means,
-// and which processor a package is for.
+// and which processor a package is for. So is the removal of the copy that
+// `vega device install-app` leaves in the device's memory (#379).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   archOf,
   archOfListing,
   archOfPackage,
+  installPackage,
   machineOf,
   packagePath,
+  pushedPath,
+  removeCommand,
   // @ts-expect-error — a build script, deliberately plain JavaScript.
 } from '../scripts/install.mjs';
 
@@ -85,4 +89,99 @@ test('a package is placed by what it holds, never by its name', () => {
       ),
     /found aarch64, armv7/,
   );
+});
+
+// A stand-in for `vega`: records each call and answers with the next result.
+const vegaAnswering = (...results: object[]) => {
+  const calls: string[][] = [];
+  const run = (args: string[]) => {
+    calls.push(args);
+    return results[calls.length - 1];
+  };
+  return { calls, run };
+};
+
+const quiet = { log: () => {}, warn: () => {} };
+const VPKG = '/n/build/armv7-release/dicechess-tv-native_armv7.vpkg';
+
+test("the copy is the package's name in the device's /tmp", () => {
+  assert.equal(pushedPath(VPKG), '/tmp/dicechess-tv-native_armv7.vpkg');
+  assert.equal(
+    removeCommand('/home/me/a b (2).vpkg'),
+    'rm -f "/tmp/a b (2).vpkg"',
+  );
+  // run-cmd sends the command inside single quotes: a name that would end
+  // them, or that the double quotes would expand, is never sent.
+  for (const name of ["it's.vpkg", 'a"b.vpkg', '$(reboot).vpkg', 'a`b`.vpkg'])
+    assert.throws(() => removeCommand(`/x/${name}`), /cannot quote/);
+});
+
+test('the copy is removed from the device the package was installed on', () => {
+  const vega = vegaAnswering({ status: 0 }, { status: 0 });
+  assert.equal(
+    installPackage('VirtualDevice', VPKG, { ...quiet, run: vega.run }),
+    0,
+  );
+  assert.deepEqual(vega.calls, [
+    ['device', 'install-app', '-d', 'VirtualDevice', '-p', VPKG],
+    [
+      'device',
+      'run-cmd',
+      '-d',
+      'VirtualDevice',
+      '-c',
+      'rm -f "/tmp/dicechess-tv-native_armv7.vpkg"',
+    ],
+  ]);
+});
+
+test('the copy is removed after a failed install too', () => {
+  const vega = vegaAnswering({ status: 3 }, { status: 0 });
+  assert.equal(installPackage('stick', VPKG, { ...quiet, run: vega.run }), 3);
+  assert.equal(vega.calls.length, 2);
+  assert.deepEqual(vega.calls[1].slice(0, 4), [
+    'device',
+    'run-cmd',
+    '-d',
+    'stick',
+  ]);
+  // An install that could not even start still counts as failed.
+  const unstarted = vegaAnswering({ status: null }, { status: 0 });
+  assert.equal(
+    installPackage('stick', VPKG, { ...quiet, run: unstarted.run }),
+    1,
+  );
+});
+
+test('a copy that cannot be removed is reported, and the install still succeeds', () => {
+  const warnings: string[] = [];
+  const warn = (line: string) => warnings.push(line);
+  const vega = vegaAnswering(
+    { status: 0 },
+    { status: 1, stdout: '', stderr: 'error: device offline\n' },
+  );
+  assert.equal(
+    installPackage('stick', VPKG, { ...quiet, run: vega.run, warn }),
+    0,
+  );
+  assert.equal(warnings.length, 1);
+  assert.match(
+    warnings[0],
+    /\/tmp\/dicechess-tv-native_armv7\.vpkg is still on stick/,
+  );
+  assert.match(warnings[0], /device offline/);
+  assert.match(warnings[0], /vega device run-cmd -d stick -c 'rm -f \/tmp\//);
+
+  // A name that cannot be quoted is reported the same way, and never sent.
+  const unquotable = vegaAnswering({ status: 0 });
+  assert.equal(
+    installPackage('stick', "/x/it's.vpkg", {
+      ...quiet,
+      run: unquotable.run,
+      warn,
+    }),
+    0,
+  );
+  assert.equal(unquotable.calls.length, 1);
+  assert.match(warnings[1], /cannot quote/);
 });
