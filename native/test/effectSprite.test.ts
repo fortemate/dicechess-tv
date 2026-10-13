@@ -47,18 +47,33 @@ test('the sprite has the bytes its lock records', () => {
   );
 });
 
-test('every cue file has a clip, and each clip has its silence before and after', () => {
+// The script lays the clips out in the order of their names, each after
+// `gapSeconds` of silence, and counts the codec's delay, under 50 ms, into every
+// start. So a start or a length edited by hand breaks the chain; only the last
+// clip's length is not held by a start after it.
+test('every cue file has a clip, and the clips lie one after another, a silence apart', () => {
   for (const file of Object.values(CUE_FILES).flat())
     assert.ok(EFFECT_CLIPS[file], file);
   assert.deepEqual(
     Object.keys(EFFECT_CLIPS).sort(),
     Object.keys(lock.sources).sort(),
   );
-  const clips = Object.values(EFFECT_CLIPS).sort((a, b) => a.start - b.start);
+  const files = Object.keys(lock.sources).sort((a, b) => a.localeCompare(b));
   let end = 0;
-  for (const clip of clips) {
-    assert.ok(clip.seconds > 0);
-    assert.ok(clip.start - end >= lock.gapSeconds - 1e-3, `${clip.start}`);
-    end = clip.start + clip.seconds;
+  for (const [index, file] of files.entries()) {
+    const { start, seconds } = EFFECT_CLIPS[file];
+    assert.ok(seconds > 0, file);
+    const gap = start - end;
+    if (index === 0)
+      assert.ok(
+        gap >= lock.gapSeconds && gap < lock.gapSeconds + 0.05,
+        `${file} starts at ${start} s`,
+      );
+    else
+      assert.ok(
+        Math.abs(gap - lock.gapSeconds) < 5e-4,
+        `${file} starts ${gap} s after the clip before it ends`,
+      );
+    end = start + seconds;
   }
 });
