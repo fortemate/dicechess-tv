@@ -610,7 +610,8 @@ export function createMusic({
       const heard = voices?.some((voice) => voice.playing) ?? false;
       // Turned on its way, the duck moves on from where it is now. With nothing
       // heard it can simply arrive.
-      duck = heard ? duckAt(now) : on ? 1 : 0;
+      if (heard) duck = duckAt(now);
+      else duck = on ? 1 : 0;
       duckFrom = duck;
       duckSince = now;
       ducked = on;

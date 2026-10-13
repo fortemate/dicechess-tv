@@ -371,6 +371,25 @@ test('a seam still crosses over in three seconds when the ticks come late', asyn
   assert.ok(Math.abs(second.volume - 1) < 1e-9);
 });
 
+// A fade's duration is for the whole way: one turned halfway through has half
+// of it left, as when it moved a step a tick.
+test('a fade turned on its way keeps its rate, so it ends sooner', async () => {
+  const { music, clock, players, playing } = await rig();
+  music.setRole('calm');
+  await clock.advance(10_000);
+  music.setRole('tense');
+  await clock.advance(CROSSFADE_MS / 2);
+  const calm = players.find((each) => each.src.endsWith('calm.mp3'))!;
+  // Halfway out, calm comes back: half the way in 1 s, not 2 s.
+  music.setRole('calm');
+  await clock.advance(CROSSFADE_MS / 4);
+  const quarter = Math.sin((0.75 * Math.PI) / 2);
+  assert.ok(Math.abs(calm.volume - quarter) < 1e-9, `calm at ${calm.volume}`);
+  await clock.advance(CROSSFADE_MS / 4 + 100);
+  assert.ok(Math.abs(calm.volume - 1) < 1e-9);
+  assert.deepEqual(playing(), ['calm.mp3']);
+});
+
 // The players made ready and not yet used start `ms` late.
 const lagging = (players: FakePlayer[], ms: number) => {
   for (const player of players)
