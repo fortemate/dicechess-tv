@@ -11,6 +11,7 @@ import {
   DUCK_MS,
   RESUME_DELAY_MS,
   SEAM_MS,
+  START_WAIT_MS,
   STOP_MS,
   UNDUCK_MS,
   type Catalogue,
@@ -57,14 +58,29 @@ class FakeClock implements Clock {
   }
 }
 
+// A clock whose ticker comes only every `period` ms, however often it was
+// asked for: a JavaScript thread held up by the danger search, as on a Fire TV
+// Stick (#376). Timers set with `after` still keep their time.
+class LateClock extends FakeClock {
+  constructor(private readonly period: number) {
+    super();
+  }
+  every(_ms: number, run: () => void) {
+    return super.every(this.period, run);
+  }
+}
+
 const flush = async () => {
   for (let i = 0; i < 5; i++) await Promise.resolve();
 };
 
-// A player whose position runs on the fake clock while it plays.
+// A player whose position runs on the fake clock while it plays. With a `lag`,
+// it is heard only that long after it starts or moves, as a fresh player on a
+// Fire TV Stick is about a second after play() (#376).
 class FakePlayer {
   volume = 1;
   playing = false;
+  lag = 0;
   // How many times a track was set (#374).
   given = 0;
   private file = '';
@@ -86,7 +102,7 @@ class FakePlayer {
   }
   get currentTime() {
     return this.playing
-      ? this.at + (this.clock.now() - this.since) / 1000
+      ? this.at + Math.max(0, this.clock.now() - this.since - this.lag) / 1000
       : this.at;
   }
   set currentTime(value: number) {
@@ -130,8 +146,10 @@ const CATALOGUE: Catalogue = {
   },
 };
 
-const rig = async (catalogue: Catalogue | null = CATALOGUE) => {
-  const clock = new FakeClock();
+const rig = async (
+  catalogue: Catalogue | null = CATALOGUE,
+  clock: FakeClock = new FakeClock(),
+) => {
   const log: string[] = [];
   const players: FakePlayer[] = [];
   const reports: string[] = [];
@@ -294,6 +312,179 @@ test('a pass about to end hands over to a fresh pass on the other player, over 3
   await clock.advance(16_000);
   const third = players.find((player) => player.playing && player !== second);
   assert.ok(third && third !== first, 'a fresh player takes the third pass');
+});
+
+// On a Stick the ticker was held up for a second and more while the danger
+// search ran, and a fade moved a step a tick took 12 s or more to cross over
+// (#376). Worked out from the clock, a fade is where it should be whenever a
+// tick comes.
+test('a change of level still crosses over in two seconds when the ticks come late', async () => {
+  const { music, clock, players, playing } = await rig(
+    CATALOGUE,
+    new LateClock(1000),
+  );
+  music.setRole('calm');
+  await clock.advance(10_000);
+  const calm = players.find((each) => each.playing)!;
+  assert.ok(Math.abs(calm.volume - 1) < 1e-9);
+  music.setRole('tense');
+  await clock.advance(1000);
+  const tense = players.find((each) => each.src.endsWith('tense.mp3'))!;
+  // Halfway, on the one tick that came: both heard at the same level.
+  assert.ok(Math.abs(calm.volume - tense.volume / 10 ** (-2 / 20)) < 1e-9);
+  await clock.advance(CROSSFADE_MS - 1000);
+  assert.deepEqual(playing(), ['tense.mp3']);
+  assert.ok(Math.abs(tense.volume - 10 ** (-2 / 20)) < 1e-9);
+});
+
+test('the duck keeps its time when the ticks come late', async () => {
+  const { music, clock, players } = await rig(CATALOGUE, new LateClock(1000));
+  music.setRole('calm');
+  await clock.advance(3000);
+  const calm = players.find((each) => each.playing)!;
+  const ducked = 10 ** (DUCK_DB / 20);
+  music.setDucked(true);
+  await clock.advance(1000);
+  assert.ok(Math.abs(calm.volume - ducked) < 1e-9, `ducked to ${calm.volume}`);
+  music.setDucked(false);
+  await clock.advance(1000);
+  assert.ok(Math.abs(calm.volume - 1) < 1e-9, `back to ${calm.volume}`);
+});
+
+test('a seam still crosses over in three seconds when the ticks come late', async () => {
+  const { music, clock, players, playing } = await rig(
+    {
+      tracks: {
+        calm: { file: 'calm.mp3', loopStart: 1, loopEnd: 20, gainDb: 0 },
+      },
+    },
+    new LateClock(1000),
+  );
+  music.setRole('calm');
+  // The first tick past 16 s of play starts the seam.
+  await clock.advance(17_000);
+  const [first, second] = players;
+  assert.ok(first.playing && second.playing);
+  await clock.advance(SEAM_MS);
+  assert.deepEqual(playing(), ['calm.mp3']);
+  assert.equal(first.playing, false);
+  assert.ok(Math.abs(second.volume - 1) < 1e-9);
+});
+
+// A fade's duration is for the whole way: one turned halfway through has half
+// of it left, as when it moved a step a tick.
+test('a fade turned on its way keeps its rate, so it ends sooner', async () => {
+  const { music, clock, players, playing } = await rig();
+  music.setRole('calm');
+  await clock.advance(10_000);
+  music.setRole('tense');
+  await clock.advance(CROSSFADE_MS / 2);
+  const calm = players.find((each) => each.src.endsWith('calm.mp3'))!;
+  // Halfway out, calm comes back: half the way in 1 s, not 2 s.
+  music.setRole('calm');
+  await clock.advance(CROSSFADE_MS / 4);
+  const quarter = Math.sin((0.75 * Math.PI) / 2);
+  assert.ok(Math.abs(calm.volume - quarter) < 1e-9, `calm at ${calm.volume}`);
+  await clock.advance(CROSSFADE_MS / 4 + 100);
+  assert.ok(Math.abs(calm.volume - 1) < 1e-9);
+  assert.deepEqual(playing(), ['calm.mp3']);
+});
+
+// The players made ready and not yet used start `ms` late.
+const lagging = (players: FakePlayer[], ms: number) => {
+  for (const player of players)
+    if (!player.playing && !player.src) player.lag = ms;
+};
+
+test('a new theme fades in once it is heard, and the old one plays on until then (#376)', async () => {
+  const { music, clock, players, playing } = await rig();
+  music.setRole('calm');
+  await clock.advance(10_000);
+  lagging(players, 1200);
+  music.setRole('tense');
+  await clock.advance(1000);
+  const calm = players.find((each) => each.src.endsWith('calm.mp3'))!;
+  const tense = players.find((each) => each.src.endsWith('tense.mp3'))!;
+  assert.equal(tense.volume, 0);
+  assert.ok(Math.abs(calm.volume - 1) < 1e-9, `calm at ${calm.volume}`);
+  // Once heard, the two cross over from that same moment: on the equal-power
+  // curve, how far one has faded in is how far the other has faded out.
+  await clock.advance(1200);
+  const fadeOf = (volume: number, gainDb = 0) =>
+    (Math.asin(Math.min(1, volume / 10 ** (gainDb / 20))) * 2) / Math.PI;
+  assert.ok(tense.volume > 0 && calm.volume < 1);
+  assert.ok(
+    Math.abs(fadeOf(calm.volume) + fadeOf(tense.volume, -2) - 1) < 1e-9,
+    `calm ${calm.volume}, tense ${tense.volume}`,
+  );
+  await clock.advance(CROSSFADE_MS / 2 + 100);
+  assert.deepEqual(playing(), ['tense.mp3']);
+});
+
+test('a seam heard late still ends the old pass by its loop end', async () => {
+  const { music, clock, players, playing } = await rig({
+    tracks: {
+      calm: { file: 'calm.mp3', loopStart: 1, loopEnd: 20, gainDb: 0 },
+    },
+  });
+  music.setRole('calm');
+  await clock.advance(16_000);
+  lagging(players, 1200);
+  // The seam begins after 16 s of play, 3 s before the loop end.
+  await clock.advance(100);
+  const [first, second] = players;
+  assert.ok(first.playing && second.playing);
+  await clock.advance(1000);
+  assert.ok(Math.abs(first.volume - 1) < 1e-9, 'the old pass plays on');
+  assert.equal(second.volume, 0);
+  // Heard at about 17.25 s, the old pass fades out by 20 s on its own clock.
+  await clock.advance(2000);
+  assert.equal(first.playing, false);
+  assert.ok(first.currentTime <= 20 + 1e-9, `${first.currentTime}`);
+  assert.deepEqual(playing(), ['calm.mp3']);
+  await clock.advance(SEAM_MS);
+  assert.ok(Math.abs(second.volume - 1) < 1e-9);
+});
+
+test('a pass never heard gives way after a while, as before', async () => {
+  const { music, clock, players, playing } = await rig();
+  music.setRole('calm');
+  await clock.advance(10_000);
+  lagging(players, 60_000);
+  music.setRole('tense');
+  await clock.advance(START_WAIT_MS + CROSSFADE_MS + 100);
+  assert.deepEqual(playing(), ['tense.mp3']);
+});
+
+test('a theme asked for again while it waits to be heard starts once', async () => {
+  const { music, clock, players } = await rig();
+  music.setRole('calm');
+  await clock.advance(10_000);
+  lagging(players, 1200);
+  music.setRole('tense');
+  await clock.advance(500);
+  music.setRole('tense');
+  await clock.advance(2000);
+  assert.equal(
+    players.filter((each) => each.src.endsWith('tense.mp3')).length,
+    1,
+  );
+});
+
+test('turning back while the new theme waits drops it, and the old one never dips', async () => {
+  const { music, clock, players, playing } = await rig();
+  music.setRole('calm');
+  await clock.advance(10_000);
+  lagging(players, 1200);
+  music.setRole('tense');
+  await clock.advance(500);
+  music.setRole('calm');
+  await clock.advance(200);
+  const calm = players.find((each) => each.src.endsWith('calm.mp3'))!;
+  const tense = players.find((each) => each.src.endsWith('tense.mp3'))!;
+  assert.deepEqual(playing(), ['calm.mp3']);
+  assert.ok(tense.released);
+  assert.ok(Math.abs(calm.volume - 1) < 1e-9);
 });
 
 // On the Stick's OS 2602000051520, a player given a second track now and then
