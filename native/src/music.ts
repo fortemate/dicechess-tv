@@ -488,10 +488,10 @@ export function createMusic({
     }
     // The wanted theme, heard or waiting to be: any other theme still on its
     // way in is turned away. One already fading in or out is left alone.
-    const kept = voices.find(
+    const onItsWay = voices.some(
       (voice) => voice.playing && voice.target > 0 && voice.role === want,
     );
-    if (kept) {
+    if (onItsWay) {
       for (const voice of voices)
         if (voice.role !== want && voice.waiting && voice.target > 0)
           fadeTo(voice, 0, CROSSFADE_MS);
