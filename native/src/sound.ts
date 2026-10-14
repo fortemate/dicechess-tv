@@ -94,7 +94,7 @@ export const CLIP_LEAD_SECONDS = 0.05;
 // follows it in the sprite.
 export const CLIP_TAIL_MS = 250;
 // Fresh players kept ready for the next line.
-export const SPARE_PLAYERS = 1;
+export const SPARE_PLAYERS = 2;
 
 // A win or a loss is said after its jingle, which lasts about a second, rather
 // than over it, and so is the host's result. Every other line is said as it
@@ -250,9 +250,10 @@ export function createSounds({
     }
   };
 
-  // A player done with is stopped and let go, in the background.
+  // A player done with is let go, in the background. A line cut short was
+  // already paused by cut(); calling pause() on an ended clip right before
+  // deinitialize() stalls GStreamer in Executor::waitForSubmittedTasks (#374).
   const letGo = (name: string, player: Player) => {
-    pause(name, player);
     player
       .deinitialize()
       .catch((error: unknown) =>

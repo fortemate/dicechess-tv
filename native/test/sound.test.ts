@@ -648,7 +648,7 @@ test('a new line replaces the one being said', async () => {
     log()
       .filter((entry) => entry.player === first.player)
       .map((entry) => entry.event),
-    ['create', 'initialize', 'src', 'play', 'pause', 'pause', 'deinitialize'],
+    ['create', 'initialize', 'src', 'play', 'pause', 'deinitialize'],
   );
   assert.equal(second.src?.split('/').pop(), 'rampage_capture_heavy_2.mp3');
   // The music comes up between the two, and ducks again.
