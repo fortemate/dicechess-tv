@@ -142,6 +142,14 @@ vendored sounds and the licence texts in `licenses/` — are kept byte for byte,
 licence recorded in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and, when the
 licence asks for credit, a line on the About screen (`src/core/credits.ts`).
 
+Packaged MP3 copies are generated from those unchanged vendor files. The asset
+generator verifies their source digests before stripping leading and appended
+ID3 tags, retaining the MPEG audio frames. The packaged music catalogue carries
+the generated copies' digests; vendor catalogues and locks retain the originals.
+The reason and device evidence are on
+[Building on Vega](https://dicechess-tv.fortemate.com/technology/vega/#playback-after-the-os-update)
+and in the [audio validation record](docs/audio-regression-validation-387.md).
+
 The package carries the notices of every npm package in the bundle (#338). When a
 dependency change brings a package in or takes one out, `npm run bundle --prefix
 native` fails and says which, and `mise run build` fails when the Vega build's own

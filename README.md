@@ -45,6 +45,11 @@ The whole game is playable with three controls (D-pad, OK, and Back), while the 
 
 The application has no network code, no accounts and no analytics. Games, results and settings stay on the device; the [privacy policy](https://dicechess-tv.fortemate.com/privacy/) lists what it keeps.
 
+The [audio validation record](docs/audio-regression-validation-387.md) describes
+the playback lifecycle fixes tested on 14 October 2026 in
+[PR #388](https://github.com/fortemate/dicechess-tv/pull/388), with separate VVD
+and physical Stick results, packaging checks and the limits of the evidence.
+
 ## Product scope
 
 - Play a friend: two people take turns using one remote after each complete Dice Chess turn, with an optional living-room setting to turn the board to the active player's side, and a neutral host who cheers both players at the pauses and at the big moments as they happen (#202, #227): Prowla the cat (#258), Rolly, or Thinkle the wizard (#279). While the host speaks, she shows with her line above the bottom badge (#213: seen on the Vega Virtual Device and checked by tests, not yet checked on a Fire TV Stick), and Settings chooses the host, Prowla by default, or turns her off.
