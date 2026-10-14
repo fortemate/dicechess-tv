@@ -182,6 +182,30 @@ See [Building on Vega](https://dicechess-tv.fortemate.com/technology/vega/#scrip
 
 ## Loss of focus
 
+Spoken clips finish on the media player's `ended` event, with a short tail
+before the music comes back. `play()` resolving only means the start was
+accepted; it is not the start of an audible-duration timer. A watchdog releases
+a line if its completion event never arrives. Replacements, Voices off, and
+loss of focus silence and release the line at once, removing its listeners.
+Music also mutes before releasing a player, without calling `pause()` first:
+pausing an ended pipeline can stall GStreamer on the updated Stick. A failed
+music transition releases its player and keeps a working theme audible. It
+retries on an explicit theme request, a settings toggle or a foreground return,
+so a failed decoder cannot produce an unbounded loop of new players (#387).
+Fresh voice and music players wait for `canplay` before calling `play()`, so
+playback does not race the native source load.
+They initialize before loading their one source; spare players are constructed
+but hold no empty native pipeline while waiting for a clip.
+Music seeks on `playing` and fades in after position progress. A pass that
+never progresses times out while the previous theme keeps playing.
+
+The asset generator verifies the original MP3 digests, then removes ID3 tags
+from the copies it packages. The updated Stick's ID3 demuxer was seen to leave
+a loaded pipeline without metadata; the direct MPEG audio path avoids that
+load. The MPEG frames stay unchanged, and the original files, locks, credits
+and licenses are retained. The tag boundaries follow the
+[ID3 header specification](https://id3.org/id3v2.4.0-structure).
+
 The foreground gate requires both an app in front and focus (#254). A
 `blur` alone stops effects, voices and music, holds the bot's pending steps and
 danger search, and ignores game input, Back included. Returning preserves the

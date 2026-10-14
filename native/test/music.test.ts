@@ -41,6 +41,7 @@ class FakeClock implements Clock {
   // Runs every timer due within `ms`, in order, letting promises settle after
   // each, as the event loop would.
   async advance(ms: number) {
+    await flush();
     const end = this.t + ms;
     for (;;) {
       const next = this.timers
@@ -79,10 +80,16 @@ const flush = async () => {
 // Fire TV Stick is about a second after play() (#376).
 class FakePlayer {
   volume = 1;
+  duration = Number.NaN;
   playing = false;
   lag = 0;
   // How many times a track was set (#374).
   given = 0;
+  failAt: 'src' | 'play' | 'seek' | null = null;
+  startGate: Promise<void> | null = null;
+  initialized = 0;
+  loadReady = true;
+  private listeners = new Map<string, Set<() => void>>();
   private file = '';
   private at = 0;
   private since = 0;
@@ -95,10 +102,17 @@ class FakePlayer {
     return this.file;
   }
   set src(value: string) {
+    if (this.failAt === 'src') throw new Error('source refused');
     this.given++;
     this.file = value;
     this.at = 0;
     this.since = this.clock.now();
+    if (this.initialized && this.loadReady) {
+      this.duration = 190;
+      this.emit('canplay');
+    } else if (this.initialized) {
+      this.emit('canplay');
+    }
   }
   get currentTime() {
     return this.playing
@@ -106,18 +120,24 @@ class FakePlayer {
       : this.at;
   }
   set currentTime(value: number) {
+    if (this.failAt === 'seek') throw new Error('seek refused');
     this.at = value;
     this.since = this.clock.now();
   }
   initialize() {
+    this.initialized++;
     return Promise.resolve();
   }
   play() {
+    if (this.failAt === 'play')
+      return Promise.reject(new Error('play refused'));
     this.at = this.currentTime;
     this.since = this.clock.now();
     this.playing = true;
     this.log.push(`${this.id} play ${this.file.split('/').pop()}`);
-    return Promise.resolve();
+    return (this.startGate ?? Promise.resolve()).then(() =>
+      this.emit('playing'),
+    );
   }
   pause() {
     this.at = this.currentTime;
@@ -126,10 +146,22 @@ class FakePlayer {
   }
   deinitialize() {
     this.released = true;
+    this.playing = false;
     this.log.push(`${this.id} release`);
     return Promise.resolve();
   }
   released = false;
+  addEventListener(event: string, listener: () => void) {
+    const listeners = this.listeners.get(event) ?? new Set();
+    listeners.add(listener);
+    this.listeners.set(event, listeners);
+  }
+  removeEventListener(event: string, listener: () => void) {
+    this.listeners.get(event)?.delete(listener);
+  }
+  emit(event: string) {
+    for (const listener of [...(this.listeners.get(event) ?? [])]) listener();
+  }
 }
 
 const CATALOGUE: Catalogue = {
@@ -177,6 +209,36 @@ test('without a catalogue nothing is created and nothing plays', async () => {
   music.setRole('menu');
   await flush();
   assert.equal(players.length, 0);
+});
+
+test('unused music spares hold no native pipeline and only a requested pass initializes', async () => {
+  const { music, clock, players, log, reports } = await rig();
+  assert.ok(players.every((player) => player.initialized === 0));
+  music.setRole('menu');
+  await clock.advance(3000);
+  assert.equal(players.filter((player) => player.initialized).length, 1);
+  assert.equal(log.filter((entry) => entry.includes(' play ')).length, 1);
+  assert.ok(!reports.some((message) => message.includes('failed')));
+});
+
+test('music keeps the old theme while readiness has no metadata and starts once when it arrives', async () => {
+  const { music, clock, players, log } = await rig();
+  music.setRole('menu');
+  await clock.advance(3000);
+  players[1].loadReady = false;
+  music.setRole('calm');
+  await clock.advance(1000);
+  assert.equal(players[0].volume, 1);
+  assert.equal(log.filter((entry) => entry.includes(' play ')).length, 1);
+  players[1].duration = 190;
+  players[1].emit('loadedmetadata');
+  assert.equal(log.filter((entry) => entry.includes(' play ')).length, 1);
+  players[1].emit('canplay');
+  players[1].emit('canplay');
+  await clock.advance(3000);
+  assert.equal(log.filter((entry) => entry.includes(' play ')).length, 2);
+  assert.ok(players[0].released);
+  assert.equal(players[1].volume, 1);
 });
 
 test('the first theme fades in from its loop start', async () => {
@@ -428,16 +490,16 @@ test('a seam heard late still ends the old pass by its loop end', async () => {
     },
   });
   music.setRole('calm');
-  await clock.advance(16_000);
+  await clock.advance(15_500);
   lagging(players, 1200);
   // The seam begins after 16 s of play, 3 s before the loop end.
-  await clock.advance(100);
+  await clock.advance(600);
   const [first, second] = players;
   assert.ok(first.playing && second.playing);
   await clock.advance(1000);
   assert.ok(Math.abs(first.volume - 1) < 1e-9, 'the old pass plays on');
   assert.equal(second.volume, 0);
-  // Heard at about 17.25 s, the old pass fades out by 20 s on its own clock.
+  // Heard at about 17.2 s, the old pass fades out by its loop end.
   await clock.advance(2000);
   assert.equal(first.playing, false);
   assert.ok(first.currentTime <= 20 + 1e-9, `${first.currentTime}`);
@@ -446,14 +508,18 @@ test('a seam heard late still ends the old pass by its loop end', async () => {
   assert.ok(Math.abs(second.volume - 1) < 1e-9);
 });
 
-test('a pass never heard gives way after a while, as before', async () => {
-  const { music, clock, players, playing } = await rig();
+test('a pass never heard times out without fading away the working theme', async () => {
+  const { music, clock, players, playing, reports } = await rig();
   music.setRole('calm');
   await clock.advance(10_000);
   lagging(players, 60_000);
   music.setRole('tense');
   await clock.advance(START_WAIT_MS + CROSSFADE_MS + 100);
-  assert.deepEqual(playing(), ['tense.mp3']);
+  assert.deepEqual(playing(), ['calm.mp3']);
+  assert.ok(
+    players.find((player) => player.src.endsWith('tense.mp3'))!.released,
+  );
+  assert.ok(reports.includes('music: play failed: playback did not start'));
 });
 
 test('a theme asked for again while it waits to be heard starts once', async () => {
@@ -503,6 +569,130 @@ test('no music player is ever given a second track, and every silent one is let 
   // Every player that loaded a track has been let go; the rest are ready.
   for (const player of players.filter((each) => each.given))
     assert.ok(player.released, `player ${player.id} kept`);
+});
+
+test('music cleanup mutes and releases an ended pipeline without pause', async () => {
+  const { music, clock, players, reports, log } = await rig();
+  music.setRole('menu');
+  await clock.advance(3000);
+  const ended = players.find((player) => player.playing)!;
+  ended.currentTime = CATALOGUE.tracks.menu!.loopEnd;
+  ended.pause = () => {
+    throw new Error('GStreamer pause at EOS');
+  };
+  music.setSuspended(true);
+  assert.equal(ended.volume, 0);
+  assert.equal(ended.released, true);
+  assert.ok(!log.some((entry) => entry.endsWith(' pause')));
+  assert.deepEqual(
+    reports.filter((message) => message.includes('failed')),
+    [],
+  );
+});
+
+for (const stage of ['src', 'play', 'seek', 'event'] as const) {
+  test(`a music ${stage} failure releases the new pass and keeps the working theme`, async () => {
+    const { music, clock, players, reports, playing } = await rig();
+    if (stage === 'seek')
+      music.setCatalogue({
+        tracks: {
+          ...CATALOGUE.tracks,
+          calm: { ...CATALOGUE.tracks.calm!, loopStart: 0.7 },
+        },
+      });
+    music.setRole('menu');
+    await clock.advance(3000);
+    const menu = players.find((player) => player.playing)!;
+    const bad = players.find((player) => !player.given)!;
+    if (stage !== 'event') bad.failAt = stage;
+    music.setRole('calm');
+    await flush();
+    if (stage === 'event') bad.emit('error');
+    await clock.advance(START_WAIT_MS + CROSSFADE_MS + 100);
+    assert.equal(bad.released, true);
+    assert.equal(bad.volume, 0);
+    assert.equal(menu.released, false);
+    assert.ok(menu.volume > 0);
+    assert.deepEqual(playing(), ['menu.mp3']);
+    assert.equal(
+      reports.filter((message) => message.includes('play failed')).length,
+      1,
+    );
+    const count = players.length;
+    await clock.advance(10000);
+    assert.equal(
+      players.length,
+      count,
+      'a failed decoder is not retried in a tight loop',
+    );
+    // An explicit retry takes another fresh player; the failed one stays gone.
+    music.setRole('calm');
+    await clock.advance(3000);
+    bad.emit('error');
+    assert.deepEqual(playing(), ['calm.mp3']);
+    assert.equal(
+      reports.filter((message) => message.includes('play failed')).length,
+      1,
+    );
+    assert.ok(players.every((player) => player.given <= 1));
+  });
+}
+
+test('a decoder error during the incoming fade restores the outgoing theme', async () => {
+  const { music, clock, players, playing } = await rig();
+  music.setRole('menu');
+  await clock.advance(3000);
+  music.setRole('calm');
+  await clock.advance(500);
+  players.find((player) => player.src.endsWith('calm.mp3'))!.emit('error');
+  await clock.advance(3000);
+  assert.deepEqual(playing(), ['menu.mp3']);
+  assert.ok(
+    players.find((player) => player.src.endsWith('menu.mp3'))!.volume > 0.99,
+  );
+});
+
+test('a failed loop keeps its old pass until EOF, then releases it without retrying forever', async () => {
+  const { music, clock, players, playing } = await rig();
+  music.setRole('menu');
+  await clock.advance(3000);
+  const old = players[0];
+  players[1].failAt = 'play';
+  await clock.advance(185000);
+  assert.equal(old.released, false);
+  assert.deepEqual(playing(), ['menu.mp3']);
+  old.currentTime = 190;
+  old.emit('ended');
+  await clock.advance(0);
+  assert.equal(old.released, true);
+  assert.deepEqual(playing(), []);
+  const count = players.length;
+  await clock.advance(10000);
+  assert.equal(players.length, count);
+  music.setRole('menu');
+  await clock.advance(3000);
+  assert.deepEqual(playing(), ['menu.mp3']);
+});
+
+test('a play that resolves after Home never seeks the released player', async () => {
+  const { music, clock, players, reports, playing } = await rig();
+  let resolvePlay: () => void = () => undefined;
+  const starting = players[0];
+  starting.startGate = new Promise<void>((resolve) => {
+    resolvePlay = resolve;
+  });
+  music.setRole('menu');
+  await flush();
+  music.setSuspended(true);
+  assert.equal(starting.released, true);
+  starting.failAt = 'seek';
+  resolvePlay();
+  await flush();
+  assert.ok(!reports.some((message) => message.includes('failed')));
+  music.setSuspended(false);
+  await clock.advance(RESUME_DELAY_MS + 1000);
+  assert.deepEqual(playing(), ['menu.mp3']);
+  assert.ok(players.every((player) => player.given <= 1));
 });
 
 test('leaving the foreground stops at once; coming back waits, then resumes where it was', async () => {

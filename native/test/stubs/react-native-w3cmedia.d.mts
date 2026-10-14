@@ -32,14 +32,21 @@ export declare function releaseAudio(): void;
 export declare function holdPlays(): void;
 /** Test-only: let every held play start. */
 export declare function releasePlays(): void;
+/** Test-only: deliver a native event independently of play() resolving. */
+export declare function audioEvent(player: number, event: string): void;
+/** Test-only: count listeners remaining on a player. */
+export declare function audioListenerCount(player: number): number;
 
 export declare class AudioPlayer {
   constructor(contentType?: number, usage?: number);
   src: string;
   currentTime: number;
   volume: number;
+  duration: number;
   initialize(): Promise<void>;
   play(): Promise<void>;
   pause(): void;
   deinitialize(): Promise<void>;
+  addEventListener(event: string, listener: () => void): void;
+  removeEventListener(event: string, listener: () => void): void;
 }

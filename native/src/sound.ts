@@ -93,7 +93,7 @@ export const CLIP_LEAD_SECONDS = 0.05;
 // A clip is paused this long after it ends, still inside the 2 s of silence that
 // follows it in the sprite.
 export const CLIP_TAIL_MS = 250;
-// Fresh players kept ready for the next line.
+// Constructed players kept ready for the next line; no empty native pipeline.
 export const SPARE_PLAYERS = 2;
 
 // A win or a loss is said after its jingle, which lasts about a second, rather
@@ -119,6 +119,9 @@ export type SpokenLine =
 // A line counts as said a little after its clip ends, so the music does not
 // swell back over its last syllable.
 export const LINE_TAIL_MS = 300;
+// A missing ended/error event must not keep a loaded player and the music's
+// duck forever. This is a watchdog, not the normal deadline for a spoken line.
+export const LINE_TIMEOUT_MS = 10_000;
 // A line is heard a moment after it is asked for, because the voice player
 // loads its clip first. On the Virtual Device each bot's voice began about
 // 0.45 s after its bubble showed (#187), so a bubble waits this much more.
@@ -184,6 +187,9 @@ type Player = Pick<
   | 'src'
   | 'currentTime'
   | 'volume'
+  | 'duration'
+  | 'addEventListener'
+  | 'removeEventListener'
 >;
 
 export function createSounds({
@@ -220,18 +226,22 @@ export function createSounds({
     onSpeech(on);
   };
 
-  // A player made and initialised, or null when the media stack refuses one.
-  const newPlayer = (name: string): Promise<Player | null> => {
-    let player: Player;
+  const makePlayer = (name: string): Player | null => {
     try {
-      player = new AudioPlayer(
+      return new AudioPlayer(
         AudioContentType.CONTENT_TYPE_SONIFICATION,
         AudioUsageType.USAGE_GAME,
       );
     } catch (error) {
       report(`sound: ${name} player not created: ${String(error)}`);
-      return Promise.resolve(null);
+      return null;
     }
+  };
+  // Effects keep their sprite pipeline. Spare voices are only constructed;
+  // a spoken line initializes its player when it is needed.
+  const newPlayer = (name: string): Promise<Player | null> => {
+    const player = makePlayer(name);
+    if (!player) return Promise.resolve(null);
     return player.initialize().then(
       () => player,
       (error: unknown) => {
@@ -250,15 +260,23 @@ export function createSounds({
     }
   };
 
-  // A player done with is let go, in the background. A line cut short was
-  // already paused by cut(); calling pause() on an ended clip right before
-  // deinitialize() stalls GStreamer in Executor::waitForSubmittedTasks (#374).
+  // Silence before releasing, without pause(): a clip may already have ended,
+  // and pause followed by deinitialize stalls GStreamer on the Stick (#374).
   const letGo = (name: string, player: Player) => {
-    player
-      .deinitialize()
-      .catch((error: unknown) =>
-        report(`sound: ${name} player not released: ${String(error)}`),
-      );
+    try {
+      player.volume = 0;
+    } catch (error) {
+      report(`sound: ${name} volume not set: ${String(error)}`);
+    }
+    try {
+      player
+        .deinitialize()
+        .catch((error: unknown) =>
+          report(`sound: ${name} player not released: ${String(error)}`),
+        );
+    } catch (error) {
+      report(`sound: ${name} player not released: ${String(error)}`);
+    }
   };
 
   const choose = (files: readonly string[]) =>
@@ -394,19 +412,18 @@ export function createSounds({
     for (const channel of CHANNELS) pause(channel, ready.get(channel));
   };
 
-  // The fresh players for the lines, oldest first. Each one taken is replaced
-  // at once.
-  const spares: Promise<Player | null>[] = Array.from(
-    { length: SPARE_PLAYERS },
-    () => newPlayer('spare'),
+  // Constructed spares, oldest first. Initialize when a line is requested.
+  const spares: (Player | null)[] = Array.from({ length: SPARE_PLAYERS }, () =>
+    makePlayer('spare'),
   );
-  const fresh = (): Promise<Player | null> => {
-    spares.push(newPlayer('spare'));
+  const fresh = (): Player | null => {
+    spares.push(makePlayer('spare'));
     return spares.shift()!;
   };
 
   // The player the last line was said on.
   let voice: Player | null = null;
+  let detachLine: () => void = () => undefined;
   const silentVoice = () => suspended || !voices;
   // A line's player is let go once the line is over, however it ended, unless
   // a newer line has let it go already. A loaded player kept paused still costs
@@ -414,6 +431,9 @@ export function createSounds({
   const release = (player: Player) => {
     if (voice !== player) return;
     voice = null;
+    detachLine();
+    detachLine = () => undefined;
+    speech(false);
     letGo('voice', player);
   };
 
@@ -421,47 +441,94 @@ export function createSounds({
   // waiting to start is dropped: for a line replaced by another, or stopped.
   const cut = () => {
     const turn = ++lines;
-    if (speaking) pause('voice', voice);
+    if (voice) release(voice);
     speech(false);
     return turn;
   };
 
   // A line stopped before its end: whatever was waiting to start is dropped.
   const hush = () => {
-    lines++;
-    if (silentVoice()) pause('voice', voice);
-    speech(false);
+    cut();
   };
 
   const speak = async (id: string, turn: number, ms: number) => {
     const clip = VOICE_FILES[id];
-    if (!clip) return;
-    const player = await fresh();
+    if (!clip || turn !== lines || silentVoice()) return;
+    const player = fresh();
     if (!player) return;
-    if (turn !== lines || silentVoice()) return letGo('voice', player);
-    const last = voice;
     voice = player;
-    if (last) letGo('voice', last);
+    const current = () => voice === player && turn === lines;
+    const finish = () => {
+      if (current()) release(player);
+    };
+    let ending = false;
+    const ended = () => {
+      if (!current() || ending) return;
+      ending = true;
+      later(finish, LINE_TAIL_MS);
+    };
+    const failed = () => {
+      if (!current()) return;
+      report(`sound: line ${id} playback failed`);
+      finish();
+    };
+    const started = () => {
+      if (current() && !ending) speech(true);
+    };
+    let requested = false;
+    const canPlay = () => {
+      if (!current() || requested) return;
+      try {
+        if (!Number.isFinite(player.duration) || player.duration <= 0) return;
+        requested = true;
+        void player.play().catch(failed);
+      } catch {
+        failed();
+      }
+    };
+    detachLine = () => {
+      for (const [event, handler] of [
+        ['ended', ended],
+        ['error', failed],
+        ['playing', started],
+        ['canplay', canPlay],
+      ] as const) {
+        try {
+          player.removeEventListener(event, handler);
+        } catch (error) {
+          report(`sound: line ${id} listener not removed: ${String(error)}`);
+        }
+      }
+    };
+    // Bound missing initialization and playback events as well as a decoder
+    // that never reports its end. Normal completion always follows ended.
+    later(() => {
+      if (!current()) return;
+      report(`sound: line ${id} completion timed out`);
+      finish();
+    }, ms + LINE_TIMEOUT_MS);
     try {
+      player.addEventListener('ended', ended);
+      player.addEventListener('error', failed);
+      player.addEventListener('playing', started);
+      player.addEventListener('canplay', canPlay);
+      await player.initialize();
+      if (!current() || silentVoice()) return;
+      // Initialize first, then load once and wait for metadata. Starting
+      // alongside the load can leave a pipeline with no completion event.
       player.src = `${VOICES}/${clip.file}`;
-      await player.play();
     } catch (error) {
+      if (!current()) return;
       report(`sound: line ${id} did not play: ${String(error)}`);
       release(player);
       return;
     }
     // Stopped or replaced while it was starting. A line replaced by one that
     // has not reached its player yet is stopped here, or it would go on.
-    if (turn !== lines || silentVoice()) {
+    if (!current() || silentVoice()) {
       release(player);
       return;
     }
-    speech(true);
-    later(() => {
-      if (turn === lines) speech(false);
-      // Said, or stopped on the way: its player is let go.
-      release(player);
-    }, ms);
   };
 
   return {

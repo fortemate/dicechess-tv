@@ -65,6 +65,10 @@ export class AudioPlayer {
     return this.element.currentTime;
   }
 
+  get duration(): number {
+    return this.element.duration;
+  }
+
   set currentTime(seconds: number) {
     this.element.currentTime = seconds;
   }
@@ -83,5 +87,13 @@ export class AudioPlayer {
 
   pause(): void {
     this.element.pause();
+  }
+
+  addEventListener(event: string, listener: () => void): void {
+    this.element.addEventListener(event, listener);
+  }
+
+  removeEventListener(event: string, listener: () => void): void {
+    this.element.removeEventListener(event, listener);
   }
 }
