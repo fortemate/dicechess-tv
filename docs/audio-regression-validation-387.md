@@ -4,7 +4,7 @@ Validated on 14 October 2026 against main `7035ffc` and the audio playback lifec
 
 ## Automated checks
 
-`mise run check` passed: 325 core tests, 574 native tests and 8 browser tests, types, lint, formatting, the Metro bundle and browser build. The native suite adds 21 regression tests. Focused audio coverage is 97.67% of lines and 86.77% of branches. `mise run build` produced Release packages for armv7, aarch64 and x86_64 with SDK 0.24.12044.
+`mise run check` passed: 325 core tests, 576 native tests and 8 browser tests, types, lint, formatting, the Metro bundle and browser build. The native suite adds 23 regression tests. Focused audio coverage is 98.12% of lines and 87.06% of branches. `mise run build` produced Release packages for armv7, aarch64 and x86_64 with SDK 0.24.12044.
 
 The new regressions cover delayed playback, native completion and errors, missing completion/initialization events, stale events after replacement or Home, end-of-stream cleanup, failed music transitions and loops, explicit retry, readiness without metadata, and tag removal after verification of vendor hashes.
 
@@ -18,7 +18,7 @@ VVD also supplied a recording with audio. Hardware evidence comes from native pl
 
 ## Playback probe
 
-The final 600-second probe passed independently on both devices. It requested 84 spoken clips across bot, host and tutor packs, exercised all ten effect cues, changed between all four music roles, toggled music, forced repeated EOF cleanup with delayed ticks, injected a missing music file and retried a working catalogue.
+The 600-second probe passed independently on both devices. It requested 84 spoken clips across bot, host and tutor packs, exercised all ten effect cues, changed between all four music roles, toggled music, forced repeated EOF cleanup with delayed ticks, injected a missing music file and retried a working catalogue.
 
 Each run completed 108 player releases, including 90 releases after native EOF. At the end only the three reusable effect channels remained initialized. The maximum EOF release time was 186 ms on hardware and 314 ms on VVD. There were no unexpected playback errors, completion watchdogs, native deinitialization timeouts or ANRs. The missing-file test produced one expected failure on each device: a native error on VVD and the no-progress timeout on hardware. The previous music continued until the explicit retry started the working theme.
 
@@ -31,6 +31,8 @@ All six tutorial lessons were completed on each device using D-pad and OK, retur
 Music off/on and volume Left/Right, effects off/on, voices off/on, a muted game start and roll, and enabled game cues were exercised through Settings and Back. Home during speech silenced and released the current voice and music. Hardware interrupted the tutor at 0.842 s of a 2.064 s clip and released the voice in 197 ms. VVD separately exercised interruption during a spoken clip.
 
 On this OS, Home causes the system to terminate the background process. Relaunch restored the game turn, pending phase, dice and last move on both devices. Hardware retained turn 3 in move phase with its pending dice; VVD retained turn 2 in move phase after a move, with its remaining dice. Warm blur/focus resumption is covered by the automated suite; the Home device test establishes cold-relaunch recovery.
+
+After the CI cleanup refactor to async/await, the clean packages were rebuilt and the tutorial opening sentences were replayed on both devices. Native EOF and cleanup completed without deinitialization timeouts. Two further regressions cover synchronous and asynchronous release failures.
 
 ## Final package and saved data
 

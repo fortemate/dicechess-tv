@@ -20,7 +20,13 @@ export function audioListenerCount(id) {
 }
 
 // Test-only: make the next players fail where a device's media stack might.
-const failing = { initialize: false, play: false, pause: false };
+const failing = {
+  initialize: false,
+  play: false,
+  pause: false,
+  deinitialize: false,
+  deinitializeAsync: false,
+};
 export function failAudio(stage) {
   failing[stage] = true;
 }
@@ -137,6 +143,9 @@ export class AudioPlayer {
   deinitialize() {
     this.released = true;
     audioLog.push({ event: 'deinitialize', player: this.id });
+    if (failing.deinitialize) throw new Error('native release refused');
+    if (failing.deinitializeAsync)
+      return Promise.reject(new Error('native release rejected'));
     return Promise.resolve();
   }
 }
@@ -148,6 +157,8 @@ export function resetAudio() {
   failing.initialize = false;
   failing.play = false;
   failing.pause = false;
+  failing.deinitialize = false;
+  failing.deinitializeAsync = false;
   held = null;
   starting = null;
 }

@@ -188,6 +188,39 @@ test('a cancelled initialization failure cannot report or start an old line', as
   assert.deepEqual(reports, []);
 });
 
+for (const stage of ['deinitialize', 'deinitializeAsync'] as const) {
+  test(`a ${stage} failure is reported without keeping speech ducked or throwing`, async () => {
+    resetAudio();
+    const reports: string[] = [];
+    const speech = speaking();
+    const sounds = createSounds({
+      onSpeech: speech.onSpeech,
+      report: (message) => reports.push(message),
+    });
+    sounds.say(line('rolly_capture_2'));
+    await settle();
+    const said = plays()[0];
+    failAudio(stage);
+    assert.doesNotThrow(() => sounds.stopLine());
+    await settle();
+    assert.deepEqual(speech.heard, [true, false]);
+    assert.equal(audioListenerCount(said.player), 0);
+    assert.equal(
+      log()
+        .filter(
+          (entry) => entry.event === 'volume' && entry.player === said.player,
+        )
+        .at(-1)?.to,
+      0,
+    );
+    assert.equal(reports.length, 1);
+    assert.match(
+      reports[0],
+      /sound: voice player not released: Error: native release/,
+    );
+  });
+}
+
 // On the Stick's OS 2602000051520, setting `src` on a player that had already
 // played now and then never returned, and the app was closed as not
 // responding (#374).

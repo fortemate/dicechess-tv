@@ -262,18 +262,14 @@ export function createSounds({
 
   // Silence before releasing, without pause(): a clip may already have ended,
   // and pause followed by deinitialize stalls GStreamer on the Stick (#374).
-  const letGo = (name: string, player: Player) => {
+  const letGo = async (name: string, player: Player) => {
     try {
       player.volume = 0;
     } catch (error) {
       report(`sound: ${name} volume not set: ${String(error)}`);
     }
     try {
-      player
-        .deinitialize()
-        .catch((error: unknown) =>
-          report(`sound: ${name} player not released: ${String(error)}`),
-        );
+      await player.deinitialize();
     } catch (error) {
       report(`sound: ${name} player not released: ${String(error)}`);
     }
@@ -434,7 +430,7 @@ export function createSounds({
     detachLine();
     detachLine = () => undefined;
     speech(false);
-    letGo('voice', player);
+    void letGo('voice', player);
   };
 
   // The line on the player is cut short whatever the settings say, and one
@@ -527,7 +523,6 @@ export function createSounds({
     // has not reached its player yet is stopped here, or it would go on.
     if (!current() || silentVoice()) {
       release(player);
-      return;
     }
   };
 
