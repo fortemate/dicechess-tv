@@ -23,7 +23,9 @@ export declare const audioLog: Array<{
 /** Test-only: forget every player, as a fresh launch would. */
 export declare function resetAudio(): void;
 /** Test-only: make the next players fail where a device's media stack might. */
-export declare function failAudio(stage: 'initialize' | 'play' | 'pause'): void;
+export declare function failAudio(
+  stage: 'initialize' | 'play' | 'pause' | 'deinitialize' | 'deinitializeAsync',
+): void;
 /** Test-only: keep the next players initialising until releaseAudio(). */
 export declare function holdAudio(): void;
 /** Test-only: finish initialising every held player. */
@@ -32,14 +34,21 @@ export declare function releaseAudio(): void;
 export declare function holdPlays(): void;
 /** Test-only: let every held play start. */
 export declare function releasePlays(): void;
+/** Test-only: deliver a native event independently of play() resolving. */
+export declare function audioEvent(player: number, event: string): void;
+/** Test-only: count listeners remaining on a player. */
+export declare function audioListenerCount(player: number): number;
 
 export declare class AudioPlayer {
   constructor(contentType?: number, usage?: number);
   src: string;
   currentTime: number;
   volume: number;
+  duration: number;
   initialize(): Promise<void>;
   play(): Promise<void>;
   pause(): void;
   deinitialize(): Promise<void>;
+  addEventListener(event: string, listener: () => void): void;
+  removeEventListener(event: string, listener: () => void): void;
 }

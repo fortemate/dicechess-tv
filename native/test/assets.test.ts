@@ -24,6 +24,9 @@ import {
   main,
   copyPortraits,
   copySounds,
+  copyMusic,
+  copyVoices,
+  stripMp3Tags,
   portraitVector,
   portraitsVersion,
   shownPortraits,
@@ -45,6 +48,128 @@ import { HOSTS } from '../src/hostSetting';
 import { TEACHER } from '../src/Teacher';
 
 const NATIVE = join(dirname(fileURLToPath(import.meta.url)), '..');
+
+test('MP3 packaging removes ID3 headers and footers without changing audio frames', () => {
+  const frames = Buffer.from([0xff, 0xfb, 0x90, 0x64, 12, 34, 56, 78]);
+  for (const version of [2, 3, 4]) {
+    const header = Buffer.from([73, 68, 51, version, 0, 0, 0, 0, 1, 2]);
+    const tagged = Buffer.concat([header, Buffer.alloc(130, 17), frames]);
+    assert.deepEqual(stripMp3Tags(tagged), frames);
+    assert.equal(tagged.length, 148, 'vendor bytes remain unchanged');
+  }
+  const header = Buffer.from([73, 68, 51, 4, 0, 16, 0, 0, 0, 2]);
+  const footer = Buffer.concat([Buffer.from('3DI'), header.subarray(3)]);
+  const v1 = Buffer.concat([Buffer.from('TAG'), Buffer.alloc(125)]);
+  assert.deepEqual(
+    stripMp3Tags(Buffer.concat([header, Buffer.alloc(2), footer, frames, v1])),
+    frames,
+  );
+  assert.strictEqual(stripMp3Tags(frames), frames);
+});
+
+test('malformed ID3 tags stop packaging instead of discarding audio bytes', () => {
+  for (const bytes of [
+    Buffer.from('ID3'),
+    Buffer.from([73, 68, 51, 5, 0, 0, 0, 0, 0, 0, 0xff]),
+    Buffer.from([73, 68, 51, 4, 0, 0, 128, 0, 0, 0, 0xff]),
+    Buffer.from([73, 68, 51, 4, 0, 0, 0, 0, 1, 0, 0xff]),
+    Buffer.from([73, 68, 51, 4, 0, 16, 0, 0, 0, 0, ...Buffer.alloc(10), 0xff]),
+  ])
+    assert.throws(() => stripMp3Tags(bytes), /ID3/);
+});
+
+test('MP3 packaging removes appended ID3v2.4 tags, including before ID3v1', () => {
+  const frames = Buffer.from([0xff, 0xfb, 0x90, 0x64, 12, 34, 56, 78]);
+  const header = Buffer.from([73, 68, 51, 4, 0, 16, 0, 0, 1, 2]);
+  const tag = Buffer.concat([
+    header,
+    Buffer.alloc(130, 17),
+    Buffer.from('3DI'),
+    header.subarray(3),
+  ]);
+  const v1 = Buffer.concat([Buffer.from('TAG'), Buffer.alloc(125)]);
+  for (const tagged of [
+    Buffer.concat([frames, tag]),
+    Buffer.concat([tag, frames, tag, v1]),
+    Buffer.concat([frames, tag, tag, v1]),
+  ]) {
+    const before = Buffer.from(tagged);
+    assert.deepEqual(stripMp3Tags(tagged), frames);
+    assert.deepEqual(tagged, before, 'the input bytes remain unchanged');
+  }
+});
+
+test('malformed appended ID3v2.4 footers stop packaging without discarding frames', () => {
+  const frames = Buffer.from([0xff, 0xfb, 0x90, 0x64, 12, 34]);
+  const header = Buffer.from([73, 68, 51, 4, 0, 16, 0, 0, 0, 2]);
+  const footer = Buffer.concat([Buffer.from('3DI'), header.subarray(3)]);
+  const tag = Buffer.concat([header, Buffer.alloc(2), footer]);
+  for (const [offset, value] of [
+    [0, 0], // Missing header identifier.
+    [4, 1], // Header/footer mismatch.
+    [15, 3], // Footer is not version 2.4.
+    [16, 255], // Invalid revision.
+    [17, 0], // Missing footer-present flag.
+    [17, 17], // Undefined flag.
+    [18, 128], // Non-synchsafe size.
+    [21, 127], // Size exceeds the file.
+  ]) {
+    const malformed = Buffer.from(tag);
+    malformed[offset] = value;
+    assert.throws(
+      () => stripMp3Tags(Buffer.concat([frames, malformed])),
+      /ID3/,
+    );
+  }
+  assert.throws(() => stripMp3Tags(Buffer.concat([frames, footer])), /ID3/);
+});
+
+test('voice and music copies strip tags only after checking their vendor digests', (t) => {
+  const root = mkdtempSync(join(tmpdir(), 'dicechess-tv-mp3-'));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const frames = Buffer.from([0xff, 0xfb, 0x90, 0x64, 12, 34]);
+  const tagged = Buffer.concat([
+    Buffer.from([73, 68, 51, 3, 0, 0, 0, 0, 0, 2]),
+    Buffer.alloc(2),
+    frames,
+  ]);
+  const sha256 = createHash('sha256').update(tagged).digest('hex');
+  for (const kind of ['voices', 'music']) {
+    mkdirSync(join(root, kind));
+    writeFileSync(join(root, kind, 'clip.mp3'), tagged);
+    writeFileSync(
+      join(root, kind, `${kind}.json`),
+      JSON.stringify({
+        [kind === 'music' ? 'tracks' : 'lines']: {
+          menu: { file: 'clip.mp3', sha256 },
+        },
+      }),
+    );
+    const copy = kind === 'music' ? copyMusic : copyVoices;
+    copy(root);
+    assert.deepEqual(
+      readFileSync(join(root, 'assets', kind, 'clip.mp3')),
+      frames,
+    );
+    assert.deepEqual(readFileSync(join(root, kind, 'clip.mp3')), tagged);
+    if (kind === 'music') {
+      const packaged = JSON.parse(
+        readFileSync(join(root, 'assets/music/music.json'), 'utf8'),
+      );
+      assert.equal(
+        packaged.tracks.menu.sha256,
+        createHash('sha256').update(frames).digest('hex'),
+      );
+      assert.equal(
+        JSON.parse(readFileSync(join(root, 'music/music.json'), 'utf8')).tracks
+          .menu.sha256,
+        sha256,
+      );
+    }
+    writeFileSync(join(root, kind, 'clip.mp3'), frames);
+    assert.throws(() => copy(root), /no longer matches/);
+  }
+});
 
 // Every file under `dir`, relative to it and sorted.
 const files = (dir: string) =>

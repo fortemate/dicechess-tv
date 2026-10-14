@@ -263,6 +263,82 @@ export const main = (root = native) => {
 // sprite must have been made from those bytes and still have its own: a file
 // edited by hand, or a sound changed without making the sprite again, stops
 // the build rather than shipping.
+// Packaged MP3s use the MPEG audio path directly. The updated Stick's ID3
+// demuxer can finish constructing a pipeline without publishing its metadata,
+// leaving playback and cleanup stuck. Keep the verified vendor bytes intact;
+// remove only tags from the generated copies, without changing MPEG frames.
+// Credits and licenses ship separately. Header layout: https://id3.org/id3v2.4.0-structure
+const stripLeadingId3Tags = (bytes) => {
+  let audio = bytes;
+  while (audio.subarray(0, 3).toString('ascii') === 'ID3') {
+    if (
+      audio.length < 10 ||
+      ![2, 3, 4].includes(audio[3]) ||
+      audio.subarray(6, 10).some((byte) => byte >= 128)
+    )
+      throw new Error('invalid ID3 header');
+    const size = audio
+      .subarray(6, 10)
+      .reduce((value, byte) => value * 128 + byte, 0);
+    const footer = audio[3] === 4 && (audio[5] & 16) !== 0;
+    const end = 10 + size + (footer ? 10 : 0);
+    if (end >= audio.length) throw new Error('ID3 tag exceeds audio payload');
+    if (
+      footer &&
+      !audio
+        .subarray(end - 10, end)
+        .equals(Buffer.concat([Buffer.from('3DI'), audio.subarray(3, 10)]))
+    )
+      throw new Error('invalid ID3 footer');
+    audio = audio.subarray(end);
+  }
+  return audio;
+};
+
+const stripAppendedId3Tags = (bytes) => {
+  let audio = bytes;
+  // Appended ID3v2.4 tags require a footer. ID3v1, if present, follows them.
+  while (
+    audio.length >= 10 &&
+    audio.subarray(-10, -7).toString('ascii') === '3DI'
+  ) {
+    const footer = audio.subarray(-10);
+    if (
+      footer[3] !== 4 ||
+      footer[4] === 255 ||
+      (footer[5] & 16) === 0 ||
+      (footer[5] & 15) !== 0 ||
+      footer.subarray(6, 10).some((byte) => byte >= 128)
+    )
+      throw new Error('invalid appended ID3 footer');
+    const size = footer
+      .subarray(6, 10)
+      .reduce((value, byte) => value * 128 + byte, 0);
+    const start = audio.length - size - 20;
+    if (start <= 0) throw new Error('appended ID3 tag exceeds audio payload');
+    if (
+      !audio
+        .subarray(start, start + 10)
+        .equals(Buffer.concat([Buffer.from('ID3'), footer.subarray(3)]))
+    )
+      throw new Error('invalid appended ID3 header');
+    audio = audio.subarray(0, start);
+  }
+  return audio;
+};
+
+export const stripMp3Tags = (bytes) => {
+  let audio = stripLeadingId3Tags(bytes);
+  if (
+    audio.length >= 128 &&
+    audio.subarray(-128, -125).toString('ascii') === 'TAG'
+  )
+    audio = audio.subarray(0, -128);
+  audio = stripAppendedId3Tags(audio);
+  if (!audio.length) throw new Error('MP3 has no audio payload');
+  return audio;
+};
+
 export const copySounds = (root = native) => {
   const lock = JSON.parse(
     readFileSync(join(root, 'sounds/sounds.lock.json'), 'utf8'),
@@ -297,7 +373,7 @@ export const copySounds = (root = native) => {
   const target = join(root, 'assets/sfx');
   rmSync(target, { recursive: true, force: true });
   mkdirSync(target, { recursive: true });
-  writeFileSync(join(target, sprite.file), bytes);
+  writeFileSync(join(target, sprite.file), stripMp3Tags(bytes));
   return [sprite.file];
 };
 
@@ -312,18 +388,28 @@ export const copyMusic = (root = native) => {
   const catalogue = join(root, 'music/music.json');
   if (!existsSync(catalogue)) return [];
   const bytes = readFileSync(catalogue);
-  const { tracks } = JSON.parse(bytes.toString('utf8'));
+  const packaged = JSON.parse(bytes.toString('utf8'));
+  const { tracks } = packaged;
   const copied = [];
+  const digests = new Map();
   for (const { file, sha256 } of Object.values(tracks)) {
     if (copied.includes(file)) continue;
     const data = readFileSync(join(root, 'music', file));
     if (createHash('sha256').update(data).digest('hex') !== sha256)
       throw new Error(`music/${file} no longer matches music/music.json`);
     mkdirSync(dirname(join(target, file)), { recursive: true });
-    writeFileSync(join(target, file), data);
+    const audio = stripMp3Tags(data);
+    writeFileSync(join(target, file), audio);
+    digests.set(file, createHash('sha256').update(audio).digest('hex'));
     copied.push(file);
   }
-  writeFileSync(join(target, 'music.json'), bytes);
+  // The vendor catalogue pins inputs; the packaged catalogue pins outputs.
+  for (const track of Object.values(tracks))
+    track.sha256 = digests.get(track.file);
+  writeFileSync(
+    join(target, 'music.json'),
+    JSON.stringify(packaged, null, 2) + '\n',
+  );
   return copied;
 };
 
@@ -445,7 +531,7 @@ export const copyVoices = (root = native) => {
     if (createHash('sha256').update(data).digest('hex') !== sha256)
       throw new Error(`voices/${file} no longer matches voices/voices.json`);
     mkdirSync(dirname(join(target, file)), { recursive: true });
-    writeFileSync(join(target, file), data);
+    writeFileSync(join(target, file), stripMp3Tags(data));
     copied.push(file);
   }
   return copied;

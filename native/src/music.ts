@@ -79,10 +79,12 @@ type Player = Pick<
   | 'initialize'
   | 'deinitialize'
   | 'play'
-  | 'pause'
   | 'src'
   | 'currentTime'
   | 'volume'
+  | 'duration'
+  | 'addEventListener'
+  | 'removeEventListener'
 >;
 
 export type Clock = {
@@ -112,9 +114,9 @@ export const END_FADE_MS = 1000;
 export const DUCK_DB = -9;
 export const DUCK_MS = 200;
 export const UNDUCK_MS = 600;
-// How long a pass may take to be heard before its crossfade goes ahead anyway.
+// How long a pass may take to be heard before it fails, keeping working music.
 export const START_WAIT_MS = 2000;
-// Fresh players kept ready: enough for a change of level during a seam.
+// Constructed players kept ready: enough for a change of level during a seam.
 export const SPARE_PLAYERS = 2;
 
 const realClock: Clock = {
@@ -148,7 +150,7 @@ type Voice = {
   since: number;
   ms: number;
   // A pass not heard yet waits, silent, for its position to move from
-  // `startAt`, or for START_WAIT_MS from `waitSince`. Then its fade-in starts,
+  // `startAt`. Then its fade-in starts,
   // and so does the fading out of what it replaces (`onStart`).
   waiting: boolean;
   startAt: number;
@@ -157,6 +159,9 @@ type Voice = {
   playing: boolean;
   // The seam to the next pass has been started on the other voice.
   seamed: boolean;
+  started: boolean;
+  detach: () => void;
+  fail: ((error: unknown) => void) | null;
 };
 
 const gainOf = (db: number): number => Math.min(1, 10 ** (db / 20));
@@ -175,6 +180,9 @@ export function createMusic({
   let enabled = true;
   let volume = 1;
   let suspended = false;
+  // Retry a failed theme only on an explicit request or foreground return,
+  // rather than making an unbounded stream of players for a broken decoder.
+  let failedRole: MusicRole | null = null;
   // Silence until then, after a result.
   let holdUntil = 0;
   let cancelHold: (() => void) | null = null;
@@ -230,15 +238,14 @@ export function createMusic({
 
   const which = (voice: Voice) => voices?.indexOf(voice) ?? -1;
 
-  // The players made ready, and how many are still initialising.
+  // Constructed spares have no native pipeline until a pass is requested.
   const spares: Player[] = [];
-  let pending = 0;
 
   // A voice that stops lets its player go: one that has loaded a track keeps
   // working even paused.
   const stop = (voice: Voice) => {
     if (voice.playing) {
-      remember(voice);
+      safely('position', () => remember(voice));
       report(`music: player ${which(voice)} stops ${voice.role}`);
     }
     voice.playing = false;
@@ -247,15 +254,23 @@ export function createMusic({
     voice.from = 0;
     voice.waiting = false;
     voice.onStart = [];
+    voice.started = false;
+    voice.fail = null;
     const player = voice.player;
     voice.player = null;
     if (!player) return;
-    safely('pause', () => player.pause());
-    player
-      .deinitialize()
-      .catch((error: unknown) =>
-        report(`music: player not released: ${String(error)}`),
-      );
+    safely('listeners', voice.detach);
+    voice.detach = () => undefined;
+    // Immediate silence also covers Home. Do not pause an ended pipeline
+    // before releasing it: that stalls GStreamer on the updated Stick.
+    safely('mute', () => (player.volume = 0));
+    safely('release', () => {
+      player
+        .deinitialize()
+        .catch((error: unknown) =>
+          report(`music: player not released: ${String(error)}`),
+        );
+    });
   };
 
   // Where a voice's fade is at `now`.
@@ -310,14 +325,77 @@ export function createMusic({
     report(
       `music: player ${which(voice)} plays ${next} from ${position.toFixed(1)} s, fading in over ${fadeMs} ms`,
     );
-    safely('play', () => {
-      player.src = `${root}/${track.file}`;
-      void player.play().then(
-        () => safely('seek', () => (player.currentTime = position)),
-        (error: unknown) => report(`music: play failed: ${String(error)}`),
-      );
-    });
     voice.playing = true;
+    const failed = (error: unknown) => {
+      if (voice.player !== player) return;
+      report(`music: play failed: ${String(error)}`);
+      failedRole = next;
+      // A failed pass has no position worth remembering.
+      voice.playing = false;
+      stop(voice);
+      if (wanted(clock.now() < holdUntil) === null) return;
+      for (const other of voices ?? []) {
+        if (other === voice || !other.playing || other.waiting) continue;
+        other.seamed = false;
+        fadeTo(other, 1, CROSSFADE_MS);
+      }
+    };
+    voice.fail = failed;
+    const onError = () => failed('media error');
+    const onEnded = () => {
+      // Let the native end notification return before destroying its player.
+      // If a seam failed, the old pass still needs releasing at its own EOF.
+      clock.after(0, () => {
+        if (voice.player !== player) return;
+        stop(voice);
+        reconcile();
+      });
+    };
+    const onPlaying = () => {
+      if (voice.player !== player || voice.started) return;
+      voice.started = true;
+      try {
+        // Seeking after playing has actual metadata avoids another load/seek
+        // race. The pass is still silent until its position moves from here.
+        if (position > 0) player.currentTime = position;
+      } catch (error) {
+        failed(error);
+      }
+    };
+    let requested = false;
+    const onCanPlay = () => {
+      if (voice.player !== player || requested) return;
+      try {
+        if (!Number.isFinite(player.duration) || player.duration <= 0) return;
+        requested = true;
+        void player.play().catch(failed);
+      } catch (error) {
+        failed(error);
+      }
+    };
+    voice.detach = () => {
+      player.removeEventListener('error', onError);
+      player.removeEventListener('ended', onEnded);
+      player.removeEventListener('playing', onPlaying);
+      player.removeEventListener('canplay', onCanPlay);
+    };
+    try {
+      player.addEventListener('error', onError);
+      player.addEventListener('ended', onEnded);
+      player.addEventListener('playing', onPlaying);
+      player.addEventListener('canplay', onCanPlay);
+      void player.initialize().then(() => {
+        if (voice.player !== player) return;
+        try {
+          player.src = `${root}/${track.file}`;
+        } catch (error) {
+          failed(error);
+        }
+      }, failed);
+    } catch (error) {
+      failed(error);
+      return false;
+    }
     ticking();
     return true;
   };
@@ -337,15 +415,19 @@ export function createMusic({
 
   // A pass is heard once its player's position moves. Its fade-in is dated from
   // then, as near as the position tells, and only then does what it replaces
-  // start to fade out. One not heard within START_WAIT_MS goes ahead anyway.
+  // start to fade out. A pass with no progress times out instead of replacing
+  // audible music with silence when the media stack never sends an error.
   const heard = (voice: Voice, now: number) => {
     if (!voice.waiting || !voice.player || voice.target === 0) return;
     const at = voice.player.currentTime;
-    const moved = Number.isFinite(at) && at > voice.startAt + 0.01;
-    if (!moved && now - voice.waitSince < START_WAIT_MS) return;
-    const began = moved
-      ? Math.max(voice.waitSince, now - (at - voice.startAt) * 1000)
-      : now;
+    const moved =
+      voice.started && Number.isFinite(at) && at > voice.startAt + 0.01;
+    if (!moved) {
+      if (now - voice.waitSince >= START_WAIT_MS)
+        voice.fail?.('playback did not start');
+      return;
+    }
+    const began = Math.max(voice.waitSince, now - (at - voice.startAt) * 1000);
     voice.waiting = false;
     voice.fade = 0;
     voice.from = 0;
@@ -361,7 +443,14 @@ export function createMusic({
   const handOver = (voice: Voice, other: Voice): boolean => {
     const { role: theme, track } = voice;
     if (!voice.playing || voice.target !== 1 || voice.fade < 1) return false;
-    if (voice.seamed || !theme || !track || other.playing) return false;
+    if (
+      voice.seamed ||
+      !theme ||
+      !track ||
+      other.playing ||
+      failedRole === theme
+    )
+      return false;
     const player = voice.player;
     if (!player) return false;
     if (player.currentTime < track.loopEnd - SEAM_MS / 1000) return false;
@@ -486,6 +575,7 @@ export function createMusic({
       ticking();
       return;
     }
+    if (want === failedRole) return;
     // The wanted theme, heard or waiting to be: any other theme still on its
     // way in is turned away. One already fading in or out is left alone.
     const onItsWay = voices.some(
@@ -507,9 +597,9 @@ export function createMusic({
     ticking();
   };
 
-  // Makes players until SPARE_PLAYERS are ready or on their way.
+  // Keeps lightweight players ready; native initialization waits for a pass.
   function refill() {
-    while (spares.length + pending < SPARE_PLAYERS) {
+    while (spares.length < SPARE_PLAYERS) {
       let player: Player;
       try {
         player = createPlayer();
@@ -517,19 +607,8 @@ export function createMusic({
         report(`music: player not created: ${String(error)}`);
         return;
       }
-      pending++;
-      player.initialize().then(
-        () => {
-          pending--;
-          spares.push(player);
-          ready = true;
-          reconcile();
-        },
-        (error: unknown) => {
-          pending--;
-          report(`music: player not initialised: ${String(error)}`);
-        },
-      );
+      spares.push(player);
+      ready = true;
     }
   }
 
@@ -550,12 +629,16 @@ export function createMusic({
       onStart: [],
       playing: false,
       seamed: false,
+      started: false,
+      detach: () => undefined,
+      fail: null,
     }));
     refill();
   };
 
   return {
     setRole(next, pauseMs = 0) {
+      failedRole = null;
       cancelHold?.();
       cancelHold = null;
       holdUntil = pauseMs > 0 ? clock.now() + pauseMs : 0;
@@ -569,6 +652,7 @@ export function createMusic({
       reconcile();
     },
     setEnabled(on) {
+      if (enabled !== on) failedRole = null;
       enabled = on;
       reconcile();
     },
@@ -595,6 +679,7 @@ export function createMusic({
       cancelResume = clock.after(RESUME_DELAY_MS, () => {
         cancelResume = null;
         suspended = false;
+        failedRole = null;
         if (!voices || !ready) return reconcile();
         const want = role && catalogue?.tracks[role] ? role : null;
         report(want ? `music: resumed on ${want}` : 'music: resumed');
@@ -618,6 +703,7 @@ export function createMusic({
       if (heard) ticking();
     },
     setCatalogue(next) {
+      failedRole = null;
       const roles = next ? Object.keys(next.tracks).join(', ') : '';
       report(
         next
