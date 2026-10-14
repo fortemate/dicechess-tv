@@ -32,7 +32,7 @@ This Fire TV app is new. Its repository started on 21 September 2026, during [Bu
 - saving;
 - the computer opponents' turns, shown one action at a time, with each piece sliding to its square.
 
-Version 1.0.0 was released on GitHub on 10 October 2026 and submitted to the Amazon Appstore, where it awaits Amazon's review ([Get the game](/play/beta/)).
+Version 1.0.1, build 30, was released on GitHub on 14 October 2026. The owner reported submitting it to the Amazon Appstore for review; approval has not been confirmed ([Get the game](/play/beta/)).
 
 It takes the rules from the engine's npm package, so the TV app and the web game play by the same rules.
 

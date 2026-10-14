@@ -1,21 +1,21 @@
 ---
 title: Get the game
-description: How to get Dice Chess 1.0.0 for Fire TV, on a Fire TV Stick in developer mode or on the Vega Virtual Device, where it stands on the Amazon Appstore, and how to tell us what you found.
+description: How to get Dice Chess 1.0.1, build 30, for Fire TV, install it on a Vega device, and give feedback. Its Amazon Appstore submission is awaiting review.
 sidebar:
   order: 3
 ---
 
-Dice Chess 1.0.0, the first release, was published on GitHub on 10 October 2026 as build 26, and again on 11 October as build 28, which replaced it. It is free and in English, and it needs no account.
+Dice Chess 1.0.1, build 30, was published on GitHub on 14 October 2026. It improves voice playback, player cleanup and music recovery after the Vega OS update. It is free and in English, and it needs no account.
 
 ## From GitHub
 
-The [1.0.0 release, build 28](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.0%2B28), carries three packages, the same app built for three processors, and `SHA256SUMS.txt`:
+The [1.0.1 release, build 30](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.1%2B30) carries three packages, the same app built for three processors, and `SHA256SUMS.txt`:
 
-| File                               | Install it on                                       |
-| ---------------------------------- | --------------------------------------------------- |
-| `dicechess-tv-native_armv7.vpkg`   | A Fire TV Stick with Vega OS, in developer mode     |
-| `dicechess-tv-native_aarch64.vpkg` | The Vega Virtual Device on a Mac with Apple silicon |
-| `dicechess-tv-native_x86_64.vpkg`  | The Vega Virtual Device on Linux or on an Intel Mac |
+| File                               | Install it on                                         |
+| ---------------------------------- | ----------------------------------------------------- |
+| `dicechess-tv-native_armv7.vpkg`   | A Fire TV Stick 4K Select (Vega OS) in developer mode |
+| `dicechess-tv-native_aarch64.vpkg` | The Vega Virtual Device on a Mac with Apple silicon   |
+| `dicechess-tv-native_x86_64.vpkg`  | The Vega Virtual Device on Linux or on an Intel Mac   |
 
 The characters' portraits are Fortemate's and stay out of the public repository, so in these packages the three computer opponents show emoji faces in their place, and Prowla and Thinkle show none. Otherwise they are the app submitted to the Amazon Appstore.
 
@@ -34,11 +34,11 @@ vega device launch-app -a com.fortemate.dicechesstv.main
 
 For the Virtual Device, install the `aarch64` or the `x86_64` package instead. With more than one device connected, add `-d` and the device's serial number, as `vega device list` shows it.
 
-1.0.0 installs over beta 8 or a later build and keeps the game in progress, your results and your settings. A lower build cannot be installed over it. The [playtest guide](https://github.com/fortemate/dicechess-tv/blob/main/docs/playtest.md) in the repository has more on installing and removing the app.
+The 1.0.1/build 30 candidate was installed over 1.0.0/build 29 on both the Stick and the Virtual Device, preserving the game, results and settings. The final release has the same application payload. A lower build cannot be installed over a higher one. The [playtest guide](https://github.com/fortemate/dicechess-tv/blob/main/docs/playtest.md) has more on installing and removing the app.
 
 ## On the Amazon Appstore
 
-Version 1.0.0, build 28, built from the same commit with the portraits, has been submitted to the Amazon Appstore and is awaiting Amazon's review. It replaced build 26, which was withdrawn from review before it went live. It is not in the store yet.
+The owner reported submitting version 1.0.1, build 30, to the Amazon Appstore for review on 14 October 2026. The separate armv7 Appstore package includes the portraits. Approval and store availability have not been confirmed; the packages linked above are available from GitHub for installation with the Vega SDK.
 
 ## What to try
 
@@ -59,7 +59,7 @@ Say which build you played, and whether on a Fire TV Stick or on the Virtual Dev
 
 ## What this build is
 
-- **Version 1.0.0, build 28**, built from commit `d4ffdaa` with the Vega SDK 0.24. Since build 26 it narrows Auto-select only choice to the only move, and its Appstore build redraws Thinkle's hand.
-- **Tested on** the Vega Virtual Device, where each feature was played, and by the app's automated tests. On a Fire TV Stick 4K Select, on 11 October 2026, the Appstore build of the same commit was installed over an earlier build, kept the saved game and opened on the home menu with no errors from the app in the device log ([release notes](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.0%2B28)). On 10 October the Appstore build of build 26 had been checked there for Settings with the music row and Play as, muting and unmuting the music, Main menu and Resume game, the opponent cards, and the confirmation before a game in play is replaced. Earlier builds were checked on the Stick for the launch, the response to the remote, the dice's tumble, the return from Home and Auto-select only choice ([Performance](/technology/performance/)).
+- **Version 1.0.1, build 30**, built from commit `5a8bc32` with Vega SDK 0.24 and engine 0.14.7. It includes the playback lifecycle fixes in [PR #388](https://github.com/fortemate/dicechess-tv/pull/388).
+- **Tested on** the Vega Virtual Device and a physical Fire TV Stick 4K Select, separately, with 919 automated tests also passing for the candidate. Device checks covered upgrade preservation, saved-turn recovery, settings, navigation and sustained play against Rampage and a friend, with shorter Rolly/Grabby runs. The final-main packages have the same application payload, and the published downloads were checked against their SHA-256 manifest. The owner additionally reported checking the Stick and finding everything working well. The [release validation record](https://github.com/fortemate/dicechess-tv/blob/main/docs/release-validation-1.0.1-build30.md) records the exact scope and limits, separately from the [earlier audio checks](https://github.com/fortemate/dicechess-tv/blob/main/docs/audio-regression-validation-387.md).
 - **Private:** it has no network code, no accounts and no analytics. Games, results and settings stay on the TV. The [privacy policy](/privacy/) has the details.
 - **English only** for now.

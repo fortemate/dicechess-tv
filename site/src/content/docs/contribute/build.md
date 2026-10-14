@@ -123,10 +123,10 @@ Without `resolver.nodeModulesPaths`, it fails with `Unable to resolve module @ba
 
 ### "Package version decrease" Error
 
-A device refuses a build numbered lower than the one installed, such as a beta or a release from GitHub Releases or the Amazon Appstore. `mise run build` and `mise run device:run` number a local build as the latest beta or release, which they read from the tags, so it installs over that build and keeps its saved game. A beta tag ends in its build number (`v0.1.0-beta.24`) and a release tag carries it after a `+` (`v1.0.0+26`); see "Releases" in [CONTRIBUTING.md](https://github.com/fortemate/dicechess-tv/blob/main/CONTRIBUTING.md#releases). A direct `npm run build --prefix native` builds with number 0: give it the latest number, 28 since build 28 of 1.0.0, or a higher one.
+A device refuses a build numbered lower than the one installed, such as a beta or a release from GitHub Releases or the Amazon Appstore. `mise run build` and `mise run device:run` number a local build as the latest beta or release, which they read from the tags, so it installs over that build and keeps its saved game. A beta tag ends in its build number (`v0.1.0-beta.24`) and a release tag carries it after a `+` (`v1.0.1+30`); see "Releases" in [CONTRIBUTING.md](https://github.com/fortemate/dicechess-tv/blob/main/CONTRIBUTING.md#releases). A direct `npm run build --prefix native` builds with number 0: give it the latest number, 30 since the 1.0.1 release on 14 October 2026, or a higher one.
 
 ```bash
-npm run build --prefix native -- --build-number 28
+npm run build --prefix native -- --build-number 30
 ```
 
 `BUILD_NUMBER=26 mise run device:run` sets the number by hand. Removing the app (`vega device uninstall-app -d VirtualDevice -a com.fortemate.dicechesstv.main`) also works, but it deletes the saved game, the results and the settings.
