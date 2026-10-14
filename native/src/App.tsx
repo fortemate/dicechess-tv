@@ -124,8 +124,14 @@ export const App = ({
       // cycle completes before search computation begins; off-thread search is
       // tracked in #260.
       reply: (game) =>
-        new Promise((resolve) => {
-          setTimeout(() => resolve(botReply(game)), 0);
+        new Promise((resolve, reject) => {
+          setTimeout(() => {
+            try {
+              resolve(botReply(game));
+            } catch (error) {
+              reject(error);
+            }
+          }, 0);
         }),
     };
   }, [injected]);
