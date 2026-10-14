@@ -5,23 +5,19 @@
 // - critical: some roll lets that side take the king with its first action. The
 //   king is attacked, and only the right die is missing;
 // - tense: at least TENSE_WEIGHT of the 216 rolls let it take the king within
-//   its first two actions;
+//   up to three actions (#382);
 // - calm: neither.
 //
-// Both use the engine's pseudo-legal generator rather than the legal turn tree:
-// a path that takes the king is legal whatever the rule of using as many dice as
-// possible says, and on 200 engine positions the two agreed every time.
+// Both use the engine's exact `threatWeight` call (#382): an exact, low-allocation
+// search sitting directly on the engine's bitboards, avoiding move generation and
+// position serialization in JavaScript.
 //
 // Tense used to look three actions deep, searching each of the 56 distinct
 // rolls on its own: thousands of engine calls a turn, which on a Fire TV Stick
 // held the JavaScript thread, and the remote with it, for seconds at a time
-// (#365). Now the two actions are searched once for every roll. A position
-// without dice gives the moves of every piece type, each path to the king notes
-// the dice it spends, and the rolls holding those dice are counted. That is a
-// move generation and an application for each first action, a few dozen engine
-// calls, so the level is known at once and nothing is left to run while the
-// person plays. A threat that needs all three actions is no longer heard as
-// tense; the owner chose that trade on 13 October 2026.
+// (#365). A two-action search was used briefly as a trade-off (#381); now with
+// `DiceChess.threatWeight` in engine 0.14.6, three actions are restored with
+// minimal overhead.
 import { DiceChess } from '@fortemate/dicechess-engine';
 import { opposite, type Game, type Side } from './game.ts';
 
@@ -57,18 +53,6 @@ export const ROLLS: readonly { dice: readonly number[]; weight: number }[] =
     return rolls;
   })();
 
-// The die that names each piece.
-const DIE: Readonly<Record<string, number>> = {
-  p: 1,
-  n: 2,
-  b: 3,
-  r: 4,
-  q: 5,
-  k: 6,
-};
-const KING = DIE.k;
-const ROOK = DIE.r;
-
 // The pieces of a position, by square.
 function piecesOf(dfen: string): Map<string, string> {
   const pieces = new Map<string, string>();
@@ -91,74 +75,22 @@ export function kingSquare(dfen: string, side: Side): string | null {
   return null;
 }
 
-// The dice a move spends: its piece's, and a rook's as well when the king
-// castles, which moves it two files. A move from an empty square is an engine
-// fault: no dice would make every roll play it.
-function diceOf(pieces: Map<string, string>, move: string): number[] {
-  const piece = pieces.get(move.slice(0, 2));
-  if (!piece) throw new Error('No piece moves ' + move);
-  const die = DIE[piece.toLowerCase()];
-  const files = Math.abs(move.charCodeAt(0) - move.charCodeAt(2));
-  return die === KING && files === 2 ? [KING, ROOK] : [die];
-}
-
-const takes = (move: string, target: string) => move.slice(2, 4) === target;
-
 // How many of the 216 rolls let the side to move take the king on `target` with
 // its first action: those showing a die of any piece type that attacks it.
 export function firstActionWeight(dfen: string, target: string): number {
-  const pieces = piecesOf(dfen);
-  const types = new Set<number>();
-  for (const move of DiceChess.generateMoves(dfen))
-    if (takes(move, target)) types.add(diceOf(pieces, move)[0]);
-  return 216 - (6 - types.size) ** 3;
-}
-
-// Whether a roll holds every die of `dice`, a die repeated as often as it is
-// listed.
-function holds(roll: readonly number[], dice: readonly number[]): boolean {
-  const left = [...roll];
-  for (const die of dice) {
-    const at = left.indexOf(die);
-    if (at === -1) return false;
-    left.splice(at, 1);
-  }
-  return true;
+  return DiceChess.threatWeight(dfen, target, 1);
 }
 
 // How many of the 216 rolls let the side to move of `dfen`, a position before
 // its roll, take the king on `target` within its first two actions.
-//
-// The position has no dice, so the engine gives the moves of every piece type,
-// and each path to the king is noted with the dice it spends: a roll that holds
-// them can play it. A castling spends two dice, which leaves room for the second
-// action and no more.
 export function twoActionWeight(dfen: string, target: string): number {
-  const paths: number[][] = [];
-  const pieces = piecesOf(dfen);
-  for (const first of DiceChess.generateMoves(dfen)) {
-    const spent = diceOf(pieces, first);
-    if (takes(first, target)) {
-      paths.push(spent);
-      continue;
-    }
-    const next = DiceChess.applyMove(
-      dfen,
-      first.slice(0, 2),
-      first.slice(2, 4),
-      first.slice(4) || undefined,
-    );
-    if (!next) continue;
-    const after = piecesOf(next);
-    for (const second of DiceChess.generateMoves(next)) {
-      if (takes(second, target))
-        paths.push([...spent, ...diceOf(after, second)]);
-    }
-  }
-  let weight = 0;
-  for (const { dice, weight: rolls } of ROLLS)
-    if (paths.some((path) => holds(dice, path))) weight += rolls;
-  return weight;
+  return DiceChess.threatWeight(dfen, target, 2);
+}
+
+// How many of the 216 rolls let the side to move of `dfen`, a position before
+// its roll, take the king on `target` within up to three actions (#382).
+export function threeActionWeight(dfen: string, target: string): number {
+  return DiceChess.threatWeight(dfen, target, 3);
 }
 
 // The danger the side to move of `dfen`, a position before its roll, poses to
@@ -172,7 +104,7 @@ export function measureDanger(
   if (!target) return 'calm';
   if (firstActionWeight(dfen, target) > 0) return 'critical';
   if (!tense) return 'calm';
-  return twoActionWeight(dfen, target) >= TENSE_WEIGHT ? 'tense' : 'calm';
+  return threeActionWeight(dfen, target) >= TENSE_WEIGHT ? 'tense' : 'calm';
 }
 
 const highest = (a: Level, b: Level): Level => (RANK[a] >= RANK[b] ? a : b);

@@ -70,9 +70,9 @@ test('a measure waits while the app is away, runs once it is back, and a replace
   }
 });
 
-// The measure asks the engine for moves, and in Hot Seat for the position as
+// The measure asks the engine for threatWeight, and in Hot Seat for the position as
 // if the side to move passed.
-for (const method of ['endTurn', 'generateMoves'] as const)
+for (const method of ['endTurn', 'threatWeight'] as const)
   test(`a danger measure whose ${method} throws is heard as a calm turn, not a closed app`, (t) => {
     // The app's scheduler: the measure waits for a timer, as it waits for a
     // frame on the device, so a throw in it happens outside any render.
@@ -192,14 +192,14 @@ const againstRampage = (id: string, start: string): Game => ({
   turn: 3,
 });
 
-test('with no music heard, a critical turn against the computer is one move generation, and the threat is still said (#368)', (t) => {
+test('with no music heard, a critical turn against the computer is one threat evaluation, and the threat is still said (#368)', (t) => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
-  const generate = t.mock.method(DiceChess, 'generateMoves');
+  const threat = t.mock.method(DiceChess, 'threatWeight');
   const r = rig();
   try {
     r.show(againstRampage('threat', THREATENED), false);
     assert.equal(r.finish(), 1);
-    assert.equal(generate.mock.callCount(), 1);
+    assert.equal(threat.mock.callCount(), 1);
     assert.match(r.reports.at(-1)!, /^danger critical in \d+ ms$/);
     assert.equal(r.level(), 'critical');
     assert.equal(r.line()?.event, 'threat');
@@ -213,13 +213,13 @@ test('with no music heard, a critical turn against the computer is one move gene
 });
 
 test('Hot Seat with no music heard starts no search, and music turned on measures the turn at once (#368)', (t) => {
-  const generate = t.mock.method(DiceChess, 'generateMoves');
+  const threat = t.mock.method(DiceChess, 'threatWeight');
   const r = rig();
   try {
     const game = newGame('hotseat', 'friends', CRITICAL);
     r.show(game, false);
     assert.equal(r.waiting(), 0);
-    assert.equal(generate.mock.callCount(), 0);
+    assert.equal(threat.mock.callCount(), 0);
     assert.deepEqual(r.reports, []);
     assert.equal(r.level(), 'calm');
     // In the middle of the turn, not from the next one.

@@ -4,9 +4,29 @@ export const AudioContentType = { CONTENT_TYPE_SONIFICATION: 4 };
 export const AudioUsageType = { USAGE_GAME: 6 };
 
 export const audioLog = [];
+const players = new Map();
+
+// Native events are independent of play() resolving. Tests choose when the
+// decoder ends a clip or fails it, including after a stop or replacement.
+export function audioEvent(id, event) {
+  players.get(id)?.emit(event);
+}
+
+export function audioListenerCount(id) {
+  return [...(players.get(id)?.listeners.values() ?? [])].reduce(
+    (total, listeners) => total + listeners.size,
+    0,
+  );
+}
 
 // Test-only: make the next players fail where a device's media stack might.
-const failing = { initialize: false, play: false, pause: false };
+const failing = {
+  initialize: false,
+  play: false,
+  pause: false,
+  deinitialize: false,
+  deinitializeAsync: false,
+};
 export function failAudio(stage) {
   failing[stage] = true;
 }
@@ -43,13 +63,28 @@ export class AudioPlayer {
     this._volume = 1;
     this.id = audioLog.filter((entry) => entry.event === 'create').length;
     this._src = '';
+    this.initialized = false;
+    this.duration = Number.NaN;
+    this.released = false;
+    this.listeners = new Map();
+    players.set(this.id, this);
     audioLog.push({ event: 'create', player: this.id, contentType, usage });
   }
   initialize() {
     audioLog.push({ event: 'initialize', player: this.id });
     if (failing.initialize)
       return Promise.reject(new Error('media pipeline unavailable'));
-    return held ? new Promise((done) => held.push(done)) : Promise.resolve();
+    const ready = held
+      ? new Promise((done) => held.push(done))
+      : Promise.resolve();
+    return ready.then(() => {
+      if (this.released) return;
+      this.initialized = true;
+      if (this._src) {
+        this.duration = 1;
+        this.emit('canplay');
+      }
+    });
   }
   get currentTime() {
     return this._time;
@@ -71,6 +106,10 @@ export class AudioPlayer {
   set src(value) {
     this._src = value;
     audioLog.push({ event: 'src', player: this.id, src: value });
+    if (this.initialized) {
+      this.duration = 1;
+      this.emit('canplay');
+    }
   }
   play() {
     audioLog.push({
@@ -81,16 +120,32 @@ export class AudioPlayer {
       volume: this._volume,
     });
     if (failing.play) return Promise.reject(new Error('not supported'));
-    return starting
+    const played = starting
       ? new Promise((done) => starting.push(done))
       : Promise.resolve();
+    return played.then(() => this.emit('playing'));
   }
   pause() {
     if (failing.pause) throw new Error('not supported');
     audioLog.push({ event: 'pause', player: this.id });
   }
+  addEventListener(event, listener) {
+    const listeners = this.listeners.get(event) ?? new Set();
+    listeners.add(listener);
+    this.listeners.set(event, listeners);
+  }
+  removeEventListener(event, listener) {
+    this.listeners.get(event)?.delete(listener);
+  }
+  emit(event) {
+    for (const listener of [...(this.listeners.get(event) ?? [])]) listener();
+  }
   deinitialize() {
+    this.released = true;
     audioLog.push({ event: 'deinitialize', player: this.id });
+    if (failing.deinitialize) throw new Error('native release refused');
+    if (failing.deinitializeAsync)
+      return Promise.reject(new Error('native release rejected'));
     return Promise.resolve();
   }
 }
@@ -98,9 +153,12 @@ export class AudioPlayer {
 // Test-only: forget every player, as a fresh launch would.
 export function resetAudio() {
   audioLog.length = 0;
+  players.clear();
   failing.initialize = false;
   failing.play = false;
   failing.pause = false;
+  failing.deinitialize = false;
+  failing.deinitializeAsync = false;
   held = null;
   starting = null;
 }

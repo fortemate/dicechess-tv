@@ -8,12 +8,15 @@ import {
   releaseAudio,
   holdPlays,
   releasePlays,
+  audioEvent,
+  audioListenerCount,
 } from './stubs/react-native-w3cmedia.mjs';
 import {
   createSounds as createAppSounds,
   CLIP_LEAD_SECONDS,
   CLIP_TAIL_MS,
   LINE_TAIL_MS,
+  LINE_TIMEOUT_MS,
   RESULT_LINE_DELAY_MS,
   SPARE_PLAYERS,
   speechTiming,
@@ -57,7 +60,11 @@ const clipOf = (entry: Entry) =>
 // The app's sounds, with the end of each clip held unless a test passes its
 // own: a timer left running would reach the next test's log.
 const createSounds = (options: SoundOptions = {}) =>
-  createAppSounds({ endClip: () => undefined, ...options });
+  createAppSounds({
+    later: () => undefined,
+    endClip: () => undefined,
+    ...options,
+  });
 
 // The ends of clips handed over instead of run, for the test to run when it
 // says.
@@ -104,6 +111,11 @@ test('a player for each channel loads the effects once, and one is made ready fo
     assert.equal(entry.contentType, 4);
     assert.equal(entry.usage, 6);
   }
+  assert.equal(
+    log().filter((entry) => entry.event === 'initialize').length,
+    3,
+    'unused voice spares must not open native pipelines',
+  );
   assert.deepEqual(
     log()
       .filter((entry) => entry.event === 'src')
@@ -112,22 +124,123 @@ test('a player for each channel loads the effects once, and one is made ready fo
   );
 });
 
+test('a voice initializes before loading its source and starts only once', async () => {
+  resetAudio();
+  const sounds = createSounds();
+  sounds.say(line('rolly_capture_2'));
+  await settle();
+  const said = plays()[0];
+  const calls = log()
+    .filter((entry) => entry.player === said.player)
+    .map((entry) => entry.event);
+  assert.ok(calls.indexOf('initialize') < calls.indexOf('src'));
+  assert.equal(
+    calls.filter((event) => event === 'play').length,
+    1,
+    'readiness must start playback only once',
+  );
+  sounds.stopLine();
+});
+
+test('early readiness without metadata cannot start a voice', async () => {
+  resetAudio();
+  holdAudio();
+  const sounds = createSounds();
+  sounds.say(line('rolly_capture_2'));
+  const player = log().find(
+    (entry) => entry.event === 'initialize' && entry.player >= 3,
+  )!.player;
+  audioEvent(player, 'canplay');
+  audioEvent(player, 'loadedmetadata');
+  assert.equal(plays().length, 0);
+  releaseAudio();
+  await settle();
+  audioEvent(player, 'canplay');
+  audioEvent(player, 'loadedmetadata');
+  assert.equal(plays().filter((entry) => entry.player === player).length, 1);
+  sounds.stopLine();
+});
+
+test('the watchdog also bounds initialization that never finishes', async () => {
+  resetAudio();
+  holdAudio();
+  const time = clock();
+  const sounds = createSounds({ later: time.later });
+  sounds.say(line('rolly_capture_2'));
+  time.elapse();
+  assert.equal(released().length, 1);
+  releaseAudio();
+  await settle();
+  assert.equal(plays().length, 0);
+  assert.equal(released().length, 1);
+});
+
+test('a cancelled initialization failure cannot report or start an old line', async () => {
+  resetAudio();
+  const reports: string[] = [];
+  const sounds = createSounds({ report: (message) => reports.push(message) });
+  failAudio('initialize');
+  sounds.say(line('rolly_capture_2'));
+  sounds.stopLine();
+  await settle();
+  assert.equal(plays().length, 0);
+  assert.equal(released().length, 1);
+  assert.deepEqual(reports, []);
+});
+
+for (const stage of ['deinitialize', 'deinitializeAsync'] as const) {
+  test(`a ${stage} failure is reported without keeping speech ducked or throwing`, async () => {
+    resetAudio();
+    const reports: string[] = [];
+    const speech = speaking();
+    const sounds = createSounds({
+      onSpeech: speech.onSpeech,
+      report: (message) => reports.push(message),
+    });
+    sounds.say(line('rolly_capture_2'));
+    await settle();
+    const said = plays()[0];
+    failAudio(stage);
+    assert.doesNotThrow(() => sounds.stopLine());
+    await settle();
+    assert.deepEqual(speech.heard, [true, false]);
+    assert.equal(audioListenerCount(said.player), 0);
+    assert.equal(
+      log()
+        .filter(
+          (entry) => entry.event === 'volume' && entry.player === said.player,
+        )
+        .at(-1)?.to,
+      0,
+    );
+    assert.equal(reports.length, 1);
+    assert.match(
+      reports[0],
+      /sound: voice player not released: Error: native release/,
+    );
+  });
+}
+
 // On the Stick's OS 2602000051520, setting `src` on a player that had already
 // played now and then never returned, and the app was closed as not
 // responding (#374).
 test('no player is ever given a second clip, however the cues and lines come', async () => {
   resetAudio();
   let take = 0;
-  const sounds = createSounds({ pick: () => take++, later: (run) => run() });
+  const time = clock();
+  const sounds = createSounds({ pick: () => take++, later: time.later });
   const cues = Object.keys(CUE_FILES) as Cue[];
   for (let round = 0; round < 3; round++) {
     for (const cue of cues) {
       sounds.play([cue]);
+      time.elapse(500);
       await settle();
     }
     for (const id of ['grabby_capture_1', 'host_intro_1', 'grabby_capture_1']) {
       sounds.say({ id, event: 'capture' });
       await settle();
+      audioEvent(plays().at(-1)!.player, 'ended');
+      time.elapse(LINE_TAIL_MS);
     }
   }
   const given = new Map<number, number>();
@@ -216,8 +329,12 @@ const clock = () => {
       waiting.push({ run, wait });
     },
     waits: () => waiting.map(({ wait }) => wait),
-    elapse: () => {
-      for (const { run } of waiting.splice(0)) run();
+    elapse: (wait?: number) => {
+      const due = waiting.filter(
+        (each) => wait === undefined || each.wait === wait,
+      );
+      for (const timer of due) waiting.splice(waiting.indexOf(timer), 1);
+      for (const { run } of due) run();
     },
   };
 };
@@ -313,7 +430,11 @@ test('away from the foreground, nothing plays, and the setting is kept', async (
     log()
       .slice(before)
       .filter((entry) => entry.event === 'pause').length,
-    4,
+    3,
+  );
+  assert.ok(
+    released().includes(plays().find((entry) => entry.src !== SPRITE)!.player),
+    'the voice is released',
   );
   sounds.play(['dice_roll', 'piece_move', 'game_draw']);
   await settle();
@@ -364,7 +485,7 @@ test('a delayed effect is discarded across blur/focus, rather than replayed on r
   assert.equal(plays().length, 2, 'the next live move is heard');
 });
 
-test('a quick blur/focus still pauses an already playing effect and line', async () => {
+test('a quick blur/focus still silences an already playing effect and line', async () => {
   resetAudio();
   const sounds = createSounds({ pick: () => 0 });
   sounds.play(['dice_roll']);
@@ -384,7 +505,7 @@ test('a quick blur/focus still pauses an already playing effect and line', async
     .filter((entry) => entry.event === 'pause')
     .map((entry) => entry.player);
   assert.ok(paused.includes(roll.player), 'the dice stop');
-  assert.ok(paused.includes(said.player), 'the line stops');
+  assert.ok(released().includes(said.player), 'the line stops');
 });
 
 // A take is chosen when its channel's player waits for it: once the player is
@@ -527,8 +648,8 @@ test('a player that never initialises is reported, and nothing is thrown', async
   const sounds = createSounds({ report: (line) => reported.push(line) });
   sounds.play(['piece_move', 'dice_roll', 'game_win']);
   await settle();
-  // The channels' players and the one made ready for a line.
-  assert.equal(reported.length, 3 + SPARE_PLAYERS, 'one per player');
+  // Spare voices wait to initialize until a line gives them its source.
+  assert.equal(reported.length, 3, 'one per effect player');
   for (const line of reported) assert.match(line, /not initialised/);
   assert.equal(plays().length, 0);
 });
@@ -568,7 +689,6 @@ test('a player that refuses to stop is reported, and nothing is thrown', async (
     'sound: board did not stop: Error: not supported',
     'sound: dice did not stop: Error: not supported',
     'sound: result did not stop: Error: not supported',
-    'sound: voice did not stop: Error: not supported',
   ]);
 });
 
@@ -602,13 +722,113 @@ test('a line plays its clip on a player of its own, and the app hears it start a
     '/pkg/assets/voices/elevenlabs-dicechess-bots/grabby_capture_1.mp3',
   );
   assert.deepEqual(speech.heard, [true]);
-  // It counts as said a little after the clip ends.
+  // The duration-based timer is only a watchdog. Normal completion follows
+  // the decoder's ended event, then the tail under which music stays ducked.
   assert.deepEqual(time.waits(), [
-    Math.round(VOICE_FILES.grabby_capture_1.seconds * 1000) + LINE_TAIL_MS,
+    Math.round(VOICE_FILES.grabby_capture_1.seconds * 1000) +
+      LINE_TAIL_MS +
+      LINE_TIMEOUT_MS,
   ]);
-  time.elapse();
+  audioEvent(said.player, 'ended');
+  assert.equal(time.waits().at(-1), LINE_TAIL_MS);
+  time.elapse(LINE_TAIL_MS);
   assert.deepEqual(speech.heard, [true, false]);
   // Said, its player is let go.
+  assert.deepEqual(released(), [said.player]);
+  assert.equal(audioListenerCount(said.player), 0);
+});
+
+test('a late decoder start cannot release a line before its ended event', async () => {
+  resetAudio();
+  const time = clock();
+  const speech = speaking();
+  const sounds = createSounds({ later: time.later, onSpeech: speech.onSpeech });
+  sounds.say(line('rolly_capture_2'));
+  await settle();
+  const said = plays()[0];
+  // On the Stick the old deadline reached this clip at 2.60 of 3.17 seconds.
+  time.elapse(
+    Math.round(VOICE_FILES.rolly_capture_2.seconds * 1000) + LINE_TAIL_MS,
+  );
+  assert.deepEqual(released(), []);
+  assert.deepEqual(speech.heard, [true]);
+  audioEvent(said.player, 'ended');
+  assert.deepEqual(released(), [], 'the last syllable keeps the music ducked');
+  time.elapse(LINE_TAIL_MS);
+  assert.deepEqual(released(), [said.player]);
+  assert.equal(
+    pausesOf(said.player),
+    0,
+    'EOS cleanup never pauses the pipeline',
+  );
+  assert.equal(audioListenerCount(said.player), 0);
+  assert.deepEqual(speech.heard, [true, false]);
+});
+
+test('a stale ended tail cannot release or unduck the replacement line', async () => {
+  resetAudio();
+  const time = clock();
+  const speech = speaking();
+  const sounds = createSounds({ later: time.later, onSpeech: speech.onSpeech });
+  sounds.say(line('grabby_capture_1'));
+  await settle();
+  const first = plays()[0];
+  audioEvent(first.player, 'ended');
+  sounds.say(line('rolly_capture_2'));
+  await settle();
+  const second = plays().at(-1)!;
+  const before = [...speech.heard];
+  time.elapse(LINE_TAIL_MS);
+  audioEvent(first.player, 'error');
+  assert.deepEqual(speech.heard, before);
+  assert.deepEqual(released(), [first.player]);
+  assert.equal(audioListenerCount(first.player), 0);
+  sounds.setSuspended(true);
+  assert.deepEqual(released(), [first.player, second.player]);
+  assert.equal(audioListenerCount(second.player), 0);
+  time.elapse();
+  assert.deepEqual(released(), [first.player, second.player]);
+});
+
+test('a native voice error releases the player and restores the music duck', async () => {
+  resetAudio();
+  const speech = speaking();
+  const reports: string[] = [];
+  const sounds = createSounds({
+    onSpeech: speech.onSpeech,
+    report: (message) => reports.push(message),
+  });
+  sounds.say(line('grabby_capture_1'));
+  await settle();
+  const said = plays()[0];
+  audioEvent(said.player, 'error');
+  assert.deepEqual(released(), [said.player]);
+  assert.equal(audioListenerCount(said.player), 0);
+  assert.deepEqual(speech.heard, [true, false]);
+  assert.deepEqual(reports, ['sound: line grabby_capture_1 playback failed']);
+});
+
+test('a missing completion event is bounded by a watchdog, and releases once', async () => {
+  resetAudio();
+  const time = clock();
+  const reports: string[] = [];
+  const speech = speaking();
+  const sounds = createSounds({
+    later: time.later,
+    onSpeech: speech.onSpeech,
+    report: (message) => reports.push(message),
+  });
+  sounds.say(line('grabby_capture_1'));
+  await settle();
+  const said = plays()[0];
+  time.elapse();
+  assert.deepEqual(released(), [said.player]);
+  assert.deepEqual(speech.heard, [true, false]);
+  assert.deepEqual(reports, [
+    'sound: line grabby_capture_1 completion timed out',
+  ]);
+  audioEvent(said.player, 'ended');
+  time.elapse();
   assert.deepEqual(released(), [said.player]);
 });
 
@@ -648,7 +868,7 @@ test('a new line replaces the one being said', async () => {
     log()
       .filter((entry) => entry.player === first.player)
       .map((entry) => entry.event),
-    ['create', 'initialize', 'src', 'play', 'pause', 'pause', 'deinitialize'],
+    ['create', 'initialize', 'src', 'play', 'volume', 'deinitialize'],
   );
   assert.equal(second.src?.split('/').pop(), 'rampage_capture_heavy_2.mp3');
   // The music comes up between the two, and ducks again.
@@ -673,7 +893,7 @@ test('a win or a loss is said after its jingle, and dropped if another line come
   const again = createSounds({ later: later.later });
   again.say(line('grabby_loss_2'));
   again.say({ id: 'grabby_intro_1', event: 'intro' });
-  later.elapse();
+  later.elapse(RESULT_LINE_DELAY_MS);
   await settle();
   assert.deepEqual(
     plays().map((entry) => entry.src?.split('/').pop()),
@@ -727,7 +947,7 @@ test('a line stopped on its own goes quiet, the next is said, and the settings s
   sounds.stopLine();
   await settle();
   const voice = plays()[0].player;
-  assert.equal(log().at(-1)?.event, 'pause');
+  assert.equal(log().at(-1)?.event, 'deinitialize');
   assert.equal(log().at(-1)?.player, voice);
   // The music comes back at once.
   assert.deepEqual(speech.heard, [true, false]);
@@ -770,7 +990,7 @@ test('with the voices off nothing is said, and a line being said stops; the effe
   sounds.setVoices(false);
   await settle();
   const voice = plays()[0].player;
-  assert.equal(log().at(-1)?.event, 'pause');
+  assert.equal(log().at(-1)?.event, 'deinitialize');
   assert.equal(log().at(-1)?.player, voice);
   assert.deepEqual(speech.heard, [true, false]);
   sounds.say(line('grabby_capture_2'));
@@ -826,7 +1046,7 @@ test('a line without a clip, or one that refuses to play, is reported, and nothi
     reported.filter((entry) => entry.includes(' line ')),
     [
       'sound: line nobody_capture_1 has no clip',
-      'sound: line rolly_capture_3 did not play: Error: not supported',
+      'sound: line rolly_capture_3 playback failed',
     ],
   );
   assert.deepEqual(speech.heard, []);
@@ -854,15 +1074,15 @@ test('a line stopped while its player starts is let go, and so is one stopped pa
   assert.deepEqual(released(), [starting.player]);
   assert.deepEqual(speech.heard, []);
 
-  // Said part way, then stopped: the line may finish, and its player is let go
-  // once its time is up, as a line said to the end is.
+  // Stopped part way, the player is silenced and released at once; no paused
+  // pipeline remains loaded until an ended event that will never arrive.
   for (const stop of [() => sounds.stopLine(), () => sounds.setVoices(false)]) {
     sounds.setVoices(true);
     sounds.say(line('grabby_capture_2'));
     await settle();
     const said = plays().at(-1)!;
     stop();
-    assert.ok(!released().includes(said.player));
+    assert.ok(released().includes(said.player));
     time.elapse();
     assert.ok(released().includes(said.player));
   }
