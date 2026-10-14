@@ -78,6 +78,52 @@ test('malformed ID3 tags stop packaging instead of discarding audio bytes', () =
     assert.throws(() => stripMp3Tags(bytes), /ID3/);
 });
 
+test('MP3 packaging removes appended ID3v2.4 tags, including before ID3v1', () => {
+  const frames = Buffer.from([0xff, 0xfb, 0x90, 0x64, 12, 34, 56, 78]);
+  const header = Buffer.from([73, 68, 51, 4, 0, 16, 0, 0, 1, 2]);
+  const tag = Buffer.concat([
+    header,
+    Buffer.alloc(130, 17),
+    Buffer.from('3DI'),
+    header.subarray(3),
+  ]);
+  const v1 = Buffer.concat([Buffer.from('TAG'), Buffer.alloc(125)]);
+  for (const tagged of [
+    Buffer.concat([frames, tag]),
+    Buffer.concat([tag, frames, tag, v1]),
+    Buffer.concat([frames, tag, tag, v1]),
+  ]) {
+    const before = Buffer.from(tagged);
+    assert.deepEqual(stripMp3Tags(tagged), frames);
+    assert.deepEqual(tagged, before, 'the input bytes remain unchanged');
+  }
+});
+
+test('malformed appended ID3v2.4 footers stop packaging without discarding frames', () => {
+  const frames = Buffer.from([0xff, 0xfb, 0x90, 0x64, 12, 34]);
+  const header = Buffer.from([73, 68, 51, 4, 0, 16, 0, 0, 0, 2]);
+  const footer = Buffer.concat([Buffer.from('3DI'), header.subarray(3)]);
+  const tag = Buffer.concat([header, Buffer.alloc(2), footer]);
+  for (const [offset, value] of [
+    [0, 0], // Missing header identifier.
+    [4, 1], // Header/footer mismatch.
+    [15, 3], // Footer is not version 2.4.
+    [16, 255], // Invalid revision.
+    [17, 0], // Missing footer-present flag.
+    [17, 17], // Undefined flag.
+    [18, 128], // Non-synchsafe size.
+    [21, 127], // Size exceeds the file.
+  ]) {
+    const malformed = Buffer.from(tag);
+    malformed[offset] = value;
+    assert.throws(
+      () => stripMp3Tags(Buffer.concat([frames, malformed])),
+      /ID3/,
+    );
+  }
+  assert.throws(() => stripMp3Tags(Buffer.concat([frames, footer])), /ID3/);
+});
+
 test('voice and music copies strip tags only after checking their vendor digests', (t) => {
   const root = mkdtempSync(join(tmpdir(), 'dicechess-tv-mp3-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));

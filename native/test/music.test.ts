@@ -652,6 +652,56 @@ test('a decoder error during the incoming fade restores the outgoing theme', asy
   );
 });
 
+for (const silence of [
+  'disabled',
+  'no role',
+  'result hold',
+  'no catalogue',
+] as const) {
+  for (const failedTheme of ['menu', 'calm'] as const) {
+    test(`a ${failedTheme} decoder error during a crossfade preserves ${silence} silence`, async () => {
+      const { music, clock, players, playing, reports } = await rig();
+      music.setRole('menu');
+      await clock.advance(3000);
+      music.setRole('calm');
+      await clock.advance(500);
+      const failed = players.find((player) =>
+        player.src.endsWith(`${failedTheme}.mp3`),
+      )!;
+      const other = players.find(
+        (player) => player.playing && player !== failed,
+      )!;
+      assert.ok(failed.volume > 0 && other.volume > 0, 'both passes overlap');
+      if (silence === 'disabled') music.setEnabled(false);
+      else if (silence === 'no role') music.setRole(null);
+      else if (silence === 'result hold') music.setRole('tense', 4000);
+      else music.setCatalogue(null);
+      await clock.advance(100);
+      const volume = other.volume;
+      failed.emit('error');
+      for (let elapsed = 0; elapsed < CROSSFADE_MS + 200; elapsed += 100) {
+        await clock.advance(100);
+        assert.ok(other.volume <= volume, 'the survivor never fades back in');
+      }
+      assert.equal(failed.released, true);
+      assert.equal(other.released, true);
+      assert.deepEqual(playing(), []);
+      assert.equal(
+        reports.filter((line) => line.includes('play failed')).length,
+        1,
+      );
+      if (silence === 'result hold') {
+        await clock.advance(2000);
+        assert.deepEqual(
+          playing(),
+          ['tense.mp3'],
+          'the requested theme returns after the hold',
+        );
+      }
+    });
+  }
+}
+
 test('a failed loop keeps its old pass until EOF, then releases it without retrying forever', async () => {
   const { music, clock, players, playing } = await rig();
   music.setRole('menu');

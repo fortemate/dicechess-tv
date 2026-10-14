@@ -333,6 +333,7 @@ export function createMusic({
       // A failed pass has no position worth remembering.
       voice.playing = false;
       stop(voice);
+      if (wanted(clock.now() < holdUntil) === null) return;
       for (const other of voices ?? []) {
         if (other === voice || !other.playing || other.waiting) continue;
         other.seamed = false;

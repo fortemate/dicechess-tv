@@ -4,7 +4,7 @@ Validated on 14 October 2026 against main `7035ffc` and the audio playback lifec
 
 ## Automated checks
 
-`mise run check` passed: 325 core tests, 576 native tests and 8 browser tests, types, lint, formatting, the Metro bundle and browser build. The native suite adds 23 regression tests. Focused audio coverage is 98.12% of lines and 87.06% of branches. `mise run build` produced Release packages for armv7, aarch64 and x86_64 with SDK 0.24.12044.
+`mise run check` passed: 325 core tests, 586 native tests and 8 browser tests, types, lint, formatting, the Metro bundle and browser build. The native suite adds 33 regression tests. Focused audio coverage is 98.12% of lines and 87.44% of branches. `mise run build` produced Release packages for armv7, aarch64 and x86_64 with SDK 0.24.12044.
 
 The new regressions cover delayed playback, native completion and errors, missing completion/initialization events, stale events after replacement or Home, end-of-stream cleanup, failed music transitions and loops, explicit retry, readiness without metadata, and tag removal after verification of vendor hashes.
 
@@ -33,6 +33,14 @@ Music off/on and volume Left/Right, effects off/on, voices off/on, a muted game 
 On this OS, Home causes the system to terminate the background process. Relaunch restored the game turn, pending phase, dice and last move on both devices. Hardware retained turn 3 in move phase with its pending dice; VVD retained turn 2 in move phase after a move, with its remaining dice. Warm blur/focus resumption is covered by the automated suite; the Home device test establishes cold-relaunch recovery.
 
 After the CI cleanup refactor to async/await, the clean packages were rebuilt and the tutorial opening sentences were replayed on both devices. Native EOF and cleanup completed without deinitialization timeouts. Two further regressions cover synchronous and asynchronous release failures.
+
+## CodeRabbit follow-up
+
+Ten further regressions reproduced the review findings before the fixes and passed afterwards. Eight cover decoder errors on either pass of a crossfade after Music off, a null theme, a result hold or catalogue removal. Two cover appended ID3v2.4 tags, alone or before ID3v1, and malformed footer boundaries. README playback claims now link to their tests and device evidence.
+
+The crossfade cases were repeated separately on VVD and the Stick with real native players. A temporary fixture invoked the captured error handler while both passes were active, then sampled the volume values sent to the native setters and awaited native release completion. All eight cases passed on each device: the surviving pass never faded back in during silence, both passes were released, and the requested theme returned after the result hold. Each run completed 18 native releases; the longest took 162 ms on hardware and 133 ms on VVD. There were no unexpected native errors or release timeouts. Recorded audio was available from VVD; the hardware result rests on its own playback events, requested volume ramps and release completions.
+
+All 272 generated MP3 copies remained byte-identical to the previously validated copies after adding appended-tag support. The new tag cases are synthetic packaging regressions; no current vendor asset needed further stripping.
 
 ## Final package and saved data
 

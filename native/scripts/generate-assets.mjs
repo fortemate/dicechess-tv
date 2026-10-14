@@ -297,6 +297,33 @@ export const stripMp3Tags = (bytes) => {
     audio.subarray(-128, -125).toString('ascii') === 'TAG'
   )
     audio = audio.subarray(0, -128);
+  // Appended ID3v2.4 tags require a footer. ID3v1, if present, follows them.
+  while (
+    audio.length >= 10 &&
+    audio.subarray(-10, -7).toString('ascii') === '3DI'
+  ) {
+    const footer = audio.subarray(-10);
+    if (
+      footer[3] !== 4 ||
+      footer[4] === 255 ||
+      (footer[5] & 16) === 0 ||
+      (footer[5] & 15) !== 0 ||
+      footer.subarray(6, 10).some((byte) => byte >= 128)
+    )
+      throw new Error('invalid appended ID3 footer');
+    const size = footer
+      .subarray(6, 10)
+      .reduce((value, byte) => value * 128 + byte, 0);
+    const start = audio.length - size - 20;
+    if (start <= 0) throw new Error('appended ID3 tag exceeds audio payload');
+    if (
+      !audio
+        .subarray(start, start + 10)
+        .equals(Buffer.concat([Buffer.from('ID3'), footer.subarray(3)]))
+    )
+      throw new Error('invalid appended ID3 header');
+    audio = audio.subarray(0, start);
+  }
   if (!audio.length) throw new Error('MP3 has no audio payload');
   return audio;
 };
