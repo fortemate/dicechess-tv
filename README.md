@@ -32,7 +32,7 @@ npm ci && npm ci --prefix native
 mise run device:run
 ```
 
-A device refuses a package numbered lower than the one installed, with "Package version decrease". `mise run build` and `mise run device:run` take the build number from the newest tag, `v1.0.0+28` today, so a device with that build or an earlier one accepts their package. A plain `npm run build --prefix native` numbers its package 0, which a device with 1.0.0 or any beta from beta 4 on refuses ([CONTRIBUTING.md](CONTRIBUTING.md#check-it-on-a-device)).
+A device refuses a package numbered lower than the one installed, with "Package version decrease". `mise run build` and `mise run device:run` take the build number from the newest tag, `v1.0.0+29` on 14 October 2026, so a device with that build or an earlier one accepts their package. For the 1.0.1/build 30 candidate in [PR #383](https://github.com/fortemate/dicechess-tv/pull/383), use `BUILD_NUMBER=30 mise run build`. A plain `npm run build --prefix native` numbers its package 0, which a device with 1.0.0 or any beta from beta 4 on refuses ([CONTRIBUTING.md](CONTRIBUTING.md#check-it-on-a-device)).
 
 The whole game is playable with three controls (D-pad, OK, and Back), while the remote Menu button provides a fourth control:
 
