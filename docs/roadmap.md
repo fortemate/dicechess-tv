@@ -2,7 +2,7 @@
 
 Agreed with the owner on 21 September 2026. This is planned work, not a completion claim.
 
-**Status on 11 October 2026:** Dice Chess 1.0.0, build 28, was released on GitHub and submitted to the Amazon Appstore, where it awaits Amazon's review; it replaced build 26, released and submitted on 10 October and withdrawn from review before it went live; the hackathon submission is still to come. A Fire TV Stick 4K Select has been in use for testing since 6 October 2026, so physical-device testing no longer waits for hardware. The WebView full-game prototype this plan started from has been removed: the game is the React Native for Vega application in `native/`, described in the [README](../README.md).
+**Status on 14 October 2026:** Dice Chess 1.0.1, build 30, is [published on GitHub](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.1%2B30). The owner reported submitting it to the Amazon Appstore for review; approval has not been confirmed. Its [validation record](release-validation-1.0.1-build30.md) covers the candidate's automated, VVD and physical Stick checks, final-main packaging and verified public downloads. The hackathon submission is still to come. A Fire TV Stick 4K Select has been in use for testing since 6 October 2026, so physical-device testing no longer waits for hardware. The WebView full-game prototype this plan started from has been removed: the game is the React Native for Vega application in `native/`, described in the [README](../README.md).
 
 Minimum success is **M1 + M2 + M3**: a reliable, polished, understandable offline TV game and a reviewable contest submission. Multiple themes and advanced bots are stretch goals. M7, more TV platforms, is the first priority after the hackathon. The existing full-game prototype is the starting point; see [verified behavior](full-game.md).
 
@@ -67,4 +67,4 @@ Implement the result ledger first, then prioritize onboarding and the single pol
 - From October 17: feature freeze; fixes, repeat validation and final video only.
 - October 21: owner submission target, leaving a buffer before October 23.
 
-Tutorials use a separate session and fixed instructional rolls, never altering real-game randomness or statistics. Rules remain owned by the canonical engine. Artwork/sound inspiration is not permission to copy Chess.com assets. Physical Fire TV testing is desirable if hardware becomes available; simulator-only evidence must remain explicitly labeled. Appstore release is a separate future decision.
+Tutorials use a separate session and fixed instructional rolls, never altering real-game randomness or statistics. Rules remain owned by the canonical engine. Artwork/sound inspiration is not permission to copy Chess.com assets. Physical Fire TV regressions accompany Virtual Device checks; simulator-only evidence must remain explicitly labeled. Appstore approval and availability remain separate from GitHub publication and a submitted application.

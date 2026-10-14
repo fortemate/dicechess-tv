@@ -1,8 +1,8 @@
-# Dice Chess 1.0.1, build 30: preparation validation
+# Dice Chess 1.0.1, build 30: release validation
 
 Prepared on 14 October 2026 from `9ef91358d1033b6599b71920bb39baf96a9bcff2`, on the version branch in [PR #383](https://github.com/fortemate/dicechess-tv/pull/383). Its application source matches merged main `ca802a97c10c31652642c77d97e1ea5364d7bd20` ([PR #388](https://github.com/fortemate/dicechess-tv/pull/388)); the manifest version is 1.0.1. The candidate uses build number 30 and engine 0.14.7.
 
-This record covers preparation artifacts. After merging the version PR, the owner builds from the final main commit, verifies both package sets and performs the release steps in [CONTRIBUTING.md](../CONTRIBUTING.md#releases).
+The following sections record the candidate's preparation and device checks. Final-main packaging, owner feedback and publication are recorded separately below, following the release steps in [CONTRIBUTING.md](../CONTRIBUTING.md#releases).
 
 ## Automated and package checks
 
@@ -56,6 +56,24 @@ After validation, the original owner data and CRC were restored on each device a
 
 The [audio validation record](audio-regression-validation-387.md) covers the earlier 14 October playback probes, music-failure scenarios, all six tutorial lessons and lifecycle/settings checks of the same application code. Those runs are separate from this candidate's upgrade and sustained-play checks.
 
-Technical completion and cleanup events do not prove that every cue and line was audible on a television. Owner listening and the remaining scenarios in [Playtesting](playtest.md#release-candidate-checks-on-a-fire-tv-stick) remain part of final QA. The device logs contain SDK SVG/view lifecycle messages and media-metrics service unbind errors; this record does not describe a zero-error log.
+Technical completion and cleanup events do not prove that every cue and line was audible on a television. The preparation run left owner listening and the remaining scenarios in [Playtesting](playtest.md#release-candidate-checks-on-a-fire-tv-stick) for final QA. The owner's subsequent report is recorded below; it does not add a per-cue listening checklist. The device logs contain SDK SVG/view lifecycle messages and media-metrics service unbind errors; this record does not describe a zero-error log.
 
-The package sets and release notes were prepared locally. No tag, GitHub release or Appstore upload was executed as part of this preparation. A Developer Console read showed an existing submission draft marked Ready to Submit with build 28 uploaded; it did not establish store publication. Its Live App Testing metadata was not available in this session, so the owner rechecks the latest submitted/LAT number before the final build.
+The package sets and release notes were prepared locally. No tag, GitHub release or Appstore upload was executed as part of this preparation. A Developer Console read then showed an existing submission draft marked Ready to Submit with build 28 uploaded; it did not establish store publication. Its Live App Testing metadata was not available in that session. This was the preparation-time snapshot, before the subsequent owner report below.
+
+## Final-main packaging and publication
+
+After PR #383 merged on 14 October 2026, both package sets were rebuilt cleanly from final main commit `5a8bc325397fb95598843f77301d51e907fada0b`, with version 1.0.1 and build number 30. The build used Vega SDK 0.24.12044, Vega CLI 1.4.2 and Node 26.8.2; bundled-notices checks passed. The main tree matches merged PR head `a7934168974f3d04d720edf492364956cdb19fba`.
+
+Every application file under `assets/`, `bundle/` and `lib/`, plus `manifest.toml`, was compared with its corresponding candidate package from `9ef91358d1033b6599b71920bb39baf96a9bcff2`. All match byte for byte, including JS/Hermes bundles, native libraries, audio, music catalogues and licence notices. The final private armv7 Appstore package contains ten portraits; the three public packages contain zero. The final rebuild was not separately installed on either device: the device checks above remain checks of the candidate with the identical application payload.
+
+The owner reported checking the Stick on 14 October 2026 and finding everything working well. The owner then reported submitting the application to the Amazon Appstore for publication. This records the owner's submission report; there was no independent Console readback during the GitHub release step, and store approval or availability has not been confirmed.
+
+[Dice Chess 1.0.1, build 30](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.1%2B30) was published on GitHub on 14 October 2026 at 19:14:10 UTC and marked Latest. The signed annotated tag `v1.0.1+30` has tag object `b85371c88a1d7147b6c16cb9fc392722eeec2164` and resolves on the remote to the exact built commit `5a8bc325397fb95598843f77301d51e907fada0b`; its SSH signature passed verification. The release is neither a draft nor a prerelease.
+
+All four public assets were read back and downloaded from the published release. Their SHA-256 digests match the local final files and the published `SHA256SUMS.txt`. The downloaded packages also report version 1.0.1 and build 30, with zero portraits. The private Appstore package was not uploaded to GitHub.
+
+| Public package                     | SHA-256                                                            |
+| ---------------------------------- | ------------------------------------------------------------------ |
+| `dicechess-tv-native_aarch64.vpkg` | `32e8cc7576c19025c7c4808b378796a9f928558a52cbecf3aef82f34a743549d` |
+| `dicechess-tv-native_armv7.vpkg`   | `58a0b79b8a5b170d8a144cd49ec4079b4577d5deeeaa9a5516c65a43f395c7de` |
+| `dicechess-tv-native_x86_64.vpkg`  | `90d015af5776c531a53d4f08a7ab6cae6fa43f781e7d091a516394edf1028694` |

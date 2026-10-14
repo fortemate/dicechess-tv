@@ -15,7 +15,9 @@ Dice Chess for Amazon Fire TV: two players sharing one screen and remote, or a g
 
 **Tutorial video:** <https://youtu.be/KK8BBICjaBQ>, 4:52, recorded on the Vega Virtual Device: Thinkle the wizard teaches the six lessons of the tutorial aloud. The home menu has called it Learn to play since #280; the video shows its older label, How to play.
 
-**GitHub release: Dice Chess 1.0.0, build 29.** It was published on 14 October 2026 from `7035ffc`, tagged [`v1.0.0+29`](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.0%2B29). It follows build 28 (11 October) and build 26 (10 October); the version remains 1.0.0. The release carries engine 0.14.7 and the Vega OS audio compatibility changes described in its [release notes](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.0%2B29). The later playback lifecycle work in PR #388 has its own validation record below.
+**GitHub release: Dice Chess 1.0.1, build 30.** Published on 14 October 2026 from `5a8bc32`, tagged [`v1.0.1+30`](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.1%2B30). It carries engine 0.14.7 and fixes voice completion, player cleanup and music recovery after the Vega OS update. The release provides public armv7, aarch64 and x86_64 packages without the private portraits, plus `SHA256SUMS.txt`. The [release validation record](docs/release-validation-1.0.1-build30.md) records the separate Stick/VVD checks, the final build from main and verification of the published downloads.
+
+**Amazon Appstore:** 1.0.1, build 30, has been submitted for Amazon's review, as reported by the owner on 14 October 2026. Its armv7 package includes the private portraits. Submission and store availability are separate; approval has not been confirmed.
 
 **A React Native for Vega application that builds and runs from this repository.** `mise run build` produces an installable package that installs, launches and plays on the Vega Virtual Device and, since 6 October 2026, on a Fire TV Stick 4K Select (Vega OS 1.2). On that Stick, Amazon's KPI Visualizer measured a cool start of a Release build at a median of 412 ms to first frame and 2.65 s to fully drawn (6 October 2026, 9 launches, not in certification mode), against Amazon's cool-start targets of under 1.5 s and under 8 s; the [Performance](https://dicechess-tv.fortemate.com/technology/performance/) page has the warm starts too. On the Virtual Device, the same tool measured 309 ms and 748 ms on average (25 September 2026, 3 iterations, before the music, voices and portraits; [FL-20](https://dicechess-tv.fortemate.com/friction-log/#fl-20)). Play a friend and three local opponents, from easy to hard, three-die turns, promotion, king capture, resignation, draw agreement, save and resume mid-turn, a completed-game ledger, an interactive tutorial offered on the first launch, and a rules guide are all implemented on the native board, driven entirely by D-pad, OK and Back.
 
@@ -23,7 +25,7 @@ Also done: sound for every step of the game — chosen by ear, heard on the virt
 
 ## Try it
 
-It needs the Vega SDK 0.24, [mise](https://mise.jdx.dev/) and either a Vega Virtual Device or a Fire TV Stick in developer mode; [native/README.md](native/README.md#building-and-running) explains the setup. To play the 1.0.0 release without building it, follow [docs/playtest.md](docs/playtest.md).
+It needs the Vega SDK 0.24, [mise](https://mise.jdx.dev/) and either a Vega Virtual Device or a Fire TV Stick in developer mode; [native/README.md](native/README.md#building-and-running) explains the setup. To play the 1.0.1 release without building it, follow [docs/playtest.md](docs/playtest.md).
 
 ```bash
 npm ci && npm ci --prefix native
@@ -32,7 +34,7 @@ npm ci && npm ci --prefix native
 mise run device:run
 ```
 
-A device refuses a package numbered lower than the one installed, with "Package version decrease". `mise run build` and `mise run device:run` take the build number from the newest tag, `v1.0.0+29` on 14 October 2026, so a device with that build or an earlier one accepts their package. For the 1.0.1/build 30 candidate in [PR #383](https://github.com/fortemate/dicechess-tv/pull/383), use `BUILD_NUMBER=30 mise run build`. A plain `npm run build --prefix native` numbers its package 0, which a device with 1.0.0 or any beta from beta 4 on refuses ([CONTRIBUTING.md](CONTRIBUTING.md#check-it-on-a-device)).
+A device refuses a package numbered lower than the one installed, with "Package version decrease". `mise run build` and `mise run device:run` take the build number from the newest tag, `v1.0.1+30` on 14 October 2026, so a device with build 30 or an earlier build accepts their package. `BUILD_NUMBER=30 mise run build` sets that number explicitly. A plain `npm run build --prefix native` numbers its package 0, which a device with a released build or any beta from beta 4 on refuses ([CONTRIBUTING.md](CONTRIBUTING.md#check-it-on-a-device)).
 
 The whole game is playable with three controls (D-pad, OK, and Back), while the remote Menu button provides a fourth control:
 

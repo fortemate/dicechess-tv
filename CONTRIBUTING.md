@@ -100,7 +100,8 @@ The build takes the highest build number among the beta and release tags (see
 [Releases](#releases)) and prints it with its tag. A build numbered like the installed
 beta or release installs over it and keeps its saved game, as one did over beta 6 on the
 Vega Virtual Device. The device refuses a lower number with "Package version decrease".
-`BUILD_NUMBER=8 mise run device:run` sets the number by hand.
+`BUILD_NUMBER=30 mise run device:run` sets the number by hand (the published
+1.0.1 release's number on 14 October 2026).
 
 On the virtual device the Mac keyboard stands in for the remote: arrow keys for
 the D-pad, Enter for OK, Esc for Back, F1 for Home. The on-screen remote's OK
@@ -214,8 +215,10 @@ to the next ([Version Your App](https://developer.amazon.com/docs/vega/0.24/app-
   decrease".
 
 Build numbers rise across betas and releases together, never per version: beta 24 was
-build 24, 1.0.0 was released as build 26 and again as build 28, and the next upload,
-beta or release, must be 29 or higher, whatever its version. Every tag carries its build number, so that
+build 24, 1.0.0 was released as builds 26, 28 and 29, and 1.0.1 as build 30 on
+14 October 2026. The next upload, beta or release, must be 31 or higher, whatever
+its version, and must also exceed any later submitted or Live App Testing build.
+Every tag carries its build number, so that
 `mise run build` can number a local build like the newest beta or release:
 
 | Kind    | Tag                       | Example         | Published as                               |
@@ -254,7 +257,7 @@ Two traps decide the steps below:
 
 After the version pull request merges, choose the build number: higher than every
 earlier build, whether tagged or only in Live App Testing. The commands below take the
-newest tag's number plus one, 27 after `v1.0.0+26`; raise it by hand if Live App
+newest tag's number plus one, 31 after `v1.0.1+30`; raise it by hand if Live App
 Testing holds an untagged build above that. For a beta, the tag is
 `v$version-beta.$build` instead. `git ls-remote` prints nothing for a new tag, and the
 packages are collected next to the checkout:
