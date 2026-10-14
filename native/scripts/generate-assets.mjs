@@ -268,7 +268,7 @@ export const main = (root = native) => {
 // leaving playback and cleanup stuck. Keep the verified vendor bytes intact;
 // remove only tags from the generated copies, without changing MPEG frames.
 // Credits and licenses ship separately. Header layout: https://id3.org/id3v2.4.0-structure
-export const stripMp3Tags = (bytes) => {
+const stripLeadingId3Tags = (bytes) => {
   let audio = bytes;
   while (audio.subarray(0, 3).toString('ascii') === 'ID3') {
     if (
@@ -292,11 +292,11 @@ export const stripMp3Tags = (bytes) => {
       throw new Error('invalid ID3 footer');
     audio = audio.subarray(end);
   }
-  if (
-    audio.length >= 128 &&
-    audio.subarray(-128, -125).toString('ascii') === 'TAG'
-  )
-    audio = audio.subarray(0, -128);
+  return audio;
+};
+
+const stripAppendedId3Tags = (bytes) => {
+  let audio = bytes;
   // Appended ID3v2.4 tags require a footer. ID3v1, if present, follows them.
   while (
     audio.length >= 10 &&
@@ -324,6 +324,17 @@ export const stripMp3Tags = (bytes) => {
       throw new Error('invalid appended ID3 header');
     audio = audio.subarray(0, start);
   }
+  return audio;
+};
+
+export const stripMp3Tags = (bytes) => {
+  let audio = stripLeadingId3Tags(bytes);
+  if (
+    audio.length >= 128 &&
+    audio.subarray(-128, -125).toString('ascii') === 'TAG'
+  )
+    audio = audio.subarray(0, -128);
+  audio = stripAppendedId3Tags(audio);
   if (!audio.length) throw new Error('MP3 has no audio payload');
   return audio;
 };
