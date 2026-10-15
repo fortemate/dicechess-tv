@@ -11,7 +11,7 @@ import {
   resignGame,
   rollGame,
 } from '../src/core/game.ts';
-import { botReply } from '../src/core/bot.ts';
+import { botReply, engineBot } from '../src/core/bot.ts';
 import { emptyLedger, record } from '../src/core/ledger.ts';
 import { OPPONENTS, opponentOf } from '../src/core/opponents.ts';
 
@@ -24,7 +24,7 @@ test('the opponents are the bot modes, each an engine algorithm that is not expe
     DiceChess.getAvailableBots().map((bot) => [bot.id, bot]),
   );
   for (const opponent of OPPONENTS) {
-    const bot = bots.get(opponent.mode);
+    const bot = bots.get(engineBot(opponent.mode));
     assert.ok(bot, `${opponent.mode} is an engine algorithm`);
     assert.equal(bot.isExperimental, false, opponent.mode);
     assert.equal(opponentOf(opponent.mode), opponent);
@@ -35,7 +35,9 @@ test('the levels rise with the engine’s own difficulty rating', () => {
   const difficulty = new Map(
     DiceChess.getAvailableBots().map((bot) => [bot.id, bot.difficulty]),
   );
-  const ratings = OPPONENTS.map((opponent) => difficulty.get(opponent.mode)!);
+  const ratings = OPPONENTS.map((opponent) =>
+    difficulty.get(engineBot(opponent.mode))!,
+  );
   assert.deepEqual(
     ratings,
     [...ratings].sort((a, b) => a - b),
@@ -84,7 +86,7 @@ test('each opponent plays with its own algorithm', () => {
   } finally {
     spy.mock.restore();
   }
-  assert.deepEqual(asked, [...BOT_MODES]);
+  assert.deepEqual(asked, BOT_MODES.map(engineBot));
   assert.throws(
     () => botReply(rollGame(newGame('hotseat', 'nobody'), [5, 4, 2])),
     /No opponent/,
@@ -111,4 +113,18 @@ test('results are kept apart for each opponent', () => {
     greedy: { w: { wins: 0, draws: 0, losses: 1 } },
     aggressive: { w: { wins: 0, draws: 0, losses: 1 } },
   });
+});
+
+test('Rolly takes the king whenever its first action can, whatever else it rolled', () => {
+  assert.equal(engineBot('random'), 'random-king-capture');
+  // The person plays Black; White's rook on a1 attacks the king on a8, and the
+  // roll has a rook die beside two king dice.
+  const start = 'k7/8/8/8/8/8/8/R3K2q w - - 0 1';
+  for (let attempt = 0; attempt < 30; attempt++) {
+    const game = rollGame(
+      newGame('random', `rolly-${attempt}`, start, 'b'),
+      [4, 6, 6],
+    );
+    assert.equal(botReply(game).moves[0], 'a1a8', `attempt ${attempt}`);
+  }
 });

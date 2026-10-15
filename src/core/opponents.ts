@@ -22,7 +22,7 @@ export const OPPONENTS: readonly Opponent[] = [
     mode: 'random',
     name: 'Rolly',
     level: 'Easy',
-    style: 'Plays any legal turn, at random.',
+    style: 'Plays at random, but never misses a king it can take.',
   },
   {
     mode: 'greedy',
