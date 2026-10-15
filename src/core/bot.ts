@@ -8,7 +8,21 @@
 // It imports the full engine entry point, as the game controller does for the
 // legal turn tree (src/core/game.ts), so every build bundles that entry.
 import { DiceChess } from '@fortemate/dicechess-engine';
-import { botToMove, isBotMode, viewGame, type Game } from './game.ts';
+import {
+  botToMove,
+  isBotMode,
+  viewGame,
+  type BotMode,
+  type Game,
+} from './game.ts';
+
+// The engine bot each mode plays. A mode is what a game saves and the cards
+// name; it is Rolly's `random` that plays the engine's `random-king-capture`:
+// random, except that it never declines a king it can take with its first
+// action. The algorithm lives in the engine, not here.
+export function engineBot(mode: BotMode): string {
+  return mode === 'random' ? 'random-king-capture' : mode;
+}
 
 // The shape applyMove-side validation expects: enough context to reject a reply
 // that belongs to a game or a position that has since moved on.
@@ -39,7 +53,9 @@ export function replyFits(game: Game, reply: BotReply): boolean {
 export function botReply(game: Game): BotReply {
   if (!isBotMode(game.mode)) throw new Error('No opponent in a hotseat game');
   const state = viewGame(game);
-  const result = DiceChess.getBestMove(state.dfen, { algorithm: game.mode });
+  const result = DiceChess.getBestMove(state.dfen, {
+    algorithm: engineBot(game.mode),
+  });
   return {
     gameId: game.id,
     revision: game.revision,

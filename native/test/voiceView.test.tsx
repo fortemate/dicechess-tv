@@ -228,7 +228,7 @@ test('the squares and the dice are named, and the menu items say what they are',
   });
   assert.equal(
     cardLabel(OPPONENTS[0]),
-    'Rolly, Easy. Plays any legal turn, at random',
+    'Rolly, Easy. Plays at random, but never misses a king it can take',
   );
 });
 
