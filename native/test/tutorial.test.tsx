@@ -25,6 +25,7 @@ import {
   tutorialReducer,
   step,
 } from '../src/tutorial';
+import type { BoardProps } from '../src/Board';
 import { Dice } from '../src/Dice';
 import {
   movableSquares,
@@ -34,14 +35,36 @@ import {
 import { route, RULE } from '../../src/core/cursor';
 import type { Square } from '../../src/core/board';
 import { RULES } from '../../src/core/rules';
+import { THEME } from '../src/theme';
 import { focusedLabel, optionViews } from './options';
-import { fakeTimers, launch, send, text } from './support';
+import {
+  fakeTimers,
+  isHost,
+  launch,
+  send,
+  styleOf,
+  text,
+  type Instance,
+  type Style,
+} from './support';
 
 // Thinkle says his lines one after the other, on the test's clock.
 fakeTimers();
 
 // The tutorial is open: Thinkle's name is on screen.
 const TUTORIAL_OPEN = /THINKLE/;
+
+const overlays = (
+  root: Instance,
+  match: (style: Style) => boolean,
+): Instance[] =>
+  root.findAll(
+    (node) =>
+      isHost(node, 'View') &&
+      styleOf(node).position === 'absolute' &&
+      match(styleOf(node)),
+    { deep: true },
+  );
 
 // Play the current step by taking the action it teaches, through the reducer.
 // A step that opens before its roll is rolled first, with OK.
@@ -224,6 +247,103 @@ test('Back leaves from a finished lesson too', () => {
   assert.match(text(root), /Done\. OK: next lesson · Back: leave/);
   send('back');
   assert.match(text(root), /Dice Chess/);
+});
+
+test('no cursor frame before the roll; after it the frame waits on a movable piece (#206, #396)', () => {
+  reset();
+  const { root } = launch();
+  const boardNode = () =>
+    root.find(
+      (node) => node.props && 'board' in node.props && 'legal' in node.props,
+    );
+  const board = () => boardNode().props as BoardProps;
+  const frames = () => overlays(root, (s) => s.borderColor === THEME.cursor);
+  const movable = () =>
+    overlays(root, (s) => s.backgroundColor === THEME.movable);
+
+  const squaresWhere = (
+    match: (view: { cursor?: boolean; movable?: boolean }) => boolean,
+  ) => [
+    ...new Set(
+      root
+        .findAll((node) => node.props?.view && match(node.props.view))
+        .map((node) => node.props.view.square as Square),
+    ),
+  ];
+
+  send('down', 'down', 'enter');
+  assert.match(text(root), TUTORIAL_OPEN);
+  assert.match(text(root), /Press OK to roll the dice/);
+  assert.equal(frames().length, 0, 'no cursor frame before the roll');
+  assert.equal(
+    movable().length,
+    0,
+    'no movable squares marked before the roll',
+  );
+  assert.deepEqual(
+    squaresWhere((v) => !!v.cursor),
+    [],
+  );
+  assert.deepEqual(
+    squaresWhere((v) => !!v.movable),
+    [],
+  );
+  assert.equal(board().cursor, null);
+  assert.equal(board().movable, null);
+
+  // Roll the dice: three pawns roll, all eight pawns glow as movable,
+  // and the cursor frame waits on e2.
+  send('enter');
+  assert.equal(
+    frames().length,
+    1,
+    'cursor frame on movable piece after the roll',
+  );
+  assert.equal(board().cursor, 'e2', 'cursor is specifically on e2');
+  assert.deepEqual(
+    squaresWhere((v) => !!v.cursor),
+    ['e2'],
+  );
+  assert.equal(
+    movable().length,
+    8,
+    'eight pawns glow as movable after the roll',
+  );
+  assert.deepEqual(board().movable, [
+    'a2',
+    'b2',
+    'c2',
+    'd2',
+    'e2',
+    'f2',
+    'g2',
+    'h2',
+  ]);
+  assert.deepEqual(
+    squaresWhere((v) => !!v.movable),
+    ['a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'],
+  );
+
+  // Play the first lesson to completion: Done. OK: next lesson.
+  // The board takes no input, so the cursor frame is hidden.
+  send('enter', 'enter', 'enter', 'enter', 'enter', 'enter');
+  assert.match(text(root), /Done\. OK: next lesson · Back: leave/);
+  assert.equal(frames().length, 0, 'no cursor frame when lesson is complete');
+  assert.equal(
+    movable().length,
+    0,
+    'no movable squares marked when lesson is complete',
+  );
+  assert.deepEqual(
+    squaresWhere((v) => !!v.cursor),
+    [],
+  );
+  assert.deepEqual(
+    squaresWhere((v) => !!v.movable),
+    [],
+  );
+  assert.equal(board().cursor, null);
+  assert.equal(board().movable, null);
 });
 
 test('the rules guide opens, moves between topics and returns', () => {

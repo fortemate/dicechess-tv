@@ -119,9 +119,18 @@ export const TutorialScreen = ({
 
   const current = step(state);
   const board = viewGame(state.game);
+  // The cursor frame shows only while the player chooses on the board (#206, #396).
+  // Before the roll, at an unplayable roll, between steps and on the closing
+  // screen there is nothing to choose, and a frame would suggest a piece
+  // is picked before the dice say which may move.
+  const choosing =
+    !state.complete &&
+    !state.finished &&
+    state.game.phase === 'move' &&
+    !isMissed(current, state.game) &&
+    !emptyRoll(state.game);
   // Marked as in a game, except between steps, when the board takes no input.
-  const movable =
-    state.complete || state.finished ? null : movableSquares(board.legal);
+  const movable = choosing ? movableSquares(board.legal) : null;
   const size = boardSide(width, height);
   const insets = safeInsets(width, height);
 
@@ -148,7 +157,7 @@ export const TutorialScreen = ({
         legal={board.legal}
         lastMove={state.game.lastMove}
         selected={state.focus.selected}
-        cursor={state.finished ? null : state.focus.cursor}
+        cursor={choosing ? state.focus.cursor : null}
         movable={movable}
       />
       {/* As tall as the board and level with it, as the game's panel is between
