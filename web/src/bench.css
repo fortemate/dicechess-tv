@@ -132,3 +132,49 @@ kbd {
 .exited p {
   margin: 6px 0;
 }
+
+.compare-stage {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  padding: 16px 24px;
+}
+
+.compare-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.compare-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--bench-text);
+  font-size: 14px;
+}
+
+.compare-header strong {
+  font-size: 16px;
+}
+
+.compare-header span {
+  color: var(--bench-muted);
+  font-size: 12px;
+}
+
+.compare-header code {
+  color: var(--bench-text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --bench-line: #6b889e;
+    --bench-muted: #c2d3e0;
+  }
+}

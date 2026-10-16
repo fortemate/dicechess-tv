@@ -4,24 +4,38 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { View } from 'react-native';
 import { App } from '../../native/src/App';
+import { Board } from '../../native/src/Board';
 import { THEME } from '../../native/src/theme';
+import type { Direction } from '../../src/core/cursor';
 import { TV_HEIGHT, TV_WIDTH } from './shims/react-native';
 import { onAppExit } from './shims/kepler';
 import { clearSaved } from './shims/mmkv';
 import { installKeyboard } from './keyboard';
 import { CvdFilters, filterOf } from './Cvd';
+import { Carried } from './Square';
 import {
+  COMPARE_BOARD,
+  COMPARE_LAST_MOVE,
+  COMPARE_LEGAL,
+  COMPARE_MOVABLE,
+  COMPARE_SELECTED,
   CVD,
   DEFAULT_MARKS,
+  INITIAL_COMPARE_CURSORS,
   MARKS,
   PRESETS,
+  VIEWS,
   formatBench,
   getBench,
   parseBench,
   presetOf,
   setBench,
+  stepCompareCursors,
+  stepShortcut,
   subscribeBench,
   type Bench,
+  type BenchView,
+  type CompareCursors,
   type MarkName,
   type Marks,
 } from './marks';
@@ -54,9 +68,6 @@ const update = (next: Bench) => {
 const setMark = <Name extends MarkName>(name: Name, value: Marks[Name]) =>
   update({ ...getBench(), marks: { ...getBench().marks, [name]: value } });
 
-const nextOf = <T,>(options: readonly T[], value: T) =>
-  options[(options.indexOf(value) + 1) % options.length];
-
 // The largest 16:9 stage that fits under the controls.
 const useScale = (host: React.RefObject<HTMLElement | null>) => {
   const [scale, setScale] = React.useState(1);
@@ -82,10 +93,25 @@ const LABELS: Record<MarkName, string> = {
   movable: 'Can move',
   selected: 'Picked up',
   destination: 'Can go to',
+  target: 'Target',
   cursor: 'Cursor',
   lastMove: 'Last move',
   palette: 'Colours',
 };
+
+const VIEW_LABELS: Record<BenchView, string> = {
+  game: 'Live game',
+  compare: 'Compare Step 1 & 2',
+};
+
+const COMPARE_BOARD_SIZE = 432;
+
+const DIRECTIONS: ReadonlySet<string> = new Set([
+  'up',
+  'down',
+  'left',
+  'right',
+]);
 
 // A control gives the keyboard back to the game as soon as it is used, so the
 // next arrow moves the cursor instead of the choice.
@@ -104,7 +130,12 @@ const Controls = ({
   const preset = presetOf(bench.marks) ?? '';
   const testerLink = () => {
     const url = new URL(location.href);
-    url.search = formatBench({ ...bench, cvd: 'none', controls: false });
+    url.search = formatBench({
+      ...bench,
+      cvd: 'none',
+      view: 'game',
+      controls: false,
+    });
     void navigator.clipboard?.writeText(url.toString()).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
@@ -113,7 +144,23 @@ const Controls = ({
   return (
     <header className="controls">
       <label>
-        <span>Preset</span>
+        <span>View (B)</span>
+        <select
+          value={bench.view}
+          onChange={(event) => {
+            update({ ...bench, view: event.target.value as BenchView });
+            done(event);
+          }}
+        >
+          {VIEWS.map((option) => (
+            <option key={option} value={option}>
+              {VIEW_LABELS[option]}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label>
+        <span>Preset (V)</span>
         <select
           value={preset}
           onChange={(event) => {
@@ -193,11 +240,56 @@ const Controls = ({
       </div>
       <p className="keys">
         <kbd>←↑→↓</kbd> D-pad · <kbd>Enter</kbd> OK · <kbd>Esc</kbd> Back ·{' '}
-        <kbd>C</kbd> vision · <kbd>V</kbd> next preset
+        <kbd>B</kbd> view · <kbd>C</kbd> vision · <kbd>V</kbd> preset
       </p>
     </header>
   );
 };
+
+const CompareStage = ({ cursors }: { cursors: CompareCursors }) => (
+  <div className="compare-stage">
+    <section className="compare-card">
+      <div className="compare-header">
+        <strong>Step 1 · Choose a piece</strong>
+        <span>
+          10 movable pieces · cursor on <code>{cursors.step1}</code> · last move{' '}
+          <code>{COMPARE_LAST_MOVE}</code>
+        </span>
+      </div>
+      <View style={{ width: COMPARE_BOARD_SIZE, height: COMPARE_BOARD_SIZE }}>
+        <Board
+          size={COMPARE_BOARD_SIZE}
+          board={COMPARE_BOARD}
+          lastMove={COMPARE_LAST_MOVE}
+          movable={COMPARE_MOVABLE}
+          cursor={cursors.step1}
+        />
+      </View>
+    </section>
+    <section className="compare-card">
+      <div className="compare-header">
+        <strong>Step 2 · Choose a destination</strong>
+        <span>
+          Queen picked up on <code>{COMPARE_SELECTED}</code> · cursor on{' '}
+          <code>{cursors.step2}</code> (captures <code>d5</code>,{' '}
+          <code>e5</code>, <code>a7</code>)
+        </span>
+      </div>
+      <Carried.Provider value="Q">
+        <View style={{ width: COMPARE_BOARD_SIZE, height: COMPARE_BOARD_SIZE }}>
+          <Board
+            size={COMPARE_BOARD_SIZE}
+            board={COMPARE_BOARD}
+            lastMove={COMPARE_LAST_MOVE}
+            selected={COMPARE_SELECTED}
+            legal={COMPARE_LEGAL}
+            cursor={cursors.step2}
+          />
+        </View>
+      </Carried.Provider>
+    </section>
+  </div>
+);
 
 const Bench = () => {
   const bench = useBench();
@@ -209,6 +301,7 @@ const Bench = () => {
   // Coming back after Back closed the app is a new launch: the app is mounted
   // afresh and reads its saved game, as it does on the television.
   const [launch, setLaunch] = React.useState(0);
+  const [cursors, setCursors] = React.useState(INITIAL_COMPARE_CURSORS);
 
   React.useEffect(() => {
     onAppExit(() => {
@@ -217,27 +310,26 @@ const Bench = () => {
     });
     return installKeyboard({
       onAny: () => {
+        if (getBench().view === 'compare') return false;
         if (!exitedRef.current) return false;
         exitedRef.current = false;
         setExited(false);
         setLaunch((count) => count + 1);
         return true;
       },
-      onPress: () => setPresses((count) => count + 1),
+      onPress: (button) => {
+        setPresses((count) => count + 1);
+        if (getBench().view === 'compare' && DIRECTIONS.has(button)) {
+          setCursors((current) =>
+            stepCompareCursors(current, button as Direction),
+          );
+        }
+      },
       onOther: (key) => {
-        const current = getBench();
-        if (key === 'c' || key === 'C') {
-          update({ ...current, cvd: nextOf(CVD, current.cvd) });
-          return true;
-        }
-        if (key === 'v' || key === 'V') {
-          const names = Object.keys(PRESETS);
-          const now = names.indexOf(presetOf(current.marks) ?? '');
-          const marks = PRESETS[names[(now + 1) % names.length]];
-          update({ ...current, marks: { ...DEFAULT_MARKS, ...marks } });
-          return true;
-        }
-        return false;
+        const next = stepShortcut(getBench(), key);
+        if (!next) return false;
+        update(next);
+        return true;
       },
     });
   }, []);
@@ -259,15 +351,21 @@ const Bench = () => {
             filter: filterOf(bench.cvd),
           }}
         >
-          <View style={{ width: TV_WIDTH, height: TV_HEIGHT }}>
-            {exited ? null : <App key={launch} />}
-          </View>
-          {exited ? (
-            <div className="exited">
-              <p>Back here closes the app on the television.</p>
-              <p>Press any key to launch it again.</p>
-            </div>
-          ) : null}
+          {bench.view === 'compare' ? (
+            <CompareStage cursors={cursors} />
+          ) : (
+            <>
+              <View style={{ width: TV_WIDTH, height: TV_HEIGHT }}>
+                {exited ? null : <App key={launch} />}
+              </View>
+              {exited ? (
+                <div className="exited">
+                  <p>Back here closes the app on the television.</p>
+                  <p>Press any key to launch it again.</p>
+                </div>
+              ) : null}
+            </>
+          )}
         </div>
       </main>
     </>

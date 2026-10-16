@@ -43,14 +43,15 @@ not to index it.
 
 ## Keys
 
-| Key                 | Remote                                        |
-| ------------------- | --------------------------------------------- |
-| Arrow keys          | D-pad                                         |
-| Enter or Space      | OK                                            |
-| Escape or Backspace | Back                                          |
-| M                   | Menu (verified in tests; not device evidence) |
-| C                   | next vision filter                            |
-| V                   | next preset                                   |
+| Key                 | Remote                                                                                            |
+| ------------------- | ------------------------------------------------------------------------------------------------- |
+| Arrow keys          | D-pad                                                                                             |
+| Enter or Space      | OK                                                                                                |
+| Escape or Backspace | Back                                                                                              |
+| M                   | Menu (verified in tests; not device evidence)                                                     |
+| B                   | toggle live game / side-by-side step view (verified in `test/marks.test.ts`; not device evidence) |
+| C                   | next vision filter (verified in `test/marks.test.ts`; not device evidence)                        |
+| V                   | next preset (verified in `test/marks.test.ts`; not device evidence)                               |
 
 Back where the television would close the app shows that it would, and the next
 key launches it again from its saved game. **New session** forgets the saved
@@ -65,22 +66,27 @@ is written, so the bare address is the game as it ships. **Tester link** copies
 the current marks with the controls hidden (`ui=0`), for handing one exact
 variant to someone.
 
-| Parameter  | Mark                            | Options (first is the television's)                                 |
-| ---------- | ------------------------------- | ------------------------------------------------------------------- |
-| `movable`  | a piece that can move now       | `fill`, `fill-corners`, `corners`, `outline`, `badge`, `none`       |
-| `selected` | the picked-up piece             | `tint-frame`, `frame`, `solid`, `lift`                              |
-| `dest`     | where it can go                 | `dot`, `dot-large`, `fill`, `corners`, `outline`                    |
-| `cursor`   | the remote's cursor             | `frame`, `thick`, `two-tone`                                        |
-| `last`     | both squares of the last action | `tint`, `outline`, `none`                                           |
-| `palette`  | the colours of all of them      | `tv`, `okabe-ito`, `high-contrast`                                  |
-| `cvd`      | colour-vision simulation        | `none`, `protanopia`, `deuteranopia`, `tritanopia`, `achromatopsia` |
-| `ui`       | `0` hides the bench's controls  |                                                                     |
+| Parameter  | Mark                                      | Options (first is the television's)                                             |
+| ---------- | ----------------------------------------- | ------------------------------------------------------------------------------- |
+| `movable`  | a piece that can move now                 | `fill`, `fill-corners`, `corners`, `outline`, `pedestal`, `badge`, `none`       |
+| `selected` | the picked-up piece                       | `tint-frame`, `raised`, `warm-frame`, `warm-pedestal`, `frame`, `solid`, `lift` |
+| `dest`     | where it can go                           | `dot`, `dot-ringed`, `dot-large`, `diamond`, `fill`, `corners`, `outline`       |
+| `target`   | the destination under the cursor          | `cursor-only`, `bullseye`, `fill`, `ghost`                                      |
+| `cursor`   | the remote's cursor                       | `frame`, `two-tone-bold`, `fill-two-tone`, `brackets`, `thick`, `two-tone`      |
+| `last`     | both squares of the last action           | `tint`, `outline`, `none`                                                       |
+| `palette`  | the colours of all of them                | `tv`, `okabe-ito`, `high-contrast`                                              |
+| `cvd`      | colour-vision simulation                  | `none`, `protanopia`, `deuteranopia`, `tritanopia`, `achromatopsia`             |
+| `view`     | live game or side-by-side step comparison | `game`, `compare`                                                               |
+| `ui`       | `0` hides the bench's controls            |                                                                                 |
 
 `fill`, `fill-corners` and `corners` are variants A, B and C of the
 colour-vision check on the project site (#105, #108). With every mark at its
 first option and the `tv` palette, the board is drawn by
 `native/src/Square.tsx` itself; any other choice is drawn by
-[`src/Square.tsx`](src/Square.tsx) in the same layers.
+[`src/Square.tsx`](src/Square.tsx) in the same layers. In `compare` view, the
+stage draws Step 1 (choosing a piece) and Step 2 (choosing a destination, empty
+and capture squares of both colours) side by side, and the arrow keys move the
+cursor on both boards at once (#401; verified in [`test/marks.test.ts`](test/marks.test.ts), browser bench rather than device evidence).
 
 The simulation uses the severity-1 matrices of Machado, Oliveira and Fernandes
 (2009) for the three dichromacies, and luminance alone for achromatopsia. It
