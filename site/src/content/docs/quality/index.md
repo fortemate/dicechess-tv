@@ -11,12 +11,86 @@ Most checks run in Node: unit tests of the shared core and of the app's screens,
 
 Three packages have tests, all on Node's own test runner (`node --test`) with the Node version in `mise.toml`. Counts and times are as of 10 October 2026, on a Mac:
 
-| Suite                          | Scope                                                                                                                                                                                                                                                                                      | Runner & Environment                                                                                                                                                   | Count                                                                                                    | Duration      |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ------------- |
-| **Core Suite** (`test/`)       | The turn controller and its legal actions, dice, saved-game snapshots, the completed-game ledger, the rules guide against the engine, the opponents' engine algorithms, the tutorial's lessons, the danger search, cursor jumps and press counts, voice lines, and the English-only check. | `node --test --experimental-strip-types`, with `node:assert/strict`.                                                                                                   | **306 tests**                                                                                            | **about 1 s** |
-| **App Suite** (`native/test/`) | Board and piece rendering, remote input and focus, menus, the tutorial, saving and the ledger across relaunches, sound, music and voices (ducking included), the reduced-motion path against a stubbed platform setting, and the generated assets, the launcher icon among them.           | `node --test` with esbuild module hooks (`native/test/hooks.mjs`); `react-test-renderer` over hand-written stubs of `react-native` and the `@amazon-devices` packages. | **501 tests**, 2 skipped (they need the opponents' portraits, which the public repository does not hold) | **about 7 s** |
-| **Web Bench** (`web/test/`)    | The browser test bench's configuration and board marks.                                                                                                                                                                                                                                    | `node --test --experimental-strip-types`.                                                                                                                              | **8 tests**                                                                                              | **under 1 s** |
-| **Total**                      | Logic and component trees in Node, against stubs of the Vega packages; none of it runs on a Vega device.                                                                                                                                                                                   | Local dev & GitHub Actions CI                                                                                                                                          | **815 tests**                                                                                            | **about 9 s** |
+<div class="suite-cards">
+  <article class="suite-card">
+    <div class="suite-card-header">
+      <div class="suite-card-title">
+        Core Suite <code>test/</code>
+      </div>
+      <div class="suite-card-metrics">
+        <span class="suite-badge count">306 tests</span>
+        <span class="suite-badge duration">about 1 s</span>
+      </div>
+    </div>
+    <p class="suite-card-scope">
+      The turn controller and its legal actions, dice, saved-game snapshots, the completed-game ledger, the rules guide against the engine, the opponents’ engine algorithms, the tutorial’s lessons, the danger search, cursor jumps and press counts, voice lines, and the English-only check.
+    </p>
+    <div class="suite-card-meta">
+      <span class="suite-meta-label">Runner &amp; environment:</span>
+      <code>node --test --experimental-strip-types</code>, with <code>node:assert/strict</code>
+    </div>
+  </article>
+
+  <article class="suite-card">
+    <div class="suite-card-header">
+      <div class="suite-card-title">
+        App Suite <code>native/test/</code>
+      </div>
+      <div class="suite-card-metrics">
+        <span class="suite-badge count">501 tests</span>
+        <span class="suite-badge duration">about 7 s</span>
+      </div>
+    </div>
+    <p class="suite-card-scope">
+      Board and piece rendering, remote input and focus, menus, the tutorial, saving and the ledger across relaunches, sound, music and voices (ducking included), the reduced-motion path against a stubbed platform setting, and the generated assets, the launcher icon among them.
+    </p>
+    <div class="suite-card-meta">
+      <span class="suite-meta-label">Runner &amp; environment:</span>
+      <code>node --test</code> with esbuild module hooks (<code>native/test/hooks.mjs</code>); <code>react-test-renderer</code> over hand-written stubs of <code>react-native</code> and the <code>@amazon-devices</code> packages.
+    </div>
+    <div class="suite-card-note">
+      2 skipped tests need the opponents’ portraits, which the public repository does not hold.
+    </div>
+  </article>
+
+  <article class="suite-card">
+    <div class="suite-card-header">
+      <div class="suite-card-title">
+        Web Bench <code>web/test/</code>
+      </div>
+      <div class="suite-card-metrics">
+        <span class="suite-badge count">8 tests</span>
+        <span class="suite-badge duration">under 1 s</span>
+      </div>
+    </div>
+    <p class="suite-card-scope">
+      The browser test bench’s configuration and board marks.
+    </p>
+    <div class="suite-card-meta">
+      <span class="suite-meta-label">Runner &amp; environment:</span>
+      <code>node --test --experimental-strip-types</code>
+    </div>
+  </article>
+
+  <article class="suite-card total">
+    <div class="suite-card-header">
+      <div class="suite-card-title">
+        Total
+      </div>
+      <div class="suite-card-metrics">
+        <span class="suite-badge count highlight">815 tests</span>
+        <span class="suite-badge duration highlight">about 9 s</span>
+      </div>
+    </div>
+    <p class="suite-card-scope">
+      Logic and component trees in Node, against stubs of the Vega packages; none of it runs on a Vega device.
+    </p>
+    <div class="suite-card-meta">
+      <span class="suite-meta-label">Environment:</span>
+      Local dev &amp; GitHub Actions CI
+    </div>
+  </article>
+</div>
 
 ### What the Tests Verify
 
@@ -28,7 +102,7 @@ Three packages have tests, all on Node's own test runner (`node --test`) with th
 
 ### Audio regression checks, 14 October 2026
 
-The audio work in [PR #388](https://github.com/fortemate/dicechess-tv/pull/388) passed `mise run check` with 325 core, 586 native and 8 browser tests: 919 in total, including 33 added native regressions. They cover readiness and delayed playback, completion and cleanup, stale events, bounded failure and retry, silence during crossfade errors, and verified MP3 tag removal. These counts describe that PR's local checkout; the table above retains the earlier public-checkout snapshot.
+The audio work in [PR #388](https://github.com/fortemate/dicechess-tv/pull/388) passed `mise run check` with 325 core, 586 native and 8 browser tests: 919 in total, including 33 added native regressions. They cover readiness and delayed playback, completion and cleanup, stale events, bounded failure and retry, silence during crossfade errors, and verified MP3 tag removal. These counts describe that PR's local checkout; the breakdown above retains the earlier public-checkout snapshot.
 
 Release packages were built for armv7, aarch64 and x86_64. Separate VVD and physical Stick runs covered ten minutes of playback, all six tutorial lessons and all 45 tutorial clips, settings and Home/relaunch, plus eight injected crossfade failure/silence cases per device. Native events and release completions support the hardware result; recorded audio is from VVD. Clean packages were installed afterward, deployed JS/Hermes hashes matched their archives, and saved data and CRC matched their pre-test backups. The [validation record](https://github.com/fortemate/dicechess-tv/blob/c6109575aae7f0f125e8ff5b53566b089ed9de8f/docs/audio-regression-validation-387.md) separates the device, automated and package evidence, including cold Home recovery and the remaining warm-focus and physical-listening limits.
 
