@@ -1,0 +1,132 @@
+---
+import { OPPONENT_EXAMPLES } from '../opponentExamples';
+interface Props {
+  character: keyof typeof OPPONENT_EXAMPLES;
+}
+const { character } = Astro.props;
+const example = OPPONENT_EXAMPLES[character];
+const squares = example.fen
+  .split(' ')[0]
+  .split('/')
+  .flatMap((rank, row) => {
+    let file = 0;
+    return [...rank].flatMap((piece) => {
+      const count = Number(piece);
+      const pieces = count ? Array(count).fill('') : [piece];
+      return pieces.map((value: string) => {
+        const column = file++;
+        return {
+          piece: value,
+          square: `${'abcdefgh'[column]}${8 - row}`,
+          row,
+          column,
+        };
+      });
+    });
+  });
+const pieces = import.meta.glob('../../../src/assets/pieces/rhosgfx/*.svg', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+const pieceUrl = (piece: string) =>
+  pieces[
+    `../../../src/assets/pieces/rhosgfx/${piece === piece.toUpperCase() ? 'w' : 'b'}${piece.toUpperCase()}.svg`
+  ];
+const from = example.turns[0].map((move) => move.slice(0, 2));
+const to = example.turns[0].map((move) => move.slice(2, 4));
+---
+
+<figure class="opponent-example">
+  <div
+    class="example-board"
+    role="img"
+    aria-label={`Position before the turn. ${example.description}`}
+  >
+    {squares.map(({ piece, square, row, column }) => (
+      <span
+        class:list={[
+          'square',
+          {
+            dark: (row + column) % 2 === 1,
+            start: from.includes(square),
+            finish: to.includes(square),
+          },
+        ]}
+      >
+        {piece && (
+          <img
+            src={pieceUrl(piece)}
+            alt=""
+            width="48"
+            height="48"
+            loading="lazy"
+          />
+        )}
+        {column === 0 && <span class="rank">{8 - row}</span>}
+        {row === 7 && <span class="file">{'abcdefgh'[column]}</span>}
+      </span>
+    ))}
+  </div>
+  <figcaption>
+    {example.caption} Highlighted squares mark the starts and destinations.
+  </figcaption>
+</figure>
+
+<style>
+  .opponent-example {
+    max-width: 24rem;
+    margin: 1.5rem auto;
+  }
+  .example-board {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    aspect-ratio: 1;
+    overflow: hidden;
+    border: 2px solid #514532;
+    border-radius: 0.4rem;
+  }
+  .square {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-width: 0;
+    aspect-ratio: 1;
+    background: #f2e7ce;
+    color: #3c3327;
+  }
+  .square.dark {
+    background: #a98c64;
+    color: #211a13;
+  }
+  .square.start,
+  .square.finish {
+    box-shadow: inset 0 0 0 3px #a83b0b;
+  }
+  .square.finish {
+    background: #eac178;
+  }
+  .square img {
+    width: 88%;
+    height: 88%;
+    margin: 0;
+  }
+  .rank,
+  .file {
+    position: absolute;
+    font: 600 0.65rem/1 sans-serif;
+  }
+  .rank {
+    top: 2px;
+    left: 2px;
+  }
+  .file {
+    bottom: 2px;
+    right: 2px;
+  }
+  figcaption {
+    margin-top: 0.75rem;
+    color: var(--sl-color-gray-2);
+    font-size: var(--sl-text-sm);
+  }
+</style>

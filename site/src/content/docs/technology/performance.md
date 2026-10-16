@@ -90,7 +90,7 @@ Before the change an arrow worked out five views at every point of a turn, and a
 
 ## Opponents' decision time
 
-Dice Chess TV offers three built-in opponents: Rolly (random), Grabby (greedy capture) and Rampage (aggressive king hunter). Each is an algorithm of the engine, asked for a whole turn through `getBestMove`, and all three run on the device, on the JavaScript thread.
+Dice Chess TV offers three built-in opponents: Rolly (random, with immediate king captures), Grabby (material gains across a complete turn) and Rampage (aggressive king hunter). Their [profiles](/play/opponents/) explain the current playing styles; the timings below describe the builds measured on the dates named. Each is an algorithm of the engine, asked for a whole turn through `getBestMove`, and all three run on the device, on the JavaScript thread.
 
 A probe build on the Vega Virtual Device timed Grabby's and Rampage's decisions on 26 September 2026, and Node timed 100 games of each. The figures are the slowest seen, not bounds:
 

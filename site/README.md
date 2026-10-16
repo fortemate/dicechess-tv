@@ -33,8 +33,9 @@ added when it has its content: nothing is published as a placeholder.
 ## The home page and screenshots
 
 The home page is MDX, `src/content/docs/index.mdx`, because its cards and its
-screenshot strip use Starlight's components and `astro:assets`; every other page
-is plain Markdown.
+screenshot strip use Starlight's components and `astro:assets`. The opponent
+overview and profiles in `src/content/docs/play/opponents/` use MDX too, for
+portraits, audio controls and teaching boards; the remaining pages are Markdown.
 
 Screenshots live in `src/assets/screenshots/` as 1280 x 720 PNGs, and Astro
 converts them to WebP when it builds. They are captured on the Vega Virtual
@@ -60,6 +61,29 @@ matched `rules.png` and `tutorial.png`: 105 and 118 of their 921,600 pixels
 differed, none visibly, so neither was replaced. On 10 October 2026, eleven
 screenshots that showed the old "hotseat" labels or had drifted from `main` were
 retaken this way on the Vega Virtual Device, from main 125b4f6 (#351).
+
+## Opponent profiles
+
+`src/content/docs/play/opponents/` holds the overview and three profiles. The
+shared components use the game's opponent names and levels, and import nine
+MP3s directly from `native/voices/elevenlabs-dicechess-bots/`, with their
+transcripts from its manifest. No audio is copied or synthesized for the site.
+Players use native browser controls, with no autoplay or preloading; a small
+script pauses the previous sample when another starts. The text stays readable
+without JavaScript. These are the in-game voices, not the older audition on
+`/voices/`.
+
+`src/assets/opponents/` holds only the three card portraits needed by the site,
+copied unchanged from portrait pack 1.4.1. `NOTICE.txt` preserves their terms and
+`provenance.json` records the source commit and SHA-256 of each PNG. They remain
+outside the AGPL, as do the game's recordings. The site does not need access to
+the full private portrait pack, and native builds do not use these copies.
+
+`src/opponentExamples.ts` defines the teaching positions drawn with the existing
+RhosGFX pieces. `test/opponent-examples.test.ts` checks that every shown sequence
+is a complete legal turn and that each opponent's actual algorithm chooses one
+of the described turns. Check the styles against the engine version locked at
+the root when updating it; the overview links to the source used for this check.
 
 ## The friction log
 

@@ -1,0 +1,116 @@
+---
+title: Opponents
+description: 'Meet Rolly, Grabby and Rampage: three Dice Chess opponents with their own playing styles, portraits and voices.'
+sidebar:
+  label: Meet the opponents
+  order: 3
+---
+
+import OpponentPortrait from '../../../../components/OpponentPortrait.astro';
+import VoiceSamples from '../../../../components/VoiceSamples.astro';
+
+A lucky pixie, a greedy goblin and a little horned imp walk up to the same board. Each rolls the same kinds of dice and follows the same rules as you. What changes is how they choose their moves, and what they have to say about them.
+
+All three play on the TV, offline. Choose one on **Play the computer**. The Easy, Medium and Hard labels are the game's difficulty choices; the portraits below lead to their styles, examples and voices.
+
+<div class="opponent-cards">
+  <article>
+    <a href="/play/opponents/rolly/" aria-label="Meet Rolly">
+      <OpponentPortrait character="rolly" card />
+    </a>
+    <h2>
+      <a href="/play/opponents/rolly/">Rolly</a>
+    </h2>
+    <p>
+      A cheerful pixie who loves a lucky roll. She plays at random, with one
+      sharp exception: a king she can take immediately.
+    </p>
+    <a href="/play/opponents/rolly/">Meet Rolly →</a>
+  </article>
+  <article>
+    <a href="/play/opponents/grabby/" aria-label="Meet Grabby">
+      <OpponentPortrait character="grabby" card />
+    </a>
+    <h2>
+      <a href="/play/opponents/grabby/">Grabby</a>
+    </h2>
+    <p>
+      A goblin with a collection to fill. He chooses the whole turn that leaves
+      him with the best material balance.
+    </p>
+    <a href="/play/opponents/grabby/">Meet Grabby →</a>
+  </article>
+  <article>
+    <a href="/play/opponents/rampage/" aria-label="Meet Rampage">
+      <OpponentPortrait character="rampage" card />
+    </a>
+    <h2>
+      <a href="/play/opponents/rampage/">Rampage</a>
+    </h2>
+    <p>
+      A little imp with a battle cry. He pushes pawns, brings his pieces closer
+      and puts pressure around your king.
+    </p>
+    <a href="/play/opponents/rampage/">Meet Rampage →</a>
+  </article>
+</div>
+
+## Which opponent should I choose?
+
+| Opponent                                   | How it chooses                                                                                         | A good reason to play                         |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------ | --------------------------------------------- |
+| [Rolly](/play/opponents/rolly/) · Easy     | A random legal turn, unless its first action can take your king                                        | Practise the rules and spending your dice     |
+| [Grabby](/play/opponents/grabby/) · Medium | The best material balance at the end of this turn; a king capture comes first                          | Learn to spot captures across several actions |
+| [Rampage](/play/opponents/rampage/) · Hard | Material, its own king's safety, pawn advances and pressure near your king; a king capture comes first | Practise defending against an active attack   |
+
+A turn can contain several actions. Grabby and Rampage compare complete legal sequences for the dice already rolled; neither searches through your future replies. Equal best choices are broken at random, so they need not repeat the same turn. All three obey the [rule to use as many dice as possible](/play/how-to-play/#the-maximal-use-rule), and capturing a king ends the game immediately.
+
+## The same moment, three reactions
+
+They greet you, react to their captures and empty rolls, warn when your king is directly threatened, and celebrate a win or complain about a loss. Each has its own words and voice for those moments. Here is how taking your queen or rook sounds:
+
+<VoiceSamples character="rolly" event="capture_heavy" />
+<VoiceSamples character="grabby" event="capture_heavy" />
+<VoiceSamples character="rampage" event="capture_heavy" />
+
+Press Play to listen; starting another sample pauses the previous one. These are recordings used in the game, with their words written above the controls. The personal pages have more examples.
+
+In a game, commentary leaves space between lines, so every event does not produce a reaction. A character avoids saying the same line twice in a row for the same event. Voices in Settings controls the recordings; the opponent's speech bubble remains visible when voices are muted.
+
+Rolly can also host [a game against a friend](/project/features/#play-a-friend-on-one-remote), alongside the other host choices, Prowla and Thinkle. That is a separate role: the host cheers both players and makes no moves.
+
+## About the portraits and recordings
+
+The portraits were drawn for Dice Chess with Recraft, and the voices were made with ElevenLabs. They belong to Fortemate and are outside the source code's open licence: [Credits and licences](/contribute/credits/). The recordings here are the game's current ElevenLabs voices; the separate, unlisted voice audition contains earlier candidates.
+
+<details>
+  <summary>How these playing styles were checked</summary>
+  <p>
+    The descriptions follow the TV app's{' '}
+    <a href="https://github.com/fortemate/dicechess-tv/blob/main/src/core/bot.ts">
+      algorithm mapping
+    </a>{' '}
+    and its locked engine version, 0.14.8:{' '}
+    <a href="https://github.com/fortemate/dicechess-engine/blob/v0.14.8/shared/src/main/scala/dicechess/engine/search/RandomKingCaptureSearch.scala">
+      Rolly
+    </a>
+    ,{' '}
+    <a href="https://github.com/fortemate/dicechess-engine/blob/v0.14.8/shared/src/main/scala/dicechess/engine/search/GreedySearch.scala">
+      Grabby
+    </a>
+    ,{' '}
+    <a href="https://github.com/fortemate/dicechess-engine/blob/v0.14.8/shared/src/main/scala/dicechess/engine/search/AggressiveSearch.scala">
+      Rampage
+    </a>{' '}
+    and the{' '}
+    <a href="https://github.com/fortemate/dicechess-engine/blob/v0.14.8/shared/src/main/scala/dicechess/engine/search/Evaluator.scala">
+      position evaluator
+    </a>
+    . The example turns on the profiles are checked against that engine in the
+    site's repository. The reactions follow the game's{' '}
+    <a href="https://github.com/fortemate/dicechess-tv/blob/main/src/core/botVoice.ts">
+      commentary catalogue and triggers
+    </a>
+    .
+  </p>
+</details>

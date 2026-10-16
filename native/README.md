@@ -145,7 +145,7 @@ Regenerating and formatting reproduces the checked-in files byte for byte.
 
 ## Portraits
 
-The three opponents have portraits of their own, drawn for Dice Chess: Rolly, Grabby and Rampage (fortemate/dicechess-assets#31). So do Prowla the cat, who hosts games against a friend (#258), and Thinkle the wizard, who teaches the tutorial (#264) and hosts those games too (#279). They are for Fortemate's Dice Chess apps only, so they stay out of this repository while it is public. A local build vendors them from the private asset repository at a pinned commit:
+The three opponents have portraits of their own, drawn for Dice Chess: Rolly, Grabby and Rampage (fortemate/dicechess-assets#31). So do Prowla the cat, who hosts games against a friend (#258), and Thinkle the wizard, who teaches the tutorial (#264) and hosts those games too (#279). They are for Fortemate's Dice Chess apps and material presenting them only. The full portrait pack for the app is not tracked; three opponent portraits are tracked separately for the website profiles in `site/src/assets/opponents/`, which native builds do not read. A local build vendors them from the private asset repository at a pinned commit:
 
 ```bash
 node native/scripts/vendor-portraits.mjs ../dicechess-assets <commit>
