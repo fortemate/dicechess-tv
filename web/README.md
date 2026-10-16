@@ -43,15 +43,15 @@ not to index it.
 
 ## Keys
 
-| Key                 | Remote                                        |
-| ------------------- | --------------------------------------------- |
-| Arrow keys          | D-pad                                         |
-| Enter or Space      | OK                                            |
-| Escape or Backspace | Back                                          |
-| M                   | Menu (verified in tests; not device evidence) |
-| B                   | toggle live game / side-by-side step view     |
-| C                   | next vision filter                            |
-| V                   | next preset                                   |
+| Key                 | Remote                                                                                            |
+| ------------------- | ------------------------------------------------------------------------------------------------- |
+| Arrow keys          | D-pad                                                                                             |
+| Enter or Space      | OK                                                                                                |
+| Escape or Backspace | Back                                                                                              |
+| M                   | Menu (verified in tests; not device evidence)                                                     |
+| B                   | toggle live game / side-by-side step view (verified in `test/marks.test.ts`; not device evidence) |
+| C                   | next vision filter (verified in `test/marks.test.ts`; not device evidence)                        |
+| V                   | next preset (verified in `test/marks.test.ts`; not device evidence)                               |
 
 Back where the television would close the app shows that it would, and the next
 key launches it again from its saved game. **New session** forgets the saved
@@ -86,7 +86,7 @@ first option and the `tv` palette, the board is drawn by
 [`src/Square.tsx`](src/Square.tsx) in the same layers. In `compare` view, the
 stage draws Step 1 (choosing a piece) and Step 2 (choosing a destination, empty
 and capture squares of both colours) side by side, and the arrow keys move the
-cursor on both boards at once (#401).
+cursor on both boards at once (#401; verified in [`test/marks.test.ts`](test/marks.test.ts), browser bench rather than device evidence).
 
 The simulation uses the severity-1 matrices of Machado, Oliveira and Fernandes
 (2009) for the three dichromacies, and luminance alone for achromatopsia. It

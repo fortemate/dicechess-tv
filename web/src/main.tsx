@@ -6,7 +6,7 @@ import { View } from 'react-native';
 import { App } from '../../native/src/App';
 import { Board } from '../../native/src/Board';
 import { THEME } from '../../native/src/theme';
-import { RULE, jump, type Direction } from '../../src/core/cursor';
+import type { Direction } from '../../src/core/cursor';
 import { TV_HEIGHT, TV_WIDTH } from './shims/react-native';
 import { onAppExit } from './shims/kepler';
 import { clearSaved } from './shims/mmkv';
@@ -14,8 +14,14 @@ import { installKeyboard } from './keyboard';
 import { CvdFilters, filterOf } from './Cvd';
 import { Carried } from './Square';
 import {
+  COMPARE_BOARD,
+  COMPARE_LAST_MOVE,
+  COMPARE_LEGAL,
+  COMPARE_MOVABLE,
+  COMPARE_SELECTED,
   CVD,
   DEFAULT_MARKS,
+  INITIAL_COMPARE_CURSORS,
   MARKS,
   PRESETS,
   VIEWS,
@@ -24,9 +30,12 @@ import {
   parseBench,
   presetOf,
   setBench,
+  stepCompareCursors,
+  stepShortcut,
   subscribeBench,
   type Bench,
   type BenchView,
+  type CompareCursors,
   type MarkName,
   type Marks,
 } from './marks';
@@ -58,9 +67,6 @@ const update = (next: Bench) => {
 
 const setMark = <Name extends MarkName>(name: Name, value: Marks[Name]) =>
   update({ ...getBench(), marks: { ...getBench().marks, [name]: value } });
-
-const nextOf = <T,>(options: readonly T[], value: T) =>
-  options[(options.indexOf(value) + 1) % options.length];
 
 // The largest 16:9 stage that fits under the controls.
 const useScale = (host: React.RefObject<HTMLElement | null>) => {
@@ -98,42 +104,6 @@ const VIEW_LABELS: Record<BenchView, string> = {
   compare: 'Compare Step 1 & 2',
 };
 
-// Scotch position for the side-by-side comparison (#401):
-// - Last move b8c6 covers one dark square (b8) and one light square (c6).
-// - Step 1 has 10 movable pieces across light and dark squares.
-// - Step 2 picks up the Queen on d4 (dark square), whose legal destinations
-//   include captures on both light (d5) and dark (e5, a7) squares as well as
-//   empty squares of both colours (c4, a4, d3, d2 light; b4, c5, b6, e3, d1 dark).
-const COMPARE_BOARD = 'r1bqkbnr/ppp2ppp/2n5/3pp3/3QP3/2N2N2/PPP2PPP/R1B1KB1R';
-const COMPARE_LAST_MOVE = 'b8c6';
-const COMPARE_MOVABLE = [
-  'a2',
-  'b2',
-  'c2',
-  'f2',
-  'g2',
-  'h2',
-  'e4',
-  'c3',
-  'f3',
-  'd4',
-] as const;
-const COMPARE_SELECTED = 'd4';
-const COMPARE_LEGAL = [
-  'd4d5',
-  'd4e5',
-  'd4a7',
-  'd4c4',
-  'd4b4',
-  'd4a4',
-  'd4c5',
-  'd4b6',
-  'd4e3',
-  'd4d3',
-  'd4d2',
-  'd4d1',
-] as const;
-const COMPARE_DESTINATIONS = COMPARE_LEGAL.map((move) => move.slice(2, 4));
 const COMPARE_BOARD_SIZE = 432;
 
 const DIRECTIONS: ReadonlySet<string> = new Set([
@@ -276,19 +246,13 @@ const Controls = ({
   );
 };
 
-const CompareStage = ({
-  step1Cursor,
-  step2Cursor,
-}: {
-  step1Cursor: string;
-  step2Cursor: string;
-}) => (
+const CompareStage = ({ cursors }: { cursors: CompareCursors }) => (
   <div className="compare-stage">
     <section className="compare-card">
       <div className="compare-header">
         <strong>Step 1 · Choose a piece</strong>
         <span>
-          10 movable pieces · cursor on <code>{step1Cursor}</code> · last move{' '}
+          10 movable pieces · cursor on <code>{cursors.step1}</code> · last move{' '}
           <code>{COMPARE_LAST_MOVE}</code>
         </span>
       </div>
@@ -298,7 +262,7 @@ const CompareStage = ({
           board={COMPARE_BOARD}
           lastMove={COMPARE_LAST_MOVE}
           movable={COMPARE_MOVABLE}
-          cursor={step1Cursor}
+          cursor={cursors.step1}
         />
       </View>
     </section>
@@ -307,8 +271,8 @@ const CompareStage = ({
         <strong>Step 2 · Choose a destination</strong>
         <span>
           Queen picked up on <code>{COMPARE_SELECTED}</code> · cursor on{' '}
-          <code>{step2Cursor}</code> (captures <code>d5</code>, <code>e5</code>,{' '}
-          <code>a7</code>)
+          <code>{cursors.step2}</code> (captures <code>d5</code>,{' '}
+          <code>e5</code>, <code>a7</code>)
         </span>
       </div>
       <Carried.Provider value="Q">
@@ -319,7 +283,7 @@ const CompareStage = ({
             lastMove={COMPARE_LAST_MOVE}
             selected={COMPARE_SELECTED}
             legal={COMPARE_LEGAL}
-            cursor={step2Cursor}
+            cursor={cursors.step2}
           />
         </View>
       </Carried.Provider>
@@ -337,8 +301,7 @@ const Bench = () => {
   // Coming back after Back closed the app is a new launch: the app is mounted
   // afresh and reads its saved game, as it does on the television.
   const [launch, setLaunch] = React.useState(0);
-  const [step1Cursor, setStep1Cursor] = React.useState('c3');
-  const [step2Cursor, setStep2Cursor] = React.useState('d5');
+  const [cursors, setCursors] = React.useState(INITIAL_COMPARE_CURSORS);
 
   React.useEffect(() => {
     onAppExit(() => {
@@ -357,41 +320,16 @@ const Bench = () => {
       onPress: (button) => {
         setPresses((count) => count + 1);
         if (getBench().view === 'compare' && DIRECTIONS.has(button)) {
-          const direction = button as Direction;
-          setStep1Cursor(
-            (from) =>
-              jump(from, COMPARE_MOVABLE, direction, {
-                rule: RULE,
-                wrap: true,
-              }) ?? from,
-          );
-          setStep2Cursor(
-            (from) =>
-              jump(from, COMPARE_DESTINATIONS, direction, {
-                rule: RULE,
-                wrap: true,
-              }) ?? from,
+          setCursors((current) =>
+            stepCompareCursors(current, button as Direction),
           );
         }
       },
       onOther: (key) => {
-        const current = getBench();
-        if (key === 'b' || key === 'B') {
-          update({ ...current, view: nextOf(VIEWS, current.view) });
-          return true;
-        }
-        if (key === 'c' || key === 'C') {
-          update({ ...current, cvd: nextOf(CVD, current.cvd) });
-          return true;
-        }
-        if (key === 'v' || key === 'V') {
-          const names = Object.keys(PRESETS);
-          const now = names.indexOf(presetOf(current.marks) ?? '');
-          const marks = PRESETS[names[(now + 1) % names.length]];
-          update({ ...current, marks: { ...DEFAULT_MARKS, ...marks } });
-          return true;
-        }
-        return false;
+        const next = stepShortcut(getBench(), key);
+        if (!next) return false;
+        update(next);
+        return true;
       },
     });
   }, []);
@@ -414,7 +352,7 @@ const Bench = () => {
           }}
         >
           {bench.view === 'compare' ? (
-            <CompareStage step1Cursor={step1Cursor} step2Cursor={step2Cursor} />
+            <CompareStage cursors={cursors} />
           ) : (
             <>
               <View style={{ width: TV_WIDTH, height: TV_HEIGHT }}>

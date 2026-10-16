@@ -5,6 +5,7 @@
 // The first option of every mark, with the "tv" palette, is what the
 // television draws today; ./Square.tsx then draws the board with
 // native/src/Square.tsx itself, not with a copy.
+import { RULE, jump, type Direction } from '../../src/core/cursor.ts';
 
 export const MARKS = {
   // A piece that can move now (#68). fill, fill-corners and corners are the A,
@@ -59,6 +60,14 @@ export const MARKS = {
 
 export type MarkName = keyof typeof MARKS;
 export type Marks = { [Name in MarkName]: (typeof MARKS)[Name][number] };
+
+// The picked-up marks that share the cursor's perimeter frame. Every other
+// picked-up mark leaves the cursor's frame to the cursor alone (#401).
+export const SHARES_CURSOR_FRAME: readonly Marks['selected'][] = [
+  'tint-frame',
+  'frame',
+  'solid',
+];
 
 export const DEFAULT_MARKS: Marks = {
   movable: 'fill',
@@ -206,6 +215,90 @@ export const presetOf = (marks: Marks): string | undefined =>
       (mark) => (PRESETS[name][mark] ?? DEFAULT_MARKS[mark]) === marks[mark],
     ),
   );
+
+const nextOf = <T>(options: readonly T[], value: T): T =>
+  options[(options.indexOf(value) + 1) % options.length];
+
+// Advances the bench state for the B (view), C (vision) or V (preset) key, or
+// returns null when the key is not a bench shortcut.
+export function stepShortcut(current: Bench, key: string): Bench | null {
+  if (key === 'b' || key === 'B') {
+    return { ...current, view: nextOf(VIEWS, current.view) };
+  }
+  if (key === 'c' || key === 'C') {
+    return { ...current, cvd: nextOf(CVD, current.cvd) };
+  }
+  if (key === 'v' || key === 'V') {
+    const names = Object.keys(PRESETS);
+    const now = names.indexOf(presetOf(current.marks) ?? '');
+    const marks = PRESETS[names[(now + 1) % names.length]];
+    return { ...current, marks: { ...DEFAULT_MARKS, ...marks } };
+  }
+  return null;
+}
+
+// Scotch position for the side-by-side comparison (#401):
+// - Last move b8c6 covers one dark square (b8) and one light square (c6).
+// - Step 1 has 10 movable pieces across light and dark squares.
+// - Step 2 picks up the Queen on d4 (dark square), whose legal destinations
+//   include captures on both light (d5) and dark (e5, a7) squares as well as
+//   empty squares of both colours (c4, a4, d3, d2 light; b4, c5, b6, e3, d1 dark).
+export const COMPARE_BOARD =
+  'r1bqkbnr/ppp2ppp/2n5/3pp3/3QP3/2N2N2/PPP2PPP/R1B1KB1R';
+export const COMPARE_LAST_MOVE = 'b8c6';
+export const COMPARE_MOVABLE: readonly string[] = [
+  'a2',
+  'b2',
+  'c2',
+  'f2',
+  'g2',
+  'h2',
+  'e4',
+  'c3',
+  'f3',
+  'd4',
+];
+export const COMPARE_SELECTED = 'd4';
+export const COMPARE_LEGAL = [
+  'd4d5',
+  'd4e5',
+  'd4a7',
+  'd4c4',
+  'd4b4',
+  'd4a4',
+  'd4c5',
+  'd4b6',
+  'd4e3',
+  'd4d3',
+  'd4d2',
+  'd4d1',
+] as const;
+export const COMPARE_DESTINATIONS: readonly string[] = COMPARE_LEGAL.map(
+  (move) => move.slice(2, 4),
+);
+
+export type CompareCursors = { step1: string; step2: string };
+
+export const INITIAL_COMPARE_CURSORS: CompareCursors = {
+  step1: 'c3',
+  step2: 'd5',
+};
+
+export const stepCompareCursors = (
+  cursors: CompareCursors,
+  direction: Direction,
+): CompareCursors => ({
+  step1:
+    jump(cursors.step1, COMPARE_MOVABLE, direction, {
+      rule: RULE,
+      wrap: true,
+    }) ?? cursors.step1,
+  step2:
+    jump(cursors.step2, COMPARE_DESTINATIONS, direction, {
+      rule: RULE,
+      wrap: true,
+    }) ?? cursors.step2,
+});
 
 export type Palette = {
   movable: string;

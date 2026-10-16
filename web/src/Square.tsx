@@ -14,6 +14,7 @@ import { PIECES } from '../../native/src/pieces';
 import { THEME } from '../../native/src/theme';
 import {
   PALETTES,
+  SHARES_CURSOR_FRAME,
   getBench,
   isDefault,
   subscribeBench,
@@ -415,14 +416,6 @@ const TargetBullseye = ({
     </>
   );
 };
-
-// The picked-up marks that share the cursor's perimeter frame. Every other
-// picked-up mark leaves the cursor's frame to the cursor alone (#401).
-const SHARES_CURSOR_FRAME: readonly Marks['selected'][] = [
-  'tint-frame',
-  'frame',
-  'solid',
-];
 
 // The cursor, and the picked-up piece's heavier frame when a frame-sharing
 // selected mark is chosen.
