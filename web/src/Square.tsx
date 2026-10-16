@@ -5,7 +5,7 @@
 // With the default marks it is the television's square itself, so the TV look
 // on the bench is never a copy that has drifted. Every other choice is drawn
 // here, in the same layers and order as the original: last move, the movable
-// mark, the picked-up tint, the destination, the piece, then the cursor.
+// mark, the picked-up mark, the destination, the piece, then the cursor.
 import React from 'react';
 import { View } from 'react-native';
 import type { SquareView } from '../../src/core/boardView';
@@ -20,6 +20,12 @@ import {
   type Marks,
   type Palette,
 } from './marks';
+
+// The FEN letter of the picked-up piece, for the ghost under the cursor. The
+// compare view supplies it directly; in a live game on the bench it is
+// remembered from the selected or focused movable square.
+export const Carried = React.createContext<string | null>(null);
+let lastCarried: string | null = null;
 
 const useMarks = (): Marks =>
   React.useSyncExternalStore(subscribeBench, () => getBench().marks);
@@ -69,10 +75,22 @@ const CORNERS = [
   { key: 'bottom-right', left: false, top: false },
 ];
 
-const Corners = ({ edge, color }: { edge: number; color: string }) => {
-  const width = Math.max(2, Math.round(edge * 0.07));
-  const arm = Math.round(edge * 0.28);
-  const inset = Math.max(3, Math.round(edge * 0.07));
+const Corners = ({
+  edge,
+  color,
+  insetScale = 0.07,
+  armScale = 0.28,
+  widthScale = 0.07,
+}: {
+  edge: number;
+  color: string;
+  insetScale?: number;
+  armScale?: number;
+  widthScale?: number;
+}) => {
+  const width = Math.max(2, Math.round(edge * widthScale));
+  const arm = Math.round(edge * armScale);
+  const inset = Math.round(edge * insetScale);
   return (
     <>
       {CORNERS.map(({ key, left, top }) => (
@@ -117,14 +135,103 @@ const Badge = ({ edge, color }: { edge: number; color: string }) => {
   );
 };
 
-const Movable = ({ marks, palette, edge }: MarkProps) => {
+// A bar along the bottom of the square, ringed for contrast on both squares.
+const Pedestal = ({
+  edge,
+  color,
+  borderColor = '#ffffff',
+}: {
+  edge: number;
+  color: string;
+  borderColor?: string;
+}) => {
+  const width = Math.round(edge * 0.74);
+  const height = Math.max(5, Math.round(edge * 0.14));
+  const bottom = Math.max(3, Math.round(edge * 0.05));
+  return (
+    <View
+      style={{
+        position: 'absolute',
+        left: Math.round((edge - width) / 2),
+        bottom,
+        width,
+        height,
+        borderRadius: Math.round(height / 2),
+        backgroundColor: color,
+        borderWidth: Math.max(1, Math.round(edge * 0.03)),
+        borderColor,
+      }}
+    />
+  );
+};
+
+// An oval drop shadow beneath a lifted piece.
+const Shadow = ({ edge, color }: { edge: number; color: string }) => {
+  const width = Math.round(edge * 0.74);
+  const height = Math.round(edge * 0.22);
+  return (
+    <View
+      style={{
+        position: 'absolute',
+        left: Math.round((edge - width) / 2),
+        top: Math.round(edge * 0.73),
+        width,
+        height,
+        borderRadius: Math.round(height / 2),
+        backgroundColor: color,
+      }}
+    />
+  );
+};
+
+// A frame at the square's edge, optionally lined inside with a dark border so
+// it stands out on light and dark squares alike.
+const TwoToneFrame = ({
+  edge,
+  width,
+  color,
+  inner,
+}: {
+  edge: number;
+  width: number;
+  color: string;
+  inner: string | null;
+}) => (
+  <>
+    {cover(edge, { borderWidth: width, borderColor: color })}
+    {inner ? (
+      <View
+        style={{
+          position: 'absolute',
+          left: width,
+          top: width,
+          width: edge - width * 2,
+          height: edge - width * 2,
+          borderWidth: Math.max(1, Math.round(width / 2)),
+          borderColor: inner,
+        }}
+      />
+    ) : null}
+  </>
+);
+
+const Movable = ({
+  marks,
+  palette,
+  edge,
+  cursorFilled,
+}: MarkProps & { cursorFilled: boolean }) => {
   switch (marks.movable) {
     case 'fill':
-      return cover(edge, { backgroundColor: palette.movable });
+      return cursorFilled
+        ? null
+        : cover(edge, { backgroundColor: palette.movable });
     case 'fill-corners':
       return (
         <>
-          {cover(edge, { backgroundColor: palette.movable })}
+          {cursorFilled
+            ? null
+            : cover(edge, { backgroundColor: palette.movable })}
           <Corners edge={edge} color={palette.movableLine} />
         </>
       );
@@ -132,6 +239,8 @@ const Movable = ({ marks, palette, edge }: MarkProps) => {
       return <Corners edge={edge} color={palette.movableLine} />;
     case 'outline':
       return <Inset edge={edge} color={palette.movableLine} />;
+    case 'pedestal':
+      return <Pedestal edge={edge} color={palette.movableLine} />;
     case 'badge':
       return <Badge edge={edge} color={palette.movableLine} />;
     case 'none':
@@ -154,6 +263,72 @@ const Destination = ({
       return <Corners edge={edge} color={palette.destinationLine} />;
     case 'outline':
       return <Inset edge={edge} color={palette.destinationLine} />;
+    case 'diamond': {
+      if (occupied) {
+        return <Corners edge={edge} color={palette.destinationLine} />;
+      }
+      const size = Math.round(edge * 0.3);
+      const offset = Math.round((edge - size) / 2);
+      return (
+        <View
+          style={{
+            position: 'absolute',
+            left: offset,
+            top: offset,
+            width: size,
+            height: size,
+            backgroundColor: palette.destinationLine,
+            borderWidth: Math.max(1, Math.round(edge * 0.03)),
+            borderColor: palette.destinationRing,
+            transform: [{ rotate: '45deg' }],
+          }}
+        />
+      );
+    }
+    case 'dot-ringed': {
+      const size = Math.round(edge * (occupied ? 0.94 : 0.36));
+      const offset = Math.round((edge - size) / 2);
+      const ringWidth = Math.max(2, Math.round(edge * 0.08));
+      const rimWidth = Math.max(1, Math.round(edge * 0.03));
+      return (
+        <>
+          <View
+            style={{
+              position: 'absolute',
+              left: offset,
+              top: offset,
+              width: size,
+              height: size,
+              borderRadius: size / 2,
+              ...(occupied
+                ? {
+                    borderWidth: ringWidth,
+                    borderColor: palette.destinationLine,
+                  }
+                : {
+                    backgroundColor: palette.destinationLine,
+                    borderWidth: Math.max(2, Math.round(edge * 0.035)),
+                    borderColor: palette.destinationRing,
+                  }),
+            }}
+          />
+          {occupied ? (
+            <View
+              style={{
+                position: 'absolute',
+                left: offset + ringWidth,
+                top: offset + ringWidth,
+                width: size - ringWidth * 2,
+                height: size - ringWidth * 2,
+                borderRadius: (size - ringWidth * 2) / 2,
+                borderWidth: rimWidth,
+                borderColor: palette.destinationRing,
+              }}
+            />
+          ) : null}
+        </>
+      );
+    }
     case 'dot':
     case 'dot-large': {
       const dot = marks.destination === 'dot' ? 0.32 : 0.46;
@@ -186,34 +361,116 @@ const Destination = ({
   }
 };
 
-// The cursor, and the picked-up piece's heavier frame. A two-tone frame keeps a
-// dark line inside the bright one, so it stands out from light and dark squares
-// by lightness as well as by colour.
+// An extra cue on the destination square currently under the cursor (#401).
+const TargetBullseye = ({
+  palette,
+  edge,
+  occupied,
+}: {
+  palette: Palette;
+  edge: number;
+  occupied: boolean;
+}) => {
+  if (occupied) {
+    return (
+      <Corners
+        edge={edge}
+        color={palette.cursor}
+        insetScale={0.11}
+        armScale={0.26}
+        widthScale={0.07}
+      />
+    );
+  }
+  const size = Math.round(edge * 0.72);
+  const offset = Math.round((edge - size) / 2);
+  const outer = Math.max(2, Math.round(edge * 0.065));
+  const inner = Math.max(1, Math.round(outer / 2));
+  return (
+    <>
+      <View
+        style={{
+          position: 'absolute',
+          left: offset,
+          top: offset,
+          width: size,
+          height: size,
+          borderRadius: size / 2,
+          borderWidth: outer,
+          borderColor: palette.cursor,
+        }}
+      />
+      <View
+        style={{
+          position: 'absolute',
+          left: offset + outer,
+          top: offset + outer,
+          width: size - outer * 2,
+          height: size - outer * 2,
+          borderRadius: (size - outer * 2) / 2,
+          borderWidth: inner,
+          borderColor: palette.cursorInner,
+        }}
+      />
+    </>
+  );
+};
+
+// The picked-up marks that share the cursor's perimeter frame. Every other
+// picked-up mark leaves the cursor's frame to the cursor alone (#401).
+const SHARES_CURSOR_FRAME: readonly Marks['selected'][] = [
+  'tint-frame',
+  'frame',
+  'solid',
+];
+
+// The cursor, and the picked-up piece's heavier frame when a frame-sharing
+// selected mark is chosen.
 const Cursor = ({
   marks,
   palette,
   edge,
   selected,
 }: MarkProps & { selected: boolean }) => {
-  const base = ring(edge) * (marks.cursor === 'thick' ? 2 : 1);
-  const width = selected && marks.selected !== 'lift' ? base * 2 : base;
-  return (
-    <>
-      {cover(edge, { borderWidth: width, borderColor: palette.cursor })}
-      {marks.cursor === 'two-tone' ? (
-        <View
-          style={{
-            position: 'absolute',
-            left: width,
-            top: width,
-            width: edge - width * 2,
-            height: edge - width * 2,
-            borderWidth: Math.max(1, Math.round(width / 2)),
-            borderColor: palette.cursorInner,
-          }}
+  if (marks.cursor === 'brackets') {
+    const outer = ring(edge) * 2;
+    return (
+      <>
+        <Corners
+          edge={edge}
+          color={palette.cursor}
+          insetScale={0}
+          armScale={0.34}
+          widthScale={(outer / edge) * 1.1}
         />
-      ) : null}
-    </>
+        <Corners
+          edge={edge}
+          color={palette.cursorInner}
+          insetScale={outer / edge}
+          armScale={0.26}
+          widthScale={ring(edge) / edge}
+        />
+      </>
+    );
+  }
+  const bold =
+    marks.cursor === 'thick' ||
+    marks.cursor === 'two-tone-bold' ||
+    marks.cursor === 'fill-two-tone';
+  const base = ring(edge) * (bold ? 2 : 1);
+  const width =
+    selected && SHARES_CURSOR_FRAME.includes(marks.selected) ? base * 2 : base;
+  const twoTone =
+    marks.cursor === 'two-tone' ||
+    marks.cursor === 'two-tone-bold' ||
+    marks.cursor === 'fill-two-tone';
+  return (
+    <TwoToneFrame
+      edge={edge}
+      width={width}
+      color={palette.cursor}
+      inner={twoTone ? palette.cursorInner : null}
+    />
   );
 };
 
@@ -221,11 +478,27 @@ type MarkProps = { marks: Marks; palette: Palette; edge: number };
 
 export const Square = ({ view, edge }: { view: SquareView; edge: number }) => {
   const marks = useMarks();
+  const contextCarried = React.useContext(Carried);
+  if ((view.selected || (view.cursor && view.movable)) && view.piece) {
+    lastCarried = view.piece;
+  }
   if (isDefault(marks)) return <TvSquare view={view} edge={edge} />;
   const palette = PALETTES[marks.palette];
   const props = { marks, palette, edge };
   const Piece = view.piece ? PIECES[view.piece as keyof typeof PIECES] : null;
+  const carried = contextCarried ?? lastCarried;
+  const GhostPiece =
+    marks.target === 'ghost' && view.cursor && view.destination && carried
+      ? PIECES[carried as keyof typeof PIECES]
+      : null;
   const lifted = view.selected && marks.selected === 'lift';
+  const raised = view.selected && marks.selected === 'raised';
+  const warmPedestal = view.selected && marks.selected === 'warm-pedestal';
+  const warmFrame = view.selected && marks.selected === 'warm-frame';
+  const cursorFilled = view.cursor && marks.cursor === 'fill-two-tone';
+  const targetFilled =
+    view.cursor && view.destination && marks.target === 'fill';
+  const sharesCursorFrame = SHARES_CURSOR_FRAME.includes(marks.selected);
   return (
     <View
       style={{
@@ -242,7 +515,10 @@ export const Square = ({ view, edge }: { view: SquareView; edge: number }) => {
       {view.lastMove && marks.lastMove === 'outline' ? (
         <Inset edge={edge} color={palette.lastMoveLine} />
       ) : null}
-      {view.movable ? <Movable {...props} /> : null}
+      {view.movable ? <Movable {...props} cursorFilled={cursorFilled} /> : null}
+      {cursorFilled || targetFilled
+        ? cover(edge, { backgroundColor: palette.cursorFill })
+        : null}
       {view.selected && marks.selected === 'tint-frame'
         ? cover(edge, { backgroundColor: palette.selected })
         : null}
@@ -250,21 +526,60 @@ export const Square = ({ view, edge }: { view: SquareView; edge: number }) => {
         ? cover(edge, { backgroundColor: palette.selectedSolid })
         : null}
       {lifted ? cover(edge, { backgroundColor: palette.selected }) : null}
-      {view.destination ? (
+      {warmFrame || warmPedestal
+        ? cover(edge, { backgroundColor: palette.selectedWarmFill })
+        : null}
+      {raised || warmPedestal ? (
+        <Shadow edge={edge} color={palette.shadow} />
+      ) : null}
+      {warmPedestal ? (
+        <Pedestal
+          edge={edge}
+          color={palette.selectedWarm}
+          borderColor={palette.cursorInner}
+        />
+      ) : null}
+      {view.destination && !(GhostPiece && !view.piece) ? (
         <Destination {...props} occupied={view.piece !== null} />
+      ) : null}
+      {view.destination && view.cursor && marks.target === 'bullseye' ? (
+        <TargetBullseye
+          palette={palette}
+          edge={edge}
+          occupied={view.piece !== null}
+        />
       ) : null}
       {Piece ? (
         <View
           style={
             lifted
               ? { transform: [{ scale: 1.14 }, { translateY: -edge * 0.04 }] }
-              : undefined
+              : raised || warmPedestal
+                ? {
+                    transform: [{ scale: 1.18 }, { translateY: -edge * 0.09 }],
+                  }
+                : GhostPiece
+                  ? { opacity: 0.3 }
+                  : undefined
           }
         >
           <Piece size={Math.round(edge * 0.92)} />
         </View>
       ) : null}
-      {view.cursor || view.selected ? (
+      {GhostPiece ? (
+        <View style={{ position: 'absolute', opacity: 0.74 }}>
+          <GhostPiece size={Math.round(edge * 0.92)} />
+        </View>
+      ) : null}
+      {warmFrame ? (
+        <TwoToneFrame
+          edge={edge}
+          width={ring(edge) * 2}
+          color={palette.selectedWarm}
+          inner={palette.cursorInner}
+        />
+      ) : null}
+      {view.cursor || (view.selected && sharesCursorFrame) ? (
         <Cursor {...props} selected={view.selected} />
       ) : null}
     </View>

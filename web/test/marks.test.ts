@@ -16,6 +16,7 @@ test('the bare address is the television as it is', () => {
   const bench = parseBench('');
   assert.deepEqual(bench.marks, DEFAULT_MARKS);
   assert.equal(bench.cvd, 'none');
+  assert.equal(bench.view, 'game');
   assert.equal(bench.controls, true);
   assert.equal(isDefault(bench.marks), true);
   assert.equal(formatBench(bench), '');
@@ -24,20 +25,22 @@ test('the bare address is the television as it is', () => {
 test('a variant survives the round trip through the address', () => {
   const bench: Bench = {
     marks: {
-      movable: 'corners',
-      selected: 'lift',
-      destination: 'fill',
-      cursor: 'two-tone',
+      movable: 'pedestal',
+      selected: 'warm-pedestal',
+      destination: 'dot-ringed',
+      target: 'bullseye',
+      cursor: 'two-tone-bold',
       lastMove: 'none',
       palette: 'okabe-ito',
     },
     cvd: 'deuteranopia',
+    view: 'compare',
     controls: false,
   };
   const search = formatBench(bench);
   assert.equal(
     search,
-    '?movable=corners&selected=lift&dest=fill&cursor=two-tone&last=none&palette=okabe-ito&cvd=deuteranopia&ui=0',
+    '?movable=pedestal&selected=warm-pedestal&dest=dot-ringed&target=bullseye&cursor=two-tone-bold&last=none&palette=okabe-ito&cvd=deuteranopia&view=compare&ui=0',
   );
   assert.deepEqual(parseBench(search), bench);
 });
@@ -49,9 +52,10 @@ test('only what differs from the television is written', () => {
 });
 
 test('an unknown value falls back to the television rather than breaking', () => {
-  const bench = parseBench('?movable=sparkles&cvd=x-ray&palette=');
+  const bench = parseBench('?movable=sparkles&cvd=x-ray&view=vr&palette=');
   assert.deepEqual(bench.marks, DEFAULT_MARKS);
   assert.equal(bench.cvd, 'none');
+  assert.equal(bench.view, 'game');
 });
 
 test('every preset names only known marks, and no two presets are the same', () => {
@@ -79,6 +83,20 @@ test('the check variants are A, B and C of #108', () => {
     presetOf({ ...DEFAULT_MARKS, movable: 'corners' }),
     'Check C: corners',
   );
+});
+
+test('the candidate highlight presets decouple the picked-up piece from the cursor frame', () => {
+  for (const name of [
+    'Standard (enhanced)',
+    'Focus fill',
+    'Colour-blind (Okabe-Ito)',
+    'High contrast',
+  ]) {
+    const marks = { ...DEFAULT_MARKS, ...PRESETS[name] };
+    assert.notEqual(marks.selected, 'tint-frame', name);
+    assert.notEqual(marks.target, 'cursor-only', name);
+    assert.notEqual(marks.cursor, 'frame', name);
+  }
 });
 
 test('the tv palette is the television theme', async () => {

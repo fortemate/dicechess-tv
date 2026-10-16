@@ -9,13 +9,49 @@
 export const MARKS = {
   // A piece that can move now (#68). fill, fill-corners and corners are the A,
   // B and C of the colour-vision check (#105, #108).
-  movable: ['fill', 'fill-corners', 'corners', 'outline', 'badge', 'none'],
-  // The picked-up piece. The TV tints it and doubles the cursor's frame.
-  selected: ['tint-frame', 'frame', 'solid', 'lift'],
+  movable: [
+    'fill',
+    'fill-corners',
+    'corners',
+    'outline',
+    'pedestal',
+    'badge',
+    'none',
+  ],
+  // The picked-up piece. The TV tints it and doubles the cursor's frame
+  // (tint-frame). raised, warm-frame, warm-pedestal and lift leave the
+  // cursor's perimeter frame to the cursor alone (#401).
+  selected: [
+    'tint-frame',
+    'raised',
+    'warm-frame',
+    'warm-pedestal',
+    'frame',
+    'solid',
+    'lift',
+  ],
   // A legal destination of the picked-up piece: a dot, or a ring on a capture.
-  destination: ['dot', 'dot-large', 'fill', 'corners', 'outline'],
+  destination: [
+    'dot',
+    'dot-ringed',
+    'dot-large',
+    'diamond',
+    'fill',
+    'corners',
+    'outline',
+  ],
+  // How the legal destination under the cursor is marked in addition to the
+  // cursor itself (#401).
+  target: ['cursor-only', 'bullseye', 'fill', 'ghost'],
   // The remote's cursor.
-  cursor: ['frame', 'thick', 'two-tone'],
+  cursor: [
+    'frame',
+    'two-tone-bold',
+    'fill-two-tone',
+    'brackets',
+    'thick',
+    'two-tone',
+  ],
   // Both squares of the last action.
   lastMove: ['tint', 'outline', 'none'],
   palette: ['tv', 'okabe-ito', 'high-contrast'],
@@ -28,6 +64,7 @@ export const DEFAULT_MARKS: Marks = {
   movable: 'fill',
   selected: 'tint-frame',
   destination: 'dot',
+  target: 'cursor-only',
   cursor: 'frame',
   lastMove: 'tint',
   palette: 'tv',
@@ -48,9 +85,15 @@ export const CVD = [
 ] as const;
 export type Cvd = (typeof CVD)[number];
 
+// Whether the stage plays the live game or shows Step 1 (choosing a piece) and
+// Step 2 (choosing a destination) side by side (#401).
+export const VIEWS = ['game', 'compare'] as const;
+export type BenchView = (typeof VIEWS)[number];
+
 export type Bench = {
   marks: Marks;
   cvd: Cvd;
+  view: BenchView;
   // Whether the bench's own controls are shown. A tester handed a fixed
   // variant sees only the game.
   controls: boolean;
@@ -61,6 +104,7 @@ const PARAM: Record<MarkName, string> = {
   movable: 'movable',
   selected: 'selected',
   destination: 'dest',
+  target: 'target',
   cursor: 'cursor',
   lastMove: 'last',
   palette: 'palette',
@@ -86,6 +130,7 @@ export function parseBench(search: string): Bench {
   return {
     marks,
     cvd: pick(CVD, params.get('cvd'), 'none'),
+    view: pick(VIEWS, params.get('view'), 'game'),
     controls: params.get('ui') !== '0',
   };
 }
@@ -98,15 +143,49 @@ export function formatBench(bench: Bench): string {
     if (bench.marks[name] !== DEFAULT_MARKS[name])
       params.set(PARAM[name], bench.marks[name]);
   if (bench.cvd !== 'none') params.set('cvd', bench.cvd);
+  if (bench.view !== 'game') params.set('view', bench.view);
   if (!bench.controls) params.set('ui', '0');
   const query = params.toString();
   return query ? `?${query}` : '';
 }
 
-// Named starting points for the controls.
+// Named starting points for the controls, including the candidate styles for
+// an in-game Board highlights setting (#401).
 export const PRESETS: Readonly<Record<string, Partial<Marks>>> = {
   // The television's marks, which are also variant A of the check.
   'TV today (check A)': {},
+  'Standard (enhanced)': {
+    movable: 'fill-corners',
+    selected: 'raised',
+    destination: 'dot-ringed',
+    target: 'bullseye',
+    cursor: 'two-tone-bold',
+  },
+  'Focus fill': {
+    movable: 'corners',
+    selected: 'warm-pedestal',
+    destination: 'dot-ringed',
+    target: 'fill',
+    cursor: 'fill-two-tone',
+  },
+  'Colour-blind (Okabe-Ito)': {
+    movable: 'fill-corners',
+    selected: 'warm-pedestal',
+    destination: 'dot-ringed',
+    target: 'ghost',
+    cursor: 'two-tone-bold',
+    lastMove: 'outline',
+    palette: 'okabe-ito',
+  },
+  'High contrast': {
+    movable: 'corners',
+    selected: 'raised',
+    destination: 'dot-ringed',
+    target: 'ghost',
+    cursor: 'fill-two-tone',
+    lastMove: 'outline',
+    palette: 'high-contrast',
+  },
   'Check B: fill + corners': { movable: 'fill-corners' },
   'Check C: corners': { movable: 'corners' },
   'Shapes, high contrast': {
@@ -133,10 +212,15 @@ export type Palette = {
   movableLine: string;
   selected: string;
   selectedSolid: string;
+  selectedWarm: string;
+  selectedWarmFill: string;
+  shadow: string;
   destination: string;
   destinationLine: string;
+  destinationRing: string;
   cursor: string;
   cursorInner: string;
+  cursorFill: string;
   lastMove: string;
   lastMoveLine: string;
 };
@@ -148,25 +232,36 @@ export const PALETTES: Readonly<Record<Marks['palette'], Palette>> = {
     movableLine: '#14532d',
     selected: 'rgba(0, 234, 255, 0.28)',
     selectedSolid: 'rgba(0, 234, 255, 0.55)',
+    selectedWarm: '#f59e0b',
+    selectedWarmFill: 'rgba(245, 158, 11, 0.34)',
+    shadow: 'rgba(11, 26, 36, 0.58)',
     destination: 'rgba(20, 85, 30, 0.5)',
     destinationLine: '#14532d',
+    destinationRing: '#f8fafc',
     cursor: '#00eaff',
     cursorInner: '#0b1a24',
+    cursorFill: 'rgba(0, 234, 255, 0.38)',
     lastMove: 'rgba(155, 199, 0, 0.41)',
     lastMoveLine: '#6f8f00',
   },
   // Okabe and Ito's palette, chosen to stay apart under every common colour
-  // deficiency: blue for what can move, vermillion for where it can go, sky
+  // deficiency: blue for what can move, vermillion for where it can go,
+  // reddish-purple for the picked-up piece, yellow for the cursor, and sky
   // blue for the last move.
   'okabe-ito': {
     movable: 'rgba(0, 114, 178, 0.5)',
     movableLine: '#0072b2',
     selected: 'rgba(240, 228, 66, 0.4)',
     selectedSolid: 'rgba(240, 228, 66, 0.7)',
+    selectedWarm: '#cc79a7',
+    selectedWarmFill: 'rgba(204, 121, 167, 0.38)',
+    shadow: 'rgba(0, 0, 0, 0.62)',
     destination: 'rgba(213, 94, 0, 0.7)',
     destinationLine: '#d55e00',
+    destinationRing: '#ffffff',
     cursor: '#f0e442',
     cursorInner: '#000000',
+    cursorFill: 'rgba(240, 228, 66, 0.44)',
     lastMove: 'rgba(86, 180, 233, 0.45)',
     lastMoveLine: '#56b4e9',
   },
@@ -177,17 +272,27 @@ export const PALETTES: Readonly<Record<Marks['palette'], Palette>> = {
     movableLine: '#000000',
     selected: 'rgba(255, 255, 255, 0.35)',
     selectedSolid: 'rgba(255, 255, 255, 0.65)',
+    selectedWarm: '#000000',
+    selectedWarmFill: 'rgba(255, 255, 255, 0.42)',
+    shadow: 'rgba(0, 0, 0, 0.68)',
     destination: 'rgba(0, 0, 0, 0.55)',
     destinationLine: '#000000',
+    destinationRing: '#ffffff',
     cursor: '#ffffff',
     cursorInner: '#000000',
+    cursorFill: 'rgba(255, 255, 255, 0.48)',
     lastMove: 'rgba(0, 0, 0, 0.18)',
     lastMoveLine: '#ffffff',
   },
 };
 
 // The bench's state, shared by the controls and every square.
-let bench: Bench = { marks: DEFAULT_MARKS, cvd: 'none', controls: true };
+let bench: Bench = {
+  marks: DEFAULT_MARKS,
+  cvd: 'none',
+  view: 'game',
+  controls: true,
+};
 const listeners = new Set<() => void>();
 
 export const getBench = (): Bench => bench;
