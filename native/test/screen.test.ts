@@ -732,8 +732,8 @@ test('without music in the build, Settings offers sound effects, voices, the hos
   const settings = toSettings(fresh());
   assert.equal(settings.musicAvailable, false);
   assert.deepEqual(settingsOptions(settings), [
-    'Sound effects: on',
-    'Voices: on',
+    'Sounds: 10',
+    'Voices: 10',
     'Play as: Random',
     'Host for friends: Prowla',
     'Turn board for friends: off',
@@ -741,13 +741,13 @@ test('without music in the build, Settings offers sound effects, voices, the hos
   ]);
   // Down moves from the sound effects to the voices, on past Play as to the
   // host, and on to hotseat board turning.
-  assert.equal(drive(settings, 'select').sound, false);
+  assert.deepEqual(drive(settings, 'select').sound, { on: false, volume: 10 });
   const voices = drive(settings, 'down');
-  assert.equal(drive(voices, 'select').voices, false);
-  assert.equal(drive(voices, 'select').sound, true);
+  assert.deepEqual(drive(voices, 'select').voices, { on: false, volume: 10 });
+  assert.deepEqual(drive(voices, 'select').sound, { on: true, volume: 10 });
   const host = drive(voices, 'down', 'down');
   assert.equal(drive(host, 'select').host, 'rolly');
-  assert.equal(drive(host, 'select').voices, true);
+  assert.deepEqual(drive(host, 'select').voices, { on: true, volume: 10 });
   assert.equal(drive(host, 'select').turnHotseat, false);
   const hotseat = drive(host, 'down');
   assert.equal(hotseat.overlay.kind, 'settings');
@@ -767,8 +767,8 @@ test('Settings opens from the home menu on music, and Back returns to it', () =>
   });
   assert.deepEqual(settingsOptions({ ...settings, musicAvailable: true }), [
     'Music: 7',
-    'Sound effects: on',
-    'Voices: on',
+    'Sounds: 10',
+    'Voices: 10',
     'Play as: Random',
     'Host for friends: Prowla',
     'Turn board for friends: off',
@@ -788,14 +788,17 @@ test('OK or the arrows sideways flip music, sound effects, voices and hotseat bo
   assert.equal(musicOff.music.on, false);
   assert.equal(drive(musicOff, 'select').music.on, true);
   const effects = drive(settings, 'down');
-  assert.equal(drive(effects, 'select').sound, false);
-  assert.equal(drive(effects, 'left').sound, false);
+  assert.equal(drive(effects, 'select').sound.on, false);
+  assert.equal(drive(effects, 'left').sound.volume, 9);
   // Down once more reaches the voices, which are on by default.
   const voices = drive(effects, 'down');
-  assert.equal(voices.voices, true);
-  assert.equal(drive(voices, 'select').voices, false);
-  assert.equal(drive(voices, 'right').voices, false);
-  assert.equal(drive(voices, 'select', 'left').voices, true);
+  assert.equal(voices.voices.on, true);
+  assert.equal(drive(voices, 'select').voices.on, false);
+  assert.equal(drive(voices, 'left').voices.volume, 9);
+  assert.deepEqual(drive(voices, 'select', 'right').voices, {
+    on: true,
+    volume: 1,
+  });
   // Past Play as, the Hot Seat host, Prowla by default (#258). OK and Right step
   // to the next choice, Rolly, Thinkle (#279) and then off, and Left to the one
   // before.
@@ -824,7 +827,7 @@ test('OK or the arrows sideways flip music, sound effects, voices and hotseat bo
   assert.equal(drive(hotseat, 'right').turnHotseat, true);
   // None touches another, nor leaves the screen.
   assert.equal(drive(hotseat, 'select').music.on, true);
-  assert.equal(drive(hotseat, 'select').voices, true);
+  assert.equal(drive(hotseat, 'select').voices.on, true);
   assert.equal(drive(hotseat, 'select').host, 'prowla');
   assert.equal(drive(hotseat, 'select').overlay.kind, 'settings');
 });
@@ -873,6 +876,39 @@ test('music an earlier build stored as on at 0 is off, and OK brings the default
   assert.deepEqual(drive(silent, 'select').music, { on: true, volume: 7 });
   assert.deepEqual(drive(silent, 'right').music, { on: true, volume: 1 });
   assert.deepEqual(drive(silent, 'left').music, silent.music);
+});
+
+test('the sounds and voices rows step volume and mute/unmute (#398)', () => {
+  const settings = toSettings(withMusic(fresh()));
+
+  // Row 1: Sounds
+  const sounds = drive(settings, 'down');
+  assert.equal(settingsOptions(sounds)[1], 'Sounds: 10');
+  assert.deepEqual(drive(sounds, 'left', 'left').sound, {
+    on: true,
+    volume: 8,
+  });
+  assert.deepEqual(drive(sounds, 'select').sound, { on: false, volume: 10 });
+  const soundsMuted = drive(sounds, 'select');
+  assert.equal(settingsOptions(soundsMuted)[1], 'Sounds: off');
+  assert.deepEqual(drive(soundsMuted, 'select').sound, {
+    on: true,
+    volume: 10,
+  });
+  assert.deepEqual(drive(soundsMuted, 'right').sound, { on: true, volume: 1 });
+
+  // Row 2: Voices
+  const voices = drive(settings, 'down', 'down');
+  assert.equal(settingsOptions(voices)[2], 'Voices: 10');
+  assert.deepEqual(drive(voices, 'left').voices, { on: true, volume: 9 });
+  assert.deepEqual(drive(voices, 'select').voices, { on: false, volume: 10 });
+  const voicesMuted = drive(voices, 'select');
+  assert.equal(settingsOptions(voicesMuted)[2], 'Voices: off');
+  assert.deepEqual(drive(voicesMuted, 'select').voices, {
+    on: true,
+    volume: 10,
+  });
+  assert.deepEqual(drive(voicesMuted, 'right').voices, { on: true, volume: 1 });
 });
 
 test('Settings from the game menu never asks to replace the game, and Back returns to the menu', () => {
@@ -985,8 +1021,8 @@ test('a new game keeps the settings', () => {
     'select',
   );
   assert.deepEqual(changed.music, { on: false, volume: 8 });
-  assert.equal(changed.sound, false);
-  assert.equal(changed.voices, false);
+  assert.deepEqual(changed.sound, { on: false, volume: 10 });
+  assert.deepEqual(changed.voices, { on: false, volume: 10 });
   assert.equal(changed.host, 'rolly');
   // Back to the home menu, on Settings, then up to a new hotseat game.
   const home = drive(changed, 'back');
@@ -994,8 +1030,8 @@ test('a new game keeps the settings', () => {
   const game = drive(home, ...(Array(at).fill('up') as BoardKey[]), 'select');
   assert.equal(game.overlay.kind, 'none');
   assert.deepEqual(game.music, { on: false, volume: 8 });
-  assert.equal(game.sound, false);
-  assert.equal(game.voices, false);
+  assert.deepEqual(game.sound, { on: false, volume: 10 });
+  assert.deepEqual(game.voices, { on: false, volume: 10 });
   assert.equal(game.host, 'rolly');
 });
 

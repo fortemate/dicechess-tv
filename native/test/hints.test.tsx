@@ -112,10 +112,10 @@ test('every row of Settings is one line, whatever it says', () => {
     for (const host of HOST_CHOICES)
       for (const playAs of PLAY_AS_CHOICES)
         for (const row of settingsOptions({
-          sound: on,
+          sound: { on, volume: on ? 10 : 0 },
           music: DEFAULT_MUSIC,
           turnHotseat: on,
-          voices: on,
+          voices: { on, volume: on ? 10 : 0 },
           host,
           autoSelect: on,
           playAs,
@@ -136,17 +136,25 @@ test('every row of Settings is one line, whatever it says', () => {
   }
 });
 
-// The music row carries its ten rings after the label (#346): 10 dp each with
-// 4 dp after it, and 10 dp before the first (VolumeRings in src/GameScreen.tsx).
+// The audio rows carry their ten rings after the label (#346, #398): 10 dp each
+// with 4 dp after it, and 10 dp before the first (VolumeRings in src/GameScreen.tsx).
 const RINGS_DP = 10 + 10 * (10 + 4);
 
-test('the music row and its rings are one line, at every volume', () => {
+test('the audio rows (music, sounds, voices) and their rings are one line, at every volume (#346, #398)', () => {
   const rows = new Set<string>();
-  for (let volume = 0; volume <= 10; volume++)
-    for (const on of [false, true])
+  for (let volume = 0; volume <= 10; volume++) {
+    for (const on of [false, true]) {
       rows.add(settingsOptions({ music: { on, volume } })[0]);
+      rows.add(settingsOptions({ sound: { on, volume } })[1]);
+      rows.add(settingsOptions({ voices: { on, volume } })[2]);
+    }
+  }
   assert.ok(rows.has('Music: off'));
   assert.ok(rows.has('Music: 10'));
+  assert.ok(rows.has('Sounds: off'));
+  assert.ok(rows.has('Sounds: 10'));
+  assert.ok(rows.has('Voices: off'));
+  assert.ok(rows.has('Voices: 10'));
   for (const row of rows) {
     const width = textWidth(row, OPTION_DP) + RINGS_DP + OPTION_INSET_DP;
     assert.ok(

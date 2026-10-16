@@ -163,10 +163,12 @@ test('a setting changed where focus stands is said with its new value', () => {
   send('down', 'down', 'down', 'down');
   const said = listen();
   send('enter');
-  assert.deepEqual(texts(said()), ['Settings. Sound effects: on, 1 of 6.']);
+  assert.deepEqual(texts(said()), [
+    'Settings. Left and Right change the volume. Sounds: 10, 1 of 6.',
+  ]);
   const changed = listen();
   send('enter');
-  assert.deepEqual(changed(), [{ text: 'Sound effects: off.', queue: false }]);
+  assert.deepEqual(changed(), [{ text: 'Sounds: off.', queue: false }]);
 });
 
 test('a screen reader turned on mid-game is told where things stand', () => {
@@ -213,10 +215,15 @@ test('the squares and the dice are named, and the menu items say what they are',
   assert.ok(labels.includes("queen die, can't be used"));
   assert.ok(labels.includes('knight die'));
 
-  assert.deepEqual(optionAccessibility('Sound effects: on'), {
-    role: 'switch',
-    'aria-label': 'Sound effects',
-    'aria-checked': true,
+  assert.deepEqual(optionAccessibility('Sounds: 10'), {
+    role: 'slider',
+    'aria-label': 'Sounds',
+    'aria-valuetext': '10',
+  });
+  assert.deepEqual(optionAccessibility('Voices: off'), {
+    role: 'slider',
+    'aria-label': 'Voices',
+    'aria-valuetext': 'off',
   });
   assert.deepEqual(optionAccessibility('Music: 7'), {
     role: 'slider',

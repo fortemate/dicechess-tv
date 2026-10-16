@@ -60,9 +60,11 @@ const recorder = () => {
     setMuted(value) {
       self.muted = value;
     },
+    setSoundVolume() {},
     say() {},
     stopLine() {},
     setVoices() {},
+    setVoiceVolume() {},
     setSuspended() {},
   };
   return self;

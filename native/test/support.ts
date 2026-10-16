@@ -66,9 +66,11 @@ export const fixedOptions = (
 export const silentSounds = (): Sounds => ({
   play() {},
   setMuted() {},
+  setSoundVolume() {},
   say() {},
   stopLine() {},
   setVoices() {},
+  setVoiceVolume() {},
   setSuspended() {},
 });
 

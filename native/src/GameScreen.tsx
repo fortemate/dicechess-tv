@@ -52,6 +52,8 @@ import {
 } from './sound';
 import type { Music } from './music';
 import { MUSIC_STEPS, musicHeard, type MusicSetting } from './musicSetting';
+import { DEFAULT_SOUND, soundHeard, type SoundSetting } from './soundSetting';
+import { DEFAULT_VOICES, voicesHeard, type VoiceSetting } from './voiceSetting';
 import { useDanger } from './useDanger';
 import { activeClock, scheduleActive, useActivity } from './activity';
 import { cues } from '../../src/core/cues';
@@ -118,16 +120,16 @@ export type GameScreenProps = {
   // What each step of the game sounds like is decided here; whether it is heard
   // and on what is the player's business.
   sounds?: Sounds;
-  // Whether sound starts on, read before the first render like the saved game.
-  initialSound?: boolean;
+  // Whether sound starts on and its volume, read before the first render like the saved game.
+  initialSound?: SoundSetting;
   // Called when the settings change sound, so the app can save the choice.
-  onSound?: (on: boolean) => void;
+  onSound?: (sound: SoundSetting) => void;
   // Whether the board turns to the side to move in hotseat (#120).
   initialTurnBoard?: boolean;
   onTurnBoard?: (on: boolean) => void;
-  // Whether the lines are spoken aloud, the bots' and the host's (#159).
-  initialVoices?: boolean;
-  onVoices?: (on: boolean) => void;
+  // Whether the lines are spoken aloud and how loud (#159, #398).
+  initialVoices?: VoiceSetting;
+  onVoices?: (voices: VoiceSetting) => void;
   // Who hosts Hot Seat games, or 'off' (#202).
   initialHost?: HostChoice;
   onHost?: (host: HostChoice) => void;
@@ -447,11 +449,11 @@ const CONFIRM = {
 type ChoiceContext = {
   game: Game;
   resumableGame: boolean;
-  sound: boolean;
+  sound: SoundSetting;
   music: MusicSetting;
   hasMusic: boolean;
   turnHotseat: boolean;
-  voices: boolean;
+  voices: VoiceSetting;
   host: HostChoice;
   autoSelect: boolean;
   playAs: PlayAs;
@@ -484,9 +486,7 @@ const choiceOf = (overlay: Overlay, context: ChoiceContext): Choice | null => {
     case 'settings':
       return {
         title: 'Settings',
-        note: context.hasMusic
-          ? 'Left and Right change the volume.'
-          : undefined,
+        note: 'Left and Right change the volume.',
         options: settingsOptions({
           sound: context.sound,
           music: context.music,
@@ -539,6 +539,37 @@ const choiceOf = (overlay: Overlay, context: ChoiceContext): Choice | null => {
 };
 
 // What sits under the status: an open menu or choice, or the prompt.
+const settingsAfters = (
+  index: number,
+  context: ChoiceContext,
+): React.ReactNode[] => {
+  const musicOffset = context.hasMusic ? 1 : 0;
+  const soundRing = (
+    <VolumeRings
+      key="sound-rings"
+      volume={soundHeard(context.sound) ? context.sound.volume : 0}
+      focused={index === musicOffset}
+    />
+  );
+  const voiceRing = (
+    <VolumeRings
+      key="voice-rings"
+      volume={voicesHeard(context.voices) ? context.voices.volume : 0}
+      focused={index === musicOffset + 1}
+    />
+  );
+  if (!context.hasMusic) return [soundRing, voiceRing];
+  return [
+    <VolumeRings
+      key="music-rings"
+      volume={musicHeard(context.music) ? context.music.volume : 0}
+      focused={index === 0}
+    />,
+    soundRing,
+    voiceRing,
+  ];
+};
+
 const Panel = ({
   overlay,
   view,
@@ -563,21 +594,15 @@ const Panel = ({
         {promptFor(context.game, view, selected, auto)}
       </Text>
     );
-  if (overlay.kind === 'settings' && context.hasMusic)
+  if (overlay.kind === 'settings') {
     return (
       <Choices
         {...choice}
         pressed={pressed}
-        afters={[
-          // One row for the music (#346): no rings filled while it is off.
-          <VolumeRings
-            key="rings"
-            volume={musicHeard(context.music) ? context.music.volume : 0}
-            focused={overlay.index === 0}
-          />,
-        ]}
+        afters={settingsAfters(overlay.index, context)}
       />
     );
+  }
   if (overlay.kind === 'promotion') {
     const befores = overlay.moves.map((move) => {
       const letter =
@@ -654,11 +679,11 @@ export const GameScreen = ({
   onCommit,
   onState,
   sounds,
-  initialSound = true,
+  initialSound = DEFAULT_SOUND,
   onSound,
   initialTurnBoard = false,
   onTurnBoard,
-  initialVoices = true,
+  initialVoices = DEFAULT_VOICES,
   onVoices,
   initialHost = DEFAULT_HOST,
   onHost,
