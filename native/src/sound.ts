@@ -347,8 +347,9 @@ export function createSounds({
     );
   };
   const loud = (player: Player) => {
-    if (!quiet.delete(player)) return;
-    player.volume = soundGain;
+    if (quiet.delete(player) || player.volume !== soundGain) {
+      player.volume = soundGain;
+    }
   };
 
   // Each channel's player, made up front and given the sprite once, so the

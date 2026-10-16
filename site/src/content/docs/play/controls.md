@@ -120,7 +120,7 @@ Settings opens from the home screen and from the game menu. Up and Down move bet
 | **Turn board for friends**  | off     | Left, Right or OK turns it on or off. See [Turning the board](#turning-the-board-for-friends-optional).                                                                         |
 | **Auto-select only choice** | off     | Left, Right or OK turns it on or off. See [Auto-select only choice](#auto-select-only-choice-optional).                                                                         |
 
-Each setting is saved on the TV as it changes and read again at the next launch. The tests check that each is saved and read back, and that every row fits one line of the panel (`native/test/hints.test.tsx`).
+Each setting is saved on the TV as it changes and read again at the next launch. The tests check each press of the volume rows (`native/test/screen.test.ts`), that each is saved and read back (`native/test/soundApp.test.tsx`, `native/test/soundSetting.test.ts`, `native/test/voiceSetting.test.ts`), and that every row fits one line of the panel (`native/test/hints.test.tsx`).
 
 ### The End of a Game
 

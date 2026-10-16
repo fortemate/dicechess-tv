@@ -15,6 +15,8 @@ import type { Cue } from '../../src/core/cues';
 import { MmkvSnapshotStore } from '../src/mmkvStore';
 import { decodeGame, newGame, rollGame, type Game } from '../../src/core/game';
 import { HOST_CATALOGUE } from '../../src/core/hostVoice';
+import { soundGain } from '../src/soundSetting';
+import { voiceGain } from '../src/voiceSetting';
 import {
   fakeTimers,
   fixedOptions,
@@ -128,9 +130,11 @@ test('stepping the sound volume adjusts gain and persists across launches (#398)
   send('left', 'left');
   assert.match(text(root), /Sounds: 8/);
   assert.equal(new MMKV().getString('dicechess-tv.soundVolume.v1'), '8');
+  assert.equal(first.soundVolume, soundGain(8));
 
   const second = recorder();
   root = launch({ options, sounds: second }).root;
+  assert.equal(second.soundVolume, soundGain(8));
   send('down', 'down', 'down', 'down', 'enter');
   assert.match(text(root), /Sounds: 8/);
 });
@@ -169,9 +173,11 @@ test('stepping the voices volume adjusts gain and persists across launches (#398
   send('left');
   assert.match(text(root), /Voices: 9/);
   assert.equal(new MMKV().getString('dicechess-tv.voiceVolume.v1'), '9');
+  assert.equal(first.voiceVolume, voiceGain(9));
 
   const second = recorder();
   root = launch({ options, sounds: second }).root;
+  assert.equal(second.voiceVolume, voiceGain(9));
   send('down', 'down', 'down', 'down', 'enter');
   send('down');
   assert.match(text(root), /Voices: 9/);

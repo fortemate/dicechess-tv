@@ -1156,3 +1156,20 @@ test('setting voice volume applies gain to spoken line player', async () => {
     0.3,
   );
 });
+
+test('an unprimed player starting muted receives soundVolume when unmuted', async () => {
+  resetAudio();
+  const time = ends();
+  const sounds = createSounds({
+    pick: () => 0,
+    endClip: time.endClip,
+    muted: true,
+    soundVolume: 0.5,
+  });
+  await settle();
+  sounds.setMuted(false);
+  sounds.play(['piece_move']);
+  await settle();
+  const [move] = effects();
+  assert.equal(move.volume, 0.5);
+});

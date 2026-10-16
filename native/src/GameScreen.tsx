@@ -539,6 +539,37 @@ const choiceOf = (overlay: Overlay, context: ChoiceContext): Choice | null => {
 };
 
 // What sits under the status: an open menu or choice, or the prompt.
+const settingsAfters = (
+  index: number,
+  context: ChoiceContext,
+): React.ReactNode[] => {
+  const musicOffset = context.hasMusic ? 1 : 0;
+  const soundRing = (
+    <VolumeRings
+      key="sound-rings"
+      volume={soundHeard(context.sound) ? context.sound.volume : 0}
+      focused={index === musicOffset}
+    />
+  );
+  const voiceRing = (
+    <VolumeRings
+      key="voice-rings"
+      volume={voicesHeard(context.voices) ? context.voices.volume : 0}
+      focused={index === musicOffset + 1}
+    />
+  );
+  if (!context.hasMusic) return [soundRing, voiceRing];
+  return [
+    <VolumeRings
+      key="music-rings"
+      volume={musicHeard(context.music) ? context.music.volume : 0}
+      focused={index === 0}
+    />,
+    soundRing,
+    voiceRing,
+  ];
+};
+
 const Panel = ({
   overlay,
   view,
@@ -564,32 +595,13 @@ const Panel = ({
       </Text>
     );
   if (overlay.kind === 'settings') {
-    const soundRing = (
-      <VolumeRings
-        key="sound-rings"
-        volume={soundHeard(context.sound) ? context.sound.volume : 0}
-        focused={overlay.index === (context.hasMusic ? 1 : 0)}
+    return (
+      <Choices
+        {...choice}
+        pressed={pressed}
+        afters={settingsAfters(overlay.index, context)}
       />
     );
-    const voiceRing = (
-      <VolumeRings
-        key="voice-rings"
-        volume={voicesHeard(context.voices) ? context.voices.volume : 0}
-        focused={overlay.index === (context.hasMusic ? 2 : 1)}
-      />
-    );
-    const afters = context.hasMusic
-      ? [
-          <VolumeRings
-            key="music-rings"
-            volume={musicHeard(context.music) ? context.music.volume : 0}
-            focused={overlay.index === 0}
-          />,
-          soundRing,
-          voiceRing,
-        ]
-      : [soundRing, voiceRing];
-    return <Choices {...choice} pressed={pressed} afters={afters} />;
   }
   if (overlay.kind === 'promotion') {
     const befores = overlay.moves.map((move) => {
