@@ -92,12 +92,14 @@ Before the change an arrow worked out five views at every point of a turn, and a
 
 Dice Chess TV offers three built-in opponents: Rolly (random, with immediate king captures), Grabby (material gains across a complete turn) and Rampage (aggressive king hunter). Their [profiles](/play/opponents/) explain the current playing styles; the timings below describe the builds measured on the dates named. Each is an algorithm of the engine, asked for a whole turn through `getBestMove`, and all three run on the device, on the JavaScript thread.
 
+The playing-style descriptions rest on engine 0.14.8 source inspection and the Node tests in [`test/opponents.test.ts`](https://github.com/fortemate/dicechess-tv/blob/8453e173eb50899685148010e7047e908a3d577e/test/opponents.test.ts) and [`test/opponent-examples.test.ts`](https://github.com/fortemate/dicechess-tv/blob/8453e173eb50899685148010e7047e908a3d577e/test/opponent-examples.test.ts).
+
 A probe build on the Vega Virtual Device timed Grabby's and Rampage's decisions on 26 September 2026, and Node timed 100 games of each. The figures are the slowest seen, not bounds:
 
 | Opponent    | How it plays                                         | Slowest in Node (100 games) | Slowest on the Virtual Device                 | Wait before each step |
 | ----------- | ---------------------------------------------------- | --------------------------- | --------------------------------------------- | --------------------- |
 | **Rolly**   | Any legal turn, at random                            | not timed                   | not timed                                     | 600 ms                |
-| **Grabby**  | Takes the most valuable piece it can                 | 48 ms                       | 155 ms, over 14 turns                         | 600 ms                |
+| **Grabby**  | Best material balance after the whole turn           | 48 ms                       | 155 ms, over 14 turns                         | 600 ms                |
 | **Rampage** | Hunts pieces, pushes its pawns and goes for the king | 38 ms                       | 339 ms, over about two games, on a first roll | 600 ms                |
 
 ### Pacing

@@ -68,10 +68,16 @@ retaken this way on the Vega Virtual Device, from main 125b4f6 (#351).
 shared components use the game's opponent names and levels, and import nine
 MP3s directly from `native/voices/elevenlabs-dicechess-bots/`, with their
 transcripts from its manifest. No audio is copied or synthesized for the site.
-Players use native browser controls, with no autoplay or preloading; a small
-script pauses the previous sample when another starts. The text stays readable
-without JavaScript. These are the in-game voices, not the older audition on
-`/voices/`.
+Players use native browser controls, with no autoplay or preloading. With
+JavaScript enabled, a small script pauses the previous sample when another
+starts. A manual in-app browser check on 16 October 2026 verified that
+coordination.
+A separate check used DevTools' **Disable JavaScript** command, then reloaded
+all four pages: their text, transcripts, portraits, teaching boards, links and
+native audio controls still worked. All nine recordings could be played;
+without JavaScript, samples must be paused manually. The method, results and
+limits are in the [browser validation record](../docs/opponent-site-validation.md).
+These are the in-game voices, not the older audition on `/voices/`.
 
 `src/assets/opponents/` holds only the three card portraits needed by the site,
 copied unchanged from portrait pack 1.4.1. `NOTICE.txt` preserves their terms and
