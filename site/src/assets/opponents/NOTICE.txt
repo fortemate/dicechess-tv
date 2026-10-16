@@ -1,0 +1,35 @@
+Dice Chess character portraits - for Fortemate's Dice Chess applications only
+
+Copyright 2026 Fortemate, to the extent any rights in this material exist.
+All rights reserved.
+
+These images were generated with Recraft (recraft.ai) on 2026-10-03 and
+2026-10-04, on the paid Pro plan of Fortemate's owner, for Fortemate. Fortemate
+edited some of them afterwards: it removed Rolly's wings, redrew the dice as
+real dice, changed some of Thinkle's colours, recoloured Ashby, smoothed his
+snout and gave him a second nostril, and drew the cat in three colourways.
+Recraft's Terms of Service give the
+subscriber of a paid plan ownership of the assets, and keep a licence for
+Recraft.
+
+The images are AI-generated. Each original keeps the C2PA manifest Recraft
+embedded in it; the derived files say that they are AI-generated.
+
+Only Fortemate may use, copy and distribute them. They may be used only as part
+of the Dice Chess applications that Fortemate publishes, on any platform, of the
+source repositories of those applications, and of material that presents those
+applications, such as store listings, videos and hackathon submissions.
+
+No licence is granted to anyone else. The images are not covered by the
+AGPL-3.0 licence of the applications' source code or by any other open
+licence. A fork or copy of a Fortemate repository may not use, publish or
+distribute them: remove them, and draw characters of your own.
+
+Not permitted, to anyone:
+- using the images in a product that is not a Dice Chess application;
+- distributing them on their own, as image libraries, sticker packs or other
+  collections;
+- using them, in whole or in part, in any dataset for training, fine-tuning,
+  testing or improving machine learning or artificial intelligence.
+
+Their use is also subject to the Recraft Terms of Service.

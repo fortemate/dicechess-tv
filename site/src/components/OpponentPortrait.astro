@@ -1,0 +1,52 @@
+---
+import { Image } from 'astro:assets';
+import { opponentOf } from '../../../src/core/opponents';
+import rolly from '../assets/opponents/rolly-card-336.png';
+import grabby from '../assets/opponents/grabby-card-336.png';
+import rampage from '../assets/opponents/rampage-card-336.png';
+
+interface Props {
+  character: 'rolly' | 'grabby' | 'rampage';
+  card?: boolean;
+}
+const { character, card = false } = Astro.props;
+const portraits = { rolly, grabby, rampage };
+const modes = {
+  rolly: 'random',
+  grabby: 'greedy',
+  rampage: 'aggressive',
+} as const;
+const opponent = opponentOf(modes[character]);
+---
+
+<figure class:list={['opponent-portrait', { card }]}>
+  <Image
+    src={portraits[character]}
+    alt={opponent.name}
+    width={card ? 180 : 224}
+  />
+  <figcaption>{opponent.level}</figcaption>
+</figure>
+
+<style>
+  .opponent-portrait {
+    margin: 1.5rem auto;
+    text-align: center;
+  }
+  .opponent-portrait img {
+    display: block;
+    width: 14rem;
+    max-width: 100%;
+    height: auto;
+    margin: auto;
+  }
+  .opponent-portrait.card img {
+    width: 11.25rem;
+  }
+  .opponent-portrait figcaption {
+    margin-top: 0.75rem;
+    color: var(--sl-color-accent-high);
+    font-size: var(--sl-text-sm);
+    font-weight: 600;
+  }
+</style>

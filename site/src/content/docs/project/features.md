@@ -25,9 +25,13 @@ Prowla the cat hosts games against a friend, or in her place Rolly, the friendli
 
 A person alone plays one of three opponents that run on the TV. They are chosen on cards:
 
-- **Rolly** (Easy) plays random legal turns, an opponent for learning;
-- **Grabby** (Medium) takes the most valuable piece it can;
-- **Rampage** (Hard) hunts your pieces and goes for your king.
+- **[Rolly](/play/opponents/rolly/)** (Easy) plays random legal turns, except that she takes your king whenever her first action can;
+- **[Grabby](/play/opponents/grabby/)** (Medium) chooses the complete turn with the best material balance, with a king capture first;
+- **[Rampage](/play/opponents/rampage/)** (Hard) adds pawn advances and pressure around your king to material and his own king's safety, with a king capture first.
+
+These decision rules are based on the engine 0.14.8 source linked from the [opponent overview](/play/opponents/#about-the-portraits-and-recordings), the [algorithm-mapping and immediate-king-capture tests](https://github.com/fortemate/dicechess-tv/blob/8453e173eb50899685148010e7047e908a3d577e/test/opponents.test.ts), and the [teaching-position tests](https://github.com/fortemate/dicechess-tv/blob/8453e173eb50899685148010e7047e908a3d577e/test/opponent-examples.test.ts). The tests run the algorithms used by the app in Node.
+
+[Meet the opponents](/play/opponents/) compares their styles and reactions, with portraits, example turns and recordings of their in-game voices.
 
 Each is an algorithm of the Dice Chess rules engine. Each has a portrait drawn for the game, and in a game it talks from beside it at the top of the screen. A build without the portraits shows RhosGFX's Vector Emojis, by the artist of the pieces, in their place. Every opponent shows its turn one action at a time, and each piece slides to its new square, the opponent's and yours alike, so a turn can be followed from the sofa. Frames recorded on the virtual device show Grabby's knight sliding onto a queen it took in under a quarter of a second, and the tests cover captures, castling, en passant and promotion.
 

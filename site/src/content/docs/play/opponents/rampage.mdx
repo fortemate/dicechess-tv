@@ -1,0 +1,48 @@
+---
+title: Rampage
+description: 'Meet Rampage, the little horned imp: pawn advances, pressure near your king, and a battle cry for every big moment.'
+sidebar:
+  order: 6
+---
+
+import OpponentPortrait from '../../../../components/OpponentPortrait.astro';
+import VoiceSamples from '../../../../components/VoiceSamples.astro';
+import OpponentExample from '../../../../components/OpponentExample.astro';
+
+<OpponentPortrait character="rampage" />
+
+Rampage is a little horned imp with a helmet, a raised fist and absolute confidence in his next assault. Your king is his favourite subject, whether he is introducing himself or celebrating a fallen defender.
+
+## How he plays
+
+Rampage compares complete legal turns. His evaluation combines material balance and his own king's safety with three attacking preferences:
+
+- **Advance pawns.** Pushing them further forward improves his assessment.
+- **Bring attackers closer.** Knights, bishops, rooks and queens get credit for approaching your king.
+- **Pressure the surrounding squares.** Attacks on the ring of squares around your king matter too.
+
+A king capture anywhere in the turn comes first, and he prefers a winning sequence with fewer actions. Equal best choices are broken at random.
+
+His own king being directly attacked carries a penalty, so he may choose safety over a more aggressive move. He still evaluates the position at the end of his own turn; he does not search through your replies or future dice rolls.
+
+## An attack can start with a quiet move
+
+Rampage is White here. He rolls Knight, Pawn and Pawn, with no pawns on his side. There is nothing to capture. Moving the knight from c1 to d3 brings it closer to your king on h8, so that is his choice.
+
+<OpponentExample character="rampage" />
+
+The move does not attack the king immediately. It shows how he builds pressure even without a capture.
+
+## Playing against Rampage
+
+- Watch the space around your king as well as direct attacks on it.
+- Consider the order of several enemy actions: the first can make a route for the next.
+- Look for a safe square for your king and opportunities to threaten his. His preference for safety can compete with his attack.
+
+## Hear his voice
+
+A challenge before the battle, a roar when a defender falls, and frustration when the dice interrupt the assault.
+
+<VoiceSamples character="rampage" />
+
+[Compare all opponents](/play/opponents/) · [Review the rules](/play/how-to-play/)

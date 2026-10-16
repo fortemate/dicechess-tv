@@ -1,0 +1,44 @@
+---
+title: Grabby
+description: 'Meet Grabby, the goblin collector: material gains across a complete turn, a weakness for exposed treasure, and a voice of his own.'
+sidebar:
+  order: 5
+---
+
+import OpponentPortrait from '../../../../components/OpponentPortrait.astro';
+import VoiceSamples from '../../../../components/VoiceSamples.astro';
+import OpponentExample from '../../../../components/OpponentExample.astro';
+
+<OpponentPortrait character="grabby" />
+
+Grabby is a goblin collector, and your pieces are the treasures missing from his display case. Every capture is an acquisition; an empty roll is a terrible waste of collecting time.
+
+## How he plays
+
+Grabby compares complete legal turns and chooses the one with the best material balance at the end. This counts the value of the pieces left on both sides, including any promotion. **He can move one piece to clear the way for another capture later in the same turn.** His greed reaches across the whole roll.
+
+If he can capture your king anywhere in the turn, that win comes first. He prefers a winning sequence with fewer actions. Otherwise, equally valuable choices are broken at random.
+
+He does not examine your next reply or add a separate penalty for leaving his own king attacked. A move that wins material now may leave him vulnerable afterwards.
+
+## First clear the way, then collect
+
+Grabby is White here. His pawn on d2 blocks his bishop's diagonal to your queen on h6. He rolls Pawn, Bishop and Knight. Moving the pawn to d3 or d4 opens the diagonal, then the bishop takes the queen. There is no white knight, so that die cannot be used.
+
+<OpponentExample character="grabby" />
+
+This is why the first action can look quiet: the prize comes with the second.
+
+## Playing against Grabby
+
+- Check the whole sequence his roll allows. A blocker moved on the first action may expose a piece to the next one.
+- Keep valuable pieces away from easy captures, even when they look safe behind another piece.
+- After his turn, look for threats he left against his own king. Winning material does not guarantee safety.
+
+## Hear his voice
+
+He sees a fresh board as a collection waiting to happen, a queen or rook as a showpiece, and an empty roll as a missed opportunity.
+
+<VoiceSamples character="grabby" />
+
+[Compare all opponents](/play/opponents/) · [Meet Rampage](/play/opponents/rampage/)

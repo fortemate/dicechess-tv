@@ -1,0 +1,134 @@
+---
+import pack from '../../../native/voices/elevenlabs-dicechess-bots/manifest.json';
+import rollyIntro from '../../../native/voices/elevenlabs-dicechess-bots/rolly_intro_1.mp3?url';
+import rollyCapture from '../../../native/voices/elevenlabs-dicechess-bots/rolly_capture_heavy_1.mp3?url';
+import rollyEmpty from '../../../native/voices/elevenlabs-dicechess-bots/rolly_empty_roll_1.mp3?url';
+import grabbyIntro from '../../../native/voices/elevenlabs-dicechess-bots/grabby_intro_1.mp3?url';
+import grabbyCapture from '../../../native/voices/elevenlabs-dicechess-bots/grabby_capture_heavy_1.mp3?url';
+import grabbyEmpty from '../../../native/voices/elevenlabs-dicechess-bots/grabby_empty_roll_1.mp3?url';
+import rampageIntro from '../../../native/voices/elevenlabs-dicechess-bots/rampage_intro_1.mp3?url';
+import rampageCapture from '../../../native/voices/elevenlabs-dicechess-bots/rampage_capture_heavy_1.mp3?url';
+import rampageEmpty from '../../../native/voices/elevenlabs-dicechess-bots/rampage_empty_roll_1.mp3?url';
+
+interface Props {
+  character: 'rolly' | 'grabby' | 'rampage';
+  event?: 'intro' | 'capture_heavy' | 'empty_roll';
+}
+const { character, event } = Astro.props;
+const recordings = {
+  rolly: {
+    intro: rollyIntro,
+    capture_heavy: rollyCapture,
+    empty_roll: rollyEmpty,
+  },
+  grabby: {
+    intro: grabbyIntro,
+    capture_heavy: grabbyCapture,
+    empty_roll: grabbyEmpty,
+  },
+  rampage: {
+    intro: rampageIntro,
+    capture_heavy: rampageCapture,
+    empty_roll: rampageEmpty,
+  },
+};
+const events = {
+  intro: 'Starting a game',
+  capture_heavy: 'Taking your queen or rook',
+  empty_roll: 'Rolling with no legal move',
+};
+const samples = Object.entries(events)
+  .filter(([key]) => !event || key === event)
+  .map(([key, label]) => {
+    const kind = key as keyof typeof events;
+    const id = `${character}_${kind}_1` as keyof typeof pack.lines;
+    const line = pack.lines[id];
+    return {
+      id,
+      label,
+      text: line.text,
+      name: line.voice,
+      src: recordings[character][kind],
+    };
+  });
+---
+
+<div class="voice-samples">
+  {samples.map(({ id, label, text, name, src }) => (
+    <figure class="voice-sample">
+      <figcaption id={`${id}-label`}>
+        {name} · {label}
+      </figcaption>
+      <blockquote id={`${id}-text`}>
+        <p>{text}</p>
+      </blockquote>
+      <audio
+        controls
+        preload="none"
+        aria-labelledby={`${id}-label`}
+        aria-describedby={`${id}-text`}
+      >
+        <source src={src} type="audio/mpeg" />
+        <a href={src}>Listen to {name}</a>
+      </audio>
+    </figure>
+  ))}
+</div>
+
+<script>
+  // Native controls work without this script too. Keep comparisons audible by
+  // stopping the previous sample when another starts, including on the overview.
+  document.addEventListener(
+    'play',
+    (event) => {
+      const playing = event.target;
+      if (
+        !(playing instanceof HTMLAudioElement) ||
+        !playing.closest('.voice-sample')
+      )
+        return;
+      document
+        .querySelectorAll<HTMLAudioElement>('.voice-sample audio')
+        .forEach((audio) => {
+          if (audio !== playing) audio.pause();
+        });
+    },
+    true,
+  );
+</script>
+
+<style>
+  .voice-samples {
+    display: grid;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .voice-sample {
+    min-width: 0;
+    margin: 0;
+    padding: 1rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.75rem;
+    background: var(--sl-color-bg-sidebar);
+  }
+  .voice-sample figcaption {
+    color: var(--sl-color-gray-2);
+    font-size: var(--sl-text-sm);
+    font-weight: 600;
+  }
+  .voice-sample blockquote {
+    margin: 0.75rem 0;
+    padding: 0;
+    border: 0;
+    color: var(--sl-color-white);
+  }
+  .voice-sample p {
+    margin: 0;
+  }
+  .voice-sample audio {
+    display: block;
+    width: 100%;
+    max-width: 24rem;
+    margin-top: 1rem;
+  }
+</style>
