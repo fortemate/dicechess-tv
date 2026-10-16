@@ -143,6 +143,8 @@ export type Sounds = {
   // to start is dropped once the game has moved on.
   play(cues: readonly Cue[]): void;
   setMuted(muted: boolean): void;
+  // Linear gain from the sounds setting, 0 to 1 (#398).
+  setSoundVolume(gain: number): void;
   // Says a bot's or the host's line in its voice, replacing any line still
   // being said.
   say(line: SpokenLine): void;
@@ -152,6 +154,8 @@ export type Sounds = {
   // The Voices setting, for every spoken line, the host's included. Off,
   // nothing is said, and a line being said stops.
   setVoices(on: boolean): void;
+  // Linear gain from the voices setting, 0 to 1 (#398).
+  setVoiceVolume(gain: number): void;
   // While the app is away from the foreground or out of focus nothing plays,
   // anything playing stops, and a cue or line still waiting is dropped rather
   // than heard on the way back. The player's own sound setting is left alone.
@@ -165,11 +169,15 @@ export type SoundOptions = {
   report?: (line: string) => void;
   // Start muted, when the viewer turned sound off in an earlier session.
   muted?: boolean;
+  // Initial linear gain for effects, 0 to 1 (#398).
+  soundVolume?: number;
   // Runs a delayed cue after `wait` milliseconds. Injected so a test need not
   // wait.
   later?: (run: () => void, wait: number) => void;
   // Start with the bots' voices off, when the viewer turned them off earlier.
   voices?: boolean;
+  // Initial linear gain for voices, 0 to 1 (#398).
+  voiceVolume?: number;
   // Pauses a cue's clip after `wait` milliseconds, once it is over. Injected so
   // a test can hold it.
   endClip?: (run: () => void, wait: number) => void;
@@ -196,17 +204,21 @@ export function createSounds({
   pick = (count) => Math.floor(Math.random() * count),
   report = () => undefined,
   muted: startMuted = false,
+  soundVolume: startSoundVolume = 1,
   later = (run, wait) => {
     setTimeout(run, wait);
   },
   voices: startVoices = true,
+  voiceVolume: startVoiceVolume = 1,
   onSpeech = () => undefined,
   endClip = (run, wait) => {
     setTimeout(run, wait);
   },
 }: SoundOptions = {}): Sounds {
   let muted = startMuted;
+  let soundGain = Math.max(0, Math.min(1, startSoundVolume));
   let voices = startVoices;
+  let voiceGain = Math.max(0, Math.min(1, startVoiceVolume));
   let suspended = false;
   // Counts the times the app went away. A cue asked for before the last of
   // them is never heard, even if the app is back by the time its player is
@@ -336,7 +348,7 @@ export function createSounds({
   };
   const loud = (player: Player) => {
     if (!quiet.delete(player)) return;
-    player.volume = 1;
+    player.volume = soundGain;
   };
 
   // Each channel's player, made up front and given the sprite once, so the
@@ -510,6 +522,13 @@ export function createSounds({
       player.addEventListener('canplay', canPlay);
       await player.initialize();
       if (!current() || silentVoice()) return;
+      if (voiceGain !== 1) {
+        try {
+          player.volume = voiceGain;
+        } catch (error) {
+          report(`sound: line ${id} volume not set: ${String(error)}`);
+        }
+      }
       // Initialize first, then load once and wait for metadata. Starting
       // alongside the load can leave a pipeline with no completion event.
       player.src = `${VOICES}/${clip.file}`;
@@ -548,6 +567,18 @@ export function createSounds({
       muted = value;
       stopEffects();
     },
+    setSoundVolume(gain) {
+      soundGain = Math.max(0, Math.min(1, gain));
+      for (const player of ready.values()) {
+        if (!quiet.has(player)) {
+          try {
+            player.volume = soundGain;
+          } catch (error) {
+            report(`sound: player volume not set: ${String(error)}`);
+          }
+        }
+      }
+    },
     say(line) {
       const timing = speechTiming(line);
       // The line on the player now is cut short, whether or not this one can
@@ -564,6 +595,16 @@ export function createSounds({
     setVoices(on) {
       voices = on;
       if (!on) hush();
+    },
+    setVoiceVolume(gain) {
+      voiceGain = Math.max(0, Math.min(1, gain));
+      if (voice) {
+        try {
+          voice.volume = voiceGain;
+        } catch (error) {
+          report(`sound: voice volume not set: ${String(error)}`);
+        }
+      }
     },
     setSuspended(value) {
       suspended = value;

@@ -110,15 +110,15 @@ _Resign?_ and _Replace this game?_ offer **Cancel** and **Yes**, with Cancel foc
 
 Settings opens from the home screen and from the game menu. Up and Down move between its rows; Back returns to the menu it was opened from, and Menu goes to the home screen. The rows, in order:
 
-| Row                         | Default | Keys                                                                                                                                                                      |
-| --------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Music**                   | 7       | Left and Right set the volume from 0 to 10, shown as ten rings: _Music: 7_, or _Music: off_ at 0. OK mutes the music, and pressed again brings it back at the same level. |
-| **Sound effects**           | on      | Left, Right or OK turns them on or off.                                                                                                                                   |
-| **Voices**                  | on      | Left, Right or OK turns the characters' voices on or off.                                                                                                                 |
-| **Play as**                 | Random  | Ask, Random, White or Black: the colour you play against the computer. Right and OK step forward, Left back.                                                              |
-| **Host for friends**        | Prowla  | Prowla, Rolly, Thinkle or off: who hosts a game against a friend. Right and OK step forward, Left back.                                                                   |
-| **Turn board for friends**  | off     | Left, Right or OK turns it on or off. See [Turning the board](#turning-the-board-for-friends-optional).                                                                   |
-| **Auto-select only choice** | off     | Left, Right or OK turns it on or off. See [Auto-select only choice](#auto-select-only-choice-optional).                                                                   |
+| Row                         | Default | Keys                                                                                                                                                                            |
+| --------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Music**                   | 7       | Left and Right set the volume from 0 to 10, shown as ten rings: _Music: 7_, or _Music: off_ at 0. OK mutes the music, and pressed again brings it back at the same level.       |
+| **Sounds**                  | 10      | Left and Right set the volume from 0 to 10, shown as ten rings: _Sounds: 10_, or _Sounds: off_ at 0. OK mutes the sounds, and pressed again brings them back at the same level. |
+| **Voices**                  | 10      | Left and Right set the volume from 0 to 10, shown as ten rings: _Voices: 10_, or _Voices: off_ at 0. OK mutes the voices, and pressed again brings them back at the same level. |
+| **Play as**                 | Random  | Ask, Random, White or Black: the colour you play against the computer. Right and OK step forward, Left back.                                                                    |
+| **Host for friends**        | Prowla  | Prowla, Rolly, Thinkle or off: who hosts a game against a friend. Right and OK step forward, Left back.                                                                         |
+| **Turn board for friends**  | off     | Left, Right or OK turns it on or off. See [Turning the board](#turning-the-board-for-friends-optional).                                                                         |
+| **Auto-select only choice** | off     | Left, Right or OK turns it on or off. See [Auto-select only choice](#auto-select-only-choice-optional).                                                                         |
 
 Each setting is saved on the TV as it changes and read again at the next launch. The tests check that each is saved and read back, and that every row fits one line of the panel (`native/test/hints.test.tsx`).
 
@@ -189,7 +189,7 @@ Only unit tests cover this (`native/test/boardMotion.test.tsx`). On the Vega Vir
 
 VoiceView, Fire TV's screen reader, reads what holds the platform's focus. Dice Chess keeps its own: the arrows move a cursor and a highlight that the game draws, so VoiceView alone would find nothing to read. So while VoiceView is on, the game tells it in words what changed, through React Native's `AccessibilityInfo` announcements ([issue 257](https://github.com/fortemate/dicechess-tv/issues/257)):
 
-- **Menus and choices:** the name of a menu as it opens, its note if it has one, then the focused item and its place: _Dice Chess. Play a friend, 1 of 6._ Moving the focus says the item, _Play the computer, 2 of 6_, and a setting changed where the focus stands says its new value, _Sound effects: off_. The confirmations, the choice of colour and of promotion, the offer of the tutorial and _What next?_ after a game work the same way.
+- **Menus and choices:** the name of a menu as it opens, its note if it has one, then the focused item and its place: _Dice Chess. Play a friend, 1 of 6._ Moving the focus says the item, _Play the computer, 2 of 6_, and a setting changed where the focus stands says its new value, _Sounds: off_. The confirmations, the choice of colour and of promotion, the offer of the tutorial and _What next?_ after a game work the same way.
 - **The choice of opponent:** each card's name, level and line on how it plays: _Rolly, Easy. Plays any legal turn, at random, 1 of 3._
 - **The board:** the square under the cursor, what stands on it and the mark the board shows there, since the board draws no coordinates: _g1, white knight, can move_; _f3, empty, can go here_; _d5, black knight, can take_.
 - **The game:** each roll and the dice no move can use; each move, by the person, the friend or the computer; a turn that is over and whose turn comes next; and the result. Against Rolly a turn sounds like this: _Rolly's turn. Rolly rolled queen, rook and knight. The queen can't be used. Rolly moved the knight from g8 to f6. Rolly moved the rook from h8 to g8. Your turn. OK: roll three dice._ The result uses the words on screen: _Rolly wins. You resigned._
@@ -197,7 +197,7 @@ VoiceView, Fire TV's screen reader, reads what holds the platform's focus. Dice 
 - **The rules reference:** the topic and its text, as the focus moves.
 - **Short, and in order:** a move of the focus cuts short whatever is being said, so a held arrow is heard where it stops rather than square by square. The steps of a game wait their turn, so none of the computer's moves is lost.
 
-Squares, dice, menu items and opponent cards also carry accessibility labels and roles, with the on/off settings as switches. No element is made focusable for the platform: on Vega that would hand the arrows to the system's focus instead of the game's. No title carries a heading role either: VoiceView reads a heading by itself as it appears, and on the Virtual Device that cut off the result announced just before it. The words come from `src/core/announcements.ts`, the same module that words the result on screen. Nothing is worked out while VoiceView is off.
+Squares, dice, menu items and opponent cards also carry accessibility labels and roles, with the volume settings as sliders and the on/off settings as switches. No element is made focusable for the platform: on Vega that would hand the arrows to the system's focus instead of the game's. No title carries a heading role either: VoiceView reads a heading by itself as it appears, and on the Virtual Device that cut off the result announced just before it. The words come from `src/core/announcements.ts`, the same module that words the result on screen. Nothing is worked out while VoiceView is off.
 
 Not covered yet: the tutorial, which Thinkle speaks aloud anyway, About, and the screen shown after an error.
 

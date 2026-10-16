@@ -57,8 +57,7 @@ Removing the app deletes its saved game, results and settings. They never leave 
 4. During a game, Back opens the game menu: **Resume game**, **Resign**, **Agree a draw** in a game against a friend, **New game**, **Main menu**, **Rules reference** and **Settings**. **Main menu** leaves the game for the home screen, and **Resume game** there brings it back. Starting a new game while one is in play asks **Replace this game?** first, and **Cancel** keeps the game you have.
 5. Look something up in **Rules reference**.
 6. Listen to the music follow the game: calm, then tense when enough rolls could take a king within three actions, then critical when a king is attacked. The tense measure uses the position at the start of the turn. **Settings**, in the home menu and in the game menu, has these rows:
-   - **Music**: Left and Right set the volume from off to 10, and OK mutes it and brings it back at the same level.
-   - **Sound effects** and **Voices**: on or off.
+   - **Music**, **Sounds** and **Voices**: Left and Right set the volume from off to 10, and OK mutes them and brings them back at the same level.
    - **Play as**: Ask, Random (the default), White or Black, for games against the computer.
    - **Host for friends**: Prowla (the default), Rolly, Thinkle or off.
    - **Turn board for friends**: turns the board to the side to move in a game against a friend; off by default.

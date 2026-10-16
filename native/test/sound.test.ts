@@ -1112,3 +1112,47 @@ test("Thinkle's tutorial lines play from his own clips, and Voices off silences 
   await settle();
   assert.equal(plays().length, 0);
 });
+
+test('setting sound volume applies gain to effect players', async () => {
+  resetAudio();
+  const time = ends();
+  const sounds = createSounds({
+    pick: () => 0,
+    endClip: time.endClip,
+    soundVolume: 0.5,
+  });
+  await primed(time);
+  sounds.play(['piece_move']);
+  await settle();
+  const [move] = effects();
+  assert.equal(move.volume, 0.5);
+
+  sounds.setSoundVolume(0.8);
+  assert.equal(
+    log()
+      .filter(
+        (entry) => entry.event === 'volume' && entry.player === move.player,
+      )
+      .at(-1)?.to,
+    0.8,
+  );
+});
+
+test('setting voice volume applies gain to spoken line player', async () => {
+  resetAudio();
+  const sounds = createSounds({ later: () => undefined, voiceVolume: 0.7 });
+  sounds.say(line('rampage_capture_1'));
+  await settle();
+  const [said] = plays();
+  assert.equal(said.volume, 0.7);
+
+  sounds.setVoiceVolume(0.3);
+  assert.equal(
+    log()
+      .filter(
+        (entry) => entry.event === 'volume' && entry.player === said.player,
+      )
+      .at(-1)?.to,
+    0.3,
+  );
+});

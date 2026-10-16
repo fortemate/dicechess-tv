@@ -38,9 +38,11 @@ const listen = () => {
   const sounds: Sounds = {
     play() {},
     setMuted() {},
+    setSoundVolume() {},
     say() {},
     stopLine() {},
     setVoices() {},
+    setVoiceVolume() {},
     setSuspended(value) {
       told.sounds = value;
     },
@@ -128,7 +130,9 @@ const harness = (initial: 'active' | 'inactive' | 'unknown' = 'active') => {
   const sounds: Sounds = {
     play() {},
     setMuted() {},
+    setSoundVolume() {},
     setVoices() {},
+    setVoiceVolume() {},
     stopLine() {},
     say(line) {
       assert.equal(

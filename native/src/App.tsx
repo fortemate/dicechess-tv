@@ -25,11 +25,23 @@ import { botReply } from '../../src/core/bot';
 import { GameScreen } from './GameScreen';
 import { MmkvSnapshotStore } from './mmkvStore';
 import { createSounds, type Sounds } from './sound';
-import { readSound, saveSound } from './soundSetting';
+import {
+  readSound,
+  saveSound,
+  soundGain,
+  soundHeard,
+  type SoundSetting,
+} from './soundSetting';
 import { readTurnBoard, saveTurnBoard } from './turnSetting';
 import { readAutoSelect, saveAutoSelect } from './autoSelectSetting';
 import { readPlayAs, savePlayAs, type PlayAs } from './playAsSetting';
-import { readVoices, saveVoices } from './voiceSetting';
+import {
+  readVoices,
+  saveVoices,
+  voiceGain,
+  voicesHeard,
+  type VoiceSetting,
+} from './voiceSetting';
 import { readHost, saveHost, type HostChoice } from './hostSetting';
 import {
   readTutorialOffered,
@@ -222,8 +234,10 @@ export const App = ({
     () =>
       injectedSounds ??
       createSounds({
-        muted: !initialSound,
-        voices: initialVoices,
+        muted: !soundHeard(initialSound),
+        soundVolume: soundGain(initialSound.volume),
+        voices: voicesHeard(initialVoices),
+        voiceVolume: voiceGain(initialVoices.volume),
         report: onState,
         onSpeech: (on) => music.setDucked(on),
       }),
@@ -233,20 +247,24 @@ export const App = ({
   );
   React.useEffect(() => {
     if (!injectedSounds) return;
-    injectedSounds.setMuted(!initialSound);
-    injectedSounds.setVoices(initialVoices);
+    injectedSounds.setMuted(!soundHeard(initialSound));
+    injectedSounds.setSoundVolume(soundGain(initialSound.volume));
+    injectedSounds.setVoices(voicesHeard(initialVoices));
+    injectedSounds.setVoiceVolume(voiceGain(initialVoices.volume));
   }, [injectedSounds, initialSound, initialVoices]);
   const onSound = React.useCallback(
-    (on: boolean) => {
-      saveSound(settings, on);
-      sounds.setMuted(!on);
+    (next: SoundSetting) => {
+      saveSound(settings, next);
+      sounds.setMuted(!soundHeard(next));
+      sounds.setSoundVolume(soundGain(next.volume));
     },
     [settings, sounds],
   );
   const onVoices = React.useCallback(
-    (on: boolean) => {
-      saveVoices(settings, on);
-      sounds.setVoices(on);
+    (next: VoiceSetting) => {
+      saveVoices(settings, next);
+      sounds.setVoices(voicesHeard(next));
+      sounds.setVoiceVolume(voiceGain(next.volume));
     },
     [settings, sounds],
   );

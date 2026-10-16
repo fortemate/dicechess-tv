@@ -92,9 +92,9 @@ test('Thinkle, chosen, is remembered by his id (#279)', () => {
 
 test('the host and the voices are settings of their own', () => {
   const store = memoryStore();
-  saveVoices(store, false);
+  saveVoices(store, { on: false, volume: 10 });
   assert.equal(readHost(store), 'prowla');
   saveHost(store, 'off');
-  saveVoices(store, true);
+  saveVoices(store, { on: true, volume: 10 });
   assert.equal(readHost(store), 'off');
 });

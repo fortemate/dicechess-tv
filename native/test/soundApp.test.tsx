@@ -32,26 +32,33 @@ const options = fixedOptions({ roll: () => [2, 2, 2] });
 type Recorder = Sounds & {
   played: Cue[][];
   muted: boolean | null;
+  soundVolume: number | null;
   suspended: boolean | null;
   said: string[];
   // How many times a line was stopped on its own (#202).
   stopped: number;
   voices: boolean | null;
+  voiceVolume: number | null;
 };
 
 const recorder = (): Recorder => {
   const self: Recorder = {
     played: [],
     muted: null,
+    soundVolume: null,
     suspended: null,
     said: [],
     stopped: 0,
     voices: null,
+    voiceVolume: null,
     play(cues) {
       if (cues.length) self.played.push([...cues]);
     },
     setMuted(value) {
       self.muted = value;
+    },
+    setSoundVolume(gain) {
+      self.soundVolume = gain;
     },
     say(line) {
       self.said.push(line.id);
@@ -61,6 +68,9 @@ const recorder = (): Recorder => {
     },
     setVoices(on) {
       self.voices = on;
+    },
+    setVoiceVolume(gain) {
+      self.voiceVolume = gain;
     },
     setSuspended(value) {
       self.suspended = value;
@@ -94,26 +104,45 @@ test('turning sound off is remembered at the next launch', () => {
   // Home, nothing saved: new hotseat, Play the computer, Learn to play, Rules reference,
   // Settings. This build has no music, so the sound effects come first.
   send('down', 'down', 'down', 'down', 'enter');
-  assert.match(text(root), /Sound effects: on/);
+  assert.match(text(root), /Sounds: 10/);
   send('enter');
-  assert.match(text(root), /Sound effects: off/);
+  assert.match(text(root), /Sounds: off/);
   assert.equal(first.muted, true);
 
   const second = recorder();
   root = launch({ options, sounds: second }).root;
   assert.equal(second.muted, true, 'a relaunch starts muted');
   send('down', 'down', 'down', 'down', 'enter');
-  assert.match(text(root), /Sound effects: off/);
+  assert.match(text(root), /Sounds: off/);
+  send('enter');
+  assert.match(text(root), /Sounds: 10/);
+  assert.equal(second.muted, false);
 });
 
-test('the bots speak by default, and turning their voices off is remembered (#159)', () => {
+test('stepping the sound volume adjusts gain and persists across launches (#398)', () => {
+  reset();
+  const first = recorder();
+  let root = launch({ options, sounds: first }).root;
+  send('down', 'down', 'down', 'down', 'enter');
+  assert.match(text(root), /Sounds: 10/);
+  send('left', 'left');
+  assert.match(text(root), /Sounds: 8/);
+  assert.equal(new MMKV().getString('dicechess-tv.soundVolume.v1'), '8');
+
+  const second = recorder();
+  root = launch({ options, sounds: second }).root;
+  send('down', 'down', 'down', 'down', 'enter');
+  assert.match(text(root), /Sounds: 8/);
+});
+
+test('the bots speak by default, and turning their voices off is remembered (#159, #398)', () => {
   reset();
   const first = recorder();
   let root = launch({ options, sounds: first }).root;
   assert.equal(first.voices, true, 'voices start on');
   // Settings, then the row after the sound effects.
   send('down', 'down', 'down', 'down', 'enter');
-  assert.match(text(root), /Voices: on/);
+  assert.match(text(root), /Voices: 10/);
   send('down', 'enter');
   assert.match(text(root), /Voices: off/);
   assert.equal(first.voices, false);
@@ -122,6 +151,30 @@ test('the bots speak by default, and turning their voices off is remembered (#15
   const second = recorder();
   root = launch({ options, sounds: second }).root;
   assert.equal(second.voices, false, 'a relaunch starts without voices');
+  send('down', 'down', 'down', 'down', 'enter');
+  send('down');
+  assert.match(text(root), /Voices: off/);
+  send('enter');
+  assert.match(text(root), /Voices: 10/);
+  assert.equal(second.voices, true);
+});
+
+test('stepping the voices volume adjusts gain and persists across launches (#398)', () => {
+  reset();
+  const first = recorder();
+  let root = launch({ options, sounds: first }).root;
+  send('down', 'down', 'down', 'down', 'enter');
+  send('down');
+  assert.match(text(root), /Voices: 10/);
+  send('left');
+  assert.match(text(root), /Voices: 9/);
+  assert.equal(new MMKV().getString('dicechess-tv.voiceVolume.v1'), '9');
+
+  const second = recorder();
+  root = launch({ options, sounds: second }).root;
+  send('down', 'down', 'down', 'down', 'enter');
+  send('down');
+  assert.match(text(root), /Voices: 9/);
 });
 
 test('Prowla hosts Hot Seat by default, Rolly, Thinkle or no one instead, and the choice is remembered (#202, #258, #279)', () => {
@@ -139,7 +192,7 @@ test('Prowla hosts Hot Seat by default, Rolly, Thinkle or no one instead, and th
   assert.equal(new MMKV().getString('dicechess-tv.host.v1'), 'thinkle');
   send('enter');
   assert.match(text(root), /Host for friends: off/);
-  assert.match(text(root), /Voices: on/, 'the voices are left alone');
+  assert.match(text(root), /Voices: 10/, 'the voices are left alone');
   assert.equal(first.voices, true);
   // Stored as the choice itself, which a later host's id would replace.
   assert.equal(new MMKV().getString('dicechess-tv.host.v1'), 'off');

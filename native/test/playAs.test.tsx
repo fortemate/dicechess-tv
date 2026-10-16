@@ -84,7 +84,7 @@ test('Random is the default, and anything unreadable reads as Random', () => {
 test('the Play as row steps through Ask, Random, White and Black, after the voices', () => {
   assert.deepEqual(
     settingsOptions({ music: { on: true, volume: 7 } }).slice(0, 4),
-    ['Music: 7', 'Sound effects: on', 'Voices: on', 'Play as: Random'],
+    ['Music: 7', 'Sounds: 10', 'Voices: 10', 'Play as: Random'],
   );
   assert.equal(cyclePlayAs('random'), 'w');
   assert.equal(cyclePlayAs('b'), 'ask');

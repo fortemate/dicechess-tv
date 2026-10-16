@@ -153,6 +153,7 @@ const listener = () => {
   const sounds: Sounds = {
     play() {},
     setMuted() {},
+    setSoundVolume() {},
     say: (line) => {
       said.push(line.id);
     },
@@ -160,6 +161,7 @@ const listener = () => {
       stopped++;
     },
     setVoices() {},
+    setVoiceVolume() {},
     setSuspended() {},
   };
   return { said, stopped: () => stopped, sounds };

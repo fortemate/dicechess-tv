@@ -50,6 +50,20 @@ import {
   type MusicSetting,
 } from './musicSetting';
 import {
+  DEFAULT_SOUND,
+  soundHeard,
+  stepSound,
+  toggleSound,
+  type SoundSetting,
+} from './soundSetting';
+import {
+  DEFAULT_VOICES,
+  voicesHeard,
+  stepVoices,
+  toggleVoices,
+  type VoiceSetting,
+} from './voiceSetting';
+import {
   DEFAULT_HOST,
   cycleHost,
   hostName,
@@ -237,17 +251,18 @@ export type ScreenState = {
   // decision taken in instalments.
   pending: string[];
   // Whether the game's sound effects are heard, and whether music plays and how
-  // loud. Changed on the settings screen; the screen reports each change so the
+  // loud (#398). Changed on the settings screen; the screen reports each change so the
   // app can save it and apply it to the players.
-  sound: boolean;
+  sound: SoundSetting;
   music: MusicSetting;
   // Whether this build has music. Without it the settings offer only the sound
   // effects, rather than switches that do nothing (#76).
   musicAvailable: boolean;
   // Whether the board turns to the side to move in hotseat (#120).
   turnHotseat: boolean;
-  // Whether the lines are spoken aloud, the bots' and the host's (#159).
-  voices: boolean;
+  // Whether the lines are spoken aloud, the bots' and the host's (#159), and
+  // how loud (#398).
+  voices: VoiceSetting;
   // Who hosts Hot Seat games, or 'off' (#202).
   host: HostChoice;
   // Whether OK presses itself when the board offers only one choice (#302).
@@ -306,11 +321,11 @@ export type ScreenSettings = Pick<
 // its default.
 export const SETTINGS_OPTION = 'Settings';
 export const settingsOptions = ({
-  sound = true,
+  sound = DEFAULT_SOUND,
   music = DEFAULT_MUSIC,
   musicAvailable = true,
   turnHotseat = false,
-  voices = true,
+  voices = DEFAULT_VOICES,
   host = DEFAULT_HOST,
   autoSelect = false,
   playAs = DEFAULT_PLAY_AS,
@@ -318,8 +333,8 @@ export const settingsOptions = ({
   ...(musicAvailable
     ? [`Music: ${musicHeard(music) ? music.volume : 'off'}`]
     : []),
-  `Sound effects: ${sound ? 'on' : 'off'}`,
-  `Voices: ${voices ? 'on' : 'off'}`,
+  `Sounds: ${soundHeard(sound) ? sound.volume : 'off'}`,
+  `Voices: ${voicesHeard(voices) ? voices.volume : 'off'}`,
   // Before the rows for games against a friend: it is about the computer's.
   `Play as: ${playAsName(playAs)}`,
   `Host for friends: ${hostName(host)}`,
@@ -518,11 +533,11 @@ export const initialState = (
   options: ScreenOptions,
   restored?: Game | null,
   {
-    sound = true,
+    sound = DEFAULT_SOUND,
     music = DEFAULT_MUSIC,
     musicAvailable = false,
     turnHotseat = false,
-    voices = true,
+    voices = DEFAULT_VOICES,
     host = DEFAULT_HOST,
     autoSelect = false,
     playAs = DEFAULT_PLAY_AS,
@@ -914,9 +929,22 @@ const changed = (
           ? toggleMusic(state.music)
           : stepMusic(state.music, by),
     };
-  if (row.startsWith('Sound effects:'))
-    return { ...state, sound: !state.sound };
-  if (row.startsWith('Voices:')) return { ...state, voices: !state.voices };
+  if (row.startsWith('Sounds:'))
+    return {
+      ...state,
+      sound:
+        key === 'select'
+          ? toggleSound(state.sound)
+          : stepSound(state.sound, by),
+    };
+  if (row.startsWith('Voices:'))
+    return {
+      ...state,
+      voices:
+        key === 'select'
+          ? toggleVoices(state.voices)
+          : stepVoices(state.voices, by),
+    };
   if (row.startsWith('Play as:'))
     return { ...state, playAs: cyclePlayAs(state.playAs, by) };
   if (row.startsWith('Host for friends:'))
@@ -929,8 +957,9 @@ const changed = (
 };
 
 // Up and Down walk the settings. The arrows sideways change the volume on the
-// music row, where OK mutes and unmutes (#346), step through the hosts on hers,
-// and flip a switch on the others, as OK does, so either habit works.
+// music, sounds and voices rows, where OK mutes and unmutes (#346, #398), step
+// through the hosts on hers, and flip a switch on the others, as OK does, so
+// either habit works.
 const onSettings: Handler<'settings'> = (state, overlay, key) => {
   if (key === 'menu') return show(state, HOME);
   if (key === 'back') return show(state, settingsOpener(state, overlay.from));

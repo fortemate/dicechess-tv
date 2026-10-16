@@ -18,12 +18,12 @@ import { THEME } from './theme';
 // here is the screen reducer's, not the platform's (useRemoteInput.ts). A
 // screen reader is told in words where focus moves instead (announcer.ts).
 export const optionAccessibility = (label: string) => {
-  const music = /^(Music): (\d+|off)$/.exec(label);
-  if (music)
+  const slider = /^(Music|Sounds|Voices): (\d+|off)$/.exec(label);
+  if (slider)
     return {
       role: 'slider',
-      'aria-label': music[1],
-      'aria-valuetext': music[2],
+      'aria-label': slider[1],
+      'aria-valuetext': slider[2],
     } as const;
   const setting = /^(.+): (on|off)$/.exec(label);
   if (setting)
