@@ -29,7 +29,11 @@ export type Heard = {
 
 // The focused item and where it stands: "Play a friend, 2 of 6".
 export const itemSpeech = ({ options, index }: Choice): string =>
-  `${options[index]}, ${index + 1} of ${options.length}`;
+  `${options[index]}, ${index + 1} of ${options.length}${
+    options[index].startsWith('Highlights:')
+      ? ', Left and Right change the highlight style.'
+      : ''
+  }`;
 
 // A menu as it opens: its title, its note and the focused item.
 const opened = (choice: Choice): string[] => [
@@ -63,7 +67,13 @@ function focusSpeech(before: Heard | null, now: Heard): string[] {
     if (was.index !== choice.index) return [itemSpeech(choice)];
     // A setting changed where focus stands: its new value.
     const option = choice.options[choice.index];
-    return was.options[was.index] !== option ? [option] : [];
+    if (was.options[was.index] === option) return [];
+    return [
+      option,
+      ...(option.startsWith('Highlights:')
+        ? ['Left and Right change the highlight style.']
+        : []),
+    ];
   }
   // Back on the board from a menu, or opened on it, both are said again.
   const back = !before || was !== null;

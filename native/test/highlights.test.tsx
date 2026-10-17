@@ -211,11 +211,13 @@ test('each highlight style draws its distinct selected, destination, target and 
   // reddish-purple (#cc79a7) and a ghost of the carried rook on the destination
   // under the cursor (d2).
   const colourBlind = mountBoard('colour-blind');
-  assert.equal(
-    overlays(colourBlind, (s) => s.borderColor === '#56b4e9').length,
-    2,
-    'last-move outlines on both ends',
+  const lastMoveOutlines = overlays(
+    colourBlind,
+    (s) => s.borderColor === '#56b4e9',
   );
+  assert.equal(lastMoveOutlines.length, 2, 'last-move outlines on both ends');
+  // The last-move Inset sits inside both bands of the two-tone cursor frame.
+  assert.equal(styleOf(lastMoveOutlines[0]).left, 9);
   assert.equal(
     overlays(colourBlind, (s) => s.backgroundColor === '#cc79a7').length,
     1,

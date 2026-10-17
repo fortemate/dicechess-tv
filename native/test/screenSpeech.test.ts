@@ -78,3 +78,35 @@ test('the dots between a hint’s parts are said as pauses', () => {
     'Arrows: choose, OK: play, Back: return',
   );
 });
+
+test('the Highlights row adds how to change it when focused or changed', () => {
+  const before = board({
+    choice: {
+      title: 'Settings',
+      options: ['Sounds: 10', 'Highlights: Standard'],
+      index: 0,
+    },
+  });
+  const focused = board({
+    choice: {
+      title: 'Settings',
+      options: ['Sounds: 10', 'Highlights: Standard'],
+      index: 1,
+    },
+  });
+  assert.deepEqual(screenSpeech(before, focused), {
+    text: 'Highlights: Standard, 2 of 2, Left and Right change the highlight style.',
+    interrupt: true,
+  });
+  const changed = board({
+    choice: {
+      title: 'Settings',
+      options: ['Sounds: 10', 'Highlights: Enhanced'],
+      index: 1,
+    },
+  });
+  assert.deepEqual(screenSpeech(focused, changed), {
+    text: 'Highlights: Enhanced. Left and Right change the highlight style.',
+    interrupt: true,
+  });
+});

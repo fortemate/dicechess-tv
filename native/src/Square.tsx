@@ -69,11 +69,11 @@ const Corners = ({ edge, color }: { edge: number; color: string }) => {
   );
 };
 
-// A frame inset from the square's edge, so the cursor's outer frame does not
-// cover it.
+// A frame inset from the square's edge, inside both bands of the cursor's
+// two-tone frame so the cursor does not cover it.
 const Inset = ({ edge, color }: { edge: number; color: string }) => {
   const width = ring(edge * 8);
-  const gap = width * 2;
+  const gap = width * 2 + Math.max(2, Math.round(width * 2 * 0.45));
   const side = edge - gap * 2;
   return (
     <View
