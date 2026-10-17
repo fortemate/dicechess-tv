@@ -110,17 +110,18 @@ _Resign?_ and _Replace this game?_ offer **Cancel** and **Yes**, with Cancel foc
 
 Settings opens from the home screen and from the game menu. Up and Down move between its rows; Back returns to the menu it was opened from, and Menu goes to the home screen. The rows, in order:
 
-| Row                         | Default | Keys                                                                                                                                                                            |
-| --------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Music**                   | 7       | Left and Right set the volume from 0 to 10, shown as ten rings: _Music: 7_, or _Music: off_ at 0. OK mutes the music, and pressed again brings it back at the same level.       |
-| **Sounds**                  | 10      | Left and Right set the volume from 0 to 10, shown as ten rings: _Sounds: 10_, or _Sounds: off_ at 0. OK mutes the sounds, and pressed again brings them back at the same level. |
-| **Voices**                  | 10      | Left and Right set the volume from 0 to 10, shown as ten rings: _Voices: 10_, or _Voices: off_ at 0. OK mutes the voices, and pressed again brings them back at the same level. |
-| **Play as**                 | Random  | Ask, Random, White or Black: the colour you play against the computer. Right and OK step forward, Left back.                                                                    |
-| **Host for friends**        | Prowla  | Prowla, Rolly, Thinkle or off: who hosts a game against a friend. Right and OK step forward, Left back.                                                                         |
-| **Turn board for friends**  | off     | Left, Right or OK turns it on or off. See [Turning the board](#turning-the-board-for-friends-optional).                                                                         |
-| **Auto-select only choice** | off     | Left, Right or OK turns it on or off. See [Auto-select only choice](#auto-select-only-choice-optional).                                                                         |
+| Row                         | Default  | Keys                                                                                                                                                                                  |
+| --------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Music**                   | 7        | Left and Right set the volume from 0 to 10, shown as ten rings: _Music: 7_, or _Music: off_ at 0. OK mutes the music, and pressed again brings it back at the same level.             |
+| **Sounds**                  | 10       | Left and Right set the volume from 0 to 10, shown as ten rings: _Sounds: 10_, or _Sounds: off_ at 0. OK mutes the sounds, and pressed again brings them back at the same level.       |
+| **Voices**                  | 10       | Left and Right set the volume from 0 to 10, shown as ten rings: _Voices: 10_, or _Voices: off_ at 0. OK mutes the voices, and pressed again brings them back at the same level.       |
+| **Play as**                 | Random   | Ask, Random, White or Black: the colour you play against the computer. Right and OK step forward, Left back.                                                                          |
+| **Host for friends**        | Prowla   | Prowla, Rolly, Thinkle or off: who hosts a game against a friend. Right and OK step forward, Left back.                                                                               |
+| **Turn board for friends**  | off      | Left, Right or OK turns it on or off. See [Turning the board](#turning-the-board-for-friends-optional).                                                                               |
+| **Highlights**              | Standard | Standard, Enhanced, Colour-blind or High contrast: how movable pieces, the piece in hand, destinations, the cursor and the last move are drawn. Right and OK step forward, Left back. |
+| **Auto-select only choice** | off      | Left, Right or OK turns it on or off. See [Auto-select only choice](#auto-select-only-choice-optional).                                                                               |
 
-Each setting is saved on the TV as it changes and read again at the next launch. The tests check each press of the volume rows (`native/test/screen.test.ts`), that each is saved and read back (`native/test/soundApp.test.tsx`, `native/test/soundSetting.test.ts`, `native/test/voiceSetting.test.ts`), and that every row fits one line of the panel (`native/test/hints.test.tsx`).
+Each setting is saved on the TV as it changes and read again at the next launch. The tests check each press of the volume rows (`native/test/screen.test.ts`), that each is saved and read back (`native/test/soundApp.test.tsx`, `native/test/soundSetting.test.ts`, `native/test/voiceSetting.test.ts`, `native/test/highlights.test.tsx`), and that every row fits one line of the panel (`native/test/hints.test.tsx`).
 
 ### The End of a Game
 
@@ -150,6 +151,17 @@ _Note on Keypad Enter (`kpenter`):_ The Vega Virtual Device on-screen remote ski
 - **5% Overscan Margin:** All gameplay UI, board squares, status panels, and dialogs are inset 48 dp horizontally and 27 dp vertically (on a 960x540 dp canvas), the margin a television may crop. `native/test/layout.test.ts` checks the insets, and on the Vega Virtual Device `vvd safe-area` found the margins of the rules guide, About and the tutorial's first lesson clear ([Quality & review](/quality/)). Whether a television with overscan crops anything is not yet checked ([Performance](/technology/performance/)).
 - **Sofa Legibility:** All captions and labels use a minimum font size of 20 dp (exceeding Amazon's 14 sp guideline) for effortless reading from across the living room.
 - **Framed Cyan Focus:** Focused menu items, piece squares, and opponent cards feature a luminous cyan border frame combined with a subtle fill, ensuring focus remains obvious regardless of lighting.
+
+### Board Highlights (Colour-Vision & High-Contrast Modes)
+
+In **Settings**, players can cycle **Highlights** between four board-mark styles ([issue 404](https://github.com/fortemate/dicechess-tv/issues/404), [pull request 413](https://github.com/fortemate/dicechess-tv/pull/413)):
+
+- **Standard (default):** the original television board marks — translucent green fill for movable pieces, translucent cyan fill and double-width cyan frame for the picked-up piece, green dots and capture rings for destinations, and a cyan perimeter frame for the cursor.
+- **Enhanced:** lifts the picked-up piece (`1.18x`) above a soft oval drop shadow and gives the cursor a bold two-tone frame (cyan outer band, dark inner band) so the piece in hand and the destination cursor no longer share a cyan perimeter border.
+- **Colour-blind:** replaces the green/cyan palette with the **Okabe–Ito** colour-vision-safe palette and pairs every state with a distinct geometric shape — blue fill with four corner triangles (`#0072b2`) for movable pieces, a lifted piece over a reddish-purple pedestal (`#cc79a7`) for the piece in hand, white-rimmed vermilion dots and double-rimmed capture rings (`#d55e00`) for destinations, a semi-transparent ghost preview of the carried piece on the destination under the cursor, a bold two-tone yellow/black cursor frame (`#f0e442`), and a sky-blue inset outline (`#56b4e9`) for the last move.
+- **High contrast:** pure black and white marks with full shape redundancy — black corner triangles for movable pieces, a lifted piece with a drop shadow for the piece in hand, black dots and capture rings with crisp white rims, a ghost preview of the carried piece under the cursor, a white wash with a two-tone black/white cursor frame, and a white inset outline for the last move.
+
+The setting is saved via MMKV (`dicechess-tv.highlights.v1`) and applies to both the game board and the interactive tutorial board. `native/test/highlights.test.tsx` checks the setting and the rendered marks of all four styles; [Readable from the sofa](/design/sofa/#colour-blind-viewers) gives the contrast measurements and geometry table.
 
 ### Turning the Board for Friends (Optional)
 

@@ -91,6 +91,7 @@ Contains the TV presentation layer built with React Native for Vega:
 | `src/voiceSetting.ts`         | The Voices setting: whether every line is spoken aloud, remembered across launches.                         |
 | `src/playAsSetting.ts`        | The colour played against the computer: Random (the default), White, Black or Ask.                          |
 | `src/turnSetting.ts`          | Whether the board turns to the side to move in a friend game, off by default.                               |
+| `src/highlightsSetting.ts`    | Board highlight style: Standard (the default), Enhanced, Colour-blind or High contrast (#404).              |
 | `src/autoSelectSetting.ts`    | Whether OK presses itself on the only choice, off by default.                                               |
 | `src/tutorialOfferSetting.ts` | Whether the first launch's offer of the tutorial has been answered.                                         |
 | `src/activity.ts`             | One foreground gate for audio, remote input and the work scheduled between frames.                          |

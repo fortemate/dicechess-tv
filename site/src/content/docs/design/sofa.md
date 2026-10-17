@@ -66,8 +66,22 @@ The marks were checked by simulating colour-vision deficiency on the board's own
 | Green fill vs last-move tint, light |           8.6 |        5.0 |          7.4 |       10.7 |
 | Green fill vs last-move tint, dark  |           8.1 |        4.2 |          6.1 |       10.5 |
 
-Most marks already have a second cue: destinations are dots or rings, the dice differ by ring and size, and the cursor and the focus are frames. The green fill for a piece that can move is the exception. For a deuteranope it all but disappears on dark squares, and even with normal vision it sits close to the last-move tint. A planned change gives it a shape of its own ([Roadmap](/roadmap/)). The same concern retired an earlier amber mark ([Designing for the remote](/design/remote/)).
+Most marks in the default **Standard** style already have a second cue: destinations are dots or rings, the dice differ by ring and size, and the cursor and the focus are frames. The green fill for a piece that can move is the exception — for a deuteranope it all but disappears on dark squares, and even with normal vision it sits close to the last-move tint — and when a piece is picked up, its square and the cursor square both carry a cyan perimeter frame. The same concern retired an earlier amber mark ([Designing for the remote](/design/remote/)).
+
+**Highlights** in Settings ([pull request 413](https://github.com/fortemate/dicechess-tv/pull/413)) offers four board-highlight styles so players can keep the default television look or switch to stronger separation, a colour-vision-safe palette, or monochrome high contrast:
+
+| Style             | Palette         | Movable pieces                     | Picked-up piece                                     | Destinations                                    | Destination under cursor            | Cursor                          | Last move         |
+| ----------------- | --------------- | ---------------------------------- | --------------------------------------------------- | ----------------------------------------------- | ----------------------------------- | ------------------------------- | ----------------- |
+| **Standard**      | TV (`theme.ts`) | Translucent green fill             | Translucent cyan fill + double-width cyan frame     | Green dot or capture ring                       | Cursor frame alone                  | Cyan perimeter frame            | Yellow-green tint |
+| **Enhanced**      | TV (`theme.ts`) | Translucent green fill             | Lifted piece (`1.18x`) over a soft oval drop shadow | Green dot or capture ring                       | Cursor frame alone                  | Bold two-tone frame (cyan/ink)  | Yellow-green tint |
+| **Colour-blind**  | Okabe–Ito       | Blue fill (`#0072b2`) + 4 corners  | Lifted piece + reddish-purple pedestal (`#cc79a7`)  | Vermilion dot/ring (`#d55e00`) with white rim   | Semi-transparent ghost of the piece | Bold two-tone frame (`#f0e442`) | Sky-blue inset    |
+| **High contrast** | Black & white   | Black corner triangles (`#000000`) | Lifted piece (`1.18x`) over a dark oval drop shadow | Black dot/ring (`#000000`) with crisp white rim | Semi-transparent ghost of the piece | White wash + two-tone frame     | White inset frame |
+
+In **Enhanced**, **Colour-blind** and **High contrast**, the picked-up piece never uses a perimeter border, so the cursor is the only perimeter frame on the board when choosing a destination. In **Colour-blind** and **High contrast**, every board state is distinguished by shape as well as colour: corner triangles for pieces that can move, a lifted piece (and pedestal in **Colour-blind**) for the piece in hand, white-rimmed dots and double-rimmed capture rings for destinations, a ghost preview of the carried piece under the cursor, a two-tone cursor frame that contrasts against both light and dark squares, and an inset outline for the last move that sits inside both bands of the cursor frame.
+
+The styles were evaluated side by side on the browser test bench ([`web/`](https://github.com/fortemate/dicechess-tv/tree/main/web), [pull request 402](https://github.com/fortemate/dicechess-tv/pull/402)) across Step 1 (choosing a piece) and Step 2 (choosing a destination on light and dark empty and capture squares) under the Machado dichromacy and achromatopsia filters, covered by `native/test/highlights.test.tsx`, and installed and launched on a physical Fire TV Stick 4K Select (build 32, 17 October 2026).
 
 ## Sources
 
-- `native/src/theme.ts`: the colours.
+- `native/src/theme.ts`: the default television colours.
+- `native/src/highlightsSetting.ts` and `native/src/Square.tsx`: the four highlight styles and their geometry, tested in `native/test/highlights.test.tsx`.
