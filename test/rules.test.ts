@@ -375,6 +375,26 @@ test('the hundred counts board actions, and a passed turn adds none', () => {
   assert.equal(nextTurn(passed).start.split(' ')[4], '42');
 });
 
+test('the app keeps playing after turn 4,999', () => {
+  let game = rollGame(
+    {
+      ...newGame(
+        'hotseat',
+        'before-turn-limit',
+        '4k3/8/8/8/8/8/8/R3K3 w - - 0 1',
+      ),
+      turn: 4999,
+    },
+    [ROOK, ROOK, ROOK],
+  );
+  for (let i = 0; i < 3; i++) {
+    assert.equal(game.result, null);
+    game = moveGame(game, viewGame(game).legal[0]);
+  }
+  assert.equal(game.phase, 'handoff');
+  assert.equal(game.result, null);
+});
+
 test('the app also draws at the end of turn 5,000', () => {
   claims('draws', 'A game also draws at the end of turn 5,000.');
   let game = rollGame(
