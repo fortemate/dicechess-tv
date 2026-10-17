@@ -99,6 +99,7 @@ test('the candidate highlight presets decouple the picked-up piece from the curs
     'lift',
   ];
   for (const name of [
+    'Enhanced',
     'Standard (enhanced)',
     'Focus fill',
     'Colour-blind (Okabe-Ito)',
@@ -113,8 +114,10 @@ test('the candidate highlight presets decouple the picked-up piece from the curs
       nonCursorSelected.includes(marks.selected),
       `${name}: selected=${marks.selected} is not a decoupled selected style`,
     );
-    assert.notEqual(marks.target, 'cursor-only', name);
     assert.notEqual(marks.cursor, 'frame', name);
+    if (name !== 'Enhanced') {
+      assert.notEqual(marks.target, 'cursor-only', name);
+    }
   }
 });
 
@@ -128,7 +131,7 @@ test('keyboard shortcuts toggle compare view and cycle vision filter and presets
   assert.equal(protan?.cvd, 'protanopia');
 
   const nextPreset = stepShortcut(initial, 'v');
-  assert.equal(presetOf(nextPreset!.marks), 'Standard (enhanced)');
+  assert.equal(presetOf(nextPreset!.marks), 'Enhanced');
   assert.equal(stepShortcut(initial, 'ArrowUp'), null);
 });
 

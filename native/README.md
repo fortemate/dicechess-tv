@@ -58,6 +58,7 @@ Long-form technical documentation, platform findings, performance benchmarks and
 | `src/hostSetting.ts`           | Who hosts a game against a friend, Prowla (the default), Rolly, Thinkle or off, remembered.     |
 | `src/turnSetting.ts`           | Whether the board turns to the side to move in a game against a friend, off by default.         |
 | `src/playAsSetting.ts`         | The colour played against the computer: Ask, Random (the default), White or Black (#352).       |
+| `src/highlightsSetting.ts`     | Board highlight style: Standard (the default), Enhanced, Colour-blind or High contrast (#404).  |
 | `src/autoSelectSetting.ts`     | Whether OK presses itself when the board offers only one choice, off by default (#342).         |
 | `src/tutorialOfferSetting.ts`  | Whether the first launch's offer of the tutorial was answered, remembered.                      |
 | `src/music.ts`                 | Plays adaptive music: menu theme or danger-level tracks with crossfades.                        |

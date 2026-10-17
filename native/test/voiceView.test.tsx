@@ -164,7 +164,7 @@ test('a setting changed where focus stands is said with its new value', () => {
   const said = listen();
   send('enter');
   assert.deepEqual(texts(said()), [
-    'Settings. Left and Right change the volume. Sounds: 10, 1 of 6.',
+    'Settings. Left and Right change the volume. Sounds: 10, 1 of 7.',
   ]);
   const changed = listen();
   send('enter');

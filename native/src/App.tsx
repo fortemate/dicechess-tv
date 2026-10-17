@@ -36,6 +36,11 @@ import { readTurnBoard, saveTurnBoard } from './turnSetting';
 import { readAutoSelect, saveAutoSelect } from './autoSelectSetting';
 import { readPlayAs, savePlayAs, type PlayAs } from './playAsSetting';
 import {
+  readHighlights,
+  saveHighlights,
+  type HighlightStyle,
+} from './highlightsSetting';
+import {
   readVoices,
   saveVoices,
   voiceGain,
@@ -342,6 +347,14 @@ export const App = ({
     [settings],
   );
 
+  // How the board marks movable pieces, the picked-up piece, legal
+  // destinations, the target under the cursor and the cursor (#404).
+  const [initialHighlights] = React.useState(() => readHighlights(settings));
+  const onHighlights = React.useCallback(
+    (choice: HighlightStyle) => saveHighlights(settings, choice),
+    [settings],
+  );
+
   // Time To Fully Drawn, one of the KPIs Amazon measures. A cool start is fully
   // drawn by the first render, since the saved game and the settings are read
   // synchronously and there is no loading frame.
@@ -441,6 +454,7 @@ export const App = ({
     host: initialHost,
     autoSelect: initialAutoSelect,
     playAs: initialPlayAs,
+    highlights: initialHighlights,
     music: initialMusic,
   }));
   const onError = React.useCallback(
@@ -466,6 +480,7 @@ export const App = ({
         host: readHost(settings),
         autoSelect: readAutoSelect(settings),
         playAs: readPlayAs(settings),
+        highlights: readHighlights(settings),
         music: readMusic(settings),
       };
       setAttempt(({ n }) => ({ n: n + 1, ...next }));
@@ -499,6 +514,8 @@ export const App = ({
           onAutoSelect={onAutoSelect}
           initialPlayAs={attempt.playAs}
           onPlayAs={onPlayAs}
+          initialHighlights={attempt.highlights}
+          onHighlights={onHighlights}
           music={music}
           initialMusic={attempt.music}
           onMusic={onMusic}

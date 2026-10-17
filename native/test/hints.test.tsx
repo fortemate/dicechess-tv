@@ -12,6 +12,7 @@ import { settingsOptions } from '../src/screen';
 import { DEFAULT_MUSIC } from '../src/musicSetting';
 import { HOST_CHOICES } from '../src/hostSetting';
 import { PLAY_AS_CHOICES } from '../src/playAsSetting';
+import { HIGHLIGHT_CHOICES } from '../src/highlightsSetting';
 import { hint } from '../src/TutorialScreen';
 import { initialTutorial, type TutorialState } from '../src/tutorial';
 import {
@@ -111,18 +112,21 @@ test('every row of Settings is one line, whatever it says', () => {
   for (const on of [false, true])
     for (const host of HOST_CHOICES)
       for (const playAs of PLAY_AS_CHOICES)
-        for (const row of settingsOptions({
-          sound: { on, volume: on ? 10 : 0 },
-          music: DEFAULT_MUSIC,
-          turnHotseat: on,
-          voices: { on, volume: on ? 10 : 0 },
-          host,
-          autoSelect: on,
-          playAs,
-        }))
-          rows.add(row);
+        for (const highlights of HIGHLIGHT_CHOICES)
+          for (const row of settingsOptions({
+            sound: { on, volume: on ? 10 : 0 },
+            music: DEFAULT_MUSIC,
+            turnHotseat: on,
+            voices: { on, volume: on ? 10 : 0 },
+            host,
+            autoSelect: on,
+            playAs,
+            highlights,
+          }))
+            rows.add(row);
   assert.ok(rows.has('Auto-select only choice: off'));
   assert.ok(rows.has('Play as: Random'));
+  assert.ok(rows.has('Highlights: High contrast'));
   // The two rows for games against a friend name the mode as the home screen
   // does (#344), with the longest host's name.
   assert.ok(rows.has('Host for friends: Thinkle'));

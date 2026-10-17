@@ -728,7 +728,7 @@ const toSettings = (state: ScreenState): ScreenState => {
 const withMusic = (state: ScreenState): ScreenState =>
   screenReducer(state, { kind: 'musicAvailable', available: true }, options);
 
-test('without music in the build, Settings offers sound effects, voices, the host, hotseat board turning and the automatic OK', () => {
+test('without music in the build, Settings offers sound effects, voices, the host, hotseat board turning, highlights and the automatic OK', () => {
   const settings = toSettings(fresh());
   assert.equal(settings.musicAvailable, false);
   assert.deepEqual(settingsOptions(settings), [
@@ -737,6 +737,7 @@ test('without music in the build, Settings offers sound effects, voices, the hos
     'Play as: Random',
     'Host for friends: Prowla',
     'Turn board for friends: off',
+    'Highlights: Standard',
     'Auto-select only choice: off',
   ]);
   // Down moves from the sound effects to the voices, on past Play as to the
@@ -772,6 +773,7 @@ test('Settings opens from the home menu on music, and Back returns to it', () =>
     'Play as: Random',
     'Host for friends: Prowla',
     'Turn board for friends: off',
+    'Highlights: Standard',
     'Auto-select only choice: off',
   ]);
   const back = drive(settings, 'back');
