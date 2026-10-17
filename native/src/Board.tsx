@@ -9,7 +9,12 @@
 // already moved on, and the remote is never held up.
 import React from 'react';
 import { Animated, Easing, View } from 'react-native';
-import { fileOf, rankOf } from '../../src/core/board';
+import {
+  fileOf,
+  pieceAt,
+  rankOf,
+  type Square as BoardSquare,
+} from '../../src/core/board';
 import {
   boardView,
   type BoardInput,
@@ -20,6 +25,7 @@ import {
   type MovePlan,
   type Slide,
 } from '../../src/core/moveAnimation';
+import { DEFAULT_HIGHLIGHTS, type HighlightStyle } from './highlightsSetting';
 import { PIECES } from './pieces';
 import { Square } from './Square';
 import { useReducedMotion } from './useReducedMotion';
@@ -28,6 +34,7 @@ export type BoardProps = BoardInput & {
   // Edge length of the whole board in pixels. The caller decides it from the
   // space available, so the board stays responsive on any panel.
   size: number;
+  highlights?: HighlightStyle;
 };
 
 // How long a piece takes to reach its square. The TV guidance of #51 keeps a
@@ -220,19 +227,34 @@ const useFlipFade = (flipped: boolean) => {
 // and the board's inputs are primitives or memoized there, so those renders
 // skip the board unless one of them changed. Its own state still renders it:
 // a slide landing, the board turning.
-export const Board = React.memo(function Board({ size, ...input }: BoardProps) {
+export const Board = React.memo(function Board({
+  size,
+  highlights = DEFAULT_HIGHLIGHTS,
+  ...input
+}: BoardProps) {
   const edge = Math.floor(size / 8);
   const { displayed: flipped, opacity } = useFlipFade(input.flipped ?? false);
   const motion = useMotion(input.board, input.lastMove ?? null);
   const rows = boardView({ ...input, flipped });
   const shown = motion ? inFlight(rows, motion.plan) : rows;
+  const carried =
+    input.selected &&
+    (highlights === 'colour-blind' || highlights === 'high-contrast')
+      ? pieceAt(input.board, input.selected as BoardSquare)
+      : null;
   return (
     <View style={{ width: edge * 8, height: edge * 8 }}>
       <Animated.View style={{ width: edge * 8, height: edge * 8, opacity }}>
         {shown.map((row) => (
           <View key={row[0].square} style={{ flexDirection: 'row' }}>
             {row.map((view) => (
-              <Square key={view.square} view={view} edge={edge} />
+              <Square
+                key={view.square}
+                view={view}
+                edge={edge}
+                highlights={highlights}
+                carried={view.cursor && view.destination ? carried : null}
+              />
             ))}
           </View>
         ))}

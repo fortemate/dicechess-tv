@@ -75,6 +75,12 @@ import {
   playAsName,
   type PlayAs,
 } from './playAsSetting';
+import {
+  DEFAULT_HIGHLIGHTS,
+  cycleHighlights,
+  highlightsName,
+  type HighlightStyle,
+} from './highlightsSetting';
 
 export const START: Square = 'e2';
 
@@ -270,6 +276,9 @@ export type ScreenState = {
   // The colour a person plays against the computer, or Ask for the choice of
   // colour before each game (#345).
   playAs: PlayAs;
+  // How the board marks movable pieces, the picked-up piece, legal
+  // destinations, the target under the cursor and the cursor (#404).
+  highlights: HighlightStyle;
   // The game revision on which the person took the action over with OK, Back
   // or Menu: it is theirs to finish, and the next one is automatic again
   // (#360). Null when they have not.
@@ -312,6 +321,7 @@ export type ScreenSettings = Pick<
   | 'host'
   | 'autoSelect'
   | 'playAs'
+  | 'highlights'
 >;
 
 // Sound effects, music, the voices and who hosts games against a friend are
@@ -329,6 +339,7 @@ export const settingsOptions = ({
   host = DEFAULT_HOST,
   autoSelect = false,
   playAs = DEFAULT_PLAY_AS,
+  highlights = DEFAULT_HIGHLIGHTS,
 }: Partial<ScreenSettings>): string[] => [
   ...(musicAvailable
     ? [`Music: ${musicHeard(music) ? music.volume : 'off'}`]
@@ -339,6 +350,7 @@ export const settingsOptions = ({
   `Play as: ${playAsName(playAs)}`,
   `Host for friends: ${hostName(host)}`,
   `Turn board for friends: ${turnHotseat ? 'on' : 'off'}`,
+  `Highlights: ${highlightsName(highlights)}`,
   `Auto-select only choice: ${autoSelect ? 'on' : 'off'}`,
 ];
 
@@ -467,6 +479,7 @@ const board = (
     host,
     autoSelect,
     playAs,
+    highlights,
   }: ScreenSettings,
   cursor: Square = START,
 ): ScreenState => ({
@@ -482,6 +495,7 @@ const board = (
   host,
   autoSelect,
   playAs,
+  highlights,
   autoStopped: null,
   guarded: false,
   lastDice: null,
@@ -509,6 +523,7 @@ const played = (
     host: state.host,
     autoSelect: state.autoSelect,
     playAs: state.playAs,
+    highlights: state.highlights,
     autoStopped: state.autoStopped,
     guarded: emptyRoll(game),
     lastDice: state.lastDice,
@@ -541,6 +556,7 @@ export const initialState = (
     host = DEFAULT_HOST,
     autoSelect = false,
     playAs = DEFAULT_PLAY_AS,
+    highlights = DEFAULT_HIGHLIGHTS,
   }: Partial<ScreenSettings> = {},
   // A first launch, which opens on the offer of the tutorial (#244).
   firstLaunch = false,
@@ -571,6 +587,7 @@ export const initialState = (
     host,
     autoSelect,
     playAs,
+    highlights,
     autoStopped: null,
     guarded: false,
     lastDice: null,
@@ -951,6 +968,8 @@ const changed = (
     return { ...state, host: cycleHost(state.host, by) };
   if (row.startsWith('Turn board for friends:'))
     return { ...state, turnHotseat: !state.turnHotseat };
+  if (row.startsWith('Highlights:'))
+    return { ...state, highlights: cycleHighlights(state.highlights, by) };
   if (row.startsWith('Auto-select only choice:'))
     return { ...state, autoSelect: !state.autoSelect };
   return state;

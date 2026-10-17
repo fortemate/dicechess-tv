@@ -158,11 +158,15 @@ export function formatBench(bench: Bench): string {
   return query ? `?${query}` : '';
 }
 
-// Named starting points for the controls, including the candidate styles for
-// an in-game Board highlights setting (#401).
+// Named starting points for the controls, including the styles in the in-game
+// Highlights setting (#401, #404).
 export const PRESETS: Readonly<Record<string, Partial<Marks>>> = {
-  // The television's marks, which are also variant A of the check.
+  // The television's default marks, which are also variant A of the check.
   'TV today (check A)': {},
+  Enhanced: {
+    selected: 'raised',
+    cursor: 'two-tone-bold',
+  },
   'Standard (enhanced)': {
     movable: 'fill-corners',
     selected: 'raised',

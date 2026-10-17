@@ -44,6 +44,7 @@ import { DISMISS_DELAY_MS, useBotVoice } from './useBotVoice';
 import { useHostVoice } from './useHostVoice';
 import { DEFAULT_HOST, type HostChoice } from './hostSetting';
 import { DEFAULT_PLAY_AS, type PlayAs } from './playAsSetting';
+import { DEFAULT_HIGHLIGHTS, type HighlightStyle } from './highlightsSetting';
 import {
   LINE_START_MS,
   speechTiming,
@@ -139,6 +140,10 @@ export type GameScreenProps = {
   // The colour a person plays against the computer, or Ask (#345).
   initialPlayAs?: PlayAs;
   onPlayAs?: (choice: PlayAs) => void;
+  // How the board marks movable pieces, the picked-up piece, legal
+  // destinations, the target under the cursor and the cursor (#404).
+  initialHighlights?: HighlightStyle;
+  onHighlights?: (choice: HighlightStyle) => void;
   // The adaptive music (#76). The screen says which theme fits what it shows;
   // whether music is on and how loud is the app's to apply and save.
   music?: Music;
@@ -457,6 +462,7 @@ type ChoiceContext = {
   host: HostChoice;
   autoSelect: boolean;
   playAs: PlayAs;
+  highlights: HighlightStyle;
 };
 
 // What an open menu or choice shows: its title, a note, its options and the
@@ -496,6 +502,7 @@ const choiceOf = (overlay: Overlay, context: ChoiceContext): Choice | null => {
           host: context.host,
           autoSelect: context.autoSelect,
           playAs: context.playAs,
+          highlights: context.highlights,
         }),
         index: overlay.index,
       };
@@ -661,6 +668,7 @@ type OwnScreenProps = {
   onState?: (report: string) => void;
   // The game's sounds, for a screen that speaks: Thinkle in the tutorial.
   voice?: Sounds;
+  highlights?: HighlightStyle;
 };
 
 // The screens that take over entirely, each given only a way back. They get no
@@ -691,6 +699,8 @@ export const GameScreen = ({
   onAutoSelect,
   initialPlayAs = DEFAULT_PLAY_AS,
   onPlayAs,
+  initialHighlights = DEFAULT_HIGHLIGHTS,
+  onHighlights,
   music,
   initialMusic,
   onMusic,
@@ -721,6 +731,7 @@ export const GameScreen = ({
           host: initialHost,
           autoSelect: initialAutoSelect,
           playAs: initialPlayAs,
+          highlights: initialHighlights,
         },
         offerTutorial,
       ),
@@ -737,6 +748,7 @@ export const GameScreen = ({
     host,
     autoSelect,
     playAs,
+    highlights,
     guarded,
     pending,
     lastDice,
@@ -1035,6 +1047,14 @@ export const GameScreen = ({
   }, [playAs, onPlayAs]);
 
   // Seeded like the sound, so opening the screen is not reported as a change.
+  const highlightsSetting = React.useRef(highlights);
+  React.useEffect(() => {
+    if (highlights === highlightsSetting.current) return;
+    highlightsSetting.current = highlights;
+    onHighlights?.(highlights);
+  }, [highlights, onHighlights]);
+
+  // Seeded like the sound, so opening the screen is not reported as a change.
   const voiceSetting = React.useRef(voices);
   React.useEffect(() => {
     if (voices === voiceSetting.current) return;
@@ -1134,6 +1154,7 @@ export const GameScreen = ({
     host,
     autoSelect,
     playAs,
+    highlights,
   };
   const told = React.useRef<Heard | null>(null);
   const listening = reader && !handsOff(overlay);
@@ -1168,7 +1189,14 @@ export const GameScreen = ({
   // state, and this one hands over entirely rather than drawing a board behind.
   if (handsOff(overlay)) {
     const Screen = OWN_SCREENS[overlay.kind];
-    return <Screen onExit={leave} onState={onState} voice={sounds} />;
+    return (
+      <Screen
+        onExit={leave}
+        onState={onState}
+        voice={sounds}
+        highlights={highlights}
+      />
+    );
   }
 
   // The choice of opponent takes the whole screen: three cards need the width
@@ -1203,6 +1231,7 @@ export const GameScreen = ({
       cursor={choosing ? focus.cursor : null}
       flipped={isFlipped}
       movable={movable}
+      highlights={highlights}
     />
   );
 

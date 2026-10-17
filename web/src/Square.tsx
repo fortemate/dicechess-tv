@@ -8,8 +8,7 @@
 // mark, the picked-up mark, the destination, the piece, then the cursor.
 import React from 'react';
 import { View } from 'react-native';
-import type { SquareView } from '../../src/core/boardView';
-import { Square as TvSquare } from '../../native/src/Square';
+import { Square as TvSquare, type SquareProps } from '../../native/src/Square';
 import { PIECES } from '../../native/src/pieces';
 import { THEME } from '../../native/src/theme';
 import {
@@ -469,17 +468,30 @@ const Cursor = ({
 
 type MarkProps = { marks: Marks; palette: Palette; edge: number };
 
-export const Square = ({ view, edge }: { view: SquareView; edge: number }) => {
+export const Square = ({
+  view,
+  edge,
+  highlights,
+  carried: propCarried,
+}: SquareProps) => {
   const marks = useMarks();
   const contextCarried = React.useContext(Carried);
   if ((view.selected || (view.cursor && view.movable)) && view.piece) {
     lastCarried = view.piece;
   }
-  if (isDefault(marks)) return <TvSquare view={view} edge={edge} />;
+  const carried = propCarried ?? contextCarried ?? lastCarried;
+  if (isDefault(marks))
+    return (
+      <TvSquare
+        view={view}
+        edge={edge}
+        highlights={highlights}
+        carried={view.cursor && view.destination ? carried : null}
+      />
+    );
   const palette = PALETTES[marks.palette];
   const props = { marks, palette, edge };
   const Piece = view.piece ? PIECES[view.piece as keyof typeof PIECES] : null;
-  const carried = contextCarried ?? lastCarried;
   const GhostPiece =
     marks.target === 'ghost' && view.cursor && view.destination && carried
       ? PIECES[carried as keyof typeof PIECES]

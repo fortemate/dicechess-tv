@@ -30,6 +30,7 @@ import { Teacher, TeacherTitle } from './Teacher';
 import { useTutorialVoice, type TutorialVoice } from './useTutorialVoice';
 import { BOARD_GAP, boardSide, drawnSide, safeInsets } from './layout';
 import type { GameChoice } from './screen';
+import type { HighlightStyle } from './highlightsSetting';
 import {
   CLOSING_CHOICES,
   initialTutorial,
@@ -46,6 +47,7 @@ export type TutorialScreenProps = {
   // Where Thinkle's lines are said: the game's sounds, which honour the Voices
   // setting. Without it the tutorial is silent and his bubble still shows.
   voice?: TutorialVoice;
+  highlights?: HighlightStyle;
 };
 
 // A line of text has room below its baseline. This pulls the hint's baseline
@@ -73,6 +75,7 @@ export const TutorialScreen = ({
   onExit,
   onState,
   voice,
+  highlights,
 }: TutorialScreenProps) => {
   const { width, height } = useWindowDimensions();
   const [state, onKey] = React.useReducer(
@@ -159,6 +162,7 @@ export const TutorialScreen = ({
         selected={state.focus.selected}
         cursor={choosing ? state.focus.cursor : null}
         movable={movable}
+        highlights={highlights}
       />
       {/* As tall as the board and level with it, as the game's panel is between
           its badges: the title starts at the board's top edge and the hint ends
