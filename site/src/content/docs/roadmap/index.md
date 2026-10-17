@@ -18,7 +18,8 @@ Every feature here was played on the Vega Virtual Device, and the app's automate
 - **Prowla the cat, Rolly or Thinkle the wizard hosts games against a friend**: the host cheers both players at the pauses of a game and at its big moments, castling among them, and shows with the line while speaking. Settings chooses Prowla, Rolly, Thinkle or no host.
 - **Moves that slide** to their squares, so an opponent's turn can be followed.
 - **Dice that tumble in** on a roll, and dim when no legal turn can use them.
-- **Music that follows the game**, and **Settings** for the music's volume, sound effects, voices, Play as, Host for friends, turning the board for friends, and Auto-select only choice.
+- **Music that follows the game**, and **Settings** for the music's volume, sound effects, voices, Play as, Host for friends, turning the board for friends, board highlights, and Auto-select only choice.
+- **Board highlight styles** ([#402](https://github.com/fortemate/dicechess-tv/pull/402), [#413](https://github.com/fortemate/dicechess-tv/pull/413)): **Highlights** in Settings offers **Standard** (the default), **Enhanced** (lifted piece in hand and bold two-tone cursor frame), **Colour-blind** (Okabe–Ito palette with corner triangles, warm pedestal, ringed destinations and ghost preview), and **High contrast** (monochrome black and white with shape redundancy), checked by unit tests, on the browser test bench, and installed on a Fire TV Stick 4K Select (build 32).
 - **Play as** ([#352](https://github.com/fortemate/dicechess-tv/pull/352)): the colour you play against the computer, chosen once in Settings, so OK on an opponent's card starts the game.
 - **Main menu** in the game menu ([#349](https://github.com/fortemate/dicechess-tv/pull/349)), which leaves a game for the home screen; Resume game comes back to it.
 - **Auto-select only choice** ([#342](https://github.com/fortemate/dicechess-tv/pull/342)), off by default: OK presses itself when the board offers only one choice.
@@ -27,7 +28,7 @@ Every feature here was played on the Vega Virtual Device, and the app's automate
 
 ## Now
 
-- **Amazon Appstore review:** 1.0.0 has been submitted to the Amazon Appstore and awaits Amazon's review.
+- **Amazon Appstore review:** 1.0.1 has been submitted to the Amazon Appstore and awaits Amazon's review.
 - **Players' findings:** people who have never seen the game play it, from the GitHub packages on the Vega Virtual Device or a Fire TV Stick in developer mode, and tell us what they found. See [Get the game](/play/beta/).
 - **Testing on a Fire TV Stick**, under way since 6 October 2026: the launch and the response to the remote have been measured there, and the opponents' and the danger search's timings are still to come ([Performance](/technology/performance/)).
 
@@ -41,8 +42,6 @@ The first goal after the hackathon, which closes on 23 October 2026, is Dice Che
 
 What players' findings prompt is fixed along the way. Also on the list:
 
-- a cursor that stands out when many squares are highlighted;
-- a mark for the pieces that can move that reads well with colour-vision deficiency;
 - a smoother first run;
 - board themes and piece sets;
 - translations into other languages.

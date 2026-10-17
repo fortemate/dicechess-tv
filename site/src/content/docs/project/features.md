@@ -82,6 +82,17 @@ Some moves leave nothing to decide: the dice let one piece move, and it has one 
 
 The tests check each step and the Back that stops it. On the virtual device, with rook, king and rook rolled in a game against a friend, a rook was picked up and played twice with no press, and the handoff still waited for OK. On a Fire TV Stick 4K Select, on 10 October 2026, a pawn with one square was played there by itself, and Back stopped a press that was coming ([pull request 342](https://github.com/fortemate/dicechess-tv/pull/342)). That was under the first rule, which also picked up a lone piece with several squares; [issue 360](https://github.com/fortemate/dicechess-tv/issues/360) narrowed it to the only move in 1.0.0, build 28. On the virtual device on 11 October 2026, the narrowed rule left a lone queen with four squares for the person and still played forced rook moves by itself.
 
+## Board highlights for colour-blind and low-vision players
+
+**Highlights** in Settings ([pull request 413](https://github.com/fortemate/dicechess-tv/pull/413)) switches how the board marks movable pieces, the picked-up piece, legal destinations, the cursor and the last move across four presets:
+
+- **Standard** (the default) keeps the original television look;
+- **Enhanced** lifts the picked-up piece over a drop shadow and gives the cursor a bold two-tone frame so the selected square and the cursor square no longer share a cyan perimeter border;
+- **Colour-blind** switches to the Okabe–Ito colour-vision-safe palette and gives every state its own geometry (corner triangles on movable pieces, a lifted piece with a warm pedestal, white-rimmed vermilion destination dots and capture rings, a semi-transparent ghost of the carried piece under the cursor, a bold two-tone cursor frame, and an inset outline for the last move);
+- **High contrast** draws pure black and white marks with the same shape redundancy.
+
+The four presets were compared across simulated protanopia, deuteranopia, tritanopia and achromatopsia on the browser test bench ([pull request 402](https://github.com/fortemate/dicechess-tv/pull/402)), checked in `native/test/highlights.test.tsx`, and installed and launched on a Fire TV Stick 4K Select on 17 October 2026 (build 32). See [Readable from the sofa](/design/sofa/#colour-blind-viewers) and [Controls](/play/controls/#board-highlights-colour-vision--high-contrast-modes).
+
 ## Sound
 
 Short cues mark each step:

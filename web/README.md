@@ -82,8 +82,10 @@ variant to someone.
 `fill`, `fill-corners` and `corners` are variants A, B and C of the
 colour-vision check on the project site (#105, #108). With every mark at its
 first option and the `tv` palette, the board is drawn by
-`native/src/Square.tsx` itself; any other choice is drawn by
-[`src/Square.tsx`](src/Square.tsx) in the same layers. In `compare` view, the
+`native/src/Square.tsx` itself, which also honours the in-game `Highlights`
+setting (`Standard`, `Enhanced`, `Colour-blind` and `High contrast`, #404); any
+other bench URL override is drawn by [`src/Square.tsx`](src/Square.tsx) in the
+same layers. In `compare` view, the
 stage draws Step 1 (choosing a piece) and Step 2 (choosing a destination, empty
 and capture squares of both colours) side by side, and the arrow keys move the
 cursor on both boards at once (#401; verified in [`test/marks.test.ts`](test/marks.test.ts), browser bench rather than device evidence).

@@ -23,7 +23,7 @@ So that you can carry on where you stopped, the app keeps these in its own stora
 - the game in progress, with its dice roll and whose turn it is;
 - your results against each computer opponent, by the colour you played;
 - the number of games against a friend won by White, won by Black and drawn, which is not tied to who sat at the remote;
-- your settings: sound effects, music and its volume, voices, the colour you play against the computer, the host of games against a friend, whether the board turns for friends, whether OK presses itself when there is only one choice, and whether you have answered the offer of the tutorial.
+- your settings: sound effects, music and its volume, voices, the colour you play against the computer, the host of games against a friend, whether the board turns for friends, the board highlight style, whether OK presses itself when there is only one choice, and whether you have answered the offer of the tutorial.
 
 If the record of results can no longer be read, the app keeps a copy of it on the TV rather than deleting it, and starts a new record. A saved game that can no longer be read is cleared, and a setting that can no longer be read goes back to its default. None of this leaves the TV, and Fortemate cannot see it. Uninstalling the app deletes it.
 
