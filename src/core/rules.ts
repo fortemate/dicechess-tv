@@ -29,7 +29,6 @@ const TOPICS: Record<string, Omit<RulesTopic, 'id'>> = {
       'Capture the enemy king and you win immediately.',
       'There is no checkmate. The king is taken like any other piece.',
       'A player may resign, and in a game against a friend both players may agree a draw.',
-      'A turn that ends 100 half-moves after the last capture or pawn move draws.',
     ],
   },
   turn: {
@@ -47,22 +46,22 @@ const TOPICS: Record<string, Omit<RulesTopic, 'id'>> = {
       'Each die names a piece: pawn, knight, bishop, rook, queen, king.',
       'You may only move a piece one of your dice names.',
       'The same piece type can come up more than once, and then you may move it again.',
-      'A die with no legal move is simply lost.',
+      'A die is lost only if no legal sequence of actions can use it.',
     ],
   },
   maximum: {
     title: 'Use as many dice as you can',
     lines: [
-      'You must play as many of your three actions as the position allows.',
-      'You cannot stop early to keep a piece where it is.',
-      'You cannot choose an order that wastes a die when another order would not.',
+      'You must use as many dice as the position allows.',
+      'Capturing the king ends the game, even with dice left.',
+      'You cannot choose moves or an order that wastes a usable die.',
       'If no die can be used at all, the turn passes.',
     ],
   },
   check: {
     title: 'No check, no checkmate',
     lines: [
-      'A king under attack is not in check, and nothing warns you.',
+      'An attack on your king does not force you to defend it.',
       'You may leave your king attacked, and you may move into attack.',
       'Checkmate and stalemate do not exist here.',
       'Guarding the king is your judgement, not a rule.',
@@ -90,14 +89,15 @@ const TOPICS: Record<string, Omit<RulesTopic, 'id'>> = {
     lines: [
       'A pawn that has just advanced two squares may be taken in passing.',
       'It needs a pawn die, as any pawn move does.',
-      'The chance lasts only for the action immediately after that advance.',
+      'The chance lasts for your next turn, even after other actions.',
     ],
   },
   draws: {
-    title: 'Draws',
+    title: 'Draws in this app',
     lines: [
       'In a game against a friend, both players may agree a draw from the menu.',
-      'A draw also comes when a turn ends 100 half-moves after the last capture or pawn move.',
+      'At turn end, 100 actions without a capture or pawn move draw the game.',
+      'A game also draws at the end of turn 5,000.',
       'Stalemate, repetition and insufficient material do not draw here.',
     ],
   },

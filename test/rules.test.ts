@@ -32,6 +32,7 @@ const claims = (id: string, line: string) => {
 
 const PAWN = 1;
 const KNIGHT = 2;
+const BISHOP = 3;
 const ROOK = 4;
 const QUEEN = 5;
 const KING = 6;
@@ -77,6 +78,7 @@ test('the guide covers what this game has and nothing it does not', () => {
 
 test('"capture the king and you win immediately" is what the engine does', () => {
   claims('winning', 'Capture the enemy king and you win immediately.');
+  claims('maximum', 'Capturing the king ends the game, even with dice left.');
   claims(
     'winning',
     'There is no checkmate. The king is taken like any other piece.',
@@ -90,11 +92,8 @@ test('"capture the king and you win immediately" is what the engine does', () =>
   assert.equal(taken.moves.length, 1);
 });
 
-test('"a king under attack is not in check" is what the engine does', () => {
-  claims(
-    'check',
-    'A king under attack is not in check, and nothing warns you.',
-  );
+test('"an attack on your king does not force you to defend it" is what the engine does', () => {
+  claims('check', 'An attack on your king does not force you to defend it.');
   claims(
     'check',
     'You may leave your king attacked, and you may move into attack.',
@@ -137,6 +136,20 @@ test('"castling needs both dice and spends both" is what the engine does', () =>
   assert.deepEqual(castled.moves, ['e1g1']);
 });
 
+test('the maximum is dice used, so castling need not maximize the number of actions', () => {
+  claims('maximum', 'You must use as many dice as the position allows.');
+  const start = '4k3/8/8/8/8/8/Q7/4K2R w K - 0 1';
+  for (const actions of [
+    ['e1g1', 'a2a3'],
+    ['e1d1', 'h1h2', 'a2a3'],
+  ]) {
+    let game = at(start, [KING, ROOK, QUEEN]);
+    for (const action of actions) game = moveGame(game, action);
+    assert.equal(game.phase, 'handoff');
+    assert.equal(viewGame(game).remaining, '');
+  }
+});
+
 test('"only a piece your dice name may move" is what the engine does', () => {
   claims('dice', 'You may only move a piece one of your dice names.');
   // Queen, rook and knight from the opening: only the knights can act.
@@ -173,8 +186,11 @@ test('"the same type twice lets you move it again" is what the engine does', () 
   assert.equal(viewGame(played).remaining, '');
 });
 
-test('"a die with no legal move is lost" and "the turn passes" are what the engine does', () => {
-  claims('dice', 'A die with no legal move is simply lost.');
+test('"a die no legal sequence can use is lost" and "the turn passes" are what the engine does', () => {
+  claims(
+    'dice',
+    'A die is lost only if no legal sequence of actions can use it.',
+  );
   claims('maximum', 'If no die can be used at all, the turn passes.');
   // Three king dice with the king walled in by its own pieces: nothing to play.
   const stuck = at('4k3/8/8/8/8/8/3PPP2/3PKP2 w - - 0 1', [KING, KING, KING]);
@@ -184,6 +200,25 @@ test('"a die with no legal move is lost" and "the turn passes" are what the engi
   // The dice are still held and simply go unused.
   assert.equal(state.remaining, 'KKK');
   assert.equal(viewGame(nextTurn(stuck)).side, 'b');
+});
+
+test('a blocked piece can be freed later in the turn, so its die is not lost at the roll', () => {
+  claims(
+    'maximum',
+    'You cannot choose moves or an order that wastes a usable die.',
+  );
+  let game = at('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', [
+    PAWN,
+    BISHOP,
+    KING,
+  ]);
+  game = moveGame(game, 'd2d3');
+  // Bd2 would block the king and waste its die; Be3 leaves Kd2 available.
+  assert.ok(!viewGame(game).legal.includes('c1d2'));
+  game = moveGame(game, 'c1e3');
+  game = moveGame(game, 'e1d2');
+  assert.equal(game.phase, 'handoff');
+  assert.equal(viewGame(game).remaining, '');
 });
 
 test('"the turn ends when no die can be used" is what the engine does', () => {
@@ -231,6 +266,28 @@ test('"promotion offers only choices that keep the turn legal" is what the engin
   assert.equal(viewGame(moveGame(game, promotions[0])).remaining, 'PP');
 });
 
+test('en passant stays available on the second or third action of the next turn', () => {
+  claims(
+    'enpassant',
+    'The chance lasts for your next turn, even after other actions.',
+  );
+  for (const actions of [
+    ['e1d1', 'e5d6', 'd1e1'],
+    ['e1d1', 'd1e1', 'e5d6'],
+  ]) {
+    let game = at('4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1', [KING, KING, PAWN]);
+    for (const action of actions) game = moveGame(game, action);
+    const board = viewGame(game).dfen.split(' ')[0];
+    assert.equal(pieceAt(board, 'd6'), 'P');
+    assert.equal(pieceAt(board, 'd5'), null);
+    assert.equal(game.phase, 'handoff');
+  }
+  let unused = at('4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1', [KING, KING, KING]);
+  for (const action of ['e1d1', 'd1e1', 'e1d1'])
+    unused = moveGame(unused, action);
+  assert.equal(nextTurn(unused).start.split(' ')[3], '-');
+});
+
 test('"a draw is agreed, and is not automatic" is what the engine does', () => {
   claims(
     'draws',
@@ -270,11 +327,12 @@ test('"a player may resign" is what the engine does', () => {
   });
 });
 
-test('"a turn that ends 100 half-moves after the last capture or pawn move draws"', () => {
+test('the app draws at turn end after 100 actions without a capture or pawn move', () => {
   claims(
-    'winning',
-    'A turn that ends 100 half-moves after the last capture or pawn move draws.',
+    'draws',
+    'At turn end, 100 actions without a capture or pawn move draw the game.',
   );
+  assert.equal(topic('draws')?.title, 'Draws in this app');
   // Three quiet rook actions take the clock from 97 to 100.
   let game = at('4k3/8/8/8/8/8/8/R3K3 w - - 97 1', [ROOK, ROOK, ROOK], 'fifty');
   for (let i = 0; i < 3; i++) {
@@ -288,11 +346,10 @@ test('"a turn that ends 100 half-moves after the last capture or pawn move draws
   assert.deepEqual(game.result, { winner: null, reason: '100-halfmoves' });
 });
 
-// The game screen calls that draw "100 moves, no capture or pawn move" (#235),
-// a move being one die, as the tutorial teaches. That holds because the count
-// is of actions, not turns: each quiet action adds one, and a turn that passes
-// with no action adds nothing.
-test('the hundred counts actions, one a die, and a passed turn adds none', () => {
+// The game screen calls that draw "100 moves, no capture or pawn move" (#235).
+// The count is of board actions, not turns or dice: each quiet action adds one,
+// castling included, and a turn that passes with no action adds nothing.
+test('the hundred counts board actions, and a passed turn adds none', () => {
   let game = at('4k3/8/8/8/8/8/8/R3K3 w - - 0 1', [ROOK, ROOK, ROOK], 'count');
   const count = () => viewGame(game).dfen.split(' ')[4];
   for (const after of ['1', '2', '3']) {
@@ -300,6 +357,12 @@ test('the hundred counts actions, one a die, and a passed turn adds none', () =>
     assert.equal(count(), after);
   }
   assert.equal(nextTurn(game).start.split(' ')[4], '3');
+
+  const castled = moveGame(
+    at('4k3/8/8/8/8/8/8/4K2R w K - 0 1', [KING, ROOK, QUEEN]),
+    'e1g1',
+  );
+  assert.equal(viewGame(castled).dfen.split(' ')[4], '1');
 
   // Queen, rook and king at the start: nothing can move, and the turn passes.
   const passed = at(
@@ -310,6 +373,22 @@ test('the hundred counts actions, one a die, and a passed turn adds none', () =>
   assert.deepEqual(passed.moves, []);
   assert.equal(passed.phase, 'handoff');
   assert.equal(nextTurn(passed).start.split(' ')[4], '42');
+});
+
+test('the app also draws at the end of turn 5,000', () => {
+  claims('draws', 'A game also draws at the end of turn 5,000.');
+  let game = rollGame(
+    {
+      ...newGame('hotseat', 'turn-limit', '4k3/8/8/8/8/8/8/R3K3 w - - 0 1'),
+      turn: 5000,
+    },
+    [ROOK, ROOK, ROOK],
+  );
+  for (let i = 0; i < 3; i++) {
+    assert.equal(game.result, null);
+    game = moveGame(game, viewGame(game).legal[0]);
+  }
+  assert.deepEqual(game.result, { winner: null, reason: 'turn-limit' });
 });
 
 test('topic() finds a topic and refuses an unknown one', () => {
