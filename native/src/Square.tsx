@@ -10,6 +10,7 @@ import { PIECES } from './pieces';
 import { THEME } from './theme';
 
 type Style = Record<string, unknown>;
+type PieceComponent = React.ComponentType<{ size: number }>;
 
 // Ring thickness and piece inset scale with the board so the board stays
 // legible whether it is sized for a 1080p panel or a smaller window.
@@ -23,46 +24,58 @@ const cover = (edge: number, style: Style) => (
 // whose two adjacent borders meet on the diagonal.
 const Corners = ({ edge, color }: { edge: number; color: string }) => {
   const leg = Math.max(6, Math.round(edge * 0.24));
-  const corners: Style[] = [
+  const corners: { id: string; style: Style }[] = [
     {
-      top: 0,
-      left: 0,
-      borderTopWidth: leg,
-      borderTopColor: color,
-      borderRightWidth: leg,
-      borderRightColor: 'transparent',
+      id: 'top-left',
+      style: {
+        top: 0,
+        left: 0,
+        borderTopWidth: leg,
+        borderTopColor: color,
+        borderRightWidth: leg,
+        borderRightColor: 'transparent',
+      },
     },
     {
-      top: 0,
-      right: 0,
-      borderTopWidth: leg,
-      borderTopColor: color,
-      borderLeftWidth: leg,
-      borderLeftColor: 'transparent',
+      id: 'top-right',
+      style: {
+        top: 0,
+        right: 0,
+        borderTopWidth: leg,
+        borderTopColor: color,
+        borderLeftWidth: leg,
+        borderLeftColor: 'transparent',
+      },
     },
     {
-      bottom: 0,
-      left: 0,
-      borderBottomWidth: leg,
-      borderBottomColor: color,
-      borderRightWidth: leg,
-      borderRightColor: 'transparent',
+      id: 'bottom-left',
+      style: {
+        bottom: 0,
+        left: 0,
+        borderBottomWidth: leg,
+        borderBottomColor: color,
+        borderRightWidth: leg,
+        borderRightColor: 'transparent',
+      },
     },
     {
-      bottom: 0,
-      right: 0,
-      borderBottomWidth: leg,
-      borderBottomColor: color,
-      borderLeftWidth: leg,
-      borderLeftColor: 'transparent',
+      id: 'bottom-right',
+      style: {
+        bottom: 0,
+        right: 0,
+        borderBottomWidth: leg,
+        borderBottomColor: color,
+        borderLeftWidth: leg,
+        borderLeftColor: 'transparent',
+      },
     },
   ];
   return (
     <>
-      {corners.map((corner, i) => (
+      {corners.map(({ id, style }) => (
         <View
-          key={i}
-          style={{ position: 'absolute', width: 0, height: 0, ...corner }}
+          key={id}
+          style={{ position: 'absolute', width: 0, height: 0, ...style }}
         />
       ))}
     </>
@@ -262,6 +275,232 @@ const RingedDestination = ({
   );
 };
 
+type StyledTokens = {
+  cursorColor: string;
+  cursorInner: string;
+  shadowColor: string;
+  lastMoveOutline: string | null;
+  destinationLine: string | null;
+  usesGhost: boolean;
+  cursorWash: boolean;
+  selectedPedestal: boolean;
+};
+
+const STYLED_TOKENS: Record<
+  Exclude<HighlightStyle, 'standard'>,
+  StyledTokens
+> = {
+  enhanced: {
+    cursorColor: THEME.cursor,
+    cursorInner: '#0b1a24',
+    shadowColor: 'rgba(11, 26, 36, 0.58)',
+    lastMoveOutline: null,
+    destinationLine: null,
+    usesGhost: false,
+    cursorWash: false,
+    selectedPedestal: false,
+  },
+  'colour-blind': {
+    cursorColor: '#f0e442',
+    cursorInner: '#000000',
+    shadowColor: 'rgba(0, 0, 0, 0.62)',
+    lastMoveOutline: '#56b4e9',
+    destinationLine: '#d55e00',
+    usesGhost: true,
+    cursorWash: false,
+    selectedPedestal: true,
+  },
+  'high-contrast': {
+    cursorColor: '#ffffff',
+    cursorInner: '#000000',
+    shadowColor: 'rgba(0, 0, 0, 0.68)',
+    lastMoveOutline: '#ffffff',
+    destinationLine: '#000000',
+    usesGhost: true,
+    cursorWash: true,
+    selectedPedestal: false,
+  },
+};
+
+const renderLastMove = (
+  view: SquareView,
+  edge: number,
+  tokens: StyledTokens,
+) => {
+  if (!view.lastMove) return null;
+  if (!tokens.lastMoveOutline) {
+    return cover(edge, { backgroundColor: THEME.lastMove });
+  }
+  return <Inset edge={edge} color={tokens.lastMoveOutline} />;
+};
+
+const renderMovable = (
+  view: SquareView,
+  edge: number,
+  highlights: Exclude<HighlightStyle, 'standard'>,
+) => {
+  if (!view.movable) return null;
+  if (highlights === 'enhanced') {
+    return cover(edge, { backgroundColor: THEME.movable });
+  }
+  if (highlights === 'colour-blind') {
+    return (
+      <>
+        {cover(edge, { backgroundColor: 'rgba(0, 114, 178, 0.5)' })}
+        <Corners edge={edge} color="#0072b2" />
+      </>
+    );
+  }
+  if (view.cursor) return null;
+  return <Corners edge={edge} color="#000000" />;
+};
+
+const renderSelected = (
+  view: SquareView,
+  edge: number,
+  tokens: StyledTokens,
+) => {
+  if (!view.selected) return null;
+  return (
+    <>
+      {tokens.selectedPedestal
+        ? cover(edge, { backgroundColor: 'rgba(204, 121, 167, 0.38)' })
+        : null}
+      <Shadow edge={edge} color={tokens.shadowColor} />
+      {tokens.selectedPedestal ? (
+        <Pedestal edge={edge} color="#cc79a7" borderColor="#000000" />
+      ) : null}
+    </>
+  );
+};
+
+const renderDestination = (
+  view: SquareView,
+  edge: number,
+  tokens: StyledTokens,
+  hasGhost: boolean,
+) => {
+  if (!view.destination) return null;
+  if (hasGhost && !view.piece) return null;
+  const occupied = view.piece !== null;
+  if (!tokens.destinationLine) {
+    return <Destination edge={edge} occupied={occupied} />;
+  }
+  return (
+    <RingedDestination
+      edge={edge}
+      occupied={occupied}
+      line={tokens.destinationLine}
+      rim="#ffffff"
+    />
+  );
+};
+
+const renderPiece = (
+  Piece: PieceComponent | null,
+  view: SquareView,
+  edge: number,
+  hasGhost: boolean,
+) => {
+  if (!Piece) return null;
+  const size = Math.round(edge * 0.92);
+  if (view.selected) {
+    return (
+      <View
+        style={{
+          transform: [{ scale: 1.18 }, { translateY: -edge * 0.09 }],
+        }}
+      >
+        <Piece size={size} />
+      </View>
+    );
+  }
+  if (hasGhost) {
+    return (
+      <View style={{ opacity: 0.3 }}>
+        <Piece size={size} />
+      </View>
+    );
+  }
+  return <Piece size={size} />;
+};
+
+const StandardSquare = ({
+  view,
+  edge,
+  width,
+  Piece,
+}: {
+  view: SquareView;
+  edge: number;
+  width: number;
+  Piece: PieceComponent | null;
+}) => {
+  const focus = view.cursor || view.selected;
+  return (
+    <View
+      // Named for a screen reader, which the board's missing coordinates leave
+      // to guess otherwise (#257); the cursor's square is also said aloud.
+      aria-label={squareLabel(view)}
+      style={{
+        width: edge,
+        height: edge,
+        backgroundColor: view.dark ? THEME.dark : THEME.light,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      {view.lastMove ? (
+        <View
+          style={{
+            position: 'absolute',
+            width: edge,
+            height: edge,
+            backgroundColor: THEME.lastMove,
+          }}
+        />
+      ) : null}
+      {view.movable ? (
+        // A piece that can move now (#68): a fill under the piece, a shape the
+        // cursor's ring and the destination dots do not share.
+        <View
+          style={{
+            position: 'absolute',
+            width: edge,
+            height: edge,
+            backgroundColor: THEME.movable,
+          }}
+        />
+      ) : null}
+      {view.selected ? (
+        <View
+          style={{
+            position: 'absolute',
+            width: edge,
+            height: edge,
+            backgroundColor: THEME.selected,
+          }}
+        />
+      ) : null}
+      {view.destination ? (
+        <Destination edge={edge} occupied={view.piece !== null} />
+      ) : null}
+      {Piece ? <Piece size={Math.round(edge * 0.92)} /> : null}
+      {focus ? (
+        <View
+          style={{
+            position: 'absolute',
+            width: edge,
+            height: edge,
+            borderWidth: view.selected ? width * 2 : width,
+            borderColor: THEME.cursor,
+          }}
+        />
+      ) : null}
+    </View>
+  );
+};
+
 export type SquareProps = {
   view: SquareView;
   edge: number;
@@ -299,91 +538,17 @@ export const Square = React.memo(function Square({
   const width = ring(edge * 8);
 
   if (highlights === 'standard') {
-    const focus = view.cursor || view.selected;
     return (
-      <View
-        // Named for a screen reader, which the board's missing coordinates leave
-        // to guess otherwise (#257); the cursor's square is also said aloud.
-        aria-label={squareLabel(view)}
-        style={{
-          width: edge,
-          height: edge,
-          backgroundColor: view.dark ? THEME.dark : THEME.light,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        {view.lastMove ? (
-          <View
-            style={{
-              position: 'absolute',
-              width: edge,
-              height: edge,
-              backgroundColor: THEME.lastMove,
-            }}
-          />
-        ) : null}
-        {view.movable ? (
-          // A piece that can move now (#68): a fill under the piece, a shape the
-          // cursor's ring and the destination dots do not share.
-          <View
-            style={{
-              position: 'absolute',
-              width: edge,
-              height: edge,
-              backgroundColor: THEME.movable,
-            }}
-          />
-        ) : null}
-        {view.selected ? (
-          <View
-            style={{
-              position: 'absolute',
-              width: edge,
-              height: edge,
-              backgroundColor: THEME.selected,
-            }}
-          />
-        ) : null}
-        {view.destination ? (
-          <Destination edge={edge} occupied={view.piece !== null} />
-        ) : null}
-        {Piece ? <Piece size={Math.round(edge * 0.92)} /> : null}
-        {focus ? (
-          <View
-            style={{
-              position: 'absolute',
-              width: edge,
-              height: edge,
-              borderWidth: view.selected ? width * 2 : width,
-              borderColor: THEME.cursor,
-            }}
-          />
-        ) : null}
-      </View>
+      <StandardSquare view={view} edge={edge} width={width} Piece={Piece} />
     );
   }
 
-  const isEnhanced = highlights === 'enhanced';
-  const isColourBlind = highlights === 'colour-blind';
-  const isHighContrast = highlights === 'high-contrast';
-
+  const tokens = STYLED_TOKENS[highlights];
   const GhostPiece =
-    !isEnhanced && view.cursor && view.destination && carried
+    tokens.usesGhost && view.cursor && view.destination && carried
       ? PIECES[carried as keyof typeof PIECES]
       : null;
-
-  const cursorColor = isColourBlind
-    ? '#f0e442'
-    : isHighContrast
-      ? '#ffffff'
-      : THEME.cursor;
-  const cursorInner = isEnhanced ? '#0b1a24' : '#000000';
-  const shadowColor = isEnhanced
-    ? 'rgba(11, 26, 36, 0.58)'
-    : isColourBlind
-      ? 'rgba(0, 0, 0, 0.62)'
-      : 'rgba(0, 0, 0, 0.68)';
+  const hasGhost = GhostPiece !== null;
 
   return (
     <View
@@ -396,64 +561,14 @@ export const Square = React.memo(function Square({
         justifyContent: 'center',
       }}
     >
-      {view.lastMove ? (
-        isEnhanced ? (
-          cover(edge, { backgroundColor: THEME.lastMove })
-        ) : (
-          <Inset edge={edge} color={isColourBlind ? '#56b4e9' : '#ffffff'} />
-        )
-      ) : null}
-      {view.movable ? (
-        isEnhanced ? (
-          cover(edge, { backgroundColor: THEME.movable })
-        ) : isColourBlind ? (
-          <>
-            {cover(edge, { backgroundColor: 'rgba(0, 114, 178, 0.5)' })}
-            <Corners edge={edge} color="#0072b2" />
-          </>
-        ) : !view.cursor ? (
-          <Corners edge={edge} color="#000000" />
-        ) : null
-      ) : null}
-      {isHighContrast && view.cursor
+      {renderLastMove(view, edge, tokens)}
+      {renderMovable(view, edge, highlights)}
+      {tokens.cursorWash && view.cursor
         ? cover(edge, { backgroundColor: 'rgba(255, 255, 255, 0.48)' })
         : null}
-      {view.selected && isColourBlind
-        ? cover(edge, { backgroundColor: 'rgba(204, 121, 167, 0.38)' })
-        : null}
-      {view.selected ? <Shadow edge={edge} color={shadowColor} /> : null}
-      {view.selected && isColourBlind ? (
-        <Pedestal edge={edge} color="#cc79a7" borderColor="#000000" />
-      ) : null}
-      {view.destination && !(GhostPiece && !view.piece) ? (
-        isEnhanced ? (
-          <Destination edge={edge} occupied={view.piece !== null} />
-        ) : (
-          <RingedDestination
-            edge={edge}
-            occupied={view.piece !== null}
-            line={isColourBlind ? '#d55e00' : '#000000'}
-            rim="#ffffff"
-          />
-        )
-      ) : null}
-      {Piece ? (
-        view.selected ? (
-          <View
-            style={{
-              transform: [{ scale: 1.18 }, { translateY: -edge * 0.09 }],
-            }}
-          >
-            <Piece size={Math.round(edge * 0.92)} />
-          </View>
-        ) : GhostPiece ? (
-          <View style={{ opacity: 0.3 }}>
-            <Piece size={Math.round(edge * 0.92)} />
-          </View>
-        ) : (
-          <Piece size={Math.round(edge * 0.92)} />
-        )
-      ) : null}
+      {renderSelected(view, edge, tokens)}
+      {renderDestination(view, edge, tokens, hasGhost)}
+      {renderPiece(Piece, view, edge, hasGhost)}
       {GhostPiece ? (
         <View style={{ position: 'absolute', opacity: 0.74 }}>
           <GhostPiece size={Math.round(edge * 0.92)} />
@@ -463,8 +578,8 @@ export const Square = React.memo(function Square({
         <TwoToneFrame
           edge={edge}
           width={width * 2}
-          color={cursorColor}
-          inner={cursorInner}
+          color={tokens.cursorColor}
+          inner={tokens.cursorInner}
         />
       ) : null}
     </View>
