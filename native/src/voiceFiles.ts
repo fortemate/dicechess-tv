@@ -1237,6 +1237,11 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     seconds: 4,
     text: 'Victory! Taking the king wins at once.',
   },
+  thinkle_tutor_king_done_2: {
+    file: 'elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_king_done_2.mp3',
+    seconds: 4.48,
+    text: 'You may leave your king under attack. Guard him well!',
+  },
   thinkle_tutor_king_opening_1: {
     file: 'elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_king_opening_1.mp3',
     seconds: 3.04,

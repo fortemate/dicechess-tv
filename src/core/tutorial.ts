@@ -210,7 +210,10 @@ export const TUTORIAL: readonly TutorialStep[] = [
         'A rook, and nothing between it and the king.',
         'Go on, take him!',
       ],
-      done: ['Victory! Taking the king wins at once.'],
+      done: [
+        'Victory! Taking the king wins at once.',
+        'You may leave your king under attack. Guard him well!',
+      ],
     },
     start: 'k7/8/8/8/8/8/8/R3K3 w - - 0 1',
     // Rook, queen and bishop, as in the capture lesson: one rook move, which

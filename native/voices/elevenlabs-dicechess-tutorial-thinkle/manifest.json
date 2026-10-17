@@ -12,7 +12,7 @@
       "integratedLufs": -16,
       "limitDbfs": -1.5
     },
-    "tool": "ffmpeg version 9.0.1 Copyright (c) 2000-2026 the FFmpeg developers"
+    "tool": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers"
   },
   "directions": "directions.json",
   "distribution": "project",
@@ -1004,6 +1004,44 @@
         "limitDbfs": -1.5
       },
       "text": "Victory! Taking the king wins at once.",
+      "voice": "Thinkle",
+      "voiceId": "UDn5cabCjqJGTbU62y7U",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "thinkle_tutor_king_done_2": {
+      "bot": "tutor",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[thoughtfully] You may leave your king under attack. [warmly] Guard him well!",
+      "durationSeconds": 4.48,
+      "event": "king_done",
+      "export": "exports/mp3/thinkle_tutor_king_done_2.mp3",
+      "generated": "2026-10-17T23:29:16Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 2.0,
+        "passes": 2,
+        "sourceLufs": -17.4
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "fQ5RUenfhM5Cyzf0KH2B",
+      "seed": 3046859611,
+      "sha256": "906ef8c4b8aef82c6f666a004917fa542bdf7702977fef2455bc8c87bfb39b93",
+      "source": "source/mp3/thinkle_tutor_king_done_2.mp3",
+      "sourceSha256": "fb1d4ee79dbca7d6ec0d23dd660ff5b4d05cb72f8949ee104fe9ca8128dbce7f",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "You may leave your king under attack. Guard him well!",
       "voice": "Thinkle",
       "voiceId": "UDn5cabCjqJGTbU62y7U",
       "voiceSettings": {
