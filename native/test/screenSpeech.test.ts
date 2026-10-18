@@ -117,7 +117,7 @@ test('a new kind of setting says its controls, and a value change says only the 
   assert.equal(screenSpeech(changed, { ...changed }), null);
 });
 
-test('moving between audio rows does not repeat their identical controls', () => {
+test('a move between audio rows carries the controls even though it interrupts the last utterance', () => {
   const choice = {
     title: 'Settings',
     note: 'Left/Right: volume · OK: mute/unmute',
@@ -129,6 +129,9 @@ test('moving between audio rows does not repeat their identical controls', () =>
       board({ choice: { ...choice, index: 0 } }),
       board({ choice: { ...choice, index: 1 } }),
     ),
-    { text: 'Voices: 10, 2 of 2.', interrupt: true },
+    {
+      text: 'Voices: 10, 2 of 2. Left and Right change the volume. OK mutes or unmutes.',
+      interrupt: true,
+    },
   );
 });

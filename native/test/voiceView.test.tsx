@@ -178,7 +178,7 @@ test('Settings speaks new controls as focus moves, without repeating them for ea
   const said = listen();
   send('down', 'down', 'right', 'down', 'enter', 'down', 'down', 'down');
   assert.deepEqual(texts(said()), [
-    'Voices: 10, 2 of 7.',
+    'Voices: 10, 2 of 7. Left and Right change the volume. OK mutes or unmutes.',
     'Highlights: Standard, 3 of 7. Left, Right or OK change this setting.',
     'Highlights: Enhanced.',
     'Auto-select only choice: off, 4 of 7. Left, Right or OK switch this on or off.',

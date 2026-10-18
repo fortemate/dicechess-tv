@@ -13,8 +13,8 @@ import type { Utterance } from './announcer';
 export type Choice = {
   title: string;
   note?: string;
-  // Full words for a compact control hint, repeated only when the actions
-  // change as focus moves. A changed value alone does not repeat the hint.
+  // Full words for a compact control hint, read when focus moves. A changed
+  // value alone does not repeat the hint.
   spokenNote?: string;
   options: readonly string[];
   index: number;
@@ -65,9 +65,9 @@ function focusSpeech(before: Heard | null, now: Heard): string[] {
     if (was.index !== choice.index)
       return [
         itemSpeech(choice),
-        ...(choice.spokenNote && choice.spokenNote !== was.spokenNote
-          ? [choice.spokenNote]
-          : []),
+        // A focus move interrupts the previous utterance, so even identical
+        // controls must be available on the row where the person stops.
+        ...(choice.spokenNote ? [choice.spokenNote] : []),
       ];
     // A setting changed where focus stands: its new value.
     const option = choice.options[choice.index];
