@@ -52,7 +52,7 @@ The owner reported submitting version 1.0.1, build 30, to the Amazon Appstore fo
 ## Tell us what you found
 
 - **Without an account:** the [anonymous form](/feedback/).
-- **With a GitHub account:** [Discussions](https://github.com/fortemate/dicechess-tv/discussions).
+- **With a GitHub account:** [Fortemate community discussions](https://github.com/orgs/fortemate/discussions).
 - **By email:** [hello@fortemate.com](mailto:hello@fortemate.com).
 
 Say which build you played, and whether on a Fire TV Stick or on the Virtual Device. What confused you is as useful as what broke.

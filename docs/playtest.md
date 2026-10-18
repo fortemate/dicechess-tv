@@ -104,7 +104,7 @@ that every cue was audible; the listening checks need someone at the television.
 ## Telling us what you found
 
 - **Without an account:** the short anonymous form, <https://dicechess-tv.fortemate.com/feedback/>.
-- **With a GitHub account:** [Discussions](https://github.com/fortemate/dicechess-tv/discussions). Tell us what happened in a game under **General**, suggest a change under **Ideas**, and ask for help with installing under **Q&A**. One finding per discussion is easiest to follow up.
+- **With a GitHub account:** [Fortemate community discussions](https://github.com/orgs/fortemate/discussions). Tell us what happened in a game under **General**, suggest a change under **Ideas**, and ask for help with installing under **Q&A**. One finding per discussion is easiest to follow up.
 - Or reply where you found this build.
 
 Say which build you played (the release title, such as Dice Chess 1.0.1, build 30), and whether on a Fire TV Stick or on the Virtual Device. What confused you is as useful as what broke: where you hesitated, what you expected a button to do, which rule surprised you. For a bug, say what was on the screen and what you pressed just before.
