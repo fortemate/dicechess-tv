@@ -69,7 +69,7 @@ test('the setting defaults to standard, cycles in both directions and ignores un
   assert.deepEqual(HIGHLIGHT_CHOICES.map(highlightsName), [
     'Standard',
     'Enhanced',
-    'Colour-blind',
+    'Color-blind',
     'High contrast',
   ]);
   assert.equal(cycleHighlights('standard', 1), 'enhanced');
@@ -123,14 +123,14 @@ test('in the app the setting is saved when changed and read on the next launch',
   assert.match(text(root), /Highlights: Enhanced/);
   assert.equal(new MMKV().getString('dicechess-tv.highlights.v1'), 'enhanced');
   send('right');
-  assert.match(text(root), /Highlights: Colour-blind/);
+  assert.match(text(root), /Highlights: Color-blind/);
   assert.equal(
     new MMKV().getString('dicechess-tv.highlights.v1'),
     'colour-blind',
   );
   root = launch().root;
   send('down', 'down', 'down', 'down', 'enter');
-  assert.match(text(root), /Highlights: Colour-blind/);
+  assert.match(text(root), /Highlights: Color-blind/);
 });
 
 // ── Board rendering across all four styles ───────────────────────────────────

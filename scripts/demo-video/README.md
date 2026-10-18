@@ -18,9 +18,9 @@ critical at the recorded threat to the king. The earlier narrated cut is retaine
 | `storyboard.json`      | The cut: each scene's name (its chapter), the stretches of takes it shows, its optional title card, and the end card.   |
 | `assemble.ts`          | Cuts the picture, mixes continuous music with synchronized game sounds, and checks the export.                          |
 | `soundtrack.ts`        | Resolves music transitions and recorded voice/effect events onto the finished timeline.                                 |
-| `cards.swift`          | Draws the "Vega Virtual Device on macOS" badge, title cards and end card, in the app's colours.                         |
-| `vendor-narration.mjs` | Vendors Thinkle's narration from fortemate/dicechess-assets at a pinned commit into `narration/`, with its licence.     |
-| `narration/`           | The narration: 15 clips, the pack's manifest and licence, and `narration.json`, which `test/demo-video.test.ts` checks. |
+| `cards.swift`          | Draws the "Vega Virtual Device on macOS" badge, title cards and end card, in the app's colors.                          |
+| `vendor-narration.mjs` | Vendors Thinkle's narration from fortemate/dicechess-assets at a pinned commit into `narration/`, with its license.     |
+| `narration/`           | The narration: 15 clips, the pack's manifest and license, and `narration.json`, which `test/demo-video.test.ts` checks. |
 
 ## What it needs
 
@@ -110,7 +110,7 @@ critical at the recorded threat to the king. The earlier narrated cut is retaine
   the next. Cards have a `kicker`, a short `title`, and `seconds` for reading.
 - The preliminary cut uses one music timeline, independent of picture cuts.
   `soundtrack.changes` anchor each change to a scene's beginning, or to a clip
-  and an absolute time in its source take. Themes use the app's catalogue gain
+  and an absolute time in its source take. Themes use the app's catalog gain
   and a two-second equal-power crossfade. Music never restarts for a card.
 - Baked take audio is muted in this cut. The same native voice and effect
   assets are placed at their observed source times. Mono voices play equally
@@ -133,7 +133,7 @@ critical at the recorded threat to the king. The earlier narrated cut is retaine
 - The music is pepka-prygni's. `native/music/pepka-prygni-dicechess/LICENSE.txt`
   grants it for the game only; the owner reports that the author also allowed it
   in the demo video. The end card credits it, Kenney and JDSherbert
-  (`native/sounds/` licences), alongside the voice and portrait generators.
+  (`native/sounds/` licenses), alongside the voice and portrait generators.
 - The narration is for Fortemate's Dice Chess apps and the videos that present
   them (`narration/LICENSE.txt`). To take a newer recording, vendor it again:
 

@@ -39,7 +39,7 @@ const RECENT = 500;
 const HEADERS = {
   check: [
     'Received',
-    'Colour vision',
+    'Color vision',
     'Screen',
     ...VARIANTS.flatMap((variant) =>
       COUNTS.map((count) => `${variant} ${count}`),

@@ -5,11 +5,11 @@ sidebar:
   order: 1
 ---
 
-Most checks run in Node: unit tests of the shared core and of the app's screens, type checks and lint, on every pull request. What the television shows is checked on the Vega Virtual Device, by hand or from scripts, and since 6 October 2026 on a Fire TV Stick 4K Select as well (see the end of this page).
+Most checks run in Node: unit tests of the shared core and of the app's screens, type checks and lint, on every pull request. What the television shows is checked on the Vega Virtual Device, by hand or from scripts, and since October 6, 2026, on a Fire TV Stick 4K Select as well (see the end of this page).
 
 ## The Test Suite
 
-Three packages have tests, all on Node's own test runner (`node --test`) with the Node version in `mise.toml`. Counts and times are as of 10 October 2026, on a Mac:
+Three packages have tests, all on Node's own test runner (`node --test`) with the Node version in `mise.toml`. Counts and times are as of October 10, 2026, on a Mac:
 
 <div class="suite-cards">
   <article class="suite-card">
@@ -97,10 +97,10 @@ Three packages have tests, all on Node's own test runner (`node --test`) with th
 - **Turns follow the engine:** tests check that the turn controller accepts only actions the rules engine lists. A turn must use as many dice as the position allows, promotion offers only the engine's choices, a king capture ends the game at once, and a save or bot reply that skips or invents an action is refused.
 - **Saved games:** a snapshot is validated before it is written, and tests check that a damaged one is refused and never replaces a good save (against an in-memory stand-in for MMKV).
 - **Completed games counted once:** tests recreate what a crash between a game's end and the ledger write would leave, then relaunch, and check that each finished game is counted exactly once.
-- **Rules guide:** 18 of the in-game rules guide's 33 sentences, in 8 of its 9 topics, are each tied to a test that checks the engine does what the sentence says (counted on 4 October 2026). The en passant topic has none. When the guide was written (23 September 2026), three false sentences were put in by hand, and each failed its test.
+- **Rules guide:** 18 of the in-game rules guide's 33 sentences, in 8 of its 9 topics, are each tied to a test that checks the engine does what the sentence says (counted on October 4, 2026). The en passant topic has none. When the guide was written (September 23, 2026), three false sentences were put in by hand, and each failed its test.
 - **Launcher icon:** `native/test/splash.test.ts` reads the icon's pixels and fails if any artwork lies outside the band the launcher keeps when it crops the icon into a 3:2 tile. The band was measured on the Vega Virtual Device ([FL-16](/friction-log/#fl-16)).
 
-### Audio regression checks, 14 October 2026
+### Audio regression checks, October 14, 2026
 
 The audio work in [PR #388](https://github.com/fortemate/dicechess-tv/pull/388) passed `mise run check` with 325 core, 586 native and 8 browser tests: 919 in total, including 33 added native regressions. They cover readiness and delayed playback, completion and cleanup, stale events, bounded failure and retry, silence during crossfade errors, and verified MP3 tag removal. These counts describe that PR's local checkout; the breakdown above retains the earlier public-checkout snapshot.
 
@@ -118,7 +118,7 @@ GitHub Actions
 │   ├── web-bench: bench tests, then tsc and the Vite build
 │   └── sonar: coverage of the core and app suites, then the SonarCloud scan (informational)
 ├── CodeQL (GitHub default setup, no workflow file): JavaScript/TypeScript and GitHub Actions, on pull requests, pushes to main and weekly
-├── CI: CLA (.github/workflows/cla.yaml): pull requests; checks that an outside contributor has signed the licence agreement
+├── CI: CLA (.github/workflows/cla.yaml): pull requests; checks that an outside contributor has signed the license agreement
 ├── PR Labeler (.github/workflows/labeler.yaml): pull requests
 └── CD: Deploy Site (.github/workflows/deploy-site.yaml): when the site, the bench or the code they draw changes
     └── Astro build, friction-log anchor check, bench build; deployed to Cloudflare from main
@@ -128,7 +128,7 @@ CI does not build the installable `.vpkg`: that needs the Vega SDK, which GitHub
 
 ### SonarCloud Quality Gate
 
-The `sonar` CI job sends the test coverage of the core and the app to [SonarCloud](https://sonarcloud.io/summary/new_code?id=fortemate_dicechess-tv). It is informational: a failed scan or quality gate does not fail the run. The project uses SonarCloud's default quality gate, Sonar way, and passed it on 4 October 2026. That day SonarCloud reported:
+The `sonar` CI job sends the test coverage of the core and the app to [SonarCloud](https://sonarcloud.io/summary/new_code?id=fortemate_dicechess-tv). It is informational: a failed scan or quality gate does not fail the run. The project uses SonarCloud's default quality gate, Sonar way, and passed it on October 4, 2026. That day SonarCloud reported:
 
 - **0** bugs
 - **0** vulnerabilities
@@ -137,7 +137,7 @@ The `sonar` CI job sends the test coverage of the core and the app to [SonarClou
 
 ### Code Review with CodeRabbit
 
-CodeRabbit reviews only when asked to, with an `@coderabbitai review` comment on a pull request that changes code; automatic reviews are off (`.coderabbit.yaml`). Its instructions for the app's code list Vega behaviour measured on the Virtual Device and ask it to flag code that contradicts it, and comments that claim behaviour without evidence. Its reviews also run actionlint, zizmor, gitleaks, TruffleHog and ShellCheck.
+CodeRabbit reviews only when asked to, with an `@coderabbitai review` comment on a pull request that changes code; automatic reviews are off (`.coderabbit.yaml`). Its instructions for the app's code list Vega behavior measured on the Virtual Device and ask it to flag code that contradicts it, and comments that claim behavior without evidence. Its reviews also run actionlint, zizmor, gitleaks, TruffleHog and ShellCheck.
 
 ## Pre-Commit Hooks & Development Guardrails
 
@@ -151,7 +151,7 @@ To catch issues before they enter git history, lefthook runs these jobs on each 
 
 The way the cursor moves was chosen by counting presses.
 
-Moving a cursor across the board one square at a time takes many presses on a TV remote. A script, `scripts/cursor-presses.ts` (`npm run presses`), plays **200 seeded random games** through the app's shared core, with random legal actions for both sides, and counts the arrow and OK presses each way of moving the cursor would need. Random moves are not a person's moves, but every way is scored on the same ones. [#68](https://github.com/fortemate/dicechess-tv/issues/68) recorded the first run; the figures below are from the run of 4 October 2026, seed 68, 8,346 turns:
+Moving a cursor across the board one square at a time takes many presses on a TV remote. A script, `scripts/cursor-presses.ts` (`npm run presses`), plays **200 seeded random games** through the app's shared core, with random legal actions for both sides, and counts the arrow and OK presses each way of moving the cursor would need. Random moves are not a person's moves, but every way is scored on the same ones. [#68](https://github.com/fortemate/dicechess-tv/issues/68) recorded the first run; the figures below are from the run of October 4, 2026, seed 68, 8,346 turns:
 
 | Navigation Model                          | Presses per Hot Seat Turn | Change                |
 | ----------------------------------------- | ------------------------- | --------------------- |
@@ -166,8 +166,8 @@ Jumps must not leave a piece or destination out of reach. Over **20,000 random s
 
 What the television shows is checked on the Vega Virtual Device, by hand or from scripts, with [`vega-vvd-driver`](https://github.com/fortemate/vega-vvd-driver) (`vvd`), Fortemate's open-source driver for it. CI has no Virtual Device, so these device checks do not run there.
 
-**1.0.1, build 30 (14 October 2026):** the candidate was checked separately on the Virtual Device and a physical Fire TV Stick 4K Select, including upgrade preservation, saved-turn recovery, settings, navigation, ten-minute Rampage and friend sessions on each device, and shorter Rolly/Grabby runs. Its 919 automated tests also passed. The final-main packages have the same application payload as the tested candidate; the published GitHub downloads were verified against their SHA-256 manifest. The owner additionally reported checking the Stick and finding everything working well. The [release validation record](https://github.com/fortemate/dicechess-tv/blob/main/docs/release-validation-1.0.1-build30.md) preserves the exact scope and limits. The earlier checks below remain evidence for their own dates and builds.
+**1.0.1, build 30 (October 14, 2026):** the candidate was checked separately on the Virtual Device and a physical Fire TV Stick 4K Select, including upgrade preservation, saved-turn recovery, settings, navigation, ten-minute Rampage and friend sessions on each device, and shorter Rolly/Grabby runs. Its 919 automated tests also passed. The final-main packages have the same application payload as the tested candidate; the published GitHub downloads were verified against their SHA-256 manifest. The owner additionally reported checking the Stick and finding everything working well. The [release validation record](https://github.com/fortemate/dicechess-tv/blob/main/docs/release-validation-1.0.1-build30.md) preserves the exact scope and limits. The earlier checks below remain evidence for their own dates and builds.
 
-- **Scripted sessions:** Amazon's `vega` CLI starts the Virtual Device (also without its window, with `--no-gui`), installs the package and launches the app. `vvd enable-grpc` turns on the emulator's gRPC endpoint, and `vvd press` sends remote keys as Linux evdev codes, the route the Virtual Device's own on-screen remote uses. On 28 September 2026 a script drove beta 5 this way through Settings, the rules guide, About, a resumed game and the tutorial's first move.
-- **Screenshots and the safe area:** `vvd screenshot` saves the 1920x1080 screen as a PNG, and `vvd wait-change` exits once the screen changes, so a script can tell that a press did something. `vvd safe-area` counts the pixels in the outer 5% of each edge that differ from a solid background colour; in the same session on 28 September 2026, it found the margins clear on the rules guide, About and the tutorial's first lesson. A unit test, `native/test/layout.test.ts`, checks the 48 dp and 27 dp insets the layout keeps.
-- **Fire TV Stick:** the owner's Fire TV Stick 4K Select has run the game since 6 October 2026. Checks there read the device log, the OS's traces or reports from the app itself, and the owner watches the television. They include the launch and the response to a cursor key ([Performance](/technology/performance/)), the dice's stagger, horizontal cycling on the board ([Board selection algorithm](/design/board-selection/)), the return from Home ([Building on Vega](/technology/vega/#leaving-the-foreground)) and the automatic OK on the only choice ([#342](https://github.com/fortemate/dicechess-tv/pull/342)). Version 1.0.0, build 26 of `dac3302`, was released on GitHub and submitted to the Amazon Appstore on 10 October 2026. Its release notes record what was checked on the Stick, on the Appstore build of that commit: Settings with the music row and Play as, muting and unmuting the music, Main menu and Resume game, the opponent cards, and the confirmation before a game in play is replaced. Build 28 of `d4ffdaa` replaced it on 11 October 2026; its Appstore build was installed on the Stick over an earlier build, kept the saved game, and opened on the home menu with no errors from the app in the device log ([release notes](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.0%2B28)).
+- **Scripted sessions:** Amazon's `vega` CLI starts the Virtual Device (also without its window, with `--no-gui`), installs the package and launches the app. `vvd enable-grpc` turns on the emulator's gRPC endpoint, and `vvd press` sends remote keys as Linux evdev codes, the route the Virtual Device's own on-screen remote uses. On September 28, 2026, a script drove beta 5 this way through Settings, the rules guide, About, a resumed game and the tutorial's first move.
+- **Screenshots and the safe area:** `vvd screenshot` saves the 1920x1080 screen as a PNG, and `vvd wait-change` exits once the screen changes, so a script can tell that a press did something. `vvd safe-area` counts the pixels in the outer 5% of each edge that differ from a solid background color; in the same session on September 28, 2026, it found the margins clear on the rules guide, About and the tutorial's first lesson. A unit test, `native/test/layout.test.ts`, checks the 48 dp and 27 dp insets the layout keeps.
+- **Fire TV Stick:** the owner's Fire TV Stick 4K Select has run the game since October 6, 2026. Checks there read the device log, the OS's traces or reports from the app itself, and the owner watches the television. They include the launch and the response to a cursor key ([Performance](/technology/performance/)), the dice's stagger, horizontal cycling on the board ([Board selection algorithm](/design/board-selection/)), the return from Home ([Building on Vega](/technology/vega/#leaving-the-foreground)) and the automatic OK on the only choice ([#342](https://github.com/fortemate/dicechess-tv/pull/342)). Version 1.0.0, build 26 of `dac3302`, was released on GitHub and submitted to the Amazon Appstore on October 10, 2026. Its release notes record what was checked on the Stick, on the Appstore build of that commit: Settings with the music row and Play as, muting and unmuting the music, Main menu and Resume game, the opponent cards, and the confirmation before a game in play is replaced. Build 28 of `d4ffdaa` replaced it on October 11, 2026; its Appstore build was installed on the Stick over an earlier build, kept the saved game, and opened on the home menu with no errors from the app in the device log ([release notes](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.0%2B28)).

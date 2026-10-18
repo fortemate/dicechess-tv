@@ -170,7 +170,7 @@ export const encodeAnswers = (answers: CheckAnswers) =>
 export function decodeAnswers(code: string): CheckAnswers {
   const answers = JSON.parse(atob(code.trim())) as CheckAnswers;
   if (answers?.v !== 1 || typeof answers.taps !== 'object') {
-    throw new Error('Not an answer code of the colour check');
+    throw new Error('Not an answer code of the color check');
   }
   return answers;
 }

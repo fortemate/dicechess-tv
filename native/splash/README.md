@@ -29,7 +29,7 @@ home and rise again, never a jump.
 
 ## Inputs
 
-| Input                                    | Source                                                                                          | Licence                                                       | SHA-256                                                            |
+| Input                                    | Source                                                                                          | License                                                       | SHA-256                                                            |
 | ---------------------------------------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------ |
 | `fonts/titan-one/TitanOne-Regular.ttf`   | `google/fonts` at `931162c4c695f5b29a1b26f007b656e2baca0884`, `ofl/titanone`                    | OFL-1.1, `fonts/titan-one/OFL.txt` (Reserved Font Name Titan) | `563ff6de179bbd44bcd7d2a6c448d6dc3bf935834237cf1250e506e65cd86ff1` |
 | `fonts/arimo/Arimo-Regular.ttf`          | `googlefonts/Arimo` at `4a6255f269916ae7ad3fc2706b0935e7621396b8`, `fonts/ttf`                  | OFL-1.1, `fonts/arimo/OFL.txt`                                | `41b22bc8f0b51f932825d37bc55b5eb6ba67dfe599a626e4aff2b43b624f9f8c` |
@@ -37,7 +37,7 @@ home and rise again, never a jump.
 | `src/assets/pieces/rhosgfx/b{Q,N,R}.svg` | RhosGFX Vector Chess Pieces Pack                                                                | CC0-1.0                                                       |                                                                    |
 | `portraits/thinkle.svg`                  | portrait pack 1.4.1 in `fortemate/dicechess-assets`, vendored by `scripts/vendor-portraits.mjs` | Fortemate's Dice Chess apps only                              | pinned in `portraits/portraits.lock.json`                          |
 
-The fonts are copied unchanged, with their licences beside them. Titan One sets
+The fonts are copied unchanged, with their licenses beside them. Titan One sets
 the title; Arimo sets the name next to the mark, in plain type.
 
 ## Without the portraits

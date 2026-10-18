@@ -1,6 +1,6 @@
 # Opponent site browser validation
 
-Checked on 16 October 2026 for PR #400, against the production site build from
+Checked on October 16, 2026, for PR #400, against the production site build from
 `docs/opponent-profiles`. The playing examples and recordings are those added
 in `8453e173eb50899685148010e7047e908a3d577e`; the review follow-up updates their
 documentation and the explanation of manual playback without JavaScript.

@@ -254,7 +254,7 @@ test('the cards say what OK does with each setting', () => {
   );
   assert.equal(
     opponentHint('ask'),
-    'Arrows: choose · OK: choose a colour · Back: return',
+    'Arrows: choose · OK: choose a color · Back: return',
   );
 });
 
@@ -283,7 +283,7 @@ test('in the app, the setting is read at launch, shown on the cards, and saved w
   // A relaunch keeps it: the cards open the choice of colour.
   root = launch({ options }).root;
   send('down', 'enter');
-  assert.match(text(root), /OK: choose a colour/);
+  assert.match(text(root), /OK: choose a color/);
   send('enter');
   assert.match(text(root), /Play Rolly as/);
 });

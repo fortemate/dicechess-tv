@@ -1,6 +1,6 @@
 # Browser feasibility probe (historical)
 
-> **Historical record.** This page records the one-move diagnostic of the Svelte + Chessground WebView probe of September 2026, which ran in a Vega SDK 0.23 shell. The WebView probe has been removed and nothing is built on it. The game is the React Native for Vega application in `native/`, released as 1.0.0 on 10 October 2026; the [README](../README.md) and the [project site](https://dicechess-tv.fortemate.com/) describe it as it is now.
+> **Historical record.** This page records the one-move diagnostic of the Svelte + Chessground WebView probe of September 2026, which ran in a Vega SDK 0.23 shell. The WebView probe has been removed and nothing is built on it. The game is the React Native for Vega application in `native/`, released as 1.0.0 on October 10, 2026; the [README](../README.md) and the [project site](https://dicechess-tv.fortemate.com/) describe it as it is now.
 
 The main app now runs the [full-game prototype](full-game.md). This page records the earlier one-move diagnostic; its controls and fixed dice do not describe the current UI. Diagnostic model/storage tests remain as regression coverage.
 
@@ -49,7 +49,7 @@ Worker requests carry IDs and the requested DFEN. Restart terminates the current
 
 The UI heartbeat is a diagnostic counter, not a performance benchmark. The probe does not measure real Stick latency or bot strength.
 
-## Verified on 21 September 2026
+## Verified on September 21, 2026
 
 - macOS arm64, Node 26.8.2; npm install completed with zero reported vulnerabilities.
 - Svelte/TypeScript diagnostics: zero errors and warnings.

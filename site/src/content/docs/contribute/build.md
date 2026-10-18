@@ -33,7 +33,7 @@ mise run setup
 mise run build
 ```
 
-`mise run build` takes the highest build number among the beta and release tags, builds with it, and then checks that the licence notices name every npm package the Vega build bundled ([Credits and licences](/contribute/credits/#open-source-software-in-the-app)). Without mise, `npm ci`, `npm ci --prefix native` and `npm ci --prefix web` install the same packages, and `npm run build --prefix native` builds them, but with build number 0 and without that check. `mise tasks` lists every task, among them `mise run check`, which runs the checks CI runs apart from coverage and the site. The site is installed on its own, with `npm ci --prefix site` ([site/README.md](https://github.com/fortemate/dicechess-tv/blob/main/site/README.md)).
+`mise run build` takes the highest build number among the beta and release tags, builds with it, and then checks that the license notices name every npm package the Vega build bundled ([Credits and licenses](/contribute/credits/#open-source-software-in-the-app)). Without mise, `npm ci`, `npm ci --prefix native` and `npm ci --prefix web` install the same packages, and `npm run build --prefix native` builds them, but with build number 0 and without that check. `mise tasks` lists every task, among them `mise run check`, which runs the checks CI runs apart from coverage and the site. The site is installed on its own, with `npm ci --prefix site` ([site/README.md](https://github.com/fortemate/dicechess-tv/blob/main/site/README.md)).
 
 ### Generated Package Binaries
 
@@ -75,7 +75,7 @@ npm run device --prefix native -- --device <DeviceId> --launch
 
 ## Security Audit & Tooling Advisories
 
-On 9 October 2026, `npm audit --omit=dev` inside `native/` listed 49 vulnerable packages (1 critical, 34 high, 14 moderate), and `npm audit` 55. Their advisories are in `ajv`, `braces`, `fast-xml-parser`, `lodash`, `minimatch`, `shell-quote` and `sprintf-js`, and among the development dependencies also `toml` and `uuid`. Every other package on the list depends on one of them.
+On October 9, 2026, `npm audit --omit=dev` inside `native/` listed 49 vulnerable packages (1 critical, 34 high, 14 moderate), and `npm audit` 55. Their advisories are in `ajv`, `braces`, `fast-xml-parser`, `lodash`, `minimatch`, `shell-quote` and `sprintf-js`, and among the development dependencies also `toml` and `uuid`. Every other package on the list depends on one of them.
 
 ### Why Zero Vulnerable Code Ships to Devices
 
@@ -123,7 +123,7 @@ Without `resolver.nodeModulesPaths`, it fails with `Unable to resolve module @ba
 
 ### "Package version decrease" Error
 
-A device refuses a build numbered lower than the one installed, such as a beta or a release from GitHub Releases or the Amazon Appstore. `mise run build` and `mise run device:run` number a local build as the latest beta or release, which they read from the tags, so it installs over that build and keeps its saved game. A beta tag ends in its build number (`v0.1.0-beta.24`) and a release tag carries it after a `+` (`v1.0.1+30`); see "Releases" in [CONTRIBUTING.md](https://github.com/fortemate/dicechess-tv/blob/main/CONTRIBUTING.md#releases). A direct `npm run build --prefix native` builds with number 0: give it the latest number, 30 since the 1.0.1 release on 14 October 2026, or a higher one.
+A device refuses a build numbered lower than the one installed, such as a beta or a release from GitHub Releases or the Amazon Appstore. `mise run build` and `mise run device:run` number a local build as the latest beta or release, which they read from the tags, so it installs over that build and keeps its saved game. A beta tag ends in its build number (`v0.1.0-beta.24`) and a release tag carries it after a `+` (`v1.0.1+30`); see "Releases" in [CONTRIBUTING.md](https://github.com/fortemate/dicechess-tv/blob/main/CONTRIBUTING.md#releases). A direct `npm run build --prefix native` builds with number 0: give it the latest number, 30 since the 1.0.1 release on October 14, 2026, or a higher one.
 
 ```bash
 npm run build --prefix native -- --build-number 30

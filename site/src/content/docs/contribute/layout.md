@@ -17,7 +17,7 @@ dicechess-tv/
 ├── web/                 # Browser test bench for color-vision & remote evaluation
 ├── site/                # Astro Starlight project website & documentation
 ├── test/                # Root test suite (rules invariants, dice math, English test)
-├── scripts/             # Press evaluator, voice catalogue, coverage, demo video
+├── scripts/             # Press evaluator, voice catalog, coverage, demo video
 ├── docs/                # Architecture records, specifications, and feasibility reports
 ├── licenses/            # Full-text licenses of third-party assets
 ├── THIRD_PARTY_NOTICES.md
@@ -31,30 +31,31 @@ dicechess-tv/
 
 Contains all platform-agnostic gameplay code. Enforced pure by `tsconfig.core.json`:
 
-| File               | Responsibilities                                                                                     |
-| ------------------ | ---------------------------------------------------------------------------------------------------- |
-| `game.ts`          | Turn controller managing roll generation, move validation against the engine, and handoffs.          |
-| `board.ts`         | Board geometry for the FEN board field: squares, files and ranks, with no renderer.                  |
-| `boardView.ts`     | Pure projection converting game state into 64 `SquareView` records for the renderer.                 |
-| `dice.ts`          | The three dice a turn shows: each face's piece, whether it is spent, and whether it will go unused.  |
-| `cursor.ts`        | Directional jump navigation logic between active pieces and valid destinations.                      |
-| `boardInput.ts`    | Maps abstract directional keys into target squares on the board, and finds the only choice for OK.   |
-| `presses.ts`       | Counts the remote presses an action takes under each cursor strategy, for the press evaluator.       |
-| `moveAnimation.ts` | Computes piece slide source/destination coordinates from move transitions.                           |
-| `opponents.ts`     | Opponent configurations, difficulty descriptions, and card presentation data.                        |
-| `bot.ts`           | Validates and applies engine bot paths for Rolly, Grabby, and Rampage.                               |
-| `botVoice.ts`      | The bots' lines, with the events that trigger them and the pacing that keeps them from repeating.    |
-| `hostVoice.ts`     | When the Hot Seat host speaks: the moments, one line a turn, the pacing and the shuffled bags.       |
-| `hostScripts.ts`   | The three hosts' lines by event, copied word for word from the voice packs' catalogues.              |
-| `hostPacing.ts`    | Generated from the shared `events.json`: how often the host speaks, as every Dice Chess client does. |
-| `snapshotStore.ts` | Snapshot serialization contract and integrity validation.                                            |
-| `keys.ts`          | A helper the decoders use to refuse a snapshot with a missing or an unexpected field.                |
-| `danger.ts`        | King threat evaluation driving adaptive background music levels.                                     |
-| `ledger.ts`        | Persistent win/draw/loss ledger with crash-resilient exactly-once accounting.                        |
-| `tutorial.ts`      | Pure data and state machine for the 6 interactive tutorial lessons, with Thinkle's lines.            |
-| `rules.ts`         | The rules guide's nine topics, each claim checked against the engine in `test/rules.test.ts`.        |
-| `cues.ts`          | Computes audio cue triggers (move, capture, roll, victory) from board state diffs.                   |
-| `credits.ts`       | The credits the About screen shows, held to `THIRD_PARTY_NOTICES.md` by `test/credits.test.ts`.      |
+| File               | Responsibilities                                                                                          |
+| ------------------ | --------------------------------------------------------------------------------------------------------- |
+| `game.ts`          | Turn controller managing roll generation, move validation against the engine, and handoffs.               |
+| `board.ts`         | Board geometry for the FEN board field: squares, files and ranks, with no renderer.                       |
+| `boardView.ts`     | Pure projection converting game state into 64 `SquareView` records for the renderer.                      |
+| `dice.ts`          | The three dice a turn shows: each face's piece, whether it is spent, and whether it will go unused.       |
+| `cursor.ts`        | Directional jump navigation logic between active pieces and valid destinations.                           |
+| `boardInput.ts`    | Maps abstract directional keys into target squares on the board, and finds the only choice for OK.        |
+| `presses.ts`       | Counts the remote presses an action takes under each cursor strategy, for the press evaluator.            |
+| `moveAnimation.ts` | Computes piece slide source/destination coordinates from move transitions.                                |
+| `opponents.ts`     | Opponent configurations, difficulty descriptions, and card presentation data.                             |
+| `bot.ts`           | Validates and applies engine bot paths for Rolly, Grabby, and Rampage.                                    |
+| `botVoice.ts`      | The bots' lines, with the events that trigger them and the pacing that keeps them from repeating.         |
+| `hostVoice.ts`     | When the Hot Seat host speaks: the moments, one line a turn, the pacing and the shuffled bags.            |
+| `hostScripts.ts`   | The three hosts' lines by event, copied word for word from the voice packs' catalogs.                     |
+| `voiceCaption.ts`  | U.S. spellings for displayed recording captions; the pinned transcripts used for audio checks stay exact. |
+| `hostPacing.ts`    | Generated from the shared `events.json`: how often the host speaks, as every Dice Chess client does.      |
+| `snapshotStore.ts` | Snapshot serialization contract and integrity validation.                                                 |
+| `keys.ts`          | A helper the decoders use to refuse a snapshot with a missing or an unexpected field.                     |
+| `danger.ts`        | King threat evaluation driving adaptive background music levels.                                          |
+| `ledger.ts`        | Persistent win/draw/loss ledger with crash-resilient exactly-once accounting.                             |
+| `tutorial.ts`      | Pure data and state machine for the 6 interactive tutorial lessons, with Thinkle's lines.                 |
+| `rules.ts`         | The rules guide's nine topics, each claim checked against the engine in `test/rules.test.ts`.             |
+| `cues.ts`          | Computes audio cue triggers (move, capture, roll, victory) from board state diffs.                        |
+| `credits.ts`       | The credits the About screen shows, held to `THIRD_PARTY_NOTICES.md` by `test/credits.test.ts`.           |
 
 ### 2. React Native for Vega Shell (`native/`)
 
@@ -89,9 +90,9 @@ Contains the TV presentation layer built with React Native for Vega:
 | `src/soundSetting.ts`         | Whether the sound effects play, remembered across launches.                                                 |
 | `src/musicSetting.ts`         | Whether the music plays and how loud, remembered across launches.                                           |
 | `src/voiceSetting.ts`         | The Voices setting: whether every line is spoken aloud, remembered across launches.                         |
-| `src/playAsSetting.ts`        | The colour played against the computer: Random (the default), White, Black or Ask.                          |
+| `src/playAsSetting.ts`        | The color played against the computer: Random (the default), White, Black or Ask.                           |
 | `src/turnSetting.ts`          | Whether the board turns to the side to move in a friend game, off by default.                               |
-| `src/highlightsSetting.ts`    | Board highlight style: Standard (the default), Enhanced, Colour-blind or High contrast (#404).              |
+| `src/highlightsSetting.ts`    | Board highlight style: Standard (the default), Enhanced, Color-blind or High contrast (#404).               |
 | `src/autoSelectSetting.ts`    | Whether OK presses itself on the only choice, off by default.                                               |
 | `src/tutorialOfferSetting.ts` | Whether the first launch's offer of the tutorial has been answered.                                         |
 | `src/activity.ts`             | One foreground gate for audio, remote input and the work scheduled between frames.                          |
@@ -103,7 +104,7 @@ Contains the TV presentation layer built with React Native for Vega:
 | `src/cueFiles.ts`             | Generated by `vendor-sounds.mjs`: the vendored files each cue may play.                                     |
 | `src/voiceFiles.ts`           | Generated by `vendor-voices.mjs`: each line's clip, its length and the text it was recorded from.           |
 | `src/layout.ts`               | The safe area: the outer 5 % of each edge, which a television may crop.                                     |
-| `src/theme.ts`                | The board's palette and the app's colours.                                                                  |
+| `src/theme.ts`                | The board's palette and the app's colors.                                                                   |
 | `src/pieces/`                 | Generated SVG React components for all 12 chess pieces (RhosGFX CC0).                                       |
 | `src/faces/`                  | Generated SVG React components for opponent bot avatars (RhosGFX CC0).                                      |
 
@@ -122,7 +123,7 @@ Automated tools for asset compilation and algorithmic measurement:
 - **`native/scripts/vendor-music.mjs`:** Copies pinned music tracks from `dicechess-assets` and writes `music.json`.
 - **`native/scripts/vendor-voices.mjs`:** Copies the voice packs, the bots', each Hot Seat host's and the tutorial's, and `events.json` from one pinned commit of `dicechess-assets`, writes `voices.json`, `src/voiceFiles.ts` and `src/core/hostPacing.ts`, and keeps the text each clip was recorded from, so a changed line fails `vendoredVoices.test.ts`.
 - **`native/scripts/vendor-portraits.mjs`:** Copies the portrait pack from one pinned commit of `dicechess-assets` into `native/portraits/`, which Git ignores while the repository is public.
-- **`native/scripts/generate-assets.mjs`:** Rebuilds `native/assets/` afresh on each build, assembling `SplashScreenImages.zip`, launcher icons, sound files, music, voices, the portraits when present and the licence notices.
+- **`native/scripts/generate-assets.mjs`:** Rebuilds `native/assets/` afresh on each build, assembling `SplashScreenImages.zip`, launcher icons, sound files, music, voices, the portraits when present and the license notices.
 - **`native/scripts/splash.mjs`:** Draws the launch splash, Thinkle conjuring the dice, into PNG frames with resvg-js at build time.
 - **`npm run notices --prefix native` (`native/scripts/notices.mjs`):** Writes, or checks, the notices of the npm packages the bundle ships, from the bundle's source map ([#338](https://github.com/fortemate/dicechess-tv/issues/338)).
 - **`npm run device --prefix native` (`native/scripts/install.mjs`):** Installs the package built for the device's processor and, on request, launches it ([FL-30](/friction-log/#fl-30)).

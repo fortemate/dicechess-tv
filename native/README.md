@@ -11,7 +11,7 @@ Long-form technical documentation, platform findings, performance benchmarks and
 - **[Build & Run](https://dicechess-tv.fortemate.com/contribute/build/):** Prerequisites, package variants, installation, security advisories, and Metro configuration.
 - **[Project Layout](https://dicechess-tv.fortemate.com/contribute/layout/):** Repository structure, source directories, and scripts.
 - **[Contributing](https://dicechess-tv.fortemate.com/contribute/contributing/):** CLA, pull-request conventions, and English-only repository standards.
-- **[Credits & Licences](https://dicechess-tv.fortemate.com/contribute/credits/):** Provenance and licences for code, pieces, emojis, sound effects, and music.
+- **[Credits & Licenses](https://dicechess-tv.fortemate.com/contribute/credits/):** Provenance and licenses for code, pieces, emojis, sound effects, and music.
 - **[SDK Friction Log](https://dicechess-tv.fortemate.com/friction-log/):** 30 documented obstacles (FL-01 to FL-30) encountered with Amazon's Vega SDK and their solutions.
 
 ---
@@ -36,13 +36,13 @@ Long-form technical documentation, platform findings, performance benchmarks and
 | `src/TutorialOffer.tsx`        | The first launch's offer of the tutorial: Thinkle asks, Learn to play or Skip.                  |
 | `src/Teacher.tsx`              | Thinkle in the panel, for the tutorial and its offer: portrait, name and bubble.                |
 | `src/RulesScreen.tsx`          | Dual-pane rules guide: topics on the left, selected explanation on the right.                   |
-| `src/AboutScreen.tsx`          | Project credits and third-party licence notices accessible via TV remote.                       |
+| `src/AboutScreen.tsx`          | Project credits and third-party license notices accessible via TV remote.                       |
 | `src/Board.tsx`                | 8x8 grid rendering pieces, square tints, focus rings, and move slide animations.                |
 | `src/Square.tsx`               | One square and its marks: last move, movable pieces, piece in hand, destinations, cursor.       |
 | `src/Dice.tsx`                 | Three-dice tray with tumbling roll animations and dimmed unplayable dice.                       |
 | `src/Option.tsx`               | Focusable menu and list items with cyan border frame and pressed state.                         |
 | `src/layout.ts`                | TV safe area insets (5% overscan margin) and responsive board layout.                           |
-| `src/theme.ts`                 | Board colours, square tints, selection rings, and theme constants.                              |
+| `src/theme.ts`                 | Board colors, square tints, selection rings, and theme constants.                               |
 | `src/pieces/`                  | Generated SVG React components for all 12 chess pieces (RhosGFX CC0).                           |
 | `src/faces/`                   | Generated SVG React components for opponent bot avatars (RhosGFX CC0).                          |
 | `src/useRemoteInput.ts`        | Normalizes Vega remote events (`enter`, `kpenter`, `select`, `back`).                           |
@@ -57,8 +57,8 @@ Long-form technical documentation, platform findings, performance benchmarks and
 | `src/voiceSetting.ts`          | Spoken voices volume and toggle remembered across launches (`test/voiceSetting.test.ts`, #398). |
 | `src/hostSetting.ts`           | Who hosts a game against a friend, Prowla (the default), Rolly, Thinkle or off, remembered.     |
 | `src/turnSetting.ts`           | Whether the board turns to the side to move in a game against a friend, off by default.         |
-| `src/playAsSetting.ts`         | The colour played against the computer: Ask, Random (the default), White or Black (#352).       |
-| `src/highlightsSetting.ts`     | Board highlight style: Standard (the default), Enhanced, Colour-blind or High contrast (#404).  |
+| `src/playAsSetting.ts`         | The color played against the computer: Ask, Random (the default), White or Black (#352).        |
+| `src/highlightsSetting.ts`     | Board highlight style: Standard (the default), Enhanced, Color-blind or High contrast (#404).   |
 | `src/autoSelectSetting.ts`     | Whether OK presses itself when the board offers only one choice, off by default (#342).         |
 | `src/tutorialOfferSetting.ts`  | Whether the first launch's offer of the tutorial was answered, remembered.                      |
 | `src/music.ts`                 | Plays adaptive music: menu theme or danger-level tracks with crossfades.                        |
@@ -115,7 +115,7 @@ npm run device --prefix native -- --launch
 
 Verified end to end on 2026-09-23, on the Vega Virtual Device, with the first package built from this repository: it built from a clean checkout, installed, and launched in 227 ms with no crash record. Launch times measured since, on a Fire TV Stick as well, are on the [Performance](https://dicechess-tv.fortemate.com/technology/performance/) page.
 
-_Note on `npm audit`:_ On 9 October 2026, `npm audit --omit=dev` in `native/` listed 49 vulnerable packages (1 critical, 34 high, 14 moderate), and `npm audit` 55. Every advisory is in build and test tooling: `ajv`, `braces`, `fast-xml-parser`, `lodash`, `minimatch`, `shell-quote` and `sprintf-js`, and among the development dependencies also `toml` and `uuid`. Every other package on the list depends on one of them. None of them reaches the device bundle. The source map of that day's release build (`npm run build --prefix native`, in `build/debugging/Release/srcmap/`) lists 172 modules, none from those packages; the system libraries are resolved on the device. Three Amazon packages in the bundle (`react-native-kepler`, `react-native-mmkv` and `keplerscript-turbomodule-api`) are listed only for build tools they depend on, such as `jscodeshift` and `@microsoft/api-extractor`. Never run `npm audit fix --force`, as it attempts to downgrade to the crash-prone SDK 0.23 line. See [Security Audit Explanation](https://dicechess-tv.fortemate.com/contribute/build/#security-audit--tooling-advisories).
+_Note on `npm audit`:_ On October 9, 2026, `npm audit --omit=dev` in `native/` listed 49 vulnerable packages (1 critical, 34 high, 14 moderate), and `npm audit` 55. Every advisory is in build and test tooling: `ajv`, `braces`, `fast-xml-parser`, `lodash`, `minimatch`, `shell-quote` and `sprintf-js`, and among the development dependencies also `toml` and `uuid`. Every other package on the list depends on one of them. None of them reaches the device bundle. The source map of that day's release build (`npm run build --prefix native`, in `build/debugging/Release/srcmap/`) lists 172 modules, none from those packages; the system libraries are resolved on the device. Three Amazon packages in the bundle (`react-native-kepler`, `react-native-mmkv` and `keplerscript-turbomodule-api`) are listed only for build tools they depend on, such as `jscodeshift` and `@microsoft/api-extractor`. Never run `npm audit fix --force`, as it attempts to downgrade to the crash-prone SDK 0.23 line. See [Security Audit Explanation](https://dicechess-tv.fortemate.com/contribute/build/#security-audit--tooling-advisories).
 
 ---
 

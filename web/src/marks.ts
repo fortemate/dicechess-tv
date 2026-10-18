@@ -181,7 +181,7 @@ export const PRESETS: Readonly<Record<string, Partial<Marks>>> = {
     target: 'fill',
     cursor: 'fill-two-tone',
   },
-  'Colour-blind (Okabe-Ito)': {
+  'Color-blind (Okabe-Ito)': {
     movable: 'fill-corners',
     selected: 'warm-pedestal',
     destination: 'dot-ringed',
@@ -209,7 +209,7 @@ export const PRESETS: Readonly<Record<string, Partial<Marks>>> = {
     lastMove: 'outline',
     palette: 'high-contrast',
   },
-  'Okabe-Ito colours': { palette: 'okabe-ito' },
+  'Okabe-Ito colors': { palette: 'okabe-ito' },
 };
 
 // The preset the marks are, if they are one.

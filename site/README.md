@@ -56,9 +56,9 @@ vvd screenshot rules-1080.png
 magick rules-1080.png -resize 1280x720 src/assets/screenshots/rules.png
 ```
 
-On 28 September 2026, captures from beta 5 on SDK 0.24.12112, scaled this way,
+On September 28, 2026, captures from beta 5 on SDK 0.24.12112, scaled this way,
 matched `rules.png` and `tutorial.png`: 105 and 118 of their 921,600 pixels
-differed, none visibly, so neither was replaced. On 10 October 2026, eleven
+differed, none visibly, so neither was replaced. On October 10, 2026, eleven
 screenshots that showed the old "hotseat" labels or had drifted from `main` were
 retaken this way on the Vega Virtual Device, from main 125b4f6 (#351).
 
@@ -70,7 +70,7 @@ MP3s directly from `native/voices/elevenlabs-dicechess-bots/`, with their
 transcripts from its manifest. No audio is copied or synthesized for the site.
 Players use native browser controls, with no autoplay or preloading. With
 JavaScript enabled, a small script pauses the previous sample when another
-starts. A manual in-app browser check on 16 October 2026 verified that
+starts. A manual in-app browser check on October 16, 2026, verified that
 coordination.
 A separate check used DevTools' **Disable JavaScript** command, then reloaded
 all four pages: their text, transcripts, portraits, teaching boards, links and
@@ -107,7 +107,7 @@ Three pages serve the tester round
 the site proper:
 
 - `/check/` asks visitors to find the marked pieces on six board pictures, for
-  the colour-blind check of the movable-piece mark
+  the color-blind check of the movable-piece mark
   ([#108](https://github.com/fortemate/dicechess-tv/issues/108),
   [#105](https://github.com/fortemate/dicechess-tv/issues/105));
 - `/feedback/` is a short form for people who have played the game
@@ -137,7 +137,7 @@ legends are cut from, not a scored picture.
 [`src/check/items.ts`](src/check/items.ts) lists what each picture shows and
 scores an answer; the marked squares were read from the pictures' pixels and
 checked by eye. [`scripts/check-results.mjs`](scripts/check-results.mjs)
-summarises the answers.
+summarizes the answers.
 
 **The voices** on `/voices/` are a pinned copy of the audition in
 fortemate/dicechess-assets (`voices/polly-dicechess-bots`, CC0 1.0), written by
@@ -153,7 +153,7 @@ refuses a pack that is not public. It leaves out a line the game has rewritten
 since the audition: Grabby's "Jackpot! That prize piece is mine!" went in #251. The page shows the candidates as A, B and C;
 the data carries no voice names, and `test/voice-audition.test.ts` fails if it
 does, if a clip's bytes change, or if a clip says other words than the game's
-catalogue. [`scripts/voice-results.mjs`](scripts/voice-results.mjs) counts the
+catalog. [`scripts/voice-results.mjs`](scripts/voice-results.mjs) counts the
 picks from the `voices` tab. The page was checked in a browser at phone width:
 the lines play one at a time, a pick is needed to send, and the request is the
 one the script's tests accept; the live script is the owner's to update.

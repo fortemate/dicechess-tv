@@ -1,10 +1,10 @@
 # Offline game scope
 
-> **Historical record.** These are the requirements agreed on 21 September 2026, and the status lines below describe the WebView prototype of that time. The WebView probe has been removed. The scope as built is in the README's [Product scope](../README.md#product-scope), and the game is the React Native for Vega application in `native/`, released as 1.0.0 on 10 October 2026.
+> **Historical record.** These are the requirements agreed on September 21, 2026, and the status lines below describe the WebView prototype of that time. The WebView probe has been removed. The scope as built is in the README's [Product scope](../README.md#product-scope), and the game is the React Native for Vega application in `native/`, released as 1.0.0 on October 10, 2026.
 
 The [agreed delivery roadmap](roadmap.md) supersedes the delivery order below: Random is sufficient for the hackathon minimum; Aggressive and personalization are stretch goals. Rules, basic interactive onboarding and one polished visual/audio set belong to the minimum.
 
-Status: requirements agreed on 21 September 2026. At that time Hotseat and Random had a full-game implementation ([behavior and verification](full-game.md)), and Aggressive, the result ledger and W/D/L were planned. All three have since been built in the native application: the stronger opponents are Grabby and Rampage, and the completed-game ledger (`src/core/ledger.ts`) counts W/D/L exactly once per finished game. Version 1.0.0 keeps counting but shows no W/D/L, because a count cannot tell who was holding the remote ([#341](https://github.com/fortemate/dicechess-tv/pull/341)); the [README](../README.md#product-scope) has the scope as built.
+Status: requirements agreed on September 21, 2026. At that time Hotseat and Random had a full-game implementation ([behavior and verification](full-game.md)), and Aggressive, the result ledger and W/D/L were planned. All three have since been built in the native application: the stronger opponents are Grabby and Rampage, and the completed-game ledger (`src/core/ledger.ts`) counts W/D/L exactly once per finished game. Version 1.0.0 keeps counting but shows no W/D/L, because a count cannot tell who was holding the remote ([#341](https://github.com/fortemate/dicechess-tv/pull/341)); the [README](../README.md#product-scope) has the scope as built.
 
 ## Accepted product requirements
 

@@ -4,8 +4,11 @@ Dice Chess TV is a Fire TV game on Vega OS. The application is `native/`, a Reac
 
 ## Repository-specific guidance
 
+- Use American English (`en-US`) for all original user-facing text, VoiceView announcements, website content, documentation and GitHub-facing prose. Use U.S. spelling and month-first written dates (or ISO dates). Keep labels consistent across the app, accessibility text and documentation.
+- Copy edits must preserve saved values, API identifiers, filenames, commands and published URLs. Keep licenses, required attribution, direct quotations and pinned asset metadata verbatim. Recorded voice transcripts stay exact for audio integrity checks; `voiceCaption.ts` applies the documented, pronunciation-equivalent U.S. spellings only when presenting those captions.
+
 - The product is the native React Native for Vega application in `native/`. The Svelte + Chessground WebView probe that preceded it has been removed; `docs/` keeps its findings, and nothing should be rebuilt on it.
-- `web/` is a browser test bench, not a product: it draws `native/src/` on react-native-web so testers can judge the board's marks and the remote navigation without an emulator (web/README.md). Keep game behaviour out of it, and never count what it shows as evidence from a device.
+- `web/` is a browser test bench, not a product: it draws `native/src/` on react-native-web so testers can judge the board's marks and the remote navigation without an emulator (web/README.md). Keep game behavior out of it, and never count what it shows as evidence from a device.
 - Keep `src/core/` pure. It is compiled with `lib: ES2022` and `types: []`, so a DOM or Node global there is a build failure, not a style question. Platform code belongs in `native/src/`.
 - Evidence from the Vega Virtual Device is not evidence from a Fire TV Stick, and neither is a passing test. Say which one a claim rests on.
 - Keep Dice Chess rules in the canonical engine; render state and emit action intent from the board.

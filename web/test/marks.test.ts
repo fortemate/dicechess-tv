@@ -102,7 +102,7 @@ test('the candidate highlight presets decouple the picked-up piece from the curs
     'Enhanced',
     'Standard (enhanced)',
     'Focus fill',
-    'Colour-blind (Okabe-Ito)',
+    'Color-blind (Okabe-Ito)',
     'High contrast',
   ]) {
     const marks = { ...DEFAULT_MARKS, ...PRESETS[name] };

@@ -1,4 +1,4 @@
-# Native runtime gate — 22 September 2026
+# Native runtime gate — September 22, 2026
 
 First checkpoint of [#12](https://github.com/fortemate/dicechess-tv/issues/12): can the
 canonical engine and the extracted core run in React Native for Vega without a WebView,
@@ -31,7 +31,7 @@ runtime question is answered.
 ### Environment
 
 - Host: Apple Silicon macOS 26.7, Node 26.8.2 (the version in `mise.toml`).
-- Vega CLI **1.3.4**; SDK **0.24.12112**, released 21 September 2026, installed fresh on
+- Vega CLI **1.3.4**; SDK **0.24.12112**, released September 21, 2026, installed fresh on
   this machine and set active. This is one build newer than the 0.24.12044 whose WebView
   crash is recorded in [the SDK experiment](vega-sdk-experiment.md).
 - Vega Virtual Device, 1920 × 1080, aarch64, OS 1.2. It stayed up for the whole session;
@@ -255,7 +255,7 @@ uses no WebView, that crash did not recur here on 0.24.12112, and 0.24's Metro r
 the engine unconfigured. Build the prototype against SDK 0.24.
 
 This says nothing about the WebView application, which remains on 0.23 and whose own
-behaviour on 0.24.12112 has not been retested.
+behavior on 0.24.12112 has not been retested.
 
 ## Verification still required
 

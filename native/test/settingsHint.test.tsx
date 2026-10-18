@@ -16,7 +16,7 @@ const AUDIO = 'Left/Right: volume · OK: mute/unmute';
 const SWITCH = 'Left: off · Right: on · OK: toggle';
 const CHOICE = 'Left/Right or OK: change';
 const AUTO = 'Plays the only legal move for you.';
-const PLAY_AS = 'Your colour in new computer games.';
+const PLAY_AS = 'Your color in new computer games.';
 
 for (const musicAvailable of [true, false]) {
   for (const fromGame of [false, true]) {

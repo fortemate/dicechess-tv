@@ -51,7 +51,7 @@ For the complete current behavior, including the scoring formulas, every tie-bre
     <span class="bar-value">9.2</span>
   </div>
   <div class="bar-row">
-    <span class="bar-label">…the same, landing always in the centre</span>
+    <span class="bar-label">…the same, landing always in the center</span>
     <span class="bar" style={{ width: '38.7%' }} />
     <span class="bar-value">8.9</span>
   </div>
@@ -68,7 +68,7 @@ For the complete current behavior, including the scoring formulas, every tie-bre
 
 Both sides of 200 Hot Seat games, 8,346 turns, seed 68. The shipped row uses the cone rule described below. The same design with a plain axis rule scores 9.16, so the rule was chosen on another ground: in 20,000 random sets of squares, the cone rule reached every square, while two simpler rules each left some square out of reach.
 
-The last row shows what the landing rules below cost in these games. A random mover takes no more often than it makes any other move, so landing on a capture saves it nothing, and the shipped design spends 0.29 presses a turn more than landing in the centre. People are different: they take far more often than not, and a pawn on its starting square usually advances two. The landing follows people, so random games cannot credit it.
+The last row shows what the landing rules below cost in these games. A random mover takes no more often than it makes any other move, so landing on a capture saves it nothing, and the shipped design spends 0.29 presses a turn more than landing in the center. People are different: they take far more often than not, and a pawn on its starting square usually advances two. The landing follows people, so random games cannot credit it.
 
 ## The rules the board follows
 
@@ -79,14 +79,14 @@ The last row shows what the landing rules below cost in these games. A random mo
 - **The cursor waits where it helps.** It stays on its square while that piece can still move, and otherwise moves to the central piece, the one fewest presses from all the others.
 - **OK lands on the likely destination.** Picking a piece up puts the cursor where players usually go: on the most valuable piece it can take, the king above all, since taking it wins. A pawn that cannot take but can advance two squares lands on that push, the usual choice over the single step. Any other piece lands on its central destination, so a piece with a single destination plays with OK, then OK. The arrows do not reach every destination from every square, so a landing that would leave one out of reach gives way to the central destination. Back puts the piece down, with the cursor back on it.
 
-The rules live in the app's core (`src/core/cursor.ts`, `src/core/boardInput.ts`), are covered by its tests, and were played on the Vega Virtual Device. On 9 October 2026 the owner reported ongoing physical Fire TV Stick testing: the end-of-row feedback prompted [horizontal cycling, issue 299](https://github.com/fortemate/dicechess-tv/issues/299). The rules above include that change. Cycling was then checked on that Stick, with keys sent through `inputd-cli` rather than pressed by a person: a build that set up test positions (build 22) went through both ends of a row, short presses and holds, sparse choices, destinations and the board turned for Black, and the ordinary build 23 was checked with D-pad, OK and Back over the saved game. The [validation record](https://github.com/fortemate/dicechess-tv/blob/main/docs/board-navigation-validation-299.md) has the packages and the sequences; it is kept apart from the original simulation, which measured no cycling.
+The rules live in the app's core (`src/core/cursor.ts`, `src/core/boardInput.ts`), are covered by its tests, and were played on the Vega Virtual Device. On October 9, 2026, the owner reported ongoing physical Fire TV Stick testing: the end-of-row feedback prompted [horizontal cycling, issue 299](https://github.com/fortemate/dicechess-tv/issues/299). The rules above include that change. Cycling was then checked on that Stick, with keys sent through `inputd-cli` rather than pressed by a person: a build that set up test positions (build 22) went through both ends of a row, short presses and holds, sparse choices, destinations and the board turned for Black, and the ordinary build 23 was checked with D-pad, OK and Back over the saved game. The [validation record](https://github.com/fortemate/dicechess-tv/blob/main/docs/board-navigation-validation-299.md) has the packages and the sequences; it is kept apart from the original simulation, which measured no cycling.
 
 ## A mark that was dropped
 
 A second mark was tried: amber brackets on the pieces that could move only after one more action. It was dropped for three reasons.
 
 1. The cursor could not land on those pieces, so the mark offered nothing to press.
-2. Green and amber are the pair that colour-blind viewers confuse most.
+2. Green and amber are the pair that color-blind viewers confuse most.
 3. It cost one legal-move generation per legal action, up to 43 ms per step on the Virtual Device.
 
 The green fill comes from the legal list the screen already has, at no extra cost.

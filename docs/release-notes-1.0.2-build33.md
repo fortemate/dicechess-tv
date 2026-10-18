@@ -4,10 +4,10 @@ This release improves board readability, clarifies the rules reference and makes
 
 ## Changes since 1.0.1, build 32
 
-- **Board highlights:** choose Standard, Enhanced, Colour-blind or High contrast in Settings. The style is remembered and applies to the game and tutorial. ([#413](https://github.com/fortemate/dicechess-tv/pull/413))
-- **Rules reference and tutorial:** clarify maximum dice use, the king-capture exception, en passant through the next turn and the app's draw limits. Thinkle's tutorial line now explains that a king may be left under attack; the matching narration is included. Game rules and castling behaviour are unchanged. ([#421](https://github.com/fortemate/dicechess-tv/pull/421))
+- **Board highlights:** choose Standard, Enhanced, Color-blind or High contrast in Settings. The style is remembered and applies to the game and tutorial. ([#413](https://github.com/fortemate/dicechess-tv/pull/413))
+- **Rules reference and tutorial:** clarify maximum dice use, the king-capture exception, en passant through the next turn and the app's draw limits. Thinkle's tutorial line now explains that a king may be left under attack; the matching narration is included. Game rules and castling behavior are unchanged. ([#421](https://github.com/fortemate/dicechess-tv/pull/421))
 - **Settings:** group audio, general gameplay and friend-game options; show controls for the focused row. Both switches use Left for off, Right for on and OK to toggle, so repeated directions keep their value stable. ([#428](https://github.com/fortemate/dicechess-tv/pull/428), [#429](https://github.com/fortemate/dicechess-tv/pull/429), [#430](https://github.com/fortemate/dicechess-tv/pull/430))
-- **Clearer setting descriptions:** Auto-play only move explains that it plays the sole legal move for you. Play as explains that it selects your colour in new computer games. VoiceView receives these explanations on focus and announces only the new value when it changes. ([#430](https://github.com/fortemate/dicechess-tv/pull/430))
+- **Clearer setting descriptions:** Auto-play only move explains that it plays the sole legal move for you. Play as explains that it selects your color in new computer games. VoiceView receives these explanations on focus and announces only the new value when it changes. ([#430](https://github.com/fortemate/dicechess-tv/pull/430))
 - Dependency and documentation updates.
 
 ## Downloads

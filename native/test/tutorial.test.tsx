@@ -507,7 +507,7 @@ test('the second lesson opens on its roll too, and Thinkle explains the grey dic
   assert.match(text(root), /Press OK to roll the dice\./);
 
   send('enter');
-  assert.match(text(root), /Their dice go grey\./);
+  assert.match(text(root), /Their dice go gray\./);
   assert.match(text(root), /Play a knight\./);
 
   // The cursor waits on a knight and lands where it may go: one move ends the

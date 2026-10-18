@@ -12,7 +12,7 @@ The implementation passes the cyclic discrete-press layout to shortest paths, ce
 
 ## Physical Vega Fire TV Stick
 
-On 9 October 2026, an armv7 Release package, version 0.1.0, build 13, verified a 2.2-second Right hold stopping at the available `g1` knight and the next short Right cycling to `b1`. Its SHA-256 is `c6801119af585d6464652ba7709ad92fc5f06dff7b6f0eff785a9cec04072d9b`.
+On October 9, 2026, an armv7 Release package, version 0.1.0, build 13, verified a 2.2-second Right hold stopping at the available `g1` knight and the next short Right cycling to `b1`. Its SHA-256 is `c6801119af585d6464652ba7709ad92fc5f06dff7b6f0eff785a9cec04072d9b`.
 
 After the device connection was restored, controlled-position build 22 exercised the review-follow-up implementation on the same physical Stick. Its SHA-256 is `930c2cc1e0275500e40588973f4cd10e58b987e95bef56195cdc6b11b10efa89`. The temporary entry point created positions with the canonical `newGame` and `rollGame`, supplied asynchronous scheduling, and used an isolated MMKV namespace. The native remote hook, screen reducer, board navigation and rendering were the application code from the revision above. Device state reports and settled 1920×1080 screenshots established the results below.
 
