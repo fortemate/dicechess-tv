@@ -17,7 +17,7 @@ The [1.0.2 release, build 33](https://github.com/fortemate/dicechess-tv/releases
 | `dicechess-tv-native_aarch64.vpkg` | The Vega Virtual Device on a Mac with Apple silicon   |
 | `dicechess-tv-native_x86_64.vpkg`  | The Vega Virtual Device on Linux or on an Intel Mac   |
 
-The published 1.0.2/build 33 packages omit the portraits, so the three computer opponents show emoji faces, and Prowla and Thinkle show none. The pinned portrait pack is now included in the source repository with its original notice and digests. The planned 1.0.3/build 34 packages include the ten portraits used by the app. Their license is unchanged; see [Credits and licenses](/contribute/credits/#character-portraits).
+The published 1.0.2/build 33 packages omit the portraits, so the three computer opponents show emoji faces, and Prowla and Thinkle show none. Those fallbacks were checked on the [Vega Virtual Device for the 1.0.2 candidate](https://github.com/fortemate/dicechess-tv/blob/main/docs/release-preparation-1.0.2-build33.md#vega-virtual-device), and are covered by the [matchup](https://github.com/fortemate/dicechess-tv/blob/main/native/test/matchup.test.tsx) and [tutorial tests](https://github.com/fortemate/dicechess-tv/blob/main/native/test/tutorial.test.tsx). The pinned portrait pack is now included in the source repository with its original notice and digests. The planned 1.0.3/build 34 packages include the ten portraits used by the app. Their license is unchanged; see [Credits and licenses](/contribute/credits/#character-portraits).
 
 Check a download against `SHA256SUMS.txt`, in the folder you downloaded both to (on Linux, `sha256sum` with the same arguments):
 
@@ -34,7 +34,7 @@ vega device launch-app -a com.fortemate.dicechesstv.main
 
 For the Virtual Device, install the `aarch64` or the `x86_64` package instead. With more than one device connected, add `-d` and the device's serial number, as `vega device list` shows it.
 
-The 1.0.1/build 30 candidate was installed over 1.0.0/build 29 on both the Stick and the Virtual Device, preserving the game, results and settings. The final release has the same application payload. A lower build cannot be installed over a higher one. The [playtest guide](https://github.com/fortemate/dicechess-tv/blob/main/docs/playtest.md) has more on installing and removing the app.
+The 1.0.1/build 30 candidate was installed over 1.0.0/build 29 on both the Stick and the Virtual Device, preserving the game, results and settings. The final 1.0.1/build 30 packages have the same application payload as that earlier candidate. A lower build cannot be installed over a higher one. The [playtest guide](https://github.com/fortemate/dicechess-tv/blob/main/docs/playtest.md) has more on installing and removing the app.
 
 ## On the Amazon Appstore
 

@@ -4,7 +4,7 @@ Thank you for trying the game. This page says which package to install and how, 
 
 ## Which package
 
-Dice Chess 1.0.2, build 33, was released on GitHub on October 18, 2026. Its [release on GitHub](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.2%2B33) carries the same app built for three processors, plus `SHA256SUMS.txt`. This release omits the portraits: the opponents show emoji faces, and Prowla and Thinkle have no replacement face.
+Dice Chess 1.0.2, build 33, was released on GitHub on October 18, 2026. Its [release on GitHub](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.2%2B33) carries the same app built for three processors, plus `SHA256SUMS.txt`. This release omits the portraits: the opponents show emoji faces, and Prowla and Thinkle have no replacement face. These fallbacks are covered by [matchup tests](../native/test/matchup.test.tsx) and [tutorial tests](../native/test/tutorial.test.tsx), and were checked on the [Vega Virtual Device for the 1.0.2 candidate](release-preparation-1.0.2-build33.md#vega-virtual-device).
 
 Version 1.0.3/build 34 is in preparation. Its planned GitHub packages include the portraits and consistent U.S. English; see the [preparation record](release-preparation-1.0.3-build34.md). It is not published yet. A normal source clone now includes the pinned portrait pack and its original notice.
 
@@ -41,7 +41,7 @@ vega device launch-app -a com.fortemate.dicechesstv.main
 
 For the Virtual Device, install `dicechess-tv-native_aarch64.vpkg` on a Mac with Apple silicon, or `dicechess-tv-native_x86_64.vpkg` on Linux or an Intel Mac, instead. A package built for another processor installs without a word and then crashes at start. With more than one device connected, add `-d` and the device's serial number, as `vega device list` shows it.
 
-A newer build installs over the one you have and keeps its saved game, results and settings. The 1.0.1/build 30 candidate was installed over 1.0.0/build 29 on both the Stick and the Virtual Device; saved data and CRC remained byte-identical. The final release's application payload matches that candidate byte for byte ([validation record](release-validation-1.0.1-build30.md)). An older build does not install over a newer one: the device refuses a lower build number with "Package version decrease". To go back, remove the app first, which deletes its saved game.
+A newer build installs over the one you have and keeps its saved game, results and settings. The 1.0.1/build 30 candidate was installed over 1.0.0/build 29 on both the Stick and the Virtual Device; saved data and CRC remained byte-identical. The final 1.0.1/build 30 release's application payload matches that candidate byte for byte ([validation record](release-validation-1.0.1-build30.md)). An older build does not install over a newer one: the device refuses a lower build number with "Package version decrease". To go back, remove the app first, which deletes its saved game.
 
 To remove the app:
 
@@ -109,14 +109,15 @@ that every cue was audible; the listening checks need someone at the television.
 - **With a GitHub account:** [Fortemate community discussions](https://github.com/orgs/fortemate/discussions). Tell us what happened in a game under **General**, suggest a change under **Ideas**, and ask for help with installing under **Q&A**. One finding per discussion is easiest to follow up.
 - Or reply where you found this build.
 
-Say which build you played (the release title, such as Dice Chess 1.0.1, build 30), and whether on a Fire TV Stick or on the Virtual Device. What confused you is as useful as what broke: where you hesitated, what you expected a button to do, which rule surprised you. For a bug, say what was on the screen and what you pressed just before.
+Say which build you played (the release title, such as Dice Chess 1.0.2, build 33), and whether on a Fire TV Stick or on the Virtual Device. What confused you is as useful as what broke: where you hesitated, what you expected a button to do, which rule surprised you. For a bug, say what was on the screen and what you pressed just before.
 
 We turn findings into issues and link each one in its discussion, so you can see what came of it.
 
 ## What this build is
 
-- **Published GitHub version.** 1.0.1, build 30, published on October 14, 2026, from `5a8bc32` ([release notes](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.1%2B30)), with engine 0.14.7 and the playback lifecycle fixes in PR #388.
-- **Tested on.** The candidate passed 919 automated tests and separate checks on the Vega Virtual Device and a Fire TV Stick 4K Select: upgrade preservation, saved-turn recovery, settings, screen navigation and sustained play against Rampage and a friend, with shorter Rolly/Grabby runs. The final-main packages have the same application payload, and their published downloads were verified. The owner also reported checking the Stick and finding it working well. The [release validation record](release-validation-1.0.1-build30.md) retains the exact scope and limits; earlier [navigation checks](board-navigation-validation-299.md) do not establish that every scenario passed on build 30.
+- **Published GitHub version.** 1.0.2, build 33, published on October 18, 2026, from `0a196a5` ([release notes](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.2%2B33)), with engine 0.14.8, Highlights, rules clarifications and the Settings improvements.
+- **Published-version validation.** The 1.0.2/build 33 preparation passed 964 automated tests and upgrade, Settings, rules, tutorial and About checks on the Vega Virtual Device. Physical owner feedback covered the preceding portrait-equipped 1.0.1/build 32 with the same application code, before the version bump. The [1.0.2 preparation record](release-preparation-1.0.2-build33.md) states the exact scope and limits. The earlier [1.0.1/build 30 validation record](release-validation-1.0.1-build30.md) retains the separate audio and sustained-play evidence for that earlier version.
+- **Next candidate.** 1.0.3/build 34 passed 969 automated tests and a Virtual Device upgrade with portraits and unchanged saved data. Its JavaScript and Hermes match main `471cc1f`, installed on the physical Stick as 1.0.2/build 33 and reported by the owner to appear to work. The [new preparation record](release-preparation-1.0.3-build34.md) separates that physical feedback from candidate-package checks. Publication is pending.
 - **Privacy.** It has no network code, no accounts and no analytics: games, results and settings stay on the device. The [privacy policy](https://dicechess-tv.fortemate.com/privacy/) lists what it keeps.
 - **The opponents.** In builds using engine 0.14.8, Rolly plays one of its legal turns at random, except that it takes your king whenever its first move can (in build 30 with engine 0.14.7 it played purely at random). Grabby takes the most valuable piece it can, and Rampage hunts your pieces and goes for your king. Each is an algorithm of the rules engine, running on the device.
 - **The music.** Four themes by pepka-prygni, used with his permission. Against the computer the music follows the danger to your own king; with two players, to either king.
