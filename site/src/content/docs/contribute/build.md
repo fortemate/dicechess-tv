@@ -35,6 +35,8 @@ mise run build
 
 `mise run build` takes the highest build number among the beta and release tags, builds with it, and then checks that the license notices name every npm package the Vega build bundled ([Credits and licenses](/contribute/credits/#open-source-software-in-the-app)). Without mise, `npm ci`, `npm ci --prefix native` and `npm ci --prefix web` install the same packages, and `npm run build --prefix native` builds them, but with build number 0 and without that check. `mise tasks` lists every task, among them `mise run check`, which runs the checks CI runs apart from coverage and the site. The site is installed on its own, with `npm ci --prefix site` ([site/README.md](https://github.com/fortemate/dicechess-tv/blob/main/site/README.md)).
 
+The character portrait pack is tracked in `native/portraits/`, with its original notice and digest lock. A normal clone builds with all five characters and Thinkle's illustrated splash; no separate asset checkout is needed. The pack keeps its restricted Fortemate-app license ([Credits and licenses](/contribute/credits/#character-portraits)).
+
 ### Generated Package Binaries
 
 The build generates three architecture-specific `.vpkg` packages under `native/build/`:
@@ -123,10 +125,10 @@ Without `resolver.nodeModulesPaths`, it fails with `Unable to resolve module @ba
 
 ### "Package version decrease" Error
 
-A device refuses a build numbered lower than the one installed, such as a beta or a release from GitHub Releases or the Amazon Appstore. `mise run build` and `mise run device:run` number a local build as the latest beta or release, which they read from the tags, so it installs over that build and keeps its saved game. A beta tag ends in its build number (`v0.1.0-beta.24`) and a release tag carries it after a `+` (`v1.0.1+30`); see "Releases" in [CONTRIBUTING.md](https://github.com/fortemate/dicechess-tv/blob/main/CONTRIBUTING.md#releases). A direct `npm run build --prefix native` builds with number 0: give it the latest number, 30 since the 1.0.1 release on October 14, 2026, or a higher one.
+A device refuses a build numbered lower than the one installed, such as a beta or a release from GitHub Releases or the Amazon Appstore. `mise run build` and `mise run device:run` number a local build as the latest beta or release, which they read from the tags, so it installs over that build and keeps its saved game. A beta tag ends in its build number (`v0.1.0-beta.24`) and a release tag carries it after a `+` (`v1.0.1+30`); see "Releases" in [CONTRIBUTING.md](https://github.com/fortemate/dicechess-tv/blob/main/CONTRIBUTING.md#releases). A direct `npm run build --prefix native` builds with number 0: give it the latest number, 33 since the 1.0.2 release on October 18, 2026, or a higher one.
 
 ```bash
-npm run build --prefix native -- --build-number 30
+npm run build --prefix native -- --build-number 33
 ```
 
 `BUILD_NUMBER=26 mise run device:run` sets the number by hand. Removing the app (`vega device uninstall-app -d VirtualDevice -a com.fortemate.dicechesstv.main`) also works, but it deletes the saved game, the results and the settings.

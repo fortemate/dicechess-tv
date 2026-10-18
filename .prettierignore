@@ -7,6 +7,9 @@ native/sounds/
 # native/music/music.json (#76).
 native/music/
 
+# Portrait pack 1.4.1, including its notice and pinned SVG metadata.
+native/portraits/
+
 # The voices, the bots' and the Hot Seat host's, and events.json, vendored from
 # fortemate/dicechess-assets and pinned byte for byte by native/voices/voices.json
 # (#159, #202).

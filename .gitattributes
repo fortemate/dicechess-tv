@@ -34,6 +34,8 @@ native/voices/** -text linguist-vendored
 # The music, pinned by native/music/music.json (#76), and Thinkle's narration of
 # the demo video, pinned by scripts/demo-video/narration/narration.json.
 native/music/** -text linguist-vendored
+# The character portrait pack and its notice are pinned byte for byte too.
+native/portraits/** -text linguist-vendored -whitespace
 scripts/demo-video/narration/** -text linguist-vendored
 # The licence texts, kept as published.
 licenses/** -text

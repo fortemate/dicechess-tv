@@ -254,10 +254,8 @@ test('a run leaves nothing under assets/ that it did not write', (t) => {
   assert.equal(digest(), first, 'a rebuild changed the splash archive');
 });
 
-// The portraits (dicechess-assets#31) stay out of the public repository, so a
-// checkout may have none: then nothing ships and the game shows the emoji
-// faces. When scripts/vendor-portraits.mjs has put them in portraits/, they
-// ship exactly as its lock pinned them.
+// The tracked portraits ship exactly as their lock pins them. A deliberately
+// stripped checkout can still build with the emoji fallback.
 test('portraits ship as the lock pinned them, and not at all without one', (t) => {
   const root = mkdtempSync(join(tmpdir(), 'dicechess-tv-portraits-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
@@ -422,33 +420,42 @@ test('the build reads the portrait version the app looks for', () => {
   assert.equal(portraitsVersion(), PORTRAITS_VERSION);
 });
 
-// The app looks for the portraits under the version src/Portrait.tsx names, so
-// that version has to be the one vendored. Only a checkout with portraits can
-// tell; the public repository has none.
+// A normal checkout must include the pack and the version the app looks for.
 const LOCK = join(NATIVE, 'portraits/portraits.lock.json');
-test(
-  'the app looks for the portraits of the version the lock pins',
-  { skip: !existsSync(LOCK) && 'no portraits in this checkout' },
-  () => {
-    const { source } = JSON.parse(readFileSync(LOCK, 'utf8'));
-    assert.equal(source.version, PORTRAITS_VERSION);
-  },
-);
+test('the app looks for the portraits of the version the lock pins', () => {
+  const { source } = JSON.parse(readFileSync(LOCK, 'utf8'));
+  assert.equal(source.version, PORTRAITS_VERSION);
+});
 
 // And it has to hold every portrait the app shows. Run on a copy, so the real
 // assets/ is not touched.
-test(
-  'the vendored pack has every portrait the app shows, and only those ship',
-  { skip: !existsSync(LOCK) && 'no portraits in this checkout' },
-  (t) => {
-    const root = mkdtempSync(join(tmpdir(), 'dicechess-tv-portraits-'));
-    t.after(() => rmSync(root, { recursive: true, force: true }));
-    cpSync(join(NATIVE, 'portraits'), join(root, 'portraits'), {
-      recursive: true,
-    });
-    assert.deepEqual(copyPortraits(root).sort(), [...shownPortraits()].sort());
-  },
-);
+test('the vendored pack has every portrait the app shows, and only those ship', (t) => {
+  const { files: pinned, notice } = JSON.parse(readFileSync(LOCK, 'utf8'));
+  for (const [name, entry] of Object.entries(pinned) as [
+    string,
+    { sha256: string },
+  ][]) {
+    const bytes = readFileSync(join(NATIVE, 'portraits', name));
+    assert.equal(
+      createHash('sha256').update(bytes).digest('hex'),
+      entry.sha256,
+      name,
+    );
+  }
+  assert.equal(
+    createHash('sha256')
+      .update(readFileSync(join(NATIVE, 'portraits', notice.file)))
+      .digest('hex'),
+    notice.sha256,
+    'the original notice is preserved',
+  );
+  const root = mkdtempSync(join(tmpdir(), 'dicechess-tv-portraits-'));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  cpSync(join(NATIVE, 'portraits'), join(root, 'portraits'), {
+    recursive: true,
+  });
+  assert.deepEqual(copyPortraits(root).sort(), [...shownPortraits()].sort());
+});
 
 // The effects ship as the one file that joins them (#374), never as the files it
 // was made from, and only while it matches them.

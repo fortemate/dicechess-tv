@@ -274,8 +274,8 @@ function die(piece, { x, y, scale: s, tilt }) {
   </g>`;
 }
 
-// Without the private portraits, the medallion holds his starry hat instead,
-// so a public checkout still builds a splash that makes sense.
+// Without the portrait pack, the medallion holds his starry hat instead,
+// so a deliberately stripped checkout still builds a complete splash.
 function star(x, y, r) {
   const points = [];
   for (let j = 0; j < 10; j++) {
@@ -327,7 +327,7 @@ export function splashSvg(i, { portrait, pieces, mark }) {
 
 // A function from a frame index to that frame as opaque RGB bytes, 1920 x
 // 1080. `portrait` is the bytes of Thinkle's vector, or null for a checkout
-// without the private portraits. The inputs are read once.
+// without the portrait pack. The inputs are read once.
 export function splashRenderer(root, portrait) {
   const inputs = {
     portrait: portrait ? uri(portrait, 'image/svg+xml') : null,

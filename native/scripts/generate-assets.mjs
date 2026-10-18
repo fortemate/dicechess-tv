@@ -13,7 +13,7 @@
 //
 // The frames are "Thinkle conjures", drawn by ./splash.mjs on the app's own
 // background, so the handover has no change of colour. They need Thinkle's
-// vector from the private portrait pack; a checkout without it draws his hat
+// vector from the tracked portrait pack; a checkout without it draws his hat
 // instead. ../splash/README.md covers the scene, its fonts and its sizes.
 //
 // The icon is the game's own, copied unchanged: the launcher fits a square icon

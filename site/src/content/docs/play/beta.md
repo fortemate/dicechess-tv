@@ -1,15 +1,15 @@
 ---
 title: Get the game
-description: How to get Dice Chess 1.0.1, build 30, for Fire TV, install it on a Vega device, and give feedback. Its Amazon Appstore submission is awaiting review.
+description: Download the published Dice Chess 1.0.2, build 33, for Vega devices, and follow preparation of 1.0.3 with character portraits.
 sidebar:
   order: 3
 ---
 
-Dice Chess 1.0.1, build 30, was published on GitHub on October 14, 2026. It improves voice playback, player cleanup and music recovery after the Vega OS update. It is free and in English, and it needs no account.
+Dice Chess 1.0.2, build 33, was published on GitHub on October 18, 2026. It adds Highlights, clearer rules and grouped Settings with focused control hints. It is free and in English, and it needs no account. Version 1.0.3/build 34, with consistent U.S. English and character portraits in the GitHub packages, is in preparation and is not published yet.
 
 ## From GitHub
 
-The [1.0.1 release, build 30](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.1%2B30) carries three packages, the same app built for three processors, and `SHA256SUMS.txt`:
+The [1.0.2 release, build 33](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.2%2B33) carries three packages, the same app built for three processors, and `SHA256SUMS.txt`:
 
 | File                               | Install it on                                         |
 | ---------------------------------- | ----------------------------------------------------- |
@@ -17,7 +17,7 @@ The [1.0.1 release, build 30](https://github.com/fortemate/dicechess-tv/releases
 | `dicechess-tv-native_aarch64.vpkg` | The Vega Virtual Device on a Mac with Apple silicon   |
 | `dicechess-tv-native_x86_64.vpkg`  | The Vega Virtual Device on Linux or on an Intel Mac   |
 
-The characters' portraits are Fortemate's and stay out of the public repository, so in these packages the three computer opponents show emoji faces in their place, and Prowla and Thinkle show none. Otherwise they are the app submitted to the Amazon Appstore.
+The published 1.0.2/build 33 packages omit the portraits, so the three computer opponents show emoji faces, and Prowla and Thinkle show none. The pinned portrait pack is now included in the source repository with its original notice and digests. The planned 1.0.3/build 34 packages include the ten portraits used by the app. Their license is unchanged; see [Credits and licenses](/contribute/credits/#character-portraits).
 
 Check a download against `SHA256SUMS.txt`, in the folder you downloaded both to (on Linux, `sha256sum` with the same arguments):
 
@@ -59,7 +59,7 @@ Say which build you played, and whether on a Fire TV Stick or on the Virtual Dev
 
 ## What this build is
 
-- **Version 1.0.1, build 30**, built from commit `5a8bc32` with Vega SDK 0.24 and engine 0.14.7. It includes the playback lifecycle fixes in [PR #388](https://github.com/fortemate/dicechess-tv/pull/388).
-- **Tested on** the Vega Virtual Device and a physical Fire TV Stick 4K Select, separately, with 919 automated tests also passing for the candidate. Device checks covered upgrade preservation, saved-turn recovery, settings, navigation and sustained play against Rampage and a friend, with shorter Rolly/Grabby runs. The final-main packages have the same application payload, and the published downloads were checked against their SHA-256 manifest. The owner additionally reported checking the Stick and finding everything working well. The [release validation record](https://github.com/fortemate/dicechess-tv/blob/main/docs/release-validation-1.0.1-build30.md) records the exact scope and limits, separately from the [earlier audio checks](https://github.com/fortemate/dicechess-tv/blob/main/docs/audio-regression-validation-387.md).
+- **Published version 1.0.2, build 33**, built from `0a196a5` with Vega SDK 0.24 and engine 0.14.8. The [release notes](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.2%2B33) and [preparation record](https://github.com/fortemate/dicechess-tv/blob/main/docs/release-preparation-1.0.2-build33.md) distinguish package checks, Virtual Device checks and owner feedback on the physical Stick.
+- **Next version 1.0.3, build 34**, in preparation. The en-US application code was installed on the physical Stick from main `471cc1f` as 1.0.2/build 33 with portraits, and the owner reported that it appeared to work. That is feedback on the application code before the new version bump; it does not establish physical VoiceView listening or a new sustained-gameplay run. The [new preparation record](https://github.com/fortemate/dicechess-tv/blob/main/docs/release-preparation-1.0.3-build34.md) records candidate validation separately.
 - **Private:** it has no network code, no accounts and no analytics. Games, results and settings stay on the TV. The [privacy policy](/privacy/) has the details.
 - **English only** for now.

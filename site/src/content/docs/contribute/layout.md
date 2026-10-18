@@ -122,7 +122,7 @@ Automated tools for asset compilation and algorithmic measurement:
 - **`native/scripts/vendor-sounds.mjs`:** Copies pinned sound effects from `dicechess-assets` and verifies cryptographic SHA-256 hashes against `sounds.lock.json`.
 - **`native/scripts/vendor-music.mjs`:** Copies pinned music tracks from `dicechess-assets` and writes `music.json`.
 - **`native/scripts/vendor-voices.mjs`:** Copies the voice packs, the bots', each Hot Seat host's and the tutorial's, and `events.json` from one pinned commit of `dicechess-assets`, writes `voices.json`, `src/voiceFiles.ts` and `src/core/hostPacing.ts`, and keeps the text each clip was recorded from, so a changed line fails `vendoredVoices.test.ts`.
-- **`native/scripts/vendor-portraits.mjs`:** Copies the portrait pack from one pinned commit of `dicechess-assets` into `native/portraits/`, which Git ignores while the repository is public.
+- **`native/scripts/vendor-portraits.mjs`:** Copies the portrait pack from one pinned commit of `dicechess-assets` into the tracked `native/portraits/` directory, preserving its notice and recording every file digest.
 - **`native/scripts/generate-assets.mjs`:** Rebuilds `native/assets/` afresh on each build, assembling `SplashScreenImages.zip`, launcher icons, sound files, music, voices, the portraits when present and the license notices.
 - **`native/scripts/splash.mjs`:** Draws the launch splash, Thinkle conjuring the dice, into PNG frames with resvg-js at build time.
 - **`npm run notices --prefix native` (`native/scripts/notices.mjs`):** Writes, or checks, the notices of the npm packages the bundle ships, from the bundle's source map ([#338](https://github.com/fortemate/dicechess-tv/issues/338)).

@@ -8,9 +8,9 @@
 // manifest.json. They land in portraits/ with their notice and a lock that pins
 // the commit and every digest; scripts/generate-assets.mjs ships them.
 //
-// The portraits are for Fortemate's Dice Chess apps only. While this repository
-// is public, git ignores portraits/, so a local build has them and nothing is
-// committed: a checkout without them shows the RhosGFX emoji faces instead.
+// The portraits are for Fortemate's Dice Chess apps only. The pinned pack is
+// tracked with its notice, so a normal checkout builds with the portraits.
+// This script refreshes that pack; it does not change the rights in the notice.
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
@@ -75,5 +75,5 @@ writeFileSync(
   `${JSON.stringify(lock, null, 2)}\n`,
 );
 console.log(
-  `Vendored ${Object.keys(files).length} portraits from ${UPSTREAM}@${commit.slice(0, 7)} into portraits/ (git-ignored while the repository is public)`,
+  `Vendored ${Object.keys(files).length} portraits from ${UPSTREAM}@${commit.slice(0, 7)} into portraits/`,
 );

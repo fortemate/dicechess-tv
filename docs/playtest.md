@@ -4,9 +4,11 @@ Thank you for trying the game. This page says which package to install and how, 
 
 ## Which package
 
-Dice Chess 1.0.1, build 30, was released on GitHub on October 14, 2026. Its [release on GitHub](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.1%2B30) carries three packages: the same app, built for three processors, plus `SHA256SUMS.txt`. The characters' portraits are Fortemate's and stay out of this public repository, so these packages show the opponents' emoji faces in their place, and leave an empty space where Prowla the cat and Thinkle the wizard, who have no such face, would be. The separate armv7 package for the Appstore contains those portraits.
+Dice Chess 1.0.2, build 33, was released on GitHub on October 18, 2026. Its [release on GitHub](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.2%2B33) carries the same app built for three processors, plus `SHA256SUMS.txt`. This release omits the portraits: the opponents show emoji faces, and Prowla and Thinkle have no replacement face.
 
-The release includes the audio fixes from [PR #388](https://github.com/fortemate/dicechess-tv/pull/388), with version preparation merged in [PR #383](https://github.com/fortemate/dicechess-tv/pull/383). Its completed checks, final packaging and publication verification are in the [release validation record](release-validation-1.0.1-build30.md). The [audio validation record](audio-regression-validation-387.md) covers the preceding checks of the same application code, with separate device and automated evidence. The owner reported submitting 1.0.1, build 30, to the Amazon Appstore for review on October 14, 2026; approval has not been confirmed.
+Version 1.0.3/build 34 is in preparation. Its planned GitHub packages include the portraits and consistent U.S. English; see the [preparation record](release-preparation-1.0.3-build34.md). It is not published yet. A normal source clone now includes the pinned portrait pack and its original notice.
+
+The published 1.0.2 release adds Highlights, clearer rules and grouped Settings with focused control hints and stable switch directions. Its [release notes](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.2%2B33) describe the changes. The owner reported submitting 1.0.1/build 30 to the Amazon Appstore for review on October 14, 2026; store approval has not been confirmed.
 
 | File                               | Install it on                                         |
 | ---------------------------------- | ----------------------------------------------------- |
