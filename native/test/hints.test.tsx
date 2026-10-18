@@ -125,7 +125,7 @@ test('every row of Settings is one line, whatever it says', () => {
             highlights,
           }))
             rows.add(row);
-  assert.ok(rows.has('Auto-select only choice: off'));
+  assert.ok(rows.has('Auto-play only move: off'));
   assert.ok(rows.has('Play as: Random'));
   assert.ok(rows.has('Highlights: High contrast'));
   // The two rows for games against a friend name the mode as the home screen
@@ -135,6 +135,7 @@ test('every row of Settings is one line, whatever it says', () => {
   for (const row of rows) {
     // Each focused row's note is 20 dp, without an option's inset.
     fits(settingsHint(row).note, 20);
+    fits(settingsHint(row).description, 20);
     const width = textWidth(row, OPTION_DP) + OPTION_INSET_DP;
     assert.ok(
       width <= FITS_DP,

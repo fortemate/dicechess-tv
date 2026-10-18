@@ -59,10 +59,11 @@ Removing the app deletes its saved game, results and settings. They never leave 
 6. Listen to the music follow the game: calm, then tense when enough rolls could take a king within three actions, then critical when a king is attacked. The tense measure uses the position at the start of the turn. **Settings**, in the home menu and in the game menu, has these rows:
    - **Music**: Left and Right set the volume from off to 10, and OK mutes it and brings it back at the same level.
    - **Sound effects** and **Voices**: on or off.
-   - **Play as**: Ask, Random (the default), White or Black, for games against the computer.
+   - **Play as**: Ask, Random (the default), White or Black, for new games against the computer; changing it leaves the running game as it is.
+   - On **Auto-play only move** and **Turn board for friends**, Left sets off, Right sets on, and OK toggles. Holding a direction keeps the value stable.
    - **Host for friends**: Prowla (the default), Rolly, Thinkle or off.
    - **Turn board for friends**: turns the board to the side to move in a game against a friend; off by default.
-   - **Auto-select only choice**: presses OK for you when the board offers only one move, one piece with one square to go to; a piece with a choice of squares, or one you pick up yourself, waits for your OK; off by default.
+   - **Auto-play only move**: automatically plays the only legal move, one piece with one square to go to; a piece with a choice of squares, or one you pick up yourself, waits for your OK; off by default.
 
 The whole game uses the D-pad, OK and Back; on the Virtual Device, those are the arrow keys, Enter and Esc. Keep the sound and the music on if you can.
 

@@ -347,7 +347,7 @@ export const settingsOptions = ({
   `Sounds: ${soundHeard(sound) ? sound.volume : 'off'}`,
   `Voices: ${voicesHeard(voices) ? voices.volume : 'off'}`,
   `Highlights: ${highlightsName(highlights)}`,
-  `Auto-select only choice: ${autoSelect ? 'on' : 'off'}`,
+  `Auto-play only move: ${autoSelect ? 'on' : 'off'}`,
   // Before the rows for games against a friend: it is about the computer's.
   `Play as: ${playAsName(playAs)}`,
   `Turn board for friends: ${turnHotseat ? 'on' : 'off'}`,
@@ -929,6 +929,11 @@ const settingsOpener = (state: ScreenState, from: 'home' | 'menu'): Overlay =>
         index: menuOptions(state.game).indexOf(SETTINGS_OPTION),
       };
 
+// A direction sets a stable switch value, including on remote repeats (#426).
+// OK alone toggles it, once on release.
+const switched = (on: boolean, key: BoardKey): boolean =>
+  key === 'select' ? !on : key === 'right';
+
 // What a sideways arrow, or OK, does to a row. What a row is comes from its
 // label: the rows differ with the build.
 const changed = (
@@ -967,18 +972,18 @@ const changed = (
   if (row.startsWith('Host for friends:'))
     return { ...state, host: cycleHost(state.host, by) };
   if (row.startsWith('Turn board for friends:'))
-    return { ...state, turnHotseat: !state.turnHotseat };
+    return { ...state, turnHotseat: switched(state.turnHotseat, key) };
   if (row.startsWith('Highlights:'))
     return { ...state, highlights: cycleHighlights(state.highlights, by) };
-  if (row.startsWith('Auto-select only choice:'))
-    return { ...state, autoSelect: !state.autoSelect };
+  if (row.startsWith('Auto-play only move:'))
+    return { ...state, autoSelect: switched(state.autoSelect, key) };
   return state;
 };
 
 // Up and Down walk the settings. The arrows sideways change the volume on the
 // music, sounds and voices rows, where OK mutes and unmutes (#346, #398), step
-// through the hosts on hers, and flip a switch on the others, as OK does, so
-// either habit works.
+// through enumerated choices, and set switches off with Left or on with Right.
+// OK toggles switches.
 const onSettings: Handler<'settings'> = (state, overlay, key) => {
   if (key === 'menu') return show(state, HOME);
   if (key === 'back') return show(state, settingsOpener(state, overlay.from));

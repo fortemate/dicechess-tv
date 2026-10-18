@@ -37,7 +37,7 @@ The primary action button handles roll initiation, piece selection, and move exe
 - **Pick up a piece:** Pressing OK on an active piece picks it up and positions the cursor on the move players usually make. If the piece can take, the cursor lands on the most valuable piece it can take, the king above all. A pawn that cannot take but can still advance two squares lands on the two-square push, and one arrow press towards the pawn reaches the single step. Any other piece lands on its most central destination square. If a landing would leave another destination out of the arrows' reach, the cursor lands on the central destination instead. On the Vega Virtual Device the two-square landing was seen in the tutorial's first step, and the capture landing in its two capture lessons and in a game against a friend; `test/boardInput.test.ts` and `native/test/screen.test.ts` check both.
 - **Play a move:** Pressing OK on a destination square executes the action. The piece smoothly slides to its new square in 220 ms on the native driver.
 - **Single-destination shortcut:** If a piece has only one legal destination, pressing **OK then OK** immediately plays the move.
-- **Only one move (optional):** With **Auto-select only choice** turned on in Settings, OK presses itself when the dice leave only one move: one piece with one square to go to is picked up and played there. A piece with several squares, or one you pick up yourself, waits for your OK. See [Auto-select Only Choice](#auto-select-only-choice-optional) below.
+- **Only one move (optional):** With **Auto-play only move** turned on in Settings, OK presses itself when the dice leave only one move: one piece with one square to go to is picked up and played there. A piece with several squares, or one you pick up yourself, waits for your OK. See [Auto-play Only Move](#auto-play-only-move-optional) below.
 - **Confirm menu items:** Selects the focused menu row. OK acts on release (`eventKeyAction === 1`), with a distinct 97% scale compression and highlight while held.
 - **Accidental press protection:** Following an empty roll ("No legal moves"), OK is guarded and ignored for 700 ms to prevent an unintentional double-press from skipping past the notice before you have read it.
 
@@ -110,16 +110,18 @@ _Resign?_ and _Replace this game?_ offer **Cancel** and **Yes**, with Cancel foc
 
 Settings opens from the home screen and from the game menu. Up and Down move between its rows; Back returns to the menu it was opened from, and Menu goes to the home screen. The rows, in order:
 
-| Row                         | Default  | Keys                                                                                                                                                                                  |
-| --------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Music**                   | 7        | Left and Right set the volume from 0 to 10, shown as ten rings: _Music: 7_, or _Music: off_ at 0. OK mutes the music, and pressed again brings it back at the same level.             |
-| **Sounds**                  | 10       | Left and Right set the volume from 0 to 10, shown as ten rings: _Sounds: 10_, or _Sounds: off_ at 0. OK mutes the sounds, and pressed again brings them back at the same level.       |
-| **Voices**                  | 10       | Left and Right set the volume from 0 to 10, shown as ten rings: _Voices: 10_, or _Voices: off_ at 0. OK mutes the voices, and pressed again brings them back at the same level.       |
-| **Play as**                 | Random   | Ask, Random, White or Black: the colour you play against the computer. Right and OK step forward, Left back.                                                                          |
-| **Host for friends**        | Prowla   | Prowla, Rolly, Thinkle or off: who hosts a game against a friend. Right and OK step forward, Left back.                                                                               |
-| **Turn board for friends**  | off      | Left, Right or OK turns it on or off. See [Turning the board](#turning-the-board-for-friends-optional).                                                                               |
-| **Highlights**              | Standard | Standard, Enhanced, Colour-blind or High contrast: how movable pieces, the piece in hand, destinations, the cursor and the last move are drawn. Right and OK step forward, Left back. |
-| **Auto-select only choice** | off      | Left, Right or OK turns it on or off. See [Auto-select only choice](#auto-select-only-choice-optional).                                                                               |
+| Row                        | Default  | Keys                                                                                                                                                                                  |
+| -------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Music**                  | 7        | Left and Right set the volume from 0 to 10, shown as ten rings: _Music: 7_, or _Music: off_ at 0. OK mutes the music, and pressed again brings it back at the same level.             |
+| **Sounds**                 | 10       | Left and Right set the volume from 0 to 10, shown as ten rings: _Sounds: 10_, or _Sounds: off_ at 0. OK mutes the sounds, and pressed again brings them back at the same level.       |
+| **Voices**                 | 10       | Left and Right set the volume from 0 to 10, shown as ten rings: _Voices: 10_, or _Voices: off_ at 0. OK mutes the voices, and pressed again brings them back at the same level.       |
+| **Highlights**             | Standard | Standard, Enhanced, Colour-blind or High contrast: how movable pieces, the piece in hand, destinations, the cursor and the last move are drawn. Right and OK step forward, Left back. |
+| **Auto-play only move**    | off      | Left sets off, Right sets on, and OK toggles. See [Auto-play only move](#auto-play-only-move-optional).                                                                               |
+| **Play as**                | Random   | Ask, Random, White or Black: your colour in new games against the computer. Changing this leaves the running game as it is. Right and OK step forward, Left back.                     |
+| **Turn board for friends** | off      | Left sets off, Right sets on, and OK toggles. See [Turning the board](#turning-the-board-for-friends-optional).                                                                       |
+| **Host for friends**       | Prowla   | Prowla, Rolly, Thinkle or off: who hosts a game against a friend. Right and OK step forward, Left back.                                                                               |
+
+The focused row shows its controls. Auto-play only move explains that it plays the only legal move for you; Play as explains that it selects your colour in new computer games. VoiceView announces these explanations when focus arrives, and only the new value when it changes. Holding Left or Right on either switch keeps the value stable.
 
 Each setting is saved on the TV as it changes and read again at the next launch. The tests check each press of the volume rows (`native/test/screen.test.ts`), that each is saved and read back (`native/test/soundApp.test.tsx`, `native/test/soundSetting.test.ts`, `native/test/voiceSetting.test.ts`, `native/test/highlights.test.tsx`), and that every row fits one line of the panel (`native/test/hints.test.tsx`).
 
@@ -172,9 +174,11 @@ When two players share a sofa or sit opposite each other, looking at an upside-d
 - After the roll, the cursor appears on a piece of the active player that can move, on their side of the board. Two tests check this: `native/test/screen.test.ts`, that the cursor starts on Black's side when the board turns, and `native/test/input.test.tsx`, that its frame appears only after the roll.
 - The setting is saved to device storage via MMKV and read again at the next launch; `native/test/turnSetting.test.ts` checks that it is saved and read back.
 
-### Auto-select Only Choice (Optional)
+<a id="auto-select-only-choice-optional"></a>
 
-Some moves leave nothing to decide: the dice let one piece move, and it has one square to go to. In **Settings**, players can enable **Auto-select only choice** (off by default), and OK then presses itself for such a move: the piece is picked up and played there ([issue 302](https://github.com/fortemate/dicechess-tv/issues/302), narrowed in [issue 360](https://github.com/fortemate/dicechess-tv/issues/360)):
+### Auto-play Only Move (Optional)
+
+Some moves leave nothing to decide: the dice let one piece move, and it has one square to go to. In **Settings**, players can enable **Auto-play only move** (off by default), and OK then presses itself for such a move: the piece is picked up and played there ([issue 302](https://github.com/fortemate/dicechess-tv/issues/302), narrowed in [issue 360](https://github.com/fortemate/dicechess-tv/issues/360)):
 
 - **Only the only move:** a piece with several squares is never picked up for you, even when it is the only piece that can move. An OK you press by habit only picks it up, and where it goes stays your choice.
 - **A piece you pick up yourself waits for your OK,** even when it has only one square.

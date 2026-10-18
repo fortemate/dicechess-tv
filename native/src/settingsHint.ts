@@ -1,5 +1,5 @@
-// Controls for the focused Settings row (#422). The compact note fits the TV
-// panel; VoiceView gets the same actions in full words. Match the row rather
+// Controls and explanation for the focused Settings row. The compact note fits
+// the TV panel; VoiceView gets the same actions in full words. Match the row rather
 // than its index, since a build without music omits that row.
 const AUDIO = {
   note: 'Left/Right: volume · OK: mute/unmute',
@@ -7,8 +7,8 @@ const AUDIO = {
 };
 
 const SWITCH = {
-  note: 'Left/Right or OK: on/off',
-  spokenNote: 'Left, Right or OK switch this on or off.',
+  note: 'Left: off · Right: on · OK: toggle',
+  spokenNote: 'Left switches off. Right switches on. OK toggles.',
 };
 
 const CHOICE = {
@@ -16,12 +16,23 @@ const CHOICE = {
   spokenNote: 'Left, Right or OK change this setting.',
 };
 
-export const settingsHint = (row: string) => {
+const controls = (row: string) => {
   if (/^(Music|Sounds|Voices):/.test(row)) return AUDIO;
   if (
     row.startsWith('Turn board for friends:') ||
-    row.startsWith('Auto-select only choice:')
+    row.startsWith('Auto-play only move:')
   )
     return SWITCH;
   return CHOICE;
 };
+
+export const settingsHint = (row: string) => ({
+  ...controls(row),
+  // Reserve a line below the rows, so their positions stay the same as focus
+  // moves. These settings affect gameplay beyond what their short labels say.
+  description: row.startsWith('Auto-play only move:')
+    ? 'Plays the only legal move for you.'
+    : row.startsWith('Play as:')
+      ? 'Your colour in new computer games.'
+      : '',
+});

@@ -46,7 +46,7 @@ The owner reported submitting version 1.0.1, build 30, to the Amazon Appstore fo
 - **Play the computer**: Rolly (Easy), Grabby (Medium) or Rampage (Hard). OK on a card starts the game in the colour **Play as** names in Settings, Random unless you change it.
 - **Play a friend** with someone else in the room, passing the remote. Prowla the cat hosts, unless Settings names Rolly, Thinkle or no host.
 - **Rules reference**, to look something up, from the home screen or the game menu.
-- The music as a game gets tense. **Settings** sets its volume, turns the sound effects and the voices on or off, and has the rows for Play as, the host, turning the board for friends and **Auto-select only choice**. [Controls](/play/controls/) describes every menu and every row.
+- The music as a game gets tense. **Settings** sets its volume, turns the sound effects and the voices on or off, and has the rows for Play as, the host, turning the board for friends and **Auto-play only move**. [Controls](/play/controls/) describes every menu and every row.
 - **Main menu** in the game menu, which leaves a game for the home screen, and **Resume game** there, which comes back to it.
 
 ## Tell us what you found

@@ -135,6 +135,29 @@ test('Random, White or Black starts the game from the card with one OK', () => {
   }
 });
 
+test('changing Play as from either menu leaves a running friend or computer game untouched', () => {
+  for (const game of [
+    inPlay(),
+    rollGame(newGame('random', 'computer', undefined, 'w', 'w'), [5, 4, 2]),
+  ]) {
+    for (const from of ['home', 'menu'] as const) {
+      let state = home('random', game);
+      if (from === 'menu')
+        state = drive(state, 'select', 'back', 'up', 'select');
+      else state = drive(state, 'up', 'up', 'select');
+      state = drive(state, 'down', 'down', 'down', 'down');
+      for (const expected of ['w', 'b', 'ask', 'random'] as const) {
+        state = drive(state, 'select');
+        assert.equal(state.playAs, expected);
+        assert.equal(state.game, game);
+      }
+      state = drive(state, 'back');
+      assert.equal(state.overlay.kind, from);
+      assert.equal(state.game, game);
+    }
+  }
+});
+
 test('Ask opens the choice of colour, as before, and Back returns to the cards', () => {
   const colour = drive(home('ask'), 'down', 'select', 'right', 'select');
   assert.deepEqual(colour.overlay, {
