@@ -247,73 +247,63 @@ tagged, so until `v1.0.0+26` existed `mise run build` numbered local builds 8, a
 
 ### Building the packages
 
-One commit gives two sets of packages:
+Starting with 1.0.3/build 34, GitHub and Appstore packages include the same
+tracked portrait pack from `native/portraits/`. A normal clone needs no separate
+asset checkout. The original notice and digest lock stay with the pack; its
+restricted license is unchanged. `native/scripts/vendor-portraits.mjs` is only
+needed when refreshing the pack from its source.
 
-- **For GitHub**: armv7, aarch64 and x86_64, with `SHA256SUMS.txt`, all without the
-  portraits, which stay out of this public repository ("Portraits" in
-  [native/README.md](native/README.md#portraits)).
-- **For the Appstore**, or Live App Testing for a beta: the armv7 package only, with
-  the portrait pack that `PORTRAITS_VERSION` in `native/src/Portrait.tsx` names,
-  vendored into `native/portraits/` first.
+Build armv7, aarch64 and x86_64 together. Use armv7 for the physical Fire TV
+Stick and the Appstore; collect all three for GitHub, with `SHA256SUMS.txt`.
+Remove the previous generated `native/build/` first: the Vega SDK can otherwise
+retain stale assets from an earlier build.
 
-Two traps decide the steps below:
-
-- A checkout without the vendored portraits builds without a word, and the game then
-  shows emoji faces. So count the portraits in the Appstore package.
-- The Vega build copies assets into `native/build/` and never deletes stale ones, so a
-  package built after one with portraits still ships them. So remove `native/build`
-  before each set, and count the portraits in the GitHub packages too.
-
-After the version pull request merges, choose the build number: higher than every
-earlier build, whether tagged or only in Live App Testing. The commands below take the
-newest tag's number plus one, 31 after `v1.0.1+30`; raise it by hand if Live App
-Testing holds an untagged build above that. For a beta, the tag is
-`v$version-beta.$build` instead. `git ls-remote` prints nothing for a new tag, and the
-packages are collected next to the checkout:
+After the version pull request merges, build from its final main commit. Choose
+a build number above every earlier release or Live App Testing upload. The next
+planned release is 1.0.3/build 34, following `v1.0.2+33`; raise 34 if a newer
+upload has used it. Do not override the manifest version with `--build-version`.
 
 ```bash
 git switch main && git pull --ff-only
 npm ci && npm ci --prefix native
 version=$(grep -m1 '^version = ' native/manifest.toml | sed 's/.*"\(.*\)".*/\1/')
-last=$(git ls-remote --tags origin 'v*' | sed -nE 's#.*refs/tags/v[^[:space:]]*(-beta[.]|[+])([0-9]+)$#\2#p' | sort -n | tail -1)
-build=$((last + 1))
+build=34
 tag="v$version+$build"
 commit=$(git rev-parse HEAD)
 git ls-remote --tags origin "refs/tags/$tag"
-out="../dicechess-tv-$tag" && mkdir -p "$out/appstore" "$out/github"
-```
-
-The Appstore package comes first, while the portraits are in place. Its portrait count
-must be 10, a badge and a card for each of the five characters in `CHARACTERS` in
-`native/src/Portrait.tsx` (#334), as 1.0.0's was, and `vpt info` must show the version
-and the build number. `tar` reads a `.vpkg` when `zstd` is on the `PATH`.
-
-```bash
+out="../dicechess-tv-$tag" && mkdir -p "$out/github" "$out/appstore"
 rm -rf native/build
 npm run build --prefix native -- --build-number "$build"
-pkg=native/build/armv7-release/dicechess-tv-native_armv7.vpkg
-tar tf "$pkg" | grep -c portraits/
-vega exec vpt info "$pkg" --json
-cp "$pkg" "$out/appstore/"
+node native/scripts/notices.mjs --build
 ```
 
-The GitHub packages are built with the portraits moved aside, and each must count 0:
+Before collecting the packages, check each archive with `vega exec vpt info`
+and `tar`: the manifest and build metadata must agree on the version, the build
+number must be the chosen one, and the native library must match the target
+processor. Each package must contain exactly ten portrait PNGs under
+`assets/portraits/1.4.1/`: a badge and a card for each character in
+`CHARACTERS` in `native/src/Portrait.tsx`. The other source portraits and
+Thinkle's SVG are not runtime assets; the SVG draws the splash at build time.
+`tar` reads a `.vpkg` when `zstd` is on the `PATH`.
 
 ```bash
-mv native/portraits "$out/portraits"
-rm -rf native/build
-npm run build --prefix native -- --build-number "$build"
-mv "$out/portraits" native/portraits
-for pkg in native/build/*-release/*.vpkg; do echo "$(tar tf "$pkg" | grep -c portraits/) $pkg"; done
+for pkg in native/build/*-release/*.vpkg; do
+  vega exec vpt info "$pkg" --json
+  tar tf "$pkg" | grep -c 'assets/portraits/.*[.]png$'
+done
 cp native/build/*-release/*.vpkg "$out/github/"
+cp native/build/armv7-release/dicechess-tv-native_armv7.vpkg "$out/appstore/"
 (cd "$out/github" && shasum -a 256 *.vpkg > SHA256SUMS.txt)
 ```
 
-Upload `$out/appstore/dicechess-tv-native_armv7.vpkg` in the Amazon Developer Console:
-as a new version of the app for a release, or to Live App Testing for a beta. Then tag
-the commit that was built and publish the GitHub set on that tag, as 1.0.0 was: an
-annotated, signed tag, pushed first, and the release made on the existing tag. Write
-the notes to `$out/RELEASE_NOTES.md` first.
+Validate the upgrade on a device without uninstalling, check that saved data
+and settings survive, and compare the installed JavaScript and Hermes hashes
+with the package. Record the target and the actions checked separately from
+other evidence. Copy the prepared release notes to `$out/RELEASE_NOTES.md`.
+
+The owner then publishes the set built from that exact main commit. Check that
+the tag is unused, create an annotated signed tag, push it, and create the
+release on the existing tag:
 
 ```bash
 if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null; then
@@ -321,19 +311,18 @@ if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null; then
 else
   git tag -s "$tag" "$commit" -m "Dice Chess $version, build $build"
   git push origin "refs/tags/$tag"
-  gh release create "$tag" "$out"/github/* --verify-tag --title "Dice Chess $version" --notes-file "$out/RELEASE_NOTES.md"
+  gh release create "$tag" "$out"/github/* --verify-tag --title "Dice Chess $version, build $build" --notes-file "$out/RELEASE_NOTES.md"
 fi
 ```
 
-For a beta, add `--prerelease` and say "beta" and its number in the title. The tag
-check matters: a tag that already exists may point at older code, and the new packages
-would be published as if built from it. `--verify-tag` makes `gh release create`
-abort unless the tag is already on GitHub, so it never creates a tag of its own from
-the default branch; `--target` only says where such a tag would go, and is not needed.
-`v1.0.0+26` is an annotated tag on dac3302 with an SSH signature, and its release was
-made on it with `--verify-tag`.
-`--generate-notes` instead of `--notes-file` groups the merged pull requests by the
-labels in `.github/release.yml`.
+For a beta, use `v$version-beta.$build` and `--prerelease`. `--verify-tag`
+requires the tag to exist on GitHub, so the release command cannot create a tag
+on a different commit. Read back the published tag, metadata and downloads,
+and verify the downloaded packages against the checksum manifest.
+
+The armv7 package may be uploaded separately in the Amazon Developer Console
+when the owner authorizes an Appstore or Live App Testing submission. A GitHub
+release does not establish Appstore approval or availability.
 
 ## The project site
 

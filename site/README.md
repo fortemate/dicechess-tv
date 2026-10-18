@@ -83,7 +83,7 @@ These are the in-game voices, not the older audition on `/voices/`.
 copied unchanged from portrait pack 1.4.1. `NOTICE.txt` preserves their terms and
 `provenance.json` records the source commit and SHA-256 of each PNG. They remain
 outside the AGPL, as do the game's recordings. The site does not need access to
-the full private portrait pack, and native builds do not use these copies.
+the full native portrait pack, and native builds do not use these copies.
 
 `src/opponentExamples.ts` defines the teaching positions drawn with the existing
 RhosGFX pieces. `test/opponent-examples.test.ts` checks that every shown sequence

@@ -9,7 +9,7 @@ Most checks run in Node: unit tests of the shared core and of the app's screens,
 
 ## The Test Suite
 
-Three packages have tests, all on Node's own test runner (`node --test`) with the Node version in `mise.toml`. Counts and times are as of October 10, 2026, on a Mac:
+Three packages have tests, all on Node's own test runner (`node --test`) with the Node version in `mise.toml`. Counts and times are from the October 18, 2026, local check on a Mac:
 
 <div class="suite-cards">
   <article class="suite-card">
@@ -18,8 +18,8 @@ Three packages have tests, all on Node's own test runner (`node --test`) with th
         Core Suite <code>test/</code>
       </div>
       <div class="suite-card-metrics">
-        <span class="suite-badge count">306 tests</span>
-        <span class="suite-badge duration">about 1 s</span>
+        <span class="suite-badge count">334 tests</span>
+        <span class="suite-badge duration">about 14 s</span>
       </div>
     </div>
     <p class="suite-card-scope">
@@ -37,8 +37,8 @@ Three packages have tests, all on Node's own test runner (`node --test`) with th
         App Suite <code>native/test/</code>
       </div>
       <div class="suite-card-metrics">
-        <span class="suite-badge count">501 tests</span>
-        <span class="suite-badge duration">about 7 s</span>
+        <span class="suite-badge count">624 tests</span>
+        <span class="suite-badge duration">about 25 s</span>
       </div>
     </div>
     <p class="suite-card-scope">
@@ -49,7 +49,7 @@ Three packages have tests, all on Node's own test runner (`node --test`) with th
       <code>node --test</code> with esbuild module hooks (<code>native/test/hooks.mjs</code>); <code>react-test-renderer</code> over hand-written stubs of <code>react-native</code> and the <code>@amazon-devices</code> packages.
     </div>
     <div class="suite-card-note">
-      2 skipped tests need the opponents’ portraits, which the public repository does not hold.
+      The tracked portrait pack is checked in CI: its version, every pinned image and the original notice. These checks are required.
     </div>
   </article>
 
@@ -59,7 +59,7 @@ Three packages have tests, all on Node's own test runner (`node --test`) with th
         Web Bench <code>web/test/</code>
       </div>
       <div class="suite-card-metrics">
-        <span class="suite-badge count">8 tests</span>
+        <span class="suite-badge count">11 tests</span>
         <span class="suite-badge duration">under 1 s</span>
       </div>
     </div>
@@ -78,8 +78,8 @@ Three packages have tests, all on Node's own test runner (`node --test`) with th
         Total
       </div>
       <div class="suite-card-metrics">
-        <span class="suite-badge count highlight">815 tests</span>
-        <span class="suite-badge duration highlight">about 9 s</span>
+        <span class="suite-badge count highlight">969 tests</span>
+        <span class="suite-badge duration highlight">about 40 s</span>
       </div>
     </div>
     <p class="suite-card-scope">
@@ -102,7 +102,7 @@ Three packages have tests, all on Node's own test runner (`node --test`) with th
 
 ### Audio regression checks, October 14, 2026
 
-The audio work in [PR #388](https://github.com/fortemate/dicechess-tv/pull/388) passed `mise run check` with 325 core, 586 native and 8 browser tests: 919 in total, including 33 added native regressions. They cover readiness and delayed playback, completion and cleanup, stale events, bounded failure and retry, silence during crossfade errors, and verified MP3 tag removal. These counts describe that PR's local checkout; the breakdown above retains the earlier public-checkout snapshot.
+The audio work in [PR #388](https://github.com/fortemate/dicechess-tv/pull/388) passed `mise run check` with 325 core, 586 native and 8 browser tests: 919 in total, including 33 added native regressions. They cover readiness and delayed playback, completion and cleanup, stale events, bounded failure and retry, silence during crossfade errors, and verified MP3 tag removal. These counts describe that PR's local checkout on October 14. The breakdown above describes the current October 18, 2026 check: 334 core, 624 native and 11 browser-bench tests, 969 in total.
 
 Release packages were built for armv7, aarch64 and x86_64. Separate VVD and physical Stick runs covered ten minutes of playback, all six tutorial lessons and all 45 tutorial clips, settings and Home/relaunch, plus eight injected crossfade failure/silence cases per device. Native events and release completions support the hardware result; recorded audio is from VVD. Clean packages were installed afterward, deployed JS/Hermes hashes matched their archives, and saved data and CRC matched their pre-test backups. The [validation record](https://github.com/fortemate/dicechess-tv/blob/c6109575aae7f0f125e8ff5b53566b089ed9de8f/docs/audio-regression-validation-387.md) separates the device, automated and package evidence, including cold Home recovery and the remaining warm-focus and physical-listening limits.
 

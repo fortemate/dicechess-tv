@@ -42,9 +42,8 @@ the title; Arimo sets the name next to the mark, in plain type.
 
 ## Without the portraits
 
-The portraits are private, and git ignores `portraits/` while this repository is
-public. A checkout without them, CI's for one, draws Thinkle's starry hat in the
-medallion instead; everything else is the same. `test/splash.test.ts` draws
+The portrait pack and Thinkle's vector are tracked in `native/portraits/`.
+A deliberately stripped checkout draws Thinkle's starry hat in the medallion instead; everything else is the same. `test/splash.test.ts` draws
 both: a stand-in portrait and the hat.
 
 ## Size
@@ -63,8 +62,7 @@ from `mise.toml` (`process.versions.zlib` tells them apart).
 
 On the Stick, a smaller archive did not prepare faster: with frames compressed
 to 2.82 MB, "Time to initialize assets" had a median of 996 ms over five cold
-starts, against 948 ms for the 3.02 MB archive (#324). Without the portraits,
-as in CI, the archive is about 2.1 MB.
+starts, against 948 ms for the 3.02 MB archive (#324). Without the portraits, the archive is about 2.1 MB.
 
 ## Changing it
 

@@ -5,7 +5,7 @@
 //
 // Every assertion here reads the file that was actually written, not the
 // buffer that was meant to be written, except where a test draws the scene
-// itself to try both medallions: CI has no private portraits.
+// itself to try both medallions, including a checkout stripped of portraits.
 import { after, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';

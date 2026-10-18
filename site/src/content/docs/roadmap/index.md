@@ -14,7 +14,7 @@ Every feature here was played on the Vega Virtual Device, and the app's automate
 - **Play a friend** on one remote, and **saving** after every action.
 - **A six-lesson tutorial**, offered on the first launch and leading into a first game, and a **rules guide**.
 - **Sound** for every step of the game.
-- **Three computer opponents**, Rolly, Grabby and Rampage, as either color, each with a portrait drawn for the game, speech bubbles and a synthetic voice. They are fairy-tale characters, a pixie, a goblin and a little horned imp, and their voices act their lines. An opponent talks from beside its portrait at the top of the screen. The Appstore build has the portraits; the GitHub packages show emoji faces in their place.
+- **Three computer opponents**, Rolly, Grabby and Rampage, as either color, each with a portrait drawn for the game, speech bubbles and a synthetic voice. They are fairy-tale characters, a pixie, a goblin and a little horned imp, and their voices act their lines. An opponent talks from beside its portrait at the top of the screen. Normal source builds include the portraits. GitHub releases through 1.0.2/build 33 omit them; the planned 1.0.3/build 34 packages include them too.
 - **Prowla the cat, Rolly or Thinkle the wizard hosts games against a friend**: the host cheers both players at the pauses of a game and at its big moments, castling among them, and shows with the line while speaking. Settings chooses Prowla, Rolly, Thinkle or no host.
 - **Moves that slide** to their squares, so an opponent's turn can be followed.
 - **Dice that tumble in** on a roll, and dim when no legal turn can use them.

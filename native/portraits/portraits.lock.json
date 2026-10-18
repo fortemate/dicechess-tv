@@ -1,0 +1,116 @@
+{
+  "source": {
+    "repository": "fortemate/dicechess-assets",
+    "commit": "9e7606cf253275e62276bf069aa1ca1e35970207",
+    "pack": "portraits/dicechess-cast",
+    "version": "1.4.1"
+  },
+  "license": "Fortemate apps only",
+  "notice": {
+    "file": "NOTICE.txt",
+    "sha256": "7ee86aa3c0edd27fb17a20ac9fa38a00933d61c37222f30be533a577faadce51"
+  },
+  "files": {
+    "rolly-card-336.png": {
+      "sha256": "d179189376f40f62d58c95a621cff0e9ca12a420d576c1ab89dd2f6ad6ae745f",
+      "character": "rolly",
+      "kind": "card",
+      "size": 336
+    },
+    "rolly-badge-128.png": {
+      "sha256": "b6520e442e1bddbbbaa7d940c81c15fb71e424aefd7ba6e547108a837584eff3",
+      "character": "rolly",
+      "kind": "badge",
+      "size": 128
+    },
+    "grabby-card-336.png": {
+      "sha256": "0bbaeacbf9d1312f1edfc8e3831d486d1e4fbca6171c849835704b05fbea6ffb",
+      "character": "grabby",
+      "kind": "card",
+      "size": 336
+    },
+    "grabby-badge-128.png": {
+      "sha256": "3af0151f7c7f26b0fe2bda8da8a2a97d3418bae6b3ddafea261d5dc6bac4c3e3",
+      "character": "grabby",
+      "kind": "badge",
+      "size": 128
+    },
+    "rampage-card-336.png": {
+      "sha256": "ba23c29df95abbacf09bc73599522672622dc299f6d55257c405d4e767ec1a99",
+      "character": "rampage",
+      "kind": "card",
+      "size": 336
+    },
+    "rampage-badge-128.png": {
+      "sha256": "d77fd904a1a7db83da24bcec42b064620f6a5bb89ad80489b33842298f763c29",
+      "character": "rampage",
+      "kind": "badge",
+      "size": 128
+    },
+    "thinkle-card-336.png": {
+      "sha256": "0378d199605a65ae163d22709f48499d386c5b683ebf359e6983c49e6e104749",
+      "character": "thinkle",
+      "kind": "card",
+      "size": 336
+    },
+    "thinkle-badge-128.png": {
+      "sha256": "a354b5fa6dda2977df355cb7a123242136771cdb1bfadc453d1bf81093017394",
+      "character": "thinkle",
+      "kind": "badge",
+      "size": 128
+    },
+    "ashby-card-336.png": {
+      "sha256": "eeed531bdef2c95ad2dcdb96964d151e2166ceb0fb667209c242b43550ff51ce",
+      "character": "ashby",
+      "kind": "card",
+      "size": 336
+    },
+    "ashby-badge-128.png": {
+      "sha256": "5c9153fcfc1ae904bd26c2ad8bd22c06e72808f1968ebafb0ea3bcbd4d39178e",
+      "character": "ashby",
+      "kind": "badge",
+      "size": 128
+    },
+    "cat-card-336.png": {
+      "sha256": "ef863458f35508aee973a328005c69389a70640a1bc93bab54f89ce8ca76692d",
+      "character": "cat",
+      "kind": "card",
+      "size": 336
+    },
+    "cat-badge-128.png": {
+      "sha256": "a3bd285b3a2c2daec10afd86150f965eec1af46710a4d39467a9db0ff3c2cda0",
+      "character": "cat",
+      "kind": "badge",
+      "size": 128
+    },
+    "cat-blue-card-336.png": {
+      "sha256": "27763132e7df77a39b14b93e9c5107993d663aaeb432e6a345db29c8c6ea4018",
+      "character": "cat-blue",
+      "kind": "card",
+      "size": 336
+    },
+    "cat-blue-badge-128.png": {
+      "sha256": "1de453bb43cce88ecea73ab9ae1170341c14b8b8df794504aff6949943226104",
+      "character": "cat-blue",
+      "kind": "badge",
+      "size": 128
+    },
+    "cat-green-card-336.png": {
+      "sha256": "2f3ecdbc2e54191acfe41e00a98890480ba467bb71991c1eeeeb1ee456d99314",
+      "character": "cat-green",
+      "kind": "card",
+      "size": 336
+    },
+    "cat-green-badge-128.png": {
+      "sha256": "d2e1d7d54cc634696925070f01d62229a891f9b0edb30157eaad8b59b4fc88e2",
+      "character": "cat-green",
+      "kind": "badge",
+      "size": 128
+    },
+    "thinkle.svg": {
+      "sha256": "91fff270f276080788aef19cda4dc093934b4e992330dfeb4a82d361ad678685",
+      "character": "thinkle",
+      "kind": "vector"
+    }
+  }
+}
