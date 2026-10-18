@@ -8,8 +8,9 @@ This is a preparation record. Publication is pending the owner's version-PR merg
 
 - `mise run check` passed: 334 core, 619 native and 11 browser-bench tests, 964 total, with no skipped tests. Types, lint, formatting, whitespace, Metro, bundled notices and the browser build passed.
 - A clean Vega SDK 0.24 Release build produced armv7, aarch64 and x86_64 packages. All three archives report version 1.0.2/build 33 in their build metadata and version 1.0.2 in their manifest; their native-library architecture matches their filename.
-- The private portraits and previous build directory were moved aside before the public build. Every public archive contains zero portrait files. The local portrait pack was restored afterward. The asset generator also regenerated the public splash and credits metadata without the portraits.
+- The private portraits and previous build directory were moved aside before the public build. Every public archive contains zero portrait files. The local portrait pack was restored afterward. The public splash was regenerated without the portraits; About selected the credits for both pieces and opponent faces when the missing portrait failed to load.
 - `SHA256SUMS.txt` covers the three candidate packages and passes verification. JavaScript and Hermes bundles match across all three architectures and the ordinary build of `d61188a` previously installed on the physical Stick. No diagnostic application fixture was introduced.
+- Comparing the public armv7 candidate with that earlier portrait-equipped armv7 package found 282 identical application files, including the audio, code and native library. The differences are the manifest version, generated asset index and public splash, with the ten portraits removed.
 
 | Public candidate                   | SHA-256                                                            |
 | ---------------------------------- | ------------------------------------------------------------------ |
