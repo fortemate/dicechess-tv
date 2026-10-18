@@ -12,23 +12,24 @@ through the introduction and tutorial, calm from the first Hot Seat game, then
 critical at the recorded threat to the king. The earlier narrated cut is retained in
 `storyboard-narrated.json` for a later version.
 
-The v9 cut (`storyboard-v9.json`, October 2026) opens on 20 s of the
-International Dice Chess Federation's tournament footage under the owner's own
-voice, keeps the game scenes with shorter cards, and closes on a "Built with"
-scene in his voice too. Its footage and his recordings stay out of the
-repository, under `dist/demo-video/footage/` and `dist/demo-video/voice/`.
+The v9 cut (`storyboard-v9.json`, October 2026) opens on 24 s of the
+International Dice Chess Federation's tournament footage, with Thinkle telling
+the problem the game answers in the third person, keeps the game scenes with
+shorter cards, and closes on a "Built with" scene that he narrates too. His
+lines for it are vendored into `narration-v9/` like the earlier pack. The
+footage stays out of the repository, under `dist/demo-video/footage/`.
 
-| File                   | What it does                                                                                                            |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `record.ts`            | Drives the Virtual Device through the gameplay takes with `vvd`; also renders one cycle of the built launch animation.  |
-| `storyboard.json`      | The cut: each scene's name (its chapter), the stretches of takes it shows, its optional title card, and the end card.   |
-| `storyboard-v9.json`   | The v9 cut: the federation footage with captions and the owner's voice-over, then the game scenes, then "Built with".   |
-| `voice-over.json`      | The owner's voice-over lines: which recording each is cut from, where, and its words. `voice-over.mjs` cuts them.       |
-| `assemble.ts`          | Cuts the picture, mixes continuous music with synchronized game sounds, and checks the export.                          |
-| `soundtrack.ts`        | Resolves music transitions and recorded voice/effect events onto the finished timeline.                                 |
-| `cards.swift`          | Draws the "Vega Virtual Device on macOS" badge, title cards and end card, in the app's colors.                          |
-| `vendor-narration.mjs` | Vendors Thinkle's narration from fortemate/dicechess-assets at a pinned commit into `narration/`, with its license.     |
-| `narration/`           | The narration: 15 clips, the pack's manifest and license, and `narration.json`, which `test/demo-video.test.ts` checks. |
+| File                   | What it does                                                                                                                                                       |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `record.ts`            | Drives the Virtual Device through the gameplay takes with `vvd`; also renders one cycle of the built launch animation.                                             |
+| `storyboard.json`      | The cut: each scene's name (its chapter), the stretches of takes it shows, its optional title card, and the end card.                                              |
+| `storyboard-v9.json`   | The v9 cut: the federation footage with captions and Thinkle's narration, then the game scenes, then "Built with".                                                 |
+| `narration-v9/`        | Thinkle's lines for v9: 8 clips, the pack's manifest and licence, and `narration-v9.json`, which the test checks.                                                  |
+| `assemble.ts`          | Cuts the picture, mixes continuous music with synchronized game sounds, and checks the export.                                                                     |
+| `soundtrack.ts`        | Resolves music transitions and recorded voice/effect events onto the finished timeline.                                                                            |
+| `cards.swift`          | Draws the "Vega Virtual Device on macOS" badge, title cards and end card, in the app's colors.                                                                     |
+| `vendor-narration.mjs` | Vendors a narration pack from fortemate/dicechess-assets at a pinned commit, with its license: the first pack into `narration/`, the v9 pack into `narration-v9/`. |
+| `narration/`           | The narration: 15 clips, the pack's manifest and license, and `narration.json`, which `test/demo-video.test.ts` checks.                                            |
 
 ## What it needs
 
@@ -112,7 +113,7 @@ repository, under `dist/demo-video/footage/` and `dist/demo-video/voice/`.
      continuous soundtrack, except at its opening and closing fades. It warns of
      any chapter shorter than the 10 s YouTube needs. These are checked by assemble.ts, not on a device.
 
-## Footage from elsewhere, captions and the owner's voice (v9)
+## Footage from elsewhere, captions and the v9 narration
 
 - A clip with `source` names a file under `dist/demo-video/footage/`
   (`FOOTAGE`) instead of a take: the federation's tournament recordings, which
@@ -131,14 +132,13 @@ repository, under `dist/demo-video/footage/` and `dist/demo-video/voice/`.
 - `badge` may be a string naming another device, drawn where the Virtual Device
   badge goes: a clip filmed off a television with a Fire TV Stick says so.
   Footage that is not the app's carries no badge at all (`false`).
-- The owner's voice-over is placed like Thinkle's lines, by id, and the
-  continuous soundtrack ducks under it as it does under the game's voices.
-  `voice-over.json` says which recording each line comes from and where;
-  `node scripts/demo-video/voice-over.mjs` cuts them into `dist/demo-video/voice/`
-  (`VOICE`), faded, lifted a little at 3 kHz for a lavalier on the chest, and
-  brought to the narration's loudness. The recordings are his own and are not
-  committed; a storyboard that places a line he has not recorded fails to
-  assemble.
+- Thinkle's v9 lines are placed like his others, by id, and the continuous
+  soundtrack ducks under them as it does under the game's voices. They are the
+  pack `elevenlabs-dicechess-demo-thinkle-v9` of fortemate/dicechess-assets,
+  vendored with `node scripts/demo-video/vendor-narration.mjs <checkout> <commit>
+elevenlabs-dicechess-demo-thinkle-v9 narration-v9`. The owner recorded the
+  intro in his own voice and tried a clone of it, and chose Thinkle over both
+  on 18 October 2026, so no other narrator is heard.
 - A card's `lines` are drawn smaller under its title, for the "Built with"
   card; the end card's `builtWith` line sits above its footer.
 

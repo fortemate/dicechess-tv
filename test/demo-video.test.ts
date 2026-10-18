@@ -228,9 +228,9 @@ test('the preliminary soundtrack carries music across every card', () => {
   assert.match(preview.end.footer, /JDSherbert/);
 });
 
-// The v9 cut: the federation's footage with captions under the owner's voice,
+// The v9 cut: the federation's footage with captions under Thinkle's narration,
 // the game scenes, and the Built-with scene, under three minutes.
-test("the v9 cut opens on credited footage, speaks in the owner's voice, and stays under three minutes", () => {
+test('the v9 cut opens on credited footage, names the track tool, and stays under three minutes', () => {
   const v9 = JSON.parse(
     readFileSync(join(HERE, 'storyboard-v9.json'), 'utf8'),
   ) as {
@@ -260,18 +260,31 @@ test("the v9 cut opens on credited footage, speaks in the owner's voice, and sta
       narration?: Narration[];
     };
   };
+  // The lines he adds for v9 are vendored as the asset repository published
+  // them, like the earlier pack, with their licence beside them.
+  const OWNER = join(HERE, 'narration-v9');
   const owner = JSON.parse(
-    readFileSync(join(HERE, 'voice-over.json'), 'utf8'),
+    readFileSync(join(OWNER, 'narration-v9.json'), 'utf8'),
   ) as {
-    lines: Record<
-      string,
-      { source: string; from: number; to: number; text: string }
-    >;
+    commit: string;
+    pack: string;
+    licenseFile: string;
+    files: Record<string, string>;
+    lines: Record<string, Line>;
   };
+  assert.match(owner.commit, /^[0-9a-f]{40}$/);
+  assert.equal(owner.pack, 'elevenlabs-dicechess-demo-thinkle-v9');
+  assert.ok(owner.files[owner.licenseFile]);
+  const digestOf = (name: string) =>
+    createHash('sha256')
+      .update(readFileSync(join(OWNER, name)))
+      .digest('hex');
+  for (const [name, digest] of Object.entries(owner.files))
+    assert.equal(digestOf(name), digest, name);
   for (const [id, line] of Object.entries(owner.lines)) {
-    assert.match(id, /^owner_/, id);
-    assert.ok(line.to > line.from && line.from >= 0, id);
-    assert.ok(line.text.trim(), id);
+    assert.match(id, /^thinkle_/, id);
+    assert.equal(owner.files[line.file], line.sha256, id);
+    assert.ok(line.seconds > 0 && line.text.trim(), id);
   }
   let duration = v9.end.seconds;
   const spoken: string[] = [];
@@ -312,7 +325,7 @@ test("the v9 cut opens on credited footage, speaks in the owner's voice, and sta
     ),
   );
   assert.match(v9.end.builtWith ?? '', /React Native for Vega/);
-  // His own lines are said once each; the owner's intro and Built-with lines are all placed.
+  // Each line is said once; every line of the v9 pack is placed.
   for (const id of spoken)
     assert.ok(lineOf(id) ?? owner.lines[id], `${id} has no clip`);
   assert.equal(new Set(spoken).size, spoken.length);

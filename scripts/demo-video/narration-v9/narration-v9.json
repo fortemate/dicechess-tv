@@ -1,0 +1,70 @@
+{
+  "upstream": "fortemate/dicechess-assets",
+  "commit": "dc63b344e819e0e531ad1510f2759831747949a8",
+  "pack": "elevenlabs-dicechess-demo-thinkle-v9",
+  "title": "Dice Chess TV demo video v9, narrated by Thinkle (ElevenLabs)",
+  "license": "Fortemate apps only",
+  "licenseFile": "LICENSE.txt",
+  "files": {
+    "manifest.json": "7f8be5e3d2eb84aa72e85c629816d04478957020abab480b65f5f15a6f0bcd5a",
+    "LICENSE.txt": "1060917a92920ba2cde2cff49afb5fa1a6687b2109542c0e141da42656b3697f",
+    "thinkle_built_vega_1.mp3": "549dffa1a33c9c74ffd0a9163c739a5363bd7744b7f5adf69f1fb412c803de29",
+    "thinkle_built_vega_2.mp3": "7e0ca11ff6965d400719e17f5e7aa940133aaef8518a38de993c5f58f9eae6f3",
+    "thinkle_built_vega_3.mp3": "c92a80c5382467d23a6d35ef9c6f268ac32041adab35768e8dfa6bc55fc6a150",
+    "thinkle_intro_1.mp3": "8fd4c859b491379eaf4e8a781c7c0680ea4121975c693889821b8b812e9cbba8",
+    "thinkle_intro_2.mp3": "860694dbb4ce77af196452ac6e755d0f7eeb83516d1ed844cfb2569147867c42",
+    "thinkle_intro_3.mp3": "fc38f8ed3ac3ac12971f2d5a7a7d959d8473203305da45497532b9dbff72064f",
+    "thinkle_intro_4.mp3": "ecc165ccb39f300f77a7b262ce6c79cc8ae2e3c1165bbb1107006c7703b2d128",
+    "thinkle_intro_5.mp3": "e78f0dd4b51a04b67d164213eef2748ef45117bad00448fa4cc927698c912be8"
+  },
+  "lines": {
+    "thinkle_built_vega_1": {
+      "file": "thinkle_built_vega_1.mp3",
+      "seconds": 5.04,
+      "text": "Built natively for Fire TV, with React Native for Vega.",
+      "sha256": "549dffa1a33c9c74ffd0a9163c739a5363bd7744b7f5adf69f1fb412c803de29"
+    },
+    "thinkle_built_vega_2": {
+      "file": "thinkle_built_vega_2.mp3",
+      "seconds": 4.56,
+      "text": "It runs on Vega OS, here on the Vega Virtual Device.",
+      "sha256": "7e0ca11ff6965d400719e17f5e7aa940133aaef8518a38de993c5f58f9eae6f3"
+    },
+    "thinkle_built_vega_3": {
+      "file": "thinkle_built_vega_3.mp3",
+      "seconds": 4.48,
+      "text": "And it plays on a Fire TV Stick, in a real living room.",
+      "sha256": "c92a80c5382467d23a6d35ef9c6f268ac32041adab35768e8dfa6bc55fc6a150"
+    },
+    "thinkle_intro_1": {
+      "file": "thinkle_intro_1.mp3",
+      "seconds": 4.24,
+      "text": "In chess, the stronger player nearly always wins.",
+      "sha256": "8fd4c859b491379eaf4e8a781c7c0680ea4121975c693889821b8b812e9cbba8"
+    },
+    "thinkle_intro_2": {
+      "file": "thinkle_intro_2.mp3",
+      "seconds": 5.76,
+      "text": "A child learns, and soon the family stops playing.",
+      "sha256": "860694dbb4ce77af196452ac6e755d0f7eeb83516d1ed844cfb2569147867c42"
+    },
+    "thinkle_intro_3": {
+      "file": "thinkle_intro_3.mp3",
+      "seconds": 5.12,
+      "text": "Dice Chess adds three dice: luck gives everyone a chance.",
+      "sha256": "fc38f8ed3ac3ac12971f2d5a7a7d959d8473203305da45497532b9dbff72064f"
+    },
+    "thinkle_intro_4": {
+      "file": "thinkle_intro_4.mp3",
+      "seconds": 4.24,
+      "text": "In Latvia, children and parents play it in the same tournaments.",
+      "sha256": "ecc165ccb39f300f77a7b262ce6c79cc8ae2e3c1165bbb1107006c7703b2d128"
+    },
+    "thinkle_intro_5": {
+      "file": "thinkle_intro_5.mp3",
+      "seconds": 3.68,
+      "text": "Now your family can play it, right on your TV.",
+      "sha256": "e78f0dd4b51a04b67d164213eef2748ef45117bad00448fa4cc927698c912be8"
+    }
+  }
+}

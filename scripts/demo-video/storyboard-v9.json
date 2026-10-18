@@ -62,18 +62,6 @@
       "name": "A game for the whole family",
       "clips": [
         {
-          "take": "jegors",
-          "source": "federation-2024-riga-championship.mp4",
-          "from": 182.75,
-          "to": 185.7,
-          "badge": false,
-          "caption": {
-            "title": "International Dice Chess Federation · Latvian Dice Chess Championship, Jūrmala 2020 · Riga 2024",
-            "subtitle": "Tournament footage courtesy of the federation · dicechess.net",
-            "seconds": 2.95
-          }
-        },
-        {
           "take": "hall",
           "source": "federation-2020-jurmala-championship.mp4",
           "from": 34.5,
@@ -82,7 +70,7 @@
           "caption": {
             "title": "International Dice Chess Federation · Latvian Dice Chess Championship, Jūrmala 2020 · Riga 2024",
             "subtitle": "Tournament footage courtesy of the federation · dicechess.net",
-            "seconds": 2.6
+            "seconds": 3.5
           }
         },
         {
@@ -90,20 +78,18 @@
           "source": "federation-2024-riga-championship.mp4",
           "from": 38.0,
           "to": 40.5,
-          "badge": false
+          "badge": false,
+          "caption": {
+            "title": "International Dice Chess Federation · Latvian Dice Chess Championship, Jūrmala 2020 · Riga 2024",
+            "subtitle": "Tournament footage courtesy of the federation · dicechess.net",
+            "seconds": 2.0
+          }
         },
         {
           "take": "medal",
           "source": "federation-2024-riga-championship.mp4",
           "from": 299.6,
           "to": 301.3,
-          "badge": false
-        },
-        {
-          "take": "girl-rolls",
-          "source": "federation-2020-jurmala-championship.mp4",
-          "from": 47.2,
-          "to": 52.3,
           "badge": false
         },
         {
@@ -114,10 +100,24 @@
           "badge": false
         },
         {
+          "take": "girl-rolls",
+          "source": "federation-2020-jurmala-championship.mp4",
+          "from": 47.2,
+          "to": 52.3,
+          "badge": false
+        },
+        {
           "take": "anna",
           "source": "federation-2024-riga-championship.mp4",
           "from": 75.0,
           "to": 77.9,
+          "badge": false
+        },
+        {
+          "take": "hall-riga",
+          "source": "federation-2024-riga-championship.mp4",
+          "from": 41.0,
+          "to": 43.3,
           "badge": false
         },
         {
@@ -136,33 +136,33 @@
         {
           "take": "built",
           "from": 6.6,
-          "to": 9.6
+          "to": 11.1
         }
       ],
       "narration": [
         {
-          "line": "owner_intro_1",
-          "at": 0.5
+          "line": "thinkle_intro_1",
+          "at": 0.6
         },
         {
-          "line": "owner_intro_2",
-          "at": 3.8
+          "line": "thinkle_intro_2",
+          "at": 5.3
         },
         {
-          "line": "owner_intro_3",
-          "at": 7.6
+          "line": "thinkle_intro_3",
+          "at": 11.5
         },
         {
-          "line": "owner_intro_4",
-          "at": 11.9
+          "line": "thinkle_intro_4",
+          "at": 17.1
         },
         {
-          "line": "owner_intro_5",
-          "at": 17.2
+          "line": "thinkle_intro_5",
+          "at": 21.8
         },
         {
-          "line": "owner_intro_6",
-          "at": 22.9
+          "line": "thinkle_demo_hook_2",
+          "at": 26.0
         }
       ]
     },
@@ -413,12 +413,16 @@
       ],
       "narration": [
         {
-          "line": "owner_built_1",
+          "line": "thinkle_built_vega_1",
           "at": 0.6
         },
         {
-          "line": "owner_built_2",
-          "at": 7.6
+          "line": "thinkle_built_vega_2",
+          "at": 6.1
+        },
+        {
+          "line": "thinkle_built_vega_3",
+          "at": 11.1
         }
       ]
     }

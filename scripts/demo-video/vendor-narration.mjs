@@ -2,7 +2,11 @@
 // at one pinned commit, into scripts/demo-video/narration/. assemble.ts lays the
 // lines under the footage where the storyboard says.
 //
-//   node scripts/demo-video/vendor-narration.mjs <dicechess-assets checkout> <commit>
+//   node scripts/demo-video/vendor-narration.mjs <dicechess-assets checkout> <commit> [pack] [dir]
+//
+// Without a pack it vendors Thinkle's narration into narration/; the author's
+// own lines, read by a clone of his voice, are the pack
+// elevenlabs-dicechess-demo-owner, vendored into owner/ (v9).
 //
 // Like native/scripts/vendor-voices.mjs, every file is read with
 // `git show <commit>:<path>` and checked against the digest the asset repository
@@ -18,16 +22,19 @@ import { mkdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const PACK = 'elevenlabs-dicechess-demo-thinkle';
 const UPSTREAM = 'fortemate/dicechess-assets';
 const CLIENT = 'fortemate/dicechess-tv';
 const here = dirname(fileURLToPath(import.meta.url));
 
-const [checkout, commit] = process.argv.slice(2);
+const [checkout, commit, packName, dirName] = process.argv.slice(2);
 if (!checkout || !/^[0-9a-f]{40}$/.test(commit ?? ''))
   throw new Error(
-    'Usage: vendor-narration.mjs <dicechess-assets checkout> <full 40-character commit>',
+    'Usage: vendor-narration.mjs <dicechess-assets checkout> <full 40-character commit> [pack] [dir]',
   );
+const PACK = packName ?? 'elevenlabs-dicechess-demo-thinkle';
+const DIR = dirName ?? 'narration';
+if (!/^[a-z][a-z0-9-]*$/.test(DIR))
+  throw new Error(`the vendored directory must be a plain name, not ${DIR}`);
 
 const show = (path) =>
   execFileSync('git', ['-C', resolve(checkout), 'show', `${commit}:${path}`], {
@@ -50,8 +57,8 @@ const published = JSON.parse(show(`voices/${PACK}/checksums.json`).toString());
 
 // The new pack is written beside the old one and takes its place only once
 // every file has passed, so a failed run leaves the vendored pack as it was.
-const root = join(here, 'narration');
-const staging = join(here, 'narration.staging');
+const root = join(here, DIR);
+const staging = join(here, `${DIR}.staging`);
 rmSync(staging, { recursive: true, force: true });
 mkdirSync(staging, { recursive: true });
 
@@ -97,7 +104,7 @@ try {
   }
 
   writeFileSync(
-    join(staging, 'narration.json'),
+    join(staging, `${DIR}.json`),
     JSON.stringify(
       {
         upstream: UPSTREAM,
@@ -120,5 +127,5 @@ try {
 rmSync(root, { recursive: true, force: true });
 renameSync(staging, root);
 console.log(
-  `narration: ${ids.length} lines of ${PACK} at ${commit.slice(0, 7)} -> scripts/demo-video/narration/`,
+  `${DIR}: ${ids.length} lines of ${PACK} at ${commit.slice(0, 7)} -> scripts/demo-video/${DIR}/`,
 );

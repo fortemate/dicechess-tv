@@ -14,7 +14,13 @@
 // game's voices/effects at their recorded times. The earlier narrated cut
 // retains the takes' sound and ducks it under the added narrator.
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { join, resolve } from 'node:path';
 import { musicSpans, recordedSounds, unexpectedSilence } from './soundtrack.ts';
 import type { RecordedSound, SceneTiming, Soundtrack } from './soundtrack.ts';
@@ -45,7 +51,7 @@ type Clip = {
   caption?: Caption;
   audio?: RecordedSound[];
 };
-// One of Thinkle's lines, or one of the owner's, `at` seconds into its scene
+// One of Thinkle's lines, `at` seconds into its scene
 // (or the end card).
 type Narration = { line: string; at: number };
 type Scene = {
@@ -86,9 +92,8 @@ type Storyboard = {
 const HERE = 'scripts/demo-video';
 const OUT = process.env.OUT ?? 'dist/demo-video';
 const TAKES = process.env.TAKES ?? join(OUT, 'takes');
-// Footage from elsewhere, and the owner's voice-over: neither is committed.
+// Footage from elsewhere, which is not committed.
 const FOOTAGE = process.env.FOOTAGE ?? join(OUT, 'footage');
-const VOICE = process.env.VOICE ?? join(OUT, 'voice');
 const WORK = join(OUT, 'work');
 const VIDEO = join(OUT, 'dicechess-tv-demo.mp4');
 
@@ -180,17 +185,16 @@ function lineCatalogue(): Map<string, Line> {
   for (const [id, line] of Object.entries(app.lines))
     if (!lines.has(id))
       lines.set(id, { ...line, file: join('native/voices', line.file) });
-  // The owner's own voice-over, catalogued in the repository and kept out of
-  // it (VOICE): a storyboard that places one of its lines needs the file.
-  const owner = JSON.parse(
-    readFileSync(join(HERE, 'voice-over.json'), 'utf8'),
-  ) as { lines: Record<string, { from: number; to: number; text: string }> };
-  for (const [id, line] of Object.entries(owner.lines))
-    lines.set(id, {
-      file: join(VOICE, `${id}.wav`),
-      seconds: line.to - line.from,
-      text: line.text,
-    });
+  // The lines he adds for the v9 cut, vendored into narration-v9/; a
+  // checkout without them places none.
+  const v9 = join(HERE, 'narration-v9/narration-v9.json');
+  if (existsSync(v9)) {
+    const more = JSON.parse(readFileSync(v9, 'utf8')) as {
+      lines: Record<string, Line>;
+    };
+    for (const [id, line] of Object.entries(more.lines))
+      lines.set(id, { ...line, file: join(HERE, 'narration-v9', line.file) });
+  }
   return lines;
 }
 
