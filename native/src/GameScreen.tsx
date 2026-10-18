@@ -211,6 +211,7 @@ const ringOf = (i: number, volume: number, focused: boolean) => {
 const Choices = ({
   title,
   note,
+  description,
   options,
   index,
   pressed = false,
@@ -219,6 +220,7 @@ const Choices = ({
 }: {
   title: string;
   note?: string;
+  description?: string;
   options: readonly string[];
   index: number;
   // OK is held on the focused option.
@@ -251,6 +253,19 @@ const Choices = ({
         after={afters[i]}
       />
     ))}
+    {description !== undefined ? (
+      <Text
+        style={{
+          color: '#aab8c9',
+          fontSize: 20,
+          lineHeight: 24,
+          minHeight: 24,
+          marginTop: 10,
+        }}
+      >
+        {description}
+      </Text>
+    ) : null}
   </View>
 );
 

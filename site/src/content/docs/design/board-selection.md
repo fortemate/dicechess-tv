@@ -199,7 +199,7 @@ Human rolls require OK. In Hot Seat, OK at the handoff both changes the side to 
 
 ### The only choice
 
-With **Auto-select only choice** off, the default, even a unique human action needs confirmation. A single destination removes the arrow presses, but still needs OK to pick up the piece and OK to play, with promotion resolved separately when necessary.
+With **Auto-play only move** off, the default, even a unique human action needs confirmation. A single destination removes the arrow presses, but still needs OK to pick up the piece and OK to play, with promotion resolved separately when necessary.
 
 With the setting on, OK presses itself only when the board offers exactly one move: the legal actions hold exactly one origin–destination pair. `onlyChoice` in `src/core/boardInput.ts` reads it from the same legal actions the arrows walk:
 

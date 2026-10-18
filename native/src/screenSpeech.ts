@@ -16,6 +16,9 @@ export type Choice = {
   // Full words for a compact control hint, read when focus moves. A changed
   // value alone does not repeat the hint.
   spokenNote?: string;
+  // Explanation of the focused setting, shown below the options. Like the
+  // controls, it is said on entry/focus, not on every value change.
+  description?: string;
   options: readonly string[];
   index: number;
 };
@@ -34,10 +37,18 @@ export type Heard = {
 export const itemSpeech = ({ options, index }: Choice): string =>
   `${options[index]}, ${index + 1} of ${options.length}`;
 
+const descriptionSpeech = ({ description }: Choice): string[] =>
+  description ? [description] : [];
+
 // A menu as it opens: its title, its note and the focused item.
 const opened = (choice: Choice): string[] => {
   const note = choice.spokenNote ?? choice.note;
-  return [choice.title, ...(note ? [note] : []), itemSpeech(choice)];
+  return [
+    choice.title,
+    ...(note ? [note] : []),
+    itemSpeech(choice),
+    ...descriptionSpeech(choice),
+  ];
 };
 
 // A hint on screen separates its parts with a dot; spoken, that is a pause.
@@ -68,6 +79,7 @@ function focusSpeech(before: Heard | null, now: Heard): string[] {
         // A focus move interrupts the previous utterance, so even identical
         // controls must be available on the row where the person stops.
         ...(choice.spokenNote ? [choice.spokenNote] : []),
+        ...descriptionSpeech(choice),
       ];
     // A setting changed where focus stands: its new value.
     const option = choice.options[choice.index];

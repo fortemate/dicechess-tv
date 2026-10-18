@@ -181,10 +181,10 @@ test('Settings speaks new controls as focus moves, without repeating them for ea
     'Voices: 10, 2 of 7. Left and Right change the volume. OK mutes or unmutes.',
     'Highlights: Standard, 3 of 7. Left, Right or OK change this setting.',
     'Highlights: Enhanced.',
-    'Auto-select only choice: off, 4 of 7. Left, Right or OK switch this on or off.',
-    'Auto-select only choice: on.',
-    'Play as: Random, 5 of 7. Left, Right or OK change this setting.',
-    'Turn board for friends: off, 6 of 7. Left, Right or OK switch this on or off.',
+    'Auto-play only move: off, 4 of 7. Left switches off. Right switches on. OK toggles. Plays the only legal move for you.',
+    'Auto-play only move: on.',
+    'Play as: Random, 5 of 7. Left, Right or OK change this setting. Your colour in new computer games.',
+    'Turn board for friends: off, 6 of 7. Left switches off. Right switches on. OK toggles.',
     'Host for friends: Prowla, 7 of 7. Left, Right or OK change this setting.',
   ]);
   assert.ok(said().every((line) => !line.queue));
@@ -196,9 +196,28 @@ test('enabling VoiceView in Settings speaks the controls for the current row', (
   assert.deepEqual(announced(), []);
   act(() => setScreenReader(true));
   assert.deepEqual(texts(announced()), [
-    'Settings. Left, Right or OK switch this on or off. Auto-select only choice: off, 4 of 7.',
+    'Settings. Left switches off. Right switches on. OK toggles. Auto-play only move: off, 4 of 7. Plays the only legal move for you.',
   ]);
 });
+
+for (const from of ['home', 'game']) {
+  test(`Play as scope is spoken from ${from}, while value changes only speak the colour`, () => {
+    withReader();
+    launch({ options: options() });
+    if (from === 'game') send('enter', 'back', 'up', 'enter');
+    else send('up', 'up', 'enter');
+    send('down', 'down', 'down');
+    const said = listen();
+    send('down', 'right', 'enter', 'right', 'right');
+    assert.deepEqual(texts(said()), [
+      'Play as: Random, 5 of 7. Left, Right or OK change this setting. Your colour in new computer games.',
+      'Play as: White.',
+      'Play as: Black.',
+      'Play as: Ask.',
+      'Play as: Random.',
+    ]);
+  });
+}
 
 test('a screen reader turned on mid-game is told where things stand', () => {
   launch({ options: options() });

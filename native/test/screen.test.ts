@@ -735,7 +735,7 @@ test('without music, Settings groups audio, board controls, computer and friend 
     'Sounds: 10',
     'Voices: 10',
     'Highlights: Standard',
-    'Auto-select only choice: off',
+    'Auto-play only move: off',
     'Play as: Random',
     'Turn board for friends: off',
     'Host for friends: Prowla',
@@ -771,7 +771,7 @@ test('Settings opens from the home menu on music, and Back returns to it', () =>
     'Sounds: 10',
     'Voices: 10',
     'Highlights: Standard',
-    'Auto-select only choice: off',
+    'Auto-play only move: off',
     'Play as: Random',
     'Turn board for friends: off',
     'Host for friends: Prowla',
@@ -784,7 +784,7 @@ test('Settings opens from the home menu on music, and Back returns to it', () =>
   );
 });
 
-test('OK or the arrows sideways flip music, sound effects, voices and hotseat board turning, and step through the hosts', () => {
+test('audio keeps mute/volume controls, hosts cycle and board turning has stable directions', () => {
   const settings = toSettings(withMusic(fresh()));
   const musicOff = drive(settings, 'select');
   assert.equal(musicOff.music.on, false);
@@ -827,6 +827,9 @@ test('OK or the arrows sideways flip music, sound effects, voices and hotseat bo
   const hotseat = drive(host, 'up');
   assert.equal(drive(hotseat, 'select').turnHotseat, true);
   assert.equal(drive(hotseat, 'right').turnHotseat, true);
+  assert.equal(drive(hotseat, 'right', 'right').turnHotseat, true);
+  assert.equal(drive(hotseat, 'left', 'left').turnHotseat, false);
+  assert.equal(drive(hotseat, 'select', 'left').turnHotseat, false);
   // None touches another, nor leaves the screen.
   assert.equal(drive(hotseat, 'select').music.on, true);
   assert.equal(drive(hotseat, 'select').voices.on, true);
