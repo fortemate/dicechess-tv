@@ -482,6 +482,14 @@ function main(): void {
   const fades = (length: number) =>
     `fade=t=in:st=0:d=${FADE}:color=${colour},` +
     `fade=t=out:st=${seconds(length - FADE)}:d=${FADE}:color=${colour}`;
+  // Footage from elsewhere cuts straight from one shot to the next, as the
+  // footage itself does; it fades only into the app's first frame.
+  const cutsOf = (clip: Clip, next: Clip | undefined, length: number) =>
+    clip.source && next?.source
+      ? 'null'
+      : clip.source
+        ? `fade=t=out:st=${seconds(length - FADE)}:d=${FADE}:color=${colour}`
+        : fades(length);
   const segmentName = (name: string) =>
     join(WORK, `${String(segments.length).padStart(2, '0')}-${name}.mp4`);
 
@@ -573,7 +581,7 @@ function main(): void {
             [
               ...overlays,
               `${picture}tpad=stop_mode=clone:stop_duration=${seconds(hold)},` +
-                `${fades(length + hold)}[v]`,
+                `${cutsOf(clip, scene.clips[scene.clips.indexOf(clip) + 1], length + hold)}[v]`,
               `[0:a]aresample=48000,apad=pad_dur=${seconds(hold)},` +
                 (board.soundtrack ? 'volume=0,' : '') +
                 `afade=t=in:st=0:d=0.15,` +
