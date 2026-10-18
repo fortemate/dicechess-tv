@@ -9,6 +9,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { AUTO_PROMPT, modeLine, promptFor } from '../src/GameScreen';
 import { settingsOptions } from '../src/screen';
+import { settingsHint } from '../src/settingsHint';
 import { DEFAULT_MUSIC } from '../src/musicSetting';
 import { HOST_CHOICES } from '../src/hostSetting';
 import { PLAY_AS_CHOICES } from '../src/playAsSetting';
@@ -132,6 +133,8 @@ test('every row of Settings is one line, whatever it says', () => {
   assert.ok(rows.has('Host for friends: Thinkle'));
   assert.ok(rows.has('Turn board for friends: off'));
   for (const row of rows) {
+    // Each focused row's note is 20 dp, without an option's inset.
+    fits(settingsHint(row).note, 20);
     const width = textWidth(row, OPTION_DP) + OPTION_INSET_DP;
     assert.ok(
       width <= FITS_DP,

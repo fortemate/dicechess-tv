@@ -164,11 +164,40 @@ test('a setting changed where focus stands is said with its new value', () => {
   const said = listen();
   send('enter');
   assert.deepEqual(texts(said()), [
-    'Settings. Left and Right change the volume. Sounds: 10, 1 of 7.',
+    'Settings. Left and Right change the volume. OK mutes or unmutes. Sounds: 10, 1 of 7.',
   ]);
   const changed = listen();
   send('enter');
   assert.deepEqual(changed(), [{ text: 'Sounds: off.', queue: false }]);
+});
+
+test('Settings speaks new controls as focus moves, without repeating them for each value', () => {
+  withReader();
+  launch({ options: options() });
+  send('up', 'up', 'enter');
+  const said = listen();
+  send('down', 'down', 'right', 'down', 'enter', 'down', 'down', 'down');
+  assert.deepEqual(texts(said()), [
+    'Voices: 10, 2 of 7.',
+    'Highlights: Standard, 3 of 7. Left, Right or OK change this setting.',
+    'Highlights: Enhanced.',
+    'Auto-select only choice: off, 4 of 7. Left, Right or OK switch this on or off.',
+    'Auto-select only choice: on.',
+    'Play as: Random, 5 of 7. Left, Right or OK change this setting.',
+    'Turn board for friends: off, 6 of 7. Left, Right or OK switch this on or off.',
+    'Host for friends: Prowla, 7 of 7. Left, Right or OK change this setting.',
+  ]);
+  assert.ok(said().every((line) => !line.queue));
+});
+
+test('enabling VoiceView in Settings speaks the controls for the current row', () => {
+  launch({ options: options() });
+  send('up', 'up', 'enter', 'down', 'down', 'down');
+  assert.deepEqual(announced(), []);
+  act(() => setScreenReader(true));
+  assert.deepEqual(texts(announced()), [
+    'Settings. Left, Right or OK switch this on or off. Auto-select only choice: off, 4 of 7.',
+  ]);
 });
 
 test('a screen reader turned on mid-game is told where things stand', () => {

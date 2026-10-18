@@ -62,6 +62,7 @@ import { useRemoteInput } from './useRemoteInput';
 import { THEME } from './theme';
 import { PIECES } from './pieces';
 import { Option } from './Option';
+import { settingsHint } from './settingsHint';
 import { BOARD_GAP, boardSide, drawnSide, safeInsets } from './layout';
 import { announce, useScreenReader } from './announcer';
 import {
@@ -489,23 +490,25 @@ const choiceOf = (overlay: Overlay, context: ChoiceContext): Choice | null => {
         options: menuOptions(context.game),
         index: overlay.index,
       };
-    case 'settings':
+    case 'settings': {
+      const options = settingsOptions({
+        sound: context.sound,
+        music: context.music,
+        musicAvailable: context.hasMusic,
+        turnHotseat: context.turnHotseat,
+        voices: context.voices,
+        host: context.host,
+        autoSelect: context.autoSelect,
+        playAs: context.playAs,
+        highlights: context.highlights,
+      });
       return {
         title: 'Settings',
-        note: 'Left and Right change the volume.',
-        options: settingsOptions({
-          sound: context.sound,
-          music: context.music,
-          musicAvailable: context.hasMusic,
-          turnHotseat: context.turnHotseat,
-          voices: context.voices,
-          host: context.host,
-          autoSelect: context.autoSelect,
-          playAs: context.playAs,
-          highlights: context.highlights,
-        }),
+        ...settingsHint(options[overlay.index] ?? ''),
+        options,
         index: overlay.index,
       };
+    }
     case 'opponent':
       return {
         title: OPPONENT_TITLE,

@@ -13,6 +13,9 @@ import type { Utterance } from './announcer';
 export type Choice = {
   title: string;
   note?: string;
+  // Full words for a compact control hint, repeated only when the actions
+  // change as focus moves. A changed value alone does not repeat the hint.
+  spokenNote?: string;
   options: readonly string[];
   index: number;
 };
@@ -29,18 +32,13 @@ export type Heard = {
 
 // The focused item and where it stands: "Play a friend, 2 of 6".
 export const itemSpeech = ({ options, index }: Choice): string =>
-  `${options[index]}, ${index + 1} of ${options.length}${
-    options[index].startsWith('Highlights:')
-      ? ', Left and Right change the highlight style.'
-      : ''
-  }`;
+  `${options[index]}, ${index + 1} of ${options.length}`;
 
 // A menu as it opens: its title, its note and the focused item.
-const opened = (choice: Choice): string[] => [
-  choice.title,
-  ...(choice.note ? [choice.note] : []),
-  itemSpeech(choice),
-];
+const opened = (choice: Choice): string[] => {
+  const note = choice.spokenNote ?? choice.note;
+  return [choice.title, ...(note ? [note] : []), itemSpeech(choice)];
+};
 
 // A hint on screen separates its parts with a dot; spoken, that is a pause.
 export const spokenHint = (hint: string): string =>
@@ -64,16 +62,17 @@ function focusSpeech(before: Heard | null, now: Heard): string[] {
   const was = before?.choice ?? null;
   if (choice) {
     if (was?.title !== choice.title) return opened(choice);
-    if (was.index !== choice.index) return [itemSpeech(choice)];
+    if (was.index !== choice.index)
+      return [
+        itemSpeech(choice),
+        ...(choice.spokenNote && choice.spokenNote !== was.spokenNote
+          ? [choice.spokenNote]
+          : []),
+      ];
     // A setting changed where focus stands: its new value.
     const option = choice.options[choice.index];
     if (was.options[was.index] === option) return [];
-    return [
-      option,
-      ...(option.startsWith('Highlights:')
-        ? ['Left and Right change the highlight style.']
-        : []),
-    ];
+    return [option];
   }
   // Back on the board from a menu, or opened on it, both are said again.
   const back = !before || was !== null;

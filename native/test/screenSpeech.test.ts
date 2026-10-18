@@ -79,10 +79,11 @@ test('the dots between a hint’s parts are said as pauses', () => {
   );
 });
 
-test('the Highlights row adds how to change it when focused or changed', () => {
+test('a new kind of setting says its controls, and a value change says only the value', () => {
   const before = board({
     choice: {
       title: 'Settings',
+      spokenNote: 'Left and Right change the volume. OK mutes or unmutes.',
       options: ['Sounds: 10', 'Highlights: Standard'],
       index: 0,
     },
@@ -90,23 +91,44 @@ test('the Highlights row adds how to change it when focused or changed', () => {
   const focused = board({
     choice: {
       title: 'Settings',
+      note: 'Left/Right or OK: change',
+      spokenNote: 'Left, Right or OK change this setting.',
       options: ['Sounds: 10', 'Highlights: Standard'],
       index: 1,
     },
   });
   assert.deepEqual(screenSpeech(before, focused), {
-    text: 'Highlights: Standard, 2 of 2, Left and Right change the highlight style.',
+    text: 'Highlights: Standard, 2 of 2. Left, Right or OK change this setting.',
     interrupt: true,
   });
   const changed = board({
     choice: {
       title: 'Settings',
+      note: 'Left/Right or OK: change',
+      spokenNote: 'Left, Right or OK change this setting.',
       options: ['Sounds: 10', 'Highlights: Enhanced'],
       index: 1,
     },
   });
   assert.deepEqual(screenSpeech(focused, changed), {
-    text: 'Highlights: Enhanced. Left and Right change the highlight style.',
+    text: 'Highlights: Enhanced.',
     interrupt: true,
   });
+  assert.equal(screenSpeech(changed, { ...changed }), null);
+});
+
+test('moving between audio rows does not repeat their identical controls', () => {
+  const choice = {
+    title: 'Settings',
+    note: 'Left/Right: volume · OK: mute/unmute',
+    spokenNote: 'Left and Right change the volume. OK mutes or unmutes.',
+    options: ['Sounds: 10', 'Voices: 10'],
+  };
+  assert.deepEqual(
+    screenSpeech(
+      board({ choice: { ...choice, index: 0 } }),
+      board({ choice: { ...choice, index: 1 } }),
+    ),
+    { text: 'Voices: 10, 2 of 2.', interrupt: true },
+  );
 });
