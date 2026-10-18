@@ -123,6 +123,8 @@ Settings opens from the home screen and from the game menu. Up and Down move bet
 
 The focused row shows its controls. Auto-play only move explains that it plays the only legal move for you; Play as explains that it selects your colour in new computer games. VoiceView announces these explanations when focus arrives, and only the new value when it changes. Holding Left or Right on either switch keeps the value stable.
 
+`native/test/voiceView.test.tsx` checks the announcements with AccessibilityInfo stubbed; `native/test/settingsHint.test.tsx` checks switch repeats, OK release and persistence. D-pad navigation, direction and OK holds, and Back were checked on the Vega Virtual Device. VoiceView listening on a physical Fire TV Stick remains unverified for these explanations.
+
 Each setting is saved on the TV as it changes and read again at the next launch. The tests check each press of the volume rows (`native/test/screen.test.ts`), that each is saved and read back (`native/test/soundApp.test.tsx`, `native/test/soundSetting.test.ts`, `native/test/voiceSetting.test.ts`, `native/test/highlights.test.tsx`), and that every row fits one line of the panel (`native/test/hints.test.tsx`).
 
 ### The End of a Game
