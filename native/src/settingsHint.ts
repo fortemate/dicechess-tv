@@ -26,13 +26,16 @@ const controls = (row: string) => {
   return CHOICE;
 };
 
+const description = (row: string): string => {
+  if (row.startsWith('Auto-play only move:'))
+    return 'Plays the only legal move for you.';
+  if (row.startsWith('Play as:')) return 'Your colour in new computer games.';
+  return '';
+};
+
 export const settingsHint = (row: string) => ({
   ...controls(row),
   // Reserve a line below the rows, so their positions stay the same as focus
   // moves. These settings affect gameplay beyond what their short labels say.
-  description: row.startsWith('Auto-play only move:')
-    ? 'Plays the only legal move for you.'
-    : row.startsWith('Play as:')
-      ? 'Your colour in new computer games.'
-      : '',
+  description: description(row),
 });

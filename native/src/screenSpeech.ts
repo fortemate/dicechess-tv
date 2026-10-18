@@ -37,6 +37,9 @@ export type Heard = {
 export const itemSpeech = ({ options, index }: Choice): string =>
   `${options[index]}, ${index + 1} of ${options.length}`;
 
+const descriptionSpeech = ({ description }: Choice): string[] =>
+  description ? [description] : [];
+
 // A menu as it opens: its title, its note and the focused item.
 const opened = (choice: Choice): string[] => {
   const note = choice.spokenNote ?? choice.note;
@@ -44,7 +47,7 @@ const opened = (choice: Choice): string[] => {
     choice.title,
     ...(note ? [note] : []),
     itemSpeech(choice),
-    ...(choice.description ? [choice.description] : []),
+    ...descriptionSpeech(choice),
   ];
 };
 
@@ -76,7 +79,7 @@ function focusSpeech(before: Heard | null, now: Heard): string[] {
         // A focus move interrupts the previous utterance, so even identical
         // controls must be available on the row where the person stops.
         ...(choice.spokenNote ? [choice.spokenNote] : []),
-        ...(choice.description ? [choice.description] : []),
+        ...descriptionSpeech(choice),
       ];
     // A setting changed where focus stands: its new value.
     const option = choice.options[choice.index];
