@@ -1,6 +1,6 @@
 {
   "upstream": "fortemate/dicechess-assets",
-  "commit": "520a7a6493c1d13e7578062ee86462abdee7384d",
+  "commit": "a3053720030a56fac5acc15b056b74dff6e74c39",
   "events": {
     "file": "events.json",
     "sha256": "aa06c801a49ce922464ff70ef1392a31fe9bbb3ad5a7367f47f96ceeefc31f99"
@@ -245,7 +245,7 @@
         "repository": "fortemate/dicechess-assets"
       },
       "files": {
-        "manifest.json": "b92137eee4ea9f9d2caf2ccc1abe98741d39b508828c96dcbbaa6d6ef193d11f",
+        "manifest.json": "6ad8f32c097590f3d55636f0872e712bf8b17acb6d800754e84bf75779767892",
         "LICENSE.txt": "074df40ab83e76af5bbaf967a6d174451df520cc2f5f40f865f25c00f2274659",
         "thinkle_tutor_capture_done_1.mp3": "e26d2acb421099552e83ba3721cd4ceb603f897efdbf8279318d5e43eb0e372f",
         "thinkle_tutor_capture_opening_1.mp3": "e57d1c6d7ef8bd354680f167ebcc64b6c0f202ac90d4a78770a7edeaf85db78e",
@@ -273,7 +273,7 @@
         "thinkle_tutor_dice_rolled_2.mp3": "2d0ac786f15eeed1c0587e55d09a95432bf838e7c3836407796fc974a3af542a",
         "thinkle_tutor_dice_rolled_3.mp3": "61ae0c31b2de4cb54a8c95ba1dfb5639bcfbd5ba18478c8e6c4fa14459558429",
         "thinkle_tutor_king_done_1.mp3": "be4f61ca428ccdd923aa5db18c4ed0097e5a27bc1e4b14dd9a6d07db4ea74e0b",
-        "thinkle_tutor_king_done_2.mp3": "1a1f4e659b2be375a50f827599bdd5bb0c7434fae4ade6cf78a31cd3614436fc",
+        "thinkle_tutor_king_done_2.mp3": "906ef8c4b8aef82c6f666a004917fa542bdf7702977fef2455bc8c87bfb39b93",
         "thinkle_tutor_king_opening_1.mp3": "0ae70d33b2dbc35f257e94add3f864f55cef1c92a12be49e04a74db08fee2b7c",
         "thinkle_tutor_king_opening_2.mp3": "c9a7a72787404f3e7c74d0d5c7bfc743f495757c384c5ff458a708b905cd94db",
         "thinkle_tutor_king_opening_3.mp3": "fda5f74c49c8171abedf723cedefb2089c16c0cdf72b50e4b343f264957a3ce2",
@@ -2826,11 +2826,11 @@
       "pack": "elevenlabs-dicechess-tutorial-thinkle",
       "bot": "tutor",
       "event": "king_done",
-      "text": "Nothing warns you when a king is attacked. Guard yours!",
+      "text": "You may leave your king under attack. Guard him well!",
       "voice": "Thinkle",
       "file": "elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_king_done_2.mp3",
-      "sha256": "1a1f4e659b2be375a50f827599bdd5bb0c7434fae4ade6cf78a31cd3614436fc",
-      "seconds": 4.56
+      "sha256": "906ef8c4b8aef82c6f666a004917fa542bdf7702977fef2455bc8c87bfb39b93",
+      "seconds": 4.48
     },
     "thinkle_tutor_king_opening_1": {
       "pack": "elevenlabs-dicechess-tutorial-thinkle",

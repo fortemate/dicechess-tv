@@ -12,7 +12,7 @@
       "integratedLufs": -16,
       "limitDbfs": -1.5
     },
-    "tool": "ffmpeg version 9.0.1 Copyright (c) 2000-2026 the FFmpeg developers"
+    "tool": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers"
   },
   "directions": "directions.json",
   "distribution": "project",
@@ -1017,31 +1017,31 @@
     "thinkle_tutor_king_done_2": {
       "bot": "tutor",
       "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
-      "direction": "[whispers] Nothing warns you when a king is attacked. [cheerful] Guard yours!",
-      "durationSeconds": 4.56,
+      "direction": "[thoughtfully] You may leave your king under attack. [warmly] Guard him well!",
+      "durationSeconds": 4.48,
       "event": "king_done",
       "export": "exports/mp3/thinkle_tutor_king_done_2.mp3",
-      "generated": "2026-10-04T22:17:55Z",
+      "generated": "2026-10-17T23:29:16Z",
       "loudness": {
-        "exportLufs": -16.5,
-        "gainDb": 0.5,
-        "passes": 1,
-        "sourceLufs": -16.5
+        "exportLufs": -16.2,
+        "gainDb": 2.0,
+        "passes": 2,
+        "sourceLufs": -17.4
       },
       "model": "eleven_v4",
       "outputFormat": "mp3_44100_192",
-      "requestId": "r78zgIPbPGGR5lwXJVxw",
-      "seed": 2986099772,
-      "sha256": "1a1f4e659b2be375a50f827599bdd5bb0c7434fae4ade6cf78a31cd3614436fc",
+      "requestId": "fQ5RUenfhM5Cyzf0KH2B",
+      "seed": 3046859611,
+      "sha256": "906ef8c4b8aef82c6f666a004917fa542bdf7702977fef2455bc8c87bfb39b93",
       "source": "source/mp3/thinkle_tutor_king_done_2.mp3",
-      "sourceSha256": "f26528af0f371ed73f710aa5f020e0c7daf0e1a6a4fe38c8ac7a145bfb94683e",
+      "sourceSha256": "fb1d4ee79dbca7d6ec0d23dd660ff5b4d05cb72f8949ee104fe9ca8128dbce7f",
       "take": 1,
       "target": {
         "bitrate": "64k",
         "integratedLufs": -16,
         "limitDbfs": -1.5
       },
-      "text": "Nothing warns you when a king is attacked. Guard yours!",
+      "text": "You may leave your king under attack. Guard him well!",
       "voice": "Thinkle",
       "voiceId": "UDn5cabCjqJGTbU62y7U",
       "voiceSettings": {

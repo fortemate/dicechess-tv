@@ -212,7 +212,7 @@ export const TUTORIAL: readonly TutorialStep[] = [
       ],
       done: [
         'Victory! Taking the king wins at once.',
-        'Nothing warns you when a king is attacked. Guard yours!',
+        'You may leave your king under attack. Guard him well!',
       ],
     },
     start: 'k7/8/8/8/8/8/8/R3K3 w - - 0 1',
