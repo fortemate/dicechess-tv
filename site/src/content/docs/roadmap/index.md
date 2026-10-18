@@ -7,9 +7,9 @@ The app was built during [Build, Ship, Shape: Amazon Developer Hackathon 2026](h
 
 ## Done
 
-Every feature here was played on the Vega Virtual Device, and the app's automated tests cover it. Since October 6, 2026 the game has also run on a Fire TV Stick 4K Select, though not every feature has been checked there yet. On October 10, 2026 the Appstore build of 1.0.0 was checked on the Stick for Settings with the music row and Play as, Main menu and Resume game, the opponent cards, and the confirmation before a game in play is replaced.
+Every feature here was played on the Vega Virtual Device, and the app's automated tests cover it. Since October 6, 2026, the game has also run on a Fire TV Stick 4K Select, though not every feature has been checked there yet. On October 10, 2026, the Appstore build of 1.0.0 was checked on the Stick for Settings with the music row and Play as, Main menu and Resume game, the opponent cards, and the confirmation before a game in play is replaced.
 
-- **Version 1.0.0**, the first release, published on GitHub on October 10, 2026 with three packages: for a Fire TV Stick in developer mode, and for the Vega Virtual Device ([Get the game](/play/beta/)).
+- **Version 1.0.0**, the first release, published on GitHub on October 10, 2026, with three packages: for a Fire TV Stick in developer mode, and for the Vega Virtual Device ([Get the game](/play/beta/)).
 - **A native board** in React Native for Vega, played entirely with the remote.
 - **Play a friend** on one remote, and **saving** after every action.
 - **A six-lesson tutorial**, offered on the first launch and leading into a first game, and a **rules guide**.

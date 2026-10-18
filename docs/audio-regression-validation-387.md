@@ -1,6 +1,6 @@
 # Audio regression validation (#387)
 
-Validated on October 14, 2026 against main `7035ffc` and the audio playback lifecycle changes in this pull request.
+Validated on October 14, 2026, against main `7035ffc` and the audio playback lifecycle changes in this pull request.
 
 ## Automated checks
 

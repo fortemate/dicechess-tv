@@ -88,7 +88,7 @@ The music then settles: it rises at once to a higher level, because a threat is 
 
 ## Three actions restored in the engine
 
-Until October 13, 2026 tense looked three actions deep, and each of the 56 distinct rolls was searched on its own in JavaScript. That was thousands of engine calls a turn, and on a Fire TV Stick each roll's search held the JavaScript thread for up to 2.7 s, so the cursor waited for it ([Performance](/technology/performance/#danger-evaluation--threat-analysis), [#365](https://github.com/fortemate/dicechess-tv/issues/365)). An intermediate measure looked two actions deep, which left 9 of 300 turns from seeded games calm instead of tense.
+Until October 13, 2026, tense looked three actions deep, and each of the 56 distinct rolls was searched on its own in JavaScript. That was thousands of engine calls a turn, and on a Fire TV Stick each roll's search held the JavaScript thread for up to 2.7 s, so the cursor waited for it ([Performance](/technology/performance/#danger-evaluation--threat-analysis), [#365](https://github.com/fortemate/dicechess-tv/issues/365)). An intermediate measure looked two actions deep, which left 9 of 300 turns from seeded games calm instead of tense.
 
 Engine 0.14.6 added `DiceChess.threatWeight` ([dicechess-engine#341](https://github.com/fortemate/dicechess-engine/pull/341), [#382](https://github.com/fortemate/dicechess-tv/issues/382)), moving the three-action search into Scala. In Node with `--jitless` it takes a median of 12.2 ms in one call, and restores the exact three-action threat measurement.
 

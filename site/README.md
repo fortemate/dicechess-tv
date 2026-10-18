@@ -70,7 +70,7 @@ MP3s directly from `native/voices/elevenlabs-dicechess-bots/`, with their
 transcripts from its manifest. No audio is copied or synthesized for the site.
 Players use native browser controls, with no autoplay or preloading. With
 JavaScript enabled, a small script pauses the previous sample when another
-starts. A manual in-app browser check on October 16, 2026 verified that
+starts. A manual in-app browser check on October 16, 2026, verified that
 coordination.
 A separate check used DevTools' **Disable JavaScript** command, then reloaded
 all four pages: their text, transcripts, portraits, teaching boards, links and

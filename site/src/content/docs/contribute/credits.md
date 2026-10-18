@@ -50,7 +50,7 @@ Dice Chess TV combines open-source code with public domain and permitted creativ
 
 - **Kenney Game Assets:** Casino Audio, Interface Sounds, and Music Jingles by [Kenney](https://kenney.nl). Dedicated to the public domain under CC0 1.0 Universal.
 - **Tabletop Games SFX Pack:** By [JDSherbert](https://jdsherbert.itch.io/tabletop-games-sfx-pack) (version 1.1.0).
-  - The author, Josh Herbert, granted written permission on September 24, 2026 to include four MP3 files in this public repository with attribution.
+  - The author, Josh Herbert, granted written permission on September 24, 2026, to include four MP3 files in this public repository with attribution.
   - _Terms:_ This permission applies exclusively to this project. The sound files are not licensed under the AGPL; using them elsewhere requires the author's permission. Credited in-game on the About screen.
 
 ### Adaptive Music
@@ -61,7 +61,7 @@ Dice Chess TV combines open-source code with public domain and permitted creativ
   2. _Clear Space_ (Game in progress — calm state)
   3. _Tightening Layers_ (Game in progress — tense state)
   4. _Tense Minor Pulse_ (Game in progress — critical danger)
-- **License:** The author granted written permission on September 26, 2026 to include these tracks in Dice Chess TV with attribution. The files retain their embedded generation metadata. This permission applies exclusively to this project. Credited in-game on the About screen.
+- **License:** The author granted written permission on September 26, 2026, to include these tracks in Dice Chess TV with attribution. The files retain their embedded generation metadata. This permission applies exclusively to this project. Credited in-game on the About screen.
 
 ### Voices
 
