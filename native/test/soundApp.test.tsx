@@ -338,23 +338,33 @@ test('Rolly, chosen, hosts in her own voice, and her portrait shows with her lin
   );
 });
 
-test('Thinkle, chosen, hosts in his own voice, and his portrait shows with his line (#279)', () => {
-  reset();
-  new MMKV().set('dicechess-tv.host.v1', 'thinkle');
-  const sounds = recorder();
-  const { root } = launch({ options, sounds });
-  send('enter');
-  assert.equal(sounds.said.length, 1);
-  assert.match(sounds.said[0], /^thinkle_host_intro_[1-5]$/);
-  const [block] = drawn(root, 'host-block');
-  assert.ok(block, 'he shows while he speaks');
-  assert.equal(drawn(block, 'portrait-thinkle').length, 1);
-  assert.equal(drawn(block, 'portrait-cat').length, 0);
-  assert.equal(
-    text(block),
-    HOST_CATALOGUE.find((line) => line.id === sounds.said[0])?.text,
-  );
-});
+// Each recorded greeting reaches the voice player by its original id, while
+// the bubble uses U.S. spelling. In particular, the first clip's pinned
+// transcript uses a British spelling that must not be the caption expectation.
+for (const [index, caption] of [
+  'Hmm... the dice favor no one, young or old.',
+  'Settle in, my friends. A new tale begins.',
+  'White, you roll first. The stars are watching!',
+  'Welcome, you two! May the best roll win.',
+  'I promise: no spells from me, only dice!',
+].entries()) {
+  test(`Thinkle, chosen, hosts greeting ${index + 1} in his own voice with a U.S. caption (#279)`, (t) => {
+    // Leave shuffle slots in place until this greeting can swap to the front.
+    let slot = 4;
+    t.mock.method(Math, 'random', () => (slot-- === index ? 0 : 0.999));
+    reset();
+    new MMKV().set('dicechess-tv.host.v1', 'thinkle');
+    const sounds = recorder();
+    const { root } = launch({ options, sounds });
+    send('enter');
+    assert.deepEqual(sounds.said, [`thinkle_host_intro_${index + 1}`]);
+    const [block] = drawn(root, 'host-block');
+    assert.ok(block, 'he shows while he speaks');
+    assert.equal(drawn(block, 'portrait-thinkle').length, 1);
+    assert.equal(drawn(block, 'portrait-cat').length, 0);
+    assert.equal(text(block), caption);
+  });
+}
 
 test('a line the bot says is handed to the voice', () => {
   reset();
