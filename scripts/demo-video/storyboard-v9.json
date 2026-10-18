@@ -1,0 +1,426 @@
+{
+  "badge": "Vega Virtual Device on macOS",
+  "soundtrack": {
+    "gainDb": -6,
+    "crossfadeSeconds": 2,
+    "fadeInSeconds": 1,
+    "fadeOutSeconds": 3,
+    "changes": [
+      {
+        "role": "menu",
+        "scene": "A game for the whole family"
+      },
+      {
+        "role": "calm",
+        "scene": "Two players, one remote",
+        "clip": 0
+      },
+      {
+        "role": "tense",
+        "scene": "Music that follows the game",
+        "clip": 0,
+        "at": 72.0
+      },
+      {
+        "role": "critical",
+        "scene": "Music that follows the game",
+        "clip": 0,
+        "at": 83.0
+      },
+      {
+        "role": "tense",
+        "scene": "Music that follows the game",
+        "clip": 0,
+        "at": 100.2
+      }
+    ]
+  },
+  "duckDb": -9,
+  "narrationGainDb": 0,
+  "end": {
+    "seconds": 6,
+    "title": "Dice Chess for Fire TV",
+    "tagline": "Three dice. One remote. A new kind of chess.",
+    "link": "dicechess-tv.fortemate.com",
+    "builtWith": "Built with React Native for Vega 0.83 · Vega SDK 0.24 · Vega OS",
+    "footer": "Tournament footage: International Dice Chess Federation · Recorded on the Vega Virtual Device on macOS\nMusic by pepka-prygni · Sounds by Kenney & JDSherbert · Voices: ElevenLabs · Portraits: Recraft",
+    "music": {
+      "file": "native/music/pepka-prygni-dicechess/warm_anticipation.mp3",
+      "gainDb": -6,
+      "fadeInSeconds": 1,
+      "fadeOutSeconds": 3
+    },
+    "narration": [
+      {
+        "line": "thinkle_demo_close_1",
+        "at": 0.6
+      }
+    ]
+  },
+  "scenes": [
+    {
+      "name": "A game for the whole family",
+      "clips": [
+        {
+          "take": "jegors",
+          "source": "federation-2024-riga-championship.mp4",
+          "from": 182.75,
+          "to": 185.7,
+          "badge": false,
+          "caption": {
+            "title": "International Dice Chess Federation · Latvian Dice Chess Championship, Jūrmala 2020 · Riga 2024",
+            "subtitle": "Tournament footage courtesy of the federation · dicechess.net",
+            "seconds": 2.95
+          }
+        },
+        {
+          "take": "hall",
+          "source": "federation-2020-jurmala-championship.mp4",
+          "from": 34.5,
+          "to": 38.0,
+          "badge": false,
+          "caption": {
+            "title": "International Dice Chess Federation · Latvian Dice Chess Championship, Jūrmala 2020 · Riga 2024",
+            "subtitle": "Tournament footage courtesy of the federation · dicechess.net",
+            "seconds": 2.6
+          }
+        },
+        {
+          "take": "boy-and-senior",
+          "source": "federation-2024-riga-championship.mp4",
+          "from": 38.0,
+          "to": 40.5,
+          "badge": false
+        },
+        {
+          "take": "medal",
+          "source": "federation-2024-riga-championship.mp4",
+          "from": 299.6,
+          "to": 301.3,
+          "badge": false
+        },
+        {
+          "take": "girl-rolls",
+          "source": "federation-2020-jurmala-championship.mp4",
+          "from": 47.2,
+          "to": 52.3,
+          "badge": false
+        },
+        {
+          "take": "handshake",
+          "source": "federation-2020-jurmala-championship.mp4",
+          "from": 30.0,
+          "to": 32.9,
+          "badge": false
+        },
+        {
+          "take": "anna",
+          "source": "federation-2024-riga-championship.mp4",
+          "from": 75.0,
+          "to": 77.9,
+          "badge": false
+        },
+        {
+          "take": "sand",
+          "source": "federation-2020-jurmala-sand.mp4",
+          "from": 6.5,
+          "to": 9.0,
+          "badge": false
+        },
+        {
+          "take": "launch-animation",
+          "from": 0,
+          "to": 3.125,
+          "badge": false
+        },
+        {
+          "take": "built",
+          "from": 6.6,
+          "to": 9.6
+        }
+      ],
+      "narration": [
+        {
+          "line": "owner_intro_1",
+          "at": 0.5
+        },
+        {
+          "line": "owner_intro_2",
+          "at": 3.8
+        },
+        {
+          "line": "owner_intro_3",
+          "at": 7.6
+        },
+        {
+          "line": "owner_intro_4",
+          "at": 11.9
+        },
+        {
+          "line": "owner_intro_5",
+          "at": 17.2
+        },
+        {
+          "line": "owner_intro_6",
+          "at": 22.9
+        }
+      ]
+    },
+    {
+      "name": "Learn with Thinkle",
+      "card": {
+        "kicker": "Learn with Thinkle",
+        "title": "The wizard talks you\nthrough your first moves",
+        "seconds": 3.0
+      },
+      "clips": [
+        {
+          "take": "tutorial",
+          "from": 14.95,
+          "to": 26.75,
+          "audio": [
+            {
+              "line": "thinkle_tutor_move_opening_1",
+              "at": 15.08
+            },
+            {
+              "line": "thinkle_tutor_move_opening_2",
+              "at": 17.98
+            },
+            {
+              "line": "thinkle_tutor_move_opening_3",
+              "at": 22.96
+            }
+          ]
+        },
+        {
+          "take": "tutorial",
+          "from": 29.24,
+          "to": 39.45,
+          "audio": [
+            {
+              "line": "thinkle_tutor_move_rolled_1",
+              "at": 29.44
+            },
+            {
+              "line": "thinkle_tutor_move_rolled_2",
+              "at": 35.49
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Two players, one remote",
+      "card": {
+        "kicker": "Two players, one remote",
+        "title": "Prowla hosts your game.\nThe dice choose your pieces.",
+        "seconds": 3.0
+      },
+      "clips": [
+        {
+          "take": "hotseat",
+          "from": 8.8,
+          "to": 24.6,
+          "audio": [
+            {
+              "line": "prowla_host_intro_1",
+              "at": 9.34
+            },
+            {
+              "file": "native/sounds/kenney-casino-audio/dice_throw_1.mp3",
+              "at": 15.55
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
+              "at": 18.38
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
+              "at": 22.14
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Face to face",
+      "card": {
+        "kicker": "Face to face",
+        "title": "The board can turn\nto face whoever moves",
+        "seconds": 3.0
+      },
+      "clips": [
+        {
+          "take": "flip",
+          "from": 21.5,
+          "to": 33.0,
+          "audio": [
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
+              "at": 23.41
+            },
+            {
+              "line": "prowla_host_handoff_2",
+              "at": 23.58
+            },
+            {
+              "file": "native/sounds/kenney-casino-audio/dice_throw_2.mp3",
+              "at": 24.4
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
+              "at": 27.16
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
+              "at": 29.66
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
+              "at": 32.14
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Three opponents",
+      "card": {
+        "kicker": "Three opponents",
+        "title": "Each has a voice\nand a playing style of their own",
+        "seconds": 3.0
+      },
+      "clips": [
+        {
+          "take": "opponents",
+          "from": 4.2,
+          "to": 11.2
+        },
+        {
+          "take": "opponents",
+          "from": 15.4,
+          "to": 20.2,
+          "audio": [
+            {
+              "line": "grabby_intro_1",
+              "at": 15.65
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Pick up where you left off",
+      "card": {
+        "kicker": "Pick up where you left off",
+        "title": "Your game waits for you.\nThe rules are always at hand.",
+        "seconds": 3.0
+      },
+      "clips": [
+        {
+          "take": "resume",
+          "from": 8.4,
+          "to": 15.9
+        },
+        {
+          "take": "rules",
+          "from": 8.0,
+          "to": 11.5
+        }
+      ]
+    },
+    {
+      "name": "Music that follows the game",
+      "card": {
+        "kicker": "Music that follows the game",
+        "title": "Hear the music change\nas your king comes under threat",
+        "seconds": 3.0
+      },
+      "clips": [
+        {
+          "take": "rampage-2",
+          "from": 70.5,
+          "to": 102.6,
+          "audio": [
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
+              "at": 71.17
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_1.mp3",
+              "at": 75.01
+            },
+            {
+              "file": "native/sounds/kenney-casino-audio/dice_grab_2.mp3",
+              "at": 77.59
+            },
+            {
+              "file": "native/sounds/kenney-casino-audio/dice_throw_3.mp3",
+              "at": 78.29
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_impact_2.mp3",
+              "at": 78.45
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
+              "at": 78.83
+            },
+            {
+              "line": "rampage_capture_3",
+              "at": 79.66
+            },
+            {
+              "file": "native/sounds/kenney-casino-audio/dice_throw_2.mp3",
+              "at": 81.23
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_1.mp3",
+              "at": 86.56
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
+              "at": 95.92
+            },
+            {
+              "line": "rampage_threat_3",
+              "at": 98.08
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Built with React Native for Vega",
+      "card": {
+        "kicker": "Built with",
+        "title": "React Native for Vega",
+        "seconds": 7.0,
+        "lines": [
+          "React Native for Vega 0.83 · Vega SDK 0.24 · Vega OS",
+          "Recorded on the Vega Virtual Device (macOS) · Tested on a Fire TV Stick 4K Select",
+          "Rules: Fortemate's open-source Dice Chess engine",
+          "Tools: Amazon Devices Builder Tools MCP · vega-vvd-driver (MIT) · Claude Code"
+        ]
+      },
+      "clips": [
+        {
+          "take": "built",
+          "from": 12.0,
+          "to": 21.5
+        }
+      ],
+      "narration": [
+        {
+          "line": "owner_built_1",
+          "at": 0.6
+        },
+        {
+          "line": "owner_built_2",
+          "at": 7.6
+        }
+      ]
+    }
+  ]
+}

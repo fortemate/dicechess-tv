@@ -228,6 +228,101 @@ test('the preliminary soundtrack carries music across every card', () => {
   assert.match(preview.end.footer, /JDSherbert/);
 });
 
+// The v9 cut: the federation's footage with captions under the owner's voice,
+// the game scenes, and the Built-with scene, under three minutes.
+test("the v9 cut opens on credited footage, speaks in the owner's voice, and stays under three minutes", () => {
+  const v9 = JSON.parse(
+    readFileSync(join(HERE, 'storyboard-v9.json'), 'utf8'),
+  ) as {
+    scenes: {
+      name: string;
+      card?: {
+        kicker: string;
+        title: string;
+        seconds: number;
+        lines?: string[];
+      };
+      clips: {
+        take: string;
+        source?: string;
+        from: number;
+        to: number;
+        hold?: number;
+        badge?: boolean | string;
+        caption?: { title: string; subtitle?: string; seconds?: number };
+      }[];
+      narration?: Narration[];
+    }[];
+    end: {
+      seconds: number;
+      builtWith?: string;
+      footer: string;
+      narration?: Narration[];
+    };
+  };
+  const owner = JSON.parse(
+    readFileSync(join(HERE, 'voice-over.json'), 'utf8'),
+  ) as {
+    lines: Record<
+      string,
+      { source: string; from: number; to: number; text: string }
+    >;
+  };
+  for (const [id, line] of Object.entries(owner.lines)) {
+    assert.match(id, /^owner_/, id);
+    assert.ok(line.to > line.from && line.from >= 0, id);
+    assert.ok(line.text.trim(), id);
+  }
+  let duration = v9.end.seconds;
+  const spoken: string[] = [];
+  for (const scene of v9.scenes) {
+    assert.ok(scene.name.trim());
+    if (scene.card) {
+      assert.ok(scene.card.seconds > 0, scene.name);
+      duration += scene.card.seconds;
+    }
+    for (const clip of scene.clips) {
+      assert.ok(
+        clip.from >= 0 && clip.to > clip.from,
+        `${scene.name}: ${clip.take}`,
+      );
+      duration += clip.to - clip.from + (clip.hold ?? 0);
+      if (clip.source) {
+        // Footage that is not the app's carries no device badge.
+        assert.equal(clip.badge, false, `${scene.name}: ${clip.take}`);
+        assert.match(clip.source, /^federation-/, clip.source);
+      }
+      if (clip.caption) assert.ok(clip.caption.title.trim(), clip.take);
+    }
+    spoken.push(...(scene.narration ?? []).map(({ line }) => line));
+  }
+  spoken.push(...(v9.end.narration ?? []).map(({ line }) => line));
+  // The federation is credited on screen in the first scene and on the end card.
+  const first = v9.scenes[0];
+  assert.ok(
+    first.clips.some(
+      (clip) => clip.source && clip.caption?.title.includes('Federation'),
+    ),
+  );
+  assert.match(v9.end.footer, /Federation/);
+  // The track's tool is named on a card and on the end card.
+  assert.ok(
+    v9.scenes.some((scene) =>
+      scene.card?.lines?.some((line) => line.includes('React Native for Vega')),
+    ),
+  );
+  assert.match(v9.end.builtWith ?? '', /React Native for Vega/);
+  // His own lines are said once each; the owner's intro and Built-with lines are all placed.
+  for (const id of spoken)
+    assert.ok(lineOf(id) ?? owner.lines[id], `${id} has no clip`);
+  assert.equal(new Set(spoken).size, spoken.length);
+  for (const id of Object.keys(owner.lines))
+    assert.ok(spoken.includes(id), `${id} is not placed`);
+  // Thinkle's "first frame in about a third of a second" is not true of the Stick.
+  assert.ok(!spoken.includes('thinkle_demo_built_2'));
+  assert.ok(duration >= 150 && duration < 180, `${duration} seconds`);
+});
+
 test('soundtrack rejects misplaced transitions and incomplete speech', () => {
   const scenes: SceneTiming[] = [
     {

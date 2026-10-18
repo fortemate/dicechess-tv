@@ -12,10 +12,18 @@ through the introduction and tutorial, calm from the first Hot Seat game, then
 critical at the recorded threat to the king. The earlier narrated cut is retained in
 `storyboard-narrated.json` for a later version.
 
+The v9 cut (`storyboard-v9.json`, October 2026) opens on 20 s of the
+International Dice Chess Federation's tournament footage under the owner's own
+voice, keeps the game scenes with shorter cards, and closes on a "Built with"
+scene in his voice too. Its footage and his recordings stay out of the
+repository, under `dist/demo-video/footage/` and `dist/demo-video/voice/`.
+
 | File                   | What it does                                                                                                            |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | `record.ts`            | Drives the Virtual Device through the gameplay takes with `vvd`; also renders one cycle of the built launch animation.  |
 | `storyboard.json`      | The cut: each scene's name (its chapter), the stretches of takes it shows, its optional title card, and the end card.   |
+| `storyboard-v9.json`   | The v9 cut: the federation footage with captions and the owner's voice-over, then the game scenes, then "Built with".   |
+| `voice-over.json`      | The owner's voice-over lines: which recording each is cut from, where, and its words. `voice-over.mjs` cuts them.       |
 | `assemble.ts`          | Cuts the picture, mixes continuous music with synchronized game sounds, and checks the export.                          |
 | `soundtrack.ts`        | Resolves music transitions and recorded voice/effect events onto the finished timeline.                                 |
 | `cards.swift`          | Draws the "Vega Virtual Device on macOS" badge, title cards and end card, in the app's colors.                          |
@@ -103,6 +111,36 @@ critical at the recorded threat to the king. The earlier narrated cut is retaine
      frames a second, with AAC sound. It also rejects sustained silence in the
      continuous soundtrack, except at its opening and closing fades. It warns of
      any chapter shorter than the 10 s YouTube needs. These are checked by assemble.ts, not on a device.
+
+## Footage from elsewhere, captions and the owner's voice (v9)
+
+- A clip with `source` names a file under `dist/demo-video/footage/`
+  (`FOOTAGE`) instead of a take: the federation's tournament recordings, which
+  Vladimir Sveshnikov allowed on 16 October 2026. The assembler brings it to
+  1920x1080 at 30 frames a second once, drops its own sound, and shows it
+  without the device badge; `from` and `to` are seconds in the source file.
+  `crop` (an ffmpeg `w:h:x:y`) keeps a burnt-in subtitle or a broadcaster's logo
+  out of the frame. The YouTube description and the end card credit the
+  federation; a clip's year or event goes in its caption only as the federation
+  confirms it.
+- A clip's `caption` draws a lower third over it: a band in the app's background
+  colour along the bottom, a `title` and a quieter `subtitle`, faded in with the
+  clip and out after `seconds`, or with the clip. The footage credit is shown
+  for the first five seconds of the intro and then let go, so the pictures
+  breathe.
+- `badge` may be a string naming another device, drawn where the Virtual Device
+  badge goes: a clip filmed off a television with a Fire TV Stick says so.
+  Footage that is not the app's carries no badge at all (`false`).
+- The owner's voice-over is placed like Thinkle's lines, by id, and the
+  continuous soundtrack ducks under it as it does under the game's voices.
+  `voice-over.json` says which recording each line comes from and where;
+  `node scripts/demo-video/voice-over.mjs` cuts them into `dist/demo-video/voice/`
+  (`VOICE`), faded, lifted a little at 3 kHz for a lavalier on the chest, and
+  brought to the narration's loudness. The recordings are his own and are not
+  committed; a storyboard that places a line he has not recorded fails to
+  assemble.
+- A card's `lines` are drawn smaller under its title, for the "Built with"
+  card; the end card's `builtWith` line sits above its footer.
 
 ## How the cut is made
 
