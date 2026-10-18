@@ -5,7 +5,7 @@ sidebar:
   order: 3
 ---
 
-Dice Chess 1.0.1, build 30, was published on GitHub on 14 October 2026. It improves voice playback, player cleanup and music recovery after the Vega OS update. It is free and in English, and it needs no account.
+Dice Chess 1.0.1, build 30, was published on GitHub on October 14, 2026. It improves voice playback, player cleanup and music recovery after the Vega OS update. It is free and in English, and it needs no account.
 
 ## From GitHub
 
@@ -38,12 +38,12 @@ The 1.0.1/build 30 candidate was installed over 1.0.0/build 29 on both the Stick
 
 ## On the Amazon Appstore
 
-The owner reported submitting version 1.0.1, build 30, to the Amazon Appstore for review on 14 October 2026. The separate armv7 Appstore package includes the portraits. Approval and store availability have not been confirmed; the packages linked above are available from GitHub for installation with the Vega SDK.
+The owner reported submitting version 1.0.1, build 30, to the Amazon Appstore for review on October 14, 2026. The separate armv7 Appstore package includes the portraits. Approval and store availability have not been confirmed; the packages linked above are available from GitHub for installation with the Vega SDK.
 
 ## What to try
 
 - **Learn to play**, the six-lesson tutorial taught by Thinkle the wizard. A first launch offers it before anything else.
-- **Play the computer**: Rolly (Easy), Grabby (Medium) or Rampage (Hard). OK on a card starts the game in the colour **Play as** names in Settings, Random unless you change it.
+- **Play the computer**: Rolly (Easy), Grabby (Medium) or Rampage (Hard). OK on a card starts the game in the color **Play as** names in Settings, Random unless you change it.
 - **Play a friend** with someone else in the room, passing the remote. Prowla the cat hosts, unless Settings names Rolly, Thinkle or no host.
 - **Rules reference**, to look something up, from the home screen or the game menu.
 - The music as a game gets tense. **Settings** sets its volume, turns the sound effects and the voices on or off, and has the rows for Play as, the host, turning the board for friends and **Auto-play only move**. [Controls](/play/controls/) describes every menu and every row.

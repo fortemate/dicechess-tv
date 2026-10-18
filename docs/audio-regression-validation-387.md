@@ -1,6 +1,6 @@
 # Audio regression validation (#387)
 
-Validated on 14 October 2026 against main `7035ffc` and the audio playback lifecycle changes in this pull request.
+Validated on October 14, 2026 against main `7035ffc` and the audio playback lifecycle changes in this pull request.
 
 ## Automated checks
 
@@ -18,7 +18,7 @@ VVD also supplied a recording with audio. Hardware evidence comes from native pl
 
 ## Playback probe
 
-The 600-second probe passed independently on both devices. It requested 84 spoken clips across bot, host and tutor packs, exercised all ten effect cues, changed between all four music roles, toggled music, forced repeated EOF cleanup with delayed ticks, injected a missing music file and retried a working catalogue.
+The 600-second probe passed independently on both devices. It requested 84 spoken clips across bot, host and tutor packs, exercised all ten effect cues, changed between all four music roles, toggled music, forced repeated EOF cleanup with delayed ticks, injected a missing music file and retried a working catalog.
 
 Each run completed 108 player releases, including 90 releases after native EOF. At the end only the three reusable effect channels remained initialized. The maximum EOF release time was 186 ms on hardware and 314 ms on VVD. There were no unexpected playback errors, completion watchdogs, native deinitialization timeouts or ANRs. The missing-file test produced one expected failure on each device: a native error on VVD and the no-progress timeout on hardware. The previous music continued until the explicit retry started the working theme.
 
@@ -36,7 +36,7 @@ After the CI cleanup refactor to async/await, the clean packages were rebuilt an
 
 ## CodeRabbit follow-up
 
-Ten further regressions reproduced the review findings before the fixes and passed afterwards. Eight cover decoder errors on either pass of a crossfade after Music off, a null theme, a result hold or catalogue removal. Two cover appended ID3v2.4 tags, alone or before ID3v1, and malformed footer boundaries. README playback claims now link to their tests and device evidence.
+Ten further regressions reproduced the review findings before the fixes and passed afterwards. Eight cover decoder errors on either pass of a crossfade after Music off, a null theme, a result hold or catalog removal. Two cover appended ID3v2.4 tags, alone or before ID3v1, and malformed footer boundaries. README playback claims now link to their tests and device evidence.
 
 The crossfade cases were repeated separately on VVD and the Stick with real native players. A temporary fixture invoked the captured error handler while both passes were active, then sampled the volume values sent to the native setters and awaited native release completion. All eight cases passed on each device: the surviving pass never faded back in during silence, both passes were released, and the requested theme returned after the result hold. Each run completed 18 native releases; the longest took 162 ms on hardware and 133 ms on VVD. There were no unexpected native errors or release timeouts. Recorded audio was available from VVD; the hardware result rests on its own playback events, requested volume ramps and release completions.
 
@@ -44,6 +44,6 @@ All 272 generated MP3 copies remained byte-identical to the previously validated
 
 ## Final package and saved data
 
-The clean Release packages were installed on both devices after removing the temporary wrappers. Both deployed JavaScript and Hermes bundle SHA-256 digests matched their package archives. The JavaScript and Hermes bundles in all three Release archives contained no diagnostic wrapper markers. All four music catalogue digests matched the packaged MP3s.
+The clean Release packages were installed on both devices after removing the temporary wrappers. Both deployed JavaScript and Hermes bundle SHA-256 digests matched their package archives. The JavaScript and Hermes bundles in all three Release archives contained no diagnostic wrapper markers. All four music catalog digests matched the packaged MP3s.
 
 The original MMKV data and CRC files were restored on each device. After the clean package launched, both files matched their respective pre-test backups byte for byte. This preserves the saved game, ledger and settings.

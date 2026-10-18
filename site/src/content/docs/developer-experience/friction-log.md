@@ -9,7 +9,7 @@ sidebar:
 
 This is the friction log of Dice Chess for Fire TV, kept while we built the app for [Build, Ship, Shape: Amazon Developer Hackathon 2026](https://amazonappdev2026.devpost.com/). It records the reproducible obstacles we met in Amazon's Vega SDK, its tools and its documentation. Our own bugs are not here.
 
-Each entry has the fields the [rules](https://amazonappdev2026.devpost.com/rules) ask for: the task attempted, the steps taken, the expected and actual results, a severity, the workaround and an actionable suggestion. Entries were written when the obstacle happened, while the versions, steps and workaround were still known. Where an entry gives evidence, it names where the finding is recorded: a file, commit, pull request or issue of this project's repository, or a thread on Amazon's developer forum. Pointers into `native/README.md` name commit `04b0a88`, the last version that held its long-form platform records, before they were condensed into this site's Technology and Build and run pages. Where an entry involves a device, it is the Vega Virtual Device unless the entry says otherwise. The game has run on a Fire TV Stick 4K Select since 6 October 2026, and every entry before FL-30 is older. FL-20 and FL-21 have updates from the Stick. FL-30 was found on the Virtual Device, and only its workaround was tried on the Stick. FL-31 and FL-32 were found on the Stick. The others have not been checked on it.
+Each entry has the fields the [rules](https://amazonappdev2026.devpost.com/rules) ask for: the task attempted, the steps taken, the expected and actual results, a severity, the workaround and an actionable suggestion. Entries were written when the obstacle happened, while the versions, steps and workaround were still known. Where an entry gives evidence, it names where the finding is recorded: a file, commit, pull request or issue of this project's repository, or a thread on Amazon's developer forum. Pointers into `native/README.md` name commit `04b0a88`, the last version that held its long-form platform records, before they were condensed into this site's Technology and Build and run pages. Where an entry involves a device, it is the Vega Virtual Device unless the entry says otherwise. The game has run on a Fire TV Stick 4K Select since October 6, 2026, and every entry before FL-30 is older. FL-20 and FL-21 have updates from the Stick. FL-30 was found on the Virtual Device, and only its workaround was tried on the Stick. FL-31 and FL-32 were found on the Stick. The others have not been checked on it.
 
 Severity: **Blocker** stopped the chosen approach; **High** cost a day or would break the app for users; **Medium** cost hours or needed a workaround; **Low** is friction without lasting cost.
 
@@ -21,7 +21,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 | Vega SDK         | 0.24.12112; 0.24.12044 and 0.23.9221 in the WebView comparison                            |
 | Vega CLI         | 1.3.4 on macOS, 1.4.2 on Ubuntu                                                           |
 | Virtual Device   | 1920x1080, OS 1.2 (SDK 0.24 image)                                                        |
-| Fire TV Stick    | 4K Select (armv7), OS build 2301020004820; 2602000051520 (OS 2.0) from 12 October 2026    |
+| Fire TV Stick    | 4K Select (armv7), OS build 2301020004820; 2602000051520 (OS 2.0) from October 12, 2026   |
 | App stack        | React Native 0.83 through `@amazon-devices/react-native-kepler` 4.0.x, React 19.2, Hermes |
 | Vega packages    | `react-native-svg` 3.0.x, `react-native-mmkv` 1.0.x, `react-native-w3cmedia` 2.3.2        |
 | Lint             | `@amazon-devices/eslint-plugin-kepler` 0.1.15                                             |
@@ -127,12 +127,12 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   error. A developer who tests with the keyboard alone would never notice.
 - **Workaround:** treat `select`, `enter` and `kpenter` alike.
 - **Suggested improvement:** list every `eventType` that the Virtual Device and devices emit in the
-  `HWEvent` documentation, or normalise the OK button to `select` before it reaches the app.
+  `HWEvent` documentation, or normalize the OK button to `select` before it reaches the app.
 - **Current status:** worked around.
 - **Update, 2026-10-04:** Amazon staff had answered which name a remote's OK sends on 2026-08-31, in
   [another developer's bug report](https://community.amazondeveloper.com/t/0-24-rn-0-83-remote-select-never-invokes-onpress-focus-works/28945)
   on Amazon's developer forum. For React Native 0.83 apps, Vega OS 1.2 delivers the raw, lower-case
-  key name, so OK arrives as `enter`, and "a future Vega OS release" will normalise it to `select`,
+  key name, so OK arrives as `enter`, and "a future Vega OS release" will normalize it to `select`,
   the name React Native 0.72 apps received. So on OS 1.2 a remote's OK should arrive as `enter`, as
   the Virtual Device's keyboard sends it, and an app that handles only `select`, the name the
   documentation gives, would have a dead OK there. The answer does not mention `kpenter`, which stays
@@ -190,7 +190,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   closes as well. Only `useKeplerBackHandler` can claim Back; it calls `exitApp()` itself when no
   handler returns true. Evidence:
   `native/README.md` at commit `04b0a88`, Remote input.
-- **Severity and user impact:** Medium. Back quit the game instead of cancelling.
+- **Severity and user impact:** Medium. Back quit the game instead of canceling.
 - **Workaround:** handle Back in `useKeplerBackHandler` and every other key in `useTVEventHandler`.
 - **Suggested improvement:** say in the `useTVEventHandler` documentation that it cannot claim an
   event, and point to `useKeplerBackHandler` from there.
@@ -372,7 +372,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 - **Actual result and evidence:** the task builds and registers, but the app has no documented way to
   start it, and a start from the CLI fails with
   `com.amazon.apmf.SecurityError: Missing privileges to send message`. The documentation's examples
-  are all system-driven (programme guide sync, install updates). React Native has no Web Worker.
+  are all system-driven (program guide sync, install updates). React Native has no Web Worker.
   Worklets are documented for heavy computation, but we have not proved them with a pure JavaScript
   library. Evidence:
   `native/README.md` at commit `04b0a88`, The local opponents; PR #21.
@@ -517,7 +517,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   `native/manifest.toml`.
 - **Severity and user impact:** Medium. Following the documented step stopped our app at launch, and
   the only clue was one log line. Amazon's own sample does not stop with the same entry (see the
-  update below), so this is not general 0.24 behaviour. It was High until 2026-09-30.
+  update below), so this is not general 0.24 behavior. It was High until 2026-09-30.
 - **Workaround:** leave the service undeclared.
 - **Suggested improvement:** say in the guidance, and in the skill that repeats it, which SDK versions
   and devices still need the entry for `useTVEventHandler`; and log a reason when a declared service
@@ -715,7 +715,7 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 - **Severity and user impact:** Low. It adds a short gap to any MP3 loop.
 - **Workaround:** the overlapping crossfade of [FL-25](#fl-25) covers it. WAV is exact but about ten
   times larger.
-- **Suggested improvement:** honour the LAME and Xing headers' delay and padding, or document that
+- **Suggested improvement:** honor the LAME and Xing headers' delay and padding, or document that
   they are ignored.
 - **Current status:** worked around.
 
@@ -878,8 +878,8 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
 ### FL-31 · After an OS update, `src` on a used `AudioPlayer` can hang the app, and every way round costs something {#fl-31}
 
 - **Date and environment:** 2026-10-12 and 2026-10-13 · SDK 0.24.12112 · a Fire TV Stick 4K Select
-  (armv7). The Stick updated itself on 12 October 2026, from OS build `2301020004820` to
-  `2602000051520` (OS 2.0, TV Ship/515, built 2 October 2026).
+  (armv7). The Stick updated itself on October 12, 2026, from OS build `2301020004820` to
+  `2602000051520` (OS 2.0, TV Ship/515, built October 2, 2026).
 - **Tool / SDK / component version:** `@amazon-devices/react-native-w3cmedia` 2.3.2, with the media
   player's system bundle that the OS ships. Its `AudioPlayer` was made with `CONTENT_TYPE_SONIFICATION`
   or `CONTENT_TYPE_MUSIC`, and `USAGE_GAME`.

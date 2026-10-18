@@ -88,7 +88,7 @@ The music then settles: it rises at once to a higher level, because a threat is 
 
 ## Three actions restored in the engine
 
-Until 13 October 2026 tense looked three actions deep, and each of the 56 distinct rolls was searched on its own in JavaScript. That was thousands of engine calls a turn, and on a Fire TV Stick each roll's search held the JavaScript thread for up to 2.7 s, so the cursor waited for it ([Performance](/technology/performance/#danger-evaluation--threat-analysis), [#365](https://github.com/fortemate/dicechess-tv/issues/365)). An intermediate measure looked two actions deep, which left 9 of 300 turns from seeded games calm instead of tense.
+Until October 13, 2026 tense looked three actions deep, and each of the 56 distinct rolls was searched on its own in JavaScript. That was thousands of engine calls a turn, and on a Fire TV Stick each roll's search held the JavaScript thread for up to 2.7 s, so the cursor waited for it ([Performance](/technology/performance/#danger-evaluation--threat-analysis), [#365](https://github.com/fortemate/dicechess-tv/issues/365)). An intermediate measure looked two actions deep, which left 9 of 300 turns from seeded games calm instead of tense.
 
 Engine 0.14.6 added `DiceChess.threatWeight` ([dicechess-engine#341](https://github.com/fortemate/dicechess-engine/pull/341), [#382](https://github.com/fortemate/dicechess-tv/issues/382)), moving the three-action search into Scala. In Node with `--jitless` it takes a median of 12.2 ms in one call, and restores the exact three-action threat measurement.
 
@@ -96,5 +96,5 @@ Engine 0.14.6 added `DiceChess.threatWeight` ([dicechess-engine#341](https://git
 
 - `src/core/danger.ts`: the measure. `native/src/useDanger.ts`: when it runs, and how the level settles.
 - `test/danger.test.ts` checks the first-action, two-action and three-action counts of fixed positions against the engine's legal turn tree. On 200 positions from seeded games it checks them against a search of each roll on its own (`rollByRoll(depth=3)`). It also checks that a measure without music evaluates only one action.
-- `native/test/useDanger.test.tsx` checks the single slot, pausing, a replaced position, an engine fault heard as calm, and the behaviour without music.
+- `native/test/useDanger.test.tsx` checks the single slot, pausing, a replaced position, an engine fault heard as calm, and the behavior without music.
 - Figures from Node and from a Fire TV Stick are on the [Performance](/technology/performance/#danger-evaluation--threat-analysis) page.

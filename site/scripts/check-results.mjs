@@ -36,7 +36,10 @@ function visits({ name, text }) {
       if (index < 0) throw new Error(`${name}: no "${title}" column`);
       return index;
     };
-    const vision = column('Colour vision');
+    // Existing sheets retain their original column heading.
+    const vision = column(
+      header.includes('Color vision') ? 'Color vision' : 'Colour vision',
+    );
     const details = column('Details');
     const id = header.indexOf('Submission');
     return rows.flatMap((row, index) => {

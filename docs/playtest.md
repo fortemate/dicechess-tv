@@ -4,9 +4,9 @@ Thank you for trying the game. This page says which package to install and how, 
 
 ## Which package
 
-Dice Chess 1.0.1, build 30, was released on GitHub on 14 October 2026. Its [release on GitHub](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.1%2B30) carries three packages: the same app, built for three processors, plus `SHA256SUMS.txt`. The characters' portraits are Fortemate's and stay out of this public repository, so these packages show the opponents' emoji faces in their place, and leave an empty space where Prowla the cat and Thinkle the wizard, who have no such face, would be. The separate armv7 package for the Appstore contains those portraits.
+Dice Chess 1.0.1, build 30, was released on GitHub on October 14, 2026. Its [release on GitHub](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.1%2B30) carries three packages: the same app, built for three processors, plus `SHA256SUMS.txt`. The characters' portraits are Fortemate's and stay out of this public repository, so these packages show the opponents' emoji faces in their place, and leave an empty space where Prowla the cat and Thinkle the wizard, who have no such face, would be. The separate armv7 package for the Appstore contains those portraits.
 
-The release includes the audio fixes from [PR #388](https://github.com/fortemate/dicechess-tv/pull/388), with version preparation merged in [PR #383](https://github.com/fortemate/dicechess-tv/pull/383). Its completed checks, final packaging and publication verification are in the [release validation record](release-validation-1.0.1-build30.md). The [audio validation record](audio-regression-validation-387.md) covers the preceding checks of the same application code, with separate device and automated evidence. The owner reported submitting 1.0.1, build 30, to the Amazon Appstore for review on 14 October 2026; approval has not been confirmed.
+The release includes the audio fixes from [PR #388](https://github.com/fortemate/dicechess-tv/pull/388), with version preparation merged in [PR #383](https://github.com/fortemate/dicechess-tv/pull/383). Its completed checks, final packaging and publication verification are in the [release validation record](release-validation-1.0.1-build30.md). The [audio validation record](audio-regression-validation-387.md) covers the preceding checks of the same application code, with separate device and automated evidence. The owner reported submitting 1.0.1, build 30, to the Amazon Appstore for review on October 14, 2026; approval has not been confirmed.
 
 | File                               | Install it on                                         |
 | ---------------------------------- | ----------------------------------------------------- |
@@ -52,7 +52,7 @@ Removing the app deletes its saved game, results and settings. They never leave 
 ## What to try
 
 1. Start with **Learn to play**, the six-lesson tutorial, before reading anything else about the game. Thinkle the wizard teaches it aloud, and a first launch after a fresh install offers it. Its last screen offers a first game: **Play Rolly**, as White so that you roll first, **Play a friend**, or **Main menu**.
-2. Play a game against the computer: **Play the computer**, then pick Rolly (easy), Grabby (medium) or Rampage (hard). With **Play as** in **Settings** on Random, the default, OK on a card starts the game in a colour drawn for you. White or Black plays that colour, and Ask brings back the choice of colour before each game. Each opponent talks from beside its face at the top of the screen, with a voice of its own.
+2. Play a game against the computer: **Play the computer**, then pick Rolly (easy), Grabby (medium) or Rampage (hard). With **Play as** in **Settings** on Random, the default, OK on a card starts the game in a color drawn for you. White or Black plays that color, and Ask brings back the choice of color before each game. Each opponent talks from beside its face at the top of the screen, with a voice of its own.
 3. If someone is with you, choose **Play a friend** and pass the remote after each turn. Prowla the cat hosts: she greets you both, cheers the big moments when a turn ends, and cheers you both at the end. **Settings** can choose Rolly or Thinkle instead, or no host.
 4. During a game, Back opens the game menu: **Resume game**, **Resign**, **Agree a draw** in a game against a friend, **New game**, **Main menu**, **Rules reference** and **Settings**. **Main menu** leaves the game for the home screen, and **Resume game** there brings it back. Starting a new game while one is in play asks **Replace this game?** first, and **Cancel** keeps the game you have.
 5. Look something up in **Rules reference**.
@@ -94,7 +94,7 @@ your saved game's position, dice, results and settings before installing over it
    the same game and dice resume, with no old cue or line replayed. Repeat this
    several times. Check Back and Menu during play, and Resume from each menu.
 6. **Complete the screen flow.** Try all six tutorial lessons, Rules reference,
-   About and the licence notices. Finish a game, check its result and record,
+   About and the license notices. Finish a game, check its result and record,
    then try Rematch. Check that Cancel keeps a game when replacing it or resigning.
 
 Record which checks passed and which were not exercised. Include the exact
@@ -113,7 +113,7 @@ We turn findings into issues and link each one in its discussion, so you can see
 
 ## What this build is
 
-- **Published GitHub version.** 1.0.1, build 30, published on 14 October 2026 from `5a8bc32` ([release notes](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.1%2B30)), with engine 0.14.7 and the playback lifecycle fixes in PR #388.
+- **Published GitHub version.** 1.0.1, build 30, published on October 14, 2026 from `5a8bc32` ([release notes](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.1%2B30)), with engine 0.14.7 and the playback lifecycle fixes in PR #388.
 - **Tested on.** The candidate passed 919 automated tests and separate checks on the Vega Virtual Device and a Fire TV Stick 4K Select: upgrade preservation, saved-turn recovery, settings, screen navigation and sustained play against Rampage and a friend, with shorter Rolly/Grabby runs. The final-main packages have the same application payload, and their published downloads were verified. The owner also reported checking the Stick and finding it working well. The [release validation record](release-validation-1.0.1-build30.md) retains the exact scope and limits; earlier [navigation checks](board-navigation-validation-299.md) do not establish that every scenario passed on build 30.
 - **Privacy.** It has no network code, no accounts and no analytics: games, results and settings stay on the device. The [privacy policy](https://dicechess-tv.fortemate.com/privacy/) lists what it keeps.
 - **The opponents.** In builds using engine 0.14.8, Rolly plays one of its legal turns at random, except that it takes your king whenever its first move can (in build 30 with engine 0.14.7 it played purely at random). Grabby takes the most valuable piece it can, and Rampage hunts your pieces and goes for your king. Each is an algorithm of the rules engine, running on the device.

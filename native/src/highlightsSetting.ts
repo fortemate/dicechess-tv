@@ -21,7 +21,7 @@ export const HIGHLIGHT_CHOICES: readonly HighlightStyle[] = [
 const NAMES: Readonly<Record<HighlightStyle, string>> = {
   standard: 'Standard',
   enhanced: 'Enhanced',
-  'colour-blind': 'Colour-blind',
+  'colour-blind': 'Color-blind',
   'high-contrast': 'High contrast',
 };
 

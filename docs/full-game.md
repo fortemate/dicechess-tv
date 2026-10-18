@@ -1,8 +1,8 @@
 # Full offline game prototype
 
-> **Historical record.** This page records the full-game prototype of 21 September 2026, which ran in the Svelte + Chessground WebView on SDK 0.23. The WebView probe has been removed and nothing is built on it. The game is the React Native for Vega application in `native/`, released as 1.0.0 on 10 October 2026; the [README](../README.md) and the [project site](https://dicechess-tv.fortemate.com/) describe it as it is now.
+> **Historical record.** This page records the full-game prototype of September 21, 2026, which ran in the Svelte + Chessground WebView on SDK 0.23. The WebView probe has been removed and nothing is built on it. The game is the React Native for Vega application in `native/`, released as 1.0.0 on October 10, 2026; the [README](../README.md) and the [project site](https://dicechess-tv.fortemate.com/) describe it as it is now.
 
-Implemented on 21 September 2026, following the one-move Vega feasibility experiment. This is still a prototype, not an Appstore release or a physical Fire TV qualification.
+Implemented on September 21, 2026, following the one-move Vega feasibility experiment. This is still a prototype, not an Appstore release or a physical Fire TV qualification.
 
 ## Run and play
 
@@ -35,11 +35,11 @@ The full game uses IndexedDB `dicechess-tv.games`, key `active.v2`, separately f
 
 Worker replies carry request ID, game ID, revision and exact input DFEN. Every action is revalidated; incomplete or stale paths are rejected. Leaving play or opening a menu terminates the active Worker. Resuming restarts it from the saved position and roll. A 10-second watchdog reports failure and allows retry; it does not change difficulty, choose a fallback move or declare a draw.
 
-W/D/L is not implemented in this step. Only the active game's result is stored. A separate exactly-once completed-game ledger is the next milestone. That ledger has since been built for the native application (`src/core/ledger.ts`): it counts each finished game's result exactly once, by computer opponent and side played, and by colour in games against a friend. Version 1.0.0 keeps counting W/D/L but shows none of it, because a count cannot tell who was holding the remote ([#341](https://github.com/fortemate/dicechess-tv/pull/341)).
+W/D/L is not implemented in this step. Only the active game's result is stored. A separate exactly-once completed-game ledger is the next milestone. That ledger has since been built for the native application (`src/core/ledger.ts`): it counts each finished game's result exactly once, by computer opponent and side played, and by color in games against a friend. Version 1.0.0 keeps counting W/D/L but shows none of it, because a count cannot tell who was holding the remote ([#341](https://github.com/fortemate/dicechess-tv/pull/341)).
 
 ## Engine API compatibility
 
-> **Superseded on 26 September 2026 by engine 0.13.0 (#101).** `applyMove` now keeps the unspent dice, and the controller follows each roll through the engine's `getLegalTurnTree`, which also checks a turn as a whole rather than one action at a time. Both rest on `test/game.test.ts` and `test/dice.test.ts`, and on hotseat, bot and promotion turns played on the Vega Virtual Device (PR #103). The adapter described below is gone; this record is kept as it was.
+> **Superseded on September 26, 2026 by engine 0.13.0 (#101).** `applyMove` now keeps the unspent dice, and the controller follows each roll through the engine's `getLegalTurnTree`, which also checks a turn as a whole rather than one action at a time. Both rest on `test/game.test.ts` and `test/dice.test.ts`, and on hotseat, bot and promotion turns played on the Vega Virtual Device (PR #103). The adapter described below is gone; this record is kept as it was.
 
 Engine 0.12.2 `DiceChess.applyMove` applies board placement, castling rights, en passant and halfmove updates, but clears its output dice field. For example, applying `a2a3` to the initial `PPN` position returns six fields. Assuming it consumed only one die prematurely ended the TV turn; the new multi-action regression caught this.
 

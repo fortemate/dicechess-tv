@@ -142,7 +142,7 @@ test('every vendored sound pack is credited as its manifest asks', () => {
     assert.ok(
       credit,
       `${pack}: "${words}" is not on the About screen` +
-        (attributionRequired ? ' — and its licence requires it' : ''),
+        (attributionRequired ? ' — and its license requires it' : ''),
     );
     assert.ok(
       credit.source.startsWith(link.replace(/^https?:\/\//, '')),

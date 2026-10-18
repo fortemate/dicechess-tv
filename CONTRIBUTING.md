@@ -101,7 +101,7 @@ The build takes the highest build number among the beta and release tags (see
 beta or release installs over it and keeps its saved game, as one did over beta 6 on the
 Vega Virtual Device. The device refuses a lower number with "Package version decrease".
 `BUILD_NUMBER=30 mise run device:run` sets the number by hand (the published
-1.0.1 release's number on 14 October 2026).
+1.0.1 release's number on October 14, 2026).
 
 On the virtual device the Mac keyboard stands in for the remote: arrow keys for
 the D-pad, Enter for OK, Esc for Back, F1 for Home. The on-screen remote's OK
@@ -138,15 +138,15 @@ Never edit these by hand. Change the script, rerun it, and commit what it writes
 | `native/licenses/THIRD_PARTY_NOTICES.txt`                              | `native/scripts/notices.mjs`, from the source map `npm run bundle` writes      |
 
 Third-party files — the RhosGFX pieces, the brand images in `native/brand/`, the
-vendored sounds and the licence texts in `licenses/` — are kept byte for byte, and
+vendored sounds and the license texts in `licenses/` — are kept byte for byte, and
 `.gitattributes` stops Git from rewriting their line endings. A new asset needs its
-licence recorded in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and, when the
-licence asks for credit, a line on the About screen (`src/core/credits.ts`).
+license recorded in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and, when the
+license asks for credit, a line on the About screen (`src/core/credits.ts`).
 
 Packaged MP3 copies are generated from those unchanged vendor files. The asset
 generator verifies their source digests before stripping leading and appended
-ID3 tags, retaining the MPEG audio frames. The packaged music catalogue carries
-the generated copies' digests; vendor catalogues and locks retain the originals.
+ID3 tags, retaining the MPEG audio frames. The packaged music catalog carries
+the generated copies' digests; vendor catalogs and locks retain the originals.
 The reason and device evidence are on
 [Building on Vega](https://dicechess-tv.fortemate.com/technology/vega/#playback-after-the-os-update)
 and in the [audio validation record](docs/audio-regression-validation-387.md).
@@ -156,9 +156,18 @@ dependency change brings a package in or takes one out, `npm run bundle --prefix
 native` fails and says which, and `mise run build` fails when the Vega build's own
 bundle has a package the notices do not name. Rewrite the notices with `npm run notices --prefix native`, read the diff,
 and name the package in THIRD_PARTY_NOTICES.md and on the site's Credits and
-licences page, which `test/credits.test.ts` checks.
+licenses page, which `test/credits.test.ts` checks.
 
 ## The voices
+
+Use American English (`en-US`) for original copy in the app, VoiceView, the site
+and documentation. Preserve saved values, API names, filenames and published
+links when editing text. Keep license text and required credits verbatim.
+
+The pinned recordings retain their exact source transcripts. The shared
+`src/core/voiceCaption.ts` presents the existing pronunciation-equivalent U.S.
+spellings in speech bubbles and website captions. It does not change the text
+used to validate or select a recording; other wording changes need a new clip.
 
 Five voice packs are vendored from fortemate/dicechess-assets, which keeps them for
 every client: the bots', one for each host of a game against a friend, Prowla
@@ -168,7 +177,7 @@ still calls it hotseat, and the packs' own notices say Hot Seat.
 
 The bots' lines are written here, in `src/core/botVoice.ts`, and their voices are
 synthesized from those lines in dicechess-assets. Whenever a line changes, commit
-it, export the catalogue, and have the pack synthesized again there before it is
+it, export the catalog, and have the pack synthesized again there before it is
 vendored here:
 
 ```bash
@@ -216,7 +225,7 @@ to the next ([Version Your App](https://developer.amazon.com/docs/vega/0.24/app-
 
 Build numbers rise across betas and releases together, never per version: beta 24 was
 build 24, 1.0.0 was released as builds 26, 28 and 29, and 1.0.1 as build 30 on
-14 October 2026. The next upload, beta or release, must be 31 or higher, whatever
+October 14, 2026. The next upload, beta or release, must be 31 or higher, whatever
 its version, and must also exceed any later submitted or Live App Testing build.
 Every tag carries its build number, so that
 `mise run build` can number a local build like the newest beta or release:

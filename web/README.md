@@ -8,15 +8,15 @@ keyboard plays the remote.
 
 It exists for two questions:
 
-- **How the board's marks read**, including to colour-blind people: each mark can
+- **How the board's marks read**, including to color-blind people: each mark can
   be switched on its own, and the whole screen can be viewed through a
-  colour-vision simulation.
+  color-vision simulation.
 - **How the remote's navigation feels**: the same input path as the television,
   from arrow keys, with a count of the presses spent.
 
 It is not the product and not a second client. Nothing here changes the game;
 the bench swaps only the platform underneath it. What it shows is evidence from
-a browser, not from the Vega Virtual Device or a Fire TV Stick: colours on a
+a browser, not from the Vega Virtual Device or a Fire TV Stick: colors on a
 monitor, a keyboard's repeat rate and the browser's media stack all differ from
 the television's.
 
@@ -74,25 +74,25 @@ variant to someone.
 | `target`   | the destination under the cursor          | `cursor-only`, `bullseye`, `fill`, `ghost`                                      |
 | `cursor`   | the remote's cursor                       | `frame`, `two-tone-bold`, `fill-two-tone`, `brackets`, `thick`, `two-tone`      |
 | `last`     | both squares of the last action           | `tint`, `outline`, `none`                                                       |
-| `palette`  | the colours of all of them                | `tv`, `okabe-ito`, `high-contrast`                                              |
-| `cvd`      | colour-vision simulation                  | `none`, `protanopia`, `deuteranopia`, `tritanopia`, `achromatopsia`             |
+| `palette`  | the colors of all of them                 | `tv`, `okabe-ito`, `high-contrast`                                              |
+| `cvd`      | color-vision simulation                   | `none`, `protanopia`, `deuteranopia`, `tritanopia`, `achromatopsia`             |
 | `view`     | live game or side-by-side step comparison | `game`, `compare`                                                               |
 | `ui`       | `0` hides the bench's controls            |                                                                                 |
 
 `fill`, `fill-corners` and `corners` are variants A, B and C of the
-colour-vision check on the project site (#105, #108). With every mark at its
+color-vision check on the project site (#105, #108). With every mark at its
 first option and the `tv` palette, the board is drawn by
-`native/src/Square.tsx` itself, which also honours the in-game `Highlights`
-setting (`Standard`, `Enhanced`, `Colour-blind` and `High contrast`, #404); any
+`native/src/Square.tsx` itself, which also honors the in-game `Highlights`
+setting (`Standard`, `Enhanced`, `Color-blind` and `High contrast`, #404); any
 other bench URL override is drawn by [`src/Square.tsx`](src/Square.tsx) in the
 same layers. In `compare` view, the
 stage draws Step 1 (choosing a piece) and Step 2 (choosing a destination, empty
-and capture squares of both colours) side by side, and the arrow keys move the
+and capture squares of both colors) side by side, and the arrow keys move the
 cursor on both boards at once (#401; verified in [`test/marks.test.ts`](test/marks.test.ts), browser bench rather than device evidence).
 
 The simulation uses the severity-1 matrices of Machado, Oliveira and Fernandes
 (2009) for the three dichromacies, and luminance alone for achromatopsia. It
-shows where colours collapse into each other; it does not replace testers with
+shows where colors collapse into each other; it does not replace testers with
 those deficiencies.
 
 ## How it is put together
@@ -103,12 +103,12 @@ those deficiencies.
 - `react-native` is react-native-web, except that the window is always 960 x 540,
   the size Vega reports.
 - The sounds are the vendored cues in `native/sounds/`, played on HTML audio
-  elements. The music is left out: the app finds no catalogue and leaves the
+  elements. The music is left out: the app finds no catalog and leaves the
   Music row out of Settings.
 - React is pinned to the version `native/` uses, so both draw with the same
   React. The engine is not a dependency here: `src/core/` imports it from the
   root install, so the bench always plays the engine the game is checked with.
 
 The bench serves the vendored cues as files anyone can download. The JDSherbert
-licence forbids redistributing the raw files; the owner has the author's
+license forbids redistributing the raw files; the owner has the author's
 written permission for the bench.

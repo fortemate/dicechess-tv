@@ -183,7 +183,7 @@ test('Settings speaks new controls as focus moves, without repeating them for ea
     'Highlights: Enhanced.',
     'Auto-play only move: off, 4 of 7. Left switches off. Right switches on. OK toggles. Plays the only legal move for you.',
     'Auto-play only move: on.',
-    'Play as: Random, 5 of 7. Left, Right or OK change this setting. Your colour in new computer games.',
+    'Play as: Random, 5 of 7. Left, Right or OK change this setting. Your color in new computer games.',
     'Turn board for friends: off, 6 of 7. Left switches off. Right switches on. OK toggles.',
     'Host for friends: Prowla, 7 of 7. Left, Right or OK change this setting.',
   ]);
@@ -210,7 +210,7 @@ for (const from of ['home', 'game']) {
     const said = listen();
     send('down', 'right', 'enter', 'right', 'right');
     assert.deepEqual(texts(said()), [
-      'Play as: Random, 5 of 7. Left, Right or OK change this setting. Your colour in new computer games.',
+      'Play as: Random, 5 of 7. Left, Right or OK change this setting. Your color in new computer games.',
       'Play as: White.',
       'Play as: Black.',
       'Play as: Ask.',

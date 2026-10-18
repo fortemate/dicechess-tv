@@ -1,6 +1,6 @@
-# Durable save and offline verification — 21 September 2026
+# Durable save and offline verification — September 21, 2026
 
-> **Historical record.** This page records how the WebView prototype's IndexedDB saves were made durable and checked offline on SDK 0.23. The native game saves to MMKV instead. The WebView probe has been removed and nothing is built on it. The game is the React Native for Vega application in `native/`, released as 1.0.0 on 10 October 2026; the [README](../README.md) and the [project site](https://dicechess-tv.fortemate.com/) describe it as it is now.
+> **Historical record.** This page records how the WebView prototype's IndexedDB saves were made durable and checked offline on SDK 0.23. The native game saves to MMKV instead. The WebView probe has been removed and nothing is built on it. The game is the React Native for Vega application in `native/`, released as 1.0.0 on October 10, 2026; the [README](../README.md) and the [project site](https://dicechess-tv.fortemate.com/) describe it as it is now.
 
 ## Problem and change
 

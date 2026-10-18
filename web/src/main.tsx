@@ -96,7 +96,7 @@ const LABELS: Record<MarkName, string> = {
   target: 'Target',
   cursor: 'Cursor',
   lastMove: 'Last move',
-  palette: 'Colours',
+  palette: 'Colors',
 };
 
 const VIEW_LABELS: Record<BenchView, string> = {

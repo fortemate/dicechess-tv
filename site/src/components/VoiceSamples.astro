@@ -1,4 +1,5 @@
 ---
+import { voiceCaption } from '../../../src/core/voiceCaption';
 import pack from '../../../native/voices/elevenlabs-dicechess-bots/manifest.json';
 import rollyIntro from '../../../native/voices/elevenlabs-dicechess-bots/rolly_intro_1.mp3?url';
 import rollyCapture from '../../../native/voices/elevenlabs-dicechess-bots/rolly_capture_heavy_1.mp3?url';
@@ -46,7 +47,7 @@ const samples = Object.entries(events)
     return {
       id,
       label,
-      text: line.text,
+      text: voiceCaption(line.text),
       name: line.voice,
       src: recordings[character][kind],
     };

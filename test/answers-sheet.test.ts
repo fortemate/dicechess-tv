@@ -93,7 +93,7 @@ test('a check is appended to the check tab, under a header row', () => {
   assert.equal(tab.rows.length, 2);
   assert.deepEqual(tab.rows[0].slice(0, 4), [
     'Received',
-    'Colour vision',
+    'Color vision',
     'Screen',
     'A found',
   ]);

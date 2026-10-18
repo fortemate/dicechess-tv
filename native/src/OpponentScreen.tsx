@@ -20,7 +20,7 @@ const LEVELS = ['Easy', 'Medium', 'Hard'] as const;
 // What OK on a card does, as the hint says it (#345): it plays in the colour
 // Settings names, or, set to Ask, opens the choice of colour.
 const OK_DOES: Readonly<Record<PlayAs, string>> = {
-  ask: 'choose a colour',
+  ask: 'choose a color',
   random: 'play',
   w: 'play White',
   b: 'play Black',

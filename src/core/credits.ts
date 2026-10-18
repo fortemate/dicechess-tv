@@ -85,7 +85,7 @@ export const CREDITS: readonly Credit[] = [
 // the screen also gives the address of the site's page that lists them, to be
 // read off the television like the sources above.
 export const OPEN_SOURCE = {
-  subject: 'Open-source licences',
+  subject: 'Open-source licenses',
   line: 'Shipped with the app, and listed at',
   source: 'dicechess-tv.fortemate.com/contribute/credits',
 } as const;

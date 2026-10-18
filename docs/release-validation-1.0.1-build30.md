@@ -1,6 +1,6 @@
 # Dice Chess 1.0.1, build 30: release validation
 
-Prepared on 14 October 2026 from `9ef91358d1033b6599b71920bb39baf96a9bcff2`, on the version branch in [PR #383](https://github.com/fortemate/dicechess-tv/pull/383). Its application source matches merged main `ca802a97c10c31652642c77d97e1ea5364d7bd20` ([PR #388](https://github.com/fortemate/dicechess-tv/pull/388)); the manifest version is 1.0.1. The candidate uses build number 30 and engine 0.14.7.
+Prepared on October 14, 2026 from `9ef91358d1033b6599b71920bb39baf96a9bcff2`, on the version branch in [PR #383](https://github.com/fortemate/dicechess-tv/pull/383). Its application source matches merged main `ca802a97c10c31652642c77d97e1ea5364d7bd20` ([PR #388](https://github.com/fortemate/dicechess-tv/pull/388)); the manifest version is 1.0.1. The candidate uses build number 30 and engine 0.14.7.
 
 The following sections record the candidate's preparation and device checks. Final-main packaging, owner feedback and publication are recorded separately below, following the release steps in [CONTRIBUTING.md](../CONTRIBUTING.md#releases).
 
@@ -62,13 +62,13 @@ The package sets and release notes were prepared locally. No tag, GitHub release
 
 ## Final-main packaging and publication
 
-After PR #383 merged on 14 October 2026, both package sets were rebuilt cleanly from final main commit `5a8bc325397fb95598843f77301d51e907fada0b`, with version 1.0.1 and build number 30. The build used Vega SDK 0.24.12044, Vega CLI 1.4.2 and Node 26.8.2; bundled-notices checks passed. The main tree matches merged PR head `a7934168974f3d04d720edf492364956cdb19fba`.
+After PR #383 merged on October 14, 2026, both package sets were rebuilt cleanly from final main commit `5a8bc325397fb95598843f77301d51e907fada0b`, with version 1.0.1 and build number 30. The build used Vega SDK 0.24.12044, Vega CLI 1.4.2 and Node 26.8.2; bundled-notices checks passed. The main tree matches merged PR head `a7934168974f3d04d720edf492364956cdb19fba`.
 
-Every application file under `assets/`, `bundle/` and `lib/`, plus `manifest.toml`, was compared with its corresponding candidate package from `9ef91358d1033b6599b71920bb39baf96a9bcff2`. All match byte for byte, including JS/Hermes bundles, native libraries, audio, music catalogues and licence notices. The final private armv7 Appstore package contains ten portraits; the three public packages contain zero. The final rebuild was not separately installed on either device: the device checks above remain checks of the candidate with the identical application payload.
+Every application file under `assets/`, `bundle/` and `lib/`, plus `manifest.toml`, was compared with its corresponding candidate package from `9ef91358d1033b6599b71920bb39baf96a9bcff2`. All match byte for byte, including JS/Hermes bundles, native libraries, audio, music catalogs and license notices. The final private armv7 Appstore package contains ten portraits; the three public packages contain zero. The final rebuild was not separately installed on either device: the device checks above remain checks of the candidate with the identical application payload.
 
-The owner reported checking the Stick on 14 October 2026 and finding everything working well. The owner then reported submitting the application to the Amazon Appstore for publication. This records the owner's submission report; there was no independent Console readback during the GitHub release step, and store approval or availability has not been confirmed.
+The owner reported checking the Stick on October 14, 2026 and finding everything working well. The owner then reported submitting the application to the Amazon Appstore for publication. This records the owner's submission report; there was no independent Console readback during the GitHub release step, and store approval or availability has not been confirmed.
 
-[Dice Chess 1.0.1, build 30](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.1%2B30) was published on GitHub on 14 October 2026 at 19:14:10 UTC and marked Latest. The signed annotated tag `v1.0.1+30` has tag object `b85371c88a1d7147b6c16cb9fc392722eeec2164` and resolves on the remote to the exact built commit `5a8bc325397fb95598843f77301d51e907fada0b`; its SSH signature passed verification. The release is neither a draft nor a prerelease.
+[Dice Chess 1.0.1, build 30](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.1%2B30) was published on GitHub on October 14, 2026 at 19:14:10 UTC and marked Latest. The signed annotated tag `v1.0.1+30` has tag object `b85371c88a1d7147b6c16cb9fc392722eeec2164` and resolves on the remote to the exact built commit `5a8bc325397fb95598843f77301d51e907fada0b`; its SSH signature passed verification. The release is neither a draft nor a prerelease.
 
 All four public assets were read back and downloaded from the published release. Their SHA-256 digests match the local final files and the published `SHA256SUMS.txt`. The downloaded packages also report version 1.0.1 and build 30, with zero portraits. The private Appstore package was not uploaded to GitHub.
 

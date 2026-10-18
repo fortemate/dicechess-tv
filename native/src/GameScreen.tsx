@@ -534,7 +534,7 @@ const choiceOf = (overlay: Overlay, context: ChoiceContext): Choice | null => {
     case 'colour':
       return {
         title: `Play ${opponentOf(overlay.mode).name} as`,
-        note: 'Random picks a colour for you.',
+        note: 'Random picks a color for you.',
         options: colourOptions,
         index: overlay.index,
       };

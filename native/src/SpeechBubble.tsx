@@ -8,6 +8,7 @@
 // (test/botVoice.test.ts).
 import React from 'react';
 import { View, Text } from 'react-native';
+import { voiceCaption } from '../../src/core/voiceCaption';
 
 export type SpeechBubbleProps = {
   text: string;
@@ -64,7 +65,7 @@ const Body = ({
         lineHeight: BUBBLE_LINE,
       }}
     >
-      {text}
+      {voiceCaption(text)}
     </Text>
   </View>
 );

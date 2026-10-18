@@ -3,7 +3,7 @@
 The site's tester pages send their answers to a Google Sheet that belongs to
 the project's owner:
 
-- `/check/`, the colour-vision check ([#108](https://github.com/fortemate/dicechess-tv/issues/108));
+- `/check/`, the color-vision check ([#108](https://github.com/fortemate/dicechess-tv/issues/108));
 - `/feedback/`, the feedback form for people who played the game ([#109](https://github.com/fortemate/dicechess-tv/issues/109)).
 - `/voices/`, the audition of the bots' voices ([#172](https://github.com/fortemate/dicechess-tv/issues/172)).
 
@@ -67,7 +67,7 @@ The script gained the `voices` tab with #172. A sheet set up before it needs the
 new version of `Code.js` (see "A new version of the script" above) before the
 page can send.
 
-The `check` tab holds, for each visit, the colour-vision answer, the screen, and
+The `check` tab holds, for each visit, the color-vision answer, the screen, and
 four counts for each variant:
 
 - the marked pieces found;
@@ -77,6 +77,6 @@ four counts for each variant:
 
 The `Details` column keeps the order the pictures were shown in and the squares
 tapped on each. [`../scripts/check-results.mjs`](../scripts/check-results.mjs)
-summarises those details, or the codes of the fallback, per variant and per
-answer to the colour-vision question. It counts a visit once even when it arrives
-both as a row and as a code sent by hand, recognising it by its `Submission` id.
+summarizes those details, or the codes of the fallback, per variant and per
+answer to the color-vision question. It counts a visit once even when it arrives
+both as a row and as a code sent by hand, recognizing it by its `Submission` id.

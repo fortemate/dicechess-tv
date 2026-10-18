@@ -1,7 +1,7 @@
 # Game icon
 
 The launcher icon of Dice Chess TV: two dice mid-roll, a knight in front of a
-rook, on warm orange. The owner chose it on 25 September 2026 (#83).
+rook, on warm orange. The owner chose it on September 25, 2026 (#83).
 
 `icon-512.png` is copied verbatim from `fortemate/dicechess-assets`, from
 `icons/dicechess-tv/exports/png/icon-512.png` at commit

@@ -13,14 +13,14 @@ We welcome contributions to Dice Chess TV. Because this project is public, open 
 
 Before a first pull request can be merged, sign the project's [Contributor License Agreement](https://github.com/fortemate/dicechess-tv/blob/main/CLA.md):
 
-- You confirm that you are entitled to grant its licences, and that your contribution is your own work or is marked as third-party material, with its source and licence.
-- You keep your copyright and grant Fortemate the right to distribute and relicense your contribution. It always stays available under the repository's licence, the GNU Affero General Public License v3.0 only (AGPL-3.0-only).
+- You confirm that you are entitled to grant its licenses, and that your contribution is your own work or is marked as third-party material, with its source and license.
+- You keep your copyright and grant Fortemate the right to distribute and relicense your contribution. It always stays available under the repository's license, the GNU Affero General Public License v3.0 only (AGPL-3.0-only).
 - To sign, add an entry for yourself to `.github/cla-signatures.json` in that first pull request: your GitHub username, your name, the date and the agreement's version. The `CI: CLA` check verifies it. Owners, organization members, collaborators and bots are exempt.
 
 ### Third-party work
 
-- A new asset or library needs a licence that allows its use here, recorded in `THIRD_PARTY_NOTICES.md`. When the licence asks for credit, the line the About screen shows goes in `src/core/credits.ts`, and `test/credits.test.ts` holds the two together.
-- A dependency change that brings an npm package into the app's bundle, or takes one out, makes `npm run bundle --prefix native` fail and name it. Rewrite the notices the package ships with `npm run notices --prefix native`, read the diff, and name the package in `THIRD_PARTY_NOTICES.md` and on [Credits and licences](/contribute/credits/).
+- A new asset or library needs a license that allows its use here, recorded in `THIRD_PARTY_NOTICES.md`. When the license asks for credit, the line the About screen shows goes in `src/core/credits.ts`, and `test/credits.test.ts` holds the two together.
+- A dependency change that brings an npm package into the app's bundle, or takes one out, makes `npm run bundle --prefix native` fail and name it. Rewrite the notices the package ships with `npm run notices --prefix native`, read the diff, and name the package in `THIRD_PARTY_NOTICES.md` and on [Credits and licenses](/contribute/credits/).
 
 ## Branch and Pull Request Conventions
 

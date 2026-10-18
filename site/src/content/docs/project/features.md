@@ -1,11 +1,11 @@
 ---
 title: What it does
-description: 'A tour of Dice Chess for Fire TV: Play a friend on one remote, with Prowla, Rolly or Thinkle as host, three computer opponents as either colour, the tutorial and the rules guide, saving and the main menu, OK on the only choice, sound, music that follows the danger to the king, and rematch.'
+description: 'A tour of Dice Chess for Fire TV: Play a friend on one remote, with Prowla, Rolly or Thinkle as host, three computer opponents as either color, the tutorial and the rules guide, saving and the main menu, OK on the only choice, sound, music that follows the danger to the king, and rematch.'
 sidebar:
   order: 2
 ---
 
-Every screenshot here comes from the Vega Virtual Device, from a build with the opponents' portraits, captured with scripted presses of the remote. Each is taken again when its screen changes: most were retaken on 10 October 2026, from version 1.0.0, once the friend game had its name. A test build set the first rolls, so that a roll with nothing to play and a knight with a capture came up when they were needed; apart from the dice, each screen is the app as it ships. Each feature was also played there, and the app's automated tests cover it; where a check is still open, the section says so. The game has also run on a Fire TV Stick 4K Select since 6 October 2026, but no screenshot here was taken on it; [Performance](/technology/performance/) has what was measured there. On 10 October 2026 the Appstore build of 1.0.0 was checked on the Stick: Settings with the music row and Play as, muting and unmuting the music, Main menu and Resume game, the opponent cards, and the confirmation before a game in play is replaced ([release notes](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.0%2B26)).
+Every screenshot here comes from the Vega Virtual Device, from a build with the opponents' portraits, captured with scripted presses of the remote. Each is taken again when its screen changes: most were retaken on October 10, 2026, from version 1.0.0, once the friend game had its name. A test build set the first rolls, so that a roll with nothing to play and a knight with a capture came up when they were needed; apart from the dice, each screen is the app as it ships. Each feature was also played there, and the app's automated tests cover it; where a check is still open, the section says so. The game has also run on a Fire TV Stick 4K Select since October 6, 2026, but no screenshot here was taken on it; [Performance](/technology/performance/) has what was measured there. On October 10, 2026 the Appstore build of 1.0.0 was checked on the Stick: Settings with the music row and Play as, muting and unmuting the music, Main menu and Resume game, the opponent cards, and the confirmation before a game in play is replaced ([release notes](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.0%2B26)).
 
 ## Play a friend on one remote
 
@@ -19,7 +19,7 @@ Prowla the cat hosts games against a friend, or in her place Rolly, the friendli
 
 ![Rolly hosting a new game against a friend: her portrait and her greeting show above the bottom badge](../../../assets/screenshots/host.png)
 
-## Three opponents, as either colour
+## Three opponents, as either color {#three-opponents-as-either-colour}
 
 ![The choice of opponent: three cards, Rolly, Grabby and Rampage, each with a portrait, a level and a line on how it plays](../../../assets/screenshots/opponents.png)
 
@@ -35,9 +35,9 @@ These decision rules are based on the engine 0.14.8 source linked from the [oppo
 
 Each is an algorithm of the Dice Chess rules engine. Each has a portrait drawn for the game, and in a game it talks from beside it at the top of the screen. A build without the portraits shows RhosGFX's Vector Emojis, by the artist of the pieces, in their place. Every opponent shows its turn one action at a time, and each piece slides to its new square, the opponent's and yours alike, so a turn can be followed from the sofa. Frames recorded on the virtual device show Grabby's knight sliding onto a queen it took in under a quarter of a second, and the tests cover captures, castling, en passant and promotion.
 
-The app draws your colour at random, so OK on an opponent's card starts the game. **Play as** in Settings can name White or Black instead, or Ask, which brings back the choice of colour before each game. Over a game in play, _Replace this game?_ comes last, right before that game is replaced. Playing Black turns the board so that your pieces are at the bottom. The tests check each setting, and on the Virtual Device a card started the game in the colour Settings named. On the Fire TV Stick, on 10 October 2026, the Play as row, the opponent cards and that confirmation were checked too.
+The app draws your color at random, so OK on an opponent's card starts the game. **Play as** in Settings can name White or Black instead, or Ask, which brings back the choice of color before each game. Over a game in play, _Replace this game?_ comes last, right before that game is replaced. Playing Black turns the board so that your pieces are at the bottom. The tests check each setting, and on the Virtual Device a card started the game in the color Settings named. On the Fire TV Stick, on October 10, 2026, the Play as row, the opponent cards and that confirmation were checked too.
 
-![The colour choice before a game against Grabby, with Play as set to Ask: Random, White or Black](../../../assets/screenshots/play-as.png)
+![The color choice before a game against Grabby, with Play as set to Ask: Random, White or Black](../../../assets/screenshots/play-as.png)
 
 ![Playing Black against Grabby, with the board turned so that Black is at the bottom and Grabby's portrait, name and level at the top](../../../assets/screenshots/play-black.png)
 
@@ -72,7 +72,7 @@ Nine topics, from how a game ends to castling, promotion, en passant and draws. 
 
 The game is saved after every action. The app opens on the home screen, where "Resume game" continues where the game stopped: on the virtual device, a game force-stopped mid-turn and relaunched came back as it was. Only a first launch opens on Thinkle's offer of the tutorial instead, and Skip goes to the home screen. The app also counts the results of finished games, but shows them nowhere for now: a count cannot tell who was holding the remote, and the people who play on one TV change from one evening to the next.
 
-**Main menu** in the game menu leaves a game for the home screen without a confirmation, and "Resume game" there comes back to it with its roll and turn as they were ([pull request 349](https://github.com/fortemate/dicechess-tv/pull/349)). The tests check this before and during a turn, against the computer and a friend; the virtual device played both, and it was checked on the Fire TV Stick on 10 October 2026.
+**Main menu** in the game menu leaves a game for the home screen without a confirmation, and "Resume game" there comes back to it with its roll and turn as they were ([pull request 349](https://github.com/fortemate/dicechess-tv/pull/349)). The tests check this before and during a turn, against the computer and a friend; the virtual device played both, and it was checked on the Fire TV Stick on October 10, 2026.
 
 ![The home screen with Resume game focused over a game in progress](../../../assets/screenshots/resume.png)
 
@@ -80,18 +80,18 @@ The game is saved after every action. The app opens on the home screen, where "R
 
 Some moves leave nothing to decide: the dice let one piece move, and it has one square to go to. **Auto-play only move** in Settings, off by default, lets OK press itself for such a move, picking the piece up and playing it at the computer opponent's pace, and the prompt reads _Only one choice · Back: stop_ while a press is coming. A piece with a choice of squares, or one you pick up yourself, always waits for your OK. It never rolls the dice, hands the turn over or chooses a promotion. [Controls](/play/controls/#auto-play-only-move-optional) has every rule.
 
-The tests check each step and the Back that stops it. On the virtual device, with rook, king and rook rolled in a game against a friend, a rook was picked up and played twice with no press, and the handoff still waited for OK. On a Fire TV Stick 4K Select, on 10 October 2026, a pawn with one square was played there by itself, and Back stopped a press that was coming ([pull request 342](https://github.com/fortemate/dicechess-tv/pull/342)). That was under the first rule, which also picked up a lone piece with several squares; [issue 360](https://github.com/fortemate/dicechess-tv/issues/360) narrowed it to the only move in 1.0.0, build 28. On the virtual device on 11 October 2026, the narrowed rule left a lone queen with four squares for the person and still played forced rook moves by itself.
+The tests check each step and the Back that stops it. On the virtual device, with rook, king and rook rolled in a game against a friend, a rook was picked up and played twice with no press, and the handoff still waited for OK. On a Fire TV Stick 4K Select, on October 10, 2026, a pawn with one square was played there by itself, and Back stopped a press that was coming ([pull request 342](https://github.com/fortemate/dicechess-tv/pull/342)). That was under the first rule, which also picked up a lone piece with several squares; [issue 360](https://github.com/fortemate/dicechess-tv/issues/360) narrowed it to the only move in 1.0.0, build 28. On the virtual device on October 11, 2026, the narrowed rule left a lone queen with four squares for the person and still played forced rook moves by itself.
 
-## Board highlights for colour-blind and low-vision players
+## Board highlights for color-blind and low-vision players {#board-highlights-for-colour-blind-and-low-vision-players}
 
 **Highlights** in Settings ([pull request 413](https://github.com/fortemate/dicechess-tv/pull/413)) switches how the board marks movable pieces, the picked-up piece, legal destinations, the cursor and the last move across four presets:
 
 - **Standard** (the default) keeps the original television look;
 - **Enhanced** lifts the picked-up piece over a drop shadow and gives the cursor a bold two-tone frame so the selected square and the cursor square no longer share a cyan perimeter border;
-- **Colour-blind** switches to the Okabe–Ito colour-vision-safe palette and gives every state its own geometry (corner triangles on movable pieces, a lifted piece with a warm pedestal, white-rimmed vermilion destination dots and capture rings, a semi-transparent ghost of the carried piece under the cursor, a bold two-tone cursor frame, and an inset outline for the last move);
+- **Color-blind** switches to the Okabe–Ito color-vision-safe palette and gives every state its own geometry (corner triangles on movable pieces, a lifted piece with a warm pedestal, white-rimmed vermilion destination dots and capture rings, a semi-transparent ghost of the carried piece under the cursor, a bold two-tone cursor frame, and an inset outline for the last move);
 - **High contrast** draws pure black and white marks with the same shape redundancy.
 
-The four presets were compared across simulated protanopia, deuteranopia, tritanopia and achromatopsia on the browser test bench ([pull request 402](https://github.com/fortemate/dicechess-tv/pull/402)), checked in `native/test/highlights.test.tsx`, and installed and launched on a Fire TV Stick 4K Select on 17 October 2026 (build 32). See [Readable from the sofa](/design/sofa/#colour-blind-viewers) and [Controls](/play/controls/#board-highlights-colour-vision--high-contrast-modes).
+The four presets were compared across simulated protanopia, deuteranopia, tritanopia and achromatopsia on the browser test bench ([pull request 402](https://github.com/fortemate/dicechess-tv/pull/402)), checked in `native/test/highlights.test.tsx`, and installed and launched on a Fire TV Stick 4K Select on October 17, 2026 (build 32). See [Readable from the sofa](/design/sofa/#colour-blind-viewers) and [Controls](/play/controls/#board-highlights-colour-vision--high-contrast-modes).
 
 ## Sound
 
@@ -104,7 +104,7 @@ Short cues mark each step:
 
 Each was chosen by ear, and they have been heard from the virtual device through a computer's speakers, not yet from a television. Every cue also has something to see on the screen, and the Settings screen, opened from both menus, turns them all off.
 
-Music follows the danger to your king: calm, tense when enough rolls could take it within three actions, and critical when it is attacked. The four themes are by pepka-prygni, used with his permission. One row of Settings holds the music: Left and Right set its volume, down to off, and OK mutes it and brings it back at the same level. The tests check each press, and on the Virtual Device the music fell silent at off and came back at its level. On the Fire TV Stick, on 10 October 2026, the row was checked with OK muting the music and bringing it back.
+Music follows the danger to your king: calm, tense when enough rolls could take it within three actions, and critical when it is attacked. The four themes are by pepka-prygni, used with his permission. One row of Settings holds the music: Left and Right set its volume, down to off, and OK mutes it and brings it back at the same level. The tests check each press, and on the Virtual Device the music fell silent at off and came back at its level. On the Fire TV Stick, on October 10, 2026, the row was checked with OK muting the music and bringing it back.
 
 Sound stops when the app leaves the screen. The tests check that the players pause, and on the virtual device the app came back from the launcher as it left. On a Fire TV Stick the app's own reports showed it pausing when it left the screen and resuming when it came back, with the saved game kept ([pull request 296](https://github.com/fortemate/dicechess-tv/pull/296)); that nothing plays over the launcher is still to be confirmed by ear.
 
@@ -112,6 +112,6 @@ Sound stops when the app leaves the screen. The tests check that the players pau
 
 ## Rematch
 
-A game against the computer ends on a choice: a rematch or the main menu. A rematch keeps the colour option of the game it repeats; if that was Random, it picks again. In a game against a friend, a finished game stays on the board, and OK returns to the main menu.
+A game against the computer ends on a choice: a rematch or the main menu. A rematch keeps the color option of the game it repeats; if that was Random, it picks again. In a game against a friend, a finished game stays on the board, and OK returns to the main menu.
 
 ![After resigning as Black against Grabby: Grabby wins, You resigned, Grabby's last word, Ha! I'll have this whole game framed!, beside its portrait, and the choice of Rematch or Main menu](../../../assets/screenshots/rematch.png)

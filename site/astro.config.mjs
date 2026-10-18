@@ -74,6 +74,7 @@ export default defineConfig({
     mermaid({ mermaidConfig: MERMAID }),
     starlight({
       title: 'Dice Chess TV',
+      locales: { root: { lang: 'en-US', label: 'English (US)' } },
       description:
         'Dice Chess for Amazon Fire TV: chess with a roll of the dice, played on one remote or against an on-device bot.',
       // The app icon, read from where the app keeps it rather than copied:

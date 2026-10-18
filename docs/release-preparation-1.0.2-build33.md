@@ -1,6 +1,6 @@
 # Dice Chess 1.0.2, build 33: GitHub release preparation
 
-Prepared on 18 October 2026 from candidate commit `07341e22b694eec483a00b4ec6fc7daabb6f54a9`. Its executable application source matches merged main `d61188af83c4e573525293ba064b71461a44058b` ([PR #430](https://github.com/fortemate/dicechess-tv/pull/430)); the manifest version is raised from 1.0.1 to 1.0.2. The proposed tag is `v1.0.2+33`, following the published `v1.0.1+32`.
+Prepared on October 18, 2026 from candidate commit `07341e22b694eec483a00b4ec6fc7daabb6f54a9`. Its executable application source matches merged main `d61188af83c4e573525293ba064b71461a44058b` ([PR #430](https://github.com/fortemate/dicechess-tv/pull/430)); the manifest version is raised from 1.0.1 to 1.0.2. The proposed tag is `v1.0.2+33`, following the published `v1.0.1+32`.
 
 This is a preparation record. Publication is pending the owner's version-PR merge, final-main build, signed tag and GitHub upload, as [CONTRIBUTING.md](../CONTRIBUTING.md#releases) requires. The [release notes](release-notes-1.0.2-build33.md) are prepared for that step.
 

@@ -16,7 +16,7 @@ The whole tutorial, 4:52 on YouTube, recorded in one take on the Vega Virtual De
 Six short lessons, taught by Thinkle the wizard. Each is a real position with a fixed roll, and each opens on that roll, which the player makes with OK, as every turn of a game begins:
 
 1. roll and move: a whole turn of three pawn moves;
-2. the dice choose the pieces, and a die whose piece cannot move goes grey;
+2. the dice choose the pieces, and a die whose piece cannot move goes gray;
 3. clear the way: a pawn move frees the pieces behind it, and every die that can be used must be;
 4. when nothing can move: a roll no die can use, and OK passes the turn;
 5. taking a piece;
@@ -32,7 +32,7 @@ After the last lesson, the player goes straight into a first game. The choices a
 
 Each lesson is a position, a roll and a goal, and the tests check each one against the engine. The position must decode, the roll must allow the action being taught, and the goal must be reachable. Every way to play each lesson ends either with it done or, when the dice are spent elsewhere, with Thinkle offering to try again, so no lesson can leave the player on a board that takes no keys. A lesson never touches a saved game or the record of completed games. Castling, promotion and en passant are left to the rules guide.
 
-The lessons were played on the Vega Virtual Device, and so was a first launch after a fresh install, on 5 October 2026: the offer, Back on it, Learn to play, every lesson, the last screen's choices, a game against Rolly, and the next launch, which opened on the home screen. Neither has been checked on a Fire TV Stick yet.
+The lessons were played on the Vega Virtual Device, and so was a first launch after a fresh install, on October 5, 2026: the offer, Back on it, Learn to play, every lesson, the last screen's choices, a game against Rolly, and the next launch, which opened on the home screen. Neither has been checked on a Fire TV Stick yet.
 
 ## The rules guide
 
@@ -54,7 +54,7 @@ The rule that surprises new players most is that a roll can leave nothing to pla
 
 So the app teaches the rule where it happens. The headline reads "No legal moves", the dice dim, and a line under them gives the rules guide's reason: "No die can be used — the turn passes". When it is the computer's roll, the headline names it instead: "Rampage can't move". The notice stays until OK, whoever rolled: on your own roll OK passes the turn, and on the computer's it passes the turn and throws your dice, so reading it costs no extra press. OK is ignored for the first 0.7 seconds, so that a double press on the remote cannot skip the notice.
 
-These behaviours are covered by the app's tests and were played on the Vega Virtual Device; they have not been checked on a Fire TV Stick yet.
+These behaviors are covered by the app's tests and were played on the Vega Virtual Device; they have not been checked on a Fire TV Stick yet.
 
 ## Sources
 

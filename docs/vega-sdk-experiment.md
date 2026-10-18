@@ -1,4 +1,4 @@
-# Vega SDK experiment — 21 September 2026
+# Vega SDK experiment — September 21, 2026
 
 ## Result
 

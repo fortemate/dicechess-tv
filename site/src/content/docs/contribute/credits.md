@@ -1,11 +1,11 @@
 ---
-title: Credits and licences
+title: Credits and licenses
 description: Full licensing terms, asset provenance, open-source attributions, and third-party notices for Dice Chess TV.
 sidebar:
   order: 4
 ---
 
-Dice Chess TV combines open-source code with public domain and permitted creative assets, and with Fortemate's own character portraits and voices, which no open licence covers. This page details the licences governing every component of the application.
+Dice Chess TV combines open-source code with public domain and permitted creative assets, and with Fortemate's own character portraits and voices, which no open license covers. This page details the licenses governing every component of the application.
 
 ## Application & Core Engine
 
@@ -17,26 +17,26 @@ Dice Chess TV combines open-source code with public domain and permitted creativ
 ### Chess Pieces
 
 - **Source:** [Vector Chess Pieces Pack](https://rhosgfx.itch.io/vector-chess-pieces) by **RhosGFX** (version 1.0.0).
-- **Licence:** Dedicated to the public domain under Creative Commons [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
+- **License:** Dedicated to the public domain under Creative Commons [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
 - **Usage:** 12 vector SVG pieces (White and Black Outline variants) are compiled into inline JSX components (`native/src/pieces/`) for rendering via `@amazon-devices/react-native-svg`.
 
 ### Character portraits
 
 - **Source:** Portrait pack 1.4.1, drawn for Dice Chess by Fortemate with [Recraft](https://www.recraft.ai) on a paid plan. The app shows five characters from it, and its package holds only their portraits: the opponents Rolly, Grabby and Rampage, Prowla the cat, who hosts games against a friend by default, and Thinkle the wizard, who teaches the tutorial.
-- **Licence:** Fortemate's own, for Fortemate's Dice Chess apps only. Not covered by the AGPL or by any other open licence. A fork or copy of this repository may not use, publish or distribute them.
+- **License:** Fortemate's own, for Fortemate's Dice Chess apps only. Not covered by the AGPL or by any other open license. A fork or copy of this repository may not use, publish or distribute them.
 - **Usage:** The opponent cards and the game screen show them, and a game against a friend shows its host's beside the host's line. Thinkle's stands above his bubble in the tutorial and in its offer on a first launch, and the launch splash shows him in a large medallion, drawn at build time from his vector, which the game does not ship. The full portrait pack used by native builds is kept out of the public repository. The three opponent portraits are also included under `site/src/assets/opponents/` for the [opponent profiles](/play/opponents/), with their original notice and file digests; native builds do not read that directory. A build without them shows the opponents' emoji faces below instead; the [native matchup tests](https://github.com/fortemate/dicechess-tv/blob/8453e173eb50899685148010e7047e908a3d577e/native/test/matchup.test.tsx) exercise that fallback by making the portrait fail to load. Prowla and Thinkle have no such face, so their place stays empty, at the portrait's size, as checked by those matchup tests and the [tutorial tests](https://github.com/fortemate/dicechess-tv/blob/8453e173eb50899685148010e7047e908a3d577e/native/test/tutorial.test.tsx). Recraft asks for no credit on a paid plan, and the About screen gives none: its "Made by Fortemate" covers them. The screenshots on this site show them as the app draws them, and so does the demo video's picture. Those pictures are Fortemate's too, and not under the AGPL.
 
 ### Splash typography
 
 - **Fonts:** [Titan One](https://github.com/google/fonts/tree/main/ofl/titanone) by Rodrigo Fuenzalida sets the title on the launch splash, and [Arimo](https://github.com/googlefonts/Arimo) by The Arimo Project Authors sets the Fortemate name beside the mark.
-- **Licence:** SIL Open Font License 1.1, with each licence kept beside its font in `native/splash/fonts/`.
+- **License:** SIL Open Font License 1.1, with each license kept beside its font in `native/splash/fonts/`.
 - **Usage:** Build time only. The splash is drawn into pictures when the app is built, so neither font is in the app.
-- **Renderer:** [`@resvg/resvg-js`](https://github.com/thx/resvg-js) 2.6.2, under the Mozilla Public License 2.0, draws those pictures. It is a development dependency: the app does not import it, and its full licence stays in the installed package.
+- **Renderer:** [`@resvg/resvg-js`](https://github.com/thx/resvg-js) 2.6.2, under the Mozilla Public License 2.0, draws those pictures. It is a development dependency: the app does not import it, and its full license stays in the installed package.
 
 ### Opponent Bot Avatars
 
 - **Source:** [Vector Emojis](https://rhosgfx.itch.io/vector-emojis) by **RhosGFX** (Outline set).
-- **Licence:** Creative Commons [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
+- **License:** Creative Commons [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
 - **Usage:** In a build without the portraits, three emojis represent the local computer opponents: _Zany face_ for Rolly (Easy), _Money mouth face_ for Grabby (Medium), and _Smiling face with horns_ for Rampage (Hard). The About screen then credits them with the pieces.
 
 ### Brand & App Icon
@@ -50,7 +50,7 @@ Dice Chess TV combines open-source code with public domain and permitted creativ
 
 - **Kenney Game Assets:** Casino Audio, Interface Sounds, and Music Jingles by [Kenney](https://kenney.nl). Dedicated to the public domain under CC0 1.0 Universal.
 - **Tabletop Games SFX Pack:** By [JDSherbert](https://jdsherbert.itch.io/tabletop-games-sfx-pack) (version 1.1.0).
-  - The author, Josh Herbert, granted written permission on 24 September 2026 to include four MP3 files in this public repository with attribution.
+  - The author, Josh Herbert, granted written permission on September 24, 2026 to include four MP3 files in this public repository with attribution.
   - _Terms:_ This permission applies exclusively to this project. The sound files are not licensed under the AGPL; using them elsewhere requires the author's permission. Credited in-game on the About screen.
 
 ### Adaptive Music
@@ -61,7 +61,7 @@ Dice Chess TV combines open-source code with public domain and permitted creativ
   2. _Clear Space_ (Game in progress — calm state)
   3. _Tightening Layers_ (Game in progress — tense state)
   4. _Tense Minor Pulse_ (Game in progress — critical danger)
-- **Licence:** The author granted written permission on 26 September 2026 to include these tracks in Dice Chess TV with attribution. The files retain their embedded generation metadata. This permission applies exclusively to this project. Credited in-game on the About screen.
+- **License:** The author granted written permission on September 26, 2026 to include these tracks in Dice Chess TV with attribution. The files retain their embedded generation metadata. This permission applies exclusively to this project. Credited in-game on the About screen.
 
 ### Voices
 
@@ -71,15 +71,15 @@ Dice Chess TV combines open-source code with public domain and permitted creativ
   - Prowla the cat as the Hot Seat host (54 lines)
   - Thinkle the wizard as the Hot Seat host (54 lines)
   - Thinkle the wizard, who teaches the tutorial and offers it on a first launch (48 lines)
-- **Licence:** Fortemate's own, for Fortemate's Dice Chess apps only, on the same terms for every pack. Not covered by the AGPL or by any other open licence. A fork or copy of this repository may not use, publish or distribute them, and must replace them with audio of its own.
-- **Usage:** The packs are vendored under `native/voices/`, each beside its own licence file. The [opponent profiles](/play/opponents/) reuse nine recordings from the bots' pack, with the text from that pack's manifest. These are the in-game ElevenLabs voices, separate from the earlier CC0 audition candidates on the unlisted tester page. ElevenLabs asks for no credit on a paid plan, and the About screen gives none: its "Made by Fortemate" covers them.
-- **Demo video:** A sixth pack, Thinkle's narration of the demo video, is vendored under `scripts/demo-video/narration/`: 15 lines, heard in the video and never in the game. Its licence is the other packs', and also allows the videos that present Fortemate's Dice Chess applications.
+- **License:** Fortemate's own, for Fortemate's Dice Chess apps only, on the same terms for every pack. Not covered by the AGPL or by any other open license. A fork or copy of this repository may not use, publish or distribute them, and must replace them with audio of its own.
+- **Usage:** The packs are vendored under `native/voices/`, each beside its own license file. The [opponent profiles](/play/opponents/) reuse nine recordings from the bots' pack, with the text from that pack's manifest. These are the in-game ElevenLabs voices, separate from the earlier CC0 audition candidates on the unlisted tester page. ElevenLabs asks for no credit on a paid plan, and the About screen gives none: its "Made by Fortemate" covers them.
+- **Demo video:** A sixth pack, Thinkle's narration of the demo video, is vendored under `scripts/demo-video/narration/`: 15 lines, heard in the video and never in the game. Its license is the other packs', and also allows the videos that present Fortemate's Dice Chess applications.
 
 ## Open-Source Software in the App
 
-The app is built with the npm packages below. Their licences come with the app: its package carries every one of them in `assets/licenses/THIRD_PARTY_NOTICES.txt`, and the About screen points to this page, which names them all.
+The app is built with the npm packages below. Their licenses come with the app: its package carries every one of them in `assets/licenses/THIRD_PARTY_NOTICES.txt`, and the About screen points to this page, which names them all.
 
-| Package                                             | Licence                                    |
+| Package                                             | License                                    |
 | --------------------------------------------------- | ------------------------------------------ |
 | `@amazon-devices/kepler-compatibility-metro-config` | Amazon Program Materials License Agreement |
 | `@amazon-devices/kepler-media-controls`             | Amazon Program Materials License Agreement |
