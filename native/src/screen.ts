@@ -346,12 +346,12 @@ export const settingsOptions = ({
     : []),
   `Sounds: ${soundHeard(sound) ? sound.volume : 'off'}`,
   `Voices: ${voicesHeard(voices) ? voices.volume : 'off'}`,
-  // Before the rows for games against a friend: it is about the computer's.
-  `Play as: ${playAsName(playAs)}`,
-  `Host for friends: ${hostName(host)}`,
-  `Turn board for friends: ${turnHotseat ? 'on' : 'off'}`,
   `Highlights: ${highlightsName(highlights)}`,
   `Auto-select only choice: ${autoSelect ? 'on' : 'off'}`,
+  // Before the rows for games against a friend: it is about the computer's.
+  `Play as: ${playAsName(playAs)}`,
+  `Turn board for friends: ${turnHotseat ? 'on' : 'off'}`,
+  `Host for friends: ${hostName(host)}`,
 ];
 
 export type ScreenOptions = {

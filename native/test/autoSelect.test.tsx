@@ -105,9 +105,9 @@ test('the setting is off by default, and then OK never presses itself', () => {
   // The pawn's is the only move, and still waits for OK.
   assert.equal(autoChoice(off), null);
   assert.equal(auto(off), off);
-  // The settings say so, last.
+  // The setting follows Highlights, before the mode-specific choices.
   assert.equal(
-    settingsOptions({ ...off, musicAvailable: false }).at(-1),
+    settingsOptions({ ...off, musicAvailable: false })[3],
     'Auto-select only choice: off',
   );
 });
@@ -308,11 +308,11 @@ test('Black’s only move presses itself too, on the board turned for Black', ()
   }
 });
 
-test('OK or the arrows sideways flip the setting, the last row of Settings', () => {
+test('OK or the arrows sideways flip the setting, after Highlights in Settings', () => {
   const home = initialState(options);
   const settings = drive(home, 'down', 'down', 'down', 'down', 'select');
   assert.equal(settings.overlay.kind, 'settings');
-  const row = drive(settings, 'up');
+  const row = drive(settings, 'down', 'down', 'down');
   assert.equal(drive(row, 'select').autoSelect, true);
   assert.equal(drive(row, 'right').autoSelect, true);
   assert.equal(drive(row, 'select', 'left').autoSelect, false);
@@ -420,10 +420,10 @@ test('in the app Back stops the press that was coming, and the prompt is the boa
 test('in the app the setting is off on a first launch, saved when changed and read on the next', () => {
   reset();
   let root = launch().root;
-  // Settings, then the last row.
+  // Settings, then past the audio and Highlights rows.
   send('down', 'down', 'down', 'down', 'enter');
   assert.match(text(root), /Auto-select only choice: off/);
-  send('up', 'enter');
+  send('down', 'down', 'down', 'enter');
   assert.match(text(root), /Auto-select only choice: on/);
   assert.equal(new MMKV().getString('dicechess-tv.autoSelect.v1'), 'on');
   root = launch().root;

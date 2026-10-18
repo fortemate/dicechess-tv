@@ -81,15 +81,19 @@ test('Random is the default, and anything unreadable reads as Random', () => {
   }
 });
 
-test('the Play as row steps through Ask, Random, White and Black, after the voices', () => {
+test('the Play as row steps through Ask, Random, White and Black, before the friend settings', () => {
   assert.deepEqual(
-    settingsOptions({ music: { on: true, volume: 7 } }).slice(0, 4),
-    ['Music: 7', 'Sounds: 10', 'Voices: 10', 'Play as: Random'],
+    settingsOptions({ music: { on: true, volume: 7 } }).slice(5),
+    [
+      'Play as: Random',
+      'Turn board for friends: off',
+      'Host for friends: Prowla',
+    ],
   );
   assert.equal(cyclePlayAs('random'), 'w');
   assert.equal(cyclePlayAs('b'), 'ask');
   assert.equal(cyclePlayAs('ask', -1), 'b');
-  // In Settings, without music in the build: the third row.
+  // In Settings, without music in the build: the fifth row.
   const settings = drive(
     home('random'),
     'down',
@@ -99,7 +103,7 @@ test('the Play as row steps through Ask, Random, White and Black, after the voic
     'select',
   );
   assert.equal(settings.overlay.kind, 'settings');
-  const row = drive(settings, 'down', 'down');
+  const row = drive(settings, 'down', 'down', 'down', 'down');
   assert.equal(drive(row, 'select').playAs, 'w');
   assert.equal(drive(row, 'right').playAs, 'w');
   assert.equal(drive(row, 'left').playAs, 'ask');
@@ -239,7 +243,18 @@ test('in the app, the setting is read at launch, shown on the cards, and saved w
   send('down', 'enter');
   assert.match(text(root), /OK: play Black/);
   // Back to home, Settings, down to Play as, and on to Ask.
-  send('back', 'down', 'down', 'down', 'enter', 'down', 'down', 'enter');
+  send(
+    'back',
+    'down',
+    'down',
+    'down',
+    'enter',
+    'down',
+    'down',
+    'down',
+    'down',
+    'enter',
+  );
   assert.match(text(root), /Play as: Ask/);
   assert.equal(new MMKV().getString(KEY), 'ask');
   // A relaunch keeps it: the cards open the choice of colour.

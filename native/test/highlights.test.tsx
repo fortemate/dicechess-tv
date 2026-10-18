@@ -101,8 +101,8 @@ test('OK or the sideways arrows cycle the Highlights row in Settings', () => {
       'Highlights: Standard',
     ),
   );
-  // Up wraps to Auto-select only choice; one more Up reaches Highlights.
-  const row = drive(settings, 'up', 'up');
+  // Highlights follows the two audio rows in a build without music.
+  const row = drive(settings, 'down', 'down');
   const enhanced = drive(row, 'select');
   assert.equal(enhanced.highlights, 'enhanced');
   const colourBlind = drive(enhanced, 'right');
@@ -119,7 +119,7 @@ test('in the app the setting is saved when changed and read on the next launch',
   let root = launch().root;
   send('down', 'down', 'down', 'down', 'enter');
   assert.match(text(root), /Highlights: Standard/);
-  send('up', 'up', 'enter');
+  send('down', 'down', 'enter');
   assert.match(text(root), /Highlights: Enhanced/);
   assert.equal(new MMKV().getString('dicechess-tv.highlights.v1'), 'enhanced');
   send('right');

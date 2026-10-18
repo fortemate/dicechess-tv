@@ -728,29 +728,29 @@ const toSettings = (state: ScreenState): ScreenState => {
 const withMusic = (state: ScreenState): ScreenState =>
   screenReducer(state, { kind: 'musicAvailable', available: true }, options);
 
-test('without music in the build, Settings offers sound effects, voices, the host, hotseat board turning, highlights and the automatic OK', () => {
+test('without music, Settings groups audio, board controls, computer and friend settings', () => {
   const settings = toSettings(fresh());
   assert.equal(settings.musicAvailable, false);
   assert.deepEqual(settingsOptions(settings), [
     'Sounds: 10',
     'Voices: 10',
-    'Play as: Random',
-    'Host for friends: Prowla',
-    'Turn board for friends: off',
     'Highlights: Standard',
     'Auto-select only choice: off',
+    'Play as: Random',
+    'Turn board for friends: off',
+    'Host for friends: Prowla',
   ]);
-  // Down moves from the sound effects to the voices, on past Play as to the
-  // host, and on to hotseat board turning.
+  // Down reaches the voices; Up from the top wraps to the host, preceded by
+  // hotseat board turning.
   assert.deepEqual(drive(settings, 'select').sound, { on: false, volume: 10 });
   const voices = drive(settings, 'down');
   assert.deepEqual(drive(voices, 'select').voices, { on: false, volume: 10 });
   assert.deepEqual(drive(voices, 'select').sound, { on: true, volume: 10 });
-  const host = drive(voices, 'down', 'down');
+  const host = drive(settings, 'up');
   assert.equal(drive(host, 'select').host, 'rolly');
   assert.deepEqual(drive(host, 'select').voices, { on: true, volume: 10 });
   assert.equal(drive(host, 'select').turnHotseat, false);
-  const hotseat = drive(host, 'down');
+  const hotseat = drive(host, 'up');
   assert.equal(hotseat.overlay.kind, 'settings');
   assert.equal(drive(hotseat, 'select').turnHotseat, true);
   // When the catalogue turns up, the rows grow and the cursor starts at the top.
@@ -770,11 +770,11 @@ test('Settings opens from the home menu on music, and Back returns to it', () =>
     'Music: 7',
     'Sounds: 10',
     'Voices: 10',
-    'Play as: Random',
-    'Host for friends: Prowla',
-    'Turn board for friends: off',
     'Highlights: Standard',
     'Auto-select only choice: off',
+    'Play as: Random',
+    'Turn board for friends: off',
+    'Host for friends: Prowla',
   ]);
   const back = drive(settings, 'back');
   assert.equal(back.overlay.kind, 'home');
@@ -801,10 +801,10 @@ test('OK or the arrows sideways flip music, sound effects, voices and hotseat bo
     on: true,
     volume: 1,
   });
-  // Past Play as, the Hot Seat host, Prowla by default (#258). OK and Right step
+  // Up from the top wraps to the Hot Seat host, Prowla by default (#258). OK and Right step
   // to the next choice, Rolly, Thinkle (#279) and then off, and Left to the one
   // before.
-  const host = drive(voices, 'down', 'down');
+  const host = drive(settings, 'up');
   assert.equal(host.host, 'prowla');
   assert.equal(drive(host, 'select').host, 'rolly');
   assert.equal(drive(host, 'right').host, 'rolly');
@@ -818,13 +818,13 @@ test('OK or the arrows sideways flip music, sound effects, voices and hotseat bo
   );
   assert.equal(drive(host, 'right', 'left').host, 'prowla');
   assert.equal(
-    settingsOptions({ ...host, host: 'thinkle' })[4],
+    settingsOptions({ ...host, host: 'thinkle' }).at(-1),
     'Host for friends: Thinkle',
   );
   const hostOff = drive(host, 'left');
-  assert.equal(settingsOptions(hostOff)[4], 'Host for friends: off');
-  // And once more, hotseat board turning.
-  const hotseat = drive(host, 'down');
+  assert.equal(settingsOptions(hostOff).at(-1), 'Host for friends: off');
+  // Up once more reaches hotseat board turning.
+  const hotseat = drive(host, 'up');
   assert.equal(drive(hotseat, 'select').turnHotseat, true);
   assert.equal(drive(hotseat, 'right').turnHotseat, true);
   // None touches another, nor leaves the screen.
@@ -1018,8 +1018,9 @@ test('a new game keeps the settings', () => {
     'select',
     'down',
     'select',
-    'down',
-    'down',
+    'up',
+    'up',
+    'up',
     'select',
   );
   assert.deepEqual(changed.music, { on: false, volume: 8 });
