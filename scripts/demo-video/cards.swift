@@ -213,8 +213,14 @@ try still(spec.end.file, fill: background) {
     y += 8
   }
   _ = draw(text(spec.end.link, "AvenirNext-DemiBold", 36, titleColour), top: y, left: columnLeft, width: column)
+  // The line naming what the app was built with heads the footer, in the
+  // footer's own type (owner, 2026-10-19): one quiet block along the bottom.
+  var footer = spec.end.footer
   if let builtWith = spec.end.builtWith, !builtWith.isEmpty {
-    _ = draw(text(builtWith, "AvenirNext-Medium", 40, kickerColour), top: 890, left: columnLeft, width: column)
+    footer = builtWith + "\n" + footer
   }
-  _ = draw(text(spec.end.footer, "AvenirNext-Regular", 26, quietColour), top: 980, left: columnLeft, width: column)
+  let footerText = text(footer, "AvenirNext-Regular", 26, quietColour)
+  let footerHeight = ceil(footerText.boundingRect(
+    with: NSSize(width: column, height: 400), options: [.usesLineFragmentOrigin]).height)
+  _ = draw(footerText, top: CGFloat(height) - 44 - footerHeight, left: columnLeft, width: column)
 }
