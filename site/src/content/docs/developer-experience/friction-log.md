@@ -817,6 +817,22 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
   still checking. The suggested improvements stand: the release notes explain the failures, but
   nothing says so where a developer meets them, on the Virtual Device or in the WebView
   accessibility guide.
+- **Update, 2026-10-19:** checked on a Fire TV Stick 4K Select (Vega OS 1.2) with Dice Chess 1.0.2,
+  build 33. The Stick's Settings → Accessibility → Adaptive Display offers Default, Large and Larger.
+  With Larger set and the app launched afresh, the home menu and Settings were drawn at exactly the
+  Virtual Device's text size: the title area of the Settings screen differs from the Virtual Device
+  capture by 183 of 35,000 pixels, antialiasing only, and a terminate and relaunch changed nothing.
+  So Adaptive Display does not reach a React Native for Vega app as `fontScale`: in
+  `@amazon-devices/react-native-kepler` 4.0, `PixelRatio.getFontScale()` returns the window's
+  `fontScale` or the pixel ratio, and nothing updates it. On the Stick, `vdcm get` rejects
+  `UiScaleFactor`, `UiScaleSetting` and `VoiceViewEnabled` as bare keys ("Parameter value bad").
+  The route Amazon provides is the SDK package `@amazon-devices/kepler-a11y-settings-interface-turbo`
+  1.0.0, which documents `useUiScaleSetting`, `useScaledSize` and `useScalingMultiplier`; the app does
+  not use it yet ([issue 170](https://github.com/fortemate/dicechess-tv/issues/170)). The screens stay
+  whole under every Adaptive Display level because the setting changes nothing in them. Suggested
+  improvement, added: say in the React Native for Vega accessibility page that `Text` does not follow
+  Adaptive Display by itself and that the a11y settings package is the way to scale, with the level's
+  multipliers.
 
 ### FL-30 · `install-app` takes a package built for another processor, and the app then crashes at start {#fl-30}
 
