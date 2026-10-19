@@ -11,7 +11,7 @@ Dice Chess for Amazon Fire TV: two players sharing one screen and remote, or a g
 
 **Browser test bench:** [`web/`](web/README.md) draws the same screens in a browser, driven from the keyboard, with switchable board marks and a color-vision simulation — for testers without an emulator. It is not device evidence.
 
-**Demo video:** <https://youtu.be/YJ01_M5g-Vc>, 2:56, published on October 18, 2026: it opens on the International Dice Chess Federation's tournament footage, used with its permission, with Thinkle the wizard narrating; the game was recorded on the Vega Virtual Device with version 1.0.2 and closes on how it was built, with React Native for Vega ([`scripts/demo-video/`](scripts/demo-video/README.md)).
+**Demo video:** <https://youtu.be/Xyz0KxkmxWU>, 2:50, published on October 19, 2026: it opens on the International Dice Chess Federation's tournament footage, used with its permission, with Thinkle the wizard narrating; the game was recorded on the Vega Virtual Device with version 1.0.2 and closes on a game against Rampage on its critical music, then an end card that names React Native for Vega ([`scripts/demo-video/`](scripts/demo-video/README.md)).
 
 **Tutorial video:** <https://youtu.be/KK8BBICjaBQ>, 4:52, recorded on the Vega Virtual Device: Thinkle the wizard teaches the six lessons of the tutorial aloud. The home menu has called it Learn to play since #280; the video shows its older label, How to play.
 
