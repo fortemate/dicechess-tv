@@ -69,9 +69,9 @@
         },
         {
           "take": "medal",
-          "source": "federation-2024-riga-championship.mp4",
-          "from": 299.6,
-          "to": 301.3,
+          "source": "federation-2020-jurmala-championship.mp4",
+          "from": 52.5,
+          "to": 55.0,
           "badge": false
         },
         {
@@ -91,15 +91,15 @@
         {
           "take": "anna",
           "source": "federation-2024-riga-championship.mp4",
-          "from": 75.0,
-          "to": 77.9,
+          "from": 21.9,
+          "to": 24.8,
           "badge": false
         },
         {
           "take": "hall-riga",
           "source": "federation-2024-riga-championship.mp4",
-          "from": 41.0,
-          "to": 43.7,
+          "from": 316.5,
+          "to": 319.3,
           "badge": false
         },
         {
