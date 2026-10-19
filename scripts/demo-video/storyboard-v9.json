@@ -26,12 +26,6 @@
         "scene": "Music that follows the game",
         "clip": 0,
         "at": 83.0
-      },
-      {
-        "role": "tense",
-        "scene": "Music that follows the game",
-        "clip": 0,
-        "at": 100.2
       }
     ]
   },
@@ -117,7 +111,7 @@
           "take": "hall-riga",
           "source": "federation-2024-riga-championship.mp4",
           "from": 41.0,
-          "to": 43.3,
+          "to": 43.7,
           "badge": false
         },
         {
@@ -136,7 +130,7 @@
         {
           "take": "built",
           "from": 6.6,
-          "to": 11.1
+          "to": 10.4
         }
       ],
       "narration": [
