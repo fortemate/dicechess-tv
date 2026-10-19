@@ -15,9 +15,11 @@ critical at the recorded threat to the king. The earlier narrated cut is retaine
 The v9 cut (`storyboard-v9.json`, October 2026) opens on 24 s of the
 International Dice Chess Federation's tournament footage, with Thinkle telling
 the problem the game answers in the third person, keeps the game scenes with
-shorter cards, and closes on a "Built with" scene that he narrates too. His
-lines for it are vendored into `narration-v9/` like the earlier pack. The
-footage stays out of the repository, under `dist/demo-video/footage/`.
+shorter cards, and closes like a trailer: the game against Rampage on its
+critical music, then the end card, which names React Native for Vega, with no
+narration over it (owner, 2026-10-19). His lines for a narrated "Built with"
+scene are vendored into `narration-v9/` like the earlier pack and stay unused.
+The footage stays out of the repository, under `dist/demo-video/footage/`.
 
 | File                   | What it does                                                                                                                                                       |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
