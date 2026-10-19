@@ -17,22 +17,20 @@
       },
       {
         "role": "tense",
-        "scene": "Music that follows the game",
-        "clip": 0,
-        "at": 72.0
+        "scene": "Music that follows the game"
       },
       {
         "role": "critical",
         "scene": "Music that follows the game",
         "clip": 0,
-        "at": 83.0
+        "at": 50.5
       }
     ]
   },
   "duckDb": -9,
   "narrationGainDb": 0,
   "end": {
-    "seconds": 6,
+    "seconds": 9,
     "title": "Dice Chess for Fire TV",
     "tagline": "Three dice. One remote. A new kind of chess.",
     "link": "dicechess-tv.fortemate.com",
@@ -43,13 +41,7 @@
       "gainDb": -6,
       "fadeInSeconds": 1,
       "fadeOutSeconds": 3
-    },
-    "narration": [
-      {
-        "line": "thinkle_demo_close_1",
-        "at": 0.6
-      }
-    ]
+    }
   },
   "scenes": [
     {
@@ -333,90 +325,79 @@
       },
       "clips": [
         {
-          "take": "rampage-2",
-          "from": 70.5,
-          "to": 102.6,
+          "take": "rampage-3",
+          "from": 36.5,
+          "to": 72.5,
           "audio": [
             {
-              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
-              "at": 71.17
-            },
-            {
-              "file": "native/sounds/jdsherbert-tabletop/piece_move_1.mp3",
-              "at": 75.01
-            },
-            {
               "file": "native/sounds/kenney-casino-audio/dice_grab_2.mp3",
-              "at": 77.59
+              "at": 36.84
             },
             {
               "file": "native/sounds/kenney-casino-audio/dice_throw_3.mp3",
-              "at": 78.29
+              "at": 38.31
             },
             {
               "file": "native/sounds/jdsherbert-tabletop/piece_impact_2.mp3",
-              "at": 78.45
-            },
-            {
-              "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
-              "at": 78.83
-            },
-            {
-              "line": "rampage_capture_3",
-              "at": 79.66
-            },
-            {
-              "file": "native/sounds/kenney-casino-audio/dice_throw_2.mp3",
-              "at": 81.23
+              "at": 38.46
             },
             {
               "file": "native/sounds/jdsherbert-tabletop/piece_move_1.mp3",
-              "at": 86.56
+              "at": 41.27
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_1.mp3",
+              "at": 47.16
+            },
+            {
+              "file": "native/sounds/kenney-casino-audio/dice_grab_2.mp3",
+              "at": 48.63
+            },
+            {
+              "file": "native/sounds/kenney-casino-audio/dice_throw_3.mp3",
+              "at": 49.34
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_impact_2.mp3",
+              "at": 49.49
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_1.mp3",
+              "at": 49.88
+            },
+            {
+              "line": "rampage_capture_2",
+              "at": 50.66
             },
             {
               "file": "native/sounds/jdsherbert-tabletop/piece_move_2.mp3",
-              "at": 95.92
+              "at": 56.07
             },
             {
-              "line": "rampage_threat_3",
-              "at": 98.08
+              "file": "native/sounds/jdsherbert-tabletop/piece_move_1.mp3",
+              "at": 61.99
+            },
+            {
+              "file": "native/sounds/kenney-casino-audio/dice_grab_2.mp3",
+              "at": 63.45
+            },
+            {
+              "file": "native/sounds/kenney-casino-audio/dice_throw_3.mp3",
+              "at": 64.14
+            },
+            {
+              "file": "native/sounds/jdsherbert-tabletop/piece_impact_2.mp3",
+              "at": 64.29
+            },
+            {
+              "file": "native/sounds/kenney-music-jingles/pizzicato_02.mp3",
+              "at": 65.78
+            },
+            {
+              "line": "rampage_win_3",
+              "at": 66.61
             }
           ]
-        }
-      ]
-    },
-    {
-      "name": "Built with React Native for Vega",
-      "card": {
-        "kicker": "Built with",
-        "title": "React Native for Vega",
-        "seconds": 7.0,
-        "lines": [
-          "React Native for Vega 0.83 · Vega SDK 0.24 · Vega OS",
-          "Recorded on the Vega Virtual Device (macOS) · Tested on a Fire TV Stick 4K Select",
-          "Rules: Fortemate's open-source Dice Chess engine",
-          "Tools: Amazon Devices Builder Tools MCP · vega-vvd-driver (MIT) · Claude Code"
-        ]
-      },
-      "clips": [
-        {
-          "take": "built",
-          "from": 12.0,
-          "to": 21.5
-        }
-      ],
-      "narration": [
-        {
-          "line": "thinkle_built_vega_1",
-          "at": 0.6
-        },
-        {
-          "line": "thinkle_built_vega_2",
-          "at": 6.1
-        },
-        {
-          "line": "thinkle_built_vega_3",
-          "at": 11.1
         }
       ]
     }

@@ -318,21 +318,25 @@ test('the v9 cut opens on credited footage, names the track tool, and stays unde
     ),
   );
   assert.match(v9.end.footer, /Federation/);
-  // The track's tool is named on a card and on the end card.
-  assert.ok(
-    v9.scenes.some((scene) =>
-      scene.card?.lines?.some((line) => line.includes('React Native for Vega')),
-    ),
-  );
+  // The track's tool is named on the end card, which closes the video on the
+  // game's own music, without a narrated scene (owner, 2026-10-19).
   assert.match(v9.end.builtWith ?? '', /React Native for Vega/);
-  // Each line is said once; every line of the v9 pack is placed.
+  assert.equal(v9.end.narration, undefined);
+  // Each line is said once; every intro line of the v9 pack is placed. His
+  // three lines on how the game was built stay vendored for a later cut.
   for (const id of spoken)
     assert.ok(lineOf(id) ?? owner.lines[id], `${id} has no clip`);
   assert.equal(new Set(spoken).size, spoken.length);
+  const unused = [
+    'thinkle_built_vega_1',
+    'thinkle_built_vega_2',
+    'thinkle_built_vega_3',
+  ];
   for (const id of Object.keys(owner.lines))
-    assert.ok(spoken.includes(id), `${id} is not placed`);
+    assert.equal(spoken.includes(id), !unused.includes(id), id);
   // Thinkle's "first frame in about a third of a second" is not true of the Stick.
   assert.ok(!spoken.includes('thinkle_demo_built_2'));
+  assert.ok(!spoken.includes('thinkle_demo_close_1'));
   assert.ok(duration >= 150 && duration < 180, `${duration} seconds`);
 });
 

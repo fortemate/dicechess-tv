@@ -214,7 +214,7 @@ try still(spec.end.file, fill: background) {
   }
   _ = draw(text(spec.end.link, "AvenirNext-DemiBold", 36, titleColour), top: y, left: columnLeft, width: column)
   if let builtWith = spec.end.builtWith, !builtWith.isEmpty {
-    _ = draw(text(builtWith, "AvenirNext-Medium", 32, kickerColour), top: 905, left: columnLeft, width: column)
+    _ = draw(text(builtWith, "AvenirNext-Medium", 40, kickerColour), top: 890, left: columnLeft, width: column)
   }
   _ = draw(text(spec.end.footer, "AvenirNext-Regular", 26, quietColour), top: 980, left: columnLeft, width: column)
 }
