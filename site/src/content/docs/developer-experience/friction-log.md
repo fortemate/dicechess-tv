@@ -11,7 +11,46 @@ This is the friction log of Dice Chess for Fire TV, kept while we built the app 
 
 Each entry has the fields the [rules](https://amazonappdev2026.devpost.com/rules) ask for: the task attempted, the steps taken, the expected and actual results, a severity, the workaround and an actionable suggestion. Entries were written when the obstacle happened, while the versions, steps and workaround were still known. Where an entry gives evidence, it names where the finding is recorded: a file, commit, pull request or issue of this project's repository, or a thread on Amazon's developer forum. Pointers into `native/README.md` name commit `04b0a88`, the last version that held its long-form platform records, before they were condensed into this site's Technology and Build and run pages. Where an entry involves a device, it is the Vega Virtual Device unless the entry says otherwise. The game has run on a Fire TV Stick 4K Select since October 6, 2026, and every entry before FL-30 is older. FL-20 and FL-21 have updates from the Stick. FL-30 was found on the Virtual Device, and only its workaround was tried on the Stick. FL-31 and FL-32 were found on the Stick. The others have not been checked on it.
 
-Severity: **Blocker** stopped the chosen approach; **High** cost a day or would break the app for users; **Medium** cost hours or needed a workaround; **Low** is friction without lasting cost.
+## BLUF (bottom line up front)
+
+The Vega SDK 0.24 and React Native for Vega provide a remarkably responsive and capable native platform. A solo developer pairing with AI coding agents was able to take an existing TypeScript rules engine from zero to a fully featured, offline-first TV game with vector graphics, adaptive audio, computer opponents, and Appstore readiness within three weeks.
+
+However, developer velocity was repeatedly held back by **silent failures without runtime error diagnostics**, **fragmented remote key-event naming across devices**, and **behavioral disparities between the Virtual Device and physical hardware**. Addressing silent rejections and tightening hardware parity will make Vega one of the smoothest TV development environments available.
+
+**Grade: B+** (The native React Native runtime and bundled packages are rock-solid, but silent runtime failures and input traps cost days of diagnostic work).
+
+## Persona
+
+- **Role:** Senior frontend & systems developer pairing with AI coding agents (Claude Code, Gemini CLI).
+- **Experience with this product:** First-time Vega SDK and Fire TV developer; extensive prior experience with React Native, TypeScript, and modern web standards.
+- **Goal:** Port an existing, battle-tested dice chess rules engine to Fire TV; implement 10-foot D-pad navigation, sound effects, voice lines, adaptive music, and instant persistence; evaluate WebView vs. Native React Native paths; publish to the Amazon Appstore.
+- **Technical context:** Clean setup on macOS (Apple silicon) and Ubuntu 26.04; testing on both the Vega Virtual Device (OS 1.2 image) and a physical Fire TV Stick 4K Select (OS 1.2, updated to OS 2.0).
+
+## What worked well (pros) {#what-worked-well}
+
+Calling out wins builds trust and highlights the platform's architectural strengths:
+
+- The native path ran on the first attempt on SDK 0.24: a 2.3 MB package, launched in 404 and 426 ms, with an empty crash buffer.
+- `react-native-svg` is part of the system, and it rendered all twelve chess pieces as inline JSX with zero native build overhead.
+- MMKV is synchronous, so a saved game is restored in the first render with no loading state or empty-render hazards.
+- MP3 and WAV effects start in 3 to 7 ms, quick enough for moves and dice.
+- The SDK 0.24 template's Metro resolved our ESM-only engine without configuration, and Hermes compiled it cleanly.
+- The SDK installed on Linux as well as macOS, so builds are not tied to one machine.
+- HTTPS requests and a WebSocket worked without any manifest entry: unlike the audio services in [FL-18](#fl-18), no connection was refused.
+- Amazon's Builder Tools MCP installed with one command and started under Node 26, offering a coding agent documentation search, trace analysis, and crash symbolication.
+- Two music players and three effect players ran at once without an error, and effects never paused the music. A released player was re-created and playing again within about 50 ms.
+- `blur` and the change to background arrived on every trip to the launcher, so the app can stop its music before the launcher is on screen.
+
+## Core friction themes (cons)
+
+While each issue is cataloged in detail below, 32 entries trace back to four architectural friction themes:
+
+1. **Silent failures and missing diagnostics:** The runtime frequently refuses operations or exits without raising JavaScript errors. Undeclared system services silence all audio without error ([FL-18](#fl-18)); `launch-app` reports success when the app died at launch ([FL-02](#fl-02)); an unhandled key API combination silences input ([FL-04](#fl-04)); `install-app` accepts a mismatched architecture package that silently aborts on boot ([FL-30](#fl-30)).
+2. **Remote input and event fragmentation:** The remote's primary button arrives under three distinct names (`select`, `enter`, `kpenter`) across keyboards, on-screen remotes, and OS versions ([FL-03](#fl-03)); Back requires a separate proprietary hook ([FL-06](#fl-06)); and synthetic key injection routes fail silently ([FL-08](#fl-08)).
+3. **Disparity between Virtual Device and physical hardware:** The Virtual Device cannot validate warm-start KPIs ([FL-21](#fl-21)), screenshots ([FL-09](#fl-09)), or Accessibility Adaptive Display ([FL-29](#fl-29)), while an OS update on the physical Fire TV Stick introduced audio player hangs under reuse ([FL-31](#fl-31)) and tmpfs RAM exhaustion ([FL-32](#fl-32)).
+4. **Toolchain and manifest traps:** Declaring documented services can break launch ([FL-19](#fl-19)), routine minor dependency updates break builds without peer warnings ([FL-15](#fl-15)), the ESLint plugin fails on modern ESLint 10 ([FL-14](#fl-14)), and a single icon field crops square icons unexpectedly ([FL-16](#fl-16)).
+
+Severity scale: **Blocker** stopped the chosen approach; **High** cost a day or would break the app for users; **Medium** cost hours or needed a workaround; **Low** is friction without lasting cost.
 
 ## Environment
 
@@ -971,23 +1010,6 @@ Severity: **Blocker** stopped the chosen approach; **High** cost a day or would 
     Stick.
 - **Current status:** worked around by hand.
 
-## What worked well
+---
 
-Amazon asks for the whole experience, so the good parts belong here too:
-
-- The native path ran on the first attempt on SDK 0.24: a 2.3 MB package, launched in 404 and 426 ms,
-  with an empty crash buffer.
-- `react-native-svg` is part of the system, and it rendered all twelve chess pieces as inline JSX.
-- MMKV is synchronous, so a saved game is restored in the first render with no loading state.
-- MP3 and WAV effects start in 3 to 7 ms, quick enough for moves and dice.
-- The SDK 0.24 template's Metro resolved our ESM-only engine without configuration, and Hermes
-  compiled it cleanly.
-- The SDK installed on Linux as well as macOS, so builds are not tied to one machine.
-- HTTPS requests and a WebSocket worked without any manifest entry: unlike the audio services in
-  [FL-18](#fl-18), no connection was refused.
-- Amazon's Builder Tools MCP installed with one command and started under Node 26, offering a coding
-  agent documentation search, trace analysis and crash symbolication.
-- Two music players and three effect players ran at once without an error, and effects never paused
-  the music. A released player was re-created and playing again within about 50 ms.
-- `blur` and the change to background arrived on every trip to the launcher, so the app can stop its
-  music before the launcher is on screen.
+The positive findings and platform strengths are detailed in [What worked well (pros)](#what-worked-well) at the top of this log.
