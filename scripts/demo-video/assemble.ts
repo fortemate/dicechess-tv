@@ -14,27 +14,51 @@
 // game's voices/effects at their recorded times. The earlier narrated cut
 // retains the takes' sound and ducks it under the added narrator.
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { join, resolve } from 'node:path';
 import { musicSpans, recordedSounds, unexpectedSilence } from './soundtrack.ts';
 import type { RecordedSound, SceneTiming, Soundtrack } from './soundtrack.ts';
 
+// A lower third over footage: a band in the app's background with a title and
+// a quieter line under it, such as the credit for footage that is not the
+// app's. It fades in with the clip and out after `seconds`, or with the clip.
+type Caption = { title: string; subtitle?: string; seconds?: number };
 type Clip = {
+  // A take record.ts saved, or (with `source`) footage from elsewhere.
   take: string;
+  // A file under FOOTAGE (dist/demo-video/footage), such as a tournament
+  // recording the federation allowed: it is brought to 1920x1080 at 30 frames
+  // a second with its own sound dropped, and shown without the device badge.
+  source?: string;
+  // An ffmpeg crop (w:h:x:y) applied before scaling, to keep a burnt-in
+  // subtitle or a broadcaster's logo out of the frame.
+  crop?: string;
   from: number | null;
   to: number | null;
   // Seconds to keep the clip's last frame up, for a screen the app leaves up
   // until a key is pressed but the take pressed on at once, such as a result.
   hold?: number;
-  // Built splash artwork is shown as an asset, without the device badge.
-  badge?: boolean;
+  // Built splash artwork is shown as an asset, without the device badge. A
+  // string names another device, such as a clip filmed off a television with
+  // a Fire TV Stick, and is drawn in the badge's place.
+  badge?: boolean | string;
+  caption?: Caption;
   audio?: RecordedSound[];
 };
-// One of Thinkle's lines, `at` seconds into its scene (or the end card).
+// One of Thinkle's lines, `at` seconds into its scene
+// (or the end card).
 type Narration = { line: string; at: number };
 type Scene = {
   name: string;
-  card?: { kicker: string; title: string; seconds: number };
+  // `lines` are drawn smaller under the title, for a card that lists what the
+  // app was built with.
+  card?: { kicker: string; title: string; seconds: number; lines?: string[] };
   clips: Clip[];
   narration?: Narration[];
 };
@@ -50,6 +74,8 @@ type Storyboard = {
     title: string;
     tagline?: string;
     link: string;
+    // A line naming what the app was built with, above the footer.
+    builtWith?: string;
     footer: string;
     // The menu theme under the end card, where no take plays.
     music: {
@@ -66,6 +92,8 @@ type Storyboard = {
 const HERE = 'scripts/demo-video';
 const OUT = process.env.OUT ?? 'dist/demo-video';
 const TAKES = process.env.TAKES ?? join(OUT, 'takes');
+// Footage from elsewhere, which is not committed.
+const FOOTAGE = process.env.FOOTAGE ?? join(OUT, 'footage');
 const WORK = join(OUT, 'work');
 const VIDEO = join(OUT, 'dicechess-tv-demo.mp4');
 
@@ -157,6 +185,16 @@ function lineCatalogue(): Map<string, Line> {
   for (const [id, line] of Object.entries(app.lines))
     if (!lines.has(id))
       lines.set(id, { ...line, file: join('native/voices', line.file) });
+  // The lines he adds for the v9 cut, vendored into narration-v9/; a
+  // checkout without them places none.
+  const v9 = join(HERE, 'narration-v9/narration-v9.json');
+  if (existsSync(v9)) {
+    const more = JSON.parse(readFileSync(v9, 'utf8')) as {
+      lines: Record<string, Line>;
+    };
+    for (const [id, line] of Object.entries(more.lines))
+      lines.set(id, { ...line, file: join(HERE, 'narration-v9', line.file) });
+  }
   return lines;
 }
 
@@ -205,6 +243,8 @@ function continuousMix(
   total: number,
   catalogue: Map<string, Line>,
   duckDb: number,
+  narration: Placed[],
+  narrationGainDb: number,
 ): string {
   const music = JSON.parse(readFileSync('native/music/music.json', 'utf8')) as {
     tracks: Record<
@@ -213,7 +253,18 @@ function continuousMix(
     >;
   };
   const spans = musicSpans(soundtrack, scenes, total);
-  const sounds = recordedSounds(scenes, catalogue, probeDuration);
+  // The takes' voices and effects at their recorded times, and the narration
+  // placed by the storyboard, which the music ducks under like a voice.
+  const sounds = [
+    ...recordedSounds(scenes, catalogue, probeDuration),
+    ...narration.map(({ file, start, end }) => ({
+      file,
+      seconds: end - start,
+      start,
+      gainDb: narrationGainDb,
+      voice: true,
+    })),
+  ];
   const spoken = sounds.filter(({ voice }) => voice);
   const down =
     spoken
@@ -320,36 +371,92 @@ function main(): void {
     );
     process.exit(2);
   }
-  const take = (clip: Clip): string => join(TAKES, `${clip.take}.mp4`);
   const catalogue = lineCatalogue();
 
   rmSync(WORK, { recursive: true, force: true });
   mkdirSync(WORK, { recursive: true });
 
-  // Sampled mid-clip: a take may open on a fade.
-  const first = clips[0];
+  // A take as record.ts saved it, or footage from elsewhere brought to the
+  // takes' picture format once, with its own sound replaced by silence: the
+  // storyboard's times are those of the source file.
+  const normalised = new Map<string, string>();
+  const take = (clip: Clip): string => {
+    if (!clip.source) return join(TAKES, `${clip.take}.mp4`);
+    const key = `${clip.source}|${clip.crop ?? ''}`;
+    const ready = normalised.get(key);
+    if (ready) return ready;
+    const out = join(WORK, `source-${normalised.size}-${clip.take}.mp4`);
+    ffmpeg(
+      [
+        ['-i', join(FOOTAGE, clip.source)],
+        ['-f', 'lavfi', '-i', 'anullsrc=r=48000:cl=stereo'],
+        [
+          '-filter_complex',
+          (clip.crop ? `[0:v]crop=${clip.crop},` : '[0:v]') +
+            'scale=1920:1080:force_original_aspect_ratio=decrease:flags=lanczos,' +
+            'pad=1920:1080:(ow-iw)/2:(oh-ih)/2,setsar=1,fps=30[v]',
+        ],
+        ['-map', '[v]', '-map', '1:a', ...videoCodec(16), ...AUDIO_CODEC],
+        ['-shortest', out],
+      ].flat(),
+    );
+    normalised.set(key, out);
+    return out;
+  };
+
+  // Sampled mid-clip: a take may open on a fade. The first clip of the app's
+  // own, since footage from elsewhere has a background of its own.
+  const first = clips.find((clip) => !clip.source) ?? clips[0];
   const background = backgroundOf(
     take(first),
     ((first.from as number) + (first.to as number)) / 2,
   );
   const colour = `0x${background}`;
 
-  // The stills: the badge and the end card.
+  // The stills: the title cards, the badges, the captions and the end card.
+  // A clip's badge string names a device of its own; each distinct text is
+  // drawn once.
+  const badges = new Map<string, string>([[board.badge, 'badge.png']]);
+  const badgeOf = (clip: Clip): string | null => {
+    if (clip.badge === false) return null;
+    const text = typeof clip.badge === 'string' ? clip.badge : board.badge;
+    if (!badges.has(text)) badges.set(text, `badge-${badges.size}.png`);
+    return badges.get(text) as string;
+  };
+  const captions: { file: string; title: string; subtitle: string }[] = [];
+  const captionOf = (clip: Clip): string | null => {
+    if (!clip.caption) return null;
+    const file = `caption-${captions.length}.png`;
+    captions.push({
+      file,
+      title: clip.caption.title,
+      subtitle: clip.caption.subtitle ?? '',
+    });
+    return file;
+  };
+  const clipStills = clips.map((clip) => ({
+    badge: badgeOf(clip),
+    caption: captionOf(clip),
+  }));
   const spec = join(WORK, 'stills.json');
   writeFileSync(
     spec,
     JSON.stringify({
       background: `#${background}`,
       cards: board.scenes.flatMap((scene, index) =>
-        scene.card ? [{ file: `card-${index}.png`, ...scene.card }] : [],
+        scene.card
+          ? [{ file: `card-${index}.png`, lines: [], ...scene.card }]
+          : [],
       ),
-      badge: { file: 'badge.png', text: board.badge },
+      badges: [...badges].map(([text, file]) => ({ file, text })),
+      captions,
       end: {
         file: 'end.png',
         icon: resolve('native/icon/icon-512.png'),
         title: board.end.title,
         tagline: board.end.tagline ?? null,
         link: board.end.link,
+        builtWith: board.end.builtWith ?? null,
         footer: board.end.footer,
       },
     }),
@@ -375,6 +482,14 @@ function main(): void {
   const fades = (length: number) =>
     `fade=t=in:st=0:d=${FADE}:color=${colour},` +
     `fade=t=out:st=${seconds(length - FADE)}:d=${FADE}:color=${colour}`;
+  // Footage from elsewhere cuts straight from one shot to the next, as the
+  // footage itself does; it fades only into the app's first frame.
+  const cutsOf = (clip: Clip, next: Clip | undefined, length: number) =>
+    clip.source && next?.source
+      ? 'null'
+      : clip.source
+        ? `fade=t=out:st=${seconds(length - FADE)}:d=${FADE}:color=${colour}`
+        : fades(length);
   const segmentName = (name: string) =>
     join(WORK, `${String(segments.length).padStart(2, '0')}-${name}.mp4`);
 
@@ -426,19 +541,52 @@ function main(): void {
       const hold = clip.hold ?? 0;
       const out = segmentName(clip.take);
       const clipStart = at;
+      const stills = clipStills[clips.indexOf(clip)];
+      // The badge over the picture, then the caption, which fades in with the
+      // clip and out after its seconds, or with the clip.
+      const overlays: string[] = [];
+      const inputs: string[] = [];
+      let picture = '[0:v]';
+      let next = 1; // the take is input 0
+      if (stills.badge) {
+        inputs.push('-i', join(WORK, stills.badge));
+        overlays.push(`${picture}[${next}:v]overlay=0:0[badged]`);
+        picture = '[badged]';
+        next += 1;
+      }
+      if (stills.caption) {
+        const shown = Math.min(clip.caption?.seconds ?? length, length + hold);
+        inputs.push(
+          '-loop',
+          '1',
+          '-t',
+          seconds(length + hold),
+          '-i',
+          join(WORK, stills.caption),
+        );
+        overlays.push(
+          `[${next}:v]format=rgba,fade=t=in:st=0:d=0.4:alpha=1,` +
+            `fade=t=out:st=${seconds(Math.max(0, shown - 0.5))}:d=0.5:alpha=1[caption]`,
+          `${picture}[caption]overlay=0:0:shortest=1[captioned]`,
+        );
+        picture = '[captioned]';
+        next += 1;
+      }
       ffmpeg(
         [
           ['-ss', seconds(from), '-t', seconds(length), '-i', take(clip)],
-          ['-i', join(WORK, 'badge.png')],
+          inputs,
           [
             '-filter_complex',
-            (clip.badge === false ? '[0:v]' : '[0:v][1:v]overlay=0:0,') +
-              `tpad=stop_mode=clone:stop_duration=${seconds(hold)},` +
-              `${fades(length + hold)}[v];` +
+            [
+              ...overlays,
+              `${picture}tpad=stop_mode=clone:stop_duration=${seconds(hold)},` +
+                `${cutsOf(clip, scene.clips[scene.clips.indexOf(clip) + 1], length + hold)}[v]`,
               `[0:a]aresample=48000,apad=pad_dur=${seconds(hold)},` +
-              (board.soundtrack ? 'volume=0,' : '') +
-              `afade=t=in:st=0:d=0.15,` +
-              `afade=t=out:st=${seconds(length + hold - 0.25)}:d=0.25[a]`,
+                (board.soundtrack ? 'volume=0,' : '') +
+                `afade=t=in:st=0:d=0.15,` +
+                `afade=t=out:st=${seconds(length + hold - 0.25)}:d=0.25[a]`,
+            ].join(';'),
           ],
           [
             '-map',
@@ -526,14 +674,14 @@ function main(): void {
   // silence filling any gap.
   let mix: string;
   if (board.soundtrack) {
-    if (spoken.length)
-      throw new Error('continuous soundtrack does not add narration');
     mix = continuousMix(
       board.soundtrack,
       timing,
       total,
       catalogue,
       board.duckDb,
+      spoken,
+      board.narrationGainDb,
     );
   } else {
     const dip = 1 - 10 ** (board.duckDb / 20);

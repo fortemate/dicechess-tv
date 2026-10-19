@@ -18,6 +18,7 @@ native/voices/
 # Thinkle's narration of the demo video, vendored from fortemate/dicechess-assets
 # and pinned byte for byte by scripts/demo-video/narration/narration.json.
 scripts/demo-video/narration/
+scripts/demo-video/narration-v9/
 
 # Written by Amazon's Vega ESLint plugin on every lint run; gitignored.
 native/generated/

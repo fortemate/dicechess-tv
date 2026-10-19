@@ -228,6 +228,114 @@ test('the preliminary soundtrack carries music across every card', () => {
   assert.match(preview.end.footer, /JDSherbert/);
 });
 
+// The v9 cut: the federation's footage with captions under Thinkle's narration,
+// the game scenes, and the Built-with scene, under three minutes.
+test('the v9 cut opens on credited footage, names the track tool, and stays under three minutes', () => {
+  const v9 = JSON.parse(
+    readFileSync(join(HERE, 'storyboard-v9.json'), 'utf8'),
+  ) as {
+    scenes: {
+      name: string;
+      card?: {
+        kicker: string;
+        title: string;
+        seconds: number;
+        lines?: string[];
+      };
+      clips: {
+        take: string;
+        source?: string;
+        from: number;
+        to: number;
+        hold?: number;
+        badge?: boolean | string;
+        caption?: { title: string; subtitle?: string; seconds?: number };
+      }[];
+      narration?: Narration[];
+    }[];
+    end: {
+      seconds: number;
+      builtWith?: string;
+      footer: string;
+      narration?: Narration[];
+    };
+  };
+  // The lines he adds for v9 are vendored as the asset repository published
+  // them, like the earlier pack, with their licence beside them.
+  const OWNER = join(HERE, 'narration-v9');
+  const owner = JSON.parse(
+    readFileSync(join(OWNER, 'narration-v9.json'), 'utf8'),
+  ) as {
+    commit: string;
+    pack: string;
+    licenseFile: string;
+    files: Record<string, string>;
+    lines: Record<string, Line>;
+  };
+  assert.match(owner.commit, /^[0-9a-f]{40}$/);
+  assert.equal(owner.pack, 'elevenlabs-dicechess-demo-thinkle-v9');
+  assert.ok(owner.files[owner.licenseFile]);
+  const digestOf = (name: string) =>
+    createHash('sha256')
+      .update(readFileSync(join(OWNER, name)))
+      .digest('hex');
+  for (const [name, digest] of Object.entries(owner.files))
+    assert.equal(digestOf(name), digest, name);
+  for (const [id, line] of Object.entries(owner.lines)) {
+    assert.match(id, /^thinkle_/, id);
+    assert.equal(owner.files[line.file], line.sha256, id);
+    assert.ok(line.seconds > 0 && line.text.trim(), id);
+  }
+  let duration = v9.end.seconds;
+  const spoken: string[] = [];
+  for (const scene of v9.scenes) {
+    assert.ok(scene.name.trim());
+    if (scene.card) {
+      assert.ok(scene.card.seconds > 0, scene.name);
+      duration += scene.card.seconds;
+    }
+    for (const clip of scene.clips) {
+      assert.ok(
+        clip.from >= 0 && clip.to > clip.from,
+        `${scene.name}: ${clip.take}`,
+      );
+      duration += clip.to - clip.from + (clip.hold ?? 0);
+      if (clip.source) {
+        // Footage that is not the app's carries no device badge.
+        assert.equal(clip.badge, false, `${scene.name}: ${clip.take}`);
+        assert.match(clip.source, /^federation-/, clip.source);
+      }
+      if (clip.caption) assert.ok(clip.caption.title.trim(), clip.take);
+    }
+    spoken.push(...(scene.narration ?? []).map(({ line }) => line));
+  }
+  spoken.push(...(v9.end.narration ?? []).map(({ line }) => line));
+  // The federation is credited on screen in the first scene and on the end card.
+  const first = v9.scenes[0];
+  assert.ok(
+    first.clips.some(
+      (clip) => clip.source && clip.caption?.title.includes('Federation'),
+    ),
+  );
+  assert.match(v9.end.footer, /Federation/);
+  // The track's tool is named on a card and on the end card.
+  assert.ok(
+    v9.scenes.some((scene) =>
+      scene.card?.lines?.some((line) => line.includes('React Native for Vega')),
+    ),
+  );
+  assert.match(v9.end.builtWith ?? '', /React Native for Vega/);
+  // Each line is said once; every line of the v9 pack is placed.
+  for (const id of spoken)
+    assert.ok(lineOf(id) ?? owner.lines[id], `${id} has no clip`);
+  assert.equal(new Set(spoken).size, spoken.length);
+  for (const id of Object.keys(owner.lines))
+    assert.ok(spoken.includes(id), `${id} is not placed`);
+  // Thinkle's "first frame in about a third of a second" is not true of the Stick.
+  assert.ok(!spoken.includes('thinkle_demo_built_2'));
+  assert.ok(duration >= 150 && duration < 180, `${duration} seconds`);
+});
+
 test('soundtrack rejects misplaced transitions and incomplete speech', () => {
   const scenes: SceneTiming[] = [
     {

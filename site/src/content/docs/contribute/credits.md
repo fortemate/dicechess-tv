@@ -73,7 +73,7 @@ Dice Chess TV combines open-source code with public domain and permitted creativ
   - Thinkle the wizard, who teaches the tutorial and offers it on a first launch (48 lines)
 - **License:** Fortemate's own, for Fortemate's Dice Chess apps only, on the same terms for every pack. Not covered by the AGPL or by any other open license. A fork or copy of this repository may not use, publish or distribute them, and must replace them with audio of its own.
 - **Usage:** The packs are vendored under `native/voices/`, each beside its own license file. The [opponent profiles](/play/opponents/) reuse nine recordings from the bots' pack, with the text from that pack's manifest. These are the in-game ElevenLabs voices, separate from the earlier CC0 audition candidates on the unlisted tester page. ElevenLabs asks for no credit on a paid plan, and the About screen gives none: its "Made by Fortemate" covers them.
-- **Demo video:** A sixth pack, Thinkle's narration of the demo video, is vendored under `scripts/demo-video/narration/`: 15 lines, heard in the video and never in the game. Its license is the other packs', and also allows the videos that present Fortemate's Dice Chess applications.
+- **Demo video:** Two more packs, Thinkle's narration of the demo video, are vendored under `scripts/demo-video/narration/` (15 lines, the October cut with title cards) and `scripts/demo-video/narration-v9/` (8 lines: the opening over the federation's footage and the closing on how the game was built), heard in the videos and never in the game. Their license is the other packs', and also allows the videos that present Fortemate's Dice Chess applications.
 
 ## Open-Source Software in the App
 

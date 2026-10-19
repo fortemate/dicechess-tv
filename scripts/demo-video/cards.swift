@@ -12,11 +12,22 @@ struct Card: Decodable {
   let file: String
   let kicker: String
   let title: String
+  // Smaller lines under the title, for a card that lists what the app was
+  // built with.
+  let lines: [String]?
 }
 
 struct Badge: Decodable {
   let file: String
   let text: String
+}
+
+// A lower third over footage: a band in the background colour along the
+// bottom, a title and a quieter line under it.
+struct Caption: Decodable {
+  let file: String
+  let title: String
+  let subtitle: String
 }
 
 struct End: Decodable {
@@ -26,6 +37,8 @@ struct End: Decodable {
   // A line under the title; left out when there is none.
   let tagline: String?
   let link: String
+  // What the app was built with, above the footer; left out when there is none.
+  let builtWith: String?
   let footer: String
 }
 
@@ -34,7 +47,9 @@ struct Spec: Decodable {
   // footage without a step in colour.
   let background: String
   let cards: [Card]?
-  let badge: Badge
+  // The device badge over the takes, and any other device a clip names.
+  let badges: [Badge]
+  let captions: [Caption]?
   let end: End
 }
 
@@ -135,20 +150,48 @@ for card in spec.cards ?? [] {
   try still(card.file, fill: background) {
     let kicker = text(card.kicker.uppercased(), "AvenirNext-DemiBold", 36, kickerColour, kern: 7)
     let title = text(card.title, "AvenirNext-Medium", 84, titleColour)
+    let lines = (card.lines ?? []).map { text($0, "AvenirNext-Regular", 38, quietColour) }
     let gap: CGFloat = 34
+    let lineGap: CGFloat = 16
+    let linesTall = lines.reduce(CGFloat(0)) { $0 + measure($1, column) + lineGap }
     let block = measure(kicker, column) + gap + measure(title, column)
+      + (lines.isEmpty ? 0 : gap + linesTall)
     // Centred, and a little above the middle, where a reader looks first.
     let top = (CGFloat(height) - block) / 2 - 20
     let kickerTall = draw(kicker, top: top, left: columnLeft, width: column)
-    _ = draw(title, top: top + kickerTall + gap, left: columnLeft, width: column)
+    var y = top + kickerTall + gap
+    y += draw(title, top: y, left: columnLeft, width: column) + gap
+    for line in lines {
+      y += draw(line, top: y, left: columnLeft, width: column) + lineGap
+    }
   }
 }
 
 // Where the first cut had it: top right, in the app's quiet teal, inside the
-// margin the app keeps clear.
-try still(spec.badge.file, fill: nil) {
-  let label = text(spec.badge.text, "AvenirNext-Medium", 26, quietColour, alignment: .right)
-  _ = draw(label, top: 26, left: CGFloat(width) - 98 - 800, width: 800)
+// margin the app keeps clear. Large enough to read on a laptop screen.
+for badge in spec.badges {
+  try still(badge.file, fill: nil) {
+    let label = text(badge.text, "AvenirNext-Medium", 32, quietColour, alignment: .right)
+    _ = draw(label, top: 26, left: CGFloat(width) - 98 - 1200, width: 1200)
+  }
+}
+
+// A lower third: a band along the bottom in the background colour, nearly
+// opaque, the title in the heading colour and the subtitle in the kicker's.
+for caption in spec.captions ?? [] {
+  try still(caption.file, fill: nil) {
+    let bandTop: CGFloat = 950
+    background.withAlphaComponent(0.88).setFill()
+    NSRect(x: 0, y: 0, width: CGFloat(width), height: CGFloat(height) - bandTop).fill()
+    let left: CGFloat = 72
+    let limit = CGFloat(width) - 2 * left
+    let title = text(caption.title, "AvenirNext-DemiBold", 36, titleColour, alignment: .left)
+    _ = draw(title, top: bandTop + 22, left: left, width: limit)
+    if !caption.subtitle.isEmpty {
+      let subtitle = text(caption.subtitle, "AvenirNext-Regular", 28, kickerColour, alignment: .left)
+      _ = draw(subtitle, top: bandTop + 74, left: left, width: limit)
+    }
+  }
 }
 
 try still(spec.end.file, fill: background) {
@@ -170,5 +213,8 @@ try still(spec.end.file, fill: background) {
     y += 8
   }
   _ = draw(text(spec.end.link, "AvenirNext-DemiBold", 36, titleColour), top: y, left: columnLeft, width: column)
+  if let builtWith = spec.end.builtWith, !builtWith.isEmpty {
+    _ = draw(text(builtWith, "AvenirNext-Medium", 32, kickerColour), top: 905, left: columnLeft, width: column)
+  }
   _ = draw(text(spec.end.footer, "AvenirNext-Regular", 26, quietColour), top: 980, left: columnLeft, width: column)
 }

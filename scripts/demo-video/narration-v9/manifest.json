@@ -1,0 +1,346 @@
+{
+  "attributionRequired": false,
+  "casting": "casting.json",
+  "clients": [
+    "fortemate/dicechess-tv"
+  ],
+  "derivation": {
+    "arguments": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+    "note": "Each export is its source with the gain that brings it to the target loudness, measured by ffmpeg's ebur128 filter, then a limiter, as mono MP3 without metadata. Where the limiter takes more than 0.5 LU, the gain is raised by the difference and the conversion made again, up to 3 conversions in all.",
+    "target": {
+      "bitrate": "64k",
+      "integratedLufs": -16,
+      "limitDbfs": -1.5
+    },
+    "tool": "ffmpeg version 9.0.1 Copyright (c) 2000-2026 the FFmpeg developers"
+  },
+  "directions": "directions.json",
+  "distribution": "project",
+  "generator": {
+    "kind": "voices",
+    "note": "Voices designed, or to be designed, with ElevenLabs Voice Design and read by Eleven v4 on a paid plan; nothing made on the free plan ships. The ElevenLabs Terms of Service for the EEA (last updated 31 March 2026) say that as between the user and ElevenLabs the user retains all rights in the Output. The Prohibited Use Policy (17 August 2026) forbids using it in datasets for AI training, so the pack has no open licence: it is for Fortemate's Dice Chess applications and the videos that present them (fortemate/dicechess-assets#27).",
+    "tool": "ElevenLabs",
+    "via": "POST /v1/text-to-speech/{voice_id} with model eleven_v4, run by tools/elevenlabs_audio.py with the owner's API key"
+  },
+  "id": "elevenlabs-dicechess-demo-thinkle-v9",
+  "license": "Fortemate apps only",
+  "licenseFile": "LICENSE.txt",
+  "lines": {
+    "thinkle_built_vega_1": {
+      "bot": "narrator",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] Built natively for Fire TV, with React Native for Vega.",
+      "durationSeconds": 5.04,
+      "event": "built",
+      "export": "exports/mp3/thinkle_built_vega_1.mp3",
+      "generated": "2026-10-18T19:06:50Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 0.7,
+        "passes": 1,
+        "sourceLufs": -16.7
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "OX3giynBt9NFJxkZQkqt",
+      "seed": 1893624164,
+      "sha256": "549dffa1a33c9c74ffd0a9163c739a5363bd7744b7f5adf69f1fb412c803de29",
+      "source": "source/mp3/thinkle_built_vega_1.mp3",
+      "sourceSha256": "58278a958f4886f95e6f25d031481d55a981f58e80c4bf2066656e0dc37e91eb",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Built natively for Fire TV, with React Native for Vega.",
+      "voice": "Thinkle",
+      "voiceId": "UDn5cabCjqJGTbU62y7U",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "thinkle_built_vega_2": {
+      "bot": "narrator",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] It runs on Vega OS, here on the Vega Virtual Device.",
+      "durationSeconds": 4.56,
+      "event": "built",
+      "export": "exports/mp3/thinkle_built_vega_2.mp3",
+      "generated": "2026-10-18T19:06:51Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 2.5,
+        "passes": 1,
+        "sourceLufs": -18.5
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "QtDRivxCeNIFe8YROU1Z",
+      "seed": 701961240,
+      "sha256": "7e0ca11ff6965d400719e17f5e7aa940133aaef8518a38de993c5f58f9eae6f3",
+      "source": "source/mp3/thinkle_built_vega_2.mp3",
+      "sourceSha256": "3240ce0cbbe8aa4ab18bd22efabe72369f778c55d32d6221a09367e327949fa4",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "It runs on Vega OS, here on the Vega Virtual Device.",
+      "voice": "Thinkle",
+      "voiceId": "UDn5cabCjqJGTbU62y7U",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "thinkle_built_vega_3": {
+      "bot": "narrator",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] And it plays on a Fire TV Stick, in a real living room.",
+      "durationSeconds": 4.48,
+      "event": "built",
+      "export": "exports/mp3/thinkle_built_vega_3.mp3",
+      "generated": "2026-10-18T19:06:53Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 0.6,
+        "passes": 1,
+        "sourceLufs": -16.6
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "ul6ebLgPVDtaKNvjoYGi",
+      "seed": 3950999821,
+      "sha256": "c92a80c5382467d23a6d35ef9c6f268ac32041adab35768e8dfa6bc55fc6a150",
+      "source": "source/mp3/thinkle_built_vega_3.mp3",
+      "sourceSha256": "8c75768d890272a1d0f9343b579938565305080907a61a968156065afa8df899",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "And it plays on a Fire TV Stick, in a real living room.",
+      "voice": "Thinkle",
+      "voiceId": "UDn5cabCjqJGTbU62y7U",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "thinkle_intro_1": {
+      "bot": "narrator",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] In chess, the stronger player nearly always wins.",
+      "durationSeconds": 4.24,
+      "event": "intro",
+      "export": "exports/mp3/thinkle_intro_1.mp3",
+      "generated": "2026-10-18T18:38:54Z",
+      "loudness": {
+        "exportLufs": -16.1,
+        "gainDb": 5.7,
+        "passes": 2,
+        "sourceLufs": -21.0
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "Jh3WASviq2bt82uPZ6lo",
+      "seed": 3126608019,
+      "sha256": "8fd4c859b491379eaf4e8a781c7c0680ea4121975c693889821b8b812e9cbba8",
+      "source": "source/mp3/thinkle_intro_1.mp3",
+      "sourceSha256": "9f3ee67edd89b05a8eda135655cf1acf240b6f433961dcac3fd81aaf501e7e33",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "In chess, the stronger player nearly always wins.",
+      "voice": "Thinkle",
+      "voiceId": "UDn5cabCjqJGTbU62y7U",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "thinkle_intro_2": {
+      "bot": "narrator",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[sighs] A child learns, and soon the family stops playing.",
+      "durationSeconds": 5.76,
+      "event": "intro",
+      "export": "exports/mp3/thinkle_intro_2.mp3",
+      "generated": "2026-10-18T18:38:55Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 4.4,
+        "passes": 2,
+        "sourceLufs": -19.5
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "3qfZ3RrkdKnDgY6zQjuU",
+      "seed": 4199382443,
+      "sha256": "860694dbb4ce77af196452ac6e755d0f7eeb83516d1ed844cfb2569147867c42",
+      "source": "source/mp3/thinkle_intro_2.mp3",
+      "sourceSha256": "488a9716215f79a961082df9c651e5faca66946382f3670b1d6ff931901d524c",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "A child learns, and soon the family stops playing.",
+      "voice": "Thinkle",
+      "voiceId": "UDn5cabCjqJGTbU62y7U",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "thinkle_intro_3": {
+      "bot": "narrator",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] Dice Chess adds three dice: luck gives everyone a chance.",
+      "durationSeconds": 5.12,
+      "event": "intro",
+      "export": "exports/mp3/thinkle_intro_3.mp3",
+      "generated": "2026-10-18T18:38:57Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 2.5,
+        "passes": 2,
+        "sourceLufs": -17.8
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "NkV22jb3LWCMIquYb5AR",
+      "seed": 1879962138,
+      "sha256": "fc38f8ed3ac3ac12971f2d5a7a7d959d8473203305da45497532b9dbff72064f",
+      "source": "source/mp3/thinkle_intro_3.mp3",
+      "sourceSha256": "96ddf6f7db2a2b752587f76a176cea2daa74722758c222e346649f57fe742071",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Dice Chess adds three dice: luck gives everyone a chance.",
+      "voice": "Thinkle",
+      "voiceId": "UDn5cabCjqJGTbU62y7U",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "thinkle_intro_4": {
+      "bot": "narrator",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] In Latvia, children and parents play it in the same tournaments.",
+      "durationSeconds": 4.24,
+      "event": "intro",
+      "export": "exports/mp3/thinkle_intro_4.mp3",
+      "generated": "2026-10-18T18:38:58Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 2.4,
+        "passes": 1,
+        "sourceLufs": -18.4
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "FxliHfh3xntfrm9lFAQJ",
+      "seed": 2348597241,
+      "sha256": "ecc165ccb39f300f77a7b262ce6c79cc8ae2e3c1165bbb1107006c7703b2d128",
+      "source": "source/mp3/thinkle_intro_4.mp3",
+      "sourceSha256": "4309c3bf028af1bce1b64a1ce97f646c17a7290fc5aff300e5c4e73bc518ffaa",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "In Latvia, children and parents play it in the same tournaments.",
+      "voice": "Thinkle",
+      "voiceId": "UDn5cabCjqJGTbU62y7U",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "thinkle_intro_5": {
+      "bot": "narrator",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[excited] Now your family can play it, right on your TV.",
+      "durationSeconds": 3.68,
+      "event": "intro",
+      "export": "exports/mp3/thinkle_intro_5.mp3",
+      "generated": "2026-10-18T18:39:00Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": -1.1,
+        "passes": 1,
+        "sourceLufs": -14.9
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "Notza44NNP8lhICfGnFv",
+      "seed": 2874870993,
+      "sha256": "e78f0dd4b51a04b67d164213eef2748ef45117bad00448fa4cc927698c912be8",
+      "source": "source/mp3/thinkle_intro_5.mp3",
+      "sourceSha256": "884b78e6985d43a4e4a0253c207c25e5c7d5bc104b800c9fffc0f78fe15f2f35",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Now your family can play it, right on your TV.",
+      "voice": "Thinkle",
+      "voiceId": "UDn5cabCjqJGTbU62y7U",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    }
+  },
+  "pack": {
+    "picks": "picks.json",
+    "texts": {
+      "path": "voices/elevenlabs-dicechess-demo-thinkle-v9/catalogue.json",
+      "repository": "fortemate/dicechess-assets"
+    }
+  },
+  "picks": "picks.json",
+  "schemaVersion": 1,
+  "status": "draft",
+  "texts": "catalogue.json",
+  "title": "Dice Chess TV demo video v9, narrated by Thinkle (ElevenLabs)"
+}
