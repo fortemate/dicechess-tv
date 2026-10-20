@@ -5,6 +5,8 @@ import {
   initialState,
   homeOptions,
   menuOptions,
+  menuItems,
+  homeItems,
   settingsOptions,
   RULES_OPTION,
   musicRole,
@@ -581,6 +583,68 @@ test('a draw cannot be agreed with the opponent, only with another player', () =
   ]);
   const hotseat = drive(fresh(), 'select');
   assert.ok(menuOptions(hotseat.game).includes('Agree a draw'));
+});
+
+// What a menu item does follows its id, never its label: an item reworded or
+// unknown cannot fall through to replacing the game. Only Resign, and New game
+// over a friend game, ask to confirm.
+test('each menu and home item acts by its id', () => {
+  const outcome = (menu: ScreenState) =>
+    menuItems(menu.game).map(({ id }, index) => {
+      const { overlay, game } = drive(
+        { ...menu, overlay: { kind: 'menu', index } },
+        'select',
+      );
+      const what =
+        overlay.kind === 'confirm' ? `confirm ${overlay.action}` : overlay.kind;
+      return `${id}: ${what}${game.result ? ` (${game.result.reason})` : ''}`;
+    });
+  const friend = drive(fresh(), 'select', 'select', 'select', 'back');
+  assert.deepEqual(outcome(friend), [
+    'resume: none',
+    'resign: confirm resign',
+    'draw: none (agreed-draw)',
+    'new-game: confirm replace',
+    'main-menu: home',
+    'rules: rules',
+    'settings: settings',
+  ]);
+  const bot = drive(fresh(), 'down', 'select', 'select', 'select', 'back');
+  const home = (state: ScreenState) =>
+    homeItems(isResumable(state)).map(({ id }, index) => {
+      const { overlay, game } = drive(
+        { ...state, overlay: { kind: 'home', index } },
+        'select',
+      );
+      const what =
+        overlay.kind === 'confirm' ? `confirm ${overlay.action}` : overlay.kind;
+      return `${id}: ${what}${game === state.game ? '' : ' (new game)'}`;
+    });
+  assert.deepEqual(home(fresh()), [
+    'hotseat: none (new game)',
+    'computer: opponent',
+    'learn: tutorial',
+    'rules: rules',
+    'settings: settings',
+    'about: about',
+  ]);
+  assert.deepEqual(home({ ...bot, overlay: { kind: 'home', index: 0 } }), [
+    'resume: none',
+    'hotseat: confirm replace',
+    'computer: opponent',
+    'learn: tutorial',
+    'rules: rules',
+    'settings: settings',
+    'about: about',
+  ]);
+  assert.deepEqual(outcome(bot), [
+    'resume: none',
+    'resign: confirm resign',
+    'new-game: opponent',
+    'main-menu: home',
+    'rules: rules',
+    'settings: settings',
+  ]);
 });
 
 // Every state the opponent passes through, in order.

@@ -77,7 +77,7 @@ import {
   initialState,
   homeOptions,
   menuOptions,
-  settingsOptions,
+  settingsItems,
   musicRole,
   confirmOptions,
   colourOptions,
@@ -506,7 +506,7 @@ const choiceOf = (overlay: Overlay, context: ChoiceContext): Choice | null => {
         index: overlay.index,
       };
     case 'settings': {
-      const options = settingsOptions({
+      const rows = settingsItems({
         sound: context.sound,
         music: context.music,
         musicAvailable: context.hasMusic,
@@ -519,8 +519,8 @@ const choiceOf = (overlay: Overlay, context: ChoiceContext): Choice | null => {
       });
       return {
         title: 'Settings',
-        ...settingsHint(options[overlay.index] ?? ''),
-        options,
+        ...settingsHint(rows[overlay.index]?.id),
+        options: rows.map((row) => row.label),
         index: overlay.index,
       };
     }

@@ -8,7 +8,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { AUTO_PROMPT, modeLine, promptFor } from '../src/GameScreen';
-import { settingsOptions } from '../src/screen';
+import { settingsItems, settingsOptions, type SettingId } from '../src/screen';
 import { settingsHint } from '../src/settingsHint';
 import { DEFAULT_MUSIC } from '../src/musicSetting';
 import { HOST_CHOICES } from '../src/hostSetting';
@@ -109,12 +109,12 @@ const OPTION_DP = 26;
 const OPTION_INSET_DP = 2 * (12 + 2);
 
 test('every row of Settings is one line, whatever it says', () => {
-  const rows = new Set<string>();
+  const rows = new Map<string, SettingId>();
   for (const on of [false, true])
     for (const host of HOST_CHOICES)
       for (const playAs of PLAY_AS_CHOICES)
         for (const highlights of HIGHLIGHT_CHOICES)
-          for (const row of settingsOptions({
+          for (const row of settingsItems({
             sound: { on, volume: on ? 10 : 0 },
             music: DEFAULT_MUSIC,
             turnHotseat: on,
@@ -124,7 +124,7 @@ test('every row of Settings is one line, whatever it says', () => {
             playAs,
             highlights,
           }))
-            rows.add(row);
+            rows.set(row.label, row.id);
   assert.ok(rows.has('Auto-play only move: off'));
   assert.ok(rows.has('Play as: Random'));
   assert.ok(rows.has('Highlights: High contrast'));
@@ -132,10 +132,10 @@ test('every row of Settings is one line, whatever it says', () => {
   // does (#344), with the longest host's name.
   assert.ok(rows.has('Host for friends: Thinkle'));
   assert.ok(rows.has('Turn board for friends: off'));
-  for (const row of rows) {
+  for (const [row, id] of rows) {
     // Each focused row's note is 20 dp, without an option's inset.
-    fits(settingsHint(row).note, 20);
-    fits(settingsHint(row).description, 20);
+    fits(settingsHint(id).note, 20);
+    fits(settingsHint(id).description, 20);
     const width = textWidth(row, OPTION_DP) + OPTION_INSET_DP;
     assert.ok(
       width <= FITS_DP,
