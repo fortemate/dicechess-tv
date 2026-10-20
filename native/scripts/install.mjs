@@ -56,8 +56,18 @@ export const archOfListing = (listing) => {
   return [...arches][0];
 };
 
-const vega = (args, options = {}) =>
-  spawnSync('vega', args, { encoding: 'utf8', ...options });
+// Runs the Vega CLI. Without it on the PATH, spawnSync answers with an ENOENT
+// error and no output at all, which would surface as a TypeError on the
+// missing output instead of the reason.
+export const vega = (args, options = {}, spawn = spawnSync) => {
+  const result = spawn('vega', args, { encoding: 'utf8', ...options });
+  if (result.error?.code === 'ENOENT')
+    throw new Error(
+      'vega CLI not found: install the Vega SDK and put its vega command on the PATH',
+    );
+  if (result.error) throw new Error(`vega ${args[0]}: ${result.error.message}`);
+  return result;
+};
 
 // The package's file list, from the Vega SDK's own packaging tool, which reads
 // the format without any other program on the PATH.
