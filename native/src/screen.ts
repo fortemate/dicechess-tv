@@ -330,7 +330,28 @@ export type ScreenSettings = Pick<
 // object, the screen's own state or a part of it: a setting not given reads as
 // its default.
 export const SETTINGS_OPTION = 'Settings';
-export const settingsOptions = ({
+
+// A choice on a list. What it does follows its id, never its label, so
+// rewording one cannot turn it into another action.
+export type Item<Id extends string> = { id: Id; label: string };
+const labels = <Id extends string>(items: readonly Item<Id>[]): string[] =>
+  items.map((item) => item.label);
+const indexOfId = <Id extends string>(
+  items: readonly Item<Id>[],
+  id: Id,
+): number => items.findIndex((item) => item.id === id);
+
+export type SettingId =
+  | 'music'
+  | 'sounds'
+  | 'voices'
+  | 'highlights'
+  | 'auto-select'
+  | 'play-as'
+  | 'turn-board'
+  | 'host';
+
+export const settingsItems = ({
   sound = DEFAULT_SOUND,
   music = DEFAULT_MUSIC,
   musicAvailable = true,
@@ -340,19 +361,39 @@ export const settingsOptions = ({
   autoSelect = false,
   playAs = DEFAULT_PLAY_AS,
   highlights = DEFAULT_HIGHLIGHTS,
-}: Partial<ScreenSettings>): string[] => [
+}: Partial<ScreenSettings>): Item<SettingId>[] => [
   ...(musicAvailable
-    ? [`Music: ${musicHeard(music) ? music.volume : 'off'}`]
+    ? [
+        {
+          id: 'music',
+          label: `Music: ${musicHeard(music) ? music.volume : 'off'}`,
+        } as const,
+      ]
     : []),
-  `Sounds: ${soundHeard(sound) ? sound.volume : 'off'}`,
-  `Voices: ${voicesHeard(voices) ? voices.volume : 'off'}`,
-  `Highlights: ${highlightsName(highlights)}`,
-  `Auto-play only move: ${autoSelect ? 'on' : 'off'}`,
+  {
+    id: 'sounds',
+    label: `Sounds: ${soundHeard(sound) ? sound.volume : 'off'}`,
+  },
+  {
+    id: 'voices',
+    label: `Voices: ${voicesHeard(voices) ? voices.volume : 'off'}`,
+  },
+  { id: 'highlights', label: `Highlights: ${highlightsName(highlights)}` },
+  {
+    id: 'auto-select',
+    label: `Auto-play only move: ${autoSelect ? 'on' : 'off'}`,
+  },
   // Before the rows for games against a friend: it is about the computer's.
-  `Play as: ${playAsName(playAs)}`,
-  `Turn board for friends: ${turnHotseat ? 'on' : 'off'}`,
-  `Host for friends: ${hostName(host)}`,
+  { id: 'play-as', label: `Play as: ${playAsName(playAs)}` },
+  {
+    id: 'turn-board',
+    label: `Turn board for friends: ${turnHotseat ? 'on' : 'off'}`,
+  },
+  { id: 'host', label: `Host for friends: ${hostName(host)}` },
 ];
+
+export const settingsOptions = (settings: Partial<ScreenSettings>): string[] =>
+  labels(settingsItems(settings));
 
 export type ScreenOptions = {
   // Three dice. Injected so the screen never reaches for a global, and so a
@@ -389,17 +430,23 @@ export const HOTSEAT_OPTION = 'Play a friend';
 export const COMPUTER_OPTION = 'Play the computer';
 export const RULES_OPTION = 'Rules reference';
 
-export const homeOptions = (resumable: boolean): string[] => [
-  ...(resumable ? [RESUME_OPTION] : []),
-  HOTSEAT_OPTION,
-  COMPUTER_OPTION,
-  'Learn to play',
-  RULES_OPTION,
-  SETTINGS_OPTION,
+export type HomeId =
+  'resume' | 'hotseat' | 'computer' | 'learn' | 'rules' | 'settings' | 'about';
+
+export const homeItems = (resumable: boolean): Item<HomeId>[] => [
+  ...(resumable ? [{ id: 'resume', label: RESUME_OPTION } as const] : []),
+  { id: 'hotseat', label: HOTSEAT_OPTION },
+  { id: 'computer', label: COMPUTER_OPTION },
+  { id: 'learn', label: 'Learn to play' },
+  { id: 'rules', label: RULES_OPTION },
+  { id: 'settings', label: SETTINGS_OPTION },
   // Last, because it is read once: it is where the credits a licence asks for
   // are shown.
-  'About',
+  { id: 'about', label: 'About' },
 ];
+
+export const homeOptions = (resumable: boolean): string[] =>
+  labels(homeItems(resumable));
 
 // A new game. Against the bot the person plays the chosen colour, or the one
 // drawn for them when they chose Random.
@@ -435,37 +482,63 @@ const cardOf = (mode: Mode): number =>
     OPPONENTS.findIndex((opponent) => opponent.mode === mode),
   );
 
-// Home options that open another screen and change nothing else.
-const OPENS = new Map<string, Overlay>([
-  [RESUME_OPTION, { kind: 'none' }],
-  ['Learn to play', { kind: 'tutorial' }],
-  [RULES_OPTION, { kind: 'rules', from: 'home' }],
-  [SETTINGS_OPTION, { kind: 'settings', index: 0, from: 'home' }],
-  ['About', { kind: 'about' }],
-]);
+// Where a home option is now: Resume game comes and goes above the others.
+const homeIndex = (state: ScreenState, id: HomeId): number =>
+  indexOfId(homeItems(isResumable(state)), id);
 
 export const MAIN_MENU_OPTION = 'Main menu';
 
-export const menuOptions = (game: Game): string[] => [
-  RESUME_OPTION,
-  'Resign',
+// The in-game menu's items. What an item does follows its id, never its label,
+// so rewording one cannot turn it into another action.
+export type MenuId =
+  | 'resume'
+  | 'resign'
+  | 'draw'
+  | 'new-game'
+  | 'main-menu'
+  | 'rules'
+  | 'settings';
+export type MenuItem = Item<MenuId>;
+
+export const menuItems = (game: Game): MenuItem[] => [
+  { id: 'resume', label: RESUME_OPTION },
+  { id: 'resign', label: 'Resign' },
   // A draw needs two players to agree; there is nobody to agree with a bot.
-  ...(game.mode === 'hotseat' ? ['Agree a draw'] : []),
-  'New game',
-  MAIN_MENU_OPTION,
-  RULES_OPTION,
+  ...(game.mode === 'hotseat'
+    ? [{ id: 'draw', label: 'Agree a draw' } as const]
+    : []),
+  { id: 'new-game', label: 'New game' },
+  { id: 'main-menu', label: MAIN_MENU_OPTION },
+  { id: 'rules', label: RULES_OPTION },
   // Last: the order above is unchanged, and because the menu wraps, Up from
   // Resume game reaches this in one press — the quickest way to silence a game.
-  SETTINGS_OPTION,
+  { id: 'settings', label: SETTINGS_OPTION },
 ];
 
-export const confirmOptions = ['Cancel', 'Yes'];
+export const menuOptions = (game: Game): string[] => labels(menuItems(game));
+
+const menuIndex = (game: Game, id: MenuId): number =>
+  indexOfId(menuItems(game), id);
+
+export const confirmItems: readonly Item<'cancel' | 'yes'>[] = [
+  { id: 'cancel', label: 'Cancel' },
+  { id: 'yes', label: 'Yes' },
+];
+export const confirmOptions = labels(confirmItems);
 
 // The first launch's offer (#244): the tutorial, or straight to the home screen.
 export const LEARN_OPTION = 'Learn to play';
-export const offerOptions = [LEARN_OPTION, 'Skip'];
+export const offerItems: readonly Item<'learn' | 'skip'>[] = [
+  { id: 'learn', label: LEARN_OPTION },
+  { id: 'skip', label: 'Skip' },
+];
+export const offerOptions = labels(offerItems);
 
-export const resultOptions = ['Rematch', 'Main menu'];
+export const resultItems: readonly Item<'rematch' | 'main-menu'>[] = [
+  { id: 'rematch', label: 'Rematch' },
+  { id: 'main-menu', label: MAIN_MENU_OPTION },
+];
+export const resultOptions = labels(resultItems);
 
 // A new game keeps the settings, which are not about the game.
 const board = (
@@ -726,40 +799,57 @@ type Handler<K extends Overlay['kind']> = (
 ) => ScreenState;
 
 const onHome: Handler<'home'> = (state, overlay, key, options) => {
-  const choices = homeOptions(isResumable(state));
+  const items = homeItems(isResumable(state));
   if (key === 'back' || key === 'menu') return state;
-  if (key !== 'select') return moved(state, overlay, key, choices.length);
-  const chosen = choices[overlay.index];
-  const opens = OPENS.get(chosen);
-  if (opens) return show(state, opens);
-  // A game against the computer starts with the choice of opponent.
-  if (chosen === COMPUTER_OPTION)
-    return show(state, {
-      kind: 'opponent',
-      index: cardOf(state.game.mode),
-      from: 'home',
-    });
-  if (chosen !== HOTSEAT_OPTION) return state;
-  // Starting a new game over one still in play is a decision, not a keypress.
-  if (isResumable(state))
-    return show(state, {
-      kind: 'confirm',
-      action: 'replace',
-      index: 0,
-      mode: 'hotseat',
-      from: 'home',
-    });
-  return start(state, 'hotseat', 'random', options);
+  if (key !== 'select') return moved(state, overlay, key, items.length);
+  const chosen = items[overlay.index]?.id;
+  switch (chosen) {
+    case undefined:
+      return state;
+    case 'resume':
+      return show(state, BOARD);
+    case 'learn':
+      return show(state, { kind: 'tutorial' });
+    case 'rules':
+      return show(state, { kind: 'rules', from: 'home' });
+    case 'settings':
+      return show(state, { kind: 'settings', index: 0, from: 'home' });
+    case 'about':
+      return show(state, { kind: 'about' });
+    case 'computer':
+      // A game against the computer starts with the choice of opponent.
+      return show(state, {
+        kind: 'opponent',
+        index: cardOf(state.game.mode),
+        from: 'home',
+      });
+    case 'hotseat':
+      // Starting a new game over one still in play is a decision, not a
+      // keypress.
+      return isResumable(state)
+        ? show(state, {
+            kind: 'confirm',
+            action: 'replace',
+            index: 0,
+            mode: 'hotseat',
+            from: 'home',
+          })
+        : start(state, 'hotseat', 'random', options);
+    default: {
+      const unknown: never = chosen;
+      throw new Error(`no home option ${String(unknown)}`);
+    }
+  }
 };
 
 // The offer of the tutorial on a first launch. Skip, Back and Menu all go to the
 // home screen, so the offer never closes the app.
 const onOffer: Handler<'offer'> = (state, overlay, key) => {
   if (key === 'back' || key === 'menu') return show(state, HOME);
-  if (key !== 'select') return moved(state, overlay, key, offerOptions.length);
+  if (key !== 'select') return moved(state, overlay, key, offerItems.length);
   return show(
     state,
-    offerOptions[overlay.index] === LEARN_OPTION ? { kind: 'tutorial' } : HOME,
+    offerItems[overlay.index]?.id === 'learn' ? { kind: 'tutorial' } : HOME,
   );
 };
 
@@ -787,11 +877,11 @@ const openerOf = (state: ScreenState, from: 'home' | 'menu'): Overlay =>
   from === 'home'
     ? {
         kind: 'home',
-        index: homeOptions(isResumable(state)).indexOf(COMPUTER_OPTION),
+        index: homeIndex(state, 'computer'),
       }
     : {
         kind: 'menu',
-        index: menuOptions(state.game).indexOf('New game'),
+        index: menuIndex(state.game, 'new-game'),
       };
 
 // The cards: the arrows walk them, OK takes one to the choice of colour.
@@ -855,54 +945,75 @@ const cancelled = (
     ? MENU
     : {
         kind: 'home',
-        index: homeOptions(isResumable(state)).indexOf(
-          overlay.mode === 'hotseat' ? HOTSEAT_OPTION : COMPUTER_OPTION,
+        index: homeIndex(
+          state,
+          overlay.mode === 'hotseat' ? 'hotseat' : 'computer',
         ),
       };
 
 const onConfirm: Handler<'confirm'> = (state, overlay, key, options) => {
   if (key === 'menu') return show(state, HOME);
   if (key === 'back') return show(state, cancelled(state, overlay));
-  if (key !== 'select')
-    return moved(state, overlay, key, confirmOptions.length);
-  if (confirmOptions[overlay.index] === 'Cancel')
-    return show(state, cancelled(state, overlay));
-  return overlay.action === 'resign'
-    ? played(state, resignGame(state.game))
-    : start(state, overlay.mode, overlay.colour ?? 'random', options);
+  if (key !== 'select') return moved(state, overlay, key, confirmItems.length);
+  const chosen = confirmItems[overlay.index]?.id;
+  switch (chosen) {
+    case undefined:
+    case 'cancel':
+      return show(state, cancelled(state, overlay));
+    case 'yes':
+      return overlay.action === 'resign'
+        ? played(state, resignGame(state.game))
+        : start(state, overlay.mode, overlay.colour ?? 'random', options);
+    default: {
+      const unknown: never = chosen;
+      throw new Error(`no confirmation option ${String(unknown)}`);
+    }
+  }
 };
 
 const onMenu: Handler<'menu'> = (state, overlay, key) => {
   const { game } = state;
-  const choices = menuOptions(game);
+  const items = menuItems(game);
   if (key === 'back' || key === 'menu') return show(state, BOARD);
-  if (key !== 'select') return moved(state, overlay, key, choices.length);
-  const chosen = choices[overlay.index];
-  if (chosen === RESUME_OPTION) return show(state, BOARD);
-  // Handled before the fall-through below, which treats anything else as a
-  // destructive choice and asks to confirm replacing the game.
-  if (chosen === SETTINGS_OPTION)
-    return show(state, { kind: 'settings', index: 0, from: 'menu' });
-  if (chosen === RULES_OPTION)
-    return show(state, { kind: 'rules', from: 'menu' });
-  if (chosen === MAIN_MENU_OPTION) return show(state, HOME);
-  if (chosen === 'Agree a draw') return played(state, agreeDraw(game));
-  // A new game against the computer starts, like one from home, with the
-  // cards, on the opponent of this game.
-  if (chosen === 'New game' && isBotMode(game.mode))
-    return show(state, {
-      kind: 'opponent',
-      index: cardOf(game.mode),
+  if (key !== 'select') return moved(state, overlay, key, items.length);
+  const chosen = items[overlay.index]?.id ?? 'resume';
+  // Both destructive choices go through a confirmation with Cancel first.
+  const confirm = (action: 'resign' | 'replace') =>
+    show(state, {
+      kind: 'confirm',
+      action,
+      index: 0,
+      mode: game.mode,
       from: 'menu',
     });
-  // Both destructive choices go through a confirmation with Cancel first.
-  return show(state, {
-    kind: 'confirm',
-    action: chosen === 'Resign' ? 'resign' : 'replace',
-    index: 0,
-    mode: game.mode,
-    from: 'menu',
-  });
+  switch (chosen) {
+    case 'resume':
+      return show(state, BOARD);
+    case 'resign':
+      return confirm('resign');
+    case 'draw':
+      return played(state, agreeDraw(game));
+    case 'new-game':
+      // A new game against the computer starts, like one from home, with the
+      // cards, on the opponent of this game.
+      return isBotMode(game.mode)
+        ? show(state, {
+            kind: 'opponent',
+            index: cardOf(game.mode),
+            from: 'menu',
+          })
+        : confirm('replace');
+    case 'main-menu':
+      return show(state, HOME);
+    case 'rules':
+      return show(state, { kind: 'rules', from: 'menu' });
+    case 'settings':
+      return show(state, { kind: 'settings', index: 0, from: 'menu' });
+    default: {
+      const unknown: never = chosen;
+      throw new Error(`no menu item ${String(unknown)}`);
+    }
+  }
 };
 
 // The option the rules guide was opened from, which Back returns to.
@@ -910,11 +1021,11 @@ const rulesOpener = (state: ScreenState, from: 'home' | 'menu'): Overlay =>
   from === 'home'
     ? {
         kind: 'home',
-        index: homeOptions(isResumable(state)).indexOf(RULES_OPTION),
+        index: homeIndex(state, 'rules'),
       }
     : {
         kind: 'menu',
-        index: menuOptions(state.game).indexOf(RULES_OPTION),
+        index: menuIndex(state.game, 'rules'),
       };
 
 // The option the settings were opened from, which Back returns to.
@@ -922,11 +1033,11 @@ const settingsOpener = (state: ScreenState, from: 'home' | 'menu'): Overlay =>
   from === 'home'
     ? {
         kind: 'home',
-        index: homeOptions(isResumable(state)).indexOf(SETTINGS_OPTION),
+        index: homeIndex(state, 'settings'),
       }
     : {
         kind: 'menu',
-        index: menuOptions(state.game).indexOf(SETTINGS_OPTION),
+        index: menuIndex(state.game, 'settings'),
       };
 
 // A direction sets a stable switch value, including on remote repeats (#426).
@@ -938,46 +1049,53 @@ const switched = (on: boolean, key: BoardKey): boolean =>
 // label: the rows differ with the build.
 const changed = (
   state: ScreenState,
-  row: string,
+  row: SettingId | undefined,
   key: BoardKey,
 ): ScreenState => {
   // OK steps forward, as Right does, on the rows that step.
   const by = key === 'left' ? -1 : 1;
-  if (row.startsWith('Music:'))
-    return {
-      ...state,
-      music:
-        key === 'select'
-          ? toggleMusic(state.music)
-          : stepMusic(state.music, by),
-    };
-  if (row.startsWith('Sounds:'))
-    return {
-      ...state,
-      sound:
-        key === 'select'
-          ? toggleSound(state.sound)
-          : stepSound(state.sound, by),
-    };
-  if (row.startsWith('Voices:'))
-    return {
-      ...state,
-      voices:
-        key === 'select'
-          ? toggleVoices(state.voices)
-          : stepVoices(state.voices, by),
-    };
-  if (row.startsWith('Play as:'))
-    return { ...state, playAs: cyclePlayAs(state.playAs, by) };
-  if (row.startsWith('Host for friends:'))
-    return { ...state, host: cycleHost(state.host, by) };
-  if (row.startsWith('Turn board for friends:'))
-    return { ...state, turnHotseat: switched(state.turnHotseat, key) };
-  if (row.startsWith('Highlights:'))
-    return { ...state, highlights: cycleHighlights(state.highlights, by) };
-  if (row.startsWith('Auto-play only move:'))
-    return { ...state, autoSelect: switched(state.autoSelect, key) };
-  return state;
+  switch (row) {
+    case undefined:
+      return state;
+    case 'music':
+      return {
+        ...state,
+        music:
+          key === 'select'
+            ? toggleMusic(state.music)
+            : stepMusic(state.music, by),
+      };
+    case 'sounds':
+      return {
+        ...state,
+        sound:
+          key === 'select'
+            ? toggleSound(state.sound)
+            : stepSound(state.sound, by),
+      };
+    case 'voices':
+      return {
+        ...state,
+        voices:
+          key === 'select'
+            ? toggleVoices(state.voices)
+            : stepVoices(state.voices, by),
+      };
+    case 'play-as':
+      return { ...state, playAs: cyclePlayAs(state.playAs, by) };
+    case 'host':
+      return { ...state, host: cycleHost(state.host, by) };
+    case 'turn-board':
+      return { ...state, turnHotseat: switched(state.turnHotseat, key) };
+    case 'highlights':
+      return { ...state, highlights: cycleHighlights(state.highlights, by) };
+    case 'auto-select':
+      return { ...state, autoSelect: switched(state.autoSelect, key) };
+    default: {
+      const unknown: never = row;
+      throw new Error(`no setting ${String(unknown)}`);
+    }
+  }
 };
 
 // Up and Down walk the settings. The arrows sideways change the volume on the
@@ -987,10 +1105,10 @@ const changed = (
 const onSettings: Handler<'settings'> = (state, overlay, key) => {
   if (key === 'menu') return show(state, HOME);
   if (key === 'back') return show(state, settingsOpener(state, overlay.from));
-  const rows = settingsOptions(state);
+  const rows = settingsItems(state);
   if (key === 'up' || key === 'down')
     return moved(state, overlay, key, rows.length);
-  return changed(state, rows[overlay.index] ?? '', key);
+  return changed(state, rows[overlay.index]?.id, key);
 };
 
 // Back from the choice of piece leaves the pawn in hand. With OK pressing
@@ -1011,10 +1129,21 @@ const onPromotion: Handler<'promotion'> = (state, overlay, key) => {
 // Random draws a side again. Back, like Main menu, leaves for the main menu.
 const onResult: Handler<'result'> = (state, overlay, key, options) => {
   if (key === 'back' || key === 'menu') return show(state, HOME);
-  if (key !== 'select') return moved(state, overlay, key, resultOptions.length);
-  if (resultOptions[overlay.index] === 'Main menu') return show(state, HOME);
-  const { mode, colour } = state.game;
-  return start(state, mode, colour ?? 'random', options);
+  if (key !== 'select') return moved(state, overlay, key, resultItems.length);
+  const chosen = resultItems[overlay.index]?.id;
+  switch (chosen) {
+    case undefined:
+    case 'main-menu':
+      return show(state, HOME);
+    case 'rematch': {
+      const { mode, colour } = state.game;
+      return start(state, mode, colour ?? 'random', options);
+    }
+    default: {
+      const unknown: never = chosen;
+      throw new Error(`no result option ${String(unknown)}`);
+    }
+  }
 };
 
 // A key of the person's own while they choose a piece and a square. With OK

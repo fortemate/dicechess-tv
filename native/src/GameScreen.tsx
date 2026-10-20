@@ -77,7 +77,7 @@ import {
   initialState,
   homeOptions,
   menuOptions,
-  settingsOptions,
+  settingsItems,
   musicRole,
   confirmOptions,
   colourOptions,
@@ -506,7 +506,7 @@ const choiceOf = (overlay: Overlay, context: ChoiceContext): Choice | null => {
         index: overlay.index,
       };
     case 'settings': {
-      const options = settingsOptions({
+      const rows = settingsItems({
         sound: context.sound,
         music: context.music,
         musicAvailable: context.hasMusic,
@@ -519,8 +519,8 @@ const choiceOf = (overlay: Overlay, context: ChoiceContext): Choice | null => {
       });
       return {
         title: 'Settings',
-        ...settingsHint(options[overlay.index] ?? ''),
-        options,
+        ...settingsHint(rows[overlay.index]?.id),
+        options: rows.map((row) => row.label),
         index: overlay.index,
       };
     }
@@ -881,6 +881,7 @@ export const GameScreen = ({
     const clock = activeClock(activity, options.now ?? (() => 0));
     const began = clock.now();
     let cancelTimer: () => void = () => undefined;
+    let cancelMove: () => void = () => undefined;
 
     if (options.reply) {
       if (!hold.promise) {
@@ -904,12 +905,32 @@ export const GameScreen = ({
       const wait = Math.max(0, BOT_STEP_MS - hold.used);
       let waitDone = wait === 0;
       let searchDone = hold.done;
+      // Both the wait and the search call maybeAdvance; with nothing left of
+      // the wait and the reply already in, both find them done. The step is
+      // handed on once.
+      let handedOff = false;
 
+      const advance = () => {
+        if (!cancelled)
+          dispatch({ kind: 'bot', reply: hold.reply ?? undefined });
+      };
       const maybeAdvance = () => {
         if (cancelled) return;
         if (waitDone && searchDone) {
+          if (handedOff) return;
+          handedOff = true;
           setSearching(false);
-          dispatch({ kind: 'bot', reply: hold.reply ?? undefined });
+          // A reply that arrives while the app is away waits for focus, like
+          // every other step of the opponent (#254).
+          if (activity.isActive()) advance();
+          else
+            cancelMove = scheduleActive(
+              activity,
+              options.schedule,
+              advance,
+              0,
+              options.now,
+            );
         } else if (waitDone && !searchDone) {
           setSearching(true);
         }
@@ -940,13 +961,13 @@ export const GameScreen = ({
       return () => {
         cancelled = true;
         cancelTimer();
+        cancelMove();
         hold.used += clock.now() - began;
         clock.dispose();
         setSearching(false);
       };
     }
 
-    let cancelMove: () => void = () => undefined;
     const cancelSearch = scheduleActive(
       activity,
       options.background ?? ((step) => step()),
@@ -1005,11 +1026,12 @@ export const GameScreen = ({
   React.useEffect(() => {
     if (!guarded) return;
     let cancelled = false;
-    options.schedule(() => {
+    const cancel = options.schedule(() => {
       if (!cancelled) dispatch({ kind: 'unguard' });
     }, OK_GUARD_MS);
     return () => {
       cancelled = true;
+      cancel?.();
     };
   }, [guarded, options]);
 

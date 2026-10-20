@@ -330,20 +330,34 @@ export function createSounds({
   // Players kept at volume zero while they play the silence the sprite opens
   // with.
   const quiet = new Set<Player>();
+  // A channel plays its first silence once, as soon as it can be heard: one
+  // that came up while sound was off or the app was away waits until then.
+  // One that failed to start is tried again the next time sound comes on.
+  const primed = new Set<Channel>();
+  const priming = new Set<Channel>();
   const prime = (channel: Channel, player: Player) => {
-    if (muted || suspended) return;
+    if (muted || suspended || primed.has(channel) || priming.has(channel))
+      return;
+    priming.add(channel);
     const turn = take(channel);
     try {
       player.volume = 0;
       quiet.add(player);
     } catch (error) {
+      priming.delete(channel);
       report(`sound: ${channel} volume not set: ${String(error)}`);
       return;
     }
     player.play().then(
-      () => endClip(() => rest(channel, player, turn), CLIP_TAIL_MS),
-      (error: unknown) =>
-        report(`sound: ${channel} did not start: ${String(error)}`),
+      () => {
+        priming.delete(channel);
+        primed.add(channel);
+        endClip(() => rest(channel, player, turn), CLIP_TAIL_MS);
+      },
+      (error: unknown) => {
+        priming.delete(channel);
+        report(`sound: ${channel} did not start: ${String(error)}`);
+      },
     );
   };
   const loud = (player: Player) => {
@@ -374,6 +388,10 @@ export function createSounds({
       }),
     ]),
   );
+
+  const primeReady = () => {
+    for (const [channel, player] of ready) prime(channel, player);
+  };
 
   const start = async (cue: Cue, generation: number) => {
     const files = CUE_FILES[cue];
@@ -567,6 +585,7 @@ export function createSounds({
     setMuted(value) {
       muted = value;
       stopEffects();
+      primeReady();
     },
     setSoundVolume(gain) {
       soundGain = Math.max(0, Math.min(1, gain));
@@ -609,7 +628,7 @@ export function createSounds({
     },
     setSuspended(value) {
       suspended = value;
-      if (!value) return;
+      if (!value) return primeReady();
       // A cue still waiting to start is dropped, as a new step would drop it.
       steps++;
       suspension++;

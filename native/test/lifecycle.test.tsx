@@ -23,6 +23,7 @@ import {
 } from './stubs/react-native-kepler.mjs';
 import { nextLineMs } from '../src/useTutorialVoice';
 import { stepGame, TUTORIAL, tutorLinesAt } from '../../src/core/tutorial';
+import { botReply } from '../../src/core/bot';
 import {
   fixedOptions,
   launch,
@@ -106,7 +107,10 @@ test('back from Home on focus alone, sound returns', () => {
   assert.deepEqual(told, { sounds: false, music: false });
 });
 
-const harness = (initial: 'active' | 'inactive' | 'unknown' = 'active') => {
+const harness = (
+  initial: 'active' | 'inactive' | 'unknown' = 'active',
+  extra: Partial<ScreenOptions> = {},
+) => {
   reset();
   setAppState(initial);
   const waiting: { run: () => void; wait: number }[] = [];
@@ -127,6 +131,7 @@ const harness = (initial: 'active' | 'inactive' | 'unknown' = 'active') => {
       background.push(run);
     },
     now: () => time,
+    ...extra,
   };
   const sounds: Sounds = {
     play() {},
@@ -242,6 +247,42 @@ test('a computed bot reply and its remaining dice survive repeated blur/focus at
       act(() => old.run());
       assert.equal(rig.save(), after, 'stale delivery cannot repeat a move');
     }
+  } finally {
+    rig.close();
+  }
+});
+
+// The app's own reply runs through options.reply, a promise, not the
+// test-only background step above: a search that resolves after the step wait
+// while the app is away must not play the move there.
+test('a reply that resolves while the app is in Home plays its move only after focus', async () => {
+  let resolve!: () => void;
+  const rig = harness('active', {
+    reply: (game) =>
+      new Promise((done) => {
+        resolve = () => done(botReply(game));
+      }),
+  });
+  try {
+    rig.send('down', 'enter', 'enter', 'enter');
+    rig.tick(); // bot roll
+    rig.pass(BOT_STEP_MS);
+    rig.tick(); // the step wait is over; the search is still running
+    assert.equal(rig.waiting.length, 0);
+    const saved = rig.save();
+    rig.event('blur');
+    rig.state('background');
+    await act(async () => resolve());
+    rig.pass(60_000);
+    rig.tick();
+    assert.equal(rig.save(), saved, 'no move is played while away');
+    rig.event('focus');
+    assert.deepEqual(
+      rig.waiting.map(({ wait }) => wait),
+      [0],
+    );
+    rig.tick();
+    assert.notEqual(rig.save(), saved, 'the move plays after the return');
   } finally {
     rig.close();
   }

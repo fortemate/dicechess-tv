@@ -115,7 +115,12 @@ export const DUCK_DB = -9;
 export const DUCK_MS = 200;
 export const UNDUCK_MS = 600;
 // How long a pass may take to be heard before it fails, keeping working music.
+// Only the time the ticker saw counts, at most START_TICK_MS a tick: when the
+// danger or the bot's search holds the JavaScript thread for 0.7 to 2.7 s on a
+// Fire TV Stick (#365), it holds the play() request and its events too, so
+// that time is not the player's.
 export const START_WAIT_MS = 2000;
+export const START_TICK_MS = 4 * TICK_MS;
 // Constructed players kept ready: enough for a change of level during a seam.
 export const SPARE_PLAYERS = 2;
 
@@ -155,6 +160,11 @@ type Voice = {
   waiting: boolean;
   startAt: number;
   waitSince: number;
+  // How much of the start wait the ticker saw, and when it last looked.
+  waited: number;
+  seenAt: number;
+  // The pass is the next one of a loop, started at its seam.
+  seam: boolean;
   onStart: ((at: number) => void)[];
   playing: boolean;
   // The seam to the next pass has been started on the other voice.
@@ -183,6 +193,9 @@ export function createMusic({
   // Retry a failed theme only on an explicit request or foreground return,
   // rather than making an unbounded stream of players for a broken decoder.
   let failedRole: MusicRole | null = null;
+  // A seam that fails is tried once more before its theme counts as failed:
+  // a failure there leaves silence once the old pass ends.
+  let seamRetried: MusicRole | null = null;
   // Silence until then, after a result.
   let holdUntil = 0;
   let cancelHold: (() => void) | null = null;
@@ -305,6 +318,7 @@ export function createMusic({
     track: Track,
     fadeMs: number,
     from?: number,
+    seam = false,
   ): boolean => {
     const player = spares.shift();
     if (!player) return false;
@@ -321,6 +335,9 @@ export function createMusic({
     voice.waiting = true;
     voice.startAt = position;
     voice.waitSince = clock.now();
+    voice.waited = 0;
+    voice.seenAt = voice.waitSince;
+    voice.seam = seam;
     voice.onStart = [];
     report(
       `music: player ${which(voice)} plays ${next} from ${position.toFixed(1)} s, fading in over ${fadeMs} ms`,
@@ -329,7 +346,8 @@ export function createMusic({
     const failed = (error: unknown) => {
       if (voice.player !== player) return;
       report(`music: play failed: ${String(error)}`);
-      failedRole = next;
+      if (seam && seamRetried !== next) seamRetried = next;
+      else failedRole = next;
       // A failed pass has no position worth remembering.
       voice.playing = false;
       stop(voice);
@@ -423,10 +441,14 @@ export function createMusic({
     const moved =
       voice.started && Number.isFinite(at) && at > voice.startAt + 0.01;
     if (!moved) {
-      if (now - voice.waitSince >= START_WAIT_MS)
-        voice.fail?.('playback did not start');
+      voice.waited += Math.min(START_TICK_MS, Math.max(0, now - voice.seenAt));
+      voice.seenAt = now;
+      if (voice.waited >= START_WAIT_MS) voice.fail?.('playback did not start');
       return;
     }
+    // Any pass heard ends the retry: one that failed before a suspension is
+    // not held against the next seam.
+    seamRetried = null;
     const began = Math.max(voice.waitSince, now - (at - voice.startAt) * 1000);
     voice.waiting = false;
     voice.fade = 0;
@@ -455,7 +477,8 @@ export function createMusic({
     if (!player) return false;
     if (player.currentTime < track.loopEnd - SEAM_MS / 1000) return false;
     // Without a fresh player the seam waits for the next tick.
-    if (!begin(other, theme, track, SEAM_MS, track.loopStart)) return false;
+    if (!begin(other, theme, track, SEAM_MS, track.loopStart, true))
+      return false;
     voice.seamed = true;
     report(`music: ${theme} loops`);
     positions.delete(theme);
@@ -626,6 +649,9 @@ export function createMusic({
       waiting: false,
       startAt: 0,
       waitSince: 0,
+      waited: 0,
+      seenAt: 0,
+      seam: false,
       onStart: [],
       playing: false,
       seamed: false,
