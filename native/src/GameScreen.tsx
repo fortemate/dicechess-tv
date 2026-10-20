@@ -881,6 +881,7 @@ export const GameScreen = ({
     const clock = activeClock(activity, options.now ?? (() => 0));
     const began = clock.now();
     let cancelTimer: () => void = () => undefined;
+    let cancelMove: () => void = () => undefined;
 
     if (options.reply) {
       if (!hold.promise) {
@@ -905,11 +906,25 @@ export const GameScreen = ({
       let waitDone = wait === 0;
       let searchDone = hold.done;
 
+      const advance = () => {
+        if (!cancelled)
+          dispatch({ kind: 'bot', reply: hold.reply ?? undefined });
+      };
       const maybeAdvance = () => {
         if (cancelled) return;
         if (waitDone && searchDone) {
           setSearching(false);
-          dispatch({ kind: 'bot', reply: hold.reply ?? undefined });
+          // A reply that arrives while the app is away waits for focus, like
+          // every other step of the opponent (#254).
+          if (activity.isActive()) advance();
+          else
+            cancelMove = scheduleActive(
+              activity,
+              options.schedule,
+              advance,
+              0,
+              options.now,
+            );
         } else if (waitDone && !searchDone) {
           setSearching(true);
         }
@@ -940,13 +955,13 @@ export const GameScreen = ({
       return () => {
         cancelled = true;
         cancelTimer();
+        cancelMove();
         hold.used += clock.now() - began;
         clock.dispose();
         setSearching(false);
       };
     }
 
-    let cancelMove: () => void = () => undefined;
     const cancelSearch = scheduleActive(
       activity,
       options.background ?? ((step) => step()),
