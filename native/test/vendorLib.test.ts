@@ -1,0 +1,245 @@
+// scripts/vendor-lib.mjs is what the four vendor scripts share: files read from
+// one pinned commit, each checked against its published digest, packs carried
+// only with the asset repository's permission, lists sorted the same on every
+// machine, and the vendored directory replaced only once all of that passed.
+// These run against a small Git repository made for each test, not the private
+// asset repository.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import {
+  assertMayCarry,
+  byteOrder,
+  formatWithPrettier,
+  pinned,
+  refusal,
+  replaceDirectory,
+  sha256,
+  // @ts-expect-error — a build script, deliberately plain JavaScript.
+} from '../scripts/vendor-lib.mjs';
+
+const scratch = (t: { after: (fn: () => void) => void }) => {
+  const dir = mkdtempSync(join(tmpdir(), 'vendor-lib-'));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  return dir;
+};
+
+const git = (checkout: string, ...args: string[]) =>
+  execFileSync(
+    'git',
+    [
+      '-C',
+      checkout,
+      '-c',
+      'user.name=Test',
+      '-c',
+      'user.email=test@example.com',
+      '-c',
+      'commit.gpgsign=false',
+      ...args,
+    ],
+    { encoding: 'utf8' },
+  ).trim();
+
+// A checkout with the given files committed, and the commit's full id.
+const commitFiles = (checkout: string, files: Record<string, string>) => {
+  for (const [path, content] of Object.entries(files)) {
+    mkdirSync(dirname(join(checkout, path)), { recursive: true });
+    writeFileSync(join(checkout, path), content);
+  }
+  git(checkout, 'add', '-A');
+  git(checkout, 'commit', '-q', '-m', 'files');
+  return git(checkout, 'rev-parse', 'HEAD');
+};
+
+const assets = (t: { after: (fn: () => void) => void }) => {
+  const checkout = scratch(t);
+  git(checkout, 'init', '-q');
+  return checkout;
+};
+
+test('files are read from the pinned commit, whatever the working tree holds', (t) => {
+  const checkout = assets(t);
+  const first = commitFiles(checkout, { 'pack/a.txt': 'one' });
+  commitFiles(checkout, { 'pack/a.txt': 'two' });
+  writeFileSync(join(checkout, 'pack/a.txt'), 'uncommitted');
+
+  const source = pinned(checkout, first);
+  assert.equal(source.commit, first);
+  assert.equal(source.show('pack/a.txt').toString(), 'one');
+
+  writeFileSync(join(checkout, 'pack/b.json'), '{"x":1}');
+  const last = commitFiles(checkout, {});
+  assert.deepEqual(pinned(checkout, last).json('pack/b.json'), { x: 1 });
+});
+
+test('only a checkout and a full 40-character commit are accepted', (t) => {
+  const checkout = assets(t);
+  const commit = commitFiles(checkout, { 'a.txt': 'a' });
+  const usage = 'vendor-x.mjs <checkout> <commit>';
+  assert.throws(() => pinned(undefined, commit, { usage }), {
+    message: `Usage: ${usage}`,
+  });
+  // A short id, a branch or a tag could name another commit tomorrow.
+  for (const moving of [commit.slice(0, 7), 'main', 'HEAD', undefined])
+    assert.throws(() => pinned(checkout, moving, { usage }), /^Error: Usage:/);
+  assert.throws(() => pinned(checkout, commit.toUpperCase()), /Usage:/);
+});
+
+test('a file is kept only with the digest the asset repository published', (t) => {
+  const checkout = assets(t);
+  const commit = commitFiles(checkout, { 'pack/clip.mp3': 'clip' });
+  const source = pinned(checkout, commit);
+  const out = scratch(t);
+
+  const to = join(out, 'deep', 'clip.mp3');
+  assert.equal(
+    source.copy('pack/clip.mp3', sha256('clip'), to),
+    sha256('clip'),
+  );
+  assert.equal(readFileSync(to, 'utf8'), 'clip');
+
+  const wrong = join(out, 'wrong.mp3');
+  assert.throws(
+    () => source.copy('pack/clip.mp3', sha256('other'), wrong, 'pack/clip'),
+    new RegExp(
+      `^Error: pack/clip does not match the digest fortemate/dicechess-assets published at ${commit}$`,
+    ),
+  );
+  // A file with no published digest is refused too.
+  assert.throws(
+    () => source.copy('pack/clip.mp3', undefined, wrong),
+    /does not match the digest/,
+  );
+  assert.equal(existsSync(wrong), false);
+  assert.deepEqual(source.verified('pack/clip.mp3', sha256('clip')), {
+    bytes: Buffer.from('clip'),
+    sha256: sha256('clip'),
+  });
+});
+
+test('a pack is carried only where its manifest allows this repository', () => {
+  const pack = { license: 'Permission', licenseFile: 'LICENSE.txt' };
+  const project = (clients: unknown) => ({
+    ...pack,
+    distribution: 'project',
+    clients,
+  });
+
+  assert.equal(refusal({ ...pack, distribution: 'public' }), null);
+  assert.equal(refusal(project(['fortemate/dicechess-tv'])), null);
+  assert.match(
+    refusal(project(['fortemate/dicechess-android'])),
+    /not for fortemate\/dicechess-tv/,
+  );
+  assert.match(refusal(project('fortemate/dicechess-tv')), /not for/);
+  assert.match(refusal(project(undefined)), /not for/);
+  assert.match(refusal({ ...pack, distribution: 'private' }), /not for/);
+  // Another client may be named, for a script that vendors for one.
+  assert.equal(
+    refusal(project(['fortemate/web']), { client: 'fortemate/web' }),
+    null,
+  );
+
+  // A pending license is private, and a pack travels with its license file.
+  assert.match(
+    refusal({ ...pack, license: 'pending', distribution: 'public' }),
+    /pending/,
+  );
+  assert.match(
+    refusal({ license: 'CC0-1.0', distribution: 'public' }),
+    /no license file/,
+  );
+
+  // A pack older than `distribution` is carried only under the license this
+  // repository audited for it, and refused once its manifest names another.
+  const old = { license: 'CC0-1.0', licenseFile: 'LICENSE.txt' };
+  assert.equal(refusal(old, { audited: 'CC0-1.0' }), null);
+  assert.match(refusal(old), /names no distribution/);
+  assert.match(
+    refusal({ ...old, license: 'CC-BY-NC-4.0' }, { audited: 'CC0-1.0' }),
+    /CC-BY-NC-4\.0 is not the license audited for it \(CC0-1\.0\)/,
+  );
+
+  assert.doesNotThrow(() =>
+    assertMayCarry('p', { ...pack, distribution: 'public' }),
+  );
+  assert.throws(
+    () =>
+      assertMayCarry(
+        'music/p',
+        { ...pack, distribution: 'private' },
+        { hint: 'Pass --private.' },
+      ),
+    /^Error: music\/p may not be carried by fortemate\/dicechess-tv: it is not for .*\. Pass --private\.$/,
+  );
+});
+
+test('lists are sorted by their UTF-8 bytes, not by locale', () => {
+  assert.deepEqual(['b', 'B', 'a', 'é', 'z', '_', 'A'].sort(byteOrder), [
+    'A',
+    'B',
+    '_',
+    'a',
+    'b',
+    'z',
+    'é',
+  ]);
+  // Code units would put the emoji (a surrogate pair, 0xD83D…) before U+FF01;
+  // its UTF-8 bytes (F0 …) come after U+FF01's (EF …).
+  assert.deepEqual(['😀', '！'].sort(byteOrder), ['！', '😀']);
+  assert.equal(byteOrder('same', 'same'), 0);
+});
+
+test('a directory is replaced only once it has been filled', (t) => {
+  const parent = scratch(t);
+  const target = join(parent, 'sounds');
+  mkdirSync(join(target, 'old-pack'), { recursive: true });
+  writeFileSync(join(target, 'old-pack', 'a.mp3'), 'old');
+
+  // A fill that fails leaves the old copy as it was, and nothing beside it.
+  assert.throws(
+    () =>
+      replaceDirectory(target, (dir: string) => {
+        writeFileSync(join(dir, 'half.mp3'), 'half');
+        throw new Error('digest mismatch');
+      }),
+    /digest mismatch/,
+  );
+  assert.equal(readFileSync(join(target, 'old-pack', 'a.mp3'), 'utf8'), 'old');
+  assert.deepEqual(readdirSync(parent), ['sounds']);
+
+  // One that succeeds replaces it whole: nothing of the old copy stays.
+  const result = replaceDirectory(target, (dir: string) => {
+    mkdirSync(join(dir, 'new-pack'));
+    writeFileSync(join(dir, 'new-pack', 'b.mp3'), 'new');
+    return 'filled';
+  });
+  assert.equal(result, 'filled');
+  assert.deepEqual(readdirSync(target), ['new-pack']);
+  assert.deepEqual(readdirSync(parent), ['sounds']);
+
+  // A target that is not there yet is made.
+  const fresh = join(parent, 'more', 'voices');
+  replaceDirectory(fresh, (dir: string) => writeFileSync(join(dir, 'x'), 'x'));
+  assert.deepEqual(readdirSync(fresh), ['x']);
+});
+
+test("generated source is formatted by the repository's pinned Prettier", (t) => {
+  const root = scratch(t);
+  assert.throws(
+    () => formatWithPrettier([join(root, 'a.ts')], { root }),
+    /node_modules\/prettier\/bin\/prettier\.cjs is missing: install .* npm ci/,
+  );
+});

@@ -22,11 +22,11 @@
 //
 // Run it again whenever sounds/sounds.lock.json changes: a test fails until the
 // sprite was made from the files the lock pins.
-import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { byteOrder, sha256 } from './vendor-lib.mjs';
 
 const native = join(dirname(fileURLToPath(import.meta.url)), '..');
 const RATE = 44_100;
@@ -37,8 +37,6 @@ export const GAP_SECONDS = 2;
 // it (529): where each clip is heard when the whole file is decoded. Checked by
 // decoding the sprite: every clip lines up with its source at this offset.
 const CODEC_DELAY = 576 + 529;
-
-const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
 const lock = JSON.parse(
   readFileSync(join(native, 'sounds/sounds.lock.json'), 'utf8'),
@@ -52,7 +50,7 @@ for (const [pack, { files }] of Object.entries(lock.packs))
       throw new Error(`sounds/${pack}/${name} no longer matches its lock`);
     sources.push({ file: `${pack}/${name}`, sha256: pinned });
   }
-sources.sort((a, b) => a.file.localeCompare(b.file));
+sources.sort((a, b) => byteOrder(a.file, b.file));
 
 const decode = (file) =>
   execFileSync(

@@ -25,11 +25,18 @@
 // Each clip keeps the text it was recorded from. test/vendoredVoices.test.ts
 // fails when a line of the game has no clip, or its clip says something else, so
 // a line changed in the game cannot ship with the old recording.
-import { execFileSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  UPSTREAM,
+  assertMayCarry,
+  byteOrder,
+  formatWithPrettier,
+  pinned,
+  replaceDirectory,
+  sha256,
+} from './vendor-lib.mjs';
 
 const PACKS = [
   'elevenlabs-dicechess-bots',
@@ -38,106 +45,12 @@ const PACKS = [
   'elevenlabs-dicechess-tutorial-thinkle',
   'elevenlabs-dicechess-host-thinkle',
 ];
-const UPSTREAM = 'fortemate/dicechess-assets';
-const CLIENT = 'fortemate/dicechess-tv';
 const native = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
-const [checkout, commit] = process.argv.slice(2);
-if (!checkout || !/^[0-9a-f]{40}$/.test(commit ?? ''))
-  throw new Error(
-    'Usage: vendor-voices.mjs <dicechess-assets checkout> <full 40-character commit>',
-  );
-
-const show = (path) =>
-  execFileSync('git', ['-C', checkout, 'show', `${commit}:${path}`], {
-    maxBuffer: 64 * 1024 * 1024,
-  });
-const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
-// Code-unit order, the same on every machine; localeCompare is not.
-const byCodeUnit = (a, b) => Number(a > b) - Number(a < b);
-
-const root = join(native, 'voices');
-rmSync(root, { recursive: true, force: true });
-
-const packs = {};
-const lines = {};
-for (const pack of PACKS) {
-  const manifest = JSON.parse(
-    show(`voices/${pack}/manifest.json`).toString('utf8'),
-  );
-  const allowed =
-    manifest.distribution === 'public' ||
-    (manifest.distribution === 'project' &&
-      Array.isArray(manifest.clients) &&
-      manifest.clients.includes(CLIENT));
-  if (!allowed || !manifest.licenseFile)
-    throw new Error(
-      `${pack} may not be carried by ${CLIENT} (license ${manifest.license}, distribution ${manifest.distribution})`,
-    );
-  const published = JSON.parse(
-    show(`voices/${pack}/checksums.json`).toString('utf8'),
-  );
-
-  mkdirSync(join(root, pack), { recursive: true });
-  const files = {};
-  const copy = (path) => {
-    const bytes = show(`voices/${pack}/${path}`);
-    const digest = sha256(bytes);
-    if (published[path] !== digest)
-      throw new Error(
-        `${pack}/${path} does not match the digest ${UPSTREAM} published at ${commit}`,
-      );
-    const name = path.split('/').pop();
-    writeFileSync(join(root, pack, name), bytes);
-    files[name] = digest;
-    return { file: `${pack}/${name}`, sha256: digest };
-  };
-
-  copy('manifest.json');
-  copy(manifest.licenseFile);
-  const ids = Object.keys(manifest.lines ?? {}).sort(byCodeUnit);
-  if (ids.length === 0)
-    throw new Error(
-      `${pack} has no pack lines at ${commit}: only an audition?`,
-    );
-  for (const id of ids) {
-    if (lines[id])
-      throw new Error(`${pack}: line ${id} is already ${lines[id].pack}'s`);
-    const line = manifest.lines[id];
-    const { file, sha256: digest } = copy(line.export);
-    if (digest !== line.sha256)
-      throw new Error(`${id} does not match its record in the manifest`);
-    lines[id] = {
-      pack,
-      bot: line.bot,
-      event: line.event,
-      text: line.text,
-      voice: line.voice,
-      file,
-      sha256: digest,
-      seconds: line.durationSeconds,
-    };
-  }
-
-  packs[pack] = {
-    title: manifest.title,
-    license: manifest.license,
-    licenseFile: manifest.licenseFile,
-    distribution: manifest.distribution,
-    clients: manifest.clients ?? null,
-    attributionRequired: manifest.attributionRequired,
-    generator: manifest.generator?.tool ?? null,
-    // Where the lines the pack was recorded from are written: a commit of this
-    // repository for the bots, the asset repository's catalogue for the host.
-    texts: manifest.pack?.texts ?? null,
-    // Every file vendored for the pack, with its digest.
-    files,
-  };
-}
-
 // When a character speaks: the tiers, priorities and pacing every Dice Chess
-// client follows (dicechess-assets#38). Copied verbatim; checked for the shape
-// the generated pacing relies on, since it has no published digest.
+// client follows (dicechess-assets#38). events.json is copied verbatim and
+// checked for the shape the generated pacing relies on, since it has no
+// published digest.
 const PACING_KEYS = [
   'alwaysPerEvent',
   'notableCooldownTurns',
@@ -148,44 +61,122 @@ const PACING_KEYS = [
   'silenceBreakerTurns',
 ];
 const TIERS = ['always', 'notable', 'frequent'];
-const eventsBytes = show('voices/events.json');
-const events = JSON.parse(eventsBytes.toString('utf8'));
-if (events.schemaVersion !== 1)
-  throw new Error(
-    `events.json has schema ${events.schemaVersion} at ${commit}, not 1`,
-  );
-const pacing = events.pacing?.host ?? {};
-if (
-  Object.keys(pacing).sort(byCodeUnit).join() !==
-    [...PACING_KEYS].sort(byCodeUnit).join() ||
-  !PACING_KEYS.every((key) => typeof pacing[key] === 'number')
-)
-  throw new Error(
-    `events.json: pacing.host must have exactly the numbers ${PACING_KEYS.join(', ')}`,
-  );
-const hostEvents = Object.entries(events.events?.host ?? {});
-if (hostEvents.length === 0) throw new Error('events.json has no host events');
-for (const [event, { tier, priority }] of hostEvents)
-  if (!TIERS.includes(tier) || !Number.isInteger(priority) || priority < 1)
-    throw new Error(
-      `events.json: host event ${event} has tier ${tier} and priority ${priority}`,
-    );
-writeFileSync(join(root, 'events.json'), eventsBytes);
 
-const catalogue = {
-  upstream: UPSTREAM,
-  commit,
-  events: { file: 'events.json', sha256: sha256(eventsBytes) },
-  packs,
-  lines: Object.fromEntries(
-    Object.keys(lines)
-      .sort(byCodeUnit)
-      .map((id) => [id, lines[id]]),
-  ),
+const [checkout, commit] = process.argv.slice(2);
+const source = pinned(checkout, commit, {
+  usage:
+    'vendor-voices.mjs <dicechess-assets checkout> <full 40-character commit>',
+});
+
+// Every pack and events.json are read and checked before voices/ is replaced.
+const packs = {};
+const lines = {};
+const vendor = (root) => {
+  for (const pack of PACKS) {
+    const manifest = source.json(`voices/${pack}/manifest.json`);
+    assertMayCarry(pack, manifest);
+    const published = source.json(`voices/${pack}/checksums.json`);
+
+    const files = {};
+    const copy = (path) => {
+      const name = path.split('/').pop();
+      const digest = source.copy(
+        `voices/${pack}/${path}`,
+        published[path],
+        join(root, pack, name),
+        `${pack}/${path}`,
+      );
+      files[name] = digest;
+      return { file: `${pack}/${name}`, sha256: digest };
+    };
+
+    copy('manifest.json');
+    copy(manifest.licenseFile);
+    const ids = Object.keys(manifest.lines ?? {}).sort(byteOrder);
+    if (ids.length === 0)
+      throw new Error(
+        `${pack} has no pack lines at ${commit}: only an audition?`,
+      );
+    for (const id of ids) {
+      if (lines[id])
+        throw new Error(`${pack}: line ${id} is already ${lines[id].pack}'s`);
+      const line = manifest.lines[id];
+      const { file, sha256: digest } = copy(line.export);
+      if (digest !== line.sha256)
+        throw new Error(`${id} does not match its record in the manifest`);
+      lines[id] = {
+        pack,
+        bot: line.bot,
+        event: line.event,
+        text: line.text,
+        voice: line.voice,
+        file,
+        sha256: digest,
+        seconds: line.durationSeconds,
+      };
+    }
+
+    packs[pack] = {
+      title: manifest.title,
+      license: manifest.license,
+      licenseFile: manifest.licenseFile,
+      distribution: manifest.distribution,
+      clients: manifest.clients ?? null,
+      attributionRequired: manifest.attributionRequired,
+      generator: manifest.generator?.tool ?? null,
+      // Where the lines the pack was recorded from are written: a commit of this
+      // repository for the bots, the asset repository's catalogue for the host.
+      texts: manifest.pack?.texts ?? null,
+      // Every file vendored for the pack, with its digest.
+      files,
+    };
+  }
+
+  const eventsBytes = source.show('voices/events.json');
+  const events = JSON.parse(eventsBytes.toString('utf8'));
+  if (events.schemaVersion !== 1)
+    throw new Error(
+      `events.json has schema ${events.schemaVersion} at ${commit}, not 1`,
+    );
+  const pacing = events.pacing?.host ?? {};
+  if (
+    Object.keys(pacing).sort(byteOrder).join() !==
+      [...PACING_KEYS].sort(byteOrder).join() ||
+    !PACING_KEYS.every((key) => typeof pacing[key] === 'number')
+  )
+    throw new Error(
+      `events.json: pacing.host must have exactly the numbers ${PACING_KEYS.join(', ')}`,
+    );
+  const hostEvents = Object.entries(events.events?.host ?? {});
+  if (hostEvents.length === 0)
+    throw new Error('events.json has no host events');
+  for (const [event, { tier, priority }] of hostEvents)
+    if (!TIERS.includes(tier) || !Number.isInteger(priority) || priority < 1)
+      throw new Error(
+        `events.json: host event ${event} has tier ${tier} and priority ${priority}`,
+      );
+  writeFileSync(join(root, 'events.json'), eventsBytes);
+
+  const catalogue = {
+    upstream: UPSTREAM,
+    commit,
+    events: { file: 'events.json', sha256: sha256(eventsBytes) },
+    packs,
+    lines: Object.fromEntries(
+      Object.keys(lines)
+        .sort(byteOrder)
+        .map((id) => [id, lines[id]]),
+    ),
+  };
+  writeFileSync(
+    join(root, 'voices.json'),
+    JSON.stringify(catalogue, null, 2) + '\n',
+  );
+  return { catalogue, pacing, hostEvents };
 };
-writeFileSync(
-  join(root, 'voices.json'),
-  JSON.stringify(catalogue, null, 2) + '\n',
+const { catalogue, pacing, hostEvents } = replaceDirectory(
+  join(native, 'voices'),
+  vendor,
 );
 
 // The app reads this at run time. It is generated, rather than importing the
@@ -258,12 +249,8 @@ ${hostEvents
 );
 
 // Formatted like the rest of the source, so the format check passes and a
-// re-run leaves no diff: by the repository's own Prettier, which is the root
-// package's, not this one's.
-execFileSync('npx', ['prettier', '--write', voiceFiles, hostPacing], {
-  cwd: join(native, '..'),
-  stdio: 'ignore',
-});
+// re-run leaves no diff.
+formatWithPrettier([voiceFiles, hostPacing]);
 
 console.log(
   `voices: ${Object.keys(lines).length} lines from ${PACKS.length} packs at ${commit.slice(0, 7)} -> native/voices/; host pacing -> src/core/hostPacing.ts`,
