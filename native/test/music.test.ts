@@ -742,6 +742,34 @@ test('a seam that fails once is tried again, and the theme keeps looping', async
   assert.ok(players[2].playing, 'the retry plays on a fresh player');
 });
 
+// A retry that a suspension cut short is not held against the next seam: the
+// pass heard after the return ends it.
+test('after a failed seam and a suspension, the next seam still gets its retry', async () => {
+  const { music, clock, players, playing, reports } = await rig();
+  music.setRole('menu');
+  await clock.advance(3000);
+  const [fails, unheard] = players.filter((player) => !player.given);
+  fails.failAt = 'play';
+  unheard.lag = 60_000;
+  await clock.advance(184_500);
+  music.setSuspended(true);
+  music.setSuspended(false);
+  // The return plays the theme on a fresh player, and that pass is heard; the
+  // next seam's player fails once more and is tried again on another.
+  await clock.advance(RESUME_DELAY_MS + 100);
+  const [failsAgain, retry] = players.filter((player) => !player.given);
+  failsAgain.failAt = 'play';
+  await clock.advance(188_000);
+  assert.equal(
+    reports.filter((line) => line.includes('play failed')).length,
+    2,
+  );
+  assert.ok(retry.given, 'the second failed seam is tried again');
+  assert.ok(retry.playing);
+  await clock.advance(10_000);
+  assert.ok(playing().includes('menu.mp3'));
+});
+
 test('a loop that fails twice keeps its old pass until EOF, then releases it without retrying forever', async () => {
   const { music, clock, players, playing } = await rig();
   music.setRole('menu');

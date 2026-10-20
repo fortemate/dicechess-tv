@@ -446,7 +446,9 @@ export function createMusic({
       if (voice.waited >= START_WAIT_MS) voice.fail?.('playback did not start');
       return;
     }
-    if (voice.seam) seamRetried = null;
+    // Any pass heard ends the retry: one that failed before a suspension is
+    // not held against the next seam.
+    seamRetried = null;
     const began = Math.max(voice.waitSince, now - (at - voice.startAt) * 1000);
     voice.waiting = false;
     voice.fade = 0;
