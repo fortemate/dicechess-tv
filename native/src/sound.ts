@@ -332,22 +332,32 @@ export function createSounds({
   const quiet = new Set<Player>();
   // A channel plays its first silence once, as soon as it can be heard: one
   // that came up while sound was off or the app was away waits until then.
+  // One that failed to start is tried again the next time sound comes on.
   const primed = new Set<Channel>();
+  const priming = new Set<Channel>();
   const prime = (channel: Channel, player: Player) => {
-    if (muted || suspended || primed.has(channel)) return;
-    primed.add(channel);
+    if (muted || suspended || primed.has(channel) || priming.has(channel))
+      return;
+    priming.add(channel);
     const turn = take(channel);
     try {
       player.volume = 0;
       quiet.add(player);
     } catch (error) {
+      priming.delete(channel);
       report(`sound: ${channel} volume not set: ${String(error)}`);
       return;
     }
     player.play().then(
-      () => endClip(() => rest(channel, player, turn), CLIP_TAIL_MS),
-      (error: unknown) =>
-        report(`sound: ${channel} did not start: ${String(error)}`),
+      () => {
+        priming.delete(channel);
+        primed.add(channel);
+        endClip(() => rest(channel, player, turn), CLIP_TAIL_MS);
+      },
+      (error: unknown) => {
+        priming.delete(channel);
+        report(`sound: ${channel} did not start: ${String(error)}`);
+      },
     );
   };
   const loud = (player: Player) => {

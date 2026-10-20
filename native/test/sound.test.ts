@@ -675,6 +675,21 @@ test('a player ready while away plays its first silence on the return', () =>
     (sounds) => sounds.setSuspended(true),
   ));
 
+test('a first silence that failed to start is tried again when sound comes back on', async () => {
+  resetAudio();
+  failAudio('play');
+  const sounds = createSounds();
+  await settle();
+  // Each channel tried, and its play was refused.
+  assert.equal(primes().length, 3);
+  // The media stack recovers; the log starts afresh.
+  resetAudio();
+  sounds.setMuted(true);
+  sounds.setMuted(false);
+  await settle();
+  assert.equal(primes().length, 3);
+});
+
 test('each channel waits for its own main cue', async () => {
   resetAudio();
   const time = ends();
