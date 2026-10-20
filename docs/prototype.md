@@ -82,3 +82,21 @@ Remaining acceptance checklist:
 5. Build the full hotseat/Random game loop; this probe is still a fixed two-action fixture.
 
 The offline result applies to the installed diagnostic on the tested VVD image. It is not a physical-device, power-loss or Appstore-readiness claim.
+
+## Completed feasibility milestone
+
+The Svelte + Chessground WebView app that came first has been removed. It was a probe, and its WebView crashes on SDK 0.24 — the SDK the native path targets — so it could never have shipped. This feasibility probe, the [SDK experiment](vega-sdk-experiment.md), the [durable-save/offline checks](durable-save-and-offline.md) and the [full-game behavior](full-game.md) record what it established and remain the evidence for that period.
+
+These steps were carried out on the WebView path and are kept as the record of how the target was proved reachable. The application that grew from them is the native one in `native/`.
+
+1. Install and record Vega CLI/SDK and Node versions on the development Mac.
+2. Run the official Hello World in Vega Virtual Device.
+3. Create the official `vegaWebview` template and load bundled local assets.
+4. Display a board and demonstrate D-pad, OK and Back without a mouse.
+5. Execute one engine transition and one Worker bot request.
+6. Save, close and restore the exact position, roll and phase.
+7. Repeat without a development server or network, and record actual limitations.
+
+That loop closed on SDK 0.23. The native runtime gate then passed on SDK 0.24 — the WebView crash does not reproduce natively — and the board, remote input, saves, dice, menus, the first opponent (then called Random, now Rolly), the result ledger, the tutorial and the rules guide were built on that path instead. Onboarding, the submission build and testing on a Fire TV Stick followed, and 1.0.0 was released on October 10, 2026. See the [delivery roadmap](roadmap.md), the [runtime gate](vega-native-runtime-gate.md) and [GitHub milestones](https://github.com/fortemate/dicechess-tv/milestones).
+
+Amazon's [Vega WebView](https://developer.amazon.com/docs/vega/0.24/develop-your-app-with-webview) documentation describes the abandoned path; the link is kept for the record.

@@ -5,27 +5,30 @@
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=fortemate_dicechess-tv&metric=coverage)](https://sonarcloud.io/summary/new_code?id=fortemate_dicechess-tv)
 [![License: AGPL-3.0-only](https://img.shields.io/badge/License-AGPL--3.0--only-blue.svg)](LICENSE)
 
-Dice Chess for Amazon Fire TV: two players sharing one screen and remote, or a game against a choice of on-device bots.
+Dice Chess for Amazon Fire TV: two players sharing one screen and remote, or a game against on-device bots.
 
-**Project site:** <https://dicechess-tv.fortemate.com/>, built from [`site/`](site/README.md).
+## What it does
 
-**Browser test bench:** [`web/`](web/README.md) draws the same screens in a browser, driven from the keyboard, with switchable board marks and a color-vision simulation — for testers without an emulator. It is not device evidence.
+- **Play a friend** on one remote, with a host who cheers both players: Prowla the cat, Rolly or Thinkle the wizard ([What it does](https://dicechess-tv.fortemate.com/project/features/)).
+- **Three local bots**, Rolly, Grabby and Rampage, from easy to hard, each one of the engine's algorithms ([Opponents](https://dicechess-tv.fortemate.com/play/opponents/)).
+- **Learn to play**: a six-lesson tutorial taught aloud by Thinkle, and a rules guide ([Learning the game](https://dicechess-tv.fortemate.com/design/learning/)).
+- **Adaptive music** that follows the danger to the king, with four themes by pepka-prygni ([Sound](https://dicechess-tv.fortemate.com/design/sound/)).
+- **VoiceView** announcements of menus, squares, rolls, moves and results ([Controls](https://dicechess-tv.fortemate.com/play/controls/#voiceview-screen-reader)).
+- **Offline**: no network code, no accounts and no analytics; games, results and settings stay on the device ([privacy policy](https://dicechess-tv.fortemate.com/privacy/)).
+- **Highlights** presets: Standard, Enhanced, Color-blind and High contrast ([Readable from the sofa](https://dicechess-tv.fortemate.com/design/sofa/)).
 
-**Demo video:** <https://youtu.be/Xyz0KxkmxWU>, 2:50, published on October 19, 2026: it opens on the International Dice Chess Federation's tournament footage, used with its permission, with Thinkle the wizard narrating; the game was recorded on the Vega Virtual Device with version 1.0.2 and closes on a game against Rampage on its critical music, then an end card that names React Native for Vega ([`scripts/demo-video/`](scripts/demo-video/README.md)).
+## See it
 
-**Tutorial video:** <https://youtu.be/KK8BBICjaBQ>, 4:52, recorded on the Vega Virtual Device: Thinkle the wizard teaches the six lessons of the tutorial aloud. The home menu has called it Learn to play since #280; the video shows its older label, How to play.
-
-**Latest GitHub release: Dice Chess 1.0.2, build 33.** Published on October 18, 2026, tagged [`v1.0.2+33`](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.2%2B33). It includes the Settings and rules-reference improvements and provides armv7, aarch64 and x86_64 packages without portraits, plus `SHA256SUMS.txt`. **Next release: 1.0.3, build 34, in preparation.** It adds consistent U.S. English and includes the character portraits in a normal clone and the planned GitHub packages. See the [preparation record](docs/release-preparation-1.0.3-build34.md).
-
-**Amazon Appstore:** 1.0.1, build 30, has been submitted for Amazon's review, as reported by the owner on October 14, 2026. Its armv7 package includes the private portraits. Submission and store availability are separate; approval has not been confirmed.
-
-**A React Native for Vega application that builds and runs from this repository.** `mise run build` produces an installable package that installs, launches and plays on the Vega Virtual Device and, since October 6, 2026, on a Fire TV Stick 4K Select (Vega OS 1.2). On that Stick, Amazon's KPI Visualizer measured a cool start of a Release build at a median of 412 ms to first frame and 2.65 s to fully drawn (October 6, 2026, 9 launches, not in certification mode), against Amazon's cool-start targets of under 1.5 s and under 8 s; the [Performance](https://dicechess-tv.fortemate.com/technology/performance/) page has the warm starts too. On the Virtual Device, the same tool measured 309 ms and 748 ms on average (September 25, 2026, 3 iterations, before the music, voices and portraits; [FL-20](https://dicechess-tv.fortemate.com/friction-log/#fl-20)). Play a friend and three local opponents, from easy to hard, three-die turns, promotion, king capture, resignation, draw agreement, save and resume mid-turn, a completed-game ledger, an interactive tutorial offered on the first launch, and a rules guide are all implemented on the native board, driven entirely by D-pad, OK and Back.
-
-Also done: sound for every step of the game — chosen by ear, heard on the virtual device, and set on a settings screen in both menus — an icon and splash screen, and an About screen carrying the credits the asset licenses require. Adaptive music follows the danger to the king, with four themes by pepka-prygni used with his permission. On the virtual device it was heard following a recorded game against Rampage from calm to tense to critical, and its own reports show it stopping for the launcher ([#76](https://github.com/fortemate/dicechess-tv/issues/76)). Each move slides to its new square, so an opponent's turn can be followed ([#131](https://github.com/fortemate/dicechess-tv/issues/131)), a roll tumbles in ([#99](https://github.com/fortemate/dicechess-tv/issues/99)), and the board can turn to the side to move in a game against a friend ([#120](https://github.com/fortemate/dicechess-tv/issues/120)). **Highlights** in Settings offers four board-highlight presets — **Standard** (default), **Enhanced** (lifted piece in hand and bold two-tone cursor frame), **Color-blind** (Okabe–Ito palette with shape redundancy and ghost preview), and **High contrast** (monochrome black and white with shape redundancy) — evaluated on the browser test bench ([#402](https://github.com/fortemate/dicechess-tv/pull/402)), covered by unit tests, and installed and launched on the Fire TV Stick 4K Select in build 32 ([#413](https://github.com/fortemate/dicechess-tv/pull/413)). **Auto-play only move**, off by default, automatically plays the only legal move; the first rule, which also picked up a lone piece with several squares, was checked on the virtual device and on the Stick ([#342](https://github.com/fortemate/dicechess-tv/pull/342)), and its narrowing to the only move on the virtual device ([#361](https://github.com/fortemate/dicechess-tv/pull/361)). Unless a sentence names the Stick, what this paragraph describes was seen on the **virtual** device, and the emulator does not measure Stick performance. On the Stick, a roll's second and third dice came in late until their stagger moved onto the native driver; the owner played that build there and reported that it works ([#306](https://github.com/fortemate/dicechess-tv/pull/306)). Memoizing the board cut the median time from a cursor key to the frame that shows it from 152 ms to 59 ms there ([#326](https://github.com/fortemate/dicechess-tv/pull/326)), and on October 9 the app's reports showed it stopping at Home and taking `focus` as its return, which is how the Stick signalled it then ([#296](https://github.com/fortemate/dicechess-tv/pull/296)). On October 10, 2026, the Appstore package of build 26 was checked on the Stick: the Settings rows, muting and unmuting the music on its row, Play as on Random, Main menu and Resume game, the hint on the opponent cards, and the confirmation before a game in play is replaced, with Cancel ([release notes](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.0%2B26)). On October 11 the Appstore package of build 28 was installed there over an earlier build without uninstalling: it kept the saved game, showed the launch splash with the redrawn hand and then the home menu, and the device log showed no errors from the app ([release notes](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.0%2B28)).
+- **Project site:** <https://dicechess-tv.fortemate.com/>, built from [`site/`](site/README.md).
+- **Demo video:** <https://youtu.be/Xyz0KxkmxWU>, 2:50, published on October 19, 2026 ([`scripts/demo-video/`](scripts/demo-video/README.md)).
+- **Tutorial video:** <https://youtu.be/KK8BBICjaBQ>, 4:52, recorded on the Vega Virtual Device.
+- **GitHub releases:** the [releases page](https://github.com/fortemate/dicechess-tv/releases) has the latest release, its notes and its armv7, aarch64 and x86_64 packages.
+- **Amazon Appstore:** 1.0.1, build 30, was submitted for Amazon's review, as the owner reported on October 14, 2026; approval has not been confirmed.
+- **Browser test bench:** [`web/`](web/README.md) draws the same screens in a browser for testers without an emulator. It is not device evidence.
 
 ## Try it
 
-It needs the Vega SDK 0.24, [mise](https://mise.jdx.dev/) and either a Vega Virtual Device or a Fire TV Stick in developer mode; [native/README.md](native/README.md#building-and-running) explains the setup. To play a published release without building it, follow [docs/playtest.md](docs/playtest.md).
+It needs the Vega SDK 0.24, [mise](https://mise.jdx.dev/) and either a Vega Virtual Device or a Fire TV Stick in developer mode; [native/README.md](native/README.md#building-and-running) explains the setup, and [docs/playtest.md](docs/playtest.md) installs a published release without building it.
 
 ```bash
 npm ci && npm ci --prefix native
@@ -34,41 +37,18 @@ npm ci && npm ci --prefix native
 mise run device:run
 ```
 
-A device refuses a package numbered lower than the one installed, with "Package version decrease". `mise run build` and `mise run device:run` take the build number from the newest tag, `v1.0.2+33` on October 18, 2026, so a device with build 33 or an earlier build accepts their package. `BUILD_NUMBER=34 mise run build` sets that number explicitly. A plain `npm run build --prefix native` numbers its package 0, which a device with a released build or any beta from beta 4 on refuses ([CONTRIBUTING.md](CONTRIBUTING.md#check-it-on-a-device)).
+A device refuses a package numbered lower than the one installed; [CONTRIBUTING.md](CONTRIBUTING.md#check-it-on-a-device) explains the build number. The whole game is playable with three controls, and the remote's Menu button is a shortcut:
 
-The whole game is playable with three controls (D-pad, OK, and Back), while the remote Menu button provides a fourth control:
+| Remote | Virtual device keyboard | What it does                                                                                          |
+| ------ | ----------------------- | ----------------------------------------------------------------------------------------------------- |
+| D-pad  | Arrow keys              | Jumps between the pieces that can move, or the destinations of the one in hand; moves through menus   |
+| OK     | Enter                   | Rolls the dice, picks up a piece, puts it on its destination, chooses a menu item                     |
+| Back   | Esc                     | Puts a picked-up piece back, opens the game menu, closes a screen; on the home screen, leaves the app |
+| Menu   | F2                      | Opens the game menu, or closes it; leaves other screens for home                                      |
 
-| Remote | Virtual device keyboard | What it does                                                                                                                                                                                                                                                                                               |
-| ------ | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| D-pad  | Arrow keys              | Jumps between the pieces that can move, or the destinations of the one in hand; moves through the menus                                                                                                                                                                                                    |
-| OK     | Enter                   | Rolls the dice, picks up a piece, puts it on its destination, chooses a menu item                                                                                                                                                                                                                          |
-| Back   | Esc                     | Puts a picked-up piece back, opens the game menu, closes a screen; on the home screen, leaves the app                                                                                                                                                                                                      |
-| Menu   | F2 (not yet checked)    | Puts a picked-up piece back and opens the game menu; closes open menus; leaves secondary screens for home (covered by tests; opened and closed the game menu on a Fire TV Stick, as [the cycling validation](docs/board-navigation-validation-299.md) records; not yet checked on the Vega Virtual Device) |
+The [Controls](https://dicechess-tv.fortemate.com/play/controls/) page walks through every screen and says where each key was checked.
 
-The application has no network code, no accounts and no analytics. Games, results and settings stay on the device; the [privacy policy](https://dicechess-tv.fortemate.com/privacy/) lists what it keeps.
-
-The [audio validation record](docs/audio-regression-validation-387.md) describes
-the playback lifecycle fixes tested on October 14, 2026, in
-[PR #388](https://github.com/fortemate/dicechess-tv/pull/388), with separate VVD
-and physical Stick results, packaging checks and the limits of the evidence.
-
-## Product scope
-
-- Play a friend: two people take turns using one remote after each complete Dice Chess turn, with an optional living-room setting to turn the board to the active player's side, and a neutral host who cheers both players at the pauses and at the big moments as they happen (#202, #227): Prowla the cat (#258), Rolly, or Thinkle the wizard (#279). While the host speaks, she shows with her line above the bottom badge (#213: seen on the Vega Virtual Device and checked by tests, not yet checked on a Fire TV Stick), and Settings chooses the host, Prowla by default, or turns her off.
-- Several entirely local bots: Rolly, Grabby and Rampage today, each one of the engine's algorithms. The interface must never stall: these three compute their reply on the JavaScript thread and have not needed a thread of their own on the Vega Virtual Device, and a stronger bot's strength must come from its algorithm or a bounded amount of work, never from wall-clock time.
-- No stake doubling, coins, wallets or betting in the initial game.
-- Local win/draw/loss (W/D/L) counts, by opponent and side played, and by color in games against a friend. The first version counts them but shows none: a count cannot tell who was holding the remote, and a view that can tell the players apart comes later.
-- Choose the color for new games against the computer: **Play as** in Settings is Random by default, so OK on an opponent's card starts the game; White or Black play that color, and Ask brings back the choice before each game (#352).
-- Settings, from both menus: the music in one row, where Left and Right set the volume down to off and OK mutes it and brings it back at the same level (#350); sound effects; voices; Play as; **Host for friends** and **Turn board for friends**; **Highlights** (`Standard`, `Enhanced`, `Color-blind` or `High contrast`, #404); and **Auto-play only move**, off by default (#342).
-- D-pad, OK and Back navigation through the board, dice, promotion, menus and results. **Main menu** in the game menu leaves a game for the home screen, and **Resume game** returns to it (#349).
-- Save and resume the full game state, including the existing dice roll and remaining actions.
-- A self-contained installed package as the offline target.
-
-Online matchmaking, accounts, rankings, cloud bots and subscriptions are outside the initial MVP. Hunter is a conditional later bot; a one-time unlock is a monetization idea, not an implemented or committed purchase feature.
-
-See [offline game scope](docs/offline-game-scope.md) for the accepted requirements, proposed statistics behavior and delivery order. This scope update supersedes the earlier single-bot MVP description in the hackathon research notes.
-
-## Architecture
+## How it is built
 
 ```text
 native/ — the React Native for Vega application
@@ -86,43 +66,20 @@ src/core/ — one shared, pure TypeScript core, no DOM and no React
 └── Versioned game snapshot, ledger, tutorial and rules data
 ```
 
-The core is pure by enforcement, not by convention: `tsconfig.core.json` typechecks it with `lib: ES2022` and `types: []`, so a DOM or Node global there fails `npm run check`. That purity is what let one verified controller serve the WebView probe and the native board at once, and what let the probe be deleted without touching the rules.
+The core is pure by enforcement: `tsconfig.core.json` typechecks it with `lib: ES2022` and `types: []`, so a DOM or Node global there fails `npm run check`. The canonical engine determines legal actions and board transitions; the board only renders state, and the remote's keys reach the screen reducer through `useRemoteInput`. The bots run on the JavaScript thread, and a bot's strength comes from its algorithm or a bounded amount of work, never from wall-clock time.
 
-The canonical engine determines legal actions and board transitions. The controller follows each roll through the engine's legal turn tree, so a turn is checked as a whole, and takes the dice left from the engine's `applyMove` (engine 0.13.0, #101). `test/game.test.ts` and `test/dice.test.ts` cover both, and hotseat, bot and promotion turns were played this way on the Vega Virtual Device, and turns against Grabby on a Fire TV Stick (#326). Which of the dice left a legal turn can still spend, and so which dice dim, is the engine's `getPlayableDice` (engine 0.14.0, #140), covered by `test/dice.test.ts` and checked on the Vega Virtual Device; not yet checked on a Fire TV Stick. Besides resignation and an agreed draw, the controller ends a game as Fortemate's game service does: when a king is taken, after 100 halfmoves without a capture or a pawn move, checked at the end of a turn, or at turn 5,000. The board only renders state; the remote's keys reach the screen reducer through `useRemoteInput`.
-
-The architecture, platform findings on Vega, the friction log and how the project is tested are published on the [project site](https://dicechess-tv.fortemate.com/): see [Architecture](https://dicechess-tv.fortemate.com/technology/architecture/), [Building on Vega](https://dicechess-tv.fortemate.com/technology/vega/), and [How we test and review](https://dicechess-tv.fortemate.com/quality/). [native/README.md](native/README.md) provides a terminal quick-reference for building, packaging, and installing.
-
-This repository owns TV-specific packaging, input and application integration. Reuse appropriate public components from [dicechess-play](https://github.com/fortemate/dicechess-play) and [dicechess-engine](https://github.com/fortemate/dicechess-engine) after checking their licenses. Shared fixes should return to their source repositories.
-
-After the hackathon, the first priority is more TV platforms, starting with Fire OS ([roadmap](docs/roadmap.md), M7). A Fire TV Stick 4K Select with Vega OS was bought for testing and has been in use since October 6, 2026 (#10); Samsung/Tizen, Raspberry Pi and further hardware purchases are deferred.
-
-## Completed feasibility milestone
-
-The Svelte + Chessground WebView app that came first has been removed. It was a probe, and its WebView crashes on SDK 0.24 — the SDK the native path targets — so it could never have shipped. The [feasibility probe](docs/prototype.md), [SDK experiment](docs/vega-sdk-experiment.md), [durable-save/offline checks](docs/durable-save-and-offline.md) and [full-game behavior](docs/full-game.md) record what it established and remain the evidence for that period.
-
-These steps were carried out on the WebView path and are kept as the record of how the target was proved reachable. The application that grew from them is the native one described above.
-
-1. Install and record Vega CLI/SDK and Node versions on the development Mac.
-2. Run the official Hello World in Vega Virtual Device.
-3. Create the official `vegaWebview` template and load bundled local assets.
-4. Display a board and demonstrate D-pad, OK and Back without a mouse.
-5. Execute one engine transition and one Worker bot request.
-6. Save, close and restore the exact position, roll and phase.
-7. Repeat without a development server or network, and record actual limitations.
-
-That loop closed on SDK 0.23. The native runtime gate then passed on SDK 0.24 — the WebView crash does not reproduce natively — and the board, remote input, saves, dice, menus, the first opponent (then called Random, now Rolly), the result ledger, the tutorial and the rules guide were built on that path instead. Onboarding, the submission build and testing on a Fire TV Stick followed, and 1.0.0 was released on October 10, 2026. See the [delivery roadmap](docs/roadmap.md), the [runtime gate](docs/vega-native-runtime-gate.md) and [GitHub milestones](https://github.com/fortemate/dicechess-tv/milestones).
+More on the site: [Architecture](https://dicechess-tv.fortemate.com/technology/architecture/), [Building on Vega](https://dicechess-tv.fortemate.com/technology/vega/), [Performance](https://dicechess-tv.fortemate.com/technology/performance/) and [How we test and review](https://dicechess-tv.fortemate.com/quality/). This repository owns TV-specific packaging, input and application integration; public components of [dicechess-engine](https://github.com/fortemate/dicechess-engine) and [dicechess-play](https://github.com/fortemate/dicechess-play) are reused after checking their licenses, and shared fixes return to them. After the hackathon, the first priority is more TV platforms, starting with Fire OS ([roadmap](docs/roadmap.md), M7).
 
 ## Hackathon
 
-Prepared for [Build, Ship, Shape: Amazon Developer Hackathon 2026](https://amazonappdev2026.devpost.com/), Fire TV track.
+Prepared for [Build, Ship, Shape: Amazon Developer Hackathon 2026](https://amazonappdev2026.devpost.com/), Fire TV track. Reused: the Dice Chess engine, which existed before the contest. Built during the contest window, in a repository started on September 21, 2026: the Fire TV application, the pure core, the bots as TV opponents, the tutorial, the animations and the audio; the [Architecture](https://dicechess-tv.fortemate.com/technology/architecture/#hackathon-scope-vs-existing-foundation) page has the table. The SDK [friction log](https://dicechess-tv.fortemate.com/friction-log/) is on the site.
 
 - Submission deadline: **October 23, 2026, 12:00 Pacific / 22:00 Europe/Riga**.
 - Internal submission target: **October 21, 2026**.
-- Owner confirmed registration on September 21, 2026. The owner initially submitted 1.0.0 to the Amazon Appstore on October 10, 2026; the hackathon submission itself is still to come.
-- Demonstrate the actual Vega/Fire TV environment and clearly distinguish reused components from work completed during the contest window.
-- Keep a reproducible SDK friction log and record tool versions from the first experiment. The log is published on the site: [Friction log](https://dicechess-tv.fortemate.com/friction-log/).
 
-Full decisions and the detailed schedule are maintained in the private Fortemate knowledge base, starting from the page **Build, Ship, Shape — Amazon Developer Hackathon 2026**.
+## Evidence
+
+The game installs, launches and plays on the Vega Virtual Device and, since October 6, 2026, on a Fire TV Stick 4K Select (Vega OS 1.2). Most features were played on the Virtual Device; on the Stick, a game was played with its own remote, the launch was measured, and Appstore builds 26 and 28 were checked. Evidence from the Virtual Device is not evidence from the Stick, and neither is a passing test, so each record says which it rests on: the release notes for [1.0.3, build 34](docs/release-notes-1.0.3-build34.md) and [1.0.2, build 33](docs/release-notes-1.0.2-build33.md), the [release validation of 1.0.1, build 30](docs/release-validation-1.0.1-build30.md), the [audio validation record](docs/audio-regression-validation-387.md) of October 14, 2026, the [board-navigation validation](docs/board-navigation-validation-299.md), and [docs/status-2026-10.md](docs/status-2026-10.md), the dated list of what was seen on which device.
 
 ## Licensing
 
@@ -130,17 +87,14 @@ Fortemate's code in this repository is licensed under the [GNU Affero General Pu
 
 The Fortemate name and logo, including the brand images in `native/brand/`, are not licensed under the AGPL.
 
-Third-party material keeps its own license, listed in the [third-party notices](THIRD_PARTY_NOTICES.md): the RhosGFX pieces and Kenney's sounds are CC0, and JDSherbert's sounds are here with the author's written permission. The four music tracks in `native/music/` are pepka-prygni's, used in this game with the author's written permission. The voice packs in `native/voices/` are Fortemate's, made with ElevenLabs, and licensed to Fortemate's Dice Chess applications only, as each pack's `LICENSE.txt` says; a fork may not use them. The characters' portraits are Fortemate's too, for its Dice Chess apps and material presenting them only. The full portrait pack for native builds is tracked in `native/portraits/`, with its original notice and a lock recording the source commit and every digest. Starting with the planned 1.0.3/build 34 release, GitHub packages include the same ten runtime portraits as the Appstore package. A deliberately stripped build can still show emoji faces, a fallback checked by the [native matchup tests](native/test/matchup.test.tsx). Three portraits are tracked for the [website's opponent profiles](https://dicechess-tv.fortemate.com/play/opponents/), with their notice under `site/src/assets/opponents/`; native builds do not use those website files. The package carries the license notices of the npm packages bundled into it (#340). Amazon's `@amazon-devices/*` packages install from the public npm registry under Amazon's Program Materials License Agreement, and the Vega SDK is installed by each developer; neither is part of this repository. Check the license of any code or asset before importing it.
+Third-party material keeps its own license, listed in the [third-party notices](THIRD_PARTY_NOTICES.md): the RhosGFX pieces and Kenney's sounds are CC0, and JDSherbert's sounds are here with the author's written permission. The four music tracks in `native/music/` are pepka-prygni's, used in this game with the author's written permission. The voice packs in `native/voices/` are Fortemate's, made with ElevenLabs, and licensed to Fortemate's Dice Chess applications only, as each pack's `LICENSE.txt` says; a fork may not use them. The characters' portraits are Fortemate's too, for its Dice Chess apps and material presenting them only. Check the license of any code or asset before importing it.
 
-Chessground's GPL-3.0-or-later obligation is gone: it was reached only by the web probe, and the probe has been removed.
+## Contributing
 
-## Development guidance
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, checks and device verification, and follow [AGENTS.md](AGENTS.md). Changes go through branches and pull requests; the owner reviews and merges. Keep secrets, private models, opening books and production configuration out of this repository.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, checks and device verification, and follow [AGENTS.md](AGENTS.md). Changes go through branches and pull requests; the owner reviews and merges.
 
 ## References
 
 - [Vega developer documentation](https://developer.amazon.com/docs/vega/0.24/vega-get-started)
-- [Vega WebView](https://developer.amazon.com/docs/vega/0.24/develop-your-app-with-webview) — the abandoned path, kept for the record
 - [Vega Virtual Device and device execution](https://developer.amazon.com/docs/vega/0.24/run-apps)
 - [Hackathon rules](https://amazonappdev2026.devpost.com/rules)
