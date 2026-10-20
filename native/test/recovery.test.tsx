@@ -17,7 +17,6 @@ import {
   type Recovery,
 } from '../src/Recovery';
 import { RESUME_OPTION } from '../src/screen';
-import type { Music } from '../src/music';
 import { decodeGame, newGame, rollGame, type Game } from '../../src/core/game';
 import { hasExited, pressBack } from './stubs/react-native-kepler.mjs';
 import { reset, setStored } from './stubs/react-native-mmkv.mjs';
@@ -29,6 +28,7 @@ import {
   launch,
   mount,
   send,
+  silentMusic,
   silentSounds,
   styleOf,
   text,
@@ -60,17 +60,6 @@ const quietBoundaries = (t: TestContext) => {
 const Throws = (): React.ReactElement => {
   throw new Error('engine fault');
 };
-
-// A music player that plays nothing, so the settings list its rows at once
-// rather than after a catalogue loads.
-const quietMusic = (): Music => ({
-  setRole() {},
-  setEnabled() {},
-  setVolume() {},
-  setCatalogue() {},
-  setDucked() {},
-  setSuspended() {},
-});
 
 test('a child that throws renders the fallback, readable from the sofa', (t) => {
   quietBoundaries(t);
@@ -158,7 +147,7 @@ const launchOverSave = () => {
       },
     }),
     sounds: silentSounds(),
-    music: quietMusic(),
+    music: silentMusic(),
     onState: (line) => lines.push(line),
   });
   return { ...launched, saved, rig, lines };
@@ -223,7 +212,7 @@ test('Back on the fallback closes the app, and the saved game is there at the ne
   failInPlay(app);
   assert.equal(pressBack(), false);
   assert.equal(hasExited(), true);
-  const next = launch({ sounds: silentSounds(), music: quietMusic() });
+  const next = launch({ sounds: silentSounds(), music: silentMusic() });
   assert.match(next.state(), /overlay home#0/);
   assert.equal(focusedLabel(next.root), RESUME_OPTION);
 });
@@ -246,7 +235,7 @@ test('a search that fails between frames reaches the fallback instead of closing
       },
     }),
     sounds: silentSounds(),
-    music: quietMusic(),
+    music: silentMusic(),
     onState: (line) => lines.push(line),
   });
   // Play the computer, the first opponent, with Play as set to Black (#345):

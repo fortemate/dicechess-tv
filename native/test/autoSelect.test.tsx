@@ -19,7 +19,6 @@ import {
 } from '../src/screen';
 import { AUTO_PROMPT } from '../src/GameScreen';
 import { readAutoSelect, saveAutoSelect } from '../src/autoSelectSetting';
-import type { KeyValueStore } from '../src/mmkvStore';
 import type { BoardKey } from '../../src/core/boardInput';
 import {
   newGame,
@@ -32,12 +31,13 @@ import {
 import {
   fakeTimers,
   fixedOptions,
+  type Instance,
   isHost,
   launch,
+  memoryStore,
   send,
   styleOf,
   text,
-  type Instance,
 } from './support';
 
 // The bot's and the host's lines go on the voices' own timers.
@@ -321,19 +321,6 @@ test('OK toggles auto-play; Left sets off and Right sets on, after Highlights', 
 });
 
 // ── Through the whole app ──────────────────────────────────────────────────────
-
-const memoryStore = (initial?: Record<string, string>): KeyValueStore => {
-  const map = new Map<string, string>(Object.entries(initial ?? {}));
-  return {
-    getString: (key: string) => map.get(key),
-    set: (key: string, value: string) => {
-      map.set(key, value);
-    },
-    delete: (key: string) => {
-      map.delete(key);
-    },
-  };
-};
 
 test('the setting is stored as on or off, and anything else reads as off', () => {
   assert.equal(readAutoSelect(memoryStore()), false);

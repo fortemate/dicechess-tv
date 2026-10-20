@@ -169,6 +169,10 @@ const useFlipFade = (flipped: boolean) => {
       target: flipped,
       displayed: reduced !== false ? flipped : state.displayed,
     });
+  } else if (reduced !== false && state.displayed !== state.target) {
+    // Less motion asked for while the board faded out to turn: it is shown
+    // turned at once, and stays so once the motion is back.
+    setState({ ...state, displayed: state.target });
   }
 
   const fade = React.useCallback(

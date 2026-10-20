@@ -1,20 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readTurnBoard, saveTurnBoard } from '../src/turnSetting';
-import type { KeyValueStore } from '../src/mmkvStore';
-
-const memoryStore = (initial?: Record<string, string>): KeyValueStore => {
-  const map = new Map<string, string>(Object.entries(initial ?? {}));
-  return {
-    getString: (key: string) => map.get(key),
-    set: (key: string, value: string) => {
-      map.set(key, value);
-    },
-    delete: (key: string) => {
-      map.delete(key);
-    },
-  };
-};
+import { memoryStore } from './support';
 
 test('turn board setting is off by default', () => {
   const store = memoryStore();

@@ -23,8 +23,9 @@ type Held = {
     easing: (t: number) => number;
     useNativeDriver: boolean;
   };
-  done: ((result: { finished: boolean }) => void) | null;
+  done: (result: { finished: boolean }) => void;
   stopped: boolean;
+  results: { finished: boolean }[];
 };
 const globals = globalThis as {
   __holdSlides?: boolean;
@@ -92,7 +93,7 @@ const looks = (root: Instance): string[] =>
 const land = () =>
   act(() => {
     for (const thrown of globals.__heldSlides ?? [])
-      if (!thrown.stopped) thrown.done?.({ finished: true });
+      if (!thrown.stopped) thrown.done({ finished: true });
   });
 
 test('a roll is short, and over before the no-move cue and the opponent’s next step', () => {
@@ -159,10 +160,36 @@ test('dice already rolled when the screen opens do not tumble', async () => {
 test('an action during the tumble ends it, and the dice show what they are', async () => {
   const dice = await mount([]);
   dice.show(ROLLED);
+  // The tumble is under way, so there is something to end.
+  assert.equal(tumbles(dice.root()).length, 3);
+  assert.equal(globals.__heldSlides!.length, 3);
   dice.show(AFTER_KNIGHT);
   assert.equal(tumbles(dice.root()).length, 0);
-  assert.ok((globals.__heldSlides ?? []).every(({ stopped }) => stopped));
+  assert.ok(globals.__heldSlides!.every(({ stopped }) => stopped));
   assert.deepEqual(looks(dice.root()), ['dim', 'lit', 'spent']);
+});
+
+test('a tumble cut short hears it did not finish, and the next roll tumbles on', async () => {
+  const dice = await mount([]);
+  dice.show(ROLLED);
+  assert.equal(globals.__heldSlides!.length, 3);
+  // The other side's roll is thrown over the dice still on their way in.
+  dice.show(ROLLED, 'b');
+  const [cut, next] = [
+    globals.__heldSlides!.slice(0, 3),
+    globals.__heldSlides!.slice(3),
+  ];
+  for (const thrown of cut)
+    assert.deepEqual(thrown.results, [{ finished: false }]);
+  // The dice cut short must not end the tumble that took over.
+  assert.equal(next.length, 3);
+  assert.ok(next.every(({ results }) => results.length === 0));
+  assert.equal(tumbles(dice.root()).length, 3);
+
+  land();
+  assert.equal(tumbles(dice.root()).length, 0);
+  for (const thrown of cut)
+    assert.deepEqual(thrown.results, [{ finished: false }]);
 });
 
 test('once the dice are cleared, the next roll tumbles again', async () => {
