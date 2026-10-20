@@ -2,6 +2,8 @@
 
 The release preparation tracks the portrait pack so an authorized clone has the artwork needed for a complete build. The original asset notice and digest lock remain authoritative. Changing repository visibility does not change those terms or rewrite already published history.
 
+**Note, October 20, 2026.** The owner made the repository private on October 18, 2026, and the portrait pack was committed while it was private ([PR #435](https://github.com/fortemate/dicechess-tv/pull/435), 1.0.3/build 34). On October 20, 2026, the owner made it public again: the portraits were already shown on the public site and in the demo video, a public repository needs no reviewer invitations, and the SonarCloud scan and CodeQL, which did not run while it was private, run again. The handoff below is kept as it was written for the private period; the portrait notice and lock remain authoritative, and nothing in the published history was rewritten.
+
 ## Owner handoff
 
 1. Review and merge the 1.0.3/build 34 preparation PR. Rebuild the final packages from main, publish the authorized GitHub release and verify its downloads.

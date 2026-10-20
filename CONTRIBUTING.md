@@ -203,9 +203,8 @@ vendor it again.
 
 ## Releases
 
-A release is cut by the owner, on a machine with the Vega SDK and the private
-portraits; CI cannot build the package. An agent may prepare a release, but never
-tags, publishes or uploads one.
+A release is cut by the owner, on a machine with the Vega SDK; CI cannot build the
+package. An agent may prepare a release, but never tags, publishes or uploads one.
 
 ### Version and build number
 
