@@ -18,6 +18,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
+import { stripVTControlCharacters } from 'node:util';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -332,5 +333,9 @@ test("generated source is formatted by the repository's pinned Prettier", (t) =>
     { encoding: 'utf8' },
   );
   assert.notEqual(run.status, 0);
-  assert.match(run.stderr, /\[error\] .*broken\.ts: SyntaxError/);
+  // CI forces color, which wraps the level in escape sequences.
+  assert.match(
+    stripVTControlCharacters(run.stderr),
+    /\[error\] .*broken\.ts: SyntaxError/,
+  );
 });
