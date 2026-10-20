@@ -115,3 +115,21 @@ Sound stops when the app leaves the screen. The tests check that the players pau
 A game against the computer ends on a choice: a rematch or the main menu. A rematch keeps the color option of the game it repeats; if that was Random, it picks again. In a game against a friend, a finished game stays on the board, and OK returns to the main menu.
 
 ![After resigning as Black against Grabby: Grabby wins, You resigned, Grabby's last word, Ha! I'll have this whole game framed!, beside its portrait, and the choice of Rematch or Main menu](../../../assets/screenshots/rematch.png)
+
+## Scope
+
+The accepted scope of the offline game, as the repository's README listed it until October 20, 2026, with the issues that settled each point:
+
+- Play a friend: two people take turns using one remote after each complete Dice Chess turn, with an optional living-room setting to turn the board to the active player's side, and a neutral host who cheers both players at the pauses and at the big moments as they happen ([issue 202](https://github.com/fortemate/dicechess-tv/issues/202), [issue 227](https://github.com/fortemate/dicechess-tv/issues/227)): Prowla the cat ([issue 258](https://github.com/fortemate/dicechess-tv/issues/258)), Rolly, or Thinkle the wizard ([issue 279](https://github.com/fortemate/dicechess-tv/issues/279)). While the host speaks, she shows with her line above the bottom badge ([issue 213](https://github.com/fortemate/dicechess-tv/issues/213): seen on the Vega Virtual Device and checked by tests, not yet checked on a Fire TV Stick), and Settings chooses the host, Prowla by default, or turns her off.
+- Several entirely local bots: Rolly, Grabby and Rampage today, each one of the engine's algorithms. The interface must never stall: these three compute their reply on the JavaScript thread and have not needed a thread of their own on the Vega Virtual Device, and a stronger bot's strength must come from its algorithm or a bounded amount of work, never from wall-clock time.
+- No stake doubling, coins, wallets or betting in the initial game.
+- Local win/draw/loss (W/D/L) counts, by opponent and side played, and by color in games against a friend. The first version counts them but shows none: a count cannot tell who was holding the remote, and a view that can tell the players apart comes later.
+- Choose the color for new games against the computer: **Play as** in Settings is Random by default, so OK on an opponent's card starts the game; White or Black play that color, and Ask brings back the choice before each game ([issue 352](https://github.com/fortemate/dicechess-tv/issues/352)).
+- Settings, from both menus: the music in one row, where Left and Right set the volume down to off and OK mutes it and brings it back at the same level ([issue 350](https://github.com/fortemate/dicechess-tv/issues/350)); sound effects; voices; Play as; **Host for friends** and **Turn board for friends**; **Highlights** (`Standard`, `Enhanced`, `Color-blind` or `High contrast`, [issue 404](https://github.com/fortemate/dicechess-tv/issues/404)); and **Auto-play only move**, off by default ([issue 342](https://github.com/fortemate/dicechess-tv/issues/342)).
+- D-pad, OK and Back navigation through the board, dice, promotion, menus and results. **Main menu** in the game menu leaves a game for the home screen, and **Resume game** returns to it ([issue 349](https://github.com/fortemate/dicechess-tv/issues/349)).
+- Save and resume the full game state, including the existing dice roll and remaining actions.
+- A self-contained installed package as the offline target.
+
+Online matchmaking, accounts, rankings, cloud bots and subscriptions are outside the initial MVP. Hunter is a conditional later bot; a one-time unlock is a monetization idea, not an implemented or committed purchase feature.
+
+See the [offline game scope](https://github.com/fortemate/dicechess-tv/blob/main/docs/offline-game-scope.md) for the accepted requirements, proposed statistics behavior and delivery order. This scope update supersedes the earlier single-bot MVP description in the hackathon research notes.
