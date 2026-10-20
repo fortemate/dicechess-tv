@@ -9,22 +9,9 @@ import {
   saveHost,
 } from '../src/hostSetting';
 import { saveVoices } from '../src/voiceSetting';
-import type { KeyValueStore } from '../src/mmkvStore';
+import { memoryStore } from './support';
 
 const KEY = 'dicechess-tv.host.v1';
-
-const memoryStore = (initial?: Record<string, string>): KeyValueStore => {
-  const map = new Map<string, string>(Object.entries(initial ?? {}));
-  return {
-    getString: (key: string) => map.get(key),
-    set: (key: string, value: string) => {
-      map.set(key, value);
-    },
-    delete: (key: string) => {
-      map.delete(key);
-    },
-  };
-};
 
 test('Prowla hosts Hot Seat games by default (#202, #258)', () => {
   assert.equal(readHost(memoryStore()), 'prowla');

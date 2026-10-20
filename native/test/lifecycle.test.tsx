@@ -15,7 +15,6 @@ import { act } from 'react-test-renderer';
 import { App } from '../src/App';
 import { BOT_STEP_MS, type ScreenOptions } from '../src/screen';
 import type { Sounds } from '../src/sound';
-import type { Music } from '../src/music';
 import { MMKV, reset } from './stubs/react-native-mmkv.mjs';
 import {
   appEvent,
@@ -25,7 +24,14 @@ import {
 import { nextLineMs } from '../src/useTutorialVoice';
 import { stepGame, TUTORIAL, tutorLinesAt } from '../../src/core/tutorial';
 import { botReply } from '../../src/core/bot';
-import { fixedOptions, launch, mount, send, unmount } from './support';
+import {
+  fixedOptions,
+  launch,
+  mount,
+  send,
+  silentMusic,
+  unmount,
+} from './support';
 
 const options = fixedOptions({ roll: () => [2, 2, 2] });
 
@@ -48,16 +54,11 @@ const listen = () => {
       told.sounds = value;
     },
   };
-  const music: Music = {
-    setRole() {},
-    setEnabled() {},
-    setVolume() {},
-    setCatalogue() {},
-    setDucked() {},
+  const music = silentMusic({
     setSuspended(value) {
       told.music = value;
     },
-  };
+  });
   launch({ options, sounds, music });
   return told;
 };
@@ -151,16 +152,11 @@ const harness = (
       soundStates.push(on);
     },
   };
-  const music: Music = {
-    setRole() {},
-    setEnabled() {},
-    setVolume() {},
-    setCatalogue() {},
-    setDucked() {},
+  const music = silentMusic({
     setSuspended(on) {
       musicStates.push(on);
     },
-  };
+  });
   const tree = mount(
     <App
       options={options}

@@ -14,11 +14,22 @@
 // lists are what the cue may play, one picked at random when there are several.
 // The choices were made by ear by the owner (dicechess-assets#8, and #85 for
 // no_move).
-import { execFileSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+//
+// The sound packs predate the manifests' `distribution` field. AUDITED is the
+// license this repository audited for each (THIRD_PARTY_NOTICES.md); a pack
+// whose manifest names another, or says it is not for this repository, is
+// refused (scripts/vendor-lib.mjs).
+import { writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  UPSTREAM,
+  assertMayCarry,
+  byteOrder,
+  formatWithPrettier,
+  pinned,
+  replaceDirectory,
+} from './vendor-lib.mjs';
 
 const CUES = {
   dice_roll: ['kenney-casino-audio', 'dice_roll'],
@@ -35,27 +46,26 @@ const CUES = {
   game_draw: ['kenney-music-jingles', 'game_draw'],
 };
 
-const UPSTREAM = 'fortemate/dicechess-assets';
+const AUDITED = {
+  'kenney-casino-audio': 'CC0-1.0',
+  'kenney-interface-sounds': 'CC0-1.0',
+  'kenney-music-jingles': 'CC0-1.0',
+  'jdsherbert-tabletop': 'Custom (Free with Attribution)',
+};
+
 const native = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 const [checkout, commit] = process.argv.slice(2);
-if (!checkout || !/^[0-9a-f]{40}$/.test(commit ?? ''))
-  throw new Error(
-    'Usage: vendor-sounds.mjs <dicechess-assets checkout> <full 40-character commit>',
-  );
-
-const show = (path) =>
-  execFileSync('git', ['-C', checkout, 'show', `${commit}:${path}`], {
-    maxBuffer: 64 * 1024 * 1024,
-  });
-const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
+const source = pinned(checkout, commit, {
+  usage:
+    'vendor-sounds.mjs <dicechess-assets checkout> <full 40-character commit>',
+});
 
 const packs = {};
 const cues = {};
 for (const [cue, [packId, event]] of Object.entries(CUES)) {
-  const manifest = JSON.parse(
-    show(`sounds/${packId}/manifest.json`).toString('utf8'),
-  );
+  const manifest = source.json(`sounds/${packId}/manifest.json`);
+  assertMayCarry(packId, manifest, { audited: AUDITED[packId] });
   const exports = (manifest.events?.[event] ?? []).filter((path) =>
     path.endsWith('.mp3'),
   );
@@ -68,53 +78,49 @@ for (const [cue, [packId, event]] of Object.entries(CUES)) {
   cues[cue] = exports.map((path) => `${packId}/${path.split('/').pop()}`);
 }
 
-const root = join(native, 'sounds');
+// Every pack is read and checked before sounds/ is replaced.
 const lock = { upstream: UPSTREAM, commit, packs: {}, cues };
-for (const [packId, { manifest, exports }] of Object.entries(packs)) {
-  const published = JSON.parse(
-    show(`sounds/${packId}/checksums.json`).toString('utf8'),
-  );
-  const dir = join(root, packId);
-  rmSync(dir, { recursive: true, force: true });
-  mkdirSync(dir, { recursive: true });
-  const files = {};
-  for (const path of [
-    'manifest.json',
-    manifest.licenseFile,
-    // Code-unit order, the same on every machine; localeCompare is not.
-    ...[...exports].sort((a, b) => Number(a > b) - Number(a < b)),
-  ]) {
-    const bytes = show(`sounds/${packId}/${path}`);
-    const digest = sha256(bytes);
-    if (published[path] !== digest)
-      throw new Error(
-        `${packId}/${path} does not match the digest ${UPSTREAM} published at ${commit}`,
+replaceDirectory(join(native, 'sounds'), (root) => {
+  for (const [packId, { manifest, exports }] of Object.entries(packs)) {
+    const published = source.json(`sounds/${packId}/checksums.json`);
+    const files = {};
+    for (const path of [
+      'manifest.json',
+      manifest.licenseFile,
+      ...[...exports].sort(byteOrder),
+    ]) {
+      const name = path.split('/').pop();
+      const digest = source.copy(
+        `sounds/${packId}/${path}`,
+        published[path],
+        join(root, packId, name),
+        `${packId}/${path}`,
       );
-    const name = path.split('/').pop();
-    writeFileSync(join(dir, name), bytes);
-    files[name] = { from: `sounds/${packId}/${path}`, sha256: digest };
+      files[name] = { from: `sounds/${packId}/${path}`, sha256: digest };
+    }
+    lock.packs[packId] = {
+      version: manifest.version,
+      license: manifest.license,
+      attribution: manifest.attribution,
+      attributionRequired: manifest.attributionRequired,
+      files,
+    };
   }
-  lock.packs[packId] = {
-    version: manifest.version,
-    license: manifest.license,
-    attribution: manifest.attribution,
-    attributionRequired: manifest.attributionRequired,
-    files,
-  };
-}
-writeFileSync(
-  join(root, 'sounds.lock.json'),
-  JSON.stringify(lock, null, 2) + '\n',
-);
+  writeFileSync(
+    join(root, 'sounds.lock.json'),
+    JSON.stringify(lock, null, 2) + '\n',
+  );
+});
 
 // The app reads this at run time. It is generated, rather than importing the
 // lock, so neither Metro nor the test runner has to be taught JSON modules.
 const quote = (file) => `'${file}'`;
+const cueFiles = join(native, 'src/cueFiles.ts');
 const body = Object.entries(cues)
   .map(([cue, list]) => `  ${cue}: [${list.map(quote).join(', ')}],`)
   .join('\n');
 writeFileSync(
-  join(native, 'src/cueFiles.ts'),
+  cueFiles,
   `// Generated by scripts/vendor-sounds.mjs from sounds/sounds.lock.json. Do not edit.
 //
 // The vendored files each cue may play, relative to the sfx directory the build
@@ -128,12 +134,8 @@ ${body}
 );
 
 // Formatted like the rest of the source, so the format check passes and a
-// re-run leaves no diff: by the repository's own Prettier, which is the root
-// package's, not this one's.
-execFileSync('npx', ['prettier', '--write', join(native, 'src/cueFiles.ts')], {
-  cwd: join(native, '..'),
-  stdio: 'ignore',
-});
+// re-run leaves no diff.
+formatWithPrettier([cueFiles]);
 
 const count = Object.values(lock.packs).reduce(
   (n, p) => n + Object.keys(p.files).length,

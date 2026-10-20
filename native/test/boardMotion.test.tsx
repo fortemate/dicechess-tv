@@ -9,7 +9,14 @@ import renderer, { act } from 'react-test-renderer';
 import { Board, SLIDE_MS } from '../src/Board';
 import { PIECES } from '../src/pieces';
 import { BOT_STEP_MS } from '../src/screen';
-import { isHost, styleOf, type Instance } from './support';
+import { setReduceMotion } from './stubs/react-native.mjs';
+import {
+  isHost,
+  motion,
+  styleOf,
+  type HeldAnimation as Held,
+  type Instance,
+} from './support';
 
 const SIZE = 800;
 const EDGE = Math.floor(SIZE / 8);
@@ -18,19 +25,7 @@ const AFTER_E4 = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR';
 const AFTER_E5 = 'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR';
 
 type Range = { interpolation: { outputRange: number[] } };
-type Held = {
-  value: { value: number; setValue(value: number): void };
-  config: { toValue: number; duration: number; useNativeDriver: boolean };
-  done: ((result: { finished: boolean }) => void) | null;
-  stopped: boolean;
-};
-const globals = globalThis as {
-  __holdSlides?: boolean;
-  __heldSlides?: Held[];
-  __reduceMotion?: boolean;
-  __reduceMotionQuery?: 'pending' | 'fails' | 'throws';
-  __answerReduceMotion?: (value: boolean) => void;
-};
+const globals = motion;
 
 beforeEach(() => {
   globals.__holdSlides = true;
@@ -100,7 +95,7 @@ const pieceOn = (node: Instance): string | null => {
 const land = () =>
   act(() => {
     for (const slide of globals.__heldSlides ?? [])
-      if (!slide.stopped) slide.done?.({ finished: true });
+      if (!slide.stopped) slide.done({ finished: true });
   });
 
 test("a slide is short, and over before the opponent's next step", () => {
@@ -181,6 +176,24 @@ test('the next move takes over from a slide still in flight', async () => {
   assert.equal(pieceOn(square(board.root(), 'e4')), 'P');
 });
 
+test('a slide cut short by the next move hears it did not finish, and the next slide flies on', async () => {
+  const board = await mount({ board: INITIAL, lastMove: null });
+  board.move({ board: AFTER_E4, lastMove: 'e2e4' });
+  board.move({ board: AFTER_E5, lastMove: 'e7e5' });
+  const [first, second] = globals.__heldSlides!;
+  // React Native calls back once, with finished: false; that must not land
+  // the slide that took over.
+  assert.deepEqual(first.results, [{ finished: false }]);
+  assert.deepEqual(second.results, []);
+  assert.equal(pieceOn(flights(board.root())[0]), 'p');
+  assert.equal(pieceOn(square(board.root(), 'e5')), null, 'not yet landed');
+
+  land();
+  assert.deepEqual(second.results, [{ finished: true }]);
+  assert.equal(flights(board.root()).length, 0);
+  assert.equal(pieceOn(square(board.root(), 'e5')), 'p');
+});
+
 test('when the platform asks for less motion, pieces do not slide', async () => {
   globals.__reduceMotion = true;
   const board = await mount({ board: INITIAL, lastMove: null });
@@ -251,7 +264,7 @@ test('when the board flips with full motion, it fades out, turns and fades back 
 
     await act(async () => {
       fadeOut.value.setValue(0);
-      fadeOut.done?.({ finished: true });
+      fadeOut.done({ finished: true });
     });
     assert.equal(pieceOn(square(board.root(), 'e1', true)), 'K');
     // Then it fades back in, and nothing cuts that short: the fade is not
@@ -267,7 +280,7 @@ test('when the board flips with full motion, it fades out, turns and fades back 
 
     await act(async () => {
       fadeIn.value.setValue(1);
-      fadeIn.done?.({ finished: true });
+      fadeIn.done({ finished: true });
     });
     assert.equal(fadeIn.stopped, false);
     assert.equal(opacity(board.root()).value, 1);
@@ -285,6 +298,7 @@ test('a board turned back while it fades out stays as it was, fully shown', asyn
 
   board.move({ board: INITIAL, lastMove: null, flipped: false });
   assert.equal(fadeOut.stopped, true);
+  assert.deepEqual(fadeOut.results, [{ finished: false }]);
   assert.equal(globals.__heldSlides!.length, 1);
   assert.equal(opacity(board.root()).value, 1);
   assert.equal(pieceOn(square(board.root(), 'e1')), 'K');
@@ -295,4 +309,65 @@ test('when the platform asks for less motion, the board flips at once', async ()
   const board = await mount({ board: INITIAL, lastMove: null, flipped: false });
   board.move({ board: INITIAL, lastMove: null, flipped: true });
   assert.equal(globals.__heldSlides!.length, 0);
+});
+
+test('a board turned back while it fades in fades out again and turns back', async () => {
+  const board = await mount({ board: INITIAL, lastMove: null, flipped: false });
+  board.move({ board: INITIAL, lastMove: null, flipped: true });
+  const [fadeOut] = globals.__heldSlides!;
+  await act(async () => {
+    fadeOut.value.setValue(0);
+    fadeOut.done({ finished: true });
+  });
+  const fadeIn = globals.__heldSlides![1];
+  fadeIn.value.setValue(0.5);
+
+  // Turned back half way in: the fade in is cut short, and the board fades
+  // out from where it was before it turns again.
+  board.move({ board: INITIAL, lastMove: null, flipped: false });
+  assert.equal(fadeIn.stopped, true);
+  assert.equal(globals.__heldSlides!.length, 3);
+  const fadeOutAgain = globals.__heldSlides![2];
+  assert.equal(fadeOutAgain.config.toValue, 0);
+  assert.equal(opacity(board.root()).value, 0.5);
+  assert.equal(pieceOn(square(board.root(), 'e1', true)), 'K');
+
+  await act(async () => {
+    fadeOutAgain.value.setValue(0);
+    fadeOutAgain.done({ finished: true });
+  });
+  assert.equal(pieceOn(square(board.root(), 'e1')), 'K');
+  const fadeInAgain = globals.__heldSlides![3];
+  assert.equal(fadeInAgain.config.toValue, 1);
+  await act(async () => {
+    fadeInAgain.value.setValue(1);
+    fadeInAgain.done({ finished: true });
+  });
+  assert.equal(opacity(board.root()).value, 1);
+  assert.equal(pieceOn(square(board.root(), 'e1')), 'K');
+});
+
+test('reduced motion turned on and off mid-game is followed at once', async () => {
+  const board = await mount({ board: INITIAL, lastMove: null, flipped: false });
+  board.move({ board: INITIAL, lastMove: null, flipped: true });
+  const [fadeOut] = globals.__heldSlides!;
+  fadeOut.value.setValue(0.5);
+
+  // Turned on while the board fades out to turn: the fade stops, and the board
+  // is shown turned and in full.
+  act(() => setReduceMotion(true));
+  assert.deepEqual(fadeOut.results, [{ finished: false }]);
+  assert.equal(opacity(board.root()).value, 1);
+  assert.equal(pieceOn(square(board.root(), 'e1', true)), 'K');
+  // The next move is drawn, not slid.
+  board.move({ board: AFTER_E4, lastMove: 'e2e4', flipped: true });
+  assert.equal(flights(board.root()).length, 0);
+  assert.equal(globals.__heldSlides!.length, 1);
+
+  // Turned off again, the board stays as it is shown, and moves slide again.
+  act(() => setReduceMotion(false));
+  assert.equal(pieceOn(square(board.root(), 'e1', true)), 'K');
+  assert.equal(opacity(board.root()).value, 1);
+  board.move({ board: AFTER_E5, lastMove: 'e7e5', flipped: true });
+  assert.equal(flights(board.root()).length, 1);
 });

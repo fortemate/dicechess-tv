@@ -14,6 +14,8 @@ import { reset } from './stubs/react-native-mmkv.mjs';
 import { resetFullyDrawnReports } from './stubs/kepler-performance-api.mjs';
 import { resetAccessibility } from './stubs/react-native.mjs';
 import { App, type AppProps } from '../src/App';
+import type { KeyValueStore } from '../src/mmkvStore';
+import type { Music } from '../src/music';
 import type { ScreenOptions } from '../src/screen';
 import type { Sounds } from '../src/sound';
 
@@ -73,6 +75,35 @@ export const silentSounds = (): Sounds => ({
   setVoiceVolume() {},
   setSuspended() {},
 });
+
+// Music that plays nothing, so the settings list their rows at once rather
+// than after a catalogue loads. A test that listens for one call passes it.
+export const silentMusic = (more: Partial<Music> = {}): Music => ({
+  setRole() {},
+  setEnabled() {},
+  setVolume() {},
+  setCatalogue() {},
+  setDucked() {},
+  setSuspended() {},
+  ...more,
+});
+
+// A store held in memory, for a setting read and saved on its own, without the
+// storage stub a launched app uses.
+export const memoryStore = (
+  initial?: Record<string, string>,
+): KeyValueStore => {
+  const map = new Map<string, string>(Object.entries(initial ?? {}));
+  return {
+    getString: (key: string) => map.get(key),
+    set: (key: string, value: string) => {
+      map.set(key, value);
+    },
+    delete: (key: string) => {
+      map.delete(key);
+    },
+  };
+};
 
 // One tree at a time, as on a device: mounting one unmounts the last, as a
 // relaunch does, and what was saved stays saved. A tree left mounted would
@@ -146,12 +177,31 @@ export const fakeTimers = () => {
   });
 };
 
-const motion = globalThis as {
+// An animation the react-native stub holds while globalThis.__holdSlides is
+// set, for a test to look at in flight and end itself: done() ends it, once.
+export type HeldAnimation = {
+  value: { value: number; setValue(value: number): void };
+  config: {
+    toValue: number;
+    duration: number;
+    delay?: number;
+    easing: (t: number) => number;
+    useNativeDriver: boolean;
+  };
+  done: (result: { finished: boolean }) => void;
+  stopped: boolean;
+  results: { finished: boolean }[];
+};
+
+// The globals the react-native stub reads for motion: whether animations are
+// held and which are, the platform's reduced motion setting, and how asking
+// for it goes (answered at once when unset).
+export const motion = globalThis as {
   __holdSlides?: boolean;
-  __heldSlides?: unknown[];
+  __heldSlides?: HeldAnimation[];
   __reduceMotion?: boolean;
-  __reduceMotionQuery?: string;
-  __answerReduceMotion?: unknown;
+  __reduceMotionQuery?: 'pending' | 'fails' | 'throws';
+  __answerReduceMotion?: (value: boolean) => void;
 };
 
 // The platform as a launch finds it: the app in the foreground, the storage of

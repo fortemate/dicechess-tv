@@ -24,17 +24,17 @@ import {
 import { Board } from '../src/Board';
 import { PIECES } from '../src/pieces';
 import { THEME } from '../src/theme';
-import type { KeyValueStore } from '../src/mmkvStore';
 import type { BoardKey } from '../../src/core/boardInput';
 import {
   fixedOptions,
+  type Instance,
   isHost,
   launch,
+  memoryStore,
   send,
+  type Style,
   styleOf,
   text,
-  type Instance,
-  type Style,
 } from './support';
 
 const options: ScreenOptions = fixedOptions({ newId: () => 'highlights' });
@@ -44,19 +44,6 @@ const drive = (state: ScreenState, ...keys: BoardKey[]): ScreenState =>
     (current, key) => screenReducer(current, { kind: 'key', key }, options),
     state,
   );
-
-const memoryStore = (initial?: Record<string, string>): KeyValueStore => {
-  const map = new Map<string, string>(Object.entries(initial ?? {}));
-  return {
-    getString: (key: string) => map.get(key),
-    set: (key: string, value: string) => {
-      map.set(key, value);
-    },
-    delete: (key: string) => {
-      map.delete(key);
-    },
-  };
-};
 
 test('the setting defaults to standard, cycles in both directions and ignores unknown values', () => {
   assert.equal(DEFAULT_HIGHLIGHTS, 'standard');

@@ -56,18 +56,33 @@ export const archOfListing = (listing) => {
   return [...arches][0];
 };
 
-const vega = (args, options = {}) =>
-  spawnSync('vega', args, { encoding: 'utf8', ...options });
+// Runs the Vega CLI. Without it on the PATH, spawnSync answers with an ENOENT
+// error and no output at all, which would surface as a TypeError on the
+// missing output instead of the reason.
+export const vega = (args, options = {}, spawn = spawnSync) => {
+  const result = spawn('vega', args, { encoding: 'utf8', ...options });
+  if (result.error?.code === 'ENOENT')
+    throw new Error(
+      'vega CLI not found on PATH: install the Vega SDK and put its vega command there',
+    );
+  if (result.error) throw new Error(`vega ${args[0]}: ${result.error.message}`);
+  return result;
+};
+
+// What a vega command that failed said: its error output, else its output,
+// else its exit status. Neither output is a string when it was inherited.
+export const failureOf = (result) =>
+  `${result.stderr ?? ''}`.trim() ||
+  `${result.stdout ?? ''}`.trim() ||
+  `exit status ${result.status}`;
 
 // The package's file list, from the Vega SDK's own packaging tool, which reads
 // the format without any other program on the PATH.
-const listPackage = (vpkg) => {
-  const listed = vega(['exec', 'vpt', 'show-contents', vpkg]);
+export const listPackage = (vpkg, run = vega) => {
+  const listed = run(['exec', 'vpt', 'show-contents', vpkg]);
   if (listed.status !== 0)
-    throw new Error(
-      `vpt cannot list ${vpkg}: ${(listed.stderr || listed.stdout).trim()}`,
-    );
-  return listed.stdout;
+    throw new Error(`vpt cannot list ${vpkg}: ${failureOf(listed)}`);
+  return `${listed.stdout ?? ''}`;
 };
 
 // The processor a package is for, read from inside it. A package that cannot
@@ -125,11 +140,7 @@ export const installPackage = (
       removeCommand(vpkg),
     ]);
     if (removed.status !== 0)
-      throw new Error(
-        removed.error?.message ||
-          `${removed.stderr || removed.stdout || ''}`.trim() ||
-          `exit status ${removed.status}`,
-      );
+      throw new Error(removed.error?.message || failureOf(removed));
     log(`removed ${copy} from ${device}`);
   } catch (error) {
     warn(
@@ -137,6 +148,14 @@ export const installPackage = (
     );
   }
   return install.status ?? 1;
+};
+
+// The processor of the device, from `uname -m` run on it.
+export const deviceArch = (device, run = vega) => {
+  const probe = run(['device', 'run-cmd', '-d', device, '-c', 'uname -m']);
+  if (probe.status !== 0)
+    throw new Error(`cannot reach ${device}: ${failureOf(probe)}`);
+  return archOf(machineOf(`${probe.stdout ?? ''}\n${probe.stderr ?? ''}`));
 };
 
 const parse = (argv) => {
@@ -156,12 +175,7 @@ const parse = (argv) => {
 
 export const main = (argv = process.argv.slice(2)) => {
   const { device, vpkg, launch } = parse(argv);
-  const probe = vega(['device', 'run-cmd', '-d', device, '-c', 'uname -m']);
-  if (probe.status !== 0)
-    throw new Error(
-      `cannot reach ${device}: ${(probe.stderr || probe.stdout).trim()}`,
-    );
-  const arch = archOf(machineOf(`${probe.stdout}\n${probe.stderr}`));
+  const arch = deviceArch(device);
   const path = vpkg ?? packagePath(arch);
   if (!existsSync(path))
     throw new Error(
