@@ -314,6 +314,51 @@ test('Back opens menu while opponent searches, pauses pacing, and resumes withou
   );
 });
 
+// Closed after both the wait and the search are over, the menu hands the
+// opponent its step once: the wait and the search each find both done.
+test('a reply that arrives behind the menu after the wait plays one action, not two', async () => {
+  const waiting: { step: () => void; wait: number }[] = [];
+  const state = { time: 0 };
+  let resolveSearch!: () => void;
+  const options: ScreenOptions = {
+    roll: () => [1, 1, 1],
+    newId: () => 'menu-done',
+    schedule: (step, wait) => {
+      const item = { step, wait };
+      waiting.push(item);
+      return () => {
+        const idx = waiting.indexOf(item);
+        if (idx >= 0) waiting.splice(idx, 1);
+      };
+    },
+    side: () => 'b',
+    now: () => state.time,
+    reply: (game) =>
+      new Promise((res) => {
+        resolveSearch = () => res(botReply(game));
+      }),
+  };
+
+  reset();
+  const app = launch({ options, sounds: silentSounds() });
+  send('down', 'enter', 'enter', 'enter');
+  act(() => waiting.shift()!.step()); // the roll
+  state.time += BOT_STEP_MS;
+  act(() => waiting.shift()!.step()); // the wait is over; still searching
+  send('back');
+  assert.match(app.state(), /overlay menu/);
+  await act(async () => {
+    resolveSearch();
+  });
+  send('back');
+  await act(async () => undefined);
+  assert.match(app.state(), /dice "PP"/);
+  assert.deepEqual(
+    waiting.map((w) => w.wait),
+    [BOT_STEP_MS],
+  );
+});
+
 test('a reply that arrives after the game has moved on is discarded', async () => {
   let resolveFirstGame!: () => void;
   let replyCount = 0;

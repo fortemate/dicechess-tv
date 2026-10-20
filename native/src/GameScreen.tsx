@@ -905,6 +905,10 @@ export const GameScreen = ({
       const wait = Math.max(0, BOT_STEP_MS - hold.used);
       let waitDone = wait === 0;
       let searchDone = hold.done;
+      // Both the wait and the search call maybeAdvance; with nothing left of
+      // the wait and the reply already in, both find them done. The step is
+      // handed on once.
+      let handedOff = false;
 
       const advance = () => {
         if (!cancelled)
@@ -913,6 +917,8 @@ export const GameScreen = ({
       const maybeAdvance = () => {
         if (cancelled) return;
         if (waitDone && searchDone) {
+          if (handedOff) return;
+          handedOff = true;
           setSearching(false);
           // A reply that arrives while the app is away waits for focus, like
           // every other step of the opponent (#254).
