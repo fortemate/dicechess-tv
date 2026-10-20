@@ -621,6 +621,60 @@ test('muted, a player plays no first silence', async () => {
   await settle();
   assert.equal(primes().length, 0);
 });
+
+// A channel that came up while sound was off plays its first silence once
+// sound can be heard, before its first cue, so that cue waits at a clip like
+// any other; and only once.
+const primedBeforeCue = async (
+  turnOn: (sounds: ReturnType<typeof createSounds>) => void,
+  options: SoundOptions,
+  turnOff?: (sounds: ReturnType<typeof createSounds>) => void,
+) => {
+  resetAudio();
+  const time = ends();
+  const sounds = createSounds({
+    pick: () => 0,
+    endClip: time.endClip,
+    ...options,
+  });
+  turnOff?.(sounds);
+  await settle();
+  assert.equal(primes().length, 0);
+  turnOn(sounds);
+  await primed(time);
+  assert.equal(primes().length, 3);
+  sounds.play(['piece_move']);
+  await settle();
+  const [move] = effects();
+  const entries = log();
+  const prime = entries.findIndex(
+    (entry) =>
+      entry.event === 'play' &&
+      entry.volume === 0 &&
+      entry.player === move.player,
+  );
+  assert.ok(prime >= 0 && prime < entries.indexOf(move), 'primed first');
+  assert.equal(clipOf(move), 'jdsherbert-tabletop/piece_move_1.mp3');
+  turnOff?.(sounds);
+  turnOn(sounds);
+  await settle();
+  assert.equal(primes().length, 3, 'primed only once');
+};
+
+test('a player ready while muted plays its first silence when sound is turned on', () =>
+  primedBeforeCue(
+    (sounds) => sounds.setMuted(false),
+    { muted: true },
+    (sounds) => sounds.setMuted(true),
+  ));
+
+test('a player ready while away plays its first silence on the return', () =>
+  primedBeforeCue(
+    (sounds) => sounds.setSuspended(false),
+    {},
+    (sounds) => sounds.setSuspended(true),
+  ));
+
 test('each channel waits for its own main cue', async () => {
   resetAudio();
   const time = ends();

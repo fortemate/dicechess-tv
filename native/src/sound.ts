@@ -330,8 +330,12 @@ export function createSounds({
   // Players kept at volume zero while they play the silence the sprite opens
   // with.
   const quiet = new Set<Player>();
+  // A channel plays its first silence once, as soon as it can be heard: one
+  // that came up while sound was off or the app was away waits until then.
+  const primed = new Set<Channel>();
   const prime = (channel: Channel, player: Player) => {
-    if (muted || suspended) return;
+    if (muted || suspended || primed.has(channel)) return;
+    primed.add(channel);
     const turn = take(channel);
     try {
       player.volume = 0;
@@ -374,6 +378,10 @@ export function createSounds({
       }),
     ]),
   );
+
+  const primeReady = () => {
+    for (const [channel, player] of ready) prime(channel, player);
+  };
 
   const start = async (cue: Cue, generation: number) => {
     const files = CUE_FILES[cue];
@@ -567,6 +575,7 @@ export function createSounds({
     setMuted(value) {
       muted = value;
       stopEffects();
+      primeReady();
     },
     setSoundVolume(gain) {
       soundGain = Math.max(0, Math.min(1, gain));
@@ -609,7 +618,7 @@ export function createSounds({
     },
     setSuspended(value) {
       suspended = value;
-      if (!value) return;
+      if (!value) return primeReady();
       // A cue still waiting to start is dropped, as a new step would drop it.
       steps++;
       suspension++;
