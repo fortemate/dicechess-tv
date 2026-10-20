@@ -105,6 +105,13 @@ registerHooks({
     }
   },
   load(url, context, nextLoad) {
+    // Metro accepts JSON imports without Node's import attributes.
+    if (url === new URL('../app.json', import.meta.url).href)
+      return {
+        format: 'module',
+        source: `export default ${readFileSync(fileURLToPath(url), 'utf8')};`,
+        shortCircuit: true,
+      };
     if (!/\.tsx?($|\?)/.test(url)) return nextLoad(url, context);
     const source = readFileSync(fileURLToPath(url), 'utf8');
     const { code, map } = transformSync(source, {

@@ -21,7 +21,6 @@ import {
 import { MMKV } from '@amazon-devices/react-native-mmkv';
 import { useKeplerAppStateManager } from '@amazon-devices/react-native-kepler';
 import { useReportFullyDrawn } from '@amazon-devices/kepler-performance-api';
-import { botReply } from '../../src/core/bot';
 import { GameScreen } from './GameScreen';
 import { MmkvSnapshotStore } from './mmkvStore';
 import { createSounds, type Sounds } from './sound';
@@ -63,6 +62,7 @@ import {
 import { randomSource } from './randomSource';
 import type { ScreenOptions } from './screen';
 import { ActivityContext, createActivity } from './activity';
+import { createBotWorker } from './botWorker';
 import { GameBoundary, type Recovery } from './Recovery';
 
 const KEY = 'dicechess-tv.game.v2';
@@ -106,6 +106,16 @@ export const App = ({
   sounds: injectedSounds,
   music: injectedMusic,
 }: AppProps) => {
+  const appState = useKeplerAppStateManager();
+  const activity = React.useMemo(
+    () => createActivity(!isAway(appState.getCurrentState())),
+    [appState],
+  );
+  const worker = React.useMemo(
+    () => (injected ? null : createBotWorker(activity)),
+    [activity, injected],
+  );
+  React.useEffect(() => () => worker?.dispose(), [worker]);
   const store = React.useMemo(
     () => new MmkvSnapshotStore<Game>({ key: KEY, decode: decodeGame }),
     [],
@@ -136,22 +146,11 @@ export const App = ({
         const timer = setTimeout(step, 0);
         return () => clearTimeout(timer);
       },
-      // The opponent's search counts against its step wait (#253).
-      // The opponent's reply (#261). Defers to a macrotask so the roll render
-      // cycle completes before search computation begins; off-thread search is
-      // tracked in #260.
-      reply: (game) =>
-        new Promise((resolve, reject) => {
-          setTimeout(() => {
-            try {
-              resolve(botReply(game));
-            } catch (error) {
-              reject(error);
-            }
-          }, 0);
-        }),
+      // The canonical search runs in the task's separate Hermes runtime. Its
+      // duration still counts against the opponent's presentation wait (#253).
+      reply: worker!.request,
     };
-  }, [injected]);
+  }, [injected, worker]);
 
   // A save that no longer decodes is not silently played over: it is recorded,
   // and the board starts fresh only after that is true.
@@ -366,11 +365,6 @@ export const App = ({
   // Leaving the foreground (Home, another app, the screensaver) stops every
   // sound, which Amazon's pre-submission checks require. Coming back is a warm
   // start, reported like the cool one, and sound resumes as the setting says.
-  const appState = useKeplerAppStateManager();
-  const activity = React.useMemo(
-    () => createActivity(!isAway(appState.getCurrentState())),
-    [appState],
-  );
   React.useLayoutEffect(() => {
     let away = false;
     // Sound, voices, music, the remote and the game's own work run only while

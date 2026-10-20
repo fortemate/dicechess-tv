@@ -27,6 +27,9 @@ id = "/com.amazon.vega.os@IVega_1_2"
 [[needs.module]]
 id = "/com.amazon.kepler.keplerscript_4@IKeplerScript_0"
 
+[[needs.module]]
+id = "/com.amazon.kepler.headless_task_manager_1@IHeadlessTaskManager_2"
+
 # The pieces are drawn with @amazon-devices/react-native-svg, which is deployed
 # by the system rather than built from source.
 [[needs.module]]
@@ -90,3 +93,11 @@ id = "com.fortemate.dicechesstv.main"
 runtime-module = "/com.amazon.kepler.runtime.react_native_kepler_4@IReactNativeKepler_0"
 launch-type = "singleton"
 categories = ["com.amazon.category.main"]
+
+[[components.task]]
+id = "com.fortemate.dicechesstv.search"
+runtime-module = "/com.amazon.kepler.runtime.react_native_kepler_4@IReactNativeKepler_0"
+
+[processes]
+[[processes.group]]
+component-ids = ["com.fortemate.dicechesstv.main", "com.fortemate.dicechesstv.search"]

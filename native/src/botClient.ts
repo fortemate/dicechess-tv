@@ -1,0 +1,110 @@
+import { replyFits, type BotReply } from '../../src/core/bot';
+import type { Game } from '../../src/core/game';
+import { scheduleActive, type Activity } from './activity';
+import { BOT_REQUEST, BOT_RESPONSE, readBotResult } from './botJob';
+
+type Store = {
+  getString(key: string): string | undefined;
+  set(key: string, value: string): void;
+  delete(key: string): void;
+};
+type Ports = {
+  store: Store;
+  activity: Activity;
+  launch: () => Promise<unknown>;
+  schedule: (step: () => void, wait: number) => () => void;
+  now: () => number;
+  newId: () => string;
+  timeout?: number;
+};
+
+// Serialize requests, including requests for a new game while the old search
+// finishes. The task has a separate event loop; polling never runs the engine.
+export function createBotClient(ports: Ports) {
+  const { store, activity, schedule, now } = ports;
+  let tail = Promise.resolve();
+  let stopped = false;
+  let timedOut = false;
+  let cancelCurrent: (() => void) | undefined;
+
+  const request = (game: Game): Promise<BotReply> => {
+    const job = tail.then(() => {
+      if (stopped || timedOut)
+        throw new Error('Opponent worker is unavailable');
+      return new Promise<BotReply>((resolve, reject) => {
+        const requestId = ports.newId();
+        const raw = JSON.stringify({ requestId, game });
+        let finished = false;
+        let cancelPoll = () => undefined as void;
+        let cancelLaunch = () => undefined as void;
+        const finish = (reply?: BotReply, error?: unknown) => {
+          if (finished) return;
+          finished = true;
+          cancelPoll();
+          cancelLaunch();
+          cancelCurrent = undefined;
+          try {
+            if (store.getString(BOT_REQUEST) === raw) {
+              store.delete(BOT_REQUEST);
+              store.delete(BOT_RESPONSE);
+            }
+          } catch (cleanupError) {
+            error ??= cleanupError;
+          }
+          if (error || !reply)
+            reject(error ?? new Error('Missing opponent reply'));
+          else resolve(reply);
+        };
+        cancelCurrent = () =>
+          finish(undefined, new Error('Opponent worker closed'));
+        cancelLaunch = scheduleActive(activity, schedule, () => {
+          try {
+            store.delete(BOT_RESPONSE);
+            store.set(BOT_REQUEST, raw);
+            const began = now();
+            const poll = () => {
+              if (finished) return;
+              try {
+                const response = store.getString(BOT_RESPONSE);
+                if (response) {
+                  const result = readBotResult(response, requestId);
+                  if (!result.reply || !replyFits(game, result.reply))
+                    throw new Error(
+                      'The opponent replied to a different position',
+                    );
+                  finish(result.reply);
+                } else if (now() - began >= (ports.timeout ?? 120_000)) {
+                  // This bounds transport failure, never the engine's search
+                  // strength. Do not overlap another task after a lost response.
+                  timedOut = true;
+                  finish(
+                    undefined,
+                    new Error('Opponent worker did not answer'),
+                  );
+                } else cancelPoll = schedule(poll, 100);
+              } catch (error) {
+                finish(undefined, error);
+              }
+            };
+            void ports.launch().catch((error) => finish(undefined, error));
+            poll();
+          } catch (error) {
+            finish(undefined, error);
+          }
+        });
+      });
+    });
+    tail = job.then(
+      () => undefined,
+      () => undefined,
+    );
+    return job;
+  };
+  return {
+    request,
+    dispose() {
+      stopped = true;
+      cancelCurrent?.();
+    },
+  };
+}

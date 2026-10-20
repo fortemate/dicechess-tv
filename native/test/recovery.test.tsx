@@ -177,6 +177,37 @@ test('a throw in play shows the fallback, reports it, and keeps the saved game',
   assert.deepEqual(store().read(), app.saved);
 });
 
+test('a rejected asynchronous opponent reply preserves the save and reaches Recovery without a synchronous retry', async (t) => {
+  quietBoundaries(t);
+  reset();
+  const saved = rollGame(
+    newGame('aggressive', 'worker-failed', undefined, 'b'),
+    [1, 1, 1],
+  );
+  await store().save(saved);
+  let rejectSearch!: (error: Error) => void;
+  const app = launch({
+    options: fixedOptions({
+      reply: () =>
+        new Promise((_, reject) => {
+          rejectSearch = reject;
+        }),
+    }),
+    sounds: silentSounds(),
+    music: silentMusic(),
+  });
+  send('enter');
+  // A failed worker used to dispatch reply: undefined, rerunning this method
+  // on the UI thread. Any such retry must fail this test.
+  const search = t.mock.method(DiceChess, 'getBestMove', () => {
+    throw new Error('UI search must not run');
+  });
+  await act(async () => rejectSearch(new Error('worker unavailable')));
+  assert.match(text(app.root), new RegExp(RECOVERY_TITLE));
+  assert.equal(search.mock.callCount(), 0);
+  assert.deepEqual(store().read(), saved);
+});
+
 test('OK on the fallback returns to the menu, and the saved game resumes', (t) => {
   quietBoundaries(t);
   const app = launchOverSave();

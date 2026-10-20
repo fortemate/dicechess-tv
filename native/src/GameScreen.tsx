@@ -850,11 +850,14 @@ export const GameScreen = ({
   // asks again, and what resumes is the rest of the wait, not a new one.
   const thinking = React.useRef<{
     game: Game;
+    source: ScreenOptions['reply'];
     reply: BotReply | null;
+    error: Error | null;
     used: number;
     done: boolean;
     promise: Promise<BotReply | undefined> | null;
   } | null>(null);
+  const [searchError, setSearchError] = React.useState<Error | null>(null);
   React.useEffect(() => {
     if (overlay.kind !== 'none' || !botOwes(game)) return;
     let cancelled = false;
@@ -869,10 +872,15 @@ export const GameScreen = ({
         options.now,
       );
     }
-    if (thinking.current?.game !== game)
+    if (
+      thinking.current?.game !== game ||
+      thinking.current.source !== options.reply
+    )
       thinking.current = {
         game,
+        source: options.reply,
         reply: null,
+        error: null,
         used: 0,
         done: false,
         promise: null,
@@ -892,11 +900,15 @@ export const GameScreen = ({
               hold.done = true;
               return rep;
             })
-            .catch(() => {
+            .catch((error: unknown) => {
+              hold.error =
+                error instanceof Error ? error : new Error(String(error));
               hold.done = true;
               return undefined;
             });
-        } catch {
+        } catch (error) {
+          hold.error =
+            error instanceof Error ? error : new Error(String(error));
           hold.done = true;
           hold.promise = Promise.resolve(undefined);
         }
@@ -911,8 +923,10 @@ export const GameScreen = ({
       let handedOff = false;
 
       const advance = () => {
-        if (!cancelled)
-          dispatch({ kind: 'bot', reply: hold.reply ?? undefined });
+        if (cancelled) return;
+        if (hold.error) setSearchError(hold.error);
+        else if (hold.reply) dispatch({ kind: 'bot', reply: hold.reply });
+        else setSearchError(new Error('Missing opponent reply'));
       };
       const maybeAdvance = () => {
         if (cancelled) return;
@@ -1227,6 +1241,7 @@ export const GameScreen = ({
 
   // The tutorial, the rules and About are screens of their own, with their own
   // state, and this one hands over entirely rather than drawing a board behind.
+  if (searchError) throw searchError;
   if (handsOff(overlay)) {
     const Screen = OWN_SCREENS[overlay.kind];
     return (

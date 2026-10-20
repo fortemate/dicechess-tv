@@ -81,6 +81,7 @@ The app is built with the npm packages below. Their licenses come with the app: 
 
 | Package                                             | License                                    |
 | --------------------------------------------------- | ------------------------------------------ |
+| `@amazon-devices/headless-task-manager`             | Amazon Program Materials License Agreement |
 | `@amazon-devices/kepler-compatibility-metro-config` | Amazon Program Materials License Agreement |
 | `@amazon-devices/kepler-media-controls`             | Amazon Program Materials License Agreement |
 | `@amazon-devices/kepler-performance-api`            | Amazon Program Materials License Agreement |

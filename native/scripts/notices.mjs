@@ -38,9 +38,12 @@ const native = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 export const NOTICES = 'licenses/THIRD_PARTY_NOTICES.txt';
 export const SOURCE_MAP = 'build/metro/index.bundle.map';
+export const TASK_SOURCE_MAP = 'build/metro/task.bundle.map';
 // The source map of the bundle `react-native build-vega` packages.
 export const BUILD_SOURCE_MAP =
   'build/debugging/Release/srcmap/index.bundle.map';
+export const BUILD_TASK_SOURCE_MAP =
+  'build/debugging/Release/srcmap/task.bundle.map';
 
 // What the Vega build adds to the app's bundle and Metro's does not have: the
 // module map that Amazon's kepler-compatibility-metro-config puts at its top.
@@ -226,7 +229,9 @@ const sourcesOf = (path, hint) => {
 const checkBuild = () => {
   const named = packagesNamed(readFileSync(join(native, NOTICES), 'utf8'));
   const built = packagesIn(
-    sourcesOf(BUILD_SOURCE_MAP, 'run npm run build first'),
+    [BUILD_SOURCE_MAP, BUILD_TASK_SOURCE_MAP].flatMap((path) =>
+      sourcesOf(path, 'run npm run build first'),
+    ),
   );
   const missing = built
     .map((found) => found.name)
@@ -256,7 +261,9 @@ if (
     process.exit(0);
   }
   const packages = shippedPackages(
-    sourcesOf(SOURCE_MAP, 'run npm run bundle first'),
+    [SOURCE_MAP, TASK_SOURCE_MAP].flatMap((path) =>
+      sourcesOf(path, 'run npm run bundle first'),
+    ),
   );
   for (const notice of NATIVE_NOTICES)
     if (

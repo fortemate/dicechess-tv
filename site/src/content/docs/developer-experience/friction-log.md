@@ -82,7 +82,7 @@ Severity scale: **Blocker** stopped the chosen approach; **High** cost a day or 
 | [FL-10](#fl-10) | Release builds send no `console.log` output to the log stream                | CLI                               | Medium   | Worked around |
 | [FL-11](#fl-11) | OGG and M4A do not play, and `canPlayType` answers backwards                 | Audio                             | Medium   | Worked around |
 | [FL-12](#fl-12) | Audio wants a plain path where `fetch` wants a `file://` URL                 | Audio                             | Low      | Worked around |
-| [FL-13](#fl-13) | No documented way to run heavy app work off the JS thread                    | Runtime                           | Medium   | Open          |
+| [FL-13](#fl-13) | No documented way to run heavy app work off the JS thread                    | Runtime                           | Medium   | Worked around |
 | [FL-14](#fl-14) | The Vega ESLint plugin crashes on ESLint 10 and hides its advisories         | Lint                              | Medium   | Worked around |
 | [FL-15](#fl-15) | Routine dependency updates break the build or downgrade the SDK              | Toolchain                         | Medium   | Worked around |
 | [FL-16](#fl-16) | One icon field serves two surfaces with different shapes                     | Packaging                         | Low      | Worked around |
@@ -417,10 +417,14 @@ Severity scale: **Blocker** stopped the chosen approach; **High** cost a day or 
   `native/README.md` at commit `04b0a88`, The local opponents; PR #21.
 - **Severity and user impact:** Medium. A stronger opponent than the random one needs this; the random
   one runs on the JS thread without a visible pause.
-- **Workaround:** none yet for heavy work.
+- **Workaround:** the app starts its private `pkg://` task address with native
+  `Linking.openURL` from the registered interactive component. A CLI caller is outside that
+  package and its denial does not show that the in-package route is unavailable. The current
+  implementation uses separate Hermes runtimes in one explicit process group and a namespaced
+  default-MMKV mailbox. See [Opponent task on Vega](/technology/architecture/#opponent-task-on-vega).
 - **Suggested improvement:** a sample that runs a CPU-heavy, pure JavaScript library on a worklet
   runtime, or documentation of an app-facing trigger for headless tasks.
-- **Current status:** open.
+- **Current status:** worked around by the in-package task route; the historical CLI failure remains reproducible.
 
 ### FL-14 · The Vega ESLint plugin crashes on ESLint 10 and hides its advisories {#fl-14}
 
