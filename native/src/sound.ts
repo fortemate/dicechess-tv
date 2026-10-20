@@ -20,6 +20,13 @@
 // together, because they are on different channels; a new move on the same
 // channel cuts the last one short instead of piling sounds up.
 //
+// The channels' players are let go while the app is away from the foreground,
+// and made again on the way back (#313). On a Fire TV Stick a loaded player
+// holds memory and processor time even paused, and the system ends an app in
+// the background that does not give its memory back. They are let go without a
+// pause() first: a pause just before deinitialize() stalled the media pipeline
+// there for seconds (#386).
+//
 // A seek takes the media pipeline a moment, and one asked for just before
 // play() was heard to lose the start of a clip on the virtual device, now and
 // then the whole clip. So between clips each channel's player waits, paused, at
@@ -95,6 +102,11 @@ export const CLIP_LEAD_SECONDS = 0.05;
 export const CLIP_TAIL_MS = 250;
 // Constructed players kept ready for the next line; no empty native pipeline.
 export const SPARE_PLAYERS = 2;
+// How long after the return to the foreground the channels' players are made
+// again, unless a cue needs one sooner. The system can make an app active for
+// a fifth of a second and take it away again (#76), and a Fire TV Stick has
+// ended the app for its memory in the moment it came back (#478).
+export const EFFECTS_RETURN_MS = 1000;
 
 // A win or a loss is said after its jingle, which lasts about a second, rather
 // than over it, and so is the host's result. Every other line is said as it
@@ -158,8 +170,12 @@ export type Sounds = {
   setVoiceVolume(gain: number): void;
   // While the app is away from the foreground or out of focus nothing plays,
   // anything playing stops, and a cue or line still waiting is dropped rather
-  // than heard on the way back. The player's own sound setting is left alone.
+  // than heard on the way back. The effects' players are let go meanwhile and
+  // made again on the return. The player's own sound setting is left alone.
   setSuspended(suspended: boolean): void;
+  // Lets every player go for good, when the app closes. Nothing plays
+  // afterwards, whatever it is told.
+  dispose(): void;
 };
 
 export type SoundOptions = {
@@ -184,6 +200,10 @@ export type SoundOptions = {
   // Told true when a line starts to be heard and false when it has been said or
   // stopped, so the music can duck under it.
   onSpeech?: (speaking: boolean) => void;
+  // Makes the effects' players again `wait` milliseconds after the return to
+  // the foreground; the returned function cancels it. Injected so a test can
+  // say when.
+  wake?: (run: () => void, wait: number) => () => void;
 };
 
 type Player = Pick<
@@ -214,12 +234,17 @@ export function createSounds({
   endClip = (run, wait) => {
     setTimeout(run, wait);
   },
+  wake = (run, wait) => {
+    const timer = setTimeout(run, wait);
+    return () => clearTimeout(timer);
+  },
 }: SoundOptions = {}): Sounds {
   let muted = startMuted;
   let soundGain = Math.max(0, Math.min(1, startSoundVolume));
   let voices = startVoices;
   let voiceGain = Math.max(0, Math.min(1, startVoiceVolume));
   let suspended = false;
+  let disposed = false;
   // Counts the times the app went away. A cue asked for before the last of
   // them is never heard, even if the app is back by the time its player is
   // ready or its wait is over (#254).
@@ -231,6 +256,9 @@ export function createSounds({
   // Counts the lines asked for. A line waiting or being said is still the
   // current one only while no other came after it, and nothing stopped it.
   let lines = 0;
+  // Counts the times the channels' players were let go. Whatever an earlier
+  // set of players was in the middle of is forgotten.
+  let lease = 0;
   let speaking = false;
   const speech = (on: boolean) => {
     if (speaking === on) return;
@@ -340,6 +368,7 @@ export function createSounds({
       return;
     priming.add(channel);
     const turn = take(channel);
+    const held = lease;
     try {
       player.volume = 0;
       quiet.add(player);
@@ -350,11 +379,14 @@ export function createSounds({
     }
     player.play().then(
       () => {
+        // Let go meanwhile: the channel's next player primes for itself.
+        if (held !== lease) return;
         priming.delete(channel);
         primed.add(channel);
         endClip(() => rest(channel, player, turn), CLIP_TAIL_MS);
       },
       (error: unknown) => {
+        if (held !== lease) return;
         priming.delete(channel);
         report(`sound: ${channel} did not start: ${String(error)}`);
       },
@@ -366,28 +398,59 @@ export function createSounds({
     }
   };
 
-  // Each channel's player, made up front and given the sprite once, so the
-  // first cue of a game is not the one that waits for a media pipeline to come
-  // up. `ready` holds the ones done, so that leaving pauses them at once rather
-  // than a turn of the event loop later, when focus may already be back.
+  // Each channel's player, given the sprite once and made before it is needed,
+  // so the first cue of a game is not the one that waits for a media pipeline
+  // to come up. `ready` holds the ones done, so that leaving lets them go at
+  // once rather than a turn of the event loop later, when focus may already be
+  // back, or the system has stopped the JavaScript thread.
   const ready = new Map<Channel, Player>();
-  const channels = new Map<Channel, Promise<Player | null>>(
-    CHANNELS.map((channel) => [
-      channel,
-      newPlayer(channel).then((player) => {
-        if (!player) return null;
-        try {
-          player.src = `${ROOT}/${EFFECT_SPRITE}`;
-        } catch (error) {
-          report(`sound: ${channel} player not loaded: ${String(error)}`);
-          return null;
-        }
-        ready.set(channel, player);
-        prime(channel, player);
-        return player;
-      }),
-    ]),
-  );
+  const channels = new Map<Channel, Promise<Player | null>>();
+  const load = (channel: Channel, held: number) =>
+    newPlayer(channel).then((player) => {
+      if (!player) return null;
+      // Let go while it was still initialising: it never joins the channels.
+      if (held !== lease) {
+        void letGo(channel, player);
+        return null;
+      }
+      try {
+        player.src = `${ROOT}/${EFFECT_SPRITE}`;
+      } catch (error) {
+        report(`sound: ${channel} player not loaded: ${String(error)}`);
+        void letGo(channel, player);
+        return null;
+      }
+      ready.set(channel, player);
+      prime(channel, player);
+      return player;
+    });
+  let cancelWake: (() => void) | null = null;
+  const acquire = () => {
+    cancelWake?.();
+    cancelWake = null;
+    if (disposed || suspended || channels.size) return;
+    for (const channel of CHANNELS) channels.set(channel, load(channel, lease));
+  };
+  // Lets the channels' players go, silent at once. What they were playing, or
+  // waiting at, goes with them: each channel moves on a take, so that a clip
+  // of theirs ending later pauses and moves nothing. A player still
+  // initialising is let go when it is ready.
+  const releaseChannels = () => {
+    cancelWake?.();
+    cancelWake = null;
+    if (!channels.size) return;
+    lease++;
+    const players = [...ready];
+    channels.clear();
+    ready.clear();
+    parked.clear();
+    for (const channel of CHANNELS) take(channel);
+    primed.clear();
+    priming.clear();
+    quiet.clear();
+    for (const [channel, player] of players) void letGo(channel, player);
+  };
+  acquire();
 
   const primeReady = () => {
     for (const [channel, player] of ready) prime(channel, player);
@@ -432,10 +495,11 @@ export function createSounds({
     );
   };
 
-  // A player still initialising when the stop was asked for has nothing
-  // playing, and start() checks again before it plays.
+  // Muting pauses the players and keeps them. A player still initialising
+  // when the stop was asked for has nothing playing, and start() checks again
+  // before it plays.
   const stopEffects = () => {
-    if (!muted && !suspended) return;
+    if (!muted) return;
     for (const channel of CHANNELS) pause(channel, ready.get(channel));
   };
 
@@ -451,7 +515,7 @@ export function createSounds({
   // The player the last line was said on.
   let voice: Player | null = null;
   let detachLine: () => void = () => undefined;
-  const silentVoice = () => suspended || !voices;
+  const silentVoice = () => disposed || suspended || !voices;
   // A line's player is let go once the line is over, however it ended, unless
   // a newer line has let it go already. A loaded player kept paused still costs
   // the Stick (#374).
@@ -568,7 +632,10 @@ export function createSounds({
     play(cues) {
       const step = ++steps;
       const generation = suspension;
-      if (muted || suspended) return;
+      if (disposed || muted || suspended) return;
+      // Back from the background before the players were made again: a cue
+      // makes them at once rather than wait.
+      if (cues.length) acquire();
       for (const cue of cues) {
         const wait = CUE_DELAY_MS[cue];
         if (!wait) {
@@ -627,13 +694,29 @@ export function createSounds({
       }
     },
     setSuspended(value) {
+      if (disposed) return;
       suspended = value;
-      if (!value) return primeReady();
+      if (!value) {
+        // Focus while already in front: the players are there.
+        if (channels.size) return primeReady();
+        cancelWake ??= wake(acquire, EFFECTS_RETURN_MS);
+        return;
+      }
       // A cue still waiting to start is dropped, as a new step would drop it.
       steps++;
       suspension++;
-      stopEffects();
+      releaseChannels();
       hush();
+    },
+    dispose() {
+      if (disposed) return;
+      disposed = true;
+      steps++;
+      suspension++;
+      releaseChannels();
+      hush();
+      // Constructed spares never opened a pipeline: there is nothing to release.
+      spares.length = 0;
     },
   };
 }

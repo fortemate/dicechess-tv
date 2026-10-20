@@ -53,6 +53,7 @@ const listen = () => {
     setSuspended(value) {
       told.sounds = value;
     },
+    dispose() {},
   };
   const music = silentMusic({
     setSuspended(value) {
@@ -151,6 +152,7 @@ const harness = (
     setSuspended(on) {
       soundStates.push(on);
     },
+    dispose() {},
   };
   const music = silentMusic({
     setSuspended(on) {

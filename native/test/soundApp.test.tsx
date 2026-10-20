@@ -4,13 +4,15 @@
 import { test, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import { act } from 'react-test-renderer';
-import { setAppState } from './stubs/react-native-kepler.mjs';
+import { appEvent, setAppState } from './stubs/react-native-kepler.mjs';
+import { audioLog, resetAudio } from './stubs/react-native-w3cmedia.mjs';
 import {
   fullyDrawnReports,
   resetFullyDrawnReports,
 } from './stubs/kepler-performance-api.mjs';
 import { MMKV, reset } from './stubs/react-native-mmkv.mjs';
-import type { Sounds } from '../src/sound';
+import { EFFECTS_RETURN_MS, type Sounds } from '../src/sound';
+import { lateSounds } from '../src/lateAudio';
 import type { Cue } from '../../src/core/cues';
 import { MmkvSnapshotStore } from '../src/mmkvStore';
 import { decodeGame, newGame, rollGame, type Game } from '../../src/core/game';
@@ -23,6 +25,7 @@ import {
   launch,
   send,
   text,
+  unmount,
   type Instance,
 } from './support';
 
@@ -77,6 +80,7 @@ const recorder = (): Recorder => {
     setSuspended(value) {
       self.suspended = value;
     },
+    dispose() {},
   };
   return self;
 };
@@ -423,4 +427,94 @@ test('leaving the foreground stops the sound, and coming back is a warm start', 
   // Active again without having been away is not another start.
   act(() => setAppState('active'));
   assert.equal(fullyDrawnReports(), 3);
+});
+
+// The effects' players through the whole app (#313): on a Fire TV Stick the
+// system ends an app in the background that holds on to its memory, and a
+// loaded player holds memory and processor time even paused.
+type AudioEntry = {
+  event: string;
+  player: number;
+  src?: string;
+  volume?: number;
+};
+const audio = () => audioLog as AudioEntry[];
+const spritePlayers = () =>
+  audio()
+    .filter(
+      (entry) => entry.event === 'src' && entry.src?.endsWith('effects.mp3'),
+    )
+    .map((entry) => entry.player);
+const releasedPlayers = () =>
+  audio()
+    .filter((entry) => entry.event === 'deinitialize')
+    .map((entry) => entry.player);
+const settled = () => act(async () => {});
+
+test('the effects’ players are let go when the app leaves, made again after the return, and let go when it closes (#313)', async () => {
+  reset();
+  resetAudio();
+  launch({ options });
+  await settled();
+  const first = spritePlayers();
+  assert.equal(first.length, 3);
+  // Home: Vega sends blur, then the change to the background.
+  const before = audio().length;
+  act(() => appEvent('blur'));
+  act(() => setAppState('background'));
+  assert.deepEqual(releasedPlayers().sort(), [...first].sort());
+  assert.equal(
+    audio()
+      .slice(before)
+      .filter((entry) => entry.event === 'pause').length,
+    0,
+    'let go without a pause first (#386)',
+  );
+  // Back from the launcher: on a Stick, focus alone.
+  act(() => appEvent('focus'));
+  await settled();
+  assert.deepEqual(spritePlayers(), first, 'not in the moment of the return');
+  act(() => mock.timers.tick(EFFECTS_RETURN_MS));
+  await settled();
+  const second = spritePlayers().filter((player) => !first.includes(player));
+  assert.equal(second.length, 3);
+  // A new friend game, and its first roll is heard on the new players.
+  send('enter');
+  await settled();
+  send('enter');
+  await settled();
+  const heard = audio().filter(
+    (entry) =>
+      entry.event === 'play' &&
+      entry.volume !== 0 &&
+      second.includes(entry.player),
+  );
+  assert.ok(heard.length > 0, 'the roll is heard');
+  // Closing the app lets them go.
+  unmount();
+  assert.ok(second.every((player) => releasedPlayers().includes(player)));
+});
+
+test('settings told before the sounds exist reach them once made; a cue before then is not heard (#313)', () => {
+  const late = lateSounds();
+  late.setMuted(true);
+  late.setSoundVolume(0.3);
+  late.setVoices(false);
+  late.setVoiceVolume(0.6);
+  late.setSuspended(true);
+  late.play(['dice_roll']);
+  late.say({ id: 'host_intro_1', event: 'intro' });
+  const real = recorder();
+  late.attach(real);
+  assert.deepEqual(real.played, []);
+  assert.deepEqual(real.said, []);
+  assert.equal(real.muted, true);
+  assert.equal(real.soundVolume, 0.3);
+  assert.equal(real.voices, false);
+  assert.equal(real.voiceVolume, 0.6);
+  assert.equal(real.suspended, true);
+  late.setSuspended(false);
+  late.play(['dice_roll']);
+  assert.equal(real.suspended, false);
+  assert.deepEqual(real.played, [['dice_roll']]);
 });

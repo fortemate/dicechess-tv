@@ -9,6 +9,7 @@ import { reset, setStored } from './stubs/react-native-mmkv.mjs';
 import type { Music } from '../src/music';
 import { RESULT_SILENCE_MS } from '../src/GameScreen';
 import { musicGain } from '../src/musicSetting';
+import { lateMusic } from '../src/lateAudio';
 import { fakeTimers, fixedOptions, launch, send, text } from './support';
 
 // The sounds and the voices are the app's own, on the test's clock.
@@ -43,6 +44,7 @@ const recorder = (): Recorder => {
     },
     setCatalogue() {},
     setDucked() {},
+    dispose() {},
   };
   return self;
 };
@@ -196,4 +198,36 @@ test('after a blur only focus brings the music back, and focus is also the way b
   assert.equal(music.suspended, true);
   act(() => appEvent('focus'));
   assert.equal(music.suspended, false);
+});
+
+// The music is made in an effect after the first commit (#313), and the home
+// screen asks for its theme in an effect of its own, which runs first. What
+// was asked for before the music existed reaches it once it is attached, and
+// again when another is attached after the first was let go.
+test('what the screens ask of the music before it exists reaches it once it is made (#313)', () => {
+  const late = lateMusic();
+  late.setEnabled(true);
+  late.setVolume(0.5);
+  late.setSuspended(true);
+  late.setDucked(true);
+  late.setRole('menu');
+  late.setCatalogue(null);
+  const first = recorder();
+  late.attach(first);
+  assert.deepEqual(first.roles, [['menu', 0]]);
+  assert.equal(first.enabled, true);
+  assert.equal(first.volume, 0.5);
+  assert.equal(first.suspended, true);
+  late.setSuspended(false);
+  late.setRole('calm', 2_500);
+  assert.equal(first.suspended, false);
+  assert.deepEqual(first.roles.at(-1), ['calm', 2_500]);
+  // Let go, as when the app closes: nothing more reaches it.
+  late.attach(null);
+  late.setRole('tense');
+  assert.deepEqual(first.roles.at(-1), ['calm', 2_500]);
+  const second = recorder();
+  late.attach(second);
+  assert.deepEqual(second.roles, [['tense', 0]]);
+  assert.equal(second.suspended, false);
 });

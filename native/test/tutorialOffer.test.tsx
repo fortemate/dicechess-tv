@@ -163,6 +163,7 @@ const listener = () => {
     setVoices() {},
     setVoiceVolume() {},
     setSuspended() {},
+    dispose() {},
   };
   return { said, stopped: () => stopped, sounds };
 };
