@@ -245,8 +245,10 @@ export const Board = React.memo(function Board({
   return (
     <View style={{ width: edge * 8, height: edge * 8 }}>
       <Animated.View style={{ width: edge * 8, height: edge * 8, opacity }}>
+        {/* Each row is kept by its rank, which a turn does not change: its
+            first square does, and keyed by that a turn remounted all 64. */}
         {shown.map((row) => (
-          <View key={row[0].square} style={{ flexDirection: 'row' }}>
+          <View key={row[0].square[1]} style={{ flexDirection: 'row' }}>
             {row.map((view) => (
               <Square
                 key={view.square}

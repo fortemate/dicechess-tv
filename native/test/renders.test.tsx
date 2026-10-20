@@ -124,6 +124,20 @@ const mountGame = () => {
   return { state: reports.state, commits: () => commits };
 };
 
+// The board turns at once for less motion. Its rows are kept by rank, so a
+// turn moves each square to its new place rather than mounting all 64 again.
+test('turning the board draws no square again', async () => {
+  (globalThis as { __reduceMotion?: boolean }).__reduceMotion = true;
+  const shown = { board: INITIAL, legal: LEGAL, movable: MOVABLE };
+  const update = mountBoard({ ...shown, cursor: 'b1' });
+  await act(async () => undefined);
+  squares.take();
+
+  update({ ...shown, cursor: 'b1', flipped: true });
+
+  assert.deepEqual(squares.take(), []);
+});
+
 test('in a game, a cursor move redraws two squares', () => {
   const game = mountGame();
   assert.match(game.state(), /phase move .* cursor g1 /);
