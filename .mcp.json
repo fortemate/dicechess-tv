@@ -5,6 +5,12 @@
       "command": "npx",
       "args": ["-y", "@amazon-devices/amazon-devices-buildertools-mcp@1.0.13"],
       "env": {}
+    },
+    "vvd": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@fortemate/vega-vvd-driver@0.2.3", "mcp"],
+      "env": {}
     }
   }
 }

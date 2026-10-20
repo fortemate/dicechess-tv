@@ -114,6 +114,14 @@ presses the remote's keys and `vvd screenshot` saves the screen, after
 [native/README.md](native/README.md#scripted-virtual-device-automation) shows a
 session.
 
+[`.mcp.json`](.mcp.json) also registers its MCP server, `vvd`, pinned like
+Amazon's: a coding agent presses keys and gets the resulting screen back as an
+image in one call, and can wait for the screen to settle (`wait_for_change`) or
+count what sits in the TV safe-area margin (`check_safe_area`). Without the Vega
+SDK it starts but its calls fail. There is one virtual device: make sure no other
+session is driving it before an agent presses keys, and bump the pin only after
+reading what changed.
+
 Without the task, `npm run build --prefix native` builds with number 0, which the device
 refuses over beta 4 or later and over 1.0.0. Add `-- --build-number <n>` with the number of the latest
 beta or release. `mise run build` falls back to 0 only when it finds no numbered tag.
