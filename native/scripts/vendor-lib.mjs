@@ -114,10 +114,11 @@ export const refusal = (manifest, { client = CLIENT, audited } = {}) => {
 
 export const assertMayCarry = (pack, manifest, options = {}) => {
   const reason = refusal(manifest, options);
-  if (reason)
-    throw new Error(
-      `${pack} may not be carried by ${options.client ?? CLIENT}: ${reason}${options.hint ? `. ${options.hint}` : ''}`,
-    );
+  if (!reason) return;
+  const hint = options.hint ? `. ${options.hint}` : '';
+  throw new Error(
+    `${pack} may not be carried by ${options.client ?? CLIENT}: ${reason}${hint}`,
+  );
 };
 
 // Fills a new directory with `fill(dir)` and puts it in the place of `target`,

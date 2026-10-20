@@ -68,70 +68,71 @@ const source = pinned(checkout, commit, {
     'vendor-voices.mjs <dicechess-assets checkout> <full 40-character commit>',
 });
 
-// Every pack and events.json are read and checked before voices/ is replaced.
 const packs = {};
 const lines = {};
-const vendor = (root) => {
-  for (const pack of PACKS) {
-    const manifest = source.json(`voices/${pack}/manifest.json`);
-    assertMayCarry(pack, manifest);
-    const published = source.json(`voices/${pack}/checksums.json`);
+// One pack's files, checked, into root/<pack>; its lines join `lines`.
+const vendorPack = (root, pack) => {
+  const manifest = source.json(`voices/${pack}/manifest.json`);
+  assertMayCarry(pack, manifest);
+  const published = source.json(`voices/${pack}/checksums.json`);
 
-    const files = {};
-    const copy = (path) => {
-      const name = path.split('/').pop();
-      const digest = source.copy(
-        `voices/${pack}/${path}`,
-        published[path],
-        join(root, pack, name),
-        `${pack}/${path}`,
-      );
-      files[name] = digest;
-      return { file: `${pack}/${name}`, sha256: digest };
-    };
+  const files = {};
+  const copy = (path) => {
+    const name = path.split('/').pop();
+    const digest = source.copy(
+      `voices/${pack}/${path}`,
+      published[path],
+      join(root, pack, name),
+      `${pack}/${path}`,
+    );
+    files[name] = digest;
+    return { file: `${pack}/${name}`, sha256: digest };
+  };
 
-    copy('manifest.json');
-    copy(manifest.licenseFile);
-    const ids = Object.keys(manifest.lines ?? {}).sort(byteOrder);
-    if (ids.length === 0)
-      throw new Error(
-        `${pack} has no pack lines at ${commit}: only an audition?`,
-      );
-    for (const id of ids) {
-      if (lines[id])
-        throw new Error(`${pack}: line ${id} is already ${lines[id].pack}'s`);
-      const line = manifest.lines[id];
-      const { file, sha256: digest } = copy(line.export);
-      if (digest !== line.sha256)
-        throw new Error(`${id} does not match its record in the manifest`);
-      lines[id] = {
-        pack,
-        bot: line.bot,
-        event: line.event,
-        text: line.text,
-        voice: line.voice,
-        file,
-        sha256: digest,
-        seconds: line.durationSeconds,
-      };
-    }
-
-    packs[pack] = {
-      title: manifest.title,
-      license: manifest.license,
-      licenseFile: manifest.licenseFile,
-      distribution: manifest.distribution,
-      clients: manifest.clients ?? null,
-      attributionRequired: manifest.attributionRequired,
-      generator: manifest.generator?.tool ?? null,
-      // Where the lines the pack was recorded from are written: a commit of this
-      // repository for the bots, the asset repository's catalogue for the host.
-      texts: manifest.pack?.texts ?? null,
-      // Every file vendored for the pack, with its digest.
-      files,
+  copy('manifest.json');
+  copy(manifest.licenseFile);
+  const ids = Object.keys(manifest.lines ?? {}).sort(byteOrder);
+  if (ids.length === 0)
+    throw new Error(
+      `${pack} has no pack lines at ${commit}: only an audition?`,
+    );
+  for (const id of ids) {
+    if (lines[id])
+      throw new Error(`${pack}: line ${id} is already ${lines[id].pack}'s`);
+    const line = manifest.lines[id];
+    const { file, sha256: digest } = copy(line.export);
+    if (digest !== line.sha256)
+      throw new Error(`${id} does not match its record in the manifest`);
+    lines[id] = {
+      pack,
+      bot: line.bot,
+      event: line.event,
+      text: line.text,
+      voice: line.voice,
+      file,
+      sha256: digest,
+      seconds: line.durationSeconds,
     };
   }
 
+  packs[pack] = {
+    title: manifest.title,
+    license: manifest.license,
+    licenseFile: manifest.licenseFile,
+    distribution: manifest.distribution,
+    clients: manifest.clients ?? null,
+    attributionRequired: manifest.attributionRequired,
+    generator: manifest.generator?.tool ?? null,
+    // Where the lines the pack was recorded from are written: a commit of this
+    // repository for the bots, the asset repository's catalogue for the host.
+    texts: manifest.pack?.texts ?? null,
+    // Every file vendored for the pack, with its digest.
+    files,
+  };
+};
+
+// events.json, checked for the shape the generated pacing relies on.
+const readEvents = () => {
   const eventsBytes = source.show('voices/events.json');
   const events = JSON.parse(eventsBytes.toString('utf8'));
   if (events.schemaVersion !== 1)
@@ -155,6 +156,13 @@ const vendor = (root) => {
       throw new Error(
         `events.json: host event ${event} has tier ${tier} and priority ${priority}`,
       );
+  return { eventsBytes, pacing, hostEvents };
+};
+
+// Every pack and events.json are read and checked before voices/ is replaced.
+const vendor = (root) => {
+  for (const pack of PACKS) vendorPack(root, pack);
+  const { eventsBytes, pacing, hostEvents } = readEvents();
   writeFileSync(join(root, 'events.json'), eventsBytes);
 
   const catalogue = {
