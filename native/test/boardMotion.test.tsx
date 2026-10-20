@@ -10,7 +10,13 @@ import { Board, SLIDE_MS } from '../src/Board';
 import { PIECES } from '../src/pieces';
 import { BOT_STEP_MS } from '../src/screen';
 import { setReduceMotion } from './stubs/react-native.mjs';
-import { isHost, styleOf, type Instance } from './support';
+import {
+  isHost,
+  motion,
+  styleOf,
+  type HeldAnimation as Held,
+  type Instance,
+} from './support';
 
 const SIZE = 800;
 const EDGE = Math.floor(SIZE / 8);
@@ -19,20 +25,7 @@ const AFTER_E4 = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR';
 const AFTER_E5 = 'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR';
 
 type Range = { interpolation: { outputRange: number[] } };
-type Held = {
-  value: { value: number; setValue(value: number): void };
-  config: { toValue: number; duration: number; useNativeDriver: boolean };
-  done: (result: { finished: boolean }) => void;
-  stopped: boolean;
-  results: { finished: boolean }[];
-};
-const globals = globalThis as {
-  __holdSlides?: boolean;
-  __heldSlides?: Held[];
-  __reduceMotion?: boolean;
-  __reduceMotionQuery?: 'pending' | 'fails' | 'throws';
-  __answerReduceMotion?: (value: boolean) => void;
-};
+const globals = motion;
 
 beforeEach(() => {
   globals.__holdSlides = true;

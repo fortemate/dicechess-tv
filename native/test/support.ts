@@ -177,12 +177,31 @@ export const fakeTimers = () => {
   });
 };
 
-const motion = globalThis as {
+// An animation the react-native stub holds while globalThis.__holdSlides is
+// set, for a test to look at in flight and end itself: done() ends it, once.
+export type HeldAnimation = {
+  value: { value: number; setValue(value: number): void };
+  config: {
+    toValue: number;
+    duration: number;
+    delay?: number;
+    easing: (t: number) => number;
+    useNativeDriver: boolean;
+  };
+  done: (result: { finished: boolean }) => void;
+  stopped: boolean;
+  results: { finished: boolean }[];
+};
+
+// The globals the react-native stub reads for motion: whether animations are
+// held and which are, the platform's reduced motion setting, and how asking
+// for it goes (answered at once when unset).
+export const motion = globalThis as {
   __holdSlides?: boolean;
-  __heldSlides?: unknown[];
+  __heldSlides?: HeldAnimation[];
   __reduceMotion?: boolean;
-  __reduceMotionQuery?: string;
-  __answerReduceMotion?: unknown;
+  __reduceMotionQuery?: 'pending' | 'fails' | 'throws';
+  __answerReduceMotion?: (value: boolean) => void;
 };
 
 // The platform as a launch finds it: the app in the foreground, the storage of

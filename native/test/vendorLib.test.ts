@@ -14,6 +14,7 @@ import {
   readdirSync,
   readFileSync,
   rmSync,
+  statSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -234,6 +235,74 @@ test('a directory is replaced only once it has been filled', (t) => {
   const fresh = join(parent, 'more', 'voices');
   replaceDirectory(fresh, (dir: string) => writeFileSync(join(dir, 'x'), 'x'));
   assert.deepEqual(readdirSync(fresh), ['x']);
+});
+
+// Every file under a directory and its bytes, by relative path.
+const snapshot = (dir: string): Record<string, string> =>
+  Object.fromEntries(
+    (readdirSync(dir, { recursive: true }) as string[])
+      .filter((path) => !statSync(join(dir, path)).isDirectory())
+      .sort()
+      .map((path) => [path, readFileSync(join(dir, path)).toString('hex')]),
+  );
+
+test('a digest mismatch or a refused pack leaves the vendored copy byte for byte as it was', (t) => {
+  const checkout = assets(t);
+  const pack = (manifest: object, clip: string, published = clip) => {
+    const files = {
+      'manifest.json': JSON.stringify(manifest),
+      'LICENSE.txt': 'license',
+    };
+    return commitFiles(checkout, {
+      ...Object.fromEntries(
+        Object.entries(files).map(([name, text]) => [`p/${name}`, text]),
+      ),
+      'p/clip.mp3': clip,
+      'p/checksums.json': JSON.stringify({
+        'manifest.json': sha256(files['manifest.json']),
+        'LICENSE.txt': sha256('license'),
+        'clip.mp3': sha256(published),
+      }),
+    });
+  };
+  // What each vendor script does: the permission, then every file checked
+  // into a new directory that replaces the old one.
+  const vendor = (commit: string, target: string) => {
+    const source = pinned(checkout, commit);
+    const manifest = source.json('p/manifest.json');
+    assertMayCarry('p', manifest);
+    const published = source.json('p/checksums.json');
+    replaceDirectory(target, (dir: string) => {
+      for (const name of ['manifest.json', 'LICENSE.txt', 'clip.mp3'])
+        source.copy(`p/${name}`, published[name], join(dir, 'p', name));
+    });
+  };
+  const allowed = {
+    license: 'CC0-1.0',
+    licenseFile: 'LICENSE.txt',
+    distribution: 'public',
+  };
+
+  const parent = scratch(t);
+  const target = join(parent, 'sounds');
+  vendor(pack(allowed, 'first'), target);
+  const before = snapshot(target);
+  assert.equal(readFileSync(join(target, 'p', 'clip.mp3'), 'utf8'), 'first');
+
+  // A clip whose bytes are not the ones checksums.json publishes.
+  const tampered = pack(allowed, 'tampered', 'second');
+  assert.throws(() => vendor(tampered, target), /does not match the digest/);
+  assert.deepEqual(snapshot(target), before);
+
+  // A pack that is not for this repository, with digests that all match.
+  const refused = pack({ ...allowed, distribution: 'private' }, 'third');
+  assert.throws(() => vendor(refused, target), /may not be carried/);
+  assert.deepEqual(snapshot(target), before);
+
+  // Nothing is left beside it, and a good pack still replaces it.
+  assert.deepEqual(readdirSync(parent), ['sounds']);
+  vendor(pack(allowed, 'fourth'), target);
+  assert.equal(readFileSync(join(target, 'p', 'clip.mp3'), 'utf8'), 'fourth');
 });
 
 test("generated source is formatted by the repository's pinned Prettier", (t) => {

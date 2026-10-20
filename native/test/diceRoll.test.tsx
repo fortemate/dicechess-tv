@@ -13,26 +13,10 @@ import { CUE_DELAY_MS } from '../src/sound';
 import { THEME } from '../src/theme';
 import type { Die } from '../../src/core/dice';
 import type { Side } from '../../src/core/game';
-import { isHost, styleOf, type Instance } from './support';
+import { setReduceMotion } from './stubs/react-native.mjs';
+import { isHost, motion, styleOf, type Instance } from './support';
 
-type Held = {
-  config: {
-    toValue: number;
-    duration: number;
-    delay?: number;
-    easing: (t: number) => number;
-    useNativeDriver: boolean;
-  };
-  done: (result: { finished: boolean }) => void;
-  stopped: boolean;
-  results: { finished: boolean }[];
-};
-const globals = globalThis as {
-  __holdSlides?: boolean;
-  __heldSlides?: Held[];
-  __reduceMotion?: boolean;
-  __reduceMotionQuery?: 'pending' | 'fails' | 'throws';
-};
+const globals = motion;
 
 beforeEach(() => {
   globals.__holdSlides = true;
@@ -242,4 +226,23 @@ test('no tumble before the platform has answered, and a tumble where it cannot',
   const lacking = await mount([]);
   lacking.show(ROLLED);
   assert.equal(tumbles(lacking.root()).length, 3);
+});
+
+test('reduced motion turned on and off mid-game is followed from the next roll', async () => {
+  const dice = await mount([]);
+  dice.show(ROLLED);
+  land();
+
+  // Turned on between turns: the other side's roll is simply drawn.
+  act(() => setReduceMotion(true));
+  dice.show(ROLLED, 'b');
+  assert.equal(tumbles(dice.root()).length, 0);
+  assert.equal(globals.__heldSlides!.length, 3);
+  assert.deepEqual(looks(dice.root()), ['dim', 'lit', 'lit']);
+
+  // Turned off again, the next roll tumbles in.
+  act(() => setReduceMotion(false));
+  dice.show(ROLLED, 'w');
+  assert.equal(tumbles(dice.root()).length, 3);
+  assert.equal(globals.__heldSlides!.length, 6);
 });
