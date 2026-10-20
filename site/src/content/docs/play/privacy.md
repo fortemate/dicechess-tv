@@ -8,7 +8,7 @@ sidebar:
   order: 4
 ---
 
-Last updated: October 10, 2026.
+Last updated: October 20, 2026.
 
 This policy covers Dice Chess, the game for Amazon Fire TV made by Fortemate. It does not cover this website, or the services of Amazon that the app is installed and runs with.
 
@@ -41,7 +41,7 @@ The game is made for players of every age, children included. Because the app co
 
 ## Amazon
 
-You get the app as a package from GitHub, or from the Amazon Appstore once it is available there, and play it on a Fire TV. Amazon's services, such as your Amazon account, the Appstore, the Fire TV itself and Alexa, handle information under [Amazon's Privacy Notice](https://www.amazon.com/privacy), not under this policy. The app plays its sounds through the Fire TV's own media player, which is part of Amazon's system.
+You get the app as a package from GitHub, or from the [Amazon Appstore](https://www.amazon.com/dp/B0HL6K9N47/), and play it on a Fire TV. Amazon's services, such as your Amazon account, the Appstore, the Fire TV itself and Alexa, handle information under [Amazon's Privacy Notice](https://www.amazon.com/privacy), not under this policy. The app plays its sounds through the Fire TV's own media player, which is part of Amazon's system.
 
 ## Changes
 
