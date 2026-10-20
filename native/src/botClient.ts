@@ -1,6 +1,6 @@
 import { replyFits, type BotReply } from '../../src/core/bot';
 import type { Game } from '../../src/core/game';
-import { scheduleActive, type Activity } from './activity';
+import { activeClock, scheduleActive, type Activity } from './activity';
 import { BOT_REQUEST, BOT_RESPONSE, readBotResult } from './botJob';
 
 type Store = {
@@ -42,11 +42,13 @@ export function createBotClient(ports: Ports) {
         let finished = false;
         let cancelPoll = () => undefined as void;
         let cancelLaunch = () => undefined as void;
+        let stopClock = () => undefined as void;
         const finish = (reply?: BotReply, error?: unknown) => {
           if (finished) return;
           finished = true;
           cancelPoll();
           cancelLaunch();
+          stopClock();
           cancelCurrent = undefined;
           try {
             if (store.getString(BOT_REQUEST) === raw) {
@@ -66,7 +68,9 @@ export function createBotClient(ports: Ports) {
           try {
             store.delete(BOT_RESPONSE);
             store.set(BOT_REQUEST, raw);
-            const began = now();
+            const clock = activeClock(activity, now);
+            stopClock = clock.dispose;
+            const began = clock.now();
             const poll = () => {
               if (finished) return;
               try {
@@ -78,9 +82,10 @@ export function createBotClient(ports: Ports) {
                       'The opponent replied to a different position',
                     );
                   finish(result.reply);
-                } else if (now() - began >= (ports.timeout ?? 120_000)) {
+                } else if (clock.now() - began >= (ports.timeout ?? 120_000)) {
                   // This bounds transport failure, never the engine's search
-                  // strength. Do not overlap another task after a lost response.
+                  // strength. A suspended app does not spend the deadline.
+                  // Do not overlap another job after a lost response.
                   timedOut = true;
                   finish(
                     undefined,

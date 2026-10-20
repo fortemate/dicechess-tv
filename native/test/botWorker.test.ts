@@ -294,6 +294,36 @@ test('a worker is launched after focus returns; its ready response survives a lo
   r.dispose();
 });
 
+test('a suspended app does not spend a pending request deadline or disable later requests', async () => {
+  const r = rig(true, 300);
+  // Observe rejection immediately so the pre-fix failure remains an assertion,
+  // rather than an unhandled rejection from the fake clock.
+  const pending = r.request(game()).then(
+    (reply) => ({ reply }),
+    (error: unknown) => ({ error }),
+  );
+  await flush();
+  r.pass(150);
+  r.activity.setActive(false);
+  // Vega may suspend the background runtime along with the UI. An unanswered
+  // request then needs its remaining foreground time after focus returns.
+  r.pass(10_000);
+  await flush();
+  assert.ok(r.values.has(BOT_REQUEST), 'background time expired the request');
+  r.activity.setActive(true);
+  r.respond();
+  const result = await pending;
+  assert.ok('reply' in result);
+  assert.equal(result.reply.gameId, 'worker');
+  const next = r.request({ ...game(), id: 'after-return' });
+  await flush();
+  r.pass(0);
+  r.respond();
+  assert.equal((await next).gameId, 'after-return');
+  assert.equal(r.values.size, 0);
+  r.dispose();
+});
+
 test('wrong position, stale request, malformed moves, and worker errors reject without searching on the caller', async () => {
   for (const change of [
     (reply: BotReply) => ({ ...reply, revision: reply.revision + 1 }),
