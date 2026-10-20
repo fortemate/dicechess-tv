@@ -57,6 +57,12 @@ class FakeClock implements Clock {
     this.t = end;
     await flush();
   }
+  // The JavaScript thread held up for `ms`, as by the danger search on a Fire
+  // TV Stick (#365): nothing runs meanwhile, and what fell due runs late.
+  stall(ms: number) {
+    this.t += ms;
+    for (const timer of this.timers) timer.at = Math.max(timer.at, this.t);
+  }
 }
 
 // A clock whose ticker comes only every `period` ms, however often it was
@@ -522,6 +528,23 @@ test('a pass never heard times out without fading away the working theme', async
   assert.ok(reports.includes('music: play failed: playback did not start'));
 });
 
+// On a Stick the danger and bot searches hold the JavaScript thread for 0.7 to
+// 2.7 s, and with it the play() request: a pass is not failed for time it could
+// not use.
+test('a pass waiting to be heard through a long stall is not failed for it', async () => {
+  const { music, clock, players, playing, reports } = await rig();
+  music.setRole('calm');
+  await clock.advance(10_000);
+  lagging(players, 3000);
+  music.setRole('tense');
+  await clock.advance(100);
+  clock.stall(2700);
+  await clock.advance(100);
+  assert.ok(!reports.some((line) => line.includes('play failed')));
+  await clock.advance(500 + CROSSFADE_MS);
+  assert.deepEqual(playing(), ['tense.mp3']);
+});
+
 test('a theme asked for again while it waits to be heard starts once', async () => {
   const { music, clock, players } = await rig();
   music.setRole('calm');
@@ -702,12 +725,30 @@ for (const silence of [
   }
 }
 
-test('a failed loop keeps its old pass until EOF, then releases it without retrying forever', async () => {
+test('a seam that fails once is tried again, and the theme keeps looping', async () => {
+  const { music, clock, players, playing, reports } = await rig();
+  music.setRole('menu');
+  await clock.advance(3000);
+  const old = players[0];
+  players[1].failAt = 'play';
+  await clock.advance(185000);
+  assert.equal(
+    reports.filter((line) => line.includes('play failed')).length,
+    1,
+  );
+  await clock.advance(5000);
+  assert.ok(old.released);
+  assert.deepEqual(playing(), ['menu.mp3']);
+  assert.ok(players[2].playing, 'the retry plays on a fresh player');
+});
+
+test('a loop that fails twice keeps its old pass until EOF, then releases it without retrying forever', async () => {
   const { music, clock, players, playing } = await rig();
   music.setRole('menu');
   await clock.advance(3000);
   const old = players[0];
   players[1].failAt = 'play';
+  players[2].failAt = 'play';
   await clock.advance(185000);
   assert.equal(old.released, false);
   assert.deepEqual(playing(), ['menu.mp3']);
