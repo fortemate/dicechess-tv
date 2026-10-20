@@ -1020,11 +1020,12 @@ export const GameScreen = ({
   React.useEffect(() => {
     if (!guarded) return;
     let cancelled = false;
-    options.schedule(() => {
+    const cancel = options.schedule(() => {
       if (!cancelled) dispatch({ kind: 'unguard' });
     }, OK_GUARD_MS);
     return () => {
       cancelled = true;
+      cancel?.();
     };
   }, [guarded, options]);
 

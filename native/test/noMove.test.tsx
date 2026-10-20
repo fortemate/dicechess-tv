@@ -20,6 +20,7 @@ import {
   send,
   styleOf,
   text,
+  unmount,
   type Instance,
   type Style,
 } from './support';
@@ -109,6 +110,30 @@ test('a hotseat roll with nothing to play is announced and heard, and OK waits o
   assert.match(text(root), /TURN 2/);
   assert.match(text(root), /No legal moves/);
   assert.match(text(root), /OK: White's turn/);
+});
+
+// The guard's timer is the screen's to cancel: one left behind holds a
+// callback, and on the app's real scheduler a timer, after the screen is gone.
+test('the OK guard cancels its timer when the screen goes', () => {
+  reset();
+  const waiting: { wait: number; cancelled: boolean }[] = [];
+  const options = fixedOptions({
+    roll: () => [5, 4, 6],
+    schedule: (_step, wait) => {
+      const timer = { wait, cancelled: false };
+      waiting.push(timer);
+      return () => {
+        timer.cancelled = true;
+      };
+    },
+  });
+  launch({ options, sounds: recorder() });
+  send('enter', 'enter');
+  const guard = waiting.find(({ wait }) => wait === OK_GUARD_MS);
+  assert.ok(guard, 'the empty roll is guarded');
+  assert.equal(guard.cancelled, false);
+  unmount();
+  assert.equal(guard.cancelled, true);
 });
 
 test('against the bot both sides’ empty rolls are announced, and the bot’s waits for OK, which rolls', () => {
