@@ -5,7 +5,11 @@ sidebar:
   order: 3
 ---
 
-Dice Chess 1.0.2, build 33, was published on GitHub on October 18, 2026. It adds Highlights, clearer rules and grouped Settings with focused control hints. It is free and in English, and it needs no account. Version 1.0.3/build 34, with consistent U.S. English and character portraits in the GitHub packages, is in preparation and is not published yet.
+Dice Chess 1.0.2, build 33, was published on GitHub on October 18, 2026. It adds Highlights, clearer rules and grouped Settings with focused control hints. It is free and in English, and it needs no account. Version 1.0.1 is also [on the Amazon Appstore](https://www.amazon.com/dp/B0HL6K9N47/). Version 1.0.3/build 34, with consistent U.S. English and character portraits in the GitHub packages, is in preparation and is not published yet.
+
+## On the Amazon Appstore
+
+[Dice Chess](https://www.amazon.com/dp/B0HL6K9N47/) has been free on the Amazon Appstore since October 20, 2026. On a Fire TV with Vega OS, search the Appstore for Dice Chess, or choose **Get App** on its Amazon page. The store has version 1.0.1, build 30, with the character portraits. The newer GitHub releases below are not on the store yet.
 
 ## From GitHub
 
@@ -35,10 +39,6 @@ vega device launch-app -a com.fortemate.dicechesstv.main
 For the Virtual Device, install the `aarch64` or the `x86_64` package instead. With more than one device connected, add `-d` and the device's serial number, as `vega device list` shows it.
 
 The 1.0.1/build 30 candidate was installed over 1.0.0/build 29 on both the Stick and the Virtual Device, preserving the game, results and settings. The final 1.0.1/build 30 packages have the same application payload as that earlier candidate. A lower build cannot be installed over a higher one. The [playtest guide](https://github.com/fortemate/dicechess-tv/blob/main/docs/playtest.md) has more on installing and removing the app.
-
-## On the Amazon Appstore
-
-The owner reported submitting version 1.0.1, build 30, to the Amazon Appstore for review on October 14, 2026. The separate armv7 Appstore package includes the portraits. Approval and store availability have not been confirmed; the packages linked above are available from GitHub for installation with the Vega SDK.
 
 ## What to try
 

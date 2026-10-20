@@ -8,7 +8,7 @@ Dice Chess 1.0.2, build 33, was released on GitHub on October 18, 2026. Its [rel
 
 Version 1.0.3/build 34 is in preparation. Its planned GitHub packages include the portraits and consistent U.S. English; see the [preparation record](release-preparation-1.0.3-build34.md). It is not published yet. A normal source clone now includes the pinned portrait pack and its original notice.
 
-The published 1.0.2 release adds Highlights, clearer rules and grouped Settings with focused control hints and stable switch directions. Its [release notes](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.2%2B33) describe the changes. The owner reported submitting 1.0.1/build 30 to the Amazon Appstore for review on October 14, 2026; store approval has not been confirmed.
+The published 1.0.2 release adds Highlights, clearer rules and grouped Settings with focused control hints and stable switch directions. Its [release notes](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.2%2B33) describe the changes. Version 1.0.1/build 30 has been [live on the Amazon Appstore](https://www.amazon.com/dp/B0HL6K9N47/) since October 20, 2026.
 
 | File                               | Install it on                                         |
 | ---------------------------------- | ----------------------------------------------------- |
