@@ -260,6 +260,11 @@ test('a vega command that fails is reported by what it said, or its exit status'
     failureOf({ status: 1, stdout: 'only out\n', stderr: '' }),
     'only out',
   );
+  // Blank error output gives way to the output.
+  assert.equal(
+    failureOf({ status: 1, stdout: 'error: no such package\n', stderr: ' \n' }),
+    'error: no such package',
+  );
   // With its output inherited, or with nothing said, the status is all there is.
   assert.equal(
     failureOf({ status: 4, stdout: null, stderr: null }),

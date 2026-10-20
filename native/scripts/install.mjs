@@ -72,7 +72,8 @@ export const vega = (args, options = {}, spawn = spawnSync) => {
 // What a vega command that failed said: its error output, else its output,
 // else its exit status. Neither output is a string when it was inherited.
 export const failureOf = (result) =>
-  `${result.stderr || result.stdout || ''}`.trim() ||
+  `${result.stderr ?? ''}`.trim() ||
+  `${result.stdout ?? ''}`.trim() ||
   `exit status ${result.status}`;
 
 // The package's file list, from the Vega SDK's own packaging tool, which reads

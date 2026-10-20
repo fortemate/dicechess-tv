@@ -162,6 +162,7 @@ export const formatWithPrettier = (files, { root = repository } = {}) => {
     );
   execFileSync(process.execPath, [bin, '--write', ...files], {
     cwd: root,
-    stdio: 'ignore',
+    // Quiet, except for why it failed.
+    stdio: ['ignore', 'ignore', 'inherit'],
   });
 };

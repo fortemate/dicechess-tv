@@ -6,7 +6,7 @@
 // asset repository.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import {
   existsSync,
   mkdirSync,
@@ -19,6 +19,7 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   assertMayCarry,
   byteOrder,
@@ -29,6 +30,11 @@ import {
   sha256,
   // @ts-expect-error — a build script, deliberately plain JavaScript.
 } from '../scripts/vendor-lib.mjs';
+
+const LIB = join(
+  dirname(fileURLToPath(import.meta.url)),
+  '../scripts/vendor-lib.mjs',
+);
 
 const scratch = (t: { after: (fn: () => void) => void }) => {
   const dir = mkdtempSync(join(tmpdir(), 'vendor-lib-'));
@@ -311,4 +317,20 @@ test("generated source is formatted by the repository's pinned Prettier", (t) =>
     () => formatWithPrettier([join(root, 'a.ts')], { root }),
     /node_modules\/prettier\/bin\/prettier\.cjs is missing: install .* npm ci/,
   );
+
+  // Prettier's own reason for a failure reaches the person running the script.
+  const broken = join(root, 'broken.ts');
+  writeFileSync(broken, 'export const = ;\n');
+  const run = spawnSync(
+    process.execPath,
+    [
+      '--input-type=module',
+      '-e',
+      `import { formatWithPrettier } from ${JSON.stringify(LIB)};
+       formatWithPrettier([${JSON.stringify(broken)}]);`,
+    ],
+    { encoding: 'utf8' },
+  );
+  assert.notEqual(run.status, 0);
+  assert.match(run.stderr, /\[error\] .*broken\.ts: SyntaxError/);
 });
