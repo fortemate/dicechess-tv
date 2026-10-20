@@ -60,6 +60,8 @@ The remote's Menu button (three lines) is a shortcut:
 - **In Settings, the opponent cards, the choice of color, a confirmation or the result screen:** it goes to the home screen.
 - **On the home screen:** it does nothing.
 
+These are covered by tests. On a Fire TV Stick, Menu opened and closed the game menu, as [the cycling validation](https://github.com/fortemate/dicechess-tv/blob/main/docs/board-navigation-validation-299.md) records; it is not yet checked on the Vega Virtual Device, where F2 is its expected key.
+
 ---
 
 ## The Menus
@@ -143,6 +145,7 @@ When playing on the Vega Virtual Device or developing on a computer, the remote 
 | **Move Cursor / Navigate**  | D-pad (Up, Down, Left, Right) | Arrow keys (`Up`, `Down`, `Left`, `Right`) | Arrow buttons            |
 | **Roll / Select / Confirm** | OK / Select                   | Enter / Return (`enter`)                   | Keypad Enter (`kpenter`) |
 | **Deselect / Menu / Leave** | Back                          | Escape (`Esc` → `KEY_BACK`)                | Back button              |
+| **Game menu / Home**        | Menu                          | `F2` (not yet checked)                     | not checked              |
 
 _Note on Keypad Enter (`kpenter`):_ The Vega Virtual Device on-screen remote skin binds its visual center button to `KEY_KPENTER`. Dice Chess supports all three names of OK (`enter`, `kpenter`, and `select`) transparently.
 
