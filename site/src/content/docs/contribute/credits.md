@@ -81,7 +81,6 @@ The app is built with the npm packages below. Their licenses come with the app: 
 
 | Package                                             | License                                    |
 | --------------------------------------------------- | ------------------------------------------ |
-| `@amazon-devices/headless-task-manager`             | Amazon Program Materials License Agreement |
 | `@amazon-devices/kepler-compatibility-metro-config` | Amazon Program Materials License Agreement |
 | `@amazon-devices/kepler-media-controls`             | Amazon Program Materials License Agreement |
 | `@amazon-devices/kepler-performance-api`            | Amazon Program Materials License Agreement |
@@ -90,6 +89,7 @@ The app is built with the npm packages below. Their licenses come with the app: 
 | `@amazon-devices/react-native-kepler`               | Amazon Program Materials License Agreement |
 | `@amazon-devices/react-native-mmkv`                 | Amazon Program Materials License Agreement |
 | `@amazon-devices/react-native-svg`                  | Amazon Program Materials License Agreement |
+| `@amazon-devices/react-native-worklets`             | Amazon Program Materials License Agreement |
 | `@amazon-devices/react-native-w3cmedia`             | Amazon Program Materials License Agreement |
 | `@babel/runtime`                                    | MIT                                        |
 | `@react-native/assets-registry`                     | MIT                                        |

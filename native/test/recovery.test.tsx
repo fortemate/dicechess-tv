@@ -7,6 +7,7 @@ import assert from 'node:assert/strict';
 import React from 'react';
 import { act } from 'react-test-renderer';
 import { DiceChess } from '@fortemate/dicechess-engine';
+import { botReply, type BotReply } from '../../src/core/bot';
 import { MmkvSnapshotStore } from '../src/mmkvStore';
 import {
   FRESH_OPTION,
@@ -32,6 +33,7 @@ import {
   silentSounds,
   styleOf,
   text,
+  unmount,
   type Instance,
 } from './support';
 
@@ -206,6 +208,49 @@ test('a rejected asynchronous opponent reply preserves the save and reaches Reco
   assert.match(text(app.root), new RegExp(RECOVERY_TITLE));
   assert.equal(search.mock.callCount(), 0);
   assert.deepEqual(store().read(), saved);
+});
+
+test('the app uses its platform worker, keeps Menu responsive while it waits, and disposes it on exit', async (t) => {
+  reset();
+  const saved = rollGame(
+    newGame('aggressive', 'platform-worker', undefined, 'b'),
+    [1, 1, 1],
+  );
+  await store().save(saved);
+  const reply = botReply(saved);
+  const search = t.mock.method(DiceChess, 'getBestMove', () => {
+    throw new Error('UI search must not run');
+  });
+  let complete!: (reply: BotReply) => void;
+  const request = t.mock.fn((game: Game) => {
+    assert.deepEqual(game, saved);
+    return new Promise<BotReply>((resolve) => {
+      complete = resolve;
+    });
+  });
+  const dispose = t.mock.fn();
+  const app = launch({
+    options: undefined,
+    createWorker: () => ({ request, dispose }),
+    sounds: silentSounds(),
+    music: silentMusic(),
+  });
+  send('enter');
+  await act(async () => mock.timers.tick(1));
+  assert.equal(request.mock.callCount(), 1);
+  send('back');
+  assert.match(app.state(), /overlay menu/);
+  await act(async () => {
+    complete(reply);
+    mock.timers.tick(5000);
+  });
+  assert.deepEqual(store().read(), saved, 'Menu pauses presentation');
+  send('enter');
+  await act(async () => mock.timers.tick(5000));
+  assert.ok(store().read()!.revision > saved.revision);
+  assert.equal(search.mock.callCount(), 0);
+  unmount();
+  assert.equal(dispose.mock.callCount(), 1);
 });
 
 test('OK on the fallback returns to the menu, and the saved game resumes', (t) => {

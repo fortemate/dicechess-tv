@@ -33,17 +33,15 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { ENGINE_MAP } from './botBundle.mjs';
 
 const native = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 export const NOTICES = 'licenses/THIRD_PARTY_NOTICES.txt';
 export const SOURCE_MAP = 'build/metro/index.bundle.map';
-export const TASK_SOURCE_MAP = 'build/metro/task.bundle.map';
 // The source map of the bundle `react-native build-vega` packages.
 export const BUILD_SOURCE_MAP =
   'build/debugging/Release/srcmap/index.bundle.map';
-export const BUILD_TASK_SOURCE_MAP =
-  'build/debugging/Release/srcmap/task.bundle.map';
 
 // What the Vega build adds to the app's bundle and Metro's does not have: the
 // module map that Amazon's kepler-compatibility-metro-config puts at its top.
@@ -92,6 +90,12 @@ const UPSTREAM = {
   '@amazon-devices/react-native-mmkv': {
     project: 'react-native-mmkv',
     from: 'licenses/upstream/react-native-mmkv.LICENSE',
+  },
+  // The port's version is 1.0.1+0.6.0. Its upstream npm tarball supplies this
+  // exact MIT notice; Amazon's package ships only the Program Materials text.
+  '@amazon-devices/react-native-worklets': {
+    project: 'react-native-worklets',
+    from: 'licenses/upstream/react-native-worklets.LICENSE',
   },
 };
 
@@ -229,7 +233,7 @@ const sourcesOf = (path, hint) => {
 const checkBuild = () => {
   const named = packagesNamed(readFileSync(join(native, NOTICES), 'utf8'));
   const built = packagesIn(
-    [BUILD_SOURCE_MAP, BUILD_TASK_SOURCE_MAP].flatMap((path) =>
+    [BUILD_SOURCE_MAP, ENGINE_MAP].flatMap((path) =>
       sourcesOf(path, 'run npm run build first'),
     ),
   );
@@ -261,7 +265,7 @@ if (
     process.exit(0);
   }
   const packages = shippedPackages(
-    [SOURCE_MAP, TASK_SOURCE_MAP].flatMap((path) =>
+    [SOURCE_MAP, ENGINE_MAP].flatMap((path) =>
       sourcesOf(path, 'run npm run bundle first'),
     ),
   );

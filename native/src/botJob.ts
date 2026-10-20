@@ -1,5 +1,5 @@
-// A single mailbox in the existing default MMKV store. Both Vega components
-// share one process, but each has its own JavaScript runtime and event loop.
+// A bounded request/response protocol. The native client owns its mailbox in
+// default MMKV; the background runtime receives and returns plain JSON strings.
 import { botReply, botToAct, type BotReply } from '../../src/core/bot';
 import { decodeGame } from '../../src/core/game';
 
@@ -12,7 +12,7 @@ export type BotJobResult = {
   error?: string;
 };
 
-// Only this function, called by task.js, performs the canonical engine search.
+// Only this function, called in the worker runtime, performs the engine search.
 // It deliberately uses the same algorithm and work budget as the UI did.
 export function runBotJob(raw: string): BotJobResult {
   const request: unknown = JSON.parse(raw);

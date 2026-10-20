@@ -18,8 +18,13 @@ type Ports = {
   timeout?: number;
 };
 
+export type BotWorker = {
+  request: (game: Game) => Promise<BotReply>;
+  dispose: () => void;
+};
+
 // Serialize requests, including requests for a new game while the old search
-// finishes. The task has a separate event loop; polling never runs the engine.
+// finishes. The worker has a separate event loop; polling never runs the engine.
 export function createBotClient(ports: Ports) {
   const { store, activity, schedule, now } = ports;
   let tail = Promise.resolve();

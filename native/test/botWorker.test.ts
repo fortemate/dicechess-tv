@@ -2,7 +2,6 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { DiceChess } from '@fortemate/dicechess-engine';
 import { MMKV } from '@amazon-devices/react-native-mmkv';
-import { Linking } from 'react-native';
 import { botReply, type BotReply } from '../../src/core/bot';
 import {
   applyBotReply,
@@ -12,8 +11,9 @@ import {
 } from '../../src/core/game';
 import { createActivity } from '../src/activity';
 import { createBotClient } from '../src/botClient';
-import { runBotTask } from '../src/botTask';
 import { createBotWorker } from '../src/botWorker';
+// @ts-expect-error - a build script, deliberately plain JavaScript.
+import { botBundle } from '../scripts/botBundle.mjs';
 import {
   BOT_REQUEST,
   BOT_RESPONSE,
@@ -24,7 +24,7 @@ import {
 const game = () =>
   rollGame(newGame('aggressive', 'worker', undefined, 'b'), [1, 1, 1]);
 const flush = async () => {
-  for (let i = 0; i < 6; i++) await Promise.resolve();
+  for (let i = 0; i < 20; i++) await Promise.resolve();
 };
 
 function rig(active = true, timeout = 120_000) {
@@ -142,45 +142,114 @@ test('invalid jobs and malformed responses never fall through to an engine searc
   );
 });
 
-test('the task writes only its response and cannot overwrite a replacement request', async (t) => {
+let engineCode: Promise<string> | undefined;
+const bundledEngine = (): Promise<string> =>
+  (engineCode ??= botBundle().then((result: { code: string }) => result.code));
+
+const response = (code: string, ok = true) =>
+  ({ ok, text: async () => code }) as Response;
+
+test('the native worker executes the bundled canonical engine in an isolated runtime and reuses it', async (t) => {
+  const code = await bundledEngine();
+  t.mock.timers.enable({ apis: ['setTimeout', 'Date'], now: 1000 });
+  const fetch = t.mock.method(globalThis, 'fetch', async (url: unknown) => {
+    assert.equal(url, 'file:///pkg/assets/raw/bot-engine.js');
+    return response(code);
+  });
   const store = new MMKV();
   store.set('dicechess-tv.game.v2', 'preserved');
-  const raw = JSON.stringify({ requestId: 'task', game: game() });
-  store.set(BOT_REQUEST, raw);
-  await runBotTask();
-  assert.ok(readBotResult(store.getString(BOT_RESPONSE)!, 'task').reply);
-  store.delete(BOT_RESPONSE);
-  const original = DiceChess.getBestMove;
-  t.mock.method(
-    DiceChess,
-    'getBestMove',
-    (...args: Parameters<typeof original>) => {
-      store.set(BOT_REQUEST, 'replacement');
-      return original(...args);
-    },
-  );
-  await runBotTask();
-  assert.equal(store.getString(BOT_REQUEST), 'replacement');
+  const worker = createBotWorker(createActivity(true));
+  for (const id of ['first', 'second']) {
+    const saved = { ...game(), id };
+    const pending = worker.request(saved);
+    await flush();
+    t.mock.timers.tick(0);
+    await flush();
+    t.mock.timers.tick(100);
+    const reply = await pending;
+    assert.equal(reply.gameId, id);
+    assert.equal(applyBotReply(saved, reply).phase, 'handoff');
+  }
+  assert.equal(fetch.mock.callCount(), 1, 'one asset load per runtime');
+  assert.equal(store.getString(BOT_REQUEST), undefined);
   assert.equal(store.getString(BOT_RESPONSE), undefined);
   assert.equal(store.getString('dicechess-tv.game.v2'), 'preserved');
-  store.delete(BOT_REQUEST);
+  worker.dispose();
   store.delete('dicechess-tv.game.v2');
 });
 
-test('the native worker addresses its private task and receives the default-MMKV reply', async (t) => {
-  t.mock.timers.enable({ apis: ['setTimeout', 'Date'], now: 1_000 });
-  const launch = t.mock.method(Linking, 'openURL', async (url: string) => {
-    assert.match(url, /^pkg:\/\/com\.fortemate\.dicechesstv(?:\.qa)?\.search$/);
-    await runBotTask();
-  });
+test('asset load failures and background engine errors settle without changing a saved game', async (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout', 'Date'], now: 1000 });
+  let mode = 'missing';
+  t.mock.method(globalThis, 'fetch', async () =>
+    response('invalid JavaScript !', mode !== 'missing'),
+  );
+  const store = new MMKV();
+  store.set('dicechess-tv.game.v2', 'kept');
+  for (mode of ['missing', 'broken']) {
+    const worker = createBotWorker(createActivity(true));
+    const pending = assert.rejects(
+      worker.request(game()),
+      /unavailable|SyntaxError|Unexpected/,
+    );
+    await flush();
+    t.mock.timers.tick(0);
+    await flush();
+    t.mock.timers.tick(100);
+    await pending;
+    assert.equal(store.getString('dicechess-tv.game.v2'), 'kept');
+    assert.equal(store.getString(BOT_REQUEST), undefined);
+    worker.dispose();
+  }
+  store.delete('dicechess-tv.game.v2');
+});
+
+test('disposal while the asset loads cannot start or publish an abandoned search', async (t) => {
+  const code = await bundledEngine();
+  t.mock.timers.enable({ apis: ['setTimeout', 'Date'], now: 1000 });
+  let loaded!: (value: Response) => void;
+  t.mock.method(
+    globalThis,
+    'fetch',
+    () =>
+      new Promise<Response>((resolve) => {
+        loaded = resolve;
+      }),
+  );
   const worker = createBotWorker(createActivity(true));
-  const pending = worker.request(game());
+  const pending = assert.rejects(worker.request(game()), /closed/);
+  await flush();
+  t.mock.timers.tick(0);
+  await flush();
+  worker.dispose();
+  loaded(response(code));
+  await flush();
+  await pending;
+  t.mock.timers.tick(1000);
+  assert.equal(new MMKV().getString(BOT_REQUEST), undefined);
+  assert.equal(new MMKV().getString(BOT_RESPONSE), undefined);
+});
+
+test('a failed result write rejects rather than throwing from the native callback', async (t) => {
+  const code = await bundledEngine();
+  t.mock.timers.enable({ apis: ['setTimeout', 'Date'], now: 1000 });
+  t.mock.method(globalThis, 'fetch', async () => response(code));
+  const original = MMKV.prototype.set;
+  t.mock.method(
+    MMKV.prototype,
+    'set',
+    function (this: MMKV, key: string, value: string) {
+      if (key === BOT_RESPONSE) throw new Error('result write failed');
+      original.call(this, key, value);
+    },
+  );
+  const worker = createBotWorker(createActivity(true));
+  const pending = assert.rejects(worker.request(game()), /result write failed/);
   await flush();
   t.mock.timers.tick(0);
   await flush();
   t.mock.timers.tick(100);
-  assert.equal((await pending).gameId, 'worker');
-  assert.equal(launch.mock.callCount(), 1);
+  await pending;
   assert.equal(new MMKV().getString(BOT_REQUEST), undefined);
   worker.dispose();
 });
@@ -204,7 +273,7 @@ test('requests serialize, match the full position, and clean only their mailbox 
   assert.equal(r.timers.size, 0);
 });
 
-test('a task is launched after focus returns; its ready response survives a long background interval', async () => {
+test('a worker is launched after focus returns; its ready response survives a long background interval', async () => {
   const r = rig(false, 1000);
   const pending = r.request(game());
   await flush();
@@ -225,7 +294,7 @@ test('a task is launched after focus returns; its ready response survives a long
   r.dispose();
 });
 
-test('wrong position, stale request, malformed moves, and task errors reject without searching on the caller', async () => {
+test('wrong position, stale request, malformed moves, and worker errors reject without searching on the caller', async () => {
   for (const change of [
     (reply: BotReply) => ({ ...reply, revision: reply.revision + 1 }),
     (reply: BotReply) => ({ ...reply, dfen: reply.dfen + ' ' }),
@@ -253,7 +322,7 @@ test('wrong position, stale request, malformed moves, and task errors reject wit
   }
 });
 
-test('launch and storage failures settle the request; missing tasks time out without overlapping another task', async () => {
+test('launch and storage failures settle the request; missing workers time out without overlapping another search', async () => {
   for (const failure of ['failLaunch', 'failStore'] as const) {
     const r = rig();
     r.state[failure] = true;
@@ -274,7 +343,7 @@ test('launch and storage failures settle the request; missing tasks time out wit
   assert.equal(r.values.size, 0);
 });
 
-test('disposing while waiting for focus or a task cancels polling and rejects queued work', async () => {
+test('disposing while waiting for focus or a worker cancels polling and rejects queued work', async () => {
   for (const active of [false, true]) {
     const r = rig(active);
     const first = assert.rejects(r.request(game()), /closed/);

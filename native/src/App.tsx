@@ -61,8 +61,8 @@ import {
 } from './musicSetting';
 import { randomSource } from './randomSource';
 import type { ScreenOptions } from './screen';
-import { ActivityContext, createActivity } from './activity';
-import { createBotWorker } from './botWorker';
+import { ActivityContext, createActivity, type Activity } from './activity';
+import type { BotWorker } from './botClient';
 import { GameBoundary, type Recovery } from './Recovery';
 
 const KEY = 'dicechess-tv.game.v2';
@@ -98,6 +98,9 @@ export type AppProps = {
   // Injected by tests, which cannot hear; the app makes the real players.
   sounds?: Sounds;
   music?: Music;
+  // The native entry point supplies the Vega runtime; the browser bench supplies
+  // its Web Worker. Tests normally inject complete ScreenOptions instead.
+  createWorker?: (activity: Activity) => BotWorker;
 };
 
 export const App = ({
@@ -105,6 +108,7 @@ export const App = ({
   onState,
   sounds: injectedSounds,
   music: injectedMusic,
+  createWorker,
 }: AppProps) => {
   const appState = useKeplerAppStateManager();
   const activity = React.useMemo(
@@ -112,8 +116,8 @@ export const App = ({
     [appState],
   );
   const worker = React.useMemo(
-    () => (injected ? null : createBotWorker(activity)),
-    [activity, injected],
+    () => (injected ? null : createWorker?.(activity)),
+    [activity, injected, createWorker],
   );
   React.useEffect(() => () => worker?.dispose(), [worker]);
   const store = React.useMemo(
@@ -146,9 +150,12 @@ export const App = ({
         const timer = setTimeout(step, 0);
         return () => clearTimeout(timer);
       },
-      // The canonical search runs in the task's separate Hermes runtime. Its
+      // The canonical search runs in the worker's separate Hermes runtime. Its
       // duration still counts against the opponent's presentation wait (#253).
-      reply: worker!.request,
+      reply:
+        worker?.request ??
+        (() => Promise.reject(new Error('Opponent worker is unavailable'))),
+      now: Date.now,
     };
   }, [injected, worker]);
 

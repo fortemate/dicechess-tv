@@ -417,14 +417,16 @@ Severity scale: **Blocker** stopped the chosen approach; **High** cost a day or 
   `native/README.md` at commit `04b0a88`, The local opponents; PR #21.
 - **Severity and user impact:** Medium. A stronger opponent than the random one needs this; the random
   one runs on the JS thread without a visible pause.
-- **Workaround:** the app starts its private `pkg://` task address with native
-  `Linking.openURL` from the registered interactive component. A CLI caller is outside that
-  package and its denial does not show that the in-package route is unavailable. The current
-  implementation uses separate Hermes runtimes in one explicit process group and a namespaced
-  default-MMKV mailbox. See [Opponent task on Vega](/technology/architecture/#opponent-task-on-vega).
-- **Suggested improvement:** a sample that runs a CPU-heavy, pure JavaScript library on a worklet
-  runtime, or documentation of an app-facing trigger for headless tasks.
-- **Current status:** worked around by the in-package task route; the historical CLI failure remains reproducible.
+- **Workaround:** the current app uses the supported RN 0.83 Worklets API to run the
+  canonical engine in a custom Hermes runtime. Its pure engine bundle is generated at build
+  time and loaded from the signed package. See [Opponent runtime on Vega](/technology/architecture/#opponent-runtime-on-vega).
+  A separate investigation proved an in-package `Linking.openURL` route to a headless task on
+  a physical Stick, but native task initialization failed on the tested aarch64 Virtual Device
+  images. The current app uses Worklets instead.
+- **Suggested improvement:** a sample of a CPU-heavy pure JavaScript library running in a
+  custom worklet runtime, including initialization and returning a validated result.
+- **Current status:** worked around with Worklets; the historical CLI restriction on private
+  task addresses is separate from worklet execution.
 
 ### FL-14 · The Vega ESLint plugin crashes on ESLint 10 and hides its advisories {#fl-14}
 

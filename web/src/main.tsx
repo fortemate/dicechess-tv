@@ -4,6 +4,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { View } from 'react-native';
 import { App } from '../../native/src/App';
+import { createBotWorker } from './shims/botWorker';
 import { Board } from '../../native/src/Board';
 import { THEME } from '../../native/src/theme';
 import type { Direction } from '../../src/core/cursor';
@@ -356,7 +357,9 @@ const Bench = () => {
           ) : (
             <>
               <View style={{ width: TV_WIDTH, height: TV_HEIGHT }}>
-                {exited ? null : <App key={launch} />}
+                {exited ? null : (
+                  <App key={launch} createWorker={createBotWorker} />
+                )}
               </View>
               {exited ? (
                 <div className="exited">
