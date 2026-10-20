@@ -20,7 +20,6 @@ import {
   type PlayAs,
 } from '../src/playAsSetting';
 import { opponentHint } from '../src/OpponentScreen';
-import type { KeyValueStore } from '../src/mmkvStore';
 import type { BoardKey } from '../../src/core/boardInput';
 import {
   moveGame,
@@ -29,7 +28,14 @@ import {
   rollGame,
   type Side,
 } from '../../src/core/game';
-import { fakeTimers, fixedOptions, launch, send, text } from './support';
+import {
+  fakeTimers,
+  fixedOptions,
+  launch,
+  memoryStore,
+  send,
+  text,
+} from './support';
 
 // The bot's lines go on the voices' own timers.
 fakeTimers();
@@ -54,19 +60,6 @@ const home = (
 // A Hot Seat game with a move played: in play, so a new game asks first.
 const inPlay = () =>
   moveGame(rollGame(newGame('hotseat', 'in-play'), [5, 4, 2]), 'b1c3');
-
-const memoryStore = (initial?: Record<string, string>): KeyValueStore => {
-  const map = new Map<string, string>(Object.entries(initial ?? {}));
-  return {
-    getString: (key: string) => map.get(key),
-    set: (key: string, value: string) => {
-      map.set(key, value);
-    },
-    delete: (key: string) => {
-      map.delete(key);
-    },
-  };
-};
 
 const KEY = 'dicechess-tv.playAs.v1';
 

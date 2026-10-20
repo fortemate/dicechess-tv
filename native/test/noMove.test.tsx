@@ -17,6 +17,7 @@ import {
   fixedOptions,
   isHost,
   launch,
+  motion,
   send,
   styleOf,
   text,
@@ -157,10 +158,7 @@ test('against the bot both sides’ empty rolls are announced, and the bot’s w
 });
 
 test('the person’s dice thrown over the bot’s empty roll tumble in like any roll (#99, #149)', () => {
-  const slides = globalThis as {
-    __holdSlides?: boolean;
-    __heldSlides?: unknown[];
-  };
+  const slides = motion;
   reset();
   const clock = scheduler();
   const { root } = launch({

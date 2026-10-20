@@ -20,7 +20,12 @@ export const useWindowDimensions = () => ({
 // Delays are not kept: an animation ends as soon as it starts, so a test sees
 // the new position at once. A test that looks at a piece in flight or a die on
 // its way in sets globalThis.__holdSlides and ends the animations itself
-// through globalThis.__heldSlides.
+// through globalThis.__heldSlides, calling an entry's done().
+//
+// As in React Native, an animation ends once: its callback hears
+// { finished: true } when it runs to the end, or { finished: false } when
+// stop() cuts it short, and nothing after that. Each entry keeps what its
+// callback heard in `results`.
 class AnimatedValue {
   constructor(value) {
     this.value = value;
@@ -37,19 +42,36 @@ export const Animated = {
   Value: AnimatedValue,
   View: (props) => React.createElement('Animated.View', props),
   timing: (value, config) => {
-    const entry = { value, config, done: null, stopped: false };
+    let callback = null;
+    let started = false;
+    let ended = false;
+    const entry = {
+      value,
+      config,
+      stopped: false,
+      results: [],
+      // Ends the animation, once.
+      done: (result) => {
+        if (!started || ended) return;
+        ended = true;
+        entry.results.push(result);
+        callback?.(result);
+      },
+    };
     return {
-      start(done) {
-        entry.done = done;
+      start(onEnd) {
+        callback = onEnd ?? null;
+        started = true;
         if (globalThis.__holdSlides) {
           globalThis.__heldSlides = [...(globalThis.__heldSlides ?? []), entry];
           return;
         }
         value.setValue(config.toValue);
-        done?.({ finished: true });
+        entry.done({ finished: true });
       },
       stop() {
         entry.stopped = true;
+        entry.done({ finished: false });
       },
     };
   },
@@ -71,8 +93,10 @@ const answered = (value) => ({
   },
 });
 
-// The screen reader's listeners, so a test can turn it on or off mid-game.
+// The screen reader's listeners, and those of the reduced motion setting, so a
+// test can turn either on or off mid-game.
 const readers = new Set();
+const motionListeners = new Set();
 
 // Turns the screen reader on or off, as holding Back and Menu does on a
 // device. Call it inside act().
@@ -81,12 +105,20 @@ export const setScreenReader = (on) => {
   for (const listener of readers) listener(on);
 };
 
+// Turns the platform's reduced motion setting on or off, as its accessibility
+// settings do on a device. Call it inside act().
+export const setReduceMotion = (on) => {
+  globalThis.__reduceMotion = on;
+  for (const listener of motionListeners) listener(on);
+};
+
 // What the app announced since the last reset, in order: the line, and whether
 // it waits for the one being said.
 export const announced = () => globalThis.__announced ?? [];
 
 export const resetAccessibility = () => {
   readers.clear();
+  motionListeners.clear();
   delete globalThis.__screenReader;
   delete globalThis.__announced;
 };
@@ -117,11 +149,17 @@ export const AccessibilityInfo = {
     return answered(Boolean(globalThis.__reduceMotion));
   },
   addEventListener: (event, listener) => {
-    if (event !== 'screenReaderChanged') return { remove() {} };
-    readers.add(listener);
+    const listeners =
+      event === 'screenReaderChanged'
+        ? readers
+        : event === 'reduceMotionChanged'
+          ? motionListeners
+          : null;
+    if (!listeners) return { remove() {} };
+    listeners.add(listener);
     return {
       remove() {
-        readers.delete(listener);
+        listeners.delete(listener);
       },
     };
   },

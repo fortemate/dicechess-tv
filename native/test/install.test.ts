@@ -5,15 +5,24 @@
 // `vega device install-app` leaves in the device's memory (#379).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   archOf,
   archOfListing,
   archOfPackage,
+  deviceArch,
+  failureOf,
   installPackage,
+  listPackage,
   machineOf,
   packagePath,
   pushedPath,
   removeCommand,
+  vega,
   // @ts-expect-error — a build script, deliberately plain JavaScript.
 } from '../scripts/install.mjs';
 
@@ -184,4 +193,117 @@ test('a copy that cannot be removed is reported, and the install still succeeds'
   );
   assert.equal(unquotable.calls.length, 1);
   assert.match(warnings[1], /cannot quote/);
+});
+
+// What spawnSync answers when the command is not on the PATH: an error, no
+// status and no output.
+const notFound = () => ({
+  error: Object.assign(new Error('spawnSync vega ENOENT'), { code: 'ENOENT' }),
+  status: null,
+  stdout: undefined,
+  stderr: undefined,
+});
+
+test('a missing Vega CLI is reported as missing', () => {
+  assert.throws(
+    () => vega(['device', 'run-cmd'], {}, notFound),
+    /^Error: vega CLI not found on PATH: install the Vega SDK/,
+  );
+  // Any other failure to start it names the failure.
+  const denied = () => ({
+    error: Object.assign(new Error('spawnSync vega EACCES'), {
+      code: 'EACCES',
+    }),
+    status: null,
+  });
+  assert.throws(
+    () => vega(['device', 'list'], {}, denied),
+    /^Error: vega device: spawnSync vega EACCES$/,
+  );
+  // A CLI that ran is answered as it answered, whatever its status.
+  const ran = { status: 2, stdout: '', stderr: 'no device\n' };
+  const calls: unknown[][] = [];
+  assert.equal(
+    vega(['device', 'list'], { stdio: 'inherit' }, (...args: unknown[]) => {
+      calls.push(args);
+      return ran;
+    }),
+    ran,
+  );
+  assert.deepEqual(calls, [
+    ['vega', ['device', 'list'], { encoding: 'utf8', stdio: 'inherit' }],
+  ]);
+});
+
+test('npm run device without the Vega CLI says so, not a TypeError', (t) => {
+  const empty = mkdtempSync(join(tmpdir(), 'no-vega-'));
+  t.after(() => rmSync(empty, { recursive: true, force: true }));
+  const script = join(
+    dirname(fileURLToPath(import.meta.url)),
+    '../scripts/install.mjs',
+  );
+  const run = spawnSync(process.execPath, [script], {
+    encoding: 'utf8',
+    env: { ...process.env, PATH: empty },
+  });
+  assert.equal(run.status, 1);
+  assert.match(run.stderr, /^install: vega CLI not found on PATH/);
+  assert.doesNotMatch(run.stderr, /TypeError/);
+});
+
+test('a vega command that fails is reported by what it said, or its exit status', () => {
+  assert.equal(
+    failureOf({ status: 1, stdout: 'out\n', stderr: 'error: offline\n' }),
+    'error: offline',
+  );
+  assert.equal(
+    failureOf({ status: 1, stdout: 'only out\n', stderr: '' }),
+    'only out',
+  );
+  // Blank error output gives way to the output.
+  assert.equal(
+    failureOf({ status: 1, stdout: 'error: no such package\n', stderr: ' \n' }),
+    'error: no such package',
+  );
+  // With its output inherited, or with nothing said, the status is all there is.
+  assert.equal(
+    failureOf({ status: 4, stdout: null, stderr: null }),
+    'exit status 4',
+  );
+  assert.equal(failureOf({ status: 2 }), 'exit status 2');
+
+  const unreachable = vegaAnswering({
+    status: 1,
+    stdout: '',
+    stderr: 'error: device stick not found\n',
+  });
+  assert.throws(
+    () => deviceArch('stick', unreachable.run),
+    /^Error: cannot reach stick: error: device stick not found$/,
+  );
+  assert.deepEqual(unreachable.calls, [
+    ['device', 'run-cmd', '-d', 'stick', '-c', 'uname -m'],
+  ]);
+  const silent = vegaAnswering({ status: 255 });
+  assert.throws(
+    () => deviceArch('stick', silent.run),
+    /^Error: cannot reach stick: exit status 255$/,
+  );
+  assert.equal(
+    deviceArch(
+      'VirtualDevice',
+      vegaAnswering({ status: 0, stdout: 'Running...\naarch64\n', stderr: '' })
+        .run,
+    ),
+    'aarch64',
+  );
+
+  const unlisted = vegaAnswering({ status: 3 });
+  assert.throws(
+    () => listPackage('a.vpkg', unlisted.run),
+    /^Error: vpt cannot list a\.vpkg: exit status 3$/,
+  );
+  assert.deepEqual(unlisted.calls, [
+    ['exec', 'vpt', 'show-contents', 'a.vpkg'],
+  ]);
 });

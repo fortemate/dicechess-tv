@@ -9,20 +9,7 @@ import {
   soundGain,
   soundHeard,
 } from '../src/soundSetting';
-import type { KeyValueStore } from '../src/mmkvStore';
-
-const memoryStore = (initial?: Record<string, string>): KeyValueStore => {
-  const map = new Map<string, string>(Object.entries(initial ?? {}));
-  return {
-    getString: (key: string) => map.get(key),
-    set: (key: string, value: string) => {
-      map.set(key, value);
-    },
-    delete: (key: string) => {
-      map.delete(key);
-    },
-  };
-};
+import { memoryStore } from './support';
 
 test('sounds are on by default at full volume', () => {
   assert.deepEqual(readSound(memoryStore()), DEFAULT_SOUND);
