@@ -40,6 +40,7 @@ Before the first roll of a game the three places show empty outlines. After that
 The app lays out a 960 x 540 dp screen, which is how a 1920 x 1080 television reports itself.
 
 - **Text.** The headline is 38 dp, and no text is smaller than 20 dp: that is the minimum the React Native TV guide by Amazon and Callstack recommends, above Amazon's own 14sp.
+- **Larger text.** The television's Accessibility → Adaptive Display setting (Default, Large, Larger) does not change the app's text. On a Fire TV Stick 4K Select set to Larger, Dice Chess 1.0.2 drew the home menu and Settings at the same size as on the Virtual Device, because the setting does not reach a React Native for Vega app as `fontScale` ([FL-29](/friction-log/#fl-29)). The screens therefore stay whole at every level, but a player who asked for larger text gets none yet; following the setting through Amazon's accessibility settings package is a planned feature ([#448](https://github.com/fortemate/dicechess-tv/issues/448)).
 - **The safe area.** Nothing sits in the outer 5 % of any edge (48 dp across, 27 dp down), where a television may crop. The board is 460 dp, and it leaves a 372 dp panel beside it, wide enough for the longest headline on one line.
 - **Evidence.** Each screen was checked on the Vega Virtual Device: a script counted anything but the background inside that margin, and found nothing.
 
