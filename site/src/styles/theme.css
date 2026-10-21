@@ -63,7 +63,7 @@
 }
 
 /* A horizontal bar chart built in HTML rather than drawn as an image, so its
-   labels stay readable on a phone and its colours follow the site's light and
+   labels stay readable on a phone and its colors follow the site's light and
    dark themes. The row the chart is about carries the accent. */
 .bars {
   margin: 1.5rem 0;

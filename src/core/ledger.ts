@@ -10,10 +10,10 @@
 // A game that never ends is never counted, so an abandoned or replaced game
 // stays out of the record without anything having to notice it was abandoned.
 //
-// Hotseat is reported by colour, never by player. The seats change hands and
+// Hotseat is reported by color, never by player. The seats change hands and
 // the ledger has no way to know who sat where.
 //
-// Nothing shows the ledger. Counts by colour in hotseat say nothing about the
+// Nothing shows the ledger. Counts by color in hotseat say nothing about the
 // people who played, who change from one evening to the next, and the record
 // against a computer opponent has the same flaw: it counts every game played
 // on the TV, whoever held the remote. The ledger still counts, so the save
@@ -33,7 +33,7 @@ export type Ledger = {
   hotseat: HotseatRecord;
   // Opponent, then the side the human played, then the record from the human's
   // point of view. Nested because the same opponent plays differently against
-  // each colour, and a combined number would hide that.
+  // each color, and a combined number would hide that.
   bots: Record<string, Partial<Record<Side, BotRecord>>>;
 };
 
@@ -87,7 +87,7 @@ export function decodeLedger(raw: string): Ledger {
   return value;
 }
 
-// Which count a finished game adds to: by colour in hotseat, and from the
+// Which count a finished game adds to: by color in hotseat, and from the
 // person's side against a bot.
 function hotseatField(winner: Side | null): keyof HotseatRecord {
   if (winner === null) return 'draws';

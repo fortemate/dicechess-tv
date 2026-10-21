@@ -17,8 +17,8 @@ import type { PlayAs } from './playAsSetting';
 
 const LEVELS = ['Easy', 'Medium', 'Hard'] as const;
 
-// What OK on a card does, as the hint says it (#345): it plays in the colour
-// Settings names, or, set to Ask, opens the choice of colour.
+// What OK on a card does, as the hint says it (#345): it plays in the color
+// Settings names, or, set to Ask, opens the choice of color.
 const OK_DOES: Readonly<Record<PlayAs, string>> = {
   ask: 'choose a color',
   random: 'play',
@@ -38,7 +38,7 @@ export const cardLabel = ({ name, level, style }: Opponent): string =>
 const GAP = 24;
 
 // The level as filled and empty rings, which read the same whatever the
-// viewer's colour vision; the word beside them says it outright.
+// viewer's color vision; the word beside them says it outright.
 const Pips = ({ level }: { level: Opponent['level'] }) => {
   const filled = LEVELS.indexOf(level) + 1;
   return (
@@ -127,7 +127,7 @@ export const OpponentScreen = ({
   index: number;
   // OK is held on it.
   pressed: boolean;
-  // The colour Settings names, which says what OK does.
+  // The color Settings names, which says what OK does.
   playAs?: PlayAs;
 }) => {
   const { width, height } = useWindowDimensions();

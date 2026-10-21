@@ -4,7 +4,7 @@
 // move, and reads move intent from the input layer instead of from here.
 //
 // When the position changes by one action, the piece that moved slides to its
-// square (#131): src/core/moveAnimation.ts works out what travelled, and the
+// square (#131): src/core/moveAnimation.ts works out what traveled, and the
 // slide runs on the native driver. It is presentation only: the game has
 // already moved on, and the remote is never held up.
 import React from 'react';

@@ -1,4 +1,4 @@
-// Board highlights setting (#404): Standard (default), Enhanced, Colour-blind
+// Board highlights setting (#404): Standard (default), Enhanced, Color-blind
 // and High contrast, cycled in Settings and remembered across launches.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -194,7 +194,7 @@ test('each highlight style draws its distinct selected, destination, target and 
   );
   assert.equal(liftedRooks.length, 1, 'lifted piece');
 
-  // Colour-blind uses Okabe-Ito sky-blue (#56b4e9), vermilion (#d55e00),
+  // Color-blind uses Okabe-Ito sky-blue (#56b4e9), vermilion (#d55e00),
   // reddish-purple (#cc79a7) and a ghost of the carried rook on the destination
   // under the cursor (d2).
   const colourBlind = mountBoard('colour-blind');

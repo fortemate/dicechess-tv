@@ -1,4 +1,4 @@
-// What a renderer slides after one action (#131): the pieces that travelled,
+// What a renderer slides after one action (#131): the pieces that traveled,
 // the piece that was taken, and nothing at all when the board was reset.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

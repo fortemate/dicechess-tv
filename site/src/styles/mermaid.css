@@ -1,11 +1,11 @@
-/* The colours of the Mermaid diagrams. This is not a page stylesheet:
+/* The colors of the Mermaid diagrams. This is not a page stylesheet:
    astro.config.mjs reads it once, when the site starts, and hands it to Mermaid
    as `themeCSS`, so restart `npm run dev` after changing it. Mermaid scopes it
    to each diagram and places it after its own theme, so these rules win without
    !important, and a diagram's own `style` and `classDef` lines still win over
    them.
 
-   A diagram is drawn inline in the page, so Starlight's colour variables reach
+   A diagram is drawn inline in the page, so Starlight's color variables reach
    it and it follows the light and dark themes the way the text does. In both
    themes Starlight's scale runs from --sl-color-black, the page background, to
    --sl-color-white, the text. */
@@ -31,7 +31,7 @@ text {
   stroke-width: 1px;
 }
 
-/* A subgraph is a band behind its boxes, titled in the grey of secondary
+/* A subgraph is a band behind its boxes, titled in the gray of secondary
    text. */
 .cluster rect {
   fill: var(--sl-color-gray-6);

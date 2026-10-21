@@ -1,4 +1,4 @@
-// The vendored voices are what their catalogue says, and say what the game says
+// The vendored voices are what their catalog says, and say what the game says
 // (#159, #187, #202, #258, #264, #279).
 //
 // scripts/vendor-voices.mjs writes voices/voices.json: the pinned commit of
@@ -6,7 +6,7 @@
 // and for every line of the game, a bot's, the Hot Seat host's or the tutor's, its clip, the
 // clip's digest and the text it was recorded from. These checks make a
 // hand-edited file, a stray one, a regenerated table that drifted from the
-// catalogue, pacing that drifted from events.json, or a line changed in the game
+// catalog, pacing that drifted from events.json, or a line changed in the game
 // but not re-recorded fail here rather than ship.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

@@ -1,6 +1,6 @@
 // Who made what the player sees, as the About screen shows it.
 //
-// This is where a licence's credit requirement is met, so the words are the
+// This is where a license's credit requirement is met, so the words are the
 // authors' own rather than ours. A pack's manifest in dicechess-assets words its
 // credit as "<who> – <link>", and the screen splits it the way every card is
 // laid out: who made it on the line, and the link, without its scheme, as the
@@ -8,7 +8,7 @@
 // and to THIRD_PARTY_NOTICES.md, so the screen and the notices cannot drift
 // apart.
 //
-// It names components and their licences. It does not settle how the combined
+// It names components and their licenses. It does not settle how the combined
 // application may be distributed — that question is open, and recorded as open
 // in the notices and the README.
 
@@ -56,7 +56,7 @@ export const CREDITS: readonly Credit[] = [
   PIECES,
   {
     subject: 'Piece sounds',
-    // The licence requires visible credit and gives this wording as its
+    // The license requires visible credit and gives this wording as its
     // example; a link is optional. The author's permission for this repository
     // asks for a link to his page, which the source is.
     line: 'Sounds by JDSherbert',
@@ -80,7 +80,7 @@ export const CREDITS: readonly Credit[] = [
   },
 ];
 
-// Where the licences of the software in the app are (#338). The package carries
+// Where the licenses of the software in the app are (#338). The package carries
 // them, in assets/licenses/, but a viewer cannot open a file from the sofa, so
 // the screen also gives the address of the site's page that lists them, to be
 // read off the television like the sources above.

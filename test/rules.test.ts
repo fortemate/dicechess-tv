@@ -18,7 +18,7 @@ const at = (start: string, roll: number[], id = 'rules') =>
   rollGame(newGame('hotseat', id, start), roll);
 
 // Binds a sentence in the guide to the check below it. Without this the text
-// and the engine drift apart silently: the behaviour stays right while the
+// and the engine drift apart silently: the behavior stays right while the
 // sentence describing it goes wrong, which is the whole failure this file
 // exists to prevent.
 const claims = (id: string, line: string) => {

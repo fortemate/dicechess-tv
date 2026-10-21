@@ -303,7 +303,7 @@ test('Prowla, hosting, says only her own lines', () => {
   const first = hostVoiceCue(null, newGame('hotseat', 'one'), state);
   assert.equal(first.line?.host, 'prowla');
   assert.match(first.line?.id ?? '', /^prowla_host_intro_[1-5]$/);
-  // A colour's win draws her colourless lines too, never Rolly's.
+  // A color's win draws her colorless lines too, never Rolly's.
   const [before, after] = BLACK_TAKES_KING(4);
   for (const random of [() => 0, () => 0.99]) {
     const won = hostVoiceCue(
@@ -767,7 +767,7 @@ test("a colour's win draws from its own lines and the ones that name no colour",
 });
 
 test('the line that ended one game never ends the next, whichever colour won', () => {
-  // The colourless lines are in both colours' pools, each with its own bag.
+  // The colorless lines are in both colors' pools, each with its own bag.
   const random = seeded(11);
   let state = midGame(1, 0);
   let last: string | undefined;

@@ -22,7 +22,7 @@ import {
 import { botToAct } from '../src/core/bot.ts';
 import { boardView } from '../src/core/boardView.ts';
 
-// A save as the app wrote it before a person could choose a colour.
+// A save as the app wrote it before a person could choose a color.
 const schema2 = (mode: 'hotseat' | 'random') => {
   const game: Record<string, unknown> = { ...newGame(mode, 'old'), schema: 2 };
   delete game.human;
@@ -123,7 +123,7 @@ test('a flipped board is drawn from Black’s side', () => {
     ['h1', 'g1', 'f1', 'e1', 'd1', 'c1', 'b1', 'a1'],
   );
   assert.equal(rows[7][0].square, 'h8');
-  // The squares keep their colours: a1 stays dark in the top-right corner.
+  // The squares keep their colors: a1 stays dark in the top-right corner.
   assert.equal(rows[0][7].dark, true);
   assert.equal(rows[0][7].piece, 'R');
 });

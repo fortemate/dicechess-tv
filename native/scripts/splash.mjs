@@ -60,7 +60,7 @@ const py = (v) => MEDALLION.cy + (v - CROP.cy) * scale;
 // His open palm, under his own die, where the three dice start and end.
 const PALM = { x: px(470), y: py(1235) };
 
-// Titan One 400, two lines centred on the credit's axis. At 208 px its cap
+// Titan One 400, two lines centered on the credit's axis. At 208 px its cap
 // height is about 148 px, and "Chess" ends clear of the knight die.
 export const TITLE = { x: 438, size: 208, track: -3, base: [410, 606] };
 // The mark at 56 px, a multiple of its 14-unit canvas, so its 16 px cells and

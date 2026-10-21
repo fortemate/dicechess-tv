@@ -1,4 +1,4 @@
-// The vendored music is what its catalogue says it is (#76).
+// The vendored music is what its catalog says it is (#76).
 //
 // scripts/vendor-music.mjs writes music/music.json: the pinned commit of
 // dicechess-assets, the pack's permission, the tracks each role plays, and the
@@ -38,7 +38,7 @@ test('the catalogue pins one full commit of the asset repository', () => {
 });
 
 test('this repository may carry the pack', () => {
-  // A pending licence is private; a permission for one project names the
+  // A pending license is private; a permission for one project names the
   // repositories that may carry it.
   const allowed =
     catalogue.distribution === 'public' ||

@@ -40,7 +40,7 @@ on:
 permissions: {}
 
 # One run per branch at a time. A newer pull-request run replaces an older one.
-# On main a deployment is never cancelled halfway; the newest waiting run
+# On main a deployment is never canceled halfway; the newest waiting run
 # follows it.
 concurrency:
   group: site-${{ github.ref }}

@@ -1,5 +1,5 @@
 // The bench: the television's app on a 16:9 stage, the controls that switch
-// its marks and the colour-vision filter, and the keyboard as the remote.
+// its marks and the color-vision filter, and the keyboard as the remote.
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { View } from 'react-native';
@@ -43,7 +43,7 @@ import {
 import icon from '../../native/icon/icon-512.png';
 import './bench.css';
 
-// The bench plays without music: the app looks for its catalogue on the
+// The bench plays without music: the app looks for its catalog on the
 // device's file system, and finding none it leaves music out of the menu.
 const devicePath = /^file:\/\/\/pkg\//;
 const fetchPage = globalThis.fetch.bind(globalThis);

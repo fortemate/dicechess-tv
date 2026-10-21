@@ -1,8 +1,8 @@
-// The saving contract both frontends honour, and the one rule neither may skip.
+// The saving contract both frontends honor, and the one rule neither may skip.
 //
 // The web probe stores through IndexedDB with strict transactions; the native
 // board stores through MMKV. They differ in everything except this: a snapshot
-// is serialised and validated *before* anything is written, so a damaged
+// is serialized and validated *before* anything is written, so a damaged
 // snapshot can never replace a good one and a caller cannot mutate a write that
 // is already in flight.
 
@@ -13,7 +13,7 @@ export interface SnapshotStore<T> {
   save(snapshot: T): Promise<void>;
 }
 
-// Serialise and validate in one step, before the caller yields. Throws exactly
+// Serialize and validate in one step, before the caller yields. Throws exactly
 // what `decode` throws, so a store never has to decide what a damaged snapshot
 // means.
 export function encodeSnapshot<T>(

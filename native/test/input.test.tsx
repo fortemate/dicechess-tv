@@ -119,7 +119,7 @@ test('it opens on the home screen and starts the mode that was chosen', () => {
   assert.match(home.state(), /overlay none \| turn 1 \| phase roll/);
 
   const random = mountHome();
-  // Play the computer, Rolly, then Random on the colour choice.
+  // Play the computer, Rolly, then Random on the color choice.
   send(Down, Select, Select, Select);
   assert.match(random.state(), /overlay none/);
 });

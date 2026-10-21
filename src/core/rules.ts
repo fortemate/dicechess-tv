@@ -7,7 +7,7 @@
 // not established. So every factual claim here is written against our engine
 // and checked against it in test/rules.test.ts.
 //
-// The division of labour with the tutorial is deliberate: the tutorial explains
+// The division of labor with the tutorial is deliberate: the tutorial explains
 // in the moment of difficulty, this is for reading and remembering. Castling,
 // promotion and en passant live here precisely because the tutorial leaves them
 // out.

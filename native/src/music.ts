@@ -48,7 +48,7 @@ import {
 } from '@amazon-devices/react-native-w3cmedia';
 import type { MusicRole } from './screen';
 
-// One track, as the music catalogue the build ships describes it: the file under
+// One track, as the music catalog the build ships describes it: the file under
 // the music directory, the stretch that loops (seconds), and the gain that
 // levels it with the others.
 export type Track = {
@@ -71,12 +71,12 @@ export type Music = {
   setVolume(gain: number): void;
   // While the app is away from the foreground nothing plays.
   setSuspended(suspended: boolean): void;
-  // The catalogue arrives after launch, and not at all in a build without music.
+  // The catalog arrives after launch, and not at all in a build without music.
   setCatalogue(catalogue: Catalogue | null): void;
   // Lower while a bot's line is being said.
   setDucked(ducked: boolean): void;
   // Lets every player and timer go for good, when the app closes. Nothing
-  // plays afterwards, whatever it is told.
+  // plays afterward, whatever it is told.
   dispose(): void;
 };
 
@@ -825,7 +825,7 @@ export function createMusic({
   };
 }
 
-// The catalogue the build writes beside the music, or null when the build has
+// The catalog the build writes beside the music, or null when the build has
 // none: then the game simply plays without music. fetch reads a packaged file by
 // its file:// URL, where the player wants the bare path (native/README.md).
 export async function loadCatalogue(

@@ -73,7 +73,7 @@ const recorder = () => {
   return self;
 };
 
-// The dice faces, in order, by the colour only a face has.
+// The dice faces, in order, by the color only a face has.
 const faces = (root: Instance): Style[] =>
   root
     .findAll(

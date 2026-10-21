@@ -1,6 +1,6 @@
 name: PR Labeler
 
-# pull_request_target, so that a pull request from a fork can be labelled: the
+# pull_request_target, so that a pull request from a fork can be labeled: the
 # workflow and .github/labeler.yml come from the base branch, and no code from
 # the pull request is checked out or run. The token can write to pull requests,
 # so the action is pinned to a commit and the job runs on a GitHub-hosted image,

@@ -113,7 +113,7 @@ export const EFFECTS_RETURN_MS = 1000;
 // happens.
 export const RESULT_LINE_DELAY_MS = 1200;
 // The events said after the jingle. The host's White or Black win may be one
-// of her lines that name no colour, whose event is 'win': it waits too.
+// of her lines that name no color, whose event is 'win': it waits too.
 const AFTER_JINGLE: ReadonlySet<string> = new Set([
   'win',
   'loss',
@@ -174,7 +174,7 @@ export type Sounds = {
   // made again on the return. The player's own sound setting is left alone.
   setSuspended(suspended: boolean): void;
   // Lets every player go for good, when the app closes. Nothing plays
-  // afterwards, whatever it is told.
+  // afterward, whatever it is told.
   dispose(): void;
 };
 
@@ -411,7 +411,7 @@ export function createSounds({
   const load = (channel: Channel, held: number) =>
     newPlayer(channel).then((player) => {
       if (!player) return null;
-      // Let go while it was still initialising: it never joins the channels.
+      // Let go while it was still initializing: it never joins the channels.
       if (held !== lease) {
         void letGo(channel, player);
         return null;
@@ -437,7 +437,7 @@ export function createSounds({
   // Lets the channels' players go, silent at once. What they were playing, or
   // waiting at, goes with them: each channel moves on a take, so that a clip
   // of theirs ending later pauses and moves nothing. A player still
-  // initialising is let go when it is ready.
+  // initializing is let go when it is ready.
   const releaseChannels = () => {
     cancelWake?.();
     cancelWake = null;
@@ -463,7 +463,7 @@ export function createSounds({
     const files = CUE_FILES[cue];
     const channel = CHANNEL[cue];
     const player = await channels.get(channel);
-    // Muting can happen while a player is still initialising.
+    // Muting can happen while a player is still initializing.
     if (!player || muted || suspended || generation !== suspension) return;
     // The player already waits at one of this cue's takes: that is the take.
     const waiting = parked.get(channel);
@@ -498,7 +498,7 @@ export function createSounds({
     );
   };
 
-  // Muting pauses the players and keeps them. A player still initialising
+  // Muting pauses the players and keeps them. A player still initializing
   // when the stop was asked for has nothing playing, and start() checks again
   // before it plays.
   const stopEffects = () => {

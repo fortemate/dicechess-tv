@@ -278,7 +278,7 @@ test('the lesson about a roll no die can use: every die grey, and OK passes', ()
   const pass = TUTORIAL.find((step) => step.id === 'pass')!;
   const game = rolled(pass);
   // Queen, rook and king, all boxed in at the start: nothing glows and every
-  // die is grey, as Thinkle says.
+  // die is gray, as Thinkle says.
   assert.ok(emptyRoll(game));
   assert.equal(viewGame(game).remaining, 'QRK');
   assert.equal(viewGame(game).playable, '');
@@ -343,7 +343,7 @@ test('no lesson can strand the player: every way to play it ends done or missed'
 test('the capture lesson: one rook move, and only the pawn completes it', () => {
   const capture = TUTORIAL.find((step) => step.id === 'capture')!;
   const game = rolled(capture);
-  // No queen or bishop on the board, so their dice are grey at the roll.
+  // No queen or bishop on the board, so their dice are gray at the roll.
   assert.equal(viewGame(game).remaining, 'RQB');
   assert.equal(viewGame(game).playable, 'R');
   assert.deepEqual(speechAt(capture, game, false), capture.speech.rolled);

@@ -1,6 +1,6 @@
 // The options of an open list — a menu or the rules topics — as a test reads
 // them: each label, and whether it has focus and is held. The focused option is
-// framed in the cursor's colour and a held one is filled more strongly (#51).
+// framed in the cursor's color and a held one is filled more strongly (#51).
 import type renderer from 'react-test-renderer';
 import { THEME } from '../src/theme';
 

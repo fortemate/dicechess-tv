@@ -1,12 +1,12 @@
-// Summarises the answers of the colour-vision check (#108), per answer to the
-// colour-vision question and per variant of the mark.
+// Summarizes the answers of the color-vision check (#108), per answer to the
+// color-vision question and per variant of the mark.
 //
 //   node scripts/check-results.mjs check.csv codes.txt
 //
 // It reads the check tab of the answers sheet, downloaded as CSV, and answer
 // codes, the page's fallback, one per line; with no file, it reads standard
 // input. Each file is read on its own, as CSV if it starts with the tab's
-// header and as codes otherwise. The same visit, recognised by its random id,
+// header and as codes otherwise. The same visit, recognized by its random id,
 // is counted once, so a code sent by hand after a row already arrived does not
 // count twice. Marks are counted as the page counts them (src/check/items.ts),
 // with the misses on dark squares, where #105 expects them, shown apart.

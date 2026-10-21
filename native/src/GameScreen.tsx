@@ -142,7 +142,7 @@ export type GameScreenProps = {
   // Whether OK presses itself when the board offers only one choice (#302).
   initialAutoSelect?: boolean;
   onAutoSelect?: (on: boolean) => void;
-  // The colour a person plays against the computer, or Ask (#345).
+  // The color a person plays against the computer, or Ask (#345).
   initialPlayAs?: PlayAs;
   onPlayAs?: (choice: PlayAs) => void;
   // How the board marks movable pieces, the picked-up piece, legal
@@ -280,7 +280,7 @@ const mover = (game: Game, bot: boolean): string =>
   game.human !== null && !bot ? ' · you' : '';
 
 // Whose move it is, or that the roll left nothing to play (#85). Whose roll it
-// was shows in the dice, drawn in that side's colour; leaving the side out keeps
+// was shows in the dice, drawn in that side's color; leaving the side out keeps
 // the notice to one line. Against the bot it is named, since its notice waits
 // for the person's OK and the prompt then asks for their roll rather than
 // saying the bot is playing. On the Virtual Device "No legal moves · Rampage"
@@ -322,7 +322,7 @@ export const modeLine = (game: Game, overlayOpen: boolean): string => {
 // The line over an open menu, which names a game only when there is one to
 // name (#234). Over the home screen, and the settings or a confirmation opened
 // from it, that is the game Resume would return to: a first launch, or a game
-// that has ended, has none. The choice of colour is for a new game, whatever is
+// that has ended, has none. The choice of color is for a new game, whatever is
 // behind it, so it names that game's opponent and no turn.
 const menuLine = (
   game: Game,
@@ -339,7 +339,7 @@ const menuLine = (
 // The mode and the turn. Over an open menu it is the only line: a menu, its
 // list and the record need the height to stay inside the safe area (#51), and
 // the board behind it already shows the game. During play it stands under the
-// top of the panel, the bot's dialogue block or the top badge, and those name
+// top of the panel, the bot's dialog block or the top badge, and those name
 // the opponent.
 const ModeLine = ({ line }: { line: string }) => (
   <Text style={{ color: '#8dc9b6', fontSize: 20, letterSpacing: 2 }}>
@@ -423,7 +423,7 @@ export const promptFor = (
   // After the opponent's empty roll, OK passes its turn and rolls the person's.
   if (game.phase === 'roll' || botToAct(game)) return 'OK: roll three dice';
   // OK hands the turn on, so the prompt says to whom (#232): the bot by its
-  // name, and in hotseat the colour the remote goes to.
+  // name, and in hotseat the color the remote goes to.
   if (game.phase === 'handoff')
     return `OK: ${playerOf(game, opposite(view.side))}'s turn`;
   if (game.phase === 'ended') return 'OK: back to the menu';

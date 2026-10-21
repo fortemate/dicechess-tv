@@ -155,7 +155,7 @@ function loudness(file: string): number {
 }
 
 // The background as a take decodes it, from the margin left of the board, so
-// the fades and the end card have no step in colour.
+// the fades and the end card have no step in color.
 function backgroundOf(take: string, at: number): string {
   const pixel = execFileSync(
     'ffmpeg',

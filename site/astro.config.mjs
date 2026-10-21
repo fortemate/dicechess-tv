@@ -28,7 +28,7 @@ const UNLISTED = ['/check/', '/feedback/', '/voices/'];
 
 // The Mermaid diagrams, drawn in the browser. They take Starlight's system font,
 // which Mermaid has to know because it sizes each box by measuring its label,
-// and the colours in src/styles/mermaid.css. The spacing is tighter than
+// and the colors in src/styles/mermaid.css. The spacing is tighter than
 // Mermaid's own, which suits a diagram standing alone: here a diagram shares a
 // 45rem column with the text, and one drawn wider is shrunk to fit, labels and
 // all.

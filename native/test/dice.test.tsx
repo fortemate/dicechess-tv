@@ -16,7 +16,7 @@ const mount = (dice: Die[], side: 'w' | 'b', size = 72): Instance => {
   return tree.root;
 };
 
-// A face is the view that carries the die's colour; a slot outline has none.
+// A face is the view that carries the die's color; a slot outline has none.
 const faces = (root: Instance) =>
   root.findAll(
     (node) =>
@@ -93,7 +93,7 @@ test('a die the turn could not use dims and loses its ring, but keeps its size',
   const [spent, leftover] = faces(root).map(styleOf);
   assert.equal(leftover.borderWidth, 0);
   assert.equal(leftover.width, 72);
-  // Dimmed, and still told apart from a spent die by more than colour: size.
+  // Dimmed, and still told apart from a spent die by more than color: size.
   assert.ok((leftover.opacity as number) < 1, `opacity ${leftover.opacity}`);
   assert.ok((spent.width as number) < (leftover.width as number));
 });

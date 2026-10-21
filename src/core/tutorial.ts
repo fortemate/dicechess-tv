@@ -169,7 +169,7 @@ export const TUTORIAL: readonly TutorialStep[] = [
   {
     id: 'capture',
     title: 'Taking a piece',
-    // The pawn by its colour, not its square: the board draws no coordinates
+    // The pawn by its color, not its square: the board draws no coordinates
     // (#233), and it is the only black pawn there is.
     task: 'Take the black pawn with your rook.',
     speech: {
@@ -187,7 +187,7 @@ export const TUTORIAL: readonly TutorialStep[] = [
     },
     start: '4k3/8/8/3p4/8/8/8/3RK3 w - - 0 1',
     // Rook, queen and bishop. White has no queen or bishop, so their dice are
-    // grey at the roll and the rook has one move. Taking the pawn ends the turn
+    // gray at the roll and the rook has one move. Taking the pawn ends the turn
     // with no die left lit, and the black king is out of the rook's reach in
     // one move, so the lesson cannot be won by taking him instead. A rook move
     // elsewhere misses, and OK tries again.

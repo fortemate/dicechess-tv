@@ -94,7 +94,7 @@ test('satisfies 10-foot UI high-contrast color and font standards', () => {
   assert.equal(tailStyle.borderTopColor, 'transparent');
 
   // Text legibility on TV screens: no smaller than any other caption (#168),
-  // in at most the three rows the dialogue block has room for.
+  // in at most the three rows the dialog block has room for.
   assert.equal(textStyle.color, '#f0f4f8');
   assert.ok(Number(textStyle.fontSize) >= 20, 'bubble text is at least 20 dp');
   assert.equal(textStyle.fontWeight, '600');

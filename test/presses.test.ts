@@ -79,7 +79,7 @@ test('staying put jumps from wherever the cursor was left', () => {
   // e2 holds a movable pawn: two jumps left, through d2, reach b2.
   assert.equal(cost(strategy({ pieces: 'jump' })), 6);
   assert.equal(cost(strategy({ pieces: 'jump', start: 'sticky' })), 6);
-  // From a square that holds no movable piece, sticky moves to the centre.
+  // From a square that holds no movable piece, sticky moves to the center.
   assert.equal(
     cost(strategy({ pieces: 'jump', start: 'sticky' }), 'b2b4', LEGAL, 'h8'),
     5,
@@ -93,7 +93,7 @@ test('a promotion adds the OK that confirms the piece', () => {
 
 test('a choice jumps cannot reach is counted a square per press, and flagged', () => {
   // e6 sits in a box of pieces that are each in line with another, so the axis
-  // rule never lands on it; the cursor waits on e6 only if it is the centre.
+  // rule never lands on it; the cursor waits on e6 only if it is the center.
   const legal = ['d5d4', 'd7d8', 'e6e5', 'g5g4', 'g7g8', 'h7h8'];
   const axis = strategy({ pieces: 'jump', start: 'stay' });
   // Two squares to e6, OK, one square to e5, OK.

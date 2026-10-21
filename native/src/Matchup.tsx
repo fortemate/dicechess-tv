@@ -1,16 +1,16 @@
 // The matchup in the game screen HUD (#156): each side where it sits on the
 // board, and the game's own lines between them.
 //
-// Against the bot, the top of the panel is a dialogue (#213): the bot's
+// Against the bot, the top of the panel is a dialog (#213): the bot's
 // portrait, its name and level, and beside them the line it says, in a bubble
 // that points at its face. The block keeps one height whether the bot speaks
 // or not, and the turn line stands under it, so nothing moves when a line
 // starts or ends. In Hot Seat each player has a badge, and the host, while she
 // says a line, shows with it in the free space above the bottom badge.
 //
-// A badge for the side to move is framed in the turn colour, and the other
-// side's badge dims (#168). The bot's dialogue block does neither: it has no
-// frame, the bubble being the only box in it, and it stays in full colour, as
+// A badge for the side to move is framed in the turn color, and the other
+// side's badge dims (#168). The bot's dialog block does neither: it has no
+// frame, the bubble being the only box in it, and it stays in full color, as
 // the bot moves in a moment and would otherwise sit dimmed for nearly the whole
 // game. The person's badge still marks their turn. Cyan belongs to the cursor
 // and to a focused item, so a badge never wears it: a frame in the focus style
@@ -60,7 +60,7 @@ const LEVELS = ['Easy', 'Medium', 'Hard'] as const;
 const PIP = 12;
 const AVATAR = 40;
 
-// The dialogue block: the portrait, and beside it the name row over a bubble
+// The dialog block: the portrait, and beside it the name row over a bubble
 // of up to three rows. Its height fits the taller of the two, so a line of any
 // length, or none, leaves it the same. The owner kept the portrait at 96 dp
 // when the frame went, so the bubble has the frame's width as well, wider than
@@ -74,7 +74,7 @@ export const DIALOGUE_HEIGHT = Math.max(
 );
 
 // The host above the bottom badge: her portrait and two rows of her line, no
-// taller than the bubble. The tallest centre she can speak over is a result
+// taller than the bubble. The tallest center she can speak over is a result
 // with its menu, and on the Virtual Device a 76 dp portrait touched its last
 // item.
 export const HOST_PORTRAIT = 64;
@@ -120,8 +120,8 @@ export const MatchupPips = ({ level }: { level: Opponent['level'] }) => {
   );
 };
 
-// A badge's frame: the turn colour around the side to move, which also stays
-// at full strength while the other side dims, so colour is not the only sign.
+// A badge's frame: the turn color around the side to move, which also stays
+// at full strength while the other side dims, so color is not the only sign.
 const frame = (active: boolean) =>
   ({
     flexDirection: 'row',
@@ -136,7 +136,7 @@ const frame = (active: boolean) =>
   }) as const;
 
 // Who plays a side: the bot, the person against it, or in hotseat the player
-// of that colour. The ids keep the bot and Player 2 as the opponent.
+// of that color. The ids keep the bot and Player 2 as the opponent.
 type Seat =
   { kind: 'bot'; opponent: Opponent } | { kind: 'person'; label: string };
 
@@ -154,7 +154,7 @@ const idOf = (game: Game, side: Side, seat: Seat): string => {
 };
 
 // The line beside the name: the bot's level, or what it is doing on its turn,
-// or the colour a person plays.
+// or the color a person plays.
 const Meta = ({
   seat,
   side,
@@ -191,8 +191,8 @@ const Meta = ({
   );
 };
 
-// A side's badge: a person's king, or a bot's face where the dialogue block
-// does not stand, its name, and its colour or level.
+// A side's badge: a person's king, or a bot's face where the dialog block
+// does not stand, its name, and its color or level.
 const Avatar = ({ seat, side }: { seat: Seat; side: Side }) => {
   if (seat.kind === 'bot')
     return (

@@ -32,7 +32,7 @@ test('a finished game is counted, and the home screen shows no hotseat record', 
   playAndResign();
   assert.deepEqual(ledger()?.hotseat, { white: 0, draws: 0, black: 1 });
 
-  // Back to the home screen: counts by colour say nothing about who played, so
+  // Back to the home screen: counts by color say nothing about who played, so
   // the menu stands alone. Nothing else shows the record either.
   send('enter');
   assert.doesNotMatch(text(root), /COMPLETED GAMES/);
@@ -82,7 +82,7 @@ test('an abandoned game is never counted', () => {
 test('a game played as Black is counted under Black', () => {
   reset();
   launch({ options: { ...options, side: () => 'b' } });
-  // Play the computer, Rolly, Random on the colour choice (drawn Black); the
+  // Play the computer, Rolly, Random on the color choice (drawn Black); the
   // bot, White, takes its turn. Then resign.
   send('down', 'enter', 'enter', 'enter');
   send('back', 'down', 'select', 'down', 'select');
@@ -95,7 +95,7 @@ test('a rematch counts the finished game once, and its own result after it', () 
   reset();
   let ids = 0;
   launch({ options: { ...options, newId: () => 'rematch' + ++ids } });
-  // Play the computer, Rolly, Random on the colour choice (drawn White), then
+  // Play the computer, Rolly, Random on the color choice (drawn White), then
   // resign.
   send('down', 'enter', 'enter', 'enter');
   send('back', 'down', 'select', 'down', 'select');

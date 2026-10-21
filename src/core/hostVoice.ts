@@ -117,7 +117,7 @@ export type HostState = {
   // is heard before any repeats.
   readonly bags: Readonly<Partial<Record<HostEvent, readonly string[]>>>;
   // The line each event said last, which a refilled bag never opens with. A
-  // colour's win is kept under 'win', with the lines that name no colour.
+  // color's win is kept under 'win', with the lines that name no color.
   readonly lastLines: Readonly<Partial<Record<HostEvent, string>>>;
   // The game being hosted, from the start of hosting it.
   // The game turn of the last line; at the start of hosting, the turn there.
@@ -163,7 +163,7 @@ export const startsHosting = (before: Game | null, after: Game): boolean =>
   after.revision < before.revision ||
   before.mode !== after.mode;
 
-// What a result is to the host: a colour's win, or a draw.
+// What a result is to the host: a color's win, or a draw.
 const resultEvent = (winner: Side | null): HostEvent => {
   if (winner === 'w') return 'white_wins';
   if (winner === 'b') return 'black_wins';
@@ -237,8 +237,8 @@ export function hostEvents(
   return events.sort(byPriority);
 }
 
-// The lines an event draws from, the host's own: a colour's win joins the
-// lines that name no colour.
+// The lines an event draws from, the host's own: a color's win joins the
+// lines that name no color.
 const poolOf = (event: HostEvent, host: HostId): readonly string[] => {
   const ids = (of: HostEvent) => hostLinesFor(of, host).map((line) => line.id);
   if (event === 'white_wins' || event === 'black_wins')
@@ -246,10 +246,10 @@ const poolOf = (event: HostEvent, host: HostId): readonly string[] => {
   return ids(event);
 };
 
-// Both colours' wins draw the lines that name no colour, so the results share
-// their recency: a refilled bag of either colour never opens with the result
-// said last, whichever colour won, and a colourless line heard for one colour
-// leaves the other colour's bag. Otherwise the line that ended one game could
+// Both colors' wins draw the lines that name no color, so the results share
+// their recency: a refilled bag of either color never opens with the result
+// said last, whichever color won, and a colorless line heard for one color
+// leaves the other color's bag. Otherwise the line that ended one game could
 // end the next.
 const recencyOf = (event: HostEvent): HostEvent =>
   event === 'white_wins' || event === 'black_wins' ? 'win' : event;

@@ -57,8 +57,8 @@ export type UseHostVoiceOptions = {
   random?: () => number;
 };
 
-// A line picked, with the event it was picked for: a colour's win may be a line
-// of the colourless 'win', and its bag is the colour's. And the step of the
+// A line picked, with the event it was picked for: a color's win may be a line
+// of the colorless 'win', and its bag is the color's. And the step of the
 // game it was picked at, the pause it belongs to.
 type Picked = {
   readonly line: HostLine;

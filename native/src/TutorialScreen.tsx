@@ -44,7 +44,7 @@ export type TutorialScreenProps = {
   onExit: (next: GameChoice | null) => void;
   // Diagnostic seam for device checks, as on the game screen.
   onState?: (report: string) => void;
-  // Where Thinkle's lines are said: the game's sounds, which honour the Voices
+  // Where Thinkle's lines are said: the game's sounds, which honor the Voices
   // setting. Without it the tutorial is silent and his bubble still shows.
   voice?: TutorialVoice;
   highlights?: HighlightStyle;

@@ -1,7 +1,7 @@
 // High-contrast, 10-foot UI speech bubble for a character's line (#158, #213).
 //
 // It stands beside the speaker's portrait, its tail pointing back at the face:
-// a bot's in the dialogue block at the top of the panel, the Hot Seat host's
+// a bot's in the dialog block at the top of the panel, the Hot Seat host's
 // above the bottom badge. In the tutorial it hangs under Thinkle's portrait
 // (#264). Its text is 20 dp like every other caption (#168), in at most three
 // rows for a bot and two for the host, which every voice line fits

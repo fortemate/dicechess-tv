@@ -69,7 +69,7 @@ test('the narration is vendored as the asset repository published it', () => {
     assert.equal(sha256(name), digest, name);
   for (const [id, { file, sha256: digest }] of Object.entries(narration.lines))
     assert.equal(narration.files[file], digest, id);
-  // Its licence travels with it, and nothing else is there.
+  // Its license travels with it, and nothing else is there.
   assert.ok(narration.files[narration.licenseFile]);
   assert.deepEqual(
     readdirSync(NARRATION).sort(),
@@ -261,7 +261,7 @@ test('the v9 cut opens on credited footage, names the track tool, and stays unde
     };
   };
   // The lines he adds for v9 are vendored as the asset repository published
-  // them, like the earlier pack, with their licence beside them.
+  // them, like the earlier pack, with their license beside them.
   const OWNER = join(HERE, 'narration-v9');
   const owner = JSON.parse(
     readFileSync(join(OWNER, 'narration-v9.json'), 'utf8'),

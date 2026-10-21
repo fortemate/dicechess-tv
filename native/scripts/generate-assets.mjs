@@ -12,7 +12,7 @@
 // starts (#289).
 //
 // The frames are "Thinkle conjures", drawn by ./splash.mjs on the app's own
-// background, so the handover has no change of colour. They need Thinkle's
+// background, so the handover has no change of color. They need Thinkle's
 // vector from the tracked portrait pack; a checkout without it draws his hat
 // instead. ../splash/README.md covers the scene, its fonts and its sizes.
 //
@@ -61,7 +61,7 @@ const paeth = (a, b, c) => {
   return pb <= pc ? b : c;
 };
 
-// The value each PNG filter predicted from a byte's neighbours, which the
+// The value each PNG filter predicted from a byte's neighbors, which the
 // stored byte is relative to: None, Sub, Up, Average and Paeth.
 const PREDICTORS = [
   () => 0,
@@ -71,7 +71,7 @@ const PREDICTORS = [
   paeth,
 ];
 
-// The image header. Only the two colour types involved here are accepted: the
+// The image header. Only the two color types involved here are accepted: the
 // icon is RGBA, the frame this script writes is RGB.
 const readHeader = (body, file) => {
   const [depth, colour, interlace] = [body[8], body[9], body[12]];
@@ -159,14 +159,14 @@ const encodePng = (width, height, rgb) => {
   const stride = width * 3;
   const raw = Buffer.alloc(height * (stride + 1));
   for (let y = 0; y < height; y++) {
-    raw[y * (stride + 1)] = 0; // filter: none, which deflate handles well on flat colour
+    raw[y * (stride + 1)] = 0; // filter: none, which deflate handles well on flat color
     rgb.copy(raw, y * (stride + 1) + 1, y * stride, (y + 1) * stride);
   }
   const header = Buffer.alloc(13);
   header.writeUInt32BE(width, 0);
   header.writeUInt32BE(height, 4);
   header[8] = 8; // bit depth
-  header[9] = 2; // colour type: truecolour
+  header[9] = 2; // color type: truecolor
   return Buffer.concat([
     Buffer.from('89504e470d0a1a0a', 'hex'),
     chunk('IHDR', header),
@@ -378,10 +378,10 @@ export const copySounds = (root = native) => {
 };
 
 // The adaptive music (#76), when this checkout has it: scripts/vendor-music.mjs
-// puts the tracks and their catalogue in music/. They go to assets/music/, which
+// puts the tracks and their catalog in music/. They go to assets/music/, which
 // is /pkg/assets/music/ on the device, and only if each file still has the bytes
-// the catalogue pinned. A checkout without music builds a game without it: the
-// app finds no catalogue and plays none.
+// the catalog pinned. A checkout without music builds a game without it: the
+// app finds no catalog and plays none.
 export const copyMusic = (root = native) => {
   const target = join(root, 'assets/music');
   rmSync(target, { recursive: true, force: true });
@@ -403,7 +403,7 @@ export const copyMusic = (root = native) => {
     digests.set(file, createHash('sha256').update(audio).digest('hex'));
     copied.push(file);
   }
-  // The vendor catalogue pins inputs; the packaged catalogue pins outputs.
+  // The vendor catalog pins inputs; the packaged catalog pins outputs.
   for (const track of Object.values(tracks))
     track.sha256 = digests.get(track.file);
   writeFileSync(

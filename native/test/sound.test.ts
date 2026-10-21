@@ -473,7 +473,7 @@ test('a cue waiting for initialization is dropped across suspension, even after 
   holdAudio();
   const sounds = createSounds({ pick: () => 0 });
   sounds.play(['dice_roll']);
-  // Away and back while the players are still initialising: an old cue must
+  // Away and back while the players are still initializing: an old cue must
   // not start late after the overlay has closed (#254).
   sounds.setSuspended(true);
   sounds.setSuspended(false);
@@ -526,7 +526,7 @@ test('a quick blur/focus still silences an already playing effect and line', asy
 // ── The effects' players while the app is away (#313) ─────────────────────────
 
 // Returns to the foreground held for the test to fire, as a timer would, unless
-// a later leave cancelled them.
+// a later leave canceled them.
 const wakes = () => {
   const held: { run: () => void; wait: number; cancelled: boolean }[] = [];
   return {
@@ -1206,7 +1206,7 @@ test('the bubble of a line stays until it has been said', () => {
 });
 
 test("the Hot Seat host's result waits for the jingle, like a bot's (#202)", () => {
-  // A colourless win line picked for White's win still has the event 'win'.
+  // A colorless win line picked for White's win still has the event 'win'.
   for (const line of [
     { id: 'host_white_wins_1', event: 'white_wins' },
     { id: 'host_win_1', event: 'win' },

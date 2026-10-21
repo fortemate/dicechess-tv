@@ -1,7 +1,7 @@
 // One item of a list the remote walks: a menu choice or a rules topic.
 //
 // The focused item is filled and framed, so it is told apart by more than
-// colour, and while OK is held it fills more strongly and shrinks a little: the
+// color, and while OK is held it fills more strongly and shrinks a little: the
 // press shows before the choice takes effect (#51). The text sits inside the
 // frame, so a title that wraps keeps its second line under its first.
 import React from 'react';
