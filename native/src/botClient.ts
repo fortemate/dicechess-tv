@@ -57,15 +57,12 @@ export function createBotClient(ports: Ports) {
         }
         if (error || !reply) {
           const failure = error ?? new Error('Missing opponent reply');
+          const message =
+            typeof failure === 'string' ? failure : 'Opponent worker failed';
           reject(
             failure instanceof Error
               ? failure
-              : new Error(
-                  typeof failure === 'string'
-                    ? failure
-                    : 'Opponent worker failed',
-                  { cause: failure },
-                ),
+              : new Error(message, { cause: failure }),
           );
         } else resolve(reply);
       };
