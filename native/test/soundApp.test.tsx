@@ -495,6 +495,43 @@ test('the effects’ players are let go when the app leaves, made again after th
   assert.ok(second.every((player) => releasedPlayers().includes(player)));
 });
 
+for (const state of ['background', 'inactive'] as const) {
+  test(`launching while ${state} leaves effect pipelines unopened until the return`, async () => {
+    reset();
+    resetAudio();
+    setAppState(state);
+    launch({ options });
+    await settled();
+    assert.equal(
+      audio().filter((entry) => entry.event === 'initialize').length,
+      0,
+      'no native pipeline starts while away',
+    );
+    assert.deepEqual(releasedPlayers(), [], 'nothing needs immediate teardown');
+    act(() => appEvent('focus'));
+    act(() => mock.timers.tick(EFFECTS_RETURN_MS - 1));
+    await settled();
+    assert.deepEqual(spritePlayers(), [], 'wait after the return');
+    act(() => mock.timers.tick(1));
+    await settled();
+    const players = spritePlayers();
+    assert.equal(players.length, 3, 'acquire the channels once after the wait');
+    send('enter', 'enter');
+    await settled();
+    assert.ok(
+      audio().some(
+        (entry) =>
+          entry.event === 'play' &&
+          entry.volume !== 0 &&
+          players.includes(entry.player),
+      ),
+      'the first roll uses the new channels',
+    );
+    unmount();
+    assert.ok(players.every((player) => releasedPlayers().includes(player)));
+  });
+}
+
 test('settings told before the sounds exist reach them once made; a cue before then is not heard (#313)', () => {
   const late = lateSounds();
   late.setMuted(true);

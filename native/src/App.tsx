@@ -258,6 +258,7 @@ export const App = ({
       ? null
       : createSounds({
           muted: !soundHeard(initialSound),
+          suspended: late.sounds.isSuspended(),
           soundVolume: soundGain(initialSound.volume),
           voices: voicesHeard(initialVoices),
           voiceVolume: voiceGain(initialVoices.volume),

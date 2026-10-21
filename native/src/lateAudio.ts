@@ -14,7 +14,10 @@ import type { Catalogue, Music } from './music';
 import type { MusicRole } from './screen';
 import type { Sounds } from './sound';
 
-export type LateSounds = Sounds & { attach(real: Sounds | null): void };
+export type LateSounds = Sounds & {
+  attach(real: Sounds | null): void;
+  isSuspended(): boolean;
+};
 export type LateMusic = Music & { attach(real: Music | null): void };
 
 export function lateSounds(): LateSounds {
@@ -26,6 +29,7 @@ export function lateSounds(): LateSounds {
   let suspended: boolean | undefined;
   let pendingLine: Parameters<Sounds['say']>[0] | undefined;
   return {
+    isSuspended: () => suspended === true,
     attach(next) {
       real = next;
       if (!next) return;

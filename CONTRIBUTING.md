@@ -142,13 +142,18 @@ sandbox of its own, where `/proc/<pid>` of the app and `perfdump meminfo <pid>` 
 not visible. The SDK's memory monitor reads it through a system service:
 
 ```bash
-vega exec perf memory-monitor --app-name=com.fortemate.dicechesstv.main --keplerscript-app --recording-timeout 400
+vega exec perf memory-monitor --app-name=com.fortemate.dicechesstv.main --keplerscript-app
 ```
 
 It is interactive: press `s` to start recording, `s` again to stop, and `q` to quit.
+The default recording timeout is 120 seconds. For a longer recording, first check
+`vega exec perf memory-monitor --help`: SDK builds that list `--recording-timeout`
+accept, for example, `--recording-timeout 400` on the command above.
 From a script, run it in a pseudo-terminal (Python's `pty` module) and type the
-keys on a timer. It prints a sample about once a second and writes
-`output/<time>/Basic-trace-recorder<time>.json` in the current directory. Each
+keys on a timer. It prints a sample about once a second; locate the saved JSON
+using the destination shown by the tool. The [Memory Monitor guide](https://developer.amazon.com/docs/vega/0.24/monitor-record-app-memory.html)
+names `Basic-memory-recorder[timestamp].json` in the project's `generated`
+directory for recordings made through Vega Studio. Each
 entry of `memoryRecords` has a `timestamp` in nanoseconds of the device's clock
 and, per process, these fields in kB (the JS heap in bytes):
 
@@ -227,7 +232,7 @@ The system's decisions are in the journal. While the trips run, keep
 background and look for `memory-mid Kill <pid> com.fortemate.dicechesstv.main
 Usage <after>:<before>`, `TRIM_RESOURCES` and `same pids`. Each kill also leaves a
 `LowMemoryKiller` report:
-`vega device copy-logs -a SYSTEM_TOMBSTONE/acr --directory <dir>`, never with
+`vega device copy-logs --device <stick-id> --artifact SYSTEM_TOMBSTONE/acr --directory <dir>`, never with
 `--upload` or `--purge`. Its `action name` says which rule ended the app.
 
 The Stick's `/tmp` lives in memory. The perf tools leave their traces there as

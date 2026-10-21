@@ -194,6 +194,8 @@ export type SoundOptions = {
   voices?: boolean;
   // Initial linear gain for voices, 0 to 1 (#398).
   voiceVolume?: number;
+  // A launch away from the foreground must not open effect pipelines.
+  suspended?: boolean;
   // Pauses a cue's clip after `wait` milliseconds, once it is over. Injected so
   // a test can hold it.
   endClip?: (run: () => void, wait: number) => void;
@@ -230,6 +232,7 @@ export function createSounds({
   },
   voices: startVoices = true,
   voiceVolume: startVoiceVolume = 1,
+  suspended: startSuspended = false,
   onSpeech = () => undefined,
   endClip = (run, wait) => {
     setTimeout(run, wait);
@@ -243,7 +246,7 @@ export function createSounds({
   let soundGain = Math.max(0, Math.min(1, startSoundVolume));
   let voices = startVoices;
   let voiceGain = Math.max(0, Math.min(1, startVoiceVolume));
-  let suspended = false;
+  let suspended = startSuspended;
   let disposed = false;
   // Counts the times the app went away. A cue asked for before the last of
   // them is never heard, even if the app is back by the time its player is
