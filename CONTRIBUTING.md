@@ -377,14 +377,14 @@ retain stale assets from an earlier build.
 
 After the version pull request merges, build from its final main commit. Choose
 a build number above every earlier release or Live App Testing upload. The next
-planned release is 1.0.3/build 34, following `v1.0.2+33`; raise 34 if a newer
+planned release is 1.0.4/build 55, following `v1.0.3+34`; raise 55 if a newer
 upload has used it. Do not override the manifest version with `--build-version`.
 
 ```bash
 git switch main && git pull --ff-only
 npm ci && npm ci --prefix native
 version=$(grep -m1 '^version = ' native/manifest.toml | sed 's/.*"\(.*\)".*/\1/')
-build=34
+build=55
 tag="v$version+$build"
 commit=$(git rev-parse HEAD)
 git ls-remote --tags origin "refs/tags/$tag"
