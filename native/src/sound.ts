@@ -160,7 +160,8 @@ export type Sounds = {
   // Says a bot's or the host's line in its voice, replacing any line still
   // being said.
   // onEnded runs only after the decoder ends the clip and its tail passes.
-  // A replacement, stop, mute, suspension, failure or timeout never advances it.
+  // It never runs after replacement, stop, disabled voices, suspension, failure
+  // or timeout. Muting effects with setMuted does not stop speech.
   say(line: SpokenLine, onEnded?: () => void): void;
   // Stops the line being said, or waiting to be said, as a new line would, for
   // a speaker who leaves mid-line: the Hot Seat host turned off (#202).
@@ -569,7 +570,13 @@ export function createSounds({
       later(() => {
         if (!current()) return;
         finish();
-        onEnded?.();
+        try {
+          onEnded?.();
+        } catch (error) {
+          report(
+            `sound: line ${id} completion callback failed: ${String(error)}`,
+          );
+        }
       }, LINE_TAIL_MS);
     };
     const failed = () => {

@@ -1496,7 +1496,7 @@ test('a speech continuation runs once after ended and its tail, including a slow
 for (const stop of [
   'replace',
   'stop',
-  'mute',
+  'voices off',
   'suspend',
   'dispose',
   'error',
@@ -1514,7 +1514,7 @@ for (const stop of [
       audioEvent(first.player, 'ended');
     if (stop === 'replace') sounds.say(line('thinkle_tutor_offer_2'));
     else if (stop === 'stop') sounds.stopLine();
-    else if (stop === 'mute') sounds.setVoices(false);
+    else if (stop === 'voices off') sounds.setVoices(false);
     else if (stop === 'suspend') sounds.setSuspended(true);
     else if (stop === 'dispose') sounds.dispose();
     else if (stop === 'error') audioEvent(first.player, 'error');
@@ -1525,3 +1525,50 @@ for (const stop of [
     sounds.dispose();
   });
 }
+
+test('a failing speech continuation is reported without escaping or blocking later speech', async () => {
+  resetAudio();
+  const time = clock();
+  const reports: string[] = [];
+  const sounds = createSounds({
+    later: time.later,
+    report: (message) => reports.push(message),
+  });
+  sounds.say(line('thinkle_tutor_offer_1'), () => {
+    throw new Error('continuation unavailable');
+  });
+  await settle();
+  const first = plays()[0];
+  audioEvent(first.player, 'ended');
+  assert.doesNotThrow(() => time.elapse(LINE_TAIL_MS));
+  assert.deepEqual(reports, [
+    'sound: line thinkle_tutor_offer_1 completion callback failed: Error: continuation unavailable',
+  ]);
+  assert.equal(audioListenerCount(first.player), 0);
+  assert.ok(released().includes(first.player));
+  let completed = 0;
+  sounds.say(line('thinkle_tutor_offer_2'), () => completed++);
+  await settle();
+  const second = plays().at(-1)!;
+  audioEvent(second.player, 'ended');
+  time.elapse(LINE_TAIL_MS);
+  assert.equal(completed, 1);
+  assert.equal(reports.length, 1);
+  sounds.dispose();
+});
+
+test('muting effects preserves speech and its normal completion callback', async () => {
+  resetAudio();
+  const time = clock();
+  const sounds = createSounds({ later: time.later });
+  let completed = 0;
+  sounds.say(line('thinkle_tutor_offer_1'), () => completed++);
+  await settle();
+  const first = plays()[0];
+  sounds.setMuted(true);
+  assert.equal(released().includes(first.player), false);
+  audioEvent(first.player, 'ended');
+  time.elapse(LINE_TAIL_MS);
+  assert.equal(completed, 1);
+  sounds.dispose();
+});
