@@ -1,7 +1,5 @@
 # Dice Chess 1.0.4, build 55
 
-Prepared release notes. The packages have not been published, and no Amazon Appstore submission is part of this preparation.
-
 ## Changes since 1.0.3/build 34
 
 - Run computer-opponent searches in a separate Hermes worklet runtime. Requests are serialized and checked against the exact saved turn; late replies cannot change a newer game. A foreground transport deadline offers recovery when a reply takes too long. This addresses long Rampage searches blocking the interactive runtime. It does not make a permanently stuck search reusable without restarting the app. ([#480](https://github.com/fortemate/dicechess-tv/pull/480))
@@ -24,10 +22,12 @@ Thinkle's first-launch greeting can have an unclear or clipped ending to "New to
 
 Use the package for your device's processor. All three packages include the ten runtime character portraits and their existing notices. Asset licenses are unchanged.
 
-Verify downloads against `SHA256SUMS.txt` before installing. Upgrade without uninstalling to retain saved data, where the device accepts the package's signing identity. Amazon-signed store upgrades require separate validation.
+Verify downloads against `SHA256SUMS.txt` before installing. On the tested Stick, installing a developer-signed GitHub package over the Amazon-signed store version required uninstalling the store app, which removes its saved games, results and settings. Keep the store installation if you need those data. Updating the developer candidate with the final developer package worked without uninstalling and retained MMKV and CRC exactly; preservation through an Amazon-signed store update remains a separate check.
 
-## Validation and publication
+## Validation
 
-See the [release preparation record](release-preparation-1.0.4-build55.md) for exact package checks, physical-device results and remaining work. Earlier checks for #479 and #480 remain evidence for their own commits and QA packages; they are not a physical test of this new release candidate.
+Final packages were rebuilt from main `bdf5cf31850e707ecf7d47889622535756ba9b07` with Node 26.8.2 and Vega SDK 0.24.12044. All main Checks, CodeQL and SonarCloud checks passed. The local gate passed 1,046 tests, and metadata, native architecture, portraits, notices and ABI checks passed for all three packages.
 
-After the owner merges the version PR, rebuild from that exact main commit before creating the signed `v1.0.4+55` tag and publishing the GitHub assets. Do not submit to Amazon Appstore as part of this GitHub release preparation.
+The ordinary armv7 package was tested on a physical Fire TV Stick. Eight natural full games used the initial candidate; all 296 application files in each final architecture match it byte-for-byte. After installing the exact final main archive, its package digest and installed JS/Hermes/engine hashes were verified, saved data and CRC survived the developer update unchanged, and one more full Rampage game was completed. The nine games cover both human sides against every bot and two automated Hot Seat sessions with different hosts.
+
+Settings, six tutorial lessons, nine Rules topics, About, cold saved-game recovery, 5/30/180-second Home returns and two separately counted saved-position replays also passed. The new test profile was restored byte-for-byte and the final app left closed. Human TV listening, a two-human session and an Amazon-signed upgrade are not claimed. See the [release preparation record](release-preparation-1.0.4-build55.md) for hashes, exact scope and logging limits. This GitHub preparation makes no claim about Amazon Appstore submission, approval or availability.
