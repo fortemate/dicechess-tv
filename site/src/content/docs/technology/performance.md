@@ -123,7 +123,9 @@ The music follows the danger to a king. At the start of each turn, `src/core/dan
 
 ### Current implementation
 
-`useDanger.ts` schedules one complete measure after the frame showing the new turn. `src/core/danger.ts` uses the engine's exact roll-weight calculation for the first-action check and, when needed, the three-action check. A new turn or leaving the game cancels a measure that has not started. This work remains on the interactive runtime; it is separate from the opponent search moved into a worklet by #480. Scheduling it after a frame does not make a running measure interruptible.
+`useDanger.ts` calls `turnDanger` synchronously from its measure callback. `App.tsx` supplies a `setTimeout(step, 0)` scheduler; `scheduleActive` gates pending callbacks on the app's activity state. A new turn or leaving the game cancels a measure that has not started. `src/core/danger.ts` uses the engine's exact roll-weight calculation for the first-action check and, when needed, the three-action check. This work remains on the interactive runtime, separately from the opponent search moved into a worklet by #480.
+
+The Node tests in `native/test/useDanger.test.tsx` and `native/test/activity.test.ts` check pending work, stale callbacks, cancellation and inactive periods using injected callbacks and timers. They do not establish when a frame appears on a device or measure remote-key latency. The historical device observations below describe their own earlier implementations.
 
 The full tense/calm measure runs only while music is heard ([#368](https://github.com/fortemate/dicechess-tv/issues/368)). Without music, a computer game needs only the first-action weight check for the bot's critical-threat line; Hot Seat needs no measure. Enabling music measures the current turn again.
 

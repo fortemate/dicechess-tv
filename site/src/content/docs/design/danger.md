@@ -82,7 +82,9 @@ On a board where a rook can reach the king only by moving twice, the path spends
 
 ## When it runs
 
-Once per turn, in one slot of the app's background scheduler (`native/src/useDanger.ts`) after the frame that shows the new turn. It remains on the interactive JavaScript runtime, separately from the opponent's worklet. A key arriving during a running measure can still wait for it to finish; scheduling after the frame does not make it interruptible. The result is reused while the turn is played. A new turn or leaving the game drops a measure that has not run yet. Behind a system overlay or in the background it waits, and it runs on the return. [Performance](/technology/performance/#current-implementation) describes the current implementation separately from the older per-roll search.
+`useDanger` reuses the result for the turn's starting position. Its measure callback calls `turnDanger` synchronously on the interactive JavaScript runtime, separately from the opponent's worklet. When a `background` scheduler is supplied, `scheduleActive` queues that callback while the app is active and reschedules a pending measure on return from an inactive period. Without a scheduler, the effect calls the measure directly. A new turn or leaving the game cancels a measure that has not started.
+
+The Node tests in `native/test/useDanger.test.tsx` and `native/test/activity.test.ts` exercise queuing, stale callbacks, cancellation and inactive periods with injected callbacks and timers. They do not establish a rendered-frame boundary or remote-key latency. [Performance](/technology/performance/#current-implementation) describes the current implementation separately from the older per-roll search.
 
 The music then settles: it rises at once to a higher level, because a threat is news, and falls one level per turn, so one quiet turn does not drop a tense game to calm.
 
