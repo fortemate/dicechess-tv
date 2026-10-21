@@ -2,7 +2,7 @@
 //
 // The board is drawn from the position alone, and its pieces have no identity:
 // a move shows up only as squares that changed. This module pairs them back
-// into the pieces that travelled, the piece that was taken, and a pawn that was
+// into the pieces that traveled, the piece that was taken, and a pawn that was
 // promoted. It answers for one action at a time: a move, a capture, castling,
 // en passant or a promotion. The action must be the one the game reports as
 // its last move, so a new game, a rematch or a resumed game, which change many
@@ -38,7 +38,7 @@ const distance = (a: string, b: string): number =>
   Math.abs(fileOf(a) - fileOf(b)) + Math.abs(rankOf(a) - rankOf(b));
 
 // Where the piece on `target` came from: the same piece, nearest first, or for
-// a promotion a pawn of the same colour.
+// a promotion a pawn of the same color.
 const sourceOf = (target: Placed, left: Placed[]): Placed | undefined =>
   left
     .filter((source) => source.piece === target.piece)
@@ -81,7 +81,7 @@ const changes = (before: string, after: string) => {
   return { left, arrived };
 };
 
-// Each arrival paired with the piece that travelled there, and the pieces left
+// Each arrival paired with the piece that traveled there, and the pieces left
 // over, which were taken. Null when an arrival came from nowhere.
 const pair = (
   arrived: Placed[],

@@ -6,7 +6,7 @@ import { hasExactKeys } from './keys.ts';
 export const INITIAL_POSITION =
   'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 export type Side = 'w' | 'b';
-// The colour option a person picks against the bot: a side, or Random, which
+// The color option a person picks against the bot: a side, or Random, which
 // draws one.
 export type ColourChoice = 'random' | Side;
 // The local opponents, each named after the engine algorithm it plays (#115).
@@ -33,7 +33,7 @@ export type Game = {
   // The side a person plays against the bot. Null in hotseat, where both sides
   // are people.
   human: Side | null;
-  // The colour option behind that side, which a rematch keeps: Random draws a
+  // The color option behind that side, which a rematch keeps: Random draws a
   // side again. Null in hotseat.
   colour: ColourChoice | null;
   revision: number;
@@ -61,7 +61,7 @@ const FIELDS = [
   'result',
   'lastMove',
 ];
-// Saves written before the colour option was kept, which recorded only the
+// Saves written before the color option was kept, which recorded only the
 // side; and before that, saves from when the person always played White.
 const SCHEMA_3_FIELDS = FIELDS.filter((field) => field !== 'colour');
 const SCHEMA_2_FIELDS = SCHEMA_3_FIELDS.filter((field) => field !== 'human');
@@ -382,7 +382,7 @@ export function rollDice(
   return dice;
 }
 
-// The colour a person gets on choosing Random. One byte decides, and 256 is
+// The color a person gets on choosing Random. One byte decides, and 256 is
 // even, so both sides are equally likely.
 export function randomSide(
   fill: (bytes: Uint8Array<ArrayBuffer>) => void,
@@ -404,7 +404,7 @@ const isSave = (
 
 // Older saves are brought up to schema 4 one step at a time. A schema-2 save
 // gains the person's side, which was White whenever there was a bot; a schema-3
-// save gains its colour option, taken to be the side it recorded. Anything else
+// save gains its color option, taken to be the side it recorded. Anything else
 // passes through for the checks.
 function upgrade(value: unknown): unknown {
   let save = value;
@@ -424,7 +424,7 @@ function upgrade(value: unknown): unknown {
 }
 
 // Hotseat has no person set against a bot. A game against the bot has one, on
-// either side, and a colour option that is Random or that side.
+// either side, and a color option that is Random or that side.
 const sidesMatchMode = (game: Game): boolean =>
   game.mode === 'hotseat'
     ? game.human === null && game.colour === null

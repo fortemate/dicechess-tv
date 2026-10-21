@@ -122,7 +122,7 @@ test('each package is printed with its own licence, or the text of the repositor
   assert.match(notices, /ieee754\nBSD-3-Clause\n-+\nCopyright 2008 Fair Oaks/);
   assert.doesNotMatch(notices, /[ \t]$|\r/m, 'trailing space or CR');
 
-  // A package with no licence anywhere stops the build rather than shipping
+  // A package with no license anywhere stops the build rather than shipping
   // without one.
   assert.throws(
     () => noticesFor([make('left-pad', 'MIT')], root),

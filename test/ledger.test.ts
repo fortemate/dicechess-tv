@@ -84,7 +84,7 @@ test('a game against an opponent is recorded under that opponent and the side pl
   assert.deepEqual(ledger.hotseat, { white: 0, draws: 0, black: 0 });
 
   // The same opponent played from the other side is a separate record, because
-  // one number would hide how it plays each colour. Here the person plays Black
+  // one number would hide how it plays each color. Here the person plays Black
   // and takes White's king.
   const won = moveGame(
     rollGame(newGame('random', 'r2', '4k3/8/8/8/8/8/8/r3K3 b - - 0 1', 'b'), [

@@ -1,4 +1,4 @@
-// The colour-vision check (#108): what each board picture shows, and how an
+// The color-vision check (#108): what each board picture shows, and how an
 // answer is scored.
 //
 // The pictures are Release builds on the Vega Virtual Device, one game played
@@ -32,7 +32,7 @@ export type Item = {
 };
 
 // Two pictures per variant: one with several marks, one with a single mark
-// besides the cursor. Each has marks on both square colours and a last move
+// besides the cursor. Each has marks on both square colors and a last move
 // tinted on one light and one dark square, and no two look alike: c-few
 // replaced a picture taken two actions after c-many, which looked the same.
 export const ITEMS: readonly Item[] = [

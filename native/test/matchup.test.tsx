@@ -1,5 +1,5 @@
 // The matchup header in the gameplay HUD (#156, #168, #213): each side where it
-// sits on the board, a badge for the side to move framed in the turn colour
+// sits on the board, a badge for the side to move framed in the turn color
 // rather than the focus style, the bot's block with no frame and never dimmed,
 // its level and thinking status, and where the bot and the host speak.
 import { test } from 'node:test';
@@ -64,8 +64,8 @@ const assertWaiting = (badge: Instance) => {
   assert.notEqual(styleOf(badge).borderColor, THEME.turn);
   assert.ok(dimmed(badge), 'the waiting side dims');
 };
-// The bot's dialogue block stands on the panel as it is (#213): no frame, and
-// in full colour whoever is to move.
+// The bot's dialog block stands on the panel as it is (#213): no frame, and
+// in full color whoever is to move.
 const assertPlain = (block: Instance) => {
   const style = styleOf(block);
   assert.equal(style.borderWidth, undefined);
@@ -286,7 +286,7 @@ test('the host shows above the bottom badge while she speaks, over the free spac
   });
   const center = byTestId(tree.root, 'matchup-center');
   const block = byTestId(center, 'host-block');
-  // Placed over the foot of the centre, so nothing in it moves.
+  // Placed over the foot of the center, so nothing in it moves.
   assert.equal(styleOf(block).position, 'absolute');
   assert.equal(styleOf(block).height, HOST_HEIGHT);
   // The default host's: Prowla the cat.

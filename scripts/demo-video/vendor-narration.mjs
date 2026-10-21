@@ -12,7 +12,7 @@
 // `git show <commit>:<path>` and checked against the digest the asset repository
 // published. The pack is for Fortemate's Dice Chess apps and the videos that
 // present them (dicechess-assets#27): a project permission that must name this
-// repository. Its licence travels beside the clips.
+// repository. Its license travels beside the clips.
 //
 // The lines are not the app's: they are heard in the video only, so they stay out
 // of native/voices/, whose test allows no clip the game never says.
@@ -64,7 +64,7 @@ mkdirSync(staging, { recursive: true });
 
 const files = {};
 // The pack's path behind each file name: two paths may not share a name, or
-// one file would silently replace the other, the licence among them.
+// one file would silently replace the other, the license among them.
 const sources = new Map();
 const copy = (path) => {
   const name = path.split('/').pop();

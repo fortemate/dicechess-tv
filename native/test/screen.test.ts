@@ -89,7 +89,7 @@ const settle = (
 };
 
 const fresh = () => initialState(options);
-// With Play as set to Ask, the cards open the choice of colour (#345).
+// With Play as set to Ask, the cards open the choice of color (#345).
 const askColour = () => initialState(options, null, { playAs: 'ask' });
 
 // A game mid-turn: rolled queen, rook, knight and played the knight.
@@ -262,7 +262,7 @@ test('starting over an unfinished game asks first, and Cancel keeps it', () => {
 
 test('cancelling a new bot game from the home screen returns there, on Play the computer', () => {
   const home = initialState(options, started());
-  // Play the computer, then Rolly, in the colour Play as names, Random by
+  // Play the computer, then Rolly, in the color Play as names, Random by
   // default (#345): the confirmation comes next.
   const asking = drive(home, 'down', 'down', 'select', 'select');
   assert.equal(asking.overlay.kind, 'confirm');
@@ -806,7 +806,7 @@ const toSettings = (state: ScreenState): ScreenState => {
   return drive(state, ...(Array(at).fill('down') as BoardKey[]), 'select');
 };
 
-// A build with music, as the app reports once it has read the catalogue.
+// A build with music, as the app reports once it has read the catalog.
 const withMusic = (state: ScreenState): ScreenState =>
   screenReducer(state, { kind: 'musicAvailable', available: true }, options);
 
@@ -835,7 +835,7 @@ test('without music, Settings groups audio, board controls, computer and friend 
   const hotseat = drive(host, 'up');
   assert.equal(hotseat.overlay.kind, 'settings');
   assert.equal(drive(hotseat, 'select').turnHotseat, true);
-  // When the catalogue turns up, the rows grow and the cursor starts at the top.
+  // When the catalog turns up, the rows grow and the cursor starts at the top.
   const grown = withMusic(drive(settings, 'down'));
   assert.equal(grown.musicAvailable, true);
   assert.equal(grown.overlay.kind === 'settings' ? grown.overlay.index : -1, 0);
@@ -1167,7 +1167,7 @@ test('a finished game is back in the menus', () => {
   assert.equal(musicRole(menu.overlay, menu.game, 'critical'), 'menu');
 });
 
-// ── The colour against the bot (#53) ───────────────────────────────────────────
+// ── The color against the bot (#53) ───────────────────────────────────────────
 
 test('choosing an opponent opens the choice of colour, on Random', () => {
   const choosing = drive(askColour(), 'down', 'select', 'select');
@@ -1328,7 +1328,7 @@ test('a pawn reaching the last rank asks which piece it becomes', () => {
   assert.deepEqual(promoted.focus, { cursor: 'a8', selected: null });
 });
 
-// Keys, with options of the test's own, such as a colour draw that changes.
+// Keys, with options of the test's own, such as a color draw that changes.
 const driveWith = (
   opts: ScreenOptions,
   state: ScreenState,

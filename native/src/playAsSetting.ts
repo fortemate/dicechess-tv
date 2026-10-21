@@ -1,6 +1,6 @@
-// The colour a person plays against the computer, set once in Settings (#345).
+// The color a person plays against the computer, set once in Settings (#345).
 // Random, White or Black starts a game from the opponent card with one OK; Ask
-// brings back the choice of colour before each game, for a player who wants to
+// brings back the choice of color before each game, for a player who wants to
 // choose game by game.
 //
 // Random unless the viewer chose otherwise, as the owner decided on 2026-10-10.

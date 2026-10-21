@@ -66,7 +66,7 @@ const UP = 1;
 
 export type RemoteInputOptions = {
   // Whether the app handled Back. Returning false lets the system do what Back
-  // means at the top of an app, which is to close it — the behaviour a TV
+  // means at the top of an app, which is to close it — the behavior a TV
   // viewer expects, and not something to suppress.
   onBack?: () => boolean;
   // Whether OK is held down: true when it goes down, false when it comes up,

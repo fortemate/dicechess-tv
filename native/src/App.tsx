@@ -301,10 +301,10 @@ export const App = ({
     [settings],
   );
 
-  // The adaptive music (#76). The build ships a catalogue beside the tracks, or
+  // The adaptive music (#76). The build ships a catalog beside the tracks, or
   // none at all, and then the game plays without music.
   const [initialMusic] = React.useState(() => readMusic(settings));
-  // Known once the catalogue is read; an injected player counts as music.
+  // Known once the catalog is read; an injected player counts as music.
   const [musicAvailable, setMusicAvailable] = React.useState(
     injectedMusic !== undefined,
   );
@@ -363,7 +363,7 @@ export const App = ({
     [settings],
   );
 
-  // The colour a person plays against the computer, or Ask (#345).
+  // The color a person plays against the computer, or Ask (#345).
   const [initialPlayAs] = React.useState(() => readPlayAs(settings));
   const onPlayAs = React.useCallback(
     (choice: PlayAs) => savePlayAs(settings, choice),
@@ -413,7 +413,7 @@ export const App = ({
       onState?.(`activity ${ready ? 'active' : 'paused'}`);
     };
     // Coming back from the background is a warm start, reported once however
-    // it was signalled.
+    // it was signaled.
     const back = () => {
       if (away) reportFullyDrawn();
       away = false;

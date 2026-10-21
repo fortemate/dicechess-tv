@@ -395,7 +395,7 @@ test('a win as Black is heard as a win', () => {
   const sounds = recorder();
   launch({ options, sounds });
   // Resume, then walk from e7 to a1 and on to a8 on the board seen from
-  // Black's side, where up on the screen is towards rank 1.
+  // Black's side, where up on the screen is toward rank 1.
   send('enter');
   send('up', 'up', 'up', 'up', 'up', 'up', 'right', 'right', 'right', 'right');
   send('enter');

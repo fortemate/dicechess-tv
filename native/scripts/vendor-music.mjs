@@ -11,7 +11,7 @@
 //
 // A pack says in its manifest who may carry it: `distribution: public`, any
 // client; `project`, only the repositories its `clients` list; `private`, none,
-// which is also what a pending licence means. The script vendors a pack this
+// which is also what a pending license means. The script vendors a pack this
 // repository may carry, and refuses any other unless --private says the copy is
 // for a local build that is never committed.
 import { writeFileSync } from 'node:fs';

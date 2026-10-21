@@ -1,5 +1,5 @@
-// The voice catalogue export (#171): what the voice generator in
-// fortemate/dicechess-assets reads is exactly the game's catalogue.
+// The voice catalog export (#171): what the voice generator in
+// fortemate/dicechess-assets reads is exactly the game's catalog.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';

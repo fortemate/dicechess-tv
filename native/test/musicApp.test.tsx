@@ -87,7 +87,7 @@ test('a Hot Seat game measures its danger only while music is heard (#368)', () 
   launch({ options: held, music: recorder() });
   send('enter');
   assert.equal(steps.length, 0);
-  // A build without music: its catalogue does not load, so music on is not
+  // A build without music: its catalog does not load, so music on is not
   // heard either.
   reset();
   launch({ options: held });

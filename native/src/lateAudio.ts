@@ -98,7 +98,7 @@ export function lateMusic(): LateMusic {
       if (volume !== undefined) next.setVolume(volume);
       if (suspended !== undefined) next.setSuspended(suspended);
       if (ducked !== undefined) next.setDucked(ducked);
-      // The theme before the catalogue, so that the catalogue starts it once.
+      // The theme before the catalog, so that the catalog starts it once.
       if (role !== undefined) next.setRole(role.role, role.pauseMs);
       if (catalogue !== undefined) next.setCatalogue(catalogue.value);
     },

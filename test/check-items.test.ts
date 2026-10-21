@@ -1,4 +1,4 @@
-// The colour-vision check's pictures and scoring (site/src/check/items.ts).
+// The color-vision check's pictures and scoring (site/src/check/items.ts).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {

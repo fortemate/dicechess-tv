@@ -124,7 +124,7 @@ const vendorPack = (root, pack) => {
     attributionRequired: manifest.attributionRequired,
     generator: manifest.generator?.tool ?? null,
     // Where the lines the pack was recorded from are written: a commit of this
-    // repository for the bots, the asset repository's catalogue for the host.
+    // repository for the bots, the asset repository's catalog for the host.
     texts: manifest.pack?.texts ?? null,
     // Every file vendored for the pack, with its digest.
     files,
@@ -188,7 +188,7 @@ const { catalogue, pacing, hostEvents } = replaceDirectory(
 );
 
 // The app reads this at run time. It is generated, rather than importing the
-// catalogue, so neither Metro nor the test runner has to be taught JSON modules.
+// catalog, so neither Metro nor the test runner has to be taught JSON modules.
 const body = Object.entries(catalogue.lines)
   .map(
     ([id, { file, seconds, text }]) =>

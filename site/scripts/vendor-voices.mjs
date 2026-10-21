@@ -56,7 +56,7 @@ const verified = (path) => {
   return bytes;
 };
 
-// The bots in the game's order, as the catalogue lists its lines.
+// The bots in the game's order, as the catalog lists its lines.
 const order = [...new Set(catalogue.lines.map((line) => line.bot))];
 const bots = order.map((mode) => ({
   mode,
@@ -92,7 +92,7 @@ for (const [key, clip] of byKey) {
     seconds: clip.durationSeconds,
   });
 }
-// The lines in catalogue order within each candidate.
+// The lines in catalog order within each candidate.
 const rank = new Map(catalogue.lines.map((line, i) => [line.id, i]));
 for (const bot of bots)
   for (const candidate of bot.candidates)

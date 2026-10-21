@@ -108,7 +108,7 @@ jobs:
       # Typechecks, then bundles.
       - run: npm run build --prefix web
 
-  # SonarQube Cloud, analysed here rather than by Automatic Analysis so that it
+  # SonarQube Cloud, analyzed here rather than by Automatic Analysis so that it
   # receives coverage from both packages. Informational, as in the engine: a
   # failed scan or quality gate does not fail the run. Runs without the token —
   # Dependabot's, and pull requests from forks — skip the scan.

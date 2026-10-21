@@ -23,7 +23,7 @@ const render = (props: Record<string, unknown> = {}) =>
   mount({ size: SIZE, board: INITIAL, ...props });
 
 // A square is a View sized exactly one eighth of the board that carries a square
-// colour; the overlays inside it are absolutely positioned.
+// color; the overlays inside it are absolutely positioned.
 const squares = (root: Instance): Instance[] =>
   root.findAll(
     (node) =>

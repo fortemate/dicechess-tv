@@ -90,7 +90,7 @@ export const startFor = (
   isFlipped = human === 'b',
 ): Square => (isFlipped ? 'e7' : START);
 
-// Against the bot a person plays the colour they chose, or one drawn for them.
+// Against the bot a person plays the color they chose, or one drawn for them.
 export const colourOptions = ['Random', 'White', 'Black'];
 const COLOURS: readonly ColourChoice[] = ['random', 'w', 'b'];
 
@@ -175,7 +175,7 @@ export type ScreenAction =
   | { kind: 'unguard' }
   | { kind: 'musicAvailable'; available: boolean };
 
-// A game to start: its mode, and the colour a person plays against the bot.
+// A game to start: its mode, and the color a person plays against the bot.
 export type GameChoice = { mode: Mode; colour: ColourChoice };
 
 // How long the opponent's next step waits, in milliseconds: long enough to watch
@@ -212,7 +212,7 @@ export type Overlay =
       kind: 'confirm';
       action: 'resign' | 'replace';
       index: number;
-      // Which mode a confirmed replacement starts, and the colour chosen for
+      // Which mode a confirmed replacement starts, and the color chosen for
       // it when it is a game against the bot.
       mode: Mode;
       colour?: ColourChoice;
@@ -222,7 +222,7 @@ export type Overlay =
   // The local opponent to play, one card each (#115). `from` is where Back
   // returns.
   | { kind: 'opponent'; index: number; from: 'home' | 'menu' }
-  // The colour a person plays against the chosen opponent, before the game
+  // The color a person plays against the chosen opponent, before the game
   // starts. Back returns to the cards; `from` is where the cards return.
   | { kind: 'colour'; index: number; mode: BotMode; from: 'home' | 'menu' }
   | { kind: 'promotion'; moves: string[]; index: number }
@@ -273,8 +273,8 @@ export type ScreenState = {
   host: HostChoice;
   // Whether OK presses itself when the board offers only one choice (#302).
   autoSelect: boolean;
-  // The colour a person plays against the computer, or Ask for the choice of
-  // colour before each game (#345).
+  // The color a person plays against the computer, or Ask for the choice of
+  // color before each game (#345).
   playAs: PlayAs;
   // How the board marks movable pieces, the picked-up piece, legal
   // destinations, the target under the cursor and the cursor (#404).
@@ -406,7 +406,7 @@ export type ScreenOptions = {
   // end of a guard. The app spaces them out so the player can watch; a test
   // runs them immediately. A scheduler may return a cancellation function.
   schedule: (step: () => void, wait: number) => void | (() => void);
-  // The colour a person gets on choosing Random. Injected like the dice.
+  // The color a person gets on choosing Random. Injected like the dice.
   side: () => Side;
   // Runs one small piece of background work soon, between frames: a step of
   // measuring the danger to a king (#76). Without it the work runs at once,
@@ -422,7 +422,7 @@ export type ScreenOptions = {
 };
 
 // The home options that start a game: a game against a friend at once, and one
-// against the computer through the choice of opponent and colour. The mode two
+// against the computer through the choice of opponent and color. The mode two
 // people play on one remote is "Play a friend" wherever a player reads it
 // (#344); the code still calls it hotseat.
 export const RESUME_OPTION = 'Resume game';
@@ -440,7 +440,7 @@ export const homeItems = (resumable: boolean): Item<HomeId>[] => [
   { id: 'learn', label: 'Learn to play' },
   { id: 'rules', label: RULES_OPTION },
   { id: 'settings', label: SETTINGS_OPTION },
-  // Last, because it is read once: it is where the credits a licence asks for
+  // Last, because it is read once: it is where the credits a license asks for
   // are shown.
   { id: 'about', label: 'About' },
 ];
@@ -448,7 +448,7 @@ export const homeItems = (resumable: boolean): Item<HomeId>[] => [
 export const homeOptions = (resumable: boolean): string[] =>
   labels(homeItems(resumable));
 
-// A new game. Against the bot the person plays the chosen colour, or the one
+// A new game. Against the bot the person plays the chosen color, or the one
 // drawn for them when they chose Random.
 const start = (
   state: ScreenState,
@@ -470,7 +470,7 @@ const start = (
   );
 };
 
-// The colour a choice gives: the one named, or one drawn for Random.
+// The color a choice gives: the one named, or one drawn for Random.
 const chosen = (colour: ColourChoice, options: ScreenOptions): Side =>
   colour === 'random' ? options.side() : colour;
 
@@ -887,8 +887,8 @@ const openerOf = (state: ScreenState, from: 'home' | 'menu'): Overlay =>
         index: menuIndex(state.game, 'new-game'),
       };
 
-// The cards: the arrows walk them, OK takes one to the choice of colour.
-// A game against the computer, once its colour is known. Over a game in play
+// The cards: the arrows walk them, OK takes one to the choice of color.
+// A game against the computer, once its color is known. Over a game in play
 // the confirmation comes last, right before that game is replaced.
 const against = (
   state: ScreenState,
@@ -908,8 +908,8 @@ const against = (
       })
     : start(state, mode, colour, options);
 
-// OK on a card plays in the colour Settings names (#345), or, set to Ask, opens
-// the choice of colour.
+// OK on a card plays in the color Settings names (#345), or, set to Ask, opens
+// the choice of color.
 const onOpponent: Handler<'opponent'> = (state, overlay, key, options) => {
   if (key === 'menu') return show(state, HOME);
   if (key === 'back') return show(state, openerOf(state, overlay.from));
@@ -1128,7 +1128,7 @@ const onPromotion: Handler<'promotion'> = (state, overlay, key) => {
   return moved(state, overlay, key, overlay.moves.length);
 };
 
-// Rematch starts again against the same opponent, with the same colour option:
+// Rematch starts again against the same opponent, with the same color option:
 // Random draws a side again. Back, like Main menu, leaves for the main menu.
 const onResult: Handler<'result'> = (state, overlay, key, options) => {
   if (key === 'back' || key === 'menu') return show(state, HOME);
@@ -1174,7 +1174,7 @@ const onOwnMove = (
 
 // Choosing a piece and a square, by the person or by OK pressing itself.
 // boardInput cancels a selection first and only asks to leave when there is
-// nothing to cancel, which is the behaviour the web probe already ships.
+// nothing to cancel, which is the behavior the web probe already ships.
 function onMove(
   state: ScreenState,
   key: BoardKey,

@@ -193,7 +193,7 @@ const RAW_SCRIPTS: Readonly<
   },
 };
 
-// Catalogue of 63 curated lines: 3 lines per event for each of the 3 bots.
+// Catalog of 63 curated lines: 3 lines per event for each of the 3 bots.
 export const VOICE_CATALOGUE: readonly VoiceLine[] = (
   Object.keys(RAW_SCRIPTS) as BotMode[]
 ).flatMap((bot) => {

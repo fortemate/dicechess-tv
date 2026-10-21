@@ -20,7 +20,7 @@ const SHOWN = [...creditsFor(true), ...creditsFor(false)];
 
 test('every credit on the screen is also in the notices', () => {
   // The About screen and THIRD_PARTY_NOTICES.md say the same thing to two
-  // audiences. If they disagree, one of them is wrong about a licence.
+  // audiences. If they disagree, one of them is wrong about a license.
   for (const credit of SHOWN) {
     assert.ok(
       notices.includes(credit.source),
@@ -42,7 +42,7 @@ test('every credit is complete and readable from a sofa', () => {
     // A source is read off a television, not followed, so no scheme.
     assert.doesNotMatch(credit.source, /^https?:\/\//, credit.subject);
     // One line each in half the width of a television screen: the line at
-    // 22dp, and the licence and the source at 16dp, each on a line of its own.
+    // 22dp, and the license and the source at 16dp, each on a line of its own.
     // A longer one wraps, and a link wraps at a hyphen.
     assert.ok(credit.line.length <= 36, `${credit.subject}: line too long`);
     assert.ok(
@@ -96,7 +96,7 @@ test('the cards credit other authors only', () => {
 });
 
 test('the vendored music is credited as its permission asks', () => {
-  // The catalogue repeats the pack's credit, worded like a sound pack's as
+  // The catalog repeats the pack's credit, worded like a sound pack's as
   // "<who> – <link>": the words are a card's line, and the link, without its
   // scheme, is where its source starts.
   const catalogue = JSON.parse(
@@ -121,7 +121,7 @@ test('every vendored sound pack is credited as its manifest asks', () => {
   // The lock repeats each pack's attribution terms from the asset repository,
   // worded as "<who> – <link>". A pack that requires credit must be credited in
   // exactly its words, and with its link; the others are credited too, as a
-  // courtesy their licences invite. The screen shows the words as the line and
+  // courtesy their licenses invite. The screen shows the words as the line and
   // the link, without its scheme, at the start of the source.
   const lock = JSON.parse(
     readFileSync(
@@ -187,14 +187,14 @@ test('the notices name the licence of every vendored voice pack', () => {
     );
 });
 
-// The licences of the software in the app (#338). The package carries them, in
+// The licenses of the software in the app (#338). The package carries them, in
 // the file native/scripts/notices.mjs writes from the bundle, and the About
 // screen gives the address of the site's page that lists them.
 const shipped = readFileSync(
   new URL('../native/licenses/THIRD_PARTY_NOTICES.txt', import.meta.url),
   'utf8',
 );
-// Each shipped package and its licence, as the file names them.
+// Each shipped package and its license, as the file names them.
 const shippedLicences = new Map(
   [...shipped.matchAll(/^={78}\n(.+)\n(.+)\n-{78}$/gm)].map(
     ([, name, licence]) => [name, licence],

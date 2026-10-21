@@ -1,7 +1,7 @@
 // The roll as three dice, as the other Dice Chess clients draw it: each face
-// shows the piece it permits, in the colour of the side to move. An unspent die
+// shows the piece it permits, in the color of the side to move. An unspent die
 // carries a ring; a spent one dims and shrinks, so it is told apart by more than
-// colour. A die that no legal turn can spend loses its ring and dims but keeps
+// color. A die that no legal turn can spend loses its ring and dims but keeps
 // its size: it was never played, and it will not be (#85, #140). Before the roll
 // the three slots are empty.
 //

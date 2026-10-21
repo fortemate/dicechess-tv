@@ -3,7 +3,7 @@
 //
 // Positions are taken as the person sees the board: x grows to the right and y
 // up the screen. On the board turned for Black that mirrors the square's file
-// and rank, so the rules below treat both colours alike.
+// and rank, so the rules below treat both colors alike.
 
 import { fileOf, rankOf } from './board.ts';
 

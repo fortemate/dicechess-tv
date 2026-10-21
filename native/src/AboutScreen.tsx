@@ -1,6 +1,6 @@
 // The About screen: who made what the player sees.
 //
-// It exists because a licence requires it. The sound pack's licence asks for
+// It exists because a license requires it. The sound pack's license asks for
 // visible credit, and the asset repository asks every client to show it on an
 // About or Licenses screen. So this is a place a viewer can actually reach with
 // a remote, not a file in the source. The open-source software the app is built

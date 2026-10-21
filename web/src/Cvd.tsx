@@ -1,4 +1,4 @@
-// Colour-vision simulation: SVG filters the stage is drawn through.
+// Color-vision simulation: SVG filters the stage is drawn through.
 //
 // Protanopia, deuteranopia and tritanopia are the severity-1 matrices of
 // Machado, Oliveira and Fernandes, "A Physiologically-based Model for
@@ -7,8 +7,8 @@
 // matrices are used as published. Achromatopsia keeps only relative luminance
 // (Rec. 709 weights).
 //
-// A simulation shows where colours collapse into each other. It is not a
-// colour-blind viewer, and it is not a television panel.
+// A simulation shows where colors collapse into each other. It is not a
+// color-blind viewer, and it is not a television panel.
 import React from 'react';
 import type { Cvd } from './marks';
 

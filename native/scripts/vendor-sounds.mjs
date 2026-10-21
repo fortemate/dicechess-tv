@@ -3,7 +3,7 @@
 //   node scripts/vendor-sounds.mjs <path-to-dicechess-assets-checkout> <commit>
 //
 // The asset repository's consumption rules ask a client to pin a full commit and
-// never build against a moving branch, to keep each pack's licence and manifest
+// never build against a moving branch, to keep each pack's license and manifest
 // beside its files, and to record where everything came from. This does all
 // three. Files are read with `git show <commit>:<path>`, so the state of the
 // checkout's working tree does not matter, and every file is checked against the

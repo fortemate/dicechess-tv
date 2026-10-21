@@ -36,12 +36,12 @@ const NAMES = {
   K: 'king',
 } as const;
 
-// A FEN piece letter as a word, whatever its colour: 'n' and 'N' are both a
+// A FEN piece letter as a word, whatever its color: 'n' and 'N' are both a
 // knight.
 export const pieceName = (letter: string): string =>
   NAMES[letter.toUpperCase() as keyof typeof NAMES] ?? 'piece';
 
-// A piece with its colour, as a square names what stands on it.
+// A piece with its color, as a square names what stands on it.
 const colouredPiece = (letter: string): string =>
   `${letter === letter.toUpperCase() ? 'white' : 'black'} ${pieceName(letter)}`;
 
@@ -50,7 +50,7 @@ export const opponentName = (game: Game): string | null =>
   isBotMode(game.mode) ? opponentOf(game.mode).name : null;
 
 // Who plays a side, in the player's words (#235): against the bot the person is
-// "You" and the bot goes by its name; in hotseat each side is its colour.
+// "You" and the bot goes by its name; in hotseat each side is its color.
 export const playerOf = (game: Game, side: Side): string => {
   if (game.human === null) return sideName(side);
   return side === game.human ? 'You' : (opponentName(game) ?? 'The computer');

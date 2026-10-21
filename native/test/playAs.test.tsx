@@ -1,6 +1,6 @@
-// The colour a person plays against the computer, set once in Settings (#345):
+// The color a person plays against the computer, set once in Settings (#345):
 // Random, White or Black starts a game from the opponent card with one OK, and
-// Ask brings back the choice of colour before each game.
+// Ask brings back the choice of color before each game.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { MMKV, reset, setStored } from './stubs/react-native-mmkv.mjs';
@@ -40,7 +40,7 @@ import {
 // The bot's lines go on the voices' own timers.
 fakeTimers();
 
-// Random draws Black here, so a drawn colour cannot pass for White.
+// Random draws Black here, so a drawn color cannot pass for White.
 const options: ScreenOptions = fixedOptions({
   newId: () => 'play-as',
   side: () => 'b',
@@ -273,7 +273,7 @@ test('in the app, the setting is read at launch, shown on the cards, and saved w
   );
   assert.match(text(root), /Play as: Ask/);
   assert.equal(new MMKV().getString(KEY), 'ask');
-  // A relaunch keeps it: the cards open the choice of colour.
+  // A relaunch keeps it: the cards open the choice of color.
   root = launch({ options }).root;
   send('down', 'enter');
   assert.match(text(root), /OK: choose a color/);

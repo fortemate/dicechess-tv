@@ -78,7 +78,7 @@ export const silentSounds = (): Sounds => ({
 });
 
 // Music that plays nothing, so the settings list their rows at once rather
-// than after a catalogue loads. A test that listens for one call passes it.
+// than after a catalog loads. A test that listens for one call passes it.
 export const silentMusic = (more: Partial<Music> = {}): Music => ({
   setRole() {},
   setEnabled() {},
@@ -132,7 +132,7 @@ export const mount = (
 
 // What a screen reports about itself. state() is its latest report of the
 // overlay, the turn and the board, which a test reads rather than the panel's
-// wording, so it tests behaviour instead of copy.
+// wording, so it tests behavior instead of copy.
 export const reporter = () => {
   const lines: string[] = [];
   return {

@@ -109,7 +109,7 @@ const STRATEGIES: [string, Strategy][] = [
 ];
 
 // Whose turns are scored. In hotseat both sides share one cursor on a board
-// that never turns. The one-colour modes score a single side of the same games
+// that never turns. The one-color modes score a single side of the same games
 // and leave its cursor where it was during the other side's turns, as when a
 // person plays the bot; the board turns for a person playing Black.
 type Mode = {

@@ -115,7 +115,7 @@ const GOLD: Match = (r, g, b) => r > 210 && g > 150 && g < 205 && b < 110;
 const PANEL: Area = [1050, 90, 820, 900];
 const PERSON_BADGE: Area = [1074, 888, 746, 110];
 
-// How many pixels of each area have its colour, in one screenshot.
+// How many pixels of each area have its color, in one screenshot.
 function count(...probes: [Area, Match][]): number[] {
   const shot = join(TAKES, 'probe.png');
   vvd('screenshot', shot);
@@ -239,7 +239,7 @@ async function playOn(steps: number): Promise<void> {
   }
 }
 
-// A game against an opponent, from the home screen, in the colour Play as
+// A game against an opponent, from the home screen, in the color Play as
 // names (#345): Random on a fresh install. It replaces the game in play after
 // its confirmation. `card` is the opponent's place among the cards: Rolly,
 // Grabby, Rampage.
@@ -250,7 +250,7 @@ function startAgainst(card: number, gap = 300): void {
   const now = focusedCard();
   if (now > card) press(times('left', now - card), 900);
   if (now < card) press(times('right', card - now), 900);
-  press(['ok'], 1200); // the game, in the colour Play as names
+  press(['ok'], 1200); // the game, in the color Play as names
   // Replacing a game in play asks first, starting on Cancel.
   if (focusInPanel() > 500) press(['down', 'ok'], 2000);
 }
@@ -413,7 +413,7 @@ const takes: Record<string, () => Promise<void>> = {
   },
 
   // The three opponents. OK on Grabby's card starts a game against him in the
-  // colour Play as names (#345), after the confirmation that replaces the game
+  // color Play as names (#345), after the confirmation that replaces the game
   // in play.
   opponents: async () => {
     await relaunch();
@@ -425,7 +425,7 @@ const takes: Record<string, () => Promise<void>> = {
       const card = focusedCard();
       if (card) press(times('left', card), 300);
       press(['right', 'right', 'left'], 1400); // Grabby, Rampage, Grabby
-      press(['ok'], 1200); // the game, in the colour Play as names
+      press(['ok'], 1200); // the game, in the color Play as names
       if (focusInPanel() > 500) press(['down', 'ok'], 2000);
     });
   },

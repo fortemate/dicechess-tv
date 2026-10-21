@@ -26,7 +26,7 @@ test('a press jumps to the next option ahead, and stays when there is none', () 
 });
 
 test('the rules differ on an option in line against a nearer one to the side', () => {
-  // From d2 upwards: d6 is in line four ranks away; b3 is one rank up, two
+  // From d2 upward: d6 is in line four ranks away; b3 is one rank up, two
   // files aside.
   const options = ['b3', 'd6'];
   assert.equal(jump('d2', options, 'up', { rule: 'axis' }), 'd6');
@@ -65,7 +65,7 @@ test('the axis rule can leave an option out of reach; the cone rule does not', (
   assert.equal(pressesFrom('d5', options, { rule: 'axis' }).has('e6'), false);
   assert.equal(pressesFrom('d5', options, { rule: 'cone' }).get('e6'), 1);
   // Unreachable options weigh on the choice of where to wait: from e6 every
-  // other option is in reach, so it is the centre under axis.
+  // other option is in reach, so it is the center under axis.
   assert.equal(central(options, null, { rule: 'axis' }), 'e6');
 });
 

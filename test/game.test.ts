@@ -190,7 +190,7 @@ test('bot replies are complete and tied to game id, revision and exact position'
     assert.throws(() => applyBotReply(game, invalid));
 });
 
-// The smallest thing that honours the contract: it keeps a string, because
+// The smallest thing that honors the contract: it keeps a string, because
 // that is all a store ever holds, and it validates on the way in. Reading it
 // back through a second instance is what a relaunch does.
 const memoryStore = (): SnapshotStore<Game> & { raw: string | null } => ({

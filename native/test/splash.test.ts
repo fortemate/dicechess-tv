@@ -1,6 +1,6 @@
 // The splash is the one asset nothing else would catch. It is generated, it is
 // never imported by any code, and nobody looks at a television boot screen in
-// CI — so a wrong colour, a title off the safe area or a blurred mark would
+// CI — so a wrong color, a title off the safe area or a blurred mark would
 // ship in silence.
 //
 // Every assertion here reads the file that was actually written, not the
@@ -254,7 +254,7 @@ const BAND = { top: 100, bottom: 412, side: 51 };
 
 // The background is taken to be what the four corners show, blended across the
 // square, which reproduces a flat fill or a straight gradient exactly. A pixel
-// more than a tenth of the range away from it is artwork, whatever its colour:
+// more than a tenth of the range away from it is artwork, whatever its color:
 // a bright red die counts as much as a black outline.
 function artworkOutsideBand({ width, height, channels, pixels }: Picture) {
   const rgb = (x: number, y: number) => {

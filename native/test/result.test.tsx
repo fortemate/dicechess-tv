@@ -43,7 +43,7 @@ const drawn = (root: Instance, id: string) =>
     (node) => typeof node.type === 'string' && node.props?.testID === id,
   );
 
-// The lines drawn at a size, and in a colour when one is given.
+// The lines drawn at a size, and in a color when one is given.
 const linesAt = (root: Instance, size: number, color?: string): string[] =>
   root
     .findAll(
@@ -55,7 +55,7 @@ const linesAt = (root: Instance, size: number, color?: string): string[] =>
     )
     .map((node) => String(node.props.children));
 
-// Who won, the 38 dp headline, and how, the grey caption under it (#235).
+// Who won, the 38 dp headline, and how, the gray caption under it (#235).
 const outcomeOf = (root: Instance) => {
   const [headline, ...more] = linesAt(root, 38);
   const reasons = linesAt(root, 20, '#aab8c9');

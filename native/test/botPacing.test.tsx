@@ -283,7 +283,7 @@ test('Back opens menu while opponent searches, pauses pacing, and resumes withou
   state.time += 200;
   send('back');
   assert.match(app.state(), /overlay menu/);
-  // Waiting timer is cancelled
+  // Waiting timer is canceled
   assert.equal(waiting.length, 0);
 
   // Time spent in menu does not count against search presentation wait

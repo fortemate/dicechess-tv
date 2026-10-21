@@ -31,7 +31,7 @@ export function failAudio(stage) {
   failing[stage] = true;
 }
 
-// Test-only: keep the next players initialising until releaseAudio(), as a slow
+// Test-only: keep the next players initializing until releaseAudio(), as a slow
 // media pipeline would.
 let held = null;
 export function holdAudio() {

@@ -1,6 +1,6 @@
 // The line over the home screen and the menus names a game only when there is
 // one to name (#234): the game Resume returns to, or, over the choice of
-// colour, the opponent of the game about to start. A first launch, and a game
+// color, the opponent of the game about to start. A first launch, and a game
 // that has ended, have none.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -65,7 +65,7 @@ test('a launch with no saved game shows no line over the home screen or its sett
 
 test('the choice of colour names the opponent chosen', () => {
   reset();
-  // The choice of colour shows only with Play as set to Ask (#345).
+  // The choice of color shows only with Play as set to Ask (#345).
   setStored({ 'dicechess-tv.playAs.v1': 'ask' });
   const { root } = launch();
   toGrabbyColours();

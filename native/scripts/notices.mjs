@@ -26,7 +26,7 @@
 // nothing the file does not name. Either fails until the file is rewritten and
 // reviewed.
 //
-// Each package's licence is its own LICENSE file, with trailing spaces trimmed.
+// Each package's license is its own LICENSE file, with trailing spaces trimmed.
 // A package that ships none takes the text of the repository it comes from.
 // Fortemate's own packages are not third-party, and are left to the notices of
 // the game itself.
@@ -136,7 +136,7 @@ export const shippedPackages = (sources, root = native) => {
   return found.sort(byName);
 };
 
-// A licence as it is printed: line endings, trailing spaces and blank lines at
+// A license as it is printed: line endings, trailing spaces and blank lines at
 // either end are tidied, the words are not touched.
 const tidy = (text) =>
   text
@@ -149,7 +149,7 @@ const tidy = (text) =>
 const licenceFile = (dir) =>
   readdirSync(dir).find((file) => /^licen[cs]e(\.(md|txt))?$/i.test(file));
 
-// The licence text of one copy of a package, and what it is called.
+// The license text of one copy of a package, and what it is called.
 const licenceOf = (name, dir, root) => {
   const own = licenceFile(dir);
   let text;

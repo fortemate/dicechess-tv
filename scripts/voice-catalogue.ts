@@ -5,8 +5,8 @@
 //
 // The ids and texts are the game's own, from src/core/botVoice.ts, with the
 // commit they come from, so that a voice pack made from them can be checked
-// against the catalogue later. Run it whenever a line changes, before the pack
-// is synthesized again. A catalogue file with changes that are not committed is
+// against the catalog later. Run it whenever a line changes, before the pack
+// is synthesized again. A catalog file with changes that are not committed is
 // marked `dirty`, since no commit then holds the texts it lists.
 import { execFileSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';

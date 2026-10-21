@@ -1,4 +1,4 @@
-// Dice Chess TV: the answers of the site's tester pages, the colour-vision
+// Dice Chess TV: the answers of the site's tester pages, the color-vision
 // check (/check/), the feedback form (/feedback/) and the voice audition
 // (/voices/), appended to the Google Sheet this script is bound to, one row per
 // submission. Setup: README.md next

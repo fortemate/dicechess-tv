@@ -1,4 +1,4 @@
-// How the board's marks are drawn on the bench, and the colour-vision filter
+// How the board's marks are drawn on the bench, and the color-vision filter
 // laid over the whole screen. Each mark varies on its own, and the whole choice
 // lives in the page's address, so a link hands a tester one exact variant.
 //
@@ -9,7 +9,7 @@ import { RULE, jump, type Direction } from '../../src/core/cursor.ts';
 
 export const MARKS = {
   // A piece that can move now (#68). fill, fill-corners and corners are the A,
-  // B and C of the colour-vision check (#105, #108).
+  // B and C of the color-vision check (#105, #108).
   movable: [
     'fill',
     'fill-corners',
@@ -84,7 +84,7 @@ export const isDefault = (marks: Marks): boolean =>
     (name) => marks[name] === DEFAULT_MARKS[name],
   );
 
-// Colour-vision simulation (./Cvd.tsx). Severity 1: the full deficiency.
+// Color-vision simulation (./Cvd.tsx). Severity 1: the full deficiency.
 export const CVD = [
   'none',
   'protanopia',
@@ -246,7 +246,7 @@ export function stepShortcut(current: Bench, key: string): Bench | null {
 // - Step 1 has 10 movable pieces across light and dark squares.
 // - Step 2 picks up the Queen on d4 (dark square), whose legal destinations
 //   include captures on both light (d5) and dark (e5, a7) squares as well as
-//   empty squares of both colours (c4, a4, d3, d2 light; b4, c5, b6, e3, d1 dark).
+//   empty squares of both colors (c4, a4, d3, d2 light; b4, c5, b6, e3, d1 dark).
 export const COMPARE_BOARD =
   'r1bqkbnr/ppp2ppp/2n5/3pp3/3QP3/2N2N2/PPP2PPP/R1B1KB1R';
 export const COMPARE_LAST_MOVE = 'b8c6';
@@ -341,7 +341,7 @@ export const PALETTES: Readonly<Record<Marks['palette'], Palette>> = {
     lastMove: 'rgba(155, 199, 0, 0.41)',
     lastMoveLine: '#6f8f00',
   },
-  // Okabe and Ito's palette, chosen to stay apart under every common colour
+  // Okabe and Ito's palette, chosen to stay apart under every common color
   // deficiency: blue for what can move, vermillion for where it can go,
   // reddish-purple for the picked-up piece, yellow for the cursor, and sky
   // blue for the last move.

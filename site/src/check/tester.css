@@ -147,7 +147,7 @@ button {
 }
 
 /* A tapped square: a white disc with a black ring and tick, which reads the
-   same whatever the viewer's colour vision and whatever the square under it. */
+   same whatever the viewer's color vision and whatever the square under it. */
 .squares [aria-pressed='true']::after,
 .squares .ticked::after {
   content: '';

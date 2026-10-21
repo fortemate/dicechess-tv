@@ -1,5 +1,5 @@
 // Board palette, inherited from the WebView probe so the board kept the look
-// people had already reviewed. The square and last-move colours are Chessground's
+// people had already reviewed. The square and last-move colors are Chessground's
 // brown theme; the probe is gone, and these values are now ours to change.
 export const THEME = {
   background: '#122737',
@@ -7,12 +7,12 @@ export const THEME = {
   dark: '#b58863',
   cursor: '#00eaff',
   // Chessground's move-destination green. Translucent and dark, so a dot reads
-  // on both square colours.
+  // on both square colors.
   destination: 'rgba(20, 85, 30, 0.5)',
   lastMove: 'rgba(155, 199, 0, 0.41)',
   selected: 'rgba(0, 234, 255, 0.28)',
   // A piece that can move now (#68): translucent, so it reads on both square
-  // colours and under the last-move tint.
+  // colors and under the last-move tint.
   movable: 'rgba(34, 197, 94, 0.5)',
   // A focused menu item (#51): framed in the cursor's cyan over a faint fill of
   // it, and filled more strongly while OK is held.

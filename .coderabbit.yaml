@@ -38,7 +38,7 @@ reviews:
       - main
 
   path_filters:
-    # Vendored byte for byte and pinned by digests. JDSherbert's licence also
+    # Vendored byte for byte and pinned by digests. JDSherbert's license also
     # forbids using his files to train AI models.
     - '!native/sounds/**'
     # Generated: change the script and regenerate instead.
@@ -96,8 +96,8 @@ reviews:
         - Sound must never break the game: every failure is reported and swallowed.
         - No DOM APIs and no crypto.getRandomValues; random sources are injected.
         - New or changed layout keeps text and focus out of the outer 5% of every edge and
-          shows focus by more than colour.
-        Flag code that contradicts these, and comments that claim behaviour without evidence.
+          shows focus by more than color.
+        Flag code that contradicts these, and comments that claim behavior without evidence.
 
     - path: 'src/core/**'
       instructions: |
@@ -123,7 +123,7 @@ reviews:
     - path: '**/test/**'
       instructions: |
         node:test, with small stubs for the Vega packages in native/test/stubs. A test should
-        fail when the behaviour it names breaks. In type-checked tests, pass string paths to
+        fail when the behavior it names breaks. In type-checked tests, pass string paths to
         fs, never URL objects.
 
     - path: 'native/scripts/**'

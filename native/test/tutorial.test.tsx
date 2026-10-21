@@ -417,7 +417,7 @@ test('the About screen shows the credits and returns on Back or OK', () => {
   // however many items are added above.
   send('up', 'enter');
   assert.match(text(root), /ABOUT/);
-  // The credit a licence requires is only met if it is on the screen. No
+  // The credit a license requires is only met if it is on the screen. No
   // portrait failed to load here, so the screen credits the pieces alone to
   // RhosGFX; test/about.test.tsx covers a build without the portraits.
   assert.match(text(root), /^Dice Chess$/m);
