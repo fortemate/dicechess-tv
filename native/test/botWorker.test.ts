@@ -36,6 +36,7 @@ function rig(active = true, timeout = 120_000) {
     launched: 0,
     id: 0,
     failLaunch: false,
+    launchError: undefined as unknown,
     failStore: false,
   };
   const store = {
@@ -63,7 +64,8 @@ function rig(active = true, timeout = 120_000) {
     timeout,
     launch: async () => {
       state.launched++;
-      if (state.failLaunch) throw new Error('launch failed');
+      if (state.failLaunch)
+        throw state.launchError ?? new Error('launch failed');
     },
   });
   const pass = (ms: number) => {
@@ -371,6 +373,21 @@ test('launch and storage failures settle the request; missing workers time out w
   await Promise.all([first, second]);
   assert.equal(r.state.launched, 1);
   assert.equal(r.values.size, 0);
+});
+
+test('a non-Error launch rejection becomes an Error and still clears the request', async () => {
+  const r = rig();
+  r.state.failLaunch = true;
+  r.state.launchError = 'bridge failed';
+  const pending = assert.rejects(r.request(game()), {
+    name: 'Error',
+    message: 'bridge failed',
+  });
+  await flush();
+  r.pass(0);
+  await pending;
+  assert.equal(r.values.size, 0);
+  assert.equal(r.timers.size, 0);
 });
 
 test('disposing while waiting for focus or a worker cancels polling and rejects queued work', async () => {

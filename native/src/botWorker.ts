@@ -1,7 +1,7 @@
 import {
   createWorkletRuntime,
   runOnRuntime,
-  runOnJS,
+  scheduleOnRN,
   type WorkletRuntime,
 } from '@amazon-devices/react-native-worklets';
 import { MMKV } from '@amazon-devices/react-native-mmkv';
@@ -34,7 +34,7 @@ function compute(source: string, raw: string, done: (message: string) => void) {
       error: error instanceof Error ? error.message : String(error),
     });
   }
-  runOnJS(done)(response);
+  scheduleOnRN(done, response);
 }
 
 export function createBotWorker(activity: Activity): BotWorker {

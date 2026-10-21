@@ -107,6 +107,10 @@ const DIE = {
   K: 'King',
 } as const;
 
+function searchFailure(error: unknown): Error {
+  return error instanceof Error ? error : new Error(String(error));
+}
+
 export type GameScreenProps = {
   options: ScreenOptions;
   // A game to resume, read before the first render so the board never shows a
@@ -901,14 +905,12 @@ export const GameScreen = ({
               return rep;
             })
             .catch((error: unknown) => {
-              hold.error =
-                error instanceof Error ? error : new Error(String(error));
+              hold.error = searchFailure(error);
               hold.done = true;
               return undefined;
             });
         } catch (error) {
-          hold.error =
-            error instanceof Error ? error : new Error(String(error));
+          hold.error = searchFailure(error);
           hold.done = true;
           hold.promise = Promise.resolve(undefined);
         }
