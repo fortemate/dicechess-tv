@@ -29,6 +29,7 @@ const flush = async () => {
 
 function rig(active = true, timeout = 120_000) {
   const values = new Map<string, string>();
+  const jobs: { resolve: () => void; reject: (error: Error) => void }[] = [];
   const activity = createActivity(active);
   const timers = new Set<{ at: number; step: () => void }>();
   const state = {
@@ -66,6 +67,9 @@ function rig(active = true, timeout = 120_000) {
       state.launched++;
       if (state.failLaunch)
         throw state.launchError ?? new Error('launch failed');
+      return new Promise<void>((resolve, reject) => {
+        jobs.push({ resolve, reject });
+      });
     },
   });
   const pass = (ms: number) => {
@@ -89,9 +93,10 @@ function rig(active = true, timeout = 120_000) {
       BOT_RESPONSE,
       JSON.stringify({ ...result, reply: change(result.reply) }),
     );
+    jobs.at(-1)!.resolve();
     pass(100);
   };
-  return { ...client, values, timers, activity, state, pass, respond };
+  return { ...client, values, timers, activity, state, pass, respond, jobs };
 }
 
 test('the physical ANR board uses the unchanged canonical search and returns a complete legal path', (t) => {
@@ -395,6 +400,63 @@ test('non-Error launch rejections preserve their cause and still clear the reque
     assert.equal(r.values.size, 0);
     assert.equal(r.timers.size, 0);
   }
+});
+
+test('a timed-out job blocks overlap only until its late success or failure settles', async () => {
+  for (const lateFailure of [false, true]) {
+    const r = rig(true, 300);
+    r.values.set('dicechess-tv.game.v2', 'preserved save');
+    const first = assert.rejects(r.request(game()), /did not answer/);
+    await flush();
+    r.pass(300);
+    await first;
+    await assert.rejects(r.request(game()), /unavailable/);
+    assert.equal(r.state.launched, 1, 'a hanging job still blocks searches');
+    if (lateFailure) r.jobs[0].reject(new Error('late failure'));
+    else r.jobs[0].resolve();
+    await flush();
+    const next = r.request({ ...game(), id: 'after-timeout' });
+    await flush();
+    r.pass(0);
+    r.respond();
+    assert.equal((await next).gameId, 'after-timeout');
+    assert.equal(r.state.launched, 2);
+    assert.deepEqual(
+      [...r.values],
+      [['dicechess-tv.game.v2', 'preserved save']],
+    );
+    assert.equal(r.timers.size, 0);
+  }
+});
+
+test('a settled transport with no response does not disable the next search', async () => {
+  const r = rig(true, 300);
+  const first = assert.rejects(r.request(game()), /did not answer/);
+  await flush();
+  r.pass(0);
+  r.jobs[0].resolve();
+  await flush();
+  r.pass(300);
+  await first;
+  const next = r.request(game());
+  await flush();
+  r.pass(0);
+  r.respond();
+  await next;
+  assert.equal(r.state.launched, 2);
+});
+
+test('disposal cannot be undone by the late settlement of a timed-out job', async () => {
+  const r = rig(true, 300);
+  const first = assert.rejects(r.request(game()), /did not answer/);
+  await flush();
+  r.pass(300);
+  await first;
+  r.dispose();
+  r.jobs[0].resolve();
+  await flush();
+  await assert.rejects(r.request(game()), /unavailable/);
+  assert.equal(r.state.launched, 1);
 });
 
 test('disposing while waiting for focus or a worker cancels polling and rejects queued work', async () => {

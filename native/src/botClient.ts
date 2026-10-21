@@ -11,6 +11,7 @@ type Store = {
 type Ports = {
   store: Store;
   activity: Activity;
+  // Settles only when this job can no longer compute or publish a response.
   launch: () => Promise<unknown>;
   schedule: (step: () => void, wait: number) => () => void;
   now: () => number;
@@ -29,7 +30,7 @@ export function createBotClient(ports: Ports) {
   const { store, activity, schedule, now } = ports;
   let tail = Promise.resolve();
   let stopped = false;
-  let timedOut = false;
+  let running = false;
   let cancelCurrent: (() => void) | undefined;
 
   const execute = (game: Game): Promise<BotReply> =>
@@ -90,14 +91,23 @@ export function createBotClient(ports: Ports) {
                 // This bounds transport failure, never the engine's search
                 // strength. A suspended app does not spend the deadline.
                 // Do not overlap another job after a lost response.
-                timedOut = true;
                 finish(undefined, new Error('Opponent worker did not answer'));
               } else cancelPoll = schedule(poll, 100);
             } catch (error) {
               finish(undefined, error);
             }
           };
-          void ports.launch().catch((error) => finish(undefined, error));
+          const launched = ports.launch();
+          running = true;
+          void launched.then(
+            () => {
+              running = false;
+            },
+            (error) => {
+              running = false;
+              finish(undefined, error);
+            },
+          );
           poll();
         } catch (error) {
           finish(undefined, error);
@@ -107,8 +117,7 @@ export function createBotClient(ports: Ports) {
 
   const request = (game: Game): Promise<BotReply> => {
     const job = tail.then(() => {
-      if (stopped || timedOut)
-        throw new Error('Opponent worker is unavailable');
+      if (stopped || running) throw new Error('Opponent worker is unavailable');
       return execute(game);
     });
     tail = job.then(
