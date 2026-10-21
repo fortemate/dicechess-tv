@@ -9,13 +9,12 @@
 import React from 'react';
 import type { TutorLine } from '../../src/core/tutorial';
 import { LINE_START_MS, speechTiming, type Sounds } from './sound';
-import { ActivityContext, afterDelay, scheduleActive } from './activity';
+import { useActivity } from './activity';
 
 export type TutorialVoice = Pick<Sounds, 'say' | 'stopLine'>;
 
-// When the next line starts, after the one asked for now: the voice player
-// takes a moment to start a clip (LINE_START_MS), and speechTiming's tail
-// leaves a breath between two sentences. Null when the line has no clip.
+// An estimate for presentation/tests only. Playback follows the decoder's
+// completion callback: cold initialization can outlast LINE_START_MS (#482).
 export const nextLineMs = (line: TutorLine): number | null => {
   const timing = speechTiming(line);
   return timing ? LINE_START_MS + timing.ms : null;
@@ -25,7 +24,7 @@ export function useTutorialVoice(
   voice: TutorialVoice | undefined,
   lines: readonly TutorLine[],
 ): void {
-  const activity = React.useContext(ActivityContext);
+  const { active } = useActivity();
   // The lines change identity on every render; what they say does not.
   const key = lines.map((line) => line.id).join(' ');
   const linesRef = React.useRef(lines);
@@ -34,32 +33,20 @@ export function useTutorialVoice(
   });
 
   React.useEffect(() => {
-    if (!voice) return;
+    if (!voice || !active) return;
     const said = linesRef.current;
-    let cancel: () => void = () => undefined;
+    let cancelled = false;
     const sayFrom = (index: number) => {
       const line = said[index];
-      if (!line) return;
-      voice.say(line);
-      const wait = nextLineMs(line);
-      // A line without a clip ends what he says: the next would come too soon.
-      if (wait !== null && index + 1 < said.length)
-        cancel = scheduleActive(
-          activity,
-          afterDelay,
-          () => sayFrom(index + 1),
-          wait,
-        );
+      if (!line || cancelled) return;
+      voice.say(line, () => {
+        if (!cancelled) sayFrom(index + 1);
+      });
     };
-    const cancelStart = scheduleActive(
-      activity,
-      (run) => run(),
-      () => sayFrom(0),
-    );
+    sayFrom(0);
     return () => {
-      cancelStart();
-      cancel();
+      cancelled = true;
       voice.stopLine();
     };
-  }, [voice, key, activity]);
+  }, [voice, key, active]);
 }

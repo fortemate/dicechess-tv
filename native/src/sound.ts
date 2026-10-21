@@ -159,7 +159,10 @@ export type Sounds = {
   setSoundVolume(gain: number): void;
   // Says a bot's or the host's line in its voice, replacing any line still
   // being said.
-  say(line: SpokenLine): void;
+  // onEnded runs only after the decoder ends the clip and its tail passes.
+  // It never runs after replacement, stop, disabled voices, suspension, failure
+  // or timeout. Muting effects with setMuted does not stop speech.
+  say(line: SpokenLine, onEnded?: () => void): void;
   // Stops the line being said, or waiting to be said, as a new line would, for
   // a speaker who leaves mid-line: the Hot Seat host turned off (#202).
   stopLine(): void;
@@ -545,7 +548,12 @@ export function createSounds({
     cut();
   };
 
-  const speak = async (id: string, turn: number, ms: number) => {
+  const speak = async (
+    id: string,
+    turn: number,
+    ms: number,
+    onEnded?: () => void,
+  ) => {
     const clip = VOICE_FILES[id];
     if (!clip || turn !== lines || silentVoice()) return;
     const player = fresh();
@@ -559,7 +567,17 @@ export function createSounds({
     const ended = () => {
       if (!current() || ending) return;
       ending = true;
-      later(finish, LINE_TAIL_MS);
+      later(() => {
+        if (!current()) return;
+        finish();
+        try {
+          onEnded?.();
+        } catch (error) {
+          report(
+            `sound: line ${id} completion callback failed: ${String(error)}`,
+          );
+        }
+      }, LINE_TAIL_MS);
     };
     const failed = () => {
       if (!current()) return;
@@ -669,15 +687,18 @@ export function createSounds({
         }
       }
     },
-    say(line) {
+    say(line, onEnded) {
       const timing = speechTiming(line);
       // The line on the player now is cut short, whether or not this one can
       // be said.
       const turn = cut();
       if (!timing) return report(`sound: line ${line.id} has no clip`);
       if (silentVoice()) return;
-      if (!timing.delayMs) return void speak(line.id, turn, timing.ms);
-      later(() => void speak(line.id, turn, timing.ms), timing.delayMs);
+      if (!timing.delayMs) return void speak(line.id, turn, timing.ms, onEnded);
+      later(
+        () => void speak(line.id, turn, timing.ms, onEnded),
+        timing.delayMs,
+      );
     },
     stopLine() {
       cut();
