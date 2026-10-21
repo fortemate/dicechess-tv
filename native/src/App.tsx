@@ -258,6 +258,9 @@ export const App = ({
       ? null
       : createSounds({
           muted: !soundHeard(initialSound),
+          // Made while the app is away, it makes no effects player until the
+          // return (#478).
+          suspended: late.sounds.isSuspended(),
           soundVolume: soundGain(initialSound.volume),
           voices: voicesHeard(initialVoices),
           voiceVolume: voiceGain(initialVoices.volume),

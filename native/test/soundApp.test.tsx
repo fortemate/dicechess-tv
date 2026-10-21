@@ -495,6 +495,20 @@ test('the effects’ players are let go when the app leaves, made again after th
   assert.ok(second.every((player) => releasedPlayers().includes(player)));
 });
 
+test('a launch while the app is away makes no effects player until the return (#478)', async () => {
+  reset();
+  resetAudio();
+  setAppState('background');
+  launch({ options });
+  await settled();
+  assert.deepEqual(spritePlayers(), [], 'nothing loaded while away');
+  assert.deepEqual(releasedPlayers(), [], 'nothing made only to be let go');
+  act(() => setAppState('active'));
+  act(() => mock.timers.tick(EFFECTS_RETURN_MS));
+  await settled();
+  assert.equal(spritePlayers().length, 3);
+});
+
 test('settings told before the sounds exist reach them once made; a cue before then is not heard (#313)', () => {
   const late = lateSounds();
   late.setMuted(true);

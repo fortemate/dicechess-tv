@@ -227,7 +227,7 @@ The system's decisions are in the journal. While the trips run, keep
 background and look for `memory-mid Kill <pid> com.fortemate.dicechesstv.main
 Usage <after>:<before>`, `TRIM_RESOURCES` and `same pids`. Each kill also leaves a
 `LowMemoryKiller` report:
-`vega device copy-logs -a SYSTEM_TOMBSTONE/acr --directory <dir>`, never with
+`vega device copy-logs --device <stick-id> --artifact SYSTEM_TOMBSTONE/acr --directory <dir>`, never with
 `--upload` or `--purge`. Its `action name` says which rule ended the app.
 
 The Stick's `/tmp` lives in memory. The perf tools leave their traces there as

@@ -204,6 +204,9 @@ export type SoundOptions = {
   // the foreground; the returned function cancels it. Injected so a test can
   // say when.
   wake?: (run: () => void, wait: number) => () => void;
+  // Start away from the foreground: no effects player is made until the
+  // return, as if the app had just left.
+  suspended?: boolean;
 };
 
 type Player = Pick<
@@ -238,12 +241,13 @@ export function createSounds({
     const timer = setTimeout(run, wait);
     return () => clearTimeout(timer);
   },
+  suspended: startSuspended = false,
 }: SoundOptions = {}): Sounds {
   let muted = startMuted;
   let soundGain = Math.max(0, Math.min(1, startSoundVolume));
   let voices = startVoices;
   let voiceGain = Math.max(0, Math.min(1, startVoiceVolume));
-  let suspended = false;
+  let suspended = startSuspended;
   let disposed = false;
   // Counts the times the app went away. A cue asked for before the last of
   // them is never heard, even if the app is back by the time its player is

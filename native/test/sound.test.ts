@@ -665,6 +665,28 @@ test('a clip of the players let go that ends after the return pauses and moves n
   assert.equal(clipOf(roll), 'kenney-casino-audio/dice_throw_1.mp3');
 });
 
+test('sounds made while the app is away make no effects player until the return', async () => {
+  resetAudio();
+  const time = wakes();
+  const sounds = createSounds({ suspended: true, wake: time.wake });
+  await settle();
+  assert.deepEqual(spritePlayers(), []);
+  assert.equal(
+    log().filter((entry) => entry.event === 'initialize').length,
+    0,
+    'no pipeline opened while away',
+  );
+  sounds.setSuspended(false);
+  assert.deepEqual(
+    time.held.map(({ wait }) => wait),
+    [EFFECTS_RETURN_MS],
+  );
+  time.fire();
+  await settle();
+  assert.equal(spritePlayers().length, 3);
+  assert.deepEqual(released(), []);
+});
+
 test('a player still initialising when the app leaves is let go once it is ready, never loaded', async () => {
   resetAudio();
   holdAudio();
