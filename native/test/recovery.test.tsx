@@ -257,10 +257,22 @@ test('the app uses its platform worker, keeps Menu responsive while it waits, an
   assert.equal(dispose.mock.callCount(), 1);
 });
 
-for (const choice of ['menu', 'fresh']) {
-  test(`Recovery ${choice} allows bot play on the same client after a timed-out job finishes late`, async (t) => {
+for (const [choice, source] of [
+  ['menu', 'crypto.getRandomValues'],
+  ['fresh', 'crypto.getRandomValues'],
+  ['menu', 'Math.random'],
+  ['fresh', 'Math.random'],
+] as const) {
+  test(`Recovery ${choice} allows bot play on the same client after a timed-out job finishes late (${source})`, async (t) => {
     quietBoundaries(t);
     // A fresh game's first roll must offer a legal move and reach the worker.
+    // Node prefers crypto, so fixing Math.random alone leaves the dice random.
+    const fill = t.mock.fn((bytes: Uint8Array) => bytes.fill(0));
+    t.mock.getter(globalThis, 'crypto', () =>
+      source === 'crypto.getRandomValues'
+        ? { getRandomValues: fill }
+        : undefined,
+    );
     t.mock.method(Math, 'random', () => 0);
     reset();
     setStored({ 'dicechess-tv.playAs.v1': 'b' });
@@ -341,8 +353,13 @@ for (const choice of ['menu', 'fresh']) {
     assert.equal(createWorker.mock.callCount(), 1, 'no app or worker restart');
     assert.doesNotMatch(text(app.root), new RegExp(RECOVERY_TITLE));
     assert.ok(store().read()!.revision > saved.revision);
-    if (choice === 'fresh') assert.notEqual(store().read()!.id, saved.id);
-    else assert.equal(store().read()!.id, saved.id);
+    if (choice === 'fresh') {
+      assert.notEqual(store().read()!.id, saved.id);
+      assert.equal(
+        fill.mock.callCount() > 0,
+        source === 'crypto.getRandomValues',
+      );
+    } else assert.equal(store().read()!.id, saved.id);
   });
 }
 
