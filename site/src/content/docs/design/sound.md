@@ -36,6 +36,7 @@ The cues play on three channels: board, dice and result. A capture and the win i
 
 - **Mute.** The Settings screen, opened from both menus, turns every cue off, and the choice is remembered. In the game menu Settings is one press of Up away, because the menu wraps.
 - **In the background.** Sound stops when the app leaves the screen, for the launcher, the screensaver or another app, and when an overlay such as Alexa's takes the focus ([#325](https://github.com/fortemate/dicechess-tv/pull/325)), as Amazon's submission checks require.
+- **Returning to play.** The sound settings are kept while the app is away. Its effect players are released and recreated on return, or when the next cue needs them. Physical Stick checks preserved mute states, volume levels and the saved game; hearing the TV output remains a manual check ([audio lifecycle validation](https://github.com/fortemate/dicechess-tv/blob/main/docs/audio-lifecycle-validation-479.md)).
 
 ## Music that follows the danger
 
