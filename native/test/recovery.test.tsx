@@ -260,6 +260,8 @@ test('the app uses its platform worker, keeps Menu responsive while it waits, an
 for (const choice of ['menu', 'fresh']) {
   test(`Recovery ${choice} allows bot play on the same client after a timed-out job finishes late`, async (t) => {
     quietBoundaries(t);
+    // A fresh game's first roll must offer a legal move and reach the worker.
+    t.mock.method(Math, 'random', () => 0);
     reset();
     setStored({ 'dicechess-tv.playAs.v1': 'b' });
     const saved = rollGame(
