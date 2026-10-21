@@ -55,13 +55,19 @@ export function createBotClient(ports: Ports) {
         } catch (cleanupError) {
           error ??= cleanupError;
         }
-        if (error || !reply)
+        if (error || !reply) {
+          const failure = error ?? new Error('Missing opponent reply');
           reject(
-            error instanceof Error
-              ? error
-              : new Error(String(error ?? 'Missing opponent reply')),
+            failure instanceof Error
+              ? failure
+              : new Error(
+                  typeof failure === 'string'
+                    ? failure
+                    : 'Opponent worker failed',
+                  { cause: failure },
+                ),
           );
-        else resolve(reply);
+        } else resolve(reply);
       };
       cancelCurrent = () =>
         finish(undefined, new Error('Opponent worker closed'));

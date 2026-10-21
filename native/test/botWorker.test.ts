@@ -375,19 +375,26 @@ test('launch and storage failures settle the request; missing workers time out w
   assert.equal(r.values.size, 0);
 });
 
-test('a non-Error launch rejection becomes an Error and still clears the request', async () => {
-  const r = rig();
-  r.state.failLaunch = true;
-  r.state.launchError = 'bridge failed';
-  const pending = assert.rejects(r.request(game()), {
-    name: 'Error',
-    message: 'bridge failed',
-  });
-  await flush();
-  r.pass(0);
-  await pending;
-  assert.equal(r.values.size, 0);
-  assert.equal(r.timers.size, 0);
+test('non-Error launch rejections preserve their cause and still clear the request', async () => {
+  for (const reason of ['bridge failed', { code: 'offline' }]) {
+    const r = rig();
+    r.state.failLaunch = true;
+    r.state.launchError = reason;
+    const pending = assert.rejects(r.request(game()), (error: unknown) => {
+      assert.ok(error instanceof Error);
+      assert.equal(error.cause, reason);
+      assert.equal(
+        error.message,
+        typeof reason === 'string' ? reason : 'Opponent worker failed',
+      );
+      return true;
+    });
+    await flush();
+    r.pass(0);
+    await pending;
+    assert.equal(r.values.size, 0);
+    assert.equal(r.timers.size, 0);
+  }
 });
 
 test('disposing while waiting for focus or a worker cancels polling and rejects queued work', async () => {
