@@ -38,10 +38,10 @@ overview and profiles in `src/content/docs/play/opponents/` use MDX too, for
 portraits, audio controls and teaching boards; the remaining pages are Markdown.
 
 Screenshots live in `src/assets/screenshots/` as 1280 x 720 PNGs, and Astro
-converts them to WebP when it builds. They are captured on the Vega Virtual
-Device with scripted presses of the remote, from the interface as it ships, and
-the pages say so: nothing is claimed for a Fire TV Stick that was not checked on
-one. Retake a screenshot when the screen it shows changes.
+converts them to WebP when it builds. Most were captured on the Vega Virtual
+Device with scripted presses of the remote. The Settings screenshot is from a
+physical Fire TV Stick 4K Select; the page records that distinction. All show
+the interface as it ships. Retake a screenshot when the screen it shows changes.
 
 To retake one, reach the screen with `vvd press` and capture it with
 `vvd screenshot`, from
@@ -61,6 +61,18 @@ matched `rules.png` and `tutorial.png`: 105 and 118 of their 921,600 pixels
 differed, none visibly, so neither was replaced. On October 10, 2026, eleven
 screenshots that showed the old "hotseat" labels or had drifted from `main` were
 retaken this way on the Vega Virtual Device, from main 125b4f6 (#351).
+
+On October 21, 2026, `menu-settings.png` was replaced with the actual Settings
+screen, captured with `gwsi-tool-screenshooter` and real D-pad/OK navigation on
+a physical Fire TV Stick 4K Select running the published 1.0.4/build 58 armv7
+Release, source `f56536869a03d118d69b90e74870941de18bf9c2`. It shows the three
+audio sliders and all five other options. The original RGB PNG is 1920 x 1080,
+SHA-256 `578e9e0436a77c59f10a33c56118059183f84e3247ae02f4ed4e34ab272d937c`.
+Only scaling to the site's usual 1280 x 720 was applied, using macOS `sips`:
+
+```sh
+sips -z 720 1280 captured-settings-1080.png --out src/assets/screenshots/menu-settings.png
+```
 
 ## Opponent profiles
 
