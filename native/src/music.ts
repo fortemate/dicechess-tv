@@ -14,7 +14,10 @@
 //   player, from two kept ready, and a voice lets its player go when it stops.
 // - `volume` works, and a ramp of 50 ms steps holds its pace. Every fade here is
 //   such a ramp, driven by one ticker, on an equal-power curve, so a crossfade
-//   does not dip in the middle.
+//   does not dip in the middle. The ticker runs only while a fade or the duck
+//   moves, or a pass waits to be heard (#313): once the music has settled, one
+//   timer is armed for the loop's seam and nothing else wakes the JavaScript
+//   thread.
 // - On a Fire TV Stick the ticker can be held up for a second and more while
 //   the danger search runs at the start of a turn (#365). A fade moved a step a
 //   tick then stretched a 2 s crossfade to 12 s or more (#376). So every fade,
@@ -72,6 +75,9 @@ export type Music = {
   setCatalogue(catalogue: Catalogue | null): void;
   // Lower while a bot's line is being said.
   setDucked(ducked: boolean): void;
+  // Lets every player and timer go for good, when the app closes. Nothing
+  // plays afterwards, whatever it is told.
+  dispose(): void;
 };
 
 type Player = Pick<
@@ -121,6 +127,9 @@ export const UNDUCK_MS = 600;
 // that time is not the player's.
 export const START_WAIT_MS = 2000;
 export const START_TICK_MS = 4 * TICK_MS;
+// A seam's timer that finds the player not there yet, its position behind the
+// clock, looks again this much later at the soonest.
+export const SEAM_RETRY_MS = 250;
 // Constructed players kept ready: enough for a change of level during a seam.
 export const SPARE_PLAYERS = 2;
 
@@ -201,6 +210,9 @@ export function createMusic({
   let cancelHold: (() => void) | null = null;
   let cancelResume: (() => void) | null = null;
   let stopTicker: (() => void) | null = null;
+  // The one timer kept while nothing moves: it wakes the music for its seam.
+  let cancelSeam: (() => void) | null = null;
+  let disposed = false;
   // How far the music is ducked, 0 to 1, and where that is heading. It moves
   // from `duckFrom` at `duckSince`, when the duck last turned.
   let duck = 0;
@@ -308,6 +320,8 @@ export function createMusic({
     voice.target = target;
     voice.since = at;
     voice.ms = ms;
+    // A fade only moves while the ticker runs.
+    ticking();
   };
 
   // Starts a pass on a voice, on a fresh player. False when none is ready yet:
@@ -508,18 +522,67 @@ export function createMusic({
     // from the same tick.
     for (const voice of voices) if (voice.playing) heard(voice, now);
     for (const voice of voices) if (voice.playing) fadeStep(voice, now);
-    const [a, b] = voices;
-    if (!handOver(a, b)) handOver(b, a);
-    if (voices.some((voice) => voice.playing)) return;
+    seam();
+    if (moving()) return;
     stopTicker?.();
     stopTicker = null;
-    // Nothing is heard, so a duck under way can simply arrive.
-    duck = ducked ? 1 : 0;
-    duckFrom = duck;
+    if (!voices.some((voice) => voice.playing)) {
+      // Nothing is heard, so a duck under way can simply arrive.
+      duck = ducked ? 1 : 0;
+      duckFrom = duck;
+    }
+    armSeam();
+  };
+
+  // A pass about to end hands over to the other voice, whichever it is.
+  const seam = () => {
+    if (!voices) return;
+    const [a, b] = voices;
+    if (!handOver(a, b)) handOver(b, a);
+  };
+
+  // Whether anything heard is on its way somewhere: a pass waiting to be heard,
+  // a fade, or the duck under a playing theme. Only then does the ticker run.
+  const moving = () => {
+    if (!voices) return false;
+    const playing = voices.filter((voice) => voice.playing);
+    return (
+      playing.some((voice) => voice.waiting || voice.fade !== voice.target) ||
+      (playing.length > 0 && duck !== (ducked ? 1 : 0))
+    );
   };
 
   const ticking = () => {
+    if (disposed) return;
+    cancelSeam?.();
+    cancelSeam = null;
     stopTicker ??= clock.every(TICK_MS, tick);
+  };
+
+  // With nothing moving, the music sleeps until the seam of the theme heard, as
+  // far as its player's position says; a timer that finds it short of there
+  // looks again. The seam itself starts the ticker for its crossfade.
+  const armSeam = () => {
+    cancelSeam?.();
+    cancelSeam = null;
+    if (disposed || !voices) return;
+    let wait = Infinity;
+    for (const voice of voices) {
+      const { player, track } = voice;
+      if (!voice.playing || voice.seamed || !player || !track) continue;
+      const at = player.currentTime;
+      const left = Number.isFinite(at)
+        ? (track.loopEnd - SEAM_MS / 1000 - at) * 1000
+        : SEAM_RETRY_MS;
+      wait = Math.min(wait, Math.max(SEAM_RETRY_MS, left));
+    }
+    if (wait === Infinity) return;
+    cancelSeam = clock.after(wait, () => {
+      cancelSeam = null;
+      seam();
+      if (moving()) ticking();
+      else armSeam();
+    });
   };
 
   // How long the music takes to fade away: a result's silence starts a little
@@ -590,7 +653,7 @@ export function createMusic({
 
   // Makes what plays agree with what was asked for.
   const reconcile = () => {
-    if (!voices || !ready) return;
+    if (disposed || !voices || !ready) return;
     const held = clock.now() < holdUntil;
     const want = wanted(held);
     if (want === null) {
@@ -664,6 +727,7 @@ export function createMusic({
 
   return {
     setRole(next, pauseMs = 0) {
+      if (disposed) return;
       failedRole = null;
       cancelHold?.();
       cancelHold = null;
@@ -687,6 +751,7 @@ export function createMusic({
       voices?.forEach(apply);
     },
     setSuspended(value) {
+      if (disposed) return;
       cancelResume?.();
       cancelResume = null;
       if (value) {
@@ -695,6 +760,11 @@ export function createMusic({
         if (!suspended) report('music: suspended');
         suspended = true;
         voices?.forEach(stop);
+        // Nothing plays, so nothing needs waking until the return.
+        stopTicker?.();
+        stopTicker = null;
+        cancelSeam?.();
+        cancelSeam = null;
         return;
       }
       // A focus or an active state while the app is already in the foreground
@@ -729,6 +799,7 @@ export function createMusic({
       if (heard) ticking();
     },
     setCatalogue(next) {
+      if (disposed) return;
       failedRole = null;
       const roles = next ? Object.keys(next.tracks).join(', ') : '';
       report(
@@ -739,6 +810,17 @@ export function createMusic({
       catalogue = next;
       prepare();
       reconcile();
+    },
+    dispose() {
+      if (disposed) return;
+      disposed = true;
+      report('music: disposed');
+      for (const cancel of [cancelHold, cancelResume, stopTicker, cancelSeam])
+        cancel?.();
+      cancelHold = cancelResume = stopTicker = cancelSeam = null;
+      voices?.forEach(stop);
+      // Constructed spares never opened a pipeline: there is nothing to release.
+      spares.length = 0;
     },
   };
 }

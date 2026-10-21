@@ -13,6 +13,7 @@ import {
   SEAM_MS,
   START_WAIT_MS,
   STOP_MS,
+  TICK_MS,
   UNDUCK_MS,
   type Catalogue,
   type Clock,
@@ -56,6 +57,13 @@ class FakeClock implements Clock {
     }
     this.t = end;
     await flush();
+  }
+  // What waits to run: the tickers, and the timers that run once.
+  pending() {
+    return {
+      tickers: this.timers.filter((timer) => timer.every).length,
+      timers: this.timers.filter((timer) => !timer.every).length,
+    };
   }
   // The JavaScript thread held up for `ms`, as by the danger search on a Fire
   // TV Stick (#365): nothing runs meanwhile, and what fell due runs late.
@@ -896,6 +904,90 @@ test('a bot line ducks the music quickly, and it comes back more slowly (#159)',
   await quiet.clock.advance(CROSSFADE_MS);
   const menu = quiet.players.find((each) => each.playing)!;
   assert.ok(Math.abs(menu.volume - ducked) < 1e-9);
+});
+
+// The ticker only runs while something moves (#313). A theme that has faded in
+// keeps one timer, for its seam, and nothing wakes the JavaScript thread before
+// then: on a Fire TV Stick every wakeup competes with the danger search.
+
+test('no ticker runs once a fade has ended, and one timer wakes the music for its seam (#313)', async () => {
+  const { music, clock, players, playing } = await rig(SHORT_LOOP);
+  music.setRole('calm');
+  await flush();
+  assert.equal(clock.pending().tickers, 1, 'the fade-in ticks');
+  await clock.advance(CROSSFADE_MS);
+  assert.ok(Math.abs(players[0].volume - 1) < 1e-9);
+  assert.deepEqual(clock.pending(), { tickers: 0, timers: 1 });
+  // The seam starts 3 s before the loop end at 20 s: 16 s after the start.
+  await clock.advance(16_000 - CROSSFADE_MS - 100);
+  assert.deepEqual(playing(), ['calm.mp3'], 'not before the seam');
+  await clock.advance(200);
+  assert.deepEqual(playing(), ['calm.mp3', 'calm.mp3'], 'the seam begins');
+  assert.equal(clock.pending().tickers, 1, 'the crossfade ticks');
+  await clock.advance(SEAM_MS + 500);
+  assert.deepEqual(playing(), ['calm.mp3']);
+  assert.ok(players[0].released);
+  assert.deepEqual(clock.pending(), { tickers: 0, timers: 1 });
+});
+
+test('a seam timer that finds the player behind the clock looks again, and the seam still comes', async () => {
+  const { music, clock, players, playing } = await rig(SHORT_LOOP);
+  music.setRole('calm');
+  await clock.advance(CROSSFADE_MS);
+  // The player falls 5 s behind the clock, as after a stall in its pipeline:
+  // the timer armed for 16 s finds it at 11 s.
+  players[0].currentTime -= 5;
+  await clock.advance(16_000 - CROSSFADE_MS + 100);
+  assert.deepEqual(playing(), ['calm.mp3'], 'not where the seam is yet');
+  assert.deepEqual(clock.pending(), { tickers: 0, timers: 1 });
+  await clock.advance(5_000);
+  assert.deepEqual(playing(), ['calm.mp3', 'calm.mp3'], 'the seam begins');
+});
+
+test('the duck runs the ticker only until it arrives', async () => {
+  const { music, clock } = await rig();
+  music.setRole('calm');
+  await clock.advance(CROSSFADE_MS);
+  assert.equal(clock.pending().tickers, 0);
+  music.setDucked(true);
+  assert.equal(clock.pending().tickers, 1);
+  await clock.advance(DUCK_MS + TICK_MS);
+  assert.equal(clock.pending().tickers, 0, 'ducked');
+  music.setDucked(false);
+  await clock.advance(UNDUCK_MS + TICK_MS);
+  assert.equal(clock.pending().tickers, 0, 'back up');
+});
+
+test('away from the foreground the music keeps no timer at all', async () => {
+  const { music, clock } = await rig();
+  music.setRole('calm');
+  await clock.advance(CROSSFADE_MS / 2);
+  music.setSuspended(true);
+  assert.deepEqual(clock.pending(), { tickers: 0, timers: 0 });
+});
+
+test('dispose lets every player and timer go, and nothing plays afterwards', async () => {
+  const { music, clock, players, playing, log } = await rig();
+  music.setRole('calm');
+  await clock.advance(10_000);
+  music.setRole('tense');
+  await flush();
+  assert.deepEqual(playing().sort(), ['calm.mp3', 'tense.mp3']);
+  music.dispose();
+  assert.deepEqual(playing(), []);
+  assert.ok(
+    players.filter((player) => player.src).every((player) => player.released),
+  );
+  assert.ok(!log.some((entry) => entry.endsWith('pause')), 'never paused');
+  assert.deepEqual(clock.pending(), { tickers: 0, timers: 0 });
+  const made = players.length;
+  music.setRole('menu');
+  music.setSuspended(true);
+  music.setSuspended(false);
+  music.setCatalogue(CATALOGUE);
+  await clock.advance(5_000);
+  assert.deepEqual(playing(), []);
+  assert.equal(players.length, made, 'no player is made after dispose');
 });
 
 test('after a result the music falls silent before the menu theme returns', async () => {

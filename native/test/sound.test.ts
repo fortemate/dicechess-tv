@@ -15,6 +15,7 @@ import {
   createSounds as createAppSounds,
   CLIP_LEAD_SECONDS,
   CLIP_TAIL_MS,
+  EFFECTS_RETURN_MS,
   LINE_TAIL_MS,
   LINE_TIMEOUT_MS,
   RESULT_LINE_DELAY_MS,
@@ -63,8 +64,15 @@ const createSounds = (options: SoundOptions = {}) =>
   createAppSounds({
     later: () => undefined,
     endClip: () => undefined,
+    wake: () => () => undefined,
     ...options,
   });
+
+// A return to the foreground that makes the effects' players again at once.
+const wakeNow = (run: () => void) => {
+  run();
+  return () => undefined;
+};
 
 // The ends of clips handed over instead of run, for the test to run when it
 // says.
@@ -92,6 +100,15 @@ const released = () =>
   log()
     .filter((entry) => entry.event === 'deinitialize')
     .map((entry) => entry.player);
+
+// The players given the effects' sprite, and those let go of the others: the
+// voices'.
+const spritePlayers = () =>
+  log()
+    .filter((entry) => entry.event === 'src' && entry.src === SPRITE)
+    .map((entry) => entry.player);
+const lineReleases = () =>
+  released().filter((player) => !spritePlayers().includes(player));
 
 const pausesOf = (player: number, after = 0) =>
   log()
@@ -425,16 +442,15 @@ test('away from the foreground, nothing plays, and the setting is kept', async (
   assert.equal(plays().length, 4);
   const before = log().length;
   sounds.setSuspended(true);
-  // The three channels stop, and the voice too.
-  assert.equal(
-    log()
-      .slice(before)
-      .filter((entry) => entry.event === 'pause').length,
-    3,
-  );
-  assert.ok(
-    released().includes(plays().find((entry) => entry.src !== SPRITE)!.player),
-    'the voice is released',
+  // The three channels are let go, and the voice too, without a pause.
+  const away = log().slice(before);
+  assert.equal(away.filter((entry) => entry.event === 'pause').length, 0);
+  assert.deepEqual(
+    away
+      .filter((entry) => entry.event === 'deinitialize')
+      .map((entry) => entry.player)
+      .sort(),
+    [...spritePlayers(), plays().find((e) => e.src !== SPRITE)!.player].sort(),
   );
   sounds.play(['dice_roll', 'piece_move', 'game_draw']);
   await settle();
@@ -495,17 +511,223 @@ test('a quick blur/focus still silences an already playing effect and line', asy
   const said = plays().find((entry) => entry.src !== SPRITE)!;
   assert.equal(clipOf(roll), 'kenney-casino-audio/dice_throw_1.mp3');
   assert.match(said.src ?? '', /host_intro_1\.mp3$/);
-  const before = log().length;
-  // Focus is back before a promise callback could run: the pause must already
-  // have reached the players that are making sound.
+  // Focus is back before a promise callback could run: the players that are
+  // making sound must already have been silenced and let go.
   sounds.setSuspended(true);
   sounds.setSuspended(false);
-  const paused = log()
-    .slice(before)
-    .filter((entry) => entry.event === 'pause')
-    .map((entry) => entry.player);
-  assert.ok(paused.includes(roll.player), 'the dice stop');
+  const silenced = log().filter(
+    (entry) => entry.event === 'volume' && entry.player === roll.player,
+  );
+  assert.equal(silenced.at(-1)?.to, 0, 'the dice fall silent');
+  assert.ok(released().includes(roll.player), 'the dice are let go');
   assert.ok(released().includes(said.player), 'the line stops');
+});
+
+// ── The effects' players while the app is away (#313) ─────────────────────────
+
+// Returns to the foreground held for the test to fire, as a timer would, unless
+// a later leave cancelled them.
+const wakes = () => {
+  const held: { run: () => void; wait: number; cancelled: boolean }[] = [];
+  return {
+    held,
+    wake: (run: () => void, wait: number) => {
+      const timer = { run, wait, cancelled: false };
+      held.push(timer);
+      return () => {
+        timer.cancelled = true;
+      };
+    },
+    fire: () => {
+      for (const timer of held.splice(0)) if (!timer.cancelled) timer.run();
+    },
+  };
+};
+
+const created = () =>
+  log()
+    .filter((entry) => entry.event === 'create')
+    .map((entry) => entry.player);
+
+test('away, the effects’ players are let go without a pause, and fresh ones are made a moment after the return (#313)', async () => {
+  resetAudio();
+  const time = wakes();
+  const sounds = createSounds({ pick: () => 0, wake: time.wake });
+  sounds.play(['dice_roll']);
+  await settle();
+  const first = spritePlayers();
+  assert.equal(first.length, 3);
+  const before = log().length;
+  sounds.setSuspended(true);
+  const away = log().slice(before);
+  for (const player of first)
+    assert.deepEqual(
+      away
+        .filter((entry) => entry.player === player)
+        .map((entry) => [entry.event, entry.to]),
+      [
+        ['volume', 0],
+        ['deinitialize', undefined],
+      ],
+      'silenced and let go, never paused first (#386)',
+    );
+  // Back: nothing is made until the wait is over.
+  sounds.setSuspended(false);
+  await settle();
+  assert.deepEqual(
+    time.held.map(({ wait }) => wait),
+    [EFFECTS_RETURN_MS],
+  );
+  assert.deepEqual(spritePlayers(), first);
+  time.fire();
+  await settle();
+  const second = spritePlayers().slice(3);
+  assert.equal(second.length, 3);
+  assert.ok(second.every((player) => !first.includes(player)));
+  sounds.play(['piece_move']);
+  await settle();
+  assert.ok(second.includes(effects().at(-1)!.player));
+  assert.equal(
+    clipOf(effects().at(-1)!),
+    'jdsherbert-tabletop/piece_move_1.mp3',
+  );
+});
+
+test('a cue that comes before the wait is over makes the players at once, and is heard', async () => {
+  resetAudio();
+  const time = wakes();
+  const sounds = createSounds({ pick: () => 0, wake: time.wake });
+  await settle();
+  sounds.setSuspended(true);
+  sounds.setSuspended(false);
+  sounds.play(['dice_roll']);
+  await settle();
+  assert.equal(spritePlayers().length, 6);
+  const [roll] = effects();
+  assert.ok(spritePlayers().slice(3).includes(roll.player));
+  assert.equal(clipOf(roll), 'kenney-casino-audio/dice_throw_1.mp3');
+  // The wait, when it is over, makes nothing more.
+  time.fire();
+  await settle();
+  assert.equal(spritePlayers().length, 6);
+});
+
+test('away and back again before the wait is over, the players are made once', async () => {
+  resetAudio();
+  const time = wakes();
+  const sounds = createSounds({ wake: time.wake });
+  await settle();
+  sounds.setSuspended(true);
+  sounds.setSuspended(false);
+  sounds.setSuspended(true);
+  sounds.setSuspended(false);
+  time.fire();
+  await settle();
+  assert.equal(spritePlayers().length, 6);
+  // A focus while the app is in front changes nothing.
+  sounds.setSuspended(false);
+  time.fire();
+  await settle();
+  assert.equal(spritePlayers().length, 6);
+});
+
+test('a clip of the players let go that ends after the return pauses and moves nothing', async () => {
+  resetAudio();
+  const time = ends();
+  const sounds = createSounds({
+    pick: () => 0,
+    endClip: time.endClip,
+    wake: wakeNow,
+  });
+  // The first silences and a roll, each with its end still to come.
+  sounds.play(['dice_roll']);
+  await settle();
+  const first = spritePlayers();
+  const late = time.held.splice(0);
+  sounds.setSuspended(true);
+  sounds.setSuspended(false);
+  await primed(time);
+  const second = spritePlayers().slice(3);
+  const before = log().length;
+  for (const { run } of late) run();
+  assert.deepEqual(
+    log()
+      .slice(before)
+      .filter((entry) => [...first, ...second].includes(entry.player)),
+    [],
+    'the old ends touch neither the let-go players nor the new ones',
+  );
+  // The new dice player still waits at its own clip, and plays it.
+  sounds.play(['dice_roll']);
+  await settle();
+  const [, roll] = effects();
+  assert.ok(second.includes(roll.player));
+  assert.equal(clipOf(roll), 'kenney-casino-audio/dice_throw_1.mp3');
+});
+
+test('a player still initialising when the app leaves is let go once it is ready, never loaded', async () => {
+  resetAudio();
+  holdAudio();
+  const sounds = createSounds();
+  const channels = created().slice(0, 3);
+  sounds.setSuspended(true);
+  releaseAudio();
+  await settle();
+  assert.deepEqual(spritePlayers(), []);
+  assert.deepEqual(released(), channels);
+  assert.equal(log().filter((entry) => entry.event === 'play').length, 0);
+});
+
+test('each player is given the sprite once, through any number of trips away', async () => {
+  resetAudio();
+  const sounds = createSounds({ pick: () => 0, wake: wakeNow });
+  for (let trip = 0; trip < 4; trip++) {
+    sounds.play(['dice_roll', 'piece_move', 'game_win']);
+    await settle();
+    sounds.setSuspended(true);
+    sounds.setSuspended(false);
+    await settle();
+  }
+  const given = new Map<number, number>();
+  for (const entry of log())
+    if (entry.event === 'src')
+      given.set(entry.player, (given.get(entry.player) ?? 0) + 1);
+  assert.ok([...given.values()].every((count) => count === 1));
+  // Four sets let go, the fifth in use.
+  assert.equal(spritePlayers().length, 15);
+  assert.equal(released().length, 12);
+  assert.equal(effects().length, 12);
+});
+
+test('dispose lets every player go without a pause, and nothing plays afterwards', async () => {
+  resetAudio();
+  const speech = speaking();
+  const sounds = createSounds({ pick: () => 0, onSpeech: speech.onSpeech });
+  sounds.play(['dice_roll']);
+  sounds.say({ id: 'host_intro_1', event: 'intro' });
+  await settle();
+  const said = plays().find((entry) => entry.src !== SPRITE)!;
+  const before = log().length;
+  sounds.dispose();
+  assert.ok(spritePlayers().every((player) => released().includes(player)));
+  assert.ok(released().includes(said.player));
+  assert.equal(
+    log()
+      .slice(before)
+      .filter((entry) => entry.event === 'pause').length,
+    0,
+  );
+  assert.equal(speech.heard.at(-1), false, 'the music is unducked');
+  const made = created().length;
+  const played = log().filter((entry) => entry.event === 'play').length;
+  sounds.setSuspended(true);
+  sounds.setSuspended(false);
+  sounds.setMuted(false);
+  sounds.play(['dice_roll']);
+  sounds.say({ id: 'host_intro_1', event: 'intro' });
+  await settle();
+  assert.equal(created().length, made, 'no player is made after dispose');
+  assert.equal(log().filter((entry) => entry.event === 'play').length, played);
 });
 
 // A take is chosen when its channel's player waits for it: once the player is
@@ -629,6 +851,9 @@ const primedBeforeCue = async (
   turnOn: (sounds: ReturnType<typeof createSounds>) => void,
   options: SoundOptions,
   turnOff?: (sounds: ReturnType<typeof createSounds>) => void,
+  // How many first silences there are after turning off and on again: the
+  // same three players, or three fresh ones after the app was away.
+  again = 3,
 ) => {
   resetAudio();
   const time = ends();
@@ -658,7 +883,7 @@ const primedBeforeCue = async (
   turnOff?.(sounds);
   turnOn(sounds);
   await settle();
-  assert.equal(primes().length, 3, 'primed only once');
+  assert.equal(primes().length, again, 'each player primed only once');
 };
 
 test('a player ready while muted plays its first silence when sound is turned on', () =>
@@ -668,11 +893,12 @@ test('a player ready while muted plays its first silence when sound is turned on
     (sounds) => sounds.setMuted(true),
   ));
 
-test('a player ready while away plays its first silence on the return', () =>
+test('the players made on the return play their first silence before a cue', () =>
   primedBeforeCue(
     (sounds) => sounds.setSuspended(false),
-    {},
+    { wake: wakeNow },
     (sounds) => sounds.setSuspended(true),
+    6,
   ));
 
 test('a first silence that failed to start is tried again when sound comes back on', async () => {
@@ -752,7 +978,7 @@ test('a player that refuses to stop is reported, and nothing is thrown', async (
   sounds.say({ id: 'host_intro_1', event: 'intro' });
   await settle();
   failAudio('pause');
-  sounds.setSuspended(true);
+  sounds.setMuted(true);
   await settle();
   assert.deepEqual(reported, [
     'sound: board did not stop: Error: not supported',
@@ -853,10 +1079,10 @@ test('a stale ended tail cannot release or unduck the replacement line', async (
   assert.deepEqual(released(), [first.player]);
   assert.equal(audioListenerCount(first.player), 0);
   sounds.setSuspended(true);
-  assert.deepEqual(released(), [first.player, second.player]);
+  assert.deepEqual(lineReleases(), [first.player, second.player]);
   assert.equal(audioListenerCount(second.player), 0);
   time.elapse();
-  assert.deepEqual(released(), [first.player, second.player]);
+  assert.deepEqual(lineReleases(), [first.player, second.player]);
 });
 
 test('a native voice error releases the player and restores the music duck', async () => {

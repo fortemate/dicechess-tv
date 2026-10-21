@@ -68,6 +68,7 @@ const recorder = () => {
     setVoices() {},
     setVoiceVolume() {},
     setSuspended() {},
+    dispose() {},
   };
   return self;
 };

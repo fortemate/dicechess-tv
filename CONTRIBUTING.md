@@ -130,6 +130,116 @@ Removing the app instead deletes its saved game.
 Say in the pull request which kind of evidence a claim rests on — the virtual
 device, a Fire TV Stick, or a test — because they are not interchangeable.
 
+### Measure memory on a Fire TV Stick
+
+A Fire TV Stick 4K Select has 1 GB of memory and ends apps in the background to
+get it back (#478). Amazon's guidelines are a foreground PSS under 400 MiB and a
+background PSS under 150 MiB ([Measure App KPIs](https://developer.amazon.com/docs/vega/0.24/measure-app-kpis.html)).
+Measure on the Stick: the Virtual Device has never shown these kills.
+
+The developer shell cannot read the app's memory. `vega exec vda shell` runs in a
+sandbox of its own, where `/proc/<pid>` of the app and `perfdump meminfo <pid>` are
+not visible. The SDK's memory monitor reads it through a system service:
+
+```bash
+vega exec perf memory-monitor --app-name=com.fortemate.dicechesstv.main --keplerscript-app
+```
+
+It is interactive: press `s` to start recording, `s` again to stop, and `q` to quit.
+The default recording timeout is 120 seconds. For a longer recording, first check
+`vega exec perf memory-monitor --help`: SDK builds that list `--recording-timeout`
+accept, for example, `--recording-timeout 400` on the command above.
+From a script, run it in a pseudo-terminal (Python's `pty` module) and type the
+keys on a timer. It prints a sample about once a second; locate the saved JSON
+using the destination shown by the tool. The [Memory Monitor guide](https://developer.amazon.com/docs/vega/0.24/monitor-record-app-memory.html)
+names `Basic-memory-recorder[timestamp].json` in the project's `generated`
+directory for recordings made through Vega Studio. Each
+entry of `memoryRecords` has a `timestamp` in nanoseconds of the device's clock
+and, per process, these fields in kB (the JS heap in bytes):
+
+| Field                    | What it is                                                        |
+| ------------------------ | ----------------------------------------------------------------- |
+| `TOTAL_TOTAL`            | PSS + swapped PSS + DRM: about what the system's kill line counts |
+| `TOTAL_Pss`              | proportional set size, without swap and graphics                  |
+| `TOTAL_Drm`              | graphics buffers: the surface, decoded images and glyphs          |
+| `TOTAL_Anon`             | anonymous memory: the JS heap's segments and native allocations   |
+| `TOTAL_NativeHeap`       | malloc'd native memory                                            |
+| `TOTAL_Libs`             | shared libraries' share; high in a fresh process, lower later     |
+| `TOTAL_JS_HeapAllocated` | the Hermes heap in use                                            |
+
+`vega exec perf activity-monitor --record-thread-states` reports the app's CPU
+and how long the JavaScript and UI threads slept.
+
+Start the monitor once the app is on screen, not just before a cold launch. On
+October 20, 2026, 5 of 18 launches begun while the monitor was starting never came
+up: the process ended within half a second, before React rendered anything, with
+no crash report. The store's build 30 did it as well as the build under test, and
+none of 10 launches without the monitor failed. A monitor whose app died does not
+exit on its own.
+
+Why the app is ended is in the device's own policy, readable in
+`/etc/app-framework/resource-manager/` on the Stick. Under `memory-mid` pressure the
+resource manager trims background apps and then ends those still there, unless
+they have a memory quota, and only a few system components have one. Pressure
+counts as `memory-mid` when the journal's thrashing check finds MemFree +
+SwapFree under about 750 MB. On October 20, 2026 the owner's Stick, up for six
+days, sat just under that line: build 34 was ended on 20 of 20 trips to the
+launcher, and build 35 on 17 of 20. After a reboot it was above the line, and
+build 35 survived 20 of 20.
+So record the device's state with every run (`/tmp`, MemAvailable, MemFree,
+SwapFree, uptime), and reboot before comparing builds.
+
+Compare like with like. A freshly started process carries more of its libraries
+(55 to 68 MiB of `TOTAL_Libs` on October 20, 2026, against 25 MiB in one that had
+run for a while), so measure each build from the same start: a cold launch, the
+same screens, the same waits.
+
+Measure five situations: the home screen, the board in a game against the
+computer, the bot's and the danger search while moves are played, 5 s and 30 s at
+the launcher, and the first second after the return. `vega exec vda shell`
+expands `$` on the Mac, so push a script and run it there. This one logs each
+step with the device's clock, to line up with the monitor's samples:
+
+```sh
+#!/bin/sh
+# sh /tmp/scenario.sh: home, board, play, then trips of 5 and 30 s.
+L=/tmp/scenario.log
+APP=com.fortemate.dicechesstv.main
+log() { echo "$(date +%s.%N) $* [$(vlcm list | awk -v a=$APP '$1 == a {print $3, $5}')]" >> $L; }
+log home; sleep 20
+inputd-cli button_press KEY_ENTER; log board; sleep 25   # Resume game
+log play
+for i in $(seq 30); do inputd-cli button_press KEY_ENTER; sleep 1.5; done
+for away in 5 30; do
+  log "away $away"
+  vlcm launch-app pkg://com.amazon.smplighthouse.launcher.main
+  sleep "$away"
+  vlcm launch-app pkg://$APP; log back; sleep 15
+done
+log done
+```
+
+```bash
+vega exec vda push scenario.sh /tmp/scenario.sh
+vega exec vda shell "sh /tmp/scenario.sh; cat /tmp/scenario.log"
+```
+
+Repeated OK presses roll, pick up the piece the cursor waits on and put it down
+where the cursor lands, so they play legal moves and give the bot its turns.
+
+The system's decisions are in the journal. While the trips run, keep
+`vega exec vda shell "loggingctl log -f -o short_precise"` running in the
+background and look for `memory-mid Kill <pid> com.fortemate.dicechesstv.main
+Usage <after>:<before>`, `TRIM_RESOURCES` and `same pids`. Each kill also leaves a
+`LowMemoryKiller` report:
+`vega device copy-logs --device <stick-id> --artifact SYSTEM_TOMBSTONE/acr --directory <dir>`, never with
+`--upload` or `--purge`. Its `action name` says which rule ended the app.
+
+The Stick's `/tmp` lives in memory. The perf tools leave their traces there as
+`vs_trace1-*` files, tens of MB each, and `vega device install-app` leaves each
+package there (FL-32). Check `df -h /tmp` before a run and remove what your runs
+left, or the next measurement starts under more pressure.
+
 ## Generated and vendored files
 
 Never edit these by hand. Change the script, rerun it, and commit what it writes:

@@ -12,8 +12,10 @@ import assert from 'node:assert/strict';
 import React from 'react';
 import { act } from 'react-test-renderer';
 import { reset } from './stubs/react-native-mmkv.mjs';
+import { audioLog, resetAudio } from './stubs/react-native-w3cmedia.mjs';
 import { App, type AppProps } from '../src/App';
 import { focusedLabel } from './options';
+import { SPARE_PLAYERS } from '../src/sound';
 import {
   fakeTimers,
   fixedOptions,
@@ -80,4 +82,34 @@ test('the probe catches a root that draws nothing until an effect has run', () =
   // Yet once act() is over it shows the home screen like the app: a test that
   // only looks then cannot tell the two apart.
   assert.equal(focusedLabel(settled), 'Play a friend');
+});
+
+// The players were once made while the first frame was drawn: native work before
+// it, done again whenever React dropped the cache (#313). They are made in an
+// effect after the first commit, still before the first press can ask for a
+// cue.
+test('no media player is made while the first frame is drawn; the sounds’ players are made right after', () => {
+  resetAudio();
+  const tree = mount(<></>);
+  let during: number | null = null;
+  const Probe = () => {
+    React.useLayoutEffect(() => {
+      during ??= audioLog.length;
+    });
+    return null;
+  };
+  act(() =>
+    tree.update(
+      <>
+        <App options={fixedOptions()} />
+        <Probe />
+      </>,
+    ),
+  );
+  assert.equal(during, 0, 'nothing media-related in the first commit');
+  assert.equal(
+    audioLog.filter((entry) => entry.event === 'create').length,
+    3 + SPARE_PLAYERS,
+    'the three channels and the spare voices, once the effects have run',
+  );
 });

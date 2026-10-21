@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import { act } from 'react-test-renderer';
 import { hasExited, clearExit } from './stubs/react-native-kepler.mjs';
 import { MMKV, reset } from './stubs/react-native-mmkv.mjs';
+import { audioLog, resetAudio } from './stubs/react-native-w3cmedia.mjs';
 import { MmkvSnapshotStore } from '../src/mmkvStore';
 import { readTutorialOffered } from '../src/tutorialOfferSetting';
 import type { Sounds } from '../src/sound';
@@ -14,7 +15,14 @@ import { portraitPath } from '../src/Portrait';
 import { decodeGame, newGame, rollGame, type Game } from '../../src/core/game';
 import { OFFER_LINES, OFFER_SPEECH } from '../../src/core/tutorial';
 import { focusedLabel, optionViews } from './options';
-import { fakeTimers, launch, send, text, type Instance } from './support';
+import {
+  fakeTimers,
+  launch,
+  send,
+  silentMusic,
+  text,
+  type Instance,
+} from './support';
 
 // Thinkle says his lines one after the other, on the test's clock.
 fakeTimers();
@@ -163,6 +171,7 @@ const listener = () => {
     setVoices() {},
     setVoiceVolume() {},
     setSuspended() {},
+    dispose() {},
   };
   return { said, stopped: () => stopped, sounds };
 };
@@ -174,6 +183,25 @@ test('Thinkle says the offer aloud, one line after the other', () => {
   assert.deepEqual(said, ['thinkle_tutor_offer_1']);
   act(() => mock.timers.tick(nextLineMs(OFFER_LINES[0])!));
   assert.deepEqual(said, ['thinkle_tutor_offer_1', 'thinkle_tutor_offer_2']);
+});
+
+test('both first-launch sentences reach the app audio players after their deferred creation', async () => {
+  reset({ firstLaunch: true });
+  resetAudio();
+  launch({ music: silentMusic() });
+  const heard = () =>
+    audioLog
+      .filter((entry) => entry.event === 'play' && (entry.volume ?? 0) > 0)
+      .map((entry) => entry.src)
+      .filter(
+        (src): src is string => src?.includes('thinkle_tutor_offer_') === true,
+      );
+  await act(async () => {});
+  assert.equal(heard().length, 1);
+  assert.match(heard()[0]!, /thinkle_tutor_offer_1\.mp3$/);
+  await act(async () => mock.timers.tick(nextLineMs(OFFER_LINES[0])!));
+  assert.equal(heard().length, 2);
+  assert.match(heard()[1]!, /thinkle_tutor_offer_2\.mp3$/);
 });
 
 test('an answer stops him: Skip in silence, Learn to play with the welcome', () => {

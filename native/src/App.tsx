@@ -52,6 +52,7 @@ import {
   saveTutorialOffered,
 } from './tutorialOfferSetting';
 import { createMusic, loadCatalogue, type Music } from './music';
+import { lateMusic, lateSounds } from './lateAudio';
 import {
   readMusic,
   saveMusic,
@@ -233,29 +234,45 @@ export const App = ({
   // Who hosts Hot Seat games, Rolly or no one (#202). Her voice obeys the
   // Voices setting like the bots'.
   const [initialHost] = React.useState(() => readHost(settings));
-  // The adaptive music (#76), made before the sounds so that a bot's line can
-  // duck it (#159).
-  const music = React.useMemo(
-    () => injectedMusic ?? createMusic({ report: onState }),
-    // Made once, like the sound players.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [injectedMusic],
-  );
-  const sounds = React.useMemo(
-    () =>
-      injectedSounds ??
-      createSounds({
-        muted: !soundHeard(initialSound),
-        soundVolume: soundGain(initialSound.volume),
-        voices: voicesHeard(initialVoices),
-        voiceVolume: voiceGain(initialVoices.volume),
-        report: onState,
-        onSpeech: (on) => music.setDucked(on),
-      }),
-    // Made once: the players are created and initialised up front.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [injectedSounds, music],
-  );
+  // The sounds and the adaptive music (#76) the screens hold from the first
+  // render. The players behind them are made in an effect, after the first
+  // commit and before the first press can ask for a cue, and let go when the
+  // app closes (#313): nothing media-related is made while the first frame is
+  // drawn. Tests inject players of their own.
+  const [late] = React.useState(() => ({
+    sounds: lateSounds(),
+    music: lateMusic(),
+  }));
+  const music = injectedMusic ?? late.music;
+  const sounds = injectedSounds ?? late.sounds;
+  const report = React.useRef(onState);
+  React.useLayoutEffect(() => {
+    report.current = onState;
+  });
+  React.useEffect(() => {
+    const told = (line: string) => report.current?.(line);
+    // The music first, so that a bot's line can duck it (#159).
+    const realMusic = injectedMusic ? null : createMusic({ report: told });
+    if (realMusic) late.music.attach(realMusic);
+    const realSounds = injectedSounds
+      ? null
+      : createSounds({
+          muted: !soundHeard(initialSound),
+          suspended: late.sounds.isSuspended(),
+          soundVolume: soundGain(initialSound.volume),
+          voices: voicesHeard(initialVoices),
+          voiceVolume: voiceGain(initialVoices.volume),
+          report: told,
+          onSpeech: (on) => music.setDucked(on),
+        });
+    if (realSounds) late.sounds.attach(realSounds);
+    return () => {
+      late.sounds.attach(null);
+      realSounds?.dispose();
+      late.music.attach(null);
+      realMusic?.dispose();
+    };
+  }, [late, injectedMusic, injectedSounds, music, initialSound, initialVoices]);
   React.useEffect(() => {
     if (!injectedSounds) return;
     injectedSounds.setMuted(!soundHeard(initialSound));

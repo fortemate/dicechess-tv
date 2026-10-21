@@ -74,6 +74,7 @@ export const silentSounds = (): Sounds => ({
   setVoices() {},
   setVoiceVolume() {},
   setSuspended() {},
+  dispose() {},
 });
 
 // Music that plays nothing, so the settings list their rows at once rather
@@ -85,6 +86,7 @@ export const silentMusic = (more: Partial<Music> = {}): Music => ({
   setCatalogue() {},
   setDucked() {},
   setSuspended() {},
+  dispose() {},
   ...more,
 });
 
