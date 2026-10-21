@@ -766,6 +766,24 @@ test('a reply that no longer fits the position is not trusted: it is asked for a
   }
 });
 
+test('an asynchronous provider never falls back to searching on the reducer thread', () => {
+  const pawns: ScreenOptions = { ...options, roll: () => [1, 1, 1] };
+  const rolled = screenReducer(handedToBot(), { kind: 'bot' }, pawns);
+  const ahead = botReply(rolled.game);
+  const asynchronous: ScreenOptions = { ...pawns, reply: async () => ahead };
+  for (const reply of [undefined, { ...ahead, revision: ahead.revision + 1 }])
+    assert.throws(
+      () => screenReducer(rolled, { kind: 'bot', reply }, asynchronous),
+      /Missing or stale asynchronous opponent reply/,
+    );
+  const first = screenReducer(
+    rolled,
+    { kind: 'bot', reply: ahead },
+    asynchronous,
+  );
+  assert.equal(first.game.lastMove, ahead.moves[0]);
+});
+
 test('rolling the dice clears last move until the next action is played', () => {
   const pawns: ScreenOptions = { ...options, roll: () => [1, 1, 1] };
   const finished = settle(handedToBot(), pawns);

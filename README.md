@@ -62,11 +62,11 @@ native/ — the React Native for Vega application
         ▼
 src/core/ — one shared, pure TypeScript core, no DOM and no React
 ├── Turn controller → Dice Chess engine
-├── Local bots (Rolly, Grabby, Rampage): the engine's algorithms, run on the JavaScript thread
+├── Local bots (Rolly, Grabby, Rampage): the engine's algorithms, run in a background Hermes runtime
 └── Versioned game snapshot, ledger, tutorial and rules data
 ```
 
-The core is pure by enforcement: `tsconfig.core.json` typechecks it with `lib: ES2022` and `types: []`, so a DOM or Node global there fails `npm run check`. The canonical engine determines legal actions and board transitions; the board only renders state, and the remote's keys reach the screen reducer through `useRemoteInput`. The bots run on the JavaScript thread, and a bot's strength comes from its algorithm or a bounded amount of work, never from wall-clock time.
+The core is pure by enforcement: `tsconfig.core.json` typechecks it with `lib: ES2022` and `types: []`, so a DOM or Node global there fails `npm run check`. The canonical engine determines legal actions and board transitions; the board only renders state, and the remote's keys reach the screen reducer through `useRemoteInput`. The native app runs bot searches in a separate Hermes worklet runtime ([validation record](docs/opponent-runtime-validation-480.md)), and a bot's strength comes from its algorithm or a bounded amount of work, never from wall-clock time.
 
 More on the site: [Architecture](https://dicechess-tv.fortemate.com/technology/architecture/), [Building on Vega](https://dicechess-tv.fortemate.com/technology/vega/), [Performance](https://dicechess-tv.fortemate.com/technology/performance/) and [How we test and review](https://dicechess-tv.fortemate.com/quality/). This repository owns TV-specific packaging, input and application integration; public components of [dicechess-engine](https://github.com/fortemate/dicechess-engine) and [dicechess-play](https://github.com/fortemate/dicechess-play) are reused after checking their licenses, and shared fixes return to them. After the hackathon, the first priority is more TV platforms, starting with Fire OS ([roadmap](docs/roadmap.md), M7).
 

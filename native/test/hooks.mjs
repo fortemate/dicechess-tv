@@ -50,6 +50,10 @@ const STUBS = {
     './stubs/kepler-performance-api.mjs',
     import.meta.url,
   ).href,
+  '@amazon-devices/react-native-worklets': new URL(
+    './stubs/react-native-worklets.mjs',
+    import.meta.url,
+  ).href,
 };
 
 // Inlines the source map, which lets coverage (`npm run coverage`) report lines

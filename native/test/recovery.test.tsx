@@ -7,7 +7,12 @@ import assert from 'node:assert/strict';
 import React from 'react';
 import { act } from 'react-test-renderer';
 import { DiceChess } from '@fortemate/dicechess-engine';
+import { botReply, type BotReply } from '../../src/core/bot';
 import { MmkvSnapshotStore } from '../src/mmkvStore';
+import { MMKV } from '@amazon-devices/react-native-mmkv';
+import { afterDelay } from '../src/activity';
+import { createBotClient } from '../src/botClient';
+import { BOT_REQUEST, BOT_RESPONSE, runBotJob } from '../src/botJob';
 import {
   FRESH_OPTION,
   GameBoundary,
@@ -32,6 +37,7 @@ import {
   silentSounds,
   styleOf,
   text,
+  unmount,
   type Instance,
 } from './support';
 
@@ -176,6 +182,169 @@ test('a throw in play shows the fallback, reports it, and keeps the saved game',
   // Nothing was saved over the game, and nothing deleted it.
   assert.deepEqual(store().read(), app.saved);
 });
+
+test('a rejected asynchronous opponent reply preserves the save and reaches Recovery without a synchronous retry', async (t) => {
+  quietBoundaries(t);
+  reset();
+  const saved = rollGame(
+    newGame('aggressive', 'worker-failed', undefined, 'b'),
+    [1, 1, 1],
+  );
+  await store().save(saved);
+  let rejectSearch!: (error: Error) => void;
+  const app = launch({
+    options: fixedOptions({
+      reply: () =>
+        new Promise((_, reject) => {
+          rejectSearch = reject;
+        }),
+    }),
+    sounds: silentSounds(),
+    music: silentMusic(),
+  });
+  send('enter');
+  // A failed worker used to dispatch reply: undefined, rerunning this method
+  // on the UI thread. Any such retry must fail this test.
+  const search = t.mock.method(DiceChess, 'getBestMove', () => {
+    throw new Error('UI search must not run');
+  });
+  await act(async () => rejectSearch(new Error('worker unavailable')));
+  assert.match(text(app.root), new RegExp(RECOVERY_TITLE));
+  assert.equal(search.mock.callCount(), 0);
+  assert.deepEqual(store().read(), saved);
+});
+
+test('the app uses its platform worker, keeps Menu responsive while it waits, and disposes it on exit', async (t) => {
+  reset();
+  const saved = rollGame(
+    newGame('aggressive', 'platform-worker', undefined, 'b'),
+    [1, 1, 1],
+  );
+  await store().save(saved);
+  const reply = botReply(saved);
+  const search = t.mock.method(DiceChess, 'getBestMove', () => {
+    throw new Error('UI search must not run');
+  });
+  let complete!: (reply: BotReply) => void;
+  const request = t.mock.fn((game: Game) => {
+    assert.deepEqual(game, saved);
+    return new Promise<BotReply>((resolve) => {
+      complete = resolve;
+    });
+  });
+  const dispose = t.mock.fn();
+  const app = launch({
+    options: undefined,
+    createWorker: () => ({ request, dispose }),
+    sounds: silentSounds(),
+    music: silentMusic(),
+  });
+  send('enter');
+  await act(async () => mock.timers.tick(1));
+  assert.equal(request.mock.callCount(), 1);
+  send('back');
+  assert.match(app.state(), /overlay menu/);
+  await act(async () => {
+    complete(reply);
+    mock.timers.tick(5000);
+  });
+  assert.deepEqual(store().read(), saved, 'Menu pauses presentation');
+  send('enter');
+  await act(async () => mock.timers.tick(5000));
+  assert.ok(store().read()!.revision > saved.revision);
+  assert.equal(search.mock.callCount(), 0);
+  unmount();
+  assert.equal(dispose.mock.callCount(), 1);
+});
+
+for (const choice of ['menu', 'fresh']) {
+  test(`Recovery ${choice} allows bot play on the same client after a timed-out job finishes late`, async (t) => {
+    quietBoundaries(t);
+    // A fresh game's first roll must offer a legal move and reach the worker.
+    t.mock.method(Math, 'random', () => 0);
+    reset();
+    setStored({ 'dicechess-tv.playAs.v1': 'b' });
+    const saved = rollGame(
+      newGame('aggressive', 'late-worker', undefined, 'b'),
+      [1, 1, 1],
+    );
+    await store().save(saved);
+    const mailbox = new MMKV();
+    let complete!: () => void;
+    let launched = 0;
+    let time = 0;
+    const createWorker = t.mock.fn((activity) =>
+      createBotClient({
+        store: mailbox,
+        activity,
+        schedule: afterDelay,
+        now: () => time,
+        newId: () => String(launched + 1),
+        timeout: 300,
+        launch: () => {
+          const raw = mailbox.getString(BOT_REQUEST)!;
+          launched++;
+          return new Promise<void>((resolve) => {
+            const publish = () => {
+              if (mailbox.getString(BOT_REQUEST) === raw)
+                mailbox.set(BOT_RESPONSE, JSON.stringify(runBotJob(raw)));
+              resolve();
+            };
+            if (launched === 1) complete = publish;
+            else publish();
+          });
+        },
+      }),
+    );
+    const app = launch({
+      options: undefined,
+      createWorker,
+      sounds: silentSounds(),
+      music: silentMusic(),
+    });
+    send('enter');
+    await act(async () => mock.timers.tick(1));
+    await act(async () => mock.timers.tick(1));
+    assert.equal(launched, 1);
+    time = 300;
+    await act(async () => mock.timers.tick(1000));
+    assert.match(text(app.root), new RegExp(RECOVERY_TITLE));
+    assert.deepEqual(store().read(), saved);
+    // Even a retry from the menu cannot overlap the unfinished job.
+    send('enter');
+    send('enter');
+    await act(async () => mock.timers.tick(1));
+    await act(async () => mock.timers.tick(1));
+    await act(async () => mock.timers.tick(1000));
+    assert.match(text(app.root), new RegExp(RECOVERY_TITLE));
+    assert.equal(launched, 1);
+    await act(async () => complete());
+    assert.equal(
+      mailbox.getString(BOT_RESPONSE),
+      undefined,
+      'discard late reply',
+    );
+    assert.deepEqual(store().read(), saved);
+    if (choice === 'fresh') send('down');
+    send('enter');
+    if (choice === 'fresh') {
+      assert.equal(store().read(), null);
+      send('down'); // Play the computer follows Play a friend on a fresh home.
+    }
+    send('enter');
+    if (choice === 'fresh') send('enter');
+    await act(async () => mock.timers.tick(1));
+    await act(async () => mock.timers.tick(1));
+    for (let step = 0; step < 5; step++)
+      await act(async () => mock.timers.tick(1000));
+    assert.equal(launched, 2, app.state() + '\n' + text(app.root));
+    assert.equal(createWorker.mock.callCount(), 1, 'no app or worker restart');
+    assert.doesNotMatch(text(app.root), new RegExp(RECOVERY_TITLE));
+    assert.ok(store().read()!.revision > saved.revision);
+    if (choice === 'fresh') assert.notEqual(store().read()!.id, saved.id);
+    else assert.equal(store().read()!.id, saved.id);
+  });
+}
 
 test('OK on the fallback returns to the menu, and the saved game resumes', (t) => {
   quietBoundaries(t);
