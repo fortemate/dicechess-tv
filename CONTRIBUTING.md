@@ -418,6 +418,17 @@ and settings survive, and compare the installed JavaScript and Hermes hashes
 with the package. Record the target and the actions checked separately from
 other evidence. Copy the prepared release notes to `$out/RELEASE_NOTES.md`.
 
+Store and developer signatures need separate checks. On October 21, 2026, the
+physical Stick refused a developer-signed 1.0.4/build 55 package over its
+Amazon-signed 1.0.1/build 30 installation with `Uninstall existing package to
+update`. The store package also refused developer-shell access to its saved
+data. Uninstalling removes saved games, results and settings; keep that store
+installation if its data must be retained. Record tests on a separate QA package
+separately from an installation of the original release archive. Updating the
+developer candidate with the final package worked without uninstalling; its
+MMKV data and CRC files matched before the update and after launch. This check
+does not establish preservation through an Amazon-signed store update.
+
 The owner then publishes the set built from that exact main commit. Check that
 the tag is unused, create an annotated signed tag, push it, and create the
 release on the existing tag:
