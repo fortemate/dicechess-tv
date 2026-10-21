@@ -1,6 +1,6 @@
 ---
 title: How we test and review
-description: Tests in Node, continuous integration, CodeQL, SonarCloud, CodeRabbit reviews on request, pre-commit hooks, and scripted checks on the Vega Virtual Device.
+description: Tests in Node, continuous integration, CodeQL, SonarCloud, requested CodeRabbit reviews, and separate checks on the Vega Virtual Device and a physical Fire TV Stick.
 sidebar:
   order: 1
 ---
@@ -9,7 +9,7 @@ Most checks run in Node: unit tests of the shared core and of the app's screens,
 
 ## The Test Suite
 
-Three packages have tests, all on Node's own test runner (`node --test`) with the Node version in `mise.toml`. Counts and times are from the October 18, 2026, local check on a Mac:
+Three packages have tests, all on Node's own test runner (`node --test`) with the Node version in `mise.toml`. Counts and approximate times are from the October 21, 2026, local check on a Mac, for the application revision merged in [#479](https://github.com/fortemate/dicechess-tv/pull/479) (`e87ee09`):
 
 <div class="suite-cards">
   <article class="suite-card">
@@ -18,8 +18,8 @@ Three packages have tests, all on Node's own test runner (`node --test`) with th
         Core Suite <code>test/</code>
       </div>
       <div class="suite-card-metrics">
-        <span class="suite-badge count">334 tests</span>
-        <span class="suite-badge duration">about 14 s</span>
+        <span class="suite-badge count">335 tests</span>
+        <span class="suite-badge duration">about 13 s</span>
       </div>
     </div>
     <p class="suite-card-scope">
@@ -37,12 +37,12 @@ Three packages have tests, all on Node's own test runner (`node --test`) with th
         App Suite <code>native/test/</code>
       </div>
       <div class="suite-card-metrics">
-        <span class="suite-badge count">624 tests</span>
-        <span class="suite-badge duration">about 25 s</span>
+        <span class="suite-badge count">698 tests</span>
+        <span class="suite-badge duration">about 24 s</span>
       </div>
     </div>
     <p class="suite-card-scope">
-      Board and piece rendering, remote input and focus, menus, the tutorial, saving and the ledger across relaunches, sound, music and voices (ducking included), the reduced-motion path against a stubbed platform setting, and the generated assets, the launcher icon among them.
+      Board and piece rendering, remote input and focus, menus, the tutorial, saving and the ledger across relaunches, serialized opponent requests and recovery, sound, music and voices (including ducking and player lifecycle), the reduced-motion path against a stubbed platform setting, and generated assets including the launcher icon.
     </p>
     <div class="suite-card-meta">
       <span class="suite-meta-label">Runner &amp; environment:</span>
@@ -59,12 +59,12 @@ Three packages have tests, all on Node's own test runner (`node --test`) with th
         Web Bench <code>web/test/</code>
       </div>
       <div class="suite-card-metrics">
-        <span class="suite-badge count">11 tests</span>
+        <span class="suite-badge count">13 tests</span>
         <span class="suite-badge duration">under 1 s</span>
       </div>
     </div>
     <p class="suite-card-scope">
-      The browser test bench’s configuration and board marks.
+      The browser test bench's configuration and board marks, plus Web Worker completion and termination contracts.
     </p>
     <div class="suite-card-meta">
       <span class="suite-meta-label">Runner &amp; environment:</span>
@@ -78,7 +78,7 @@ Three packages have tests, all on Node's own test runner (`node --test`) with th
         Total
       </div>
       <div class="suite-card-metrics">
-        <span class="suite-badge count highlight">969 tests</span>
+        <span class="suite-badge count highlight">1,046 tests</span>
         <span class="suite-badge duration highlight">about 40 s</span>
       </div>
     </div>
@@ -102,9 +102,17 @@ Three packages have tests, all on Node's own test runner (`node --test`) with th
 
 ### Audio regression checks, October 14, 2026
 
-The audio work in [PR #388](https://github.com/fortemate/dicechess-tv/pull/388) passed `mise run check` with 325 core, 586 native and 8 browser tests: 919 in total, including 33 added native regressions. They cover readiness and delayed playback, completion and cleanup, stale events, bounded failure and retry, silence during crossfade errors, and verified MP3 tag removal. These counts describe that PR's local checkout on October 14. The breakdown above describes the current October 18, 2026 check: 334 core, 624 native and 11 browser-bench tests, 969 in total.
+The audio work in [PR #388](https://github.com/fortemate/dicechess-tv/pull/388) passed `mise run check` with 325 core, 586 native and 8 browser tests: 919 in total, including 33 added native regressions. They cover readiness and delayed playback, completion and cleanup, stale events, bounded failure and retry, silence during crossfade errors, and verified MP3 tag removal. These counts describe that PR's local checkout on October 14; the suite cards above give the separately dated October 21 snapshot.
 
 Release packages were built for armv7, aarch64 and x86_64. Separate VVD and physical Stick runs covered ten minutes of playback, all six tutorial lessons and all 45 tutorial clips, settings and Home/relaunch, plus eight injected crossfade failure/silence cases per device. Native events and release completions support the hardware result; recorded audio is from VVD. Clean packages were installed afterward, deployed JS/Hermes hashes matched their archives, and saved data and CRC matched their pre-test backups. The [validation record](https://github.com/fortemate/dicechess-tv/blob/c6109575aae7f0f125e8ff5b53566b089ed9de8f/docs/audio-regression-validation-387.md) separates the device, automated and package evidence, including cold Home recovery and the remaining warm-focus and physical-listening limits.
+
+### Opponent and audio lifecycle checks, October 21, 2026
+
+[PR #480](https://github.com/fortemate/dicechess-tv/pull/480) added regression checks for serialized searches, foreground-only transport deadlines, late-result discard and reuse after a delayed response settles. Its final ordinary build 52 completed eight natural games on the physical Stick, two per bot and two Hot Seat games, and checked Menu/resume, cold search recovery, a 180-second same-process Home interval, settings, all tutorial lessons, Rules and About. Both Recovery choices were also exercised in a separate package with a delayed response callback. The [opponent runtime record](https://github.com/fortemate/dicechess-tv/blob/main/docs/opponent-runtime-validation-480.md) distinguishes ordinary Release, diagnostic, Virtual Device and Node evidence.
+
+[PR #479](https://github.com/fortemate/dicechess-tv/pull/479) added checks for construction after the first commit, startup speech, suspended startup, effect-player release and recreation, and music's idle timer. Physical build 53 completed five natural games and checked first/cold launches, audio settings, same-process Home returns and a music loop seam. Build 54's review follow-up checked one first launch, three cold launches and three Home returns; it did not repeat the full games. The [audio lifecycle record](https://github.com/fortemate/dicechess-tv/blob/main/docs/audio-lifecycle-validation-479.md) identifies the tested commits and the incomplete continuous logging during the later build 53 games.
+
+These local Release builds used a separate QA package to preserve the installed store build 30. Installed payloads were checked against archives; QA saves and CRC were restored byte-for-byte afterward. Actual device input drove the games, but both Hot Seat sides were automated. The runs do not establish human TV listening, a two-human session, measured input latency or an Amazon-signed in-place upgrade.
 
 ## Continuous Integration & Security Analysis
 
@@ -116,7 +124,7 @@ GitHub Actions
 │   ├── core: whitespace check of the change, tsc (twice), ESLint, Prettier check, core tests (the English-only check among them)
 │   ├── native-board: tsc, ESLint with Amazon's Vega rules, app tests, JavaScript bundle for the kepler platform
 │   ├── web-bench: bench tests, then tsc and the Vite build
-│   └── sonar: coverage of the core and app suites, then the SonarCloud scan (informational)
+│   └── sonar: core and app coverage tests, then the informational SonarCloud scan
 ├── CodeQL (GitHub default setup, no workflow file): JavaScript/TypeScript and GitHub Actions, on pull requests, pushes to main and weekly
 ├── CI: CLA (.github/workflows/cla.yaml): pull requests; checks that an outside contributor has signed the license agreement
 ├── PR Labeler (.github/workflows/labeler.yaml): pull requests
@@ -128,7 +136,7 @@ CI does not build the installable `.vpkg`: that needs the Vega SDK, which GitHub
 
 ### SonarCloud Quality Gate
 
-The `sonar` CI job sends the test coverage of the core and the app to [SonarCloud](https://sonarcloud.io/summary/new_code?id=fortemate_dicechess-tv). It is informational: a failed scan or quality gate does not fail the run. The project uses SonarCloud's default quality gate, Sonar way, and passed it on October 4, 2026. That day SonarCloud reported:
+The `sonar` CI job first runs the core and app coverage tests; a failing test fails that job. Only its subsequent [SonarCloud](https://sonarcloud.io/summary/new_code?id=fortemate_dicechess-tv) scan step has `continue-on-error`, so a failed scan does not fail the workflow. The workflow does not wait for the quality gate; SonarCloud reports its own status separately. The project uses SonarCloud's default quality gate, Sonar way, and passed it on October 4, 2026. That day SonarCloud reported:
 
 - **0** bugs
 - **0** vulnerabilities

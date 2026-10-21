@@ -8,6 +8,18 @@ The run used automated D-pad, OK, Back and Home events through the device input 
 
 The build's `native/build/lib/rn-bundles/Release/system-bundle-app-dependencies.json` lists `@amazon-devices/react-native-worklets` version `1.0.1+0.6.0`. Its JavaScript is excluded from the app bundle. Worklet searches in this physical run establish that the Stick supplied that system bundle. The older Virtual Device run in #338 predates this dependency and cannot establish that fact.
 
+## Build 52 follow-up after review
+
+The final PR revision, `1593258c363609c5d209c0a4c3e017ae61f6a1a1`, was checked again on October 21, 2026, with Release 1.0.3/build 52. The ordinary armv7 Release ran under the separate QA identity, with installed payload hashes and standard/QA equivalence verified as above. These were local test packages, not a published Appstore update.
+
+Eight new games reached natural king-capture results from their initial positions: one game as each side against each bot, plus two Hot Seat games with both sides automated. Prepared positions and partial games are excluded from that count. The slow Rampage position, Menu/resume during search, cold restart during search, a real 180-second Home interval in the same process, pending-game replacement and queued new-bot play passed. Settings, volume boundaries, mute/toggle behavior and cold persistence, all six tutorial lessons, all nine Rules topics and About were also checked.
+
+A separate diagnostic package delayed only the first native response callback, leaving the canonical engine and ordinary transport deadline unchanged. On the physical Stick, both Recovery choices, Back to the menu and Start fresh, passed the timeout, early overlap rejection, late-result discard and subsequent successful bot play in the same process. This modified diagnostic run is separate from the ordinary Release evidence. It does not prove recovery from a native job that never finishes. The diagnostic package was removed afterward.
+
+No new crash-history entry was recorded. The ordinary QA package was left closed, the initial QA MMKV data and CRC were restored byte-for-byte after the first screen was ready, and the protected store build 30 package stayed unchanged. Store data was not exported or written. Human TV-output listening, a two-human game, input-latency measurement and an Amazon-signed in-place upgrade were not established.
+
+The required local checks passed with 335 core, 672 native and 13 browser-bench tests, 1,020 total, plus coverage, Metro, notices, browser and site builds. Release packages built for armv7, aarch64 and x86_64; aarch64 and x86_64 were not run in this follow-up.
+
 ## Vega Virtual Device and other architectures
 
 The worklet ran on the Vega Virtual Device with Release 1.0.3/build 48. This is separate from the physical build 51 evidence. The x86_64 package was built but not run.
