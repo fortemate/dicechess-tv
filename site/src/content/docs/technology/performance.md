@@ -90,7 +90,7 @@ Before the change an arrow worked out five views at every point of a turn, and a
 
 ## Opponents' decision time
 
-Dice Chess TV offers three built-in opponents: Rolly (random, with immediate king captures), Grabby (material gains across a complete turn) and Rampage (aggressive king hunter). Their [profiles](/play/opponents/) explain the current playing styles; the timings below describe the builds measured on the dates named. Each is an algorithm of the engine, asked for a whole turn through `getBestMove`, and all three run on the device, on the JavaScript thread.
+Dice Chess TV offers three built-in opponents: Rolly (random, with immediate king captures), Grabby (material gains across a complete turn) and Rampage (aggressive king hunter). Their [profiles](/play/opponents/) explain the current playing styles; the timings below describe the builds measured on the dates named. Each is an algorithm of the engine, asked for a whole turn through `getBestMove`, and all three run on the device. The current native app runs this call in a separate Hermes worklet runtime; the historical measurements below predate that change.
 
 The playing-style descriptions rest on engine 0.14.8 source inspection and the Node tests in [`test/opponents.test.ts`](https://github.com/fortemate/dicechess-tv/blob/8453e173eb50899685148010e7047e908a3d577e/test/opponents.test.ts) and [`test/opponent-examples.test.ts`](https://github.com/fortemate/dicechess-tv/blob/8453e173eb50899685148010e7047e908a3d577e/test/opponent-examples.test.ts).
 
@@ -104,11 +104,11 @@ A probe build on the Vega Virtual Device timed Grabby's and Rampage's decisions 
 
 ### Pacing
 
-Each step of the opponent's turn (the roll, each action, the handoff) waits 600 ms (`BOT_STEP_MS` in `native/src/screen.ts`), so a player can follow it from the sofa. The wait comes first. At the step of its first action, the opponent then decides its whole turn at once, on the JavaScript thread, so the decision time adds to that step: Rampage's slowest decision on the Virtual Device, 339 ms, added about a third of a second to it. No separate thread is used.
+Each step of the opponent's turn (the roll, each action, the handoff) waits 600 ms (`BOT_STEP_MS` in `native/src/screen.ts`), so a player can follow it from the sofa. The search overlaps the first action's wait: the move appears when both are finished. A longer search shows the thinking indicator. The search runs in the [opponent runtime](/technology/architecture/#opponent-runtime-on-vega), leaving the interactive JavaScript runtime free to serve the remote. The game screen checks the full reply before showing its moves, one at a time. Menu/resume during the slow Rampage position was checked on a physical Fire TV Stick 4K Select with Release 1.0.3/build 51 on October 21, 2026, using automated remote events. This establishes that those controls worked in that session; input latency was not measured. The [validation record](https://github.com/fortemate/dicechess-tv/blob/main/docs/opponent-runtime-validation-480.md) separates this run from tests and Virtual Device evidence.
 
 The wait is a JavaScript timer, so it runs late while other work holds the JavaScript thread. On a Fire TV Stick 4K Select on October 10, 2026, in games against Rolly, the opponent's steps came 1.2–1.5 s apart instead of 600 ms. The automatic OK on the only choice, which waits as long, came 0.68–1.25 s after the state it was scheduled from ([Board selection algorithm](/design/board-selection/#the-only-choice)). Both were read from a throwaway build that wrote the screen's state to the device log, while checking that feature ([#342](https://github.com/fortemate/dicechess-tv/pull/342)); they are observations from one session, not a controlled measurement.
 
-How to run a stronger opponent off the JavaScript thread is open ([FL-13](/friction-log/#fl-13)): React Native has no Web Worker, an app has no documented way to start a Vega headless task, and `@amazon-devices/react-native-worklets` is an untested candidate.
+The native app now uses a custom Hermes worklet runtime. The [architecture](/technology/architecture/#opponent-runtime-on-vega) describes the canonical engine asset, serialized requests, lifecycle handling and failure path. These changes preserve the canonical engine's algorithms and work budgets.
 
 ## Danger Evaluation & Threat Analysis
 

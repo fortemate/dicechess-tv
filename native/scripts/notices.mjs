@@ -33,6 +33,7 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { ENGINE_MAP } from './botBundle.mjs';
 
 const native = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -89,6 +90,12 @@ const UPSTREAM = {
   '@amazon-devices/react-native-mmkv': {
     project: 'react-native-mmkv',
     from: 'licenses/upstream/react-native-mmkv.LICENSE',
+  },
+  // The port's version is 1.0.1+0.6.0. Its upstream npm tarball supplies this
+  // exact MIT notice; Amazon's package ships only the Program Materials text.
+  '@amazon-devices/react-native-worklets': {
+    project: 'react-native-worklets',
+    from: 'licenses/upstream/react-native-worklets.LICENSE',
   },
 };
 
@@ -226,7 +233,9 @@ const sourcesOf = (path, hint) => {
 const checkBuild = () => {
   const named = packagesNamed(readFileSync(join(native, NOTICES), 'utf8'));
   const built = packagesIn(
-    sourcesOf(BUILD_SOURCE_MAP, 'run npm run build first'),
+    [BUILD_SOURCE_MAP, ENGINE_MAP].flatMap((path) =>
+      sourcesOf(path, 'run npm run build first'),
+    ),
   );
   const missing = built
     .map((found) => found.name)
@@ -256,7 +265,9 @@ if (
     process.exit(0);
   }
   const packages = shippedPackages(
-    sourcesOf(SOURCE_MAP, 'run npm run bundle first'),
+    [SOURCE_MAP, ENGINE_MAP].flatMap((path) =>
+      sourcesOf(path, 'run npm run bundle first'),
+    ),
   );
   for (const notice of NATIVE_NOTICES)
     if (

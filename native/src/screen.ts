@@ -718,8 +718,11 @@ function botStep(
   // Decide the whole turn at once and check it as a whole: applyBotReply
   // rejects a stale or incomplete path. Its result is discarded and the path is
   // replayed a move at a time, so the check covers what is about to be shown.
-  // A reply worked out while the step waited is the same question asked sooner;
-  // one that no longer fits the position is not trusted, and is asked for again.
+  // The native asynchronous provider must never fall back to a UI-thread
+  // search, including when a stale or missing reply reaches this boundary.
+  if (options.reply && (!given || !replyFits(game, given)))
+    throw new Error('Missing or stale asynchronous opponent reply');
+  // Synchronous callers without a provider may ask again for a stale answer.
   // A reply just asked for that is still rejected is the engine's fault, not a
   // stale answer, and it throws to the game screen's fallback (#255): returning
   // the state unchanged would leave the opponent "playing" with nothing to ask
