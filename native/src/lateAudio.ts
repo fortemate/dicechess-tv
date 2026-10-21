@@ -27,7 +27,7 @@ export function lateSounds(): LateSounds {
   let voices: boolean | undefined;
   let voiceVolume: number | undefined;
   let suspended: boolean | undefined;
-  let pendingLine: Parameters<Sounds['say']>[0] | undefined;
+  let pendingLine: Parameters<Sounds['say']> | undefined;
   return {
     isSuspended: () => suspended === true,
     attach(next) {
@@ -40,13 +40,14 @@ export function lateSounds(): LateSounds {
       if (suspended !== undefined) next.setSuspended(suspended);
       const line = pendingLine;
       pendingLine = undefined;
-      if (line) next.say(line);
+      if (line) next.say(...line);
     },
     play: (cues) => real?.play(cues),
-    say(line) {
-      if (real) real.say(line);
+    say(line, onEnded) {
+      if (real) real.say(line, onEnded);
       else
-        pendingLine = voices === false || suspended === true ? undefined : line;
+        pendingLine =
+          voices === false || suspended === true ? undefined : [line, onEnded];
     },
     stopLine() {
       pendingLine = undefined;

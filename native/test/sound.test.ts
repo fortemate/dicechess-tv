@@ -1468,3 +1468,60 @@ test('an unprimed player starting muted receives soundVolume when unmuted', asyn
   const [move] = effects();
   assert.equal(move.volume, 0.5);
 });
+
+test('a speech continuation runs once after ended and its tail, including a slow start (#482)', async () => {
+  resetAudio();
+  const time = clock();
+  const sounds = createSounds({ later: time.later });
+  let completed = 0;
+  holdAudio();
+  sounds.say(line('thinkle_tutor_offer_1'), () => completed++);
+  time.elapse(2000);
+  releaseAudio();
+  await settle();
+  const first = plays()[0];
+  time.elapse(1500);
+  assert.equal(completed, 0);
+  assert.equal(released().includes(first.player), false);
+  audioEvent(first.player, 'ended');
+  audioEvent(first.player, 'ended');
+  assert.equal(completed, 0);
+  time.elapse(LINE_TAIL_MS);
+  assert.equal(completed, 1);
+  time.elapse();
+  assert.equal(completed, 1);
+  sounds.dispose();
+});
+
+for (const stop of [
+  'replace',
+  'stop',
+  'mute',
+  'suspend',
+  'dispose',
+  'error',
+  'timeout',
+] as const) {
+  test(`${stop} never advances a speech continuation, even with a queued ended tail (#482)`, async () => {
+    resetAudio();
+    const time = clock();
+    const sounds = createSounds({ later: time.later });
+    let completed = 0;
+    sounds.say(line('thinkle_tutor_offer_1'), () => completed++);
+    await settle();
+    const first = plays()[0];
+    if (stop !== 'error' && stop !== 'timeout')
+      audioEvent(first.player, 'ended');
+    if (stop === 'replace') sounds.say(line('thinkle_tutor_offer_2'));
+    else if (stop === 'stop') sounds.stopLine();
+    else if (stop === 'mute') sounds.setVoices(false);
+    else if (stop === 'suspend') sounds.setSuspended(true);
+    else if (stop === 'dispose') sounds.dispose();
+    else if (stop === 'error') audioEvent(first.player, 'error');
+    time.elapse();
+    audioEvent(first.player, 'ended');
+    time.elapse();
+    assert.equal(completed, 0);
+    sounds.dispose();
+  });
+}

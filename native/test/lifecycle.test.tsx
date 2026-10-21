@@ -21,7 +21,6 @@ import {
   hasExited,
   setAppState,
 } from './stubs/react-native-kepler.mjs';
-import { nextLineMs } from '../src/useTutorialVoice';
 import { stepGame, TUTORIAL, tutorLinesAt } from '../../src/core/tutorial';
 import { botReply } from '../../src/core/bot';
 import {
@@ -134,6 +133,7 @@ const harness = (
     now: () => time,
     ...extra,
   };
+  let ended: (() => void) | undefined;
   const sounds: Sounds = {
     play() {},
     setMuted() {},
@@ -141,7 +141,8 @@ const harness = (
     setVoices() {},
     setVoiceVolume() {},
     stopLine() {},
-    say(line) {
+    say(line, done) {
+      ended = done;
       assert.equal(
         soundStates.at(-1),
         false,
@@ -169,6 +170,7 @@ const harness = (
   );
   return {
     tree,
+    finishLine: () => act(() => ended?.()),
     waiting,
     background,
     said,
@@ -365,7 +367,7 @@ test('Back behind Alexa is ignored, not taken as leave to close the app', () => 
   }
 });
 
-test('tutorial speech waits behind Alexa and resumes its next sentence once, without a burst', () => {
+test('tutorial speech restarts the current point after Alexa without stale completion advancing it', () => {
   mock.timers.enable({ apis: ['setTimeout', 'Date'] });
   const rig = harness();
   try {
@@ -374,11 +376,13 @@ test('tutorial speech waits behind Alexa and resumes its next sentence once, wit
     assert.deepEqual(rig.said, [opening[0].id]);
     act(() => mock.timers.tick(100));
     rig.event('blur');
+    rig.finishLine();
     act(() => mock.timers.tick(60_000));
     assert.deepEqual(rig.said, [opening[0].id]);
     rig.event('focus');
-    act(() => mock.timers.tick(nextLineMs(opening[0])! - 100));
-    assert.deepEqual(rig.said, [opening[0].id, opening[1].id]);
+    assert.deepEqual(rig.said, [opening[0].id, opening[0].id]);
+    rig.finishLine();
+    assert.deepEqual(rig.said, [opening[0].id, opening[0].id, opening[1].id]);
   } finally {
     rig.close();
     mock.timers.reset();

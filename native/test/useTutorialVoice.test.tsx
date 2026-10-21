@@ -21,11 +21,15 @@ fakeTimers();
 // A voice that records what it was asked to say, and when it was stopped.
 const recorder = () => {
   const calls: string[] = [];
+  let ended: (() => void) | undefined;
   const voice: TutorialVoice = {
-    say: (line: SpokenLine) => calls.push(line.id),
+    say: (line: SpokenLine, done) => {
+      calls.push(line.id);
+      ended = done;
+    },
     stopLine: () => calls.push('stop'),
   };
-  return { calls, voice };
+  return { calls, voice, finish: () => act(() => ended?.()) };
 };
 
 const open = (voice?: TutorialVoice, onExit = () => {}) =>
@@ -36,15 +40,17 @@ const [first] = TUTORIAL;
 const opening = tutorLinesAt(first, stepGame(first), false);
 
 test('the tutorial opens with his welcome, one line after another', () => {
-  const { calls, voice } = recorder();
+  const { calls, voice, finish } = recorder();
   open(voice);
   // The first line at once; each next one after the last has been said.
   assert.deepEqual(calls, [opening[0].id]);
   tick(nextLineMs(opening[0])! - 1);
   assert.deepEqual(calls, [opening[0].id]);
   tick(1);
+  assert.deepEqual(calls, [opening[0].id]);
+  finish();
   assert.deepEqual(calls, [opening[0].id, opening[1].id]);
-  tick(nextLineMs(opening[1])!);
+  finish();
   assert.deepEqual(
     calls,
     opening.map((line) => line.id),
@@ -55,7 +61,7 @@ test('the tutorial opens with his welcome, one line after another', () => {
 });
 
 test('a new point of the lesson cuts what he was saying', () => {
-  const { calls, voice } = recorder();
+  const { calls, voice, finish } = recorder();
   open(voice);
   // OK rolls before the welcome is over: he stops, and says the roll's lines.
   send('enter');
@@ -67,12 +73,14 @@ test('a new point of the lesson cuts what he was saying', () => {
   ]);
   // The welcome's other lines never come.
   tick(60_000);
+  assert.deepEqual(calls.slice(3), []);
+  finish();
   assert.deepEqual(calls.slice(3), ['thinkle_tutor_move_rolled_2']);
   assert.equal(rolled.length, 2);
 });
 
 test('leaving the tutorial stops him', () => {
-  const { calls, voice } = recorder();
+  const { calls, voice, finish } = recorder();
   let left = false;
   open(voice, () => {
     left = true;
@@ -83,6 +91,7 @@ test('leaving the tutorial stops him', () => {
   assert.equal(calls.at(-1), 'stop');
   // No line comes after he has stopped.
   const count = calls.length;
+  finish();
   tick(60_000);
   assert.equal(calls.length, count);
 });

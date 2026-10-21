@@ -6,7 +6,13 @@ import assert from 'node:assert/strict';
 import { act } from 'react-test-renderer';
 import { hasExited, clearExit } from './stubs/react-native-kepler.mjs';
 import { MMKV, reset } from './stubs/react-native-mmkv.mjs';
-import { audioLog, resetAudio } from './stubs/react-native-w3cmedia.mjs';
+import {
+  audioLog,
+  resetAudio,
+  holdAudio,
+  releaseAudio,
+  audioEvent,
+} from './stubs/react-native-w3cmedia.mjs';
 import { MmkvSnapshotStore } from '../src/mmkvStore';
 import { readTutorialOffered } from '../src/tutorialOfferSetting';
 import type { Sounds } from '../src/sound';
@@ -158,12 +164,14 @@ test('nor is one whose saved game no longer reads', () => {
 const listener = () => {
   const said: string[] = [];
   let stopped = 0;
+  let ended: (() => void) | undefined;
   const sounds: Sounds = {
     play() {},
     setMuted() {},
     setSoundVolume() {},
-    say: (line) => {
+    say: (line, done) => {
       said.push(line.id);
+      ended = done;
     },
     stopLine: () => {
       stopped++;
@@ -173,15 +181,20 @@ const listener = () => {
     setSuspended() {},
     dispose() {},
   };
-  return { said, stopped: () => stopped, sounds };
+  return {
+    said,
+    stopped: () => stopped,
+    sounds,
+    finish: () => act(() => ended?.()),
+  };
 };
 
 test('Thinkle says the offer aloud, one line after the other', () => {
   reset({ firstLaunch: true });
-  const { said, sounds } = listener();
+  const { said, sounds, finish } = listener();
   launch({ sounds });
   assert.deepEqual(said, ['thinkle_tutor_offer_1']);
-  act(() => mock.timers.tick(nextLineMs(OFFER_LINES[0])!));
+  finish();
   assert.deepEqual(said, ['thinkle_tutor_offer_1', 'thinkle_tutor_offer_2']);
 });
 
@@ -199,7 +212,15 @@ test('both first-launch sentences reach the app audio players after their deferr
   await act(async () => {});
   assert.equal(heard().length, 1);
   assert.match(heard()[0]!, /thinkle_tutor_offer_1\.mp3$/);
+  const first = audioLog.find(
+    (entry) =>
+      entry.event === 'play' &&
+      entry.src?.endsWith('thinkle_tutor_offer_1.mp3'),
+  )!;
   await act(async () => mock.timers.tick(nextLineMs(OFFER_LINES[0])!));
+  assert.equal(heard().length, 1);
+  await act(async () => audioEvent(first.player, 'ended'));
+  await act(async () => mock.timers.tick(300));
   assert.equal(heard().length, 2);
   assert.match(heard()[1]!, /thinkle_tutor_offer_2\.mp3$/);
 });
@@ -239,4 +260,45 @@ test('a first launch can go from the offer, through every lesson, to a game agai
   assert.equal(game?.mode, 'random');
   assert.equal(game?.human, 'w');
   assert.match(text(root), /White to play · you/);
+});
+
+test('a slow first-launch player finishes the greeting before the second sentence (#482)', async () => {
+  reset({ firstLaunch: true });
+  resetAudio();
+  holdAudio();
+  launch({ music: silentMusic() });
+  await act(async () => mock.timers.tick(2000));
+  await act(async () => releaseAudio());
+  const first = audioLog.find(
+    (entry) =>
+      entry.event === 'play' &&
+      entry.src?.endsWith('thinkle_tutor_offer_1.mp3'),
+  )!;
+  assert.ok(first, 'first sentence started after initialization');
+  await act(async () => mock.timers.tick(1500));
+  assert.equal(
+    audioLog.some(
+      (entry) =>
+        entry.event === 'deinitialize' && entry.player === first.player,
+    ),
+    false,
+    'first sentence must not be cut at the estimated deadline',
+  );
+  assert.equal(
+    audioLog.some(
+      (entry) =>
+        entry.event === 'play' &&
+        entry.src?.endsWith('thinkle_tutor_offer_2.mp3'),
+    ),
+    false,
+  );
+  await act(async () => audioEvent(first.player, 'ended'));
+  await act(async () => mock.timers.tick(300));
+  assert.ok(
+    audioLog.some(
+      (entry) =>
+        entry.event === 'play' &&
+        entry.src?.endsWith('thinkle_tutor_offer_2.mp3'),
+    ),
+  );
 });
