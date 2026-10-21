@@ -6,9 +6,10 @@
 // the real Sounds and Music in an effect, after the first commit, and attaches
 // them here. The screens keep the same object throughout: what they set before
 // a real one is attached (the theme from the home screen's first effect, the
-// suspension from the app state) is kept and passed on when it is. A cue or a
-// line asked for before then is not heard: no player could have been ready
-// for it, and none can be asked for before the first press.
+// suspension from the app state) is kept and passed on when it is. Thinkle's
+// first-launch line comes from a child's effect before App attaches the player:
+// keep that current line until attachment, unless it is stopped or silenced.
+// Effect cues before attachment are dropped rather than replayed later.
 import type { Catalogue, Music } from './music';
 import type { MusicRole } from './screen';
 import type { Sounds } from './sound';
@@ -23,6 +24,7 @@ export function lateSounds(): LateSounds {
   let voices: boolean | undefined;
   let voiceVolume: number | undefined;
   let suspended: boolean | undefined;
+  let pendingLine: Parameters<Sounds['say']>[0] | undefined;
   return {
     attach(next) {
       real = next;
@@ -32,10 +34,20 @@ export function lateSounds(): LateSounds {
       if (voices !== undefined) next.setVoices(voices);
       if (voiceVolume !== undefined) next.setVoiceVolume(voiceVolume);
       if (suspended !== undefined) next.setSuspended(suspended);
+      const line = pendingLine;
+      pendingLine = undefined;
+      if (line) next.say(line);
     },
     play: (cues) => real?.play(cues),
-    say: (line) => real?.say(line),
-    stopLine: () => real?.stopLine(),
+    say(line) {
+      if (real) real.say(line);
+      else
+        pendingLine = voices === false || suspended === true ? undefined : line;
+    },
+    stopLine() {
+      pendingLine = undefined;
+      real?.stopLine();
+    },
     setMuted(value) {
       muted = value;
       real?.setMuted(value);
@@ -46,6 +58,7 @@ export function lateSounds(): LateSounds {
     },
     setVoices(on) {
       voices = on;
+      if (!on) pendingLine = undefined;
       real?.setVoices(on);
     },
     setVoiceVolume(gain) {
@@ -54,9 +67,11 @@ export function lateSounds(): LateSounds {
     },
     setSuspended(value) {
       suspended = value;
+      if (value) pendingLine = undefined;
       real?.setSuspended(value);
     },
     dispose() {
+      pendingLine = undefined;
       real?.dispose();
       real = null;
     },

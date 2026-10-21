@@ -518,3 +518,30 @@ test('settings told before the sounds exist reach them once made; a cue before t
   assert.equal(real.suspended, false);
   assert.deepEqual(real.played, [['dice_roll']]);
 });
+
+test('the current first-frame line reaches the player once, and is not replayed on reattachment', () => {
+  const late = lateSounds();
+  late.say({ id: 'thinkle_tutor_offer_1', event: 'offer' });
+  late.say({ id: 'thinkle_tutor_offer_2', event: 'offer' });
+  const first = recorder();
+  late.attach(first);
+  assert.deepEqual(first.said, ['thinkle_tutor_offer_2']);
+  late.attach(null);
+  const next = recorder();
+  late.attach(next);
+  assert.deepEqual(next.said, []);
+});
+
+for (const cancel of ['stop', 'dispose', 'voices off', 'suspend']) {
+  test(`${cancel} cancels a first-frame line before the player is attached`, () => {
+    const late = lateSounds();
+    late.say({ id: 'thinkle_tutor_offer_1', event: 'offer' });
+    if (cancel === 'stop') late.stopLine();
+    else if (cancel === 'dispose') late.dispose();
+    else if (cancel === 'voices off') late.setVoices(false);
+    else late.setSuspended(true);
+    const real = recorder();
+    late.attach(real);
+    assert.deepEqual(real.said, []);
+  });
+}
