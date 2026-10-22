@@ -9,7 +9,7 @@ Most checks run in Node: unit tests of the shared core and of the app's screens,
 
 ## The Test Suite
 
-Three packages have tests, all on Node's own test runner (`node --test`) with the Node version in `mise.toml`. Counts and approximate times are from the October 21, 2026, local check on a Mac, for the application revision merged in [#479](https://github.com/fortemate/dicechess-tv/pull/479) (`e87ee09`):
+Three packages have tests, all on Node's own test runner (`node --test`) with the Node version in `mise.toml`. Counts and approximate times are from the October 22, 2026, local check on a Mac, for the application revision released in [1.0.5, build 59](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.5%2B59) (`6827541`, following [#490](https://github.com/fortemate/dicechess-tv/pull/490)):
 
 <div class="suite-cards">
   <article class="suite-card">
@@ -18,7 +18,7 @@ Three packages have tests, all on Node's own test runner (`node --test`) with th
         Core Suite <code>test/</code>
       </div>
       <div class="suite-card-metrics">
-        <span class="suite-badge count">335 tests</span>
+        <span class="suite-badge count">337 tests</span>
         <span class="suite-badge duration">about 13 s</span>
       </div>
     </div>
@@ -37,7 +37,7 @@ Three packages have tests, all on Node's own test runner (`node --test`) with th
         App Suite <code>native/test/</code>
       </div>
       <div class="suite-card-metrics">
-        <span class="suite-badge count">698 tests</span>
+        <span class="suite-badge count">711 tests</span>
         <span class="suite-badge duration">about 24 s</span>
       </div>
     </div>
@@ -78,7 +78,7 @@ Three packages have tests, all on Node's own test runner (`node --test`) with th
         Total
       </div>
       <div class="suite-card-metrics">
-        <span class="suite-badge count highlight">1,046 tests</span>
+        <span class="suite-badge count highlight">1,061 tests</span>
         <span class="suite-badge duration highlight">about 40 s</span>
       </div>
     </div>
