@@ -10,7 +10,7 @@ Dice Chess TV combines open-source code with public domain and permitted creativ
 ## Application & Core Engine
 
 - **Dice Chess TV (`fortemate/dicechess-tv`):** Licensed under the [GNU Affero General Public License v3.0 only](https://www.gnu.org/licenses/agpl-3.0.html) (AGPL-3.0-only).
-- **Rules Engine ([`@fortemate/dicechess-engine`](https://github.com/fortemate/dicechess-engine)):** Published on npm under AGPL-3.0-only. The current source locks version 0.14.9.
+- **Rules Engine ([`@fortemate/dicechess-engine`](https://github.com/fortemate/dicechess-engine)):** Published on npm under AGPL-3.0-only. The current source declares version range `^0.14.9`.
 
 ## Artwork & Visual Assets
 

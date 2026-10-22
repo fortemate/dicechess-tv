@@ -62,10 +62,10 @@ Against the computer, each bot says its lines aloud as well as in its speech bub
 
 - **A player of its own.** A line neither cuts nor is cut by the board, dice and result cues, and a new line replaces the one being said.
 - **Over the music.** The music ducks by 9 dB while a line is said, and comes back after it. A win or a loss is said after its jingle.
-- **No repeats.** The same line is never said twice in a row for an event, including at the start of a rematch. Starting another game against the same opponent after a completed game uses a dedicated rematch opening pool ([#490](https://github.com/fortemate/dicechess-tv/pull/490)). The bubble stays until its line has been said.
+- **No repeats.** The same line is never said twice in a row for an event, including at the start of a rematch. Starting another game against the same opponent after a completed game uses a dedicated rematch opening pool, as covered by the `native/test/useBotVoice.test.tsx` test. The bubble stays until its line has been said.
 - **A setting of its own.** **Voices** in Settings switches every spoken line on or off, the bots', the Hot Seat host's and Thinkle's in the tutorial and its offer, apart from the sound effects. A bot's bubble, and Thinkle's, stay either way. The voices are on by default, and they stop when the app leaves the screen.
 
-On the Virtual Device the voice was measured at about 14 dB above the music, with the music lower between the words and back after the line. On 2026-10-03 the longest lines, of 55 characters, took the bubble's three rows without a cut; since [#490](https://github.com/fortemate/dicechess-tv/pull/490), opponent bubbles allow four rows and host bubbles three at the same 20 dp font size so the expanded lines fit. With the tallest panels forced, a roll with nothing to play and a result with its menu, the panel's last line stood at least 28 dp clear of the person's badge.
+On the Vega Virtual Device the voice was measured at about 14 dB above the music, with the music lower between the words and back after the line. On 2026-10-03 the longest lines, of 55 characters, took the bubble's three rows without a cut; since [#490](https://github.com/fortemate/dicechess-tv/pull/490), opponent bubbles allow four rows and host bubbles three at the same 20 dp font size so the expanded lines fit (covered by `native/test/voiceBubble.test.tsx`). With the tallest panels forced, a roll with nothing to play and a result with its menu, the panel's last line stood at least 28 dp clear of the person's badge.
 
 ## The Hot Seat host
 
