@@ -5,11 +5,11 @@ sidebar:
   order: 3
 ---
 
-Dice Chess 1.0.5, build 59, was published on GitHub on October 22, 2026. It adds 179 English recordings for the opponents and Hot Seat hosts (446 voice clips in total), gives rematches against the same opponent their own opening pool, and allows four caption rows for opponents and three for hosts. It follows 1.0.4, build 58, published on October 21, 2026, which moved computer-opponent searches into a separate Hermes worklet runtime, finished Thinkle's cold-launch greeting before starting the next sentence, and deferred audio-player initialization until after the first render. It is free and in English, and it needs no account. Version 1.0.1 is also [on the Amazon Appstore](https://www.amazon.com/dp/B0HL6K9N47/).
+Dice Chess 1.0.5, build 59, was published on GitHub on October 22, 2026. It adds 179 English recordings for the opponents and Hot Seat hosts (446 voice clips in total), gives rematches against the same opponent their own opening pool, and allows four caption rows for opponents and three for hosts. It follows 1.0.4, build 58, published on GitHub on October 21, 2026, and [on the Amazon Appstore](https://www.amazon.com/dp/B0HL6K9N47/) on October 22, 2026, which moved computer-opponent searches into a separate Hermes worklet runtime, finished Thinkle's cold-launch greeting before starting the next sentence, and deferred audio-player initialization until after the first render. It is free and in English, and it needs no account.
 
 ## On the Amazon Appstore
 
-[Dice Chess](https://www.amazon.com/dp/B0HL6K9N47/) has been free on the Amazon Appstore since October 20, 2026. On a Fire TV with Vega OS, search the Appstore for Dice Chess, or choose **Get App** on its Amazon page. The store has version 1.0.1, build 30, with the character portraits. The newer GitHub releases below are not on the store yet.
+[Dice Chess](https://www.amazon.com/dp/B0HL6K9N47/) has been free on the Amazon Appstore since October 20, 2026, and was updated to version 1.0.4, build 58, on October 22, 2026. On a Fire TV with Vega OS, search the Appstore for Dice Chess, or choose **Get App** on its Amazon page. The store has version 1.0.4, build 58, with the character portraits, board highlights and background worklet opponent search. Version 1.0.5, build 59, below adds the expanded voice pack on GitHub.
 
 ## From GitHub
 

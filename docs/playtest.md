@@ -8,7 +8,7 @@ Dice Chess 1.0.5, build 59, was released on GitHub on October 22, 2026. Its [rel
 
 The earlier GitHub releases, up to 1.0.2/build 33, omit the portraits: the opponents show emoji faces, and Prowla and Thinkle have no replacement face. These fallbacks are covered by [matchup tests](../native/test/matchup.test.tsx) and [tutorial tests](../native/test/tutorial.test.tsx), and were checked on the [Vega Virtual Device for the 1.0.2 candidate](release-preparation-1.0.2-build33.md#vega-virtual-device).
 
-Version 1.0.2, build 33, published the same day, added Highlights, clearer rules and grouped Settings with focused control hints and stable switch directions. Its [release notes](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.2%2B33) describe the changes. Version 1.0.1/build 30 has been [live on the Amazon Appstore](https://www.amazon.com/dp/B0HL6K9N47/) since October 20, 2026.
+Version 1.0.2, build 33, published the same day, added Highlights, clearer rules and grouped Settings with focused control hints and stable switch directions. Its [release notes](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.2%2B33) describe the changes. [Dice Chess is live on the Amazon Appstore](https://www.amazon.com/dp/B0HL6K9N47/) (first published on October 20, 2026, with 1.0.1/build 30, and updated to 1.0.4/build 58 on October 22, 2026).
 
 | File                               | Install it on                                         |
 | ---------------------------------- | ----------------------------------------------------- |

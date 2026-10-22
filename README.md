@@ -23,7 +23,7 @@ Dice Chess for Amazon Fire TV: two players sharing one screen and remote, or a g
 - **Demo video:** <https://youtu.be/Xyz0KxkmxWU>, 2:50, published on October 19, 2026 ([`scripts/demo-video/`](scripts/demo-video/README.md)).
 - **Tutorial video:** <https://youtu.be/KK8BBICjaBQ>, 4:52, recorded on the Vega Virtual Device.
 - **GitHub releases:** the [releases page](https://github.com/fortemate/dicechess-tv/releases) has the latest release, its notes and its armv7, aarch64 and x86_64 packages.
-- **Amazon Appstore:** [Dice Chess](https://www.amazon.com/dp/B0HL6K9N47/), free, has been live since October 20, 2026, with version 1.0.1, build 30. The newer 1.0.2 through 1.0.5 releases are on GitHub only.
+- **Amazon Appstore:** [Dice Chess](https://www.amazon.com/dp/B0HL6K9N47/), free, has been live since October 20, 2026, and was updated to version 1.0.4, build 58, on October 22, 2026. Version 1.0.5, build 59, is on GitHub.
 - **Browser test bench:** [`web/`](web/README.md) draws the same screens in a browser for testers without an emulator. It is not device evidence.
 
 ## Try it
