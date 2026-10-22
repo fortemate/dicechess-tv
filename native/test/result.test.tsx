@@ -134,7 +134,10 @@ test('a rematch replaces the last word with the new game opening line', () => {
   // OK on Rematch, which has the focus.
   send('enter');
   const said = bubble(root);
-  assert.ok(said && linesOf('intro').includes(said), `not an intro: ${said}`);
+  assert.ok(
+    said && linesOf('rematch').includes(said),
+    `not a rematch line: ${said}`,
+  );
   assert.doesNotMatch(text(root), /What next\?/);
 });
 

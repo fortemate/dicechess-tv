@@ -144,8 +144,8 @@ const cueOf = (
 
 // ── The lines ──────────────────────────────────────────────────────────────────
 
-test('each host has lines of their own, numbered by event from 1: Prowla 54, Rolly 48, Thinkle 54 (#258, #279)', () => {
-  assert.equal(HOST_CATALOGUE.length, 156);
+test('each host has lines of their own, numbered by event from 1: Prowla 81, Rolly 77, Thinkle 81 (#258, #279)', () => {
+  assert.equal(HOST_CATALOGUE.length, 239);
   const ids = HOST_CATALOGUE.map((line) => line.id);
   assert.equal(new Set(ids).size, ids.length);
   const prefix: Record<HostId, string> = {
@@ -155,8 +155,8 @@ test('each host has lines of their own, numbered by event from 1: Prowla 54, Rol
   };
   const counts: Record<HostId, Record<HostEvent, number>> = {
     rolly: {
-      intro: 5,
-      again: 3,
+      intro: 10,
+      again: 10,
       handoff: 3,
       empty_roll: 4,
       capture_heavy: 5,
@@ -165,14 +165,14 @@ test('each host has lines of their own, numbered by event from 1: Prowla 54, Rol
       en_passant: 3,
       castling: 3,
       promotion: 3,
-      white_wins: 3,
-      black_wins: 3,
-      win: 2,
-      draw: 3,
+      white_wins: 6,
+      black_wins: 6,
+      win: 10,
+      draw: 6,
     },
     prowla: {
-      intro: 5,
-      again: 4,
+      intro: 10,
+      again: 10,
       handoff: 3,
       empty_roll: 5,
       capture_heavy: 5,
@@ -181,14 +181,14 @@ test('each host has lines of their own, numbered by event from 1: Prowla 54, Rol
       en_passant: 3,
       castling: 3,
       promotion: 4,
-      white_wins: 3,
-      black_wins: 3,
-      win: 3,
-      draw: 3,
+      white_wins: 6,
+      black_wins: 6,
+      win: 10,
+      draw: 6,
     },
     thinkle: {
-      intro: 5,
-      again: 4,
+      intro: 10,
+      again: 10,
       handoff: 3,
       empty_roll: 5,
       capture_heavy: 5,
@@ -197,10 +197,10 @@ test('each host has lines of their own, numbered by event from 1: Prowla 54, Rol
       en_passant: 3,
       castling: 3,
       promotion: 4,
-      white_wins: 3,
-      black_wins: 3,
-      win: 3,
-      draw: 3,
+      white_wins: 6,
+      black_wins: 6,
+      win: 10,
+      draw: 6,
     },
   };
   assert.deepEqual(HOST_IDS, ['prowla', 'rolly', 'thinkle']);
@@ -222,15 +222,15 @@ test('each host has lines of their own, numbered by event from 1: Prowla 54, Rol
     assert.ok(Object.hasOwn(HOST_EVENTS, line.event), line.id);
 });
 
-// Her bubble, above the bottom badge (#213), shows at most two rows of 20 dp
+// Her bubble, above the bottom badge (#213), shows at most three rows of 20 dp
 // text. It is about 30 dp wider than the one beside a bot's portrait, whose
 // rows held 23 characters on the Virtual Device (2026-10-03) when it was
 // narrower still, so rows of 25 leave room.
 const HOST_ROW_CHARACTERS = 25;
 
-test('every host line fits the two rows of her bubble', () => {
+test('every host line fits the three rows of her bubble', () => {
   const long = HOST_CATALOGUE.filter(
-    (line) => rowsOf(line.text, HOST_ROW_CHARACTERS) > 2,
+    (line) => rowsOf(line.text, HOST_ROW_CHARACTERS) > 3,
   ).map((line) => `${line.id} (${line.text})`);
   assert.deepEqual(long, []);
 });
@@ -238,7 +238,7 @@ test('every host line fits the two rows of her bubble', () => {
 test('every host line is short, plain ASCII, and names no chess check', () => {
   for (const { id, text } of HOST_CATALOGUE) {
     assert.match(text, /^[\x20-\x7e]+$/, id);
-    assert.ok(text.length <= 50, `${id} has ${text.length} characters`);
+    assert.ok(text.length <= 70, `${id} has ${text.length} characters`);
     // Dice Chess has no check: a king is taken.
     assert.doesNotMatch(text, /\b(check|checkmate|stalemate)\b/i, id);
   }
@@ -302,7 +302,7 @@ test('Prowla, hosting, says only her own lines', () => {
   const state = withHost(INITIAL_HOST_STATE, 'prowla');
   const first = hostVoiceCue(null, newGame('hotseat', 'one'), state);
   assert.equal(first.line?.host, 'prowla');
-  assert.match(first.line?.id ?? '', /^prowla_host_intro_[1-5]$/);
+  assert.match(first.line?.id ?? '', /^prowla_host_intro_(?:[1-9]|10)$/);
   // A color's win draws her colorless lines too, never Rolly's.
   const [before, after] = BLACK_TAKES_KING(4);
   for (const random of [() => 0, () => 0.99]) {
@@ -313,7 +313,7 @@ test('Prowla, hosting, says only her own lines', () => {
       random,
     );
     assert.equal(won.line?.host, 'prowla');
-    assert.match(won.line?.id ?? '', /^prowla_host_(black_wins|win)_\d$/);
+    assert.match(won.line?.id ?? '', /^prowla_host_(black_wins|win)_\d+$/);
   }
 });
 
@@ -321,7 +321,7 @@ test('Thinkle, hosting, says only his own lines (#279)', () => {
   const state = withHost(INITIAL_HOST_STATE, 'thinkle');
   const first = hostVoiceCue(null, newGame('hotseat', 'one'), state);
   assert.equal(first.line?.host, 'thinkle');
-  assert.match(first.line?.id ?? '', /^thinkle_host_intro_[1-5]$/);
+  assert.match(first.line?.id ?? '', /^thinkle_host_intro_(?:[1-9]|10)$/);
   const [before, after] = WHITE_TAKES_KING(4);
   for (const random of [() => 0, () => 0.99]) {
     const won = hostVoiceCue(
@@ -331,7 +331,7 @@ test('Thinkle, hosting, says only his own lines (#279)', () => {
       random,
     );
     assert.equal(won.line?.host, 'thinkle');
-    assert.match(won.line?.id ?? '', /^thinkle_host_(white_wins|win)_\d$/);
+    assert.match(won.line?.id ?? '', /^thinkle_host_(white_wins|win)_\d+$/);
   }
 });
 
@@ -355,7 +355,7 @@ test('another host starts with full bags, and keeps what the session has seen', 
   // Her next game opens with her own 'again'.
   const again = hostVoiceCue(null, newGame('hotseat', 'two'), prowla);
   assert.equal(again.event, 'again');
-  assert.match(again.line?.id ?? '', /^prowla_host_again_[1-4]$/);
+  assert.match(again.line?.id ?? '', /^prowla_host_again_(?:[1-9]|10)$/);
 });
 
 // ── Steps that are not pauses ─────────────────────────────────────────────────
@@ -731,7 +731,7 @@ test('every line of an event is heard before any repeats, and a refill never rep
   const random = seeded(7);
   let state = INITIAL_HOST_STATE;
   const heard: string[] = [];
-  for (let game = 0; game < 25; game++) {
+  for (let game = 0; game < 50; game++) {
     const cue = hostVoiceCue(
       null,
       newGame('hotseat', `g${game}`),
@@ -741,10 +741,10 @@ test('every line of an event is heard before any repeats, and a refill never rep
     heard.push(cue.line!.id);
     state = { ...cue.state, played: false };
   }
-  // Five intros a round, the bag kept from one game to the next.
+  // Ten intros a round, the bag kept from one game to the next.
   for (let round = 0; round < 5; round++)
     assert.deepEqual(
-      heard.slice(round * 5, round * 5 + 5).sort(),
+      heard.slice(round * 10, round * 10 + 10).sort(),
       ids('intro').sort(),
       `round ${round}`,
     );

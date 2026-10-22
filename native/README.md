@@ -25,7 +25,7 @@ Long-form technical documentation, platform findings, performance benchmarks and
 | `src/GameScreen.tsx`           | The board and side status panel, with menus, dialogs, and prompts.                              |
 | `src/Recovery.tsx`             | What a failure of the game screen shows: a way back that keeps the saved game (#255).           |
 | `src/Matchup.tsx`              | Matchup HUD: the bot's dialogue block or a badge per side; turn frame; the host.                |
-| `src/SpeechBubble.tsx`         | A line beside its speaker's portrait: 20 dp, three rows for a bot, two for the host.            |
+| `src/SpeechBubble.tsx`         | A line beside its speaker's portrait: 20 dp, four rows for a bot, three for the host.           |
 | `src/useBotVoice.ts`           | Picks the bot's lines as the game moves and how long each stays on screen.                      |
 | `src/useHostVoice.ts`          | Picks the host's lines at the pauses, says them, and returns the one to show.                   |
 | `src/screen.ts`                | The screen's whole flow, as a pure reducer over state and one action.                           |

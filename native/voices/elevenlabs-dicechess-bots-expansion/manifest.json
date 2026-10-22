@@ -1,0 +1,3712 @@
+{
+  "attributionRequired": false,
+  "casting": "casting.json",
+  "clients": [
+    "fortemate/dicechess-tv"
+  ],
+  "derivation": {
+    "arguments": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+    "note": "Each export is its source with the gain that brings it to the target loudness, measured by ffmpeg's ebur128 filter, then a limiter, as mono MP3 without metadata. Where the limiter takes more than 0.5 LU, the gain is raised by the difference and the conversion made again, up to 3 conversions in all.",
+    "target": {
+      "bitrate": "64k",
+      "integratedLufs": -16,
+      "limitDbfs": -1.5
+    },
+    "tool": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers"
+  },
+  "directions": "directions.json",
+  "distribution": "project",
+  "generator": {
+    "kind": "voices",
+    "note": "Generation authorized by the owner on October 21, 2026 while the Creator subscription is active. Existing Fortemate apps-only restrictions apply. Provider-policy correspondence is not resolved or represented as approval by this pack.",
+    "tool": "ElevenLabs",
+    "via": "tools/elevenlabs_audio.py; existing voice IDs and model settings"
+  },
+  "id": "elevenlabs-dicechess-bots-expansion",
+  "license": "Fortemate apps only",
+  "licenseFile": "LICENSE.txt",
+  "lines": {
+    "grabby_intro_10": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[smug] I've cleared a lovely spot for today's finds.",
+      "durationSeconds": 3.52,
+      "event": "intro",
+      "export": "exports/mp3/grabby_intro_10.mp3",
+      "generated": "2026-10-21T17:15:19Z",
+      "loudness": {
+        "exportLufs": -16.6,
+        "gainDb": 6.6,
+        "passes": 3,
+        "sourceLufs": -20.3
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "hGqUCsAiVS7IFK4vNzvt",
+      "seed": 2771288274,
+      "sha256": "4f8c14c9b6f13b2b4db1a40cd48c765a78bd5f7d38f44c560aa194c98c0e45e9",
+      "source": "source/mp3/grabby_intro_10.mp3",
+      "sourceSha256": "66be057c76cf80ca0438596afca8614c81b4f2bb340ca73d03a9ff44678d3901",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "I've cleared a lovely spot for today's finds.",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_intro_11": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] A visitor and a board full of curiosities. Delightful!",
+      "durationSeconds": 4.96,
+      "event": "intro",
+      "export": "exports/mp3/grabby_intro_11.mp3",
+      "generated": "2026-10-21T17:15:21Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 8.4,
+        "passes": 3,
+        "sourceLufs": -21.0
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "V1S3Jzs6KbdmK2IjdzJp",
+      "seed": 1272331676,
+      "sha256": "5461ac2b723003e50a71c8392ee54d81d111dfbea4b6c959f50d582fa64deadb",
+      "source": "source/mp3/grabby_intro_11.mp3",
+      "sourceSha256": "b4dfa8bacb7620f30cad6f2e680bbbe7dbafea628c04e05e7358cf345ce9be3d",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "A visitor and a board full of curiosities. Delightful!",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_intro_12": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[mischievously] My collection could use a few finishing touches.",
+      "durationSeconds": 3.92,
+      "event": "intro",
+      "export": "exports/mp3/grabby_intro_12.mp3",
+      "generated": "2026-10-21T17:15:22Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 10.0,
+        "passes": 2,
+        "sourceLufs": -24.5
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "s7zuZSFa6H358rBYxe6V",
+      "seed": 29518552,
+      "sha256": "3ef3f3a7c802c5535f7f5259631f39655a13fb6e6e6737a235c8192c428084a4",
+      "source": "source/mp3/grabby_intro_12.mp3",
+      "sourceSha256": "f25fede88d6e3baa0e26d30b64ba1e39a7fe928d6f8b4e0b96417bd336e5c2ff",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "My collection could use a few finishing touches.",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_intro_13": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[smug] Shall we begin? I have a great deal of admiring to do.",
+      "durationSeconds": 4.8,
+      "event": "intro",
+      "export": "exports/mp3/grabby_intro_13.mp3",
+      "generated": "2026-10-21T17:15:24Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 6.4,
+        "passes": 3,
+        "sourceLufs": -20.4
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "tmzeyehPbIYdZdDARiQP",
+      "seed": 3535808342,
+      "sha256": "ba475ca3e6f45429231887a64f5ebe68c63a5b0feefb4d5855c0a7fb5ba8a8ef",
+      "source": "source/mp3/grabby_intro_13.mp3",
+      "sourceSha256": "7f7f5077794fa25a2b374f65e1e258d216f13a4926ee155b953958a0277c34f5",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Shall we begin? I have a great deal of admiring to do.",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_intro_14": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] What lovely craftsmanship. Especially on your side.",
+      "durationSeconds": 4.32,
+      "event": "intro",
+      "export": "exports/mp3/grabby_intro_14.mp3",
+      "generated": "2026-10-21T17:15:25Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 6.9,
+        "passes": 3,
+        "sourceLufs": -20.9
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "HVlZdDHwl8YqQAWTzvBm",
+      "seed": 1633670478,
+      "sha256": "5ec6169276b2ecdaebaec262cdcb4c0e2b80c107872dd883016fd1a78c53f809",
+      "source": "source/mp3/grabby_intro_14.mp3",
+      "sourceSha256": "f60ad1ff256e317f7b621e8cc567f78c5a5fc15b2ea26a91d9fa3b38d1ad0da4",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "What lovely craftsmanship. Especially on your side.",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_intro_15": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[mischievously] Hands off my treasures, and do enjoy the game.",
+      "durationSeconds": 4.16,
+      "event": "intro",
+      "export": "exports/mp3/grabby_intro_15.mp3",
+      "generated": "2026-10-21T17:15:27Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 7.6,
+        "passes": 3,
+        "sourceLufs": -21.4
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "WB31A59kQz2VFpggd5Xd",
+      "seed": 4266158252,
+      "sha256": "da23e03a5f159aaba2c55514d81ddc2607344ac21b54eb89cd6645f641368689",
+      "source": "source/mp3/grabby_intro_15.mp3",
+      "sourceSha256": "5f3faf3a86c9061dbd4f3eb475c82460dcbbfc33b7f179acb802e4caecef0339",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Hands off my treasures, and do enjoy the game.",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_intro_6": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[mischievously] Welcome! Please admire my collection from a distance.",
+      "durationSeconds": 4.56,
+      "event": "intro",
+      "export": "exports/mp3/grabby_intro_6.mp3",
+      "generated": "2026-10-21T17:14:06Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 8.4,
+        "passes": 3,
+        "sourceLufs": -22.3
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "O712Qh8kOAlt1OheT3Rb",
+      "seed": 2804118844,
+      "sha256": "8267fec232dd8fde450996ff5dd4527a312e3189fa4a862f82b6d9c03df59119",
+      "source": "source/mp3/grabby_intro_6.mp3",
+      "sourceSha256": "d6c284fd154c8e2d0770c436fea03297e6aad7147211f4c8ac416c6e37fc2029",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Welcome! Please admire my collection from a distance.",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_intro_7": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[smug] Every piece has a place. Preferably on my shelf.",
+      "durationSeconds": 4.16,
+      "event": "intro",
+      "export": "exports/mp3/grabby_intro_7.mp3",
+      "generated": "2026-10-21T17:14:08Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 10.4,
+        "passes": 3,
+        "sourceLufs": -24.0
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "n6ConzVIlD9SLbsfGb8d",
+      "seed": 1379157541,
+      "sha256": "61ef2453de059ed3b41f8dc51f6cb0ddded5acc11600f2a660a6e989354e5670",
+      "source": "source/mp3/grabby_intro_7.mp3",
+      "sourceSha256": "d26dcb490dceb499b31080f6b07ecc331ba2a25b87788e087a32155907b9bb51",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Every piece has a place. Preferably on my shelf.",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_intro_8": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] Do come in. Mind the display cases.",
+      "durationSeconds": 3.28,
+      "event": "intro",
+      "export": "exports/mp3/grabby_intro_8.mp3",
+      "generated": "2026-10-21T17:15:15Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 5.7,
+        "passes": 2,
+        "sourceLufs": -20.8
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "6L8MzpLd1dNT8CLxl8y7",
+      "seed": 1286060536,
+      "sha256": "aee1d5b74376a191c5e7b9354df46d0265ac9cf3b72c42edad9910a3b8f9b9fd",
+      "source": "source/mp3/grabby_intro_8.mp3",
+      "sourceSha256": "d0f47a5ed5fd9464fefca8176ef035bb526039fedc8439d17816056b233d4f34",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Do come in. Mind the display cases.",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_intro_9": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[mischievously] Such fine pieces! I shall try not to stare.",
+      "durationSeconds": 4.8,
+      "event": "intro",
+      "export": "exports/mp3/grabby_intro_9.mp3",
+      "generated": "2026-10-21T17:15:17Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 8.1,
+        "passes": 3,
+        "sourceLufs": -22.0
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "1bStJNa40OyHLR2L2lsb",
+      "seed": 1629217203,
+      "sha256": "5d2b09b48d5ba0dfda711d33ebaf6c6d77cc6a96648597a64b02cd602a5b13cd",
+      "source": "source/mp3/grabby_intro_9.mp3",
+      "sourceSha256": "1d0ef19fe50b854282cb61249ef8aec85fe083c1d49a9d26714778115fc2182a",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Such fine pieces! I shall try not to stare.",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_loss_10": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[annoyed] There must be a shelf somewhere for disappointments.",
+      "durationSeconds": 3.36,
+      "event": "loss",
+      "export": "exports/mp3/grabby_loss_10.mp3",
+      "generated": "2026-10-22T08:34:49Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 7.2,
+        "passes": 3,
+        "sourceLufs": -21.0
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "dGfFIT2azccJS4U60O0x",
+      "seed": 2945607398,
+      "sha256": "612bb07fb7316a21ffae6b7e59632713547180a4f86d12051d5e3d3e6865607d",
+      "source": "source/mp3/grabby_loss_10.mp3",
+      "sourceSha256": "31c69dfbd2b49e8642e1d8dfdcff2a539688a4457a299b6c962aec7c5a5b5d9d",
+      "take": 2,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "There must be a shelf somewhere for disappointments.",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_loss_11": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[sighs] Defeat? I certainly didn't order one of those!",
+      "durationSeconds": 4.4,
+      "event": "loss",
+      "export": "exports/mp3/grabby_loss_11.mp3",
+      "generated": "2026-10-21T17:15:33Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 5.5,
+        "passes": 2,
+        "sourceLufs": -20.7
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "XeIAr86gRBwfngTEaWEF",
+      "seed": 2030874928,
+      "sha256": "a35653c698769c0a028450f5efb56767801aa38dbee125b63d0c782a753eda24",
+      "source": "source/mp3/grabby_loss_11.mp3",
+      "sourceSha256": "1d15f166fff63e9069b0792f2bd39c42d8d49cce7ba975b56443a5f7b5bd6088",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Defeat? I certainly didn't order one of those!",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_loss_12": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[frustrated] My victory display was ready! Now look at it!",
+      "durationSeconds": 3.6,
+      "event": "loss",
+      "export": "exports/mp3/grabby_loss_12.mp3",
+      "generated": "2026-10-21T17:15:34Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 1.6,
+        "passes": 2,
+        "sourceLufs": -17.0
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "RJLB1bXFrxKrAYEJOaDa",
+      "seed": 151484135,
+      "sha256": "83fed81482144b8a0910cc8c02c860efb52a409263ddd7892e12aa2af7adb5f3",
+      "source": "source/mp3/grabby_loss_12.mp3",
+      "sourceSha256": "8f84bdde6dbef6ff3029af038fcf0c24a697104e4dff7ea916e777b98e8cc468",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "My victory display was ready! Now look at it!",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_loss_13": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[annoyed] Oh, bother. I'll have to dust my wounded pride.",
+      "durationSeconds": 4.16,
+      "event": "loss",
+      "export": "exports/mp3/grabby_loss_13.mp3",
+      "generated": "2026-10-21T17:15:36Z",
+      "loudness": {
+        "exportLufs": -16.9,
+        "gainDb": 12.1,
+        "passes": 3,
+        "sourceLufs": -24.3
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "2TStV1WkCH7vhJNGsDAe",
+      "seed": 3829963397,
+      "sha256": "75ba81a06657dbcd562bd6d3c38bc97d86eb494fb007c94a572373684fbca2ee",
+      "source": "source/mp3/grabby_loss_13.mp3",
+      "sourceSha256": "2adff671e5528393cb8cc8909b644438ad21a45dc3234eeafb91863e6abfc232",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Oh, bother. I'll have to dust my wounded pride.",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_loss_14": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[sighs] Very well. Your win. My extremely dignified sulk.",
+      "durationSeconds": 6.24,
+      "event": "loss",
+      "export": "exports/mp3/grabby_loss_14.mp3",
+      "generated": "2026-10-21T17:15:38Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 6.2,
+        "passes": 2,
+        "sourceLufs": -21.3
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "KAzi7auo56Z82GEhmnq1",
+      "seed": 2822383151,
+      "sha256": "74af69b2bebe9563ed04af1223fa1d8d2b1a61f48006bc104c0b00adb79c49dc",
+      "source": "source/mp3/grabby_loss_14.mp3",
+      "sourceSha256": "c0c7d16a22f4bae6f41e8705c90da3df12fdee08a270ead1c5927b82a149bf60",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Very well. Your win. My extremely dignified sulk.",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_loss_15": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[frustrated] Hmph! I shall label this a temporary setback.",
+      "durationSeconds": 3.68,
+      "event": "loss",
+      "export": "exports/mp3/grabby_loss_15.mp3",
+      "generated": "2026-10-21T17:15:39Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 4.8,
+        "passes": 2,
+        "sourceLufs": -19.9
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "GnZ3wphNsfpWqdf8Pt5w",
+      "seed": 1119741668,
+      "sha256": "1efdd815a9af08a70a35e2203b8f80004da887e5f4e05f172ccf04b9ea44607c",
+      "source": "source/mp3/grabby_loss_15.mp3",
+      "sourceSha256": "9a6e137d0f611ec97f1f09f8ec985ed447122de7c19874e3667a36f0a387ea6e",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Hmph! I shall label this a temporary setback.",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_loss_6": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[frustrated] I lost? But I had such a splendid victory grin!",
+      "durationSeconds": 4.16,
+      "event": "loss",
+      "export": "exports/mp3/grabby_loss_6.mp3",
+      "generated": "2026-10-21T17:14:10Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 1.3,
+        "passes": 1,
+        "sourceLufs": -17.3
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "kShVkfEUYGnsSODbQyVQ",
+      "seed": 1420110813,
+      "sha256": "a6ff668522231e5fd132a3516d3afdff08fe60c771b0cd9d3d04cb7e76d59dc7",
+      "source": "source/mp3/grabby_loss_6.mp3",
+      "sourceSha256": "4cb77a5f083d705fcec06c8793cc8d168892dd680f666776f09458de8d278f05",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "I lost? But I had such a splendid victory grin!",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_loss_7": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[annoyed] My collection and I would like a moment alone.",
+      "durationSeconds": 3.12,
+      "event": "loss",
+      "export": "exports/mp3/grabby_loss_7.mp3",
+      "generated": "2026-10-21T17:14:11Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 2.9,
+        "passes": 2,
+        "sourceLufs": -18.3
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "fuAxpgNMzjAn1bZkbh9p",
+      "seed": 3390653351,
+      "sha256": "a063c63c2919d72d0b8708848bdbdeea1f0a1abb84800a3924f71cdc4f12feab",
+      "source": "source/mp3/grabby_loss_7.mp3",
+      "sourceSha256": "8530d7d883fb6b93519c3cee32a996fa96b17b24e221d1602f28d646075b3307",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "My collection and I would like a moment alone.",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_loss_8": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[sighs] Hmph! That result is going in the back cupboard.",
+      "durationSeconds": 4.56,
+      "event": "loss",
+      "export": "exports/mp3/grabby_loss_8.mp3",
+      "generated": "2026-10-21T17:15:29Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 4.5,
+        "passes": 3,
+        "sourceLufs": -18.9
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "mljB8A3SzV51vlGyfySt",
+      "seed": 2355635616,
+      "sha256": "ac8f7cc0d602791758ccd21f1c0fdf56d0b8dc8640f3611d2ac661183abcd7d2",
+      "source": "source/mp3/grabby_loss_8.mp3",
+      "sourceSha256": "aab6a8a3bf55533cabe12491f7938dcf126a6620f8351ca2fd7ee72ceac9a6eb",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Hmph! That result is going in the back cupboard.",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_loss_9": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[frustrated] You won? How dreadfully inconvenient for me!",
+      "durationSeconds": 4.0,
+      "event": "loss",
+      "export": "exports/mp3/grabby_loss_9.mp3",
+      "generated": "2026-10-21T17:15:30Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 4.1,
+        "passes": 2,
+        "sourceLufs": -19.2
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "wEbUecudTDqhZMJR1DCi",
+      "seed": 2286377241,
+      "sha256": "543968f56debf7f55c07494cfa16280f94b5329e245786493b2d561dcbe0d8ac",
+      "source": "source/mp3/grabby_loss_9.mp3",
+      "sourceSha256": "bbca9a4e7bb8ae308be9be0353263b9e8c4a743c9798876fd8be3463fd228b6d",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "You won? How dreadfully inconvenient for me!",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_rematch_10": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[mischievously] A fresh collection awaits. Shall we?",
+      "durationSeconds": 3.44,
+      "event": "rematch",
+      "export": "exports/mp3/grabby_rematch_10.mp3",
+      "generated": "2026-10-21T17:15:57Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 9.9,
+        "passes": 2,
+        "sourceLufs": -24.6
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "t1g2TnMlmH6RI8VY3bt2",
+      "seed": 4125373778,
+      "sha256": "6c91bd22440b343d0b8ef981b173f3c7a67ff78216a9001d1a7c64cd1bda6a16",
+      "source": "source/mp3/grabby_rematch_10.mp3",
+      "sourceSha256": "e0caab4ceb994afbb5a9077709f382b883f866fe5047a8c58518bf58a07c8df2",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "A fresh collection awaits. Shall we?",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_rematch_4": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[mischievously] Another round? Let me straighten my crown.",
+      "durationSeconds": 3.68,
+      "event": "rematch",
+      "export": "exports/mp3/grabby_rematch_4.mp3",
+      "generated": "2026-10-21T17:15:49Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 8.2,
+        "passes": 3,
+        "sourceLufs": -22.4
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "VS5U4aD8ZrkhNypHX1BO",
+      "seed": 2462430963,
+      "sha256": "becc29b0d689ea60eb94f60272aae8b5ac27b06a99c36e97ed19b2fd8ce76a8d",
+      "source": "source/mp3/grabby_rematch_4.mp3",
+      "sourceSha256": "b5abd73a0e21a58cd64e3931faf5f794ccf9a4e09a0aeb98d601503c2864eb93",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Another round? Let me straighten my crown.",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_rematch_5": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[gleeful] Very well. I can always find room for more pieces.",
+      "durationSeconds": 4.32,
+      "event": "rematch",
+      "export": "exports/mp3/grabby_rematch_5.mp3",
+      "generated": "2026-10-21T17:15:50Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 4.1,
+        "passes": 2,
+        "sourceLufs": -19.4
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "Ov5Hmq4WDlJPtDLxI8S5",
+      "seed": 2565858061,
+      "sha256": "f53c51c84db05851caf30fc7de659d3e4e9ff5b80a162fbbf694a681560f89b8",
+      "source": "source/mp3/grabby_rematch_5.mp3",
+      "sourceSha256": "44c9fef0822e101a741f4cd4f460385769fa7e53bebab317060fa6e6b77027e8",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Very well. I can always find room for more pieces.",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_rematch_6": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[smug] Shall we reopen the display cases?",
+      "durationSeconds": 2.88,
+      "event": "rematch",
+      "export": "exports/mp3/grabby_rematch_6.mp3",
+      "generated": "2026-10-21T17:15:51Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 6.3,
+        "passes": 2,
+        "sourceLufs": -21.7
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "pN1rqNyC3EhVEueuyEIX",
+      "seed": 542240619,
+      "sha256": "1588038547278668dce46be6c3aafe11e02a3337991574c1156dffba3aaa3e29",
+      "source": "source/mp3/grabby_rematch_6.mp3",
+      "sourceSha256": "3e8e8ec891115c3bc1532c8ff1e1b6cbc2b952448caa99b64d455fe9f45608df",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Shall we reopen the display cases?",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_rematch_7": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[mischievously] Back to the board! The shelves won't fill themselves.",
+      "durationSeconds": 4.08,
+      "event": "rematch",
+      "export": "exports/mp3/grabby_rematch_7.mp3",
+      "generated": "2026-10-21T17:15:53Z",
+      "loudness": {
+        "exportLufs": -16.1,
+        "gainDb": 3.5,
+        "passes": 2,
+        "sourceLufs": -18.9
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "cCYGIIlzTDjQpF3vSGx5",
+      "seed": 3548262658,
+      "sha256": "94fd7418f1f489af3be10eafc84889a869761c0a325e3d8ce9d73811d17185b1",
+      "source": "source/mp3/grabby_rematch_7.mp3",
+      "sourceSha256": "65991f06df54d85220ac67cafc1282f64e96046a4d98abe428bb7f55a57e1bff",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Back to the board! The shelves won't fill themselves.",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_rematch_8": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[gleeful] One more game? How thoughtful of you.",
+      "durationSeconds": 3.28,
+      "event": "rematch",
+      "export": "exports/mp3/grabby_rematch_8.mp3",
+      "generated": "2026-10-21T17:15:54Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 4.0,
+        "passes": 2,
+        "sourceLufs": -19.2
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "cijC7bEDF95gZnQeaWZ6",
+      "seed": 3756153168,
+      "sha256": "d36e85e395a09f138151f19fd8f78a2ff8550f0a97c129d139958e6bb48c2859",
+      "source": "source/mp3/grabby_rematch_8.mp3",
+      "sourceSha256": "923128f4c413b1ec93698b77367c296f64dc3994332d991b01184c8e9f46102f",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "One more game? How thoughtful of you.",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_rematch_9": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[smug] Again, then! I'll bring my finest collecting grin.",
+      "durationSeconds": 4.48,
+      "event": "rematch",
+      "export": "exports/mp3/grabby_rematch_9.mp3",
+      "generated": "2026-10-21T17:15:56Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 3.5,
+        "passes": 2,
+        "sourceLufs": -18.8
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "Vp8vYnDNJivRAr5kIEHz",
+      "seed": 462985743,
+      "sha256": "7a3269f30c3222716d83f7c408793de33994d8d9304c2541570c092913f14ed8",
+      "source": "source/mp3/grabby_rematch_9.mp3",
+      "sourceSha256": "52f52415ccf25689824190f32cd9a869cf485865e4bedac2114ebf44b3ca3130",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Again, then! I'll bring my finest collecting grin.",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_win_10": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[smug] I win! My victory grin fits perfectly.",
+      "durationSeconds": 4.0,
+      "event": "win",
+      "export": "exports/mp3/grabby_win_10.mp3",
+      "generated": "2026-10-21T17:15:47Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 3.8,
+        "passes": 2,
+        "sourceLufs": -19.2
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "IPjwEilNBk4e1o5KJl5r",
+      "seed": 2876639423,
+      "sha256": "79ddfe5662fdd67a1d39b01d4cf2d5033db0e475357bae88abbe16dbc6638afe",
+      "source": "source/mp3/grabby_win_10.mp3",
+      "sourceSha256": "0874ff3b4f9ed5faca2fb1fbc1f2eade6e4a5fdc119f68a751f418025e006f94",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "I win! My victory grin fits perfectly.",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_win_6": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[gleeful] A victory! The perfect addition to my collection.",
+      "durationSeconds": 4.08,
+      "event": "win",
+      "export": "exports/mp3/grabby_win_6.mp3",
+      "generated": "2026-10-21T17:15:41Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 4.4,
+        "passes": 2,
+        "sourceLufs": -19.4
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "cxF41v6mun897FGIDYHY",
+      "seed": 2432170433,
+      "sha256": "fb6d753ce2218741d808d72f62b81c86850ea799555486fc5abbd8fc346d4f10",
+      "source": "source/mp3/grabby_win_6.mp3",
+      "sourceSha256": "5621d28925af7cadfe6b7d1c1ae6a561e9884f14911d7ab53132621c6bde93df",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "A victory! The perfect addition to my collection.",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_win_7": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[smug] Splendid! I'll put this win on the top shelf.",
+      "durationSeconds": 4.0,
+      "event": "win",
+      "export": "exports/mp3/grabby_win_7.mp3",
+      "generated": "2026-10-21T17:15:42Z",
+      "loudness": {
+        "exportLufs": -16.1,
+        "gainDb": 4.2,
+        "passes": 2,
+        "sourceLufs": -19.5
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "Y14oLrgeVhFy9zW79bDz",
+      "seed": 3811670165,
+      "sha256": "6548c6db5ae84e23ad52ace08ae1a8d77273bef0ceab13f36523a89354782bf4",
+      "source": "source/mp3/grabby_win_7.mp3",
+      "sourceSha256": "904d21d38a31c30b15d01267a4ee78fea0009ff8346b34f1591202d77e581e7f",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Splendid! I'll put this win on the top shelf.",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_win_8": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[laughs] Mine, all mine! What a delightful result.",
+      "durationSeconds": 5.44,
+      "event": "win",
+      "export": "exports/mp3/grabby_win_8.mp3",
+      "generated": "2026-10-21T17:15:44Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": -1.2,
+        "passes": 1,
+        "sourceLufs": -14.8
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "YKbi3eo9F7n8denzvhEw",
+      "seed": 3090416117,
+      "sha256": "cbf3f8437605d4ddcf2951bd33dfb6f5cf90722e50107745b924312f30066833",
+      "source": "source/mp3/grabby_win_8.mp3",
+      "sourceSha256": "df7e29b7cceac5d406d958ce6d5ea1062647d6ef9a8cd9427c58d4c3c42736ee",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Mine, all mine! What a delightful result.",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "grabby_win_9": {
+      "bot": "greedy",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[gleeful] Another space in the cabinet filled. Excellent!",
+      "durationSeconds": 3.92,
+      "event": "win",
+      "export": "exports/mp3/grabby_win_9.mp3",
+      "generated": "2026-10-21T17:15:46Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 3.8,
+        "passes": 2,
+        "sourceLufs": -18.9
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "RUc1rMkGE5rwBHYBgSMU",
+      "seed": 3191754018,
+      "sha256": "f048e1662cdb60e9c0432c6786dff74bb191e03f2c58dcbce8393cb1d0b770ae",
+      "source": "source/mp3/grabby_win_9.mp3",
+      "sourceSha256": "353c55e5ef807dee77f50e3b2a3800e4e7f4ca1498c2b246676143db4658988a",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Another space in the cabinet filled. Excellent!",
+      "voice": "Grabby",
+      "voiceId": "f9EKEWtbCudAsdt40nCS",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_intro_10": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[excited] Helmet straight! Cape ready! Let us begin!",
+      "durationSeconds": 4.56,
+      "event": "intro",
+      "export": "exports/mp3/rampage_intro_10.mp3",
+      "generated": "2026-10-21T17:16:02Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 1.0,
+        "passes": 1,
+        "sourceLufs": -17.0
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "6OuXbBhJNN87lli1A5T8",
+      "seed": 2200300160,
+      "sha256": "3415285dc0c5917f077227e43b5bf66b749cc56c9d3b14427866e49e142cf6e0",
+      "source": "source/mp3/rampage_intro_10.mp3",
+      "sourceSha256": "d1c494a579c612777c6afc209c69603bf6c58e549513cdfe0fc41e931c058189",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Helmet straight! Cape ready! Let us begin!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_intro_11": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[dramatic] The fortress gates are open. Enter if you dare!",
+      "durationSeconds": 4.72,
+      "event": "intro",
+      "export": "exports/mp3/rampage_intro_11.mp3",
+      "generated": "2026-10-21T17:16:04Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 2.4,
+        "passes": 1,
+        "sourceLufs": -18.4
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "jS1kuUV48No6wMalL04I",
+      "seed": 105153651,
+      "sha256": "21e072ff6361dc9b88f76725a3143ccbd95094a7df8157b827fc850d9ab8a7c9",
+      "source": "source/mp3/rampage_intro_11.mp3",
+      "sourceSha256": "d4dbb6713f0c481cadcab97a7331e2b0682879aff27b2efc1c2b2847072f37fe",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "The fortress gates are open. Enter if you dare!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_intro_12": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[shouting] Behold my mighty army! Small pieces, enormous ambition!",
+      "durationSeconds": 6.4,
+      "event": "intro",
+      "export": "exports/mp3/rampage_intro_12.mp3",
+      "generated": "2026-10-21T17:16:05Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 0.7,
+        "passes": 1,
+        "sourceLufs": -16.7
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "aM6iR5VYncGzBa0nEmW7",
+      "seed": 2934852336,
+      "sha256": "4cab24ef0944a6fb653d0dd7880c860c3ea0971e52c0ab7402c42e00b2445b92",
+      "source": "source/mp3/rampage_intro_12.mp3",
+      "sourceSha256": "925adefa67f185e44ed5a0460fcc1aa183ec04ac1c3c78a3c167ded058a8e523",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Behold my mighty army! Small pieces, enormous ambition!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_intro_13": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[excited] Drums! Trumpets! Somebody announce me properly!",
+      "durationSeconds": 4.56,
+      "event": "intro",
+      "export": "exports/mp3/rampage_intro_13.mp3",
+      "generated": "2026-10-21T17:16:07Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 0.8,
+        "passes": 1,
+        "sourceLufs": -16.8
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "zZmwKqIXWJkNVqbkpuY2",
+      "seed": 2170893069,
+      "sha256": "2bc5c102e4ca9ead90bfc717ccc8deb3ca7e948ffe6ec97cdd3eaa9c5701eb35",
+      "source": "source/mp3/rampage_intro_13.mp3",
+      "sourceSha256": "47c1667454d453cce56c3f315ab6627c3c38468ffbb6f55f62c4f41decf5b0f0",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Drums! Trumpets! Somebody announce me properly!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_intro_14": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[dramatic] I have polished my horns for this occasion!",
+      "durationSeconds": 3.52,
+      "event": "intro",
+      "export": "exports/mp3/rampage_intro_14.mp3",
+      "generated": "2026-10-21T17:16:08Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 2.6,
+        "passes": 1,
+        "sourceLufs": -18.6
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "C8A2fbOwyKPw7ReYgkGI",
+      "seed": 1046297256,
+      "sha256": "4c96aa41963826226c96e53317f67bd0852b5180dec532f4a7ca1e55d184aa0d",
+      "source": "source/mp3/rampage_intro_14.mp3",
+      "sourceSha256": "476790f2f4ddf4fac0cd13ddc188d6be511fa275f9a1d7d1241343fa9332f268",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "I have polished my horns for this occasion!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_intro_15": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[shouting] Let the dice rumble! My grand campaign begins!",
+      "durationSeconds": 5.12,
+      "event": "intro",
+      "export": "exports/mp3/rampage_intro_15.mp3",
+      "generated": "2026-10-21T17:16:10Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 0.6,
+        "passes": 1,
+        "sourceLufs": -16.6
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "LWFdSuSEJkqc9nIwNQNe",
+      "seed": 3237060466,
+      "sha256": "2145561568c9f2305324447acaf090e03bc58321ec0f2d2def19ce6853e731f8",
+      "source": "source/mp3/rampage_intro_15.mp3",
+      "sourceSha256": "8e6c32ccb459b3e6573dac825e19f007081ed48a9e81e9ed3f6cc2cb849f8afe",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Let the dice rumble! My grand campaign begins!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_intro_6": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[shouting] Raise the banners! This board is my battlefield!",
+      "durationSeconds": 4.8,
+      "event": "intro",
+      "export": "exports/mp3/rampage_intro_6.mp3",
+      "generated": "2026-10-21T17:14:13Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 0.2,
+        "passes": 1,
+        "sourceLufs": -16.2
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "nLkKlrBoAt5iKoZyhwXu",
+      "seed": 2952199489,
+      "sha256": "a6a11806d5dafe9ad18176b03f9dea0613e56edd47d207728347552edf2a58e0",
+      "source": "source/mp3/rampage_intro_6.mp3",
+      "sourceSha256": "956e2e83fc0c1d05bce9d436aecc2485adf14dbfd833a8f936d977c7c8b68619",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Raise the banners! This board is my battlefield!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_intro_7": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[excited] Attention, pieces! Your magnificent commander has arrived!",
+      "durationSeconds": 4.88,
+      "event": "intro",
+      "export": "exports/mp3/rampage_intro_7.mp3",
+      "generated": "2026-10-21T17:14:15Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 0.8,
+        "passes": 1,
+        "sourceLufs": -16.8
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "VmZaCvuj9tXPNESvIgMm",
+      "seed": 1767419325,
+      "sha256": "83b59726016304d259627f6aa3d34d3649cb56bfc9303dfb101772550b47a29a",
+      "source": "source/mp3/rampage_intro_7.mp3",
+      "sourceSha256": "97b01b7184b8555ee98f449b15be1f374e6ae53ad25b14e6ad490f6871521e11",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Attention, pieces! Your magnificent commander has arrived!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_intro_8": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[dramatic] I brought my loudest battle cry. Ready?",
+      "durationSeconds": 3.92,
+      "event": "intro",
+      "export": "exports/mp3/rampage_intro_8.mp3",
+      "generated": "2026-10-21T17:15:59Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 1.4,
+        "passes": 1,
+        "sourceLufs": -17.4
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "HdJO5RTezOjpKF6Lim4x",
+      "seed": 1802125896,
+      "sha256": "01c25cc914f82d89b1a6d77eb155bdfc46f870c74a1367aaafea9a4e0af453cb",
+      "source": "source/mp3/rampage_intro_8.mp3",
+      "sourceSha256": "3255705100db9d5120066063fe40feaddcc3cbd920dbf0591555fe77791b32c9",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "I brought my loudest battle cry. Ready?",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_intro_9": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[shouting] Stand by! A very important conquest is about to begin!",
+      "durationSeconds": 5.12,
+      "event": "intro",
+      "export": "exports/mp3/rampage_intro_9.mp3",
+      "generated": "2026-10-21T17:16:00Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 0.9,
+        "passes": 1,
+        "sourceLufs": -16.9
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "scqxPa7OPfDeHYdaxnNM",
+      "seed": 2540173525,
+      "sha256": "0324ff340653b0b54c104967f742ab2778387610620d1d4b4aa2362c84647d60",
+      "source": "source/mp3/rampage_intro_9.mp3",
+      "sourceSha256": "52e1920484648a3af5ef4e4e8e1abfb3146d40548b5b8db53be2c48b7e1f39df",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Stand by! A very important conquest is about to begin!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_loss_10": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[frustrated] This cape is not equipped for disappointment!",
+      "durationSeconds": 3.36,
+      "event": "loss",
+      "export": "exports/mp3/rampage_loss_10.mp3",
+      "generated": "2026-10-21T17:16:14Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 1.9,
+        "passes": 1,
+        "sourceLufs": -17.9
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "85fx0z02sATd9cYjpGTB",
+      "seed": 1625461057,
+      "sha256": "1d5af97751de5775b764ca96c341f5286f18b43fda02fa10eb0c6f9a59ff2db0",
+      "source": "source/mp3/rampage_loss_10.mp3",
+      "sourceSha256": "bdb9824c634a7a4d3bb4717402ef93b2b4954a037a518161b08fb6a21a943557",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "This cape is not equipped for disappointment!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_loss_11": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[angry] Beaten! And in front of all my pieces!",
+      "durationSeconds": 3.6,
+      "event": "loss",
+      "export": "exports/mp3/rampage_loss_11.mp3",
+      "generated": "2026-10-21T17:16:16Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 1.2,
+        "passes": 1,
+        "sourceLufs": -17.2
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "Xvk6gwIOw83jiJ9KJDuk",
+      "seed": 2494334414,
+      "sha256": "04d02830b169af9da1e5a1e019318764d9b16f725d0731e2ff563907e24e8f88",
+      "source": "source/mp3/rampage_loss_11.mp3",
+      "sourceSha256": "1549ed384c610cd318d968856ae671129901bbb5aa4b0cc56ddd2f8d5362f483",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Beaten! And in front of all my pieces!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_loss_12": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[gasps] My grand triumph appears to be missing!",
+      "durationSeconds": 3.84,
+      "event": "loss",
+      "export": "exports/mp3/rampage_loss_12.mp3",
+      "generated": "2026-10-21T17:16:17Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 1.0,
+        "passes": 1,
+        "sourceLufs": -17.0
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "9oyrflZIJKcy5aZ2dJrW",
+      "seed": 2065762045,
+      "sha256": "f82a6a66fbc129ccf195891327104cbe893650b3193610d71eb642292166601c",
+      "source": "source/mp3/rampage_loss_12.mp3",
+      "sourceSha256": "7ec7aacc32ec219912b180cc51802466cefb4ecb0a1973ef68e4246816843f8a",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "My grand triumph appears to be missing!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_loss_13": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[frustrated] What an outrage! A perfectly legal outrage!",
+      "durationSeconds": 4.56,
+      "event": "loss",
+      "export": "exports/mp3/rampage_loss_13.mp3",
+      "generated": "2026-10-21T17:16:19Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 2.0,
+        "passes": 1,
+        "sourceLufs": -18.0
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "lhnGe5dn8gE1UYJidenl",
+      "seed": 2579875698,
+      "sha256": "6387b92998c8b149c5bc880093ff4f109d8eb6bb333d53c99848d9c8aa272dbd",
+      "source": "source/mp3/rampage_loss_13.mp3",
+      "sourceSha256": "dbc44c8997fb0650bd9f2ca3a87ab52aa94afd50216b9d4bd4719b7fb3348a7b",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "What an outrage! A perfectly legal outrage!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_loss_14": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[warmly] Very well! Your victory deserves a mighty salute!",
+      "durationSeconds": 4.8,
+      "event": "loss",
+      "export": "exports/mp3/rampage_loss_14.mp3",
+      "generated": "2026-10-21T17:16:20Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 1.3,
+        "passes": 1,
+        "sourceLufs": -17.3
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "EnUf6TUjOGH4tCdlSOOc",
+      "seed": 983040004,
+      "sha256": "48814abce244e0f0ec845ab10117a0874c815d8362cf3dfd03a6e138f45de53f",
+      "source": "source/mp3/rampage_loss_14.mp3",
+      "sourceSha256": "ecdd07c5446e794160659089481d3e22c0e86e09515605271659de2e2f0f782b",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Very well! Your victory deserves a mighty salute!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_loss_15": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[gasps] My pride needs a helmet of its own!",
+      "durationSeconds": 3.68,
+      "event": "loss",
+      "export": "exports/mp3/rampage_loss_15.mp3",
+      "generated": "2026-10-21T17:16:22Z",
+      "loudness": {
+        "exportLufs": -16.0,
+        "gainDb": 2.1,
+        "passes": 2,
+        "sourceLufs": -17.5
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "PO8uu6QtoeT3v49CzhOF",
+      "seed": 1693402390,
+      "sha256": "a18ab6e150db26d0a87a550430b74ead757add01315dfd5e3814fd768e6bd955",
+      "source": "source/mp3/rampage_loss_15.mp3",
+      "sourceSha256": "d411ac452acf25f00ca13d15a78f319c6ee471704422785bfe839999694e7778",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "My pride needs a helmet of its own!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_loss_6": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[gasps] Defeat?! But I rehearsed the victory speech!",
+      "durationSeconds": 4.56,
+      "event": "loss",
+      "export": "exports/mp3/rampage_loss_6.mp3",
+      "generated": "2026-10-21T17:14:17Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 0.8,
+        "passes": 1,
+        "sourceLufs": -16.8
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "TuvuOwTrcJid9kUyAyo4",
+      "seed": 1257551268,
+      "sha256": "ca7026d1c1045d166fcbc6a1e39bc3fa0d8ac84a0f43678dc139e3704cc85f59",
+      "source": "source/mp3/rampage_loss_6.mp3",
+      "sourceSha256": "a8e396b51a9771586da21794e8c2ff2ac151f80eac6a6361524e4117882f67ea",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Defeat?! But I rehearsed the victory speech!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_loss_7": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[frustrated] My banners! Somebody lower them very, very slowly!",
+      "durationSeconds": 5.36,
+      "event": "loss",
+      "export": "exports/mp3/rampage_loss_7.mp3",
+      "generated": "2026-10-21T17:14:19Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 1.0,
+        "passes": 1,
+        "sourceLufs": -17.0
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "8749L6kvHgUnrRRoZTcl",
+      "seed": 2563011284,
+      "sha256": "2f04f6ecfd30787d7dc964a94e2e47654a4c12110adf5bf3d57a08289bbf3dec",
+      "source": "source/mp3/rampage_loss_7.mp3",
+      "sourceSha256": "5e5ac0bc8bf7b970b93b19406d3fce463c05b7e76652beaca222742f0825abe1",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "My banners! Somebody lower them very, very slowly!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_loss_8": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[angry] I demand a much smaller word than defeat!",
+      "durationSeconds": 3.52,
+      "event": "loss",
+      "export": "exports/mp3/rampage_loss_8.mp3",
+      "generated": "2026-10-21T17:16:11Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 1.8,
+        "passes": 1,
+        "sourceLufs": -17.8
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "6SUEi1UrwaUpaIgk0iNS",
+      "seed": 3380664181,
+      "sha256": "7475db59e7ee53356361db8554413041acd2c8f0e2bfccd1ab0ba146d9a9f83b",
+      "source": "source/mp3/rampage_loss_8.mp3",
+      "sourceSha256": "4286d03f4ec961b18f17c13d3b09e215fa210560f617fc5f93a1880489af551c",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "I demand a much smaller word than defeat!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_loss_9": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[gasps] You win. I shall stomp about it privately!",
+      "durationSeconds": 4.96,
+      "event": "loss",
+      "export": "exports/mp3/rampage_loss_9.mp3",
+      "generated": "2026-10-21T17:16:13Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 1.9,
+        "passes": 1,
+        "sourceLufs": -17.9
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "x757eTGOPW3b2RFqSvVH",
+      "seed": 3521859042,
+      "sha256": "17568daa2085d2ff971b5964c1404f1d9b467bc977e2de8c8a5a2f9ad3cdaeb9",
+      "source": "source/mp3/rampage_loss_9.mp3",
+      "sourceSha256": "d8182f717e6a0249fa7dfeaf2203dc2d87934c26630972730767e2bc68700e66",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "You win. I shall stomp about it privately!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_rematch_10": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[excited] You challenge me again? Splendid courage!",
+      "durationSeconds": 3.92,
+      "event": "rematch",
+      "export": "exports/mp3/rampage_rematch_10.mp3",
+      "generated": "2026-10-21T17:16:39Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 1.9,
+        "passes": 1,
+        "sourceLufs": -17.9
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "HDWSoWLpVmww9Kl8byLx",
+      "seed": 1786012567,
+      "sha256": "5e144c7845ed5875876748c8fef973c9d2e17c10fae3f18f40b8f7344c0376ee",
+      "source": "source/mp3/rampage_rematch_10.mp3",
+      "sourceSha256": "6225485dbbbfb7e5806c80b43aa968212057418fb6c5a46b7fff4fe6b5850fbf",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "You challenge me again? Splendid courage!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_rematch_4": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[excited] Again? Raise the banners once more!",
+      "durationSeconds": 3.68,
+      "event": "rematch",
+      "export": "exports/mp3/rampage_rematch_4.mp3",
+      "generated": "2026-10-21T17:16:30Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 1.8,
+        "passes": 1,
+        "sourceLufs": -17.8
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "ycx9i3yJ1tPvh6M8lvR8",
+      "seed": 2903678920,
+      "sha256": "f7b1dac6686a0bf92e1690e77c6cc43f7071433e61362fcd7e6ae8d88fa9758e",
+      "source": "source/mp3/rampage_rematch_4.mp3",
+      "sourceSha256": "0c3e10d428f1e827c61b6e69a3531b91bfda95ce204a27e7906aac766262ee3b",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Again? Raise the banners once more!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_rematch_5": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[dramatic] A new campaign! Assemble the pieces!",
+      "durationSeconds": 3.92,
+      "event": "rematch",
+      "export": "exports/mp3/rampage_rematch_5.mp3",
+      "generated": "2026-10-21T17:16:31Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 2.7,
+        "passes": 1,
+        "sourceLufs": -18.7
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "mxQH5Hq0ODE6d7pqgK7l",
+      "seed": 3768131255,
+      "sha256": "ad5ac7743b680903807a1a822694a775200a6868b7efddfb60da8c900fcdbb4b",
+      "source": "source/mp3/rampage_rematch_5.mp3",
+      "sourceSha256": "cc3716fe51f782478687fc877971232035eacab8a19dc81443b2a87b3194968c",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "A new campaign! Assemble the pieces!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_rematch_6": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[triumphant] One more battle! My cape is still billowing!",
+      "durationSeconds": 4.56,
+      "event": "rematch",
+      "export": "exports/mp3/rampage_rematch_6.mp3",
+      "generated": "2026-10-21T17:16:33Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 1.8,
+        "passes": 1,
+        "sourceLufs": -17.8
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "TTUzlXceLbMZA73JLSg5",
+      "seed": 2346647183,
+      "sha256": "7b799a7163cfdd1b9a5cc3ef1ad036cb51540fa85195908fc3ca4e817c5b21f5",
+      "source": "source/mp3/rampage_rematch_6.mp3",
+      "sourceSha256": "49f23fa7b4d652c663c82eeca0d55ae2b1d1541ffd377ec27d00b19ed86f6c80",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "One more battle! My cape is still billowing!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_rematch_7": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[excited] Back to your posts! The rematch begins!",
+      "durationSeconds": 3.6,
+      "event": "rematch",
+      "export": "exports/mp3/rampage_rematch_7.mp3",
+      "generated": "2026-10-21T17:16:34Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 0.7,
+        "passes": 1,
+        "sourceLufs": -16.7
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "4xIDKMGKu68PQpg5IVg9",
+      "seed": 266712410,
+      "sha256": "9c79718296ea95c085c5471ebf0bcb462bc5382cfa47bfb3650e6d0cb0df7869",
+      "source": "source/mp3/rampage_rematch_7.mp3",
+      "sourceSha256": "aa3912b60857a55939b7ac7df1ead35bc794c015ba72104e6613b3db64bbe03b",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Back to your posts! The rematch begins!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_rematch_8": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[dramatic] Another round? Excellent! I have more speeches!",
+      "durationSeconds": 4.8,
+      "event": "rematch",
+      "export": "exports/mp3/rampage_rematch_8.mp3",
+      "generated": "2026-10-21T17:16:36Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 2.2,
+        "passes": 1,
+        "sourceLufs": -18.2
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "32F9MJWifYD5HOovpbYb",
+      "seed": 888540360,
+      "sha256": "14dac82872a0bc10bceb2923cad12a8097aafdeb9df28d8c109f7b1ccc23c111",
+      "source": "source/mp3/rampage_rematch_8.mp3",
+      "sourceSha256": "98fa1c7a07ea6d3c2c010f6bfb1ef98ff30382b8c6c674feace120d56c066350",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Another round? Excellent! I have more speeches!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_rematch_9": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[triumphant] Reset the board! Leave the dramatic music to me!",
+      "durationSeconds": 4.48,
+      "event": "rematch",
+      "export": "exports/mp3/rampage_rematch_9.mp3",
+      "generated": "2026-10-21T17:16:37Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 2.7,
+        "passes": 1,
+        "sourceLufs": -18.7
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "smMDOy71aYS0x9jKTNS8",
+      "seed": 3189814350,
+      "sha256": "888adfa37c4c3273b4b162566e4e2c357807cf74637ec16eeaa252006b4ad320",
+      "source": "source/mp3/rampage_rematch_9.mp3",
+      "sourceSha256": "6c07d76ab83cde7c299ad57369eb94707f2d65519129c50a49273404ae102b81",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Reset the board! Leave the dramatic music to me!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_win_10": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[excited] A grand victory for a very grand commander!",
+      "durationSeconds": 4.32,
+      "event": "win",
+      "export": "exports/mp3/rampage_win_10.mp3",
+      "generated": "2026-10-21T17:16:29Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 1.1,
+        "passes": 1,
+        "sourceLufs": -17.1
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "2UEiiQeiz4Bu8EONQAT0",
+      "seed": 2134777390,
+      "sha256": "fb4f38834beb8b5770a02f4d493c2e56abcda50b7ad7a7ed4fad81c657b33826",
+      "source": "source/mp3/rampage_win_10.mp3",
+      "sourceSha256": "847b1a0294a73571ab09c33e2dc7500cc4198711ad3399ba0430ef17a04f7fe8",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "A grand victory for a very grand commander!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_win_6": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[triumphant] Sound the trumpets! Victory belongs to me!",
+      "durationSeconds": 4.56,
+      "event": "win",
+      "export": "exports/mp3/rampage_win_6.mp3",
+      "generated": "2026-10-21T17:16:23Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 0.6,
+        "passes": 1,
+        "sourceLufs": -16.6
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "RYBb2pi2qypDTACduLb1",
+      "seed": 1852615521,
+      "sha256": "3ad99323d7c66c1fa0007f0807b14341a462783b10640a7e44d6e7bfbc41b577",
+      "source": "source/mp3/rampage_win_6.mp3",
+      "sourceSha256": "9fe05dc163a420088249fc382118b2e8d1c62fb0800bfc143a0084ffa10e0f71",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Sound the trumpets! Victory belongs to me!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_win_7": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[excited] My banner flies highest! A glorious result!",
+      "durationSeconds": 4.4,
+      "event": "win",
+      "export": "exports/mp3/rampage_win_7.mp3",
+      "generated": "2026-10-21T17:16:24Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 0.6,
+        "passes": 1,
+        "sourceLufs": -16.6
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "OWnnlLf3uZvY6PhR52sX",
+      "seed": 3108039258,
+      "sha256": "14dde7d9818e161c23582532beb720680d81793e001582b510856377b9c976f2",
+      "source": "source/mp3/rampage_win_7.mp3",
+      "sourceSha256": "3afb6fbc9cb981aeff749a1161454dcaec880318f436d03acab9aeec833cee2b",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "My banner flies highest! A glorious result!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_win_8": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[shouting] Behold! A triumph worthy of my magnificent horns!",
+      "durationSeconds": 5.28,
+      "event": "win",
+      "export": "exports/mp3/rampage_win_8.mp3",
+      "generated": "2026-10-21T17:16:26Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 1.1,
+        "passes": 1,
+        "sourceLufs": -17.1
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "pyFrV9LuxKZOTPye7Cnc",
+      "seed": 2275347016,
+      "sha256": "e14a45a0b036d0708e0a2b06478a7b38c0cc09cf908d78e59d09c2fb2e09521d",
+      "source": "source/mp3/rampage_win_8.mp3",
+      "sourceSha256": "91163e09904adc531aed66b216642e923eb39d528acc3c092a90eb1fe2001ba7",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Behold! A triumph worthy of my magnificent horns!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rampage_win_9": {
+      "bot": "aggressive",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[triumphant] I win! Someone bring the ceremonial cushion!",
+      "durationSeconds": 4.32,
+      "event": "win",
+      "export": "exports/mp3/rampage_win_9.mp3",
+      "generated": "2026-10-21T17:16:27Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 1.0,
+        "passes": 1,
+        "sourceLufs": -17.0
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "WdGbT6vprKPuzQAiT6fq",
+      "seed": 1107486131,
+      "sha256": "f710e22610e114fdfd0e69432b62b118e6beb5ccbcdd476152d22f6b70667068",
+      "source": "source/mp3/rampage_win_9.mp3",
+      "sourceSha256": "7c9a2616a04b602a55e2b7109fef77f3f49e0df0f4ab9f1280d72daba25faacd",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "I win! Someone bring the ceremonial cushion!",
+      "voice": "Rampage",
+      "voiceId": "cpVoHR2JZFf8X18Jg67W",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_intro_10": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] Little pieces, big adventure! Here we go!",
+      "durationSeconds": 4.0,
+      "event": "intro",
+      "export": "exports/mp3/rolly_intro_10.mp3",
+      "generated": "2026-10-21T17:14:36Z",
+      "loudness": {
+        "exportLufs": -16.0,
+        "gainDb": 0.3,
+        "passes": 2,
+        "sourceLufs": -15.7
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "feMg10M8Qb8lU16KSEoi",
+      "seed": 2816920828,
+      "sha256": "cc9ee9cab8ca1245c86a3ae38271ce5ebd9b8a619ad6a48f2e25c94f15cf708a",
+      "source": "source/mp3/rolly_intro_10.mp3",
+      "sourceSha256": "5311e4277ce0430c158a7d305c89755536bc93404ece13994a2dd8eb264e9dd1",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Little pieces, big adventure! Here we go!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_intro_11": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] I wonder what the dice will say today!",
+      "durationSeconds": 2.64,
+      "event": "intro",
+      "export": "exports/mp3/rolly_intro_11.mp3",
+      "generated": "2026-10-21T17:14:37Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 4.6,
+        "passes": 2,
+        "sourceLufs": -19.6
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "47XOaQgRoexFdPPP9j7g",
+      "seed": 3712881292,
+      "sha256": "1b1235caf0a446072b022f9284496663a0383854c316877c45d1379dfd70131a",
+      "source": "source/mp3/rolly_intro_11.mp3",
+      "sourceSha256": "2ac742c280cd1c5c904feae36c7cd7e4397ddb95228ef990df0b60e341ddc4b3",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "I wonder what the dice will say today!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_intro_12": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[excited] Come on in! There's always room for a little luck!",
+      "durationSeconds": 3.6,
+      "event": "intro",
+      "export": "exports/mp3/rolly_intro_12.mp3",
+      "generated": "2026-10-21T17:14:39Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 0.3,
+        "passes": 1,
+        "sourceLufs": -16.3
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "1Akyx2AVVpE85TjIHBTw",
+      "seed": 3153997292,
+      "sha256": "98ee3c4bdc71ce1c694b0467adfe06206e2c3681322a0972aa4181cefb753f5c",
+      "source": "source/mp3/rolly_intro_12.mp3",
+      "sourceSha256": "0250bdf6668501b828b5704ce065e7bb811b0a7d6e58e45fb6185172c883c58e",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Come on in! There's always room for a little luck!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_intro_13": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] Look at all those pieces! This is going to be fun!",
+      "durationSeconds": 3.92,
+      "event": "intro",
+      "export": "exports/mp3/rolly_intro_13.mp3",
+      "generated": "2026-10-21T17:14:40Z",
+      "loudness": {
+        "exportLufs": -16.1,
+        "gainDb": 2.8,
+        "passes": 2,
+        "sourceLufs": -18.2
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "QXMJqHPfKUZTMpmvO6V1",
+      "seed": 1593890397,
+      "sha256": "92d86c03135dd5a88d36d271a5569df2bd6c638b3c02f189b08784bfd3aa27cc",
+      "source": "source/mp3/rolly_intro_13.mp3",
+      "sourceSha256": "f1bc6483b6f1109e0da4753a0d487c67b836d4fa229891f99cd826b2a317389e",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Look at all those pieces! This is going to be fun!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_intro_14": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] My fingers are crossed. Well, most of them!",
+      "durationSeconds": 3.76,
+      "event": "intro",
+      "export": "exports/mp3/rolly_intro_14.mp3",
+      "generated": "2026-10-21T17:14:42Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 1.7,
+        "passes": 2,
+        "sourceLufs": -17.1
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "RsFq0gLQS2XBx0B7K57G",
+      "seed": 1562161642,
+      "sha256": "cd8ef7a47662b8eae95a495c007147dbb53144bc802b2d985e78725915c43d09",
+      "source": "source/mp3/rolly_intro_14.mp3",
+      "sourceSha256": "a12d8e482d8b1097c6b42412ecffc16d6178ca21efe48edea2fc2212c078bd97",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "My fingers are crossed. Well, most of them!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_intro_15": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[excited] All set? I've brought enough giggles for both of us!",
+      "durationSeconds": 3.84,
+      "event": "intro",
+      "export": "exports/mp3/rolly_intro_15.mp3",
+      "generated": "2026-10-21T17:14:43Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 0.9,
+        "passes": 1,
+        "sourceLufs": -16.9
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "ntZd8Hz73s1X04ijlKWO",
+      "seed": 1110279226,
+      "sha256": "363e8640409e6fa801b57fb942cd2eccb2a8d5a3a68132bba0c9779a831f4ab9",
+      "source": "source/mp3/rolly_intro_15.mp3",
+      "sourceSha256": "5dd15883556a6021f680a50e2c1c9b2c7f14df2794e0ac61cafa998d2e8b1d02",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "All set? I've brought enough giggles for both of us!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_intro_6": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[excited] Ooh, a whole board of possibilities! Let's roll!",
+      "durationSeconds": 4.4,
+      "event": "intro",
+      "export": "exports/mp3/rolly_intro_6.mp3",
+      "generated": "2026-10-21T17:14:00Z",
+      "loudness": {
+        "exportLufs": -16.1,
+        "gainDb": 1.1,
+        "passes": 2,
+        "sourceLufs": -16.5
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "20hcQ3U00k9aLFYWsmkX",
+      "seed": 987156163,
+      "sha256": "ea13aa77d6de43dc36e2470efc56a210a537fe18560fa93805c4dc200fa333de",
+      "source": "source/mp3/rolly_intro_6.mp3",
+      "sourceSha256": "5abe7c3f57151afa99d03abd801dcb72f7226feb4eadc1dad1ab851c20202cb2",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Ooh, a whole board of possibilities! Let's roll!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_intro_7": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] I've got my dice and my biggest grin!",
+      "durationSeconds": 3.2,
+      "event": "intro",
+      "export": "exports/mp3/rolly_intro_7.mp3",
+      "generated": "2026-10-21T17:14:01Z",
+      "loudness": {
+        "exportLufs": -16.0,
+        "gainDb": 2.1,
+        "passes": 2,
+        "sourceLufs": -17.5
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "WE8c7JaloDs3OoDCecNn",
+      "seed": 3026992675,
+      "sha256": "c191e98088b2f327cc192ee9e532a460c31c4b68c3744c835595bead6f07dc83",
+      "source": "source/mp3/rolly_intro_7.mp3",
+      "sourceSha256": "2e5ae17e4c8ed02558365e09c68211b25e621b556460c4b34d938b1d12bb7ada",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "I've got my dice and my biggest grin!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_intro_8": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] Hello, hello! Let's make these pieces dance!",
+      "durationSeconds": 3.76,
+      "event": "intro",
+      "export": "exports/mp3/rolly_intro_8.mp3",
+      "generated": "2026-10-21T17:14:33Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": -0.2,
+        "passes": 1,
+        "sourceLufs": -15.8
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "t574fHWEyrxZWWiaTmAL",
+      "seed": 12184806,
+      "sha256": "6f7ef5f034d837f6d86c3c575b46cc54cb993bc3757d87fef2fb20abc43b0ce2",
+      "source": "source/mp3/rolly_intro_8.mp3",
+      "sourceSha256": "1b71fbe458eb994a00efdbd1a3d8cea5b76cee87c126c30a2ee2fb539c59491b",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Hello, hello! Let's make these pieces dance!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_intro_9": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[excited] Ready? My lucky feeling is all tingly!",
+      "durationSeconds": 3.6,
+      "event": "intro",
+      "export": "exports/mp3/rolly_intro_9.mp3",
+      "generated": "2026-10-21T17:14:35Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 3.4,
+        "passes": 2,
+        "sourceLufs": -18.6
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "mThYzlVMnA0EQkLsTZUd",
+      "seed": 144746213,
+      "sha256": "699ca1cd86754b7af3e04c657e9c3c3ef3414383ec6dc4256940c28d94b68898",
+      "source": "source/mp3/rolly_intro_9.mp3",
+      "sourceSha256": "27fdc4d863e020794e6a877d2106f3c0c9930b3e622afed31885dd153a0cd097",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Ready? My lucky feeling is all tingly!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_loss_10": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[sighs] Your win gets two thumbs up from me!",
+      "durationSeconds": 3.92,
+      "event": "loss",
+      "export": "exports/mp3/rolly_loss_10.mp3",
+      "generated": "2026-10-21T17:14:48Z",
+      "loudness": {
+        "exportLufs": -16.0,
+        "gainDb": 1.0,
+        "passes": 2,
+        "sourceLufs": -16.3
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "CjqghS6qr69ZG8NbYYND",
+      "seed": 4143879493,
+      "sha256": "20572511df2e4aeee907a19be0de1b45801a9d2b9ad1faab8c977c3b2c8b41ed",
+      "source": "source/mp3/rolly_loss_10.mp3",
+      "sourceSha256": "8db3b95a7046422207ee5e108af1e4f83e92552934fbb7023a263fb040dc97fc",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Your win gets two thumbs up from me!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_loss_11": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[warmly] Oof! A little wobble for me, a big cheer for you!",
+      "durationSeconds": 4.72,
+      "event": "loss",
+      "export": "exports/mp3/rolly_loss_11.mp3",
+      "generated": "2026-10-21T17:14:49Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 0.2,
+        "passes": 1,
+        "sourceLufs": -16.2
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "QeGgFMo7KJlcbVGwdr1v",
+      "seed": 3102296019,
+      "sha256": "9a59291a8a207768a88b9ed680f4a538bf6f3d658f2b57aba00aeea5304e6b93",
+      "source": "source/mp3/rolly_loss_11.mp3",
+      "sourceSha256": "9f7426b8ef710818a0c166b38d04044e79521ec2a4e1c67914404f738c3676ad",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Oof! A little wobble for me, a big cheer for you!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_loss_12": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] You got the win! I'll keep the giggles!",
+      "durationSeconds": 3.12,
+      "event": "loss",
+      "export": "exports/mp3/rolly_loss_12.mp3",
+      "generated": "2026-10-21T17:14:51Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 0.8,
+        "passes": 1,
+        "sourceLufs": -16.8
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "mDOY5K4hVht1JEbCuTYj",
+      "seed": 3386151269,
+      "sha256": "638bcd4774d53eb576cba80177483e0a25e62a77ce22668ab276be489ac76121",
+      "source": "source/mp3/rolly_loss_12.mp3",
+      "sourceSha256": "84d9ea2bfe93d0a0dd291d1adf572b133acdcf0b0f3335948e1bac3b3fc66717",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "You got the win! I'll keep the giggles!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_loss_13": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[sighs] My victory dance will have to wait!",
+      "durationSeconds": 3.6,
+      "event": "loss",
+      "export": "exports/mp3/rolly_loss_13.mp3",
+      "generated": "2026-10-21T17:14:52Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 4.1,
+        "passes": 2,
+        "sourceLufs": -19.5
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "kJTc7nfCmtjNAJkbz03y",
+      "seed": 2265365313,
+      "sha256": "9a2d93167c8242120365071b9ea21098392efe83e4b191972dc4b2ac25a9c8bd",
+      "source": "source/mp3/rolly_loss_13.mp3",
+      "sourceSha256": "b7313573149f20200c9af76caa9af07f01316681c783273eaeaea6252712b1f1",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "My victory dance will have to wait!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_loss_14": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[warmly] Oh! Is that my losing face? Congratulations!",
+      "durationSeconds": 4.48,
+      "event": "loss",
+      "export": "exports/mp3/rolly_loss_14.mp3",
+      "generated": "2026-10-21T17:14:54Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 4.0,
+        "passes": 2,
+        "sourceLufs": -19.1
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "LYNQqOBVuQ3mpMRy1fhU",
+      "seed": 106034758,
+      "sha256": "136f67c01b16729d702fc74ea1d1e15da2b6702bc1d89a7d97e5adaa9429ba9d",
+      "source": "source/mp3/rolly_loss_14.mp3",
+      "sourceSha256": "211ec0ba1b2ccca5f35220c5eaee3c10c9c3bdba68640ab14b6b6faa21f96ab7",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Oh! Is that my losing face? Congratulations!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_loss_15": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] You win this one! Thanks for the lovely game!",
+      "durationSeconds": 3.52,
+      "event": "loss",
+      "export": "exports/mp3/rolly_loss_15.mp3",
+      "generated": "2026-10-21T17:14:56Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 1.5,
+        "passes": 1,
+        "sourceLufs": -17.5
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "ad750jgbqfMgKtUWmP5o",
+      "seed": 2318215683,
+      "sha256": "563c77e81d6b0cb00ecdf57a4463f0250875fcab078d7f74fa697ca87e80aca5",
+      "source": "source/mp3/rolly_loss_15.mp3",
+      "sourceSha256": "a2c36a47a0979c5a68f15f103d4240da3bf5e6bb0261fd6d9f89afadf764af9e",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "You win this one! Thanks for the lovely game!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_loss_6": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] You won! I'm giving you my very best cheer!",
+      "durationSeconds": 4.08,
+      "event": "loss",
+      "export": "exports/mp3/rolly_loss_6.mp3",
+      "generated": "2026-10-21T17:14:03Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 0.4,
+        "passes": 1,
+        "sourceLufs": -16.4
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "alevW9JXX8PBTrsu8BpF",
+      "seed": 4225357979,
+      "sha256": "ba6ea888322a84722c73cd703b98a85c1caa8ca6beb84fec0fb1382cb12345f7",
+      "source": "source/mp3/rolly_loss_6.mp3",
+      "sourceSha256": "2be7714f0ba38be37a0ab37f16318304a5b0de4817940e43574ba55a8b04dbf8",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "You won! I'm giving you my very best cheer!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_loss_7": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[sighs] Oh, noodles! That one goes to you!",
+      "durationSeconds": 4.4,
+      "event": "loss",
+      "export": "exports/mp3/rolly_loss_7.mp3",
+      "generated": "2026-10-21T17:14:04Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 1.3,
+        "passes": 1,
+        "sourceLufs": -17.3
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "1HVqoGEX9g44z0MpBvV3",
+      "seed": 2452492105,
+      "sha256": "aed0723ce95ca4cbedc5b69ae6bd76cd3da60caf7f73426dea304d5223f5a3ec",
+      "source": "source/mp3/rolly_loss_7.mp3",
+      "sourceSha256": "ee462c2e543ca41a703d2a6ca18fcc7ba5ad3d5a15c5e71f3c1f9f4901e41f0e",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Oh, noodles! That one goes to you!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_loss_8": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[warmly] I lost the game, but I found a good time!",
+      "durationSeconds": 3.52,
+      "event": "loss",
+      "export": "exports/mp3/rolly_loss_8.mp3",
+      "generated": "2026-10-21T17:14:45Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 2.0,
+        "passes": 1,
+        "sourceLufs": -18.0
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "xnvuXYFjC6DH9247Snlj",
+      "seed": 3918934761,
+      "sha256": "6be82639423f224377e46a24855d6209992576ef14d098c57ab7148e8ba10993",
+      "source": "source/mp3/rolly_loss_8.mp3",
+      "sourceSha256": "7237a040162f7ccea05288128e8b41adb18730c8bf56b02458c76b31019ed400",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "I lost the game, but I found a good time!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_loss_9": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] Well, that went topsy-turvy! Congratulations!",
+      "durationSeconds": 4.08,
+      "event": "loss",
+      "export": "exports/mp3/rolly_loss_9.mp3",
+      "generated": "2026-10-21T17:14:46Z",
+      "loudness": {
+        "exportLufs": -16.1,
+        "gainDb": 2.3,
+        "passes": 2,
+        "sourceLufs": -17.6
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "5aR76ADTYzS7TrqVuCgv",
+      "seed": 3110161732,
+      "sha256": "afefcfc25cebbd03a20d8aaa10bfe2b5acfe7f2b2beb94e9498e2d697b22d913",
+      "source": "source/mp3/rolly_loss_9.mp3",
+      "sourceSha256": "0d346291b5d7bfaeeefafa45bd06a7ef7ced682547b565333822dddc95d8ad00",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Well, that went topsy-turvy! Congratulations!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_rematch_10": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] Same friends, [short pause] fresh game! Wheee!",
+      "durationSeconds": 3.76,
+      "event": "rematch",
+      "export": "exports/mp3/rolly_rematch_10.mp3",
+      "generated": "2026-10-22T08:34:48Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 1.1,
+        "passes": 1,
+        "sourceLufs": -17.1
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "4sq5sHBlvPhkVZCLzKOL",
+      "seed": 749295675,
+      "sha256": "f8378175829d0966118515a0b606b5778906caa16dfb025a937a7338f3681c95",
+      "source": "source/mp3/rolly_rematch_10.mp3",
+      "sourceSha256": "e764e79bcb129cf87f687d4f2d56839d3cf62725debd7dae7b467451f572fdb7",
+      "take": 2,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Same friends, fresh game! Wheee!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_rematch_4": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[excited] Back we go! A fresh sprinkle of luck!",
+      "durationSeconds": 3.36,
+      "event": "rematch",
+      "export": "exports/mp3/rolly_rematch_4.mp3",
+      "generated": "2026-10-21T17:15:05Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 0.6,
+        "passes": 1,
+        "sourceLufs": -16.6
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "MwdEwY2GO6v3eKTcrp1K",
+      "seed": 3099175039,
+      "sha256": "8a1d361162676fa13f43dd284039245b1e7c18d0bb331633e139b1d999a90903",
+      "source": "source/mp3/rolly_rematch_4.mp3",
+      "sourceSha256": "bf836ede93b24e07b1efaebbbb76a8d7a2cc3cd1f63c2aa3c5fc9c29ed4b4dc5",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Back we go! A fresh sprinkle of luck!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_rematch_5": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] Another round? My grin says yes!",
+      "durationSeconds": 3.28,
+      "event": "rematch",
+      "export": "exports/mp3/rolly_rematch_5.mp3",
+      "generated": "2026-10-21T17:15:07Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 1.5,
+        "passes": 1,
+        "sourceLufs": -17.5
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "SXwwc5SQtTafkIfFSLcC",
+      "seed": 560011177,
+      "sha256": "b9396a8ca999cd523935d92d8c32c3f09996eb22f639e6eccdb9cd0e5b17cbcb",
+      "source": "source/mp3/rolly_rematch_5.mp3",
+      "sourceSha256": "4c5124b2586bc717f2e8a65251ed0667aef4d6475a2a2bdf1dda5ecbe5834bfa",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Another round? My grin says yes!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_rematch_6": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[giggles] Let's give those dice another tumble!",
+      "durationSeconds": 3.6,
+      "event": "rematch",
+      "export": "exports/mp3/rolly_rematch_6.mp3",
+      "generated": "2026-10-21T17:15:08Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 2.5,
+        "passes": 2,
+        "sourceLufs": -17.8
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "C2lXSIE867N0D9BXoRX6",
+      "seed": 452332913,
+      "sha256": "93dd742da5e899b5bd82460756268508db1d76741ffff0cca111c63cb90a8ea0",
+      "source": "source/mp3/rolly_rematch_6.mp3",
+      "sourceSha256": "e2f3fa895a99e01cba89a67de6958fd2904384011c7fa5fda108bbe9b8eaedf6",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Let's give those dice another tumble!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_rematch_7": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[excited] Ready for more? My happy feet are!",
+      "durationSeconds": 2.96,
+      "event": "rematch",
+      "export": "exports/mp3/rolly_rematch_7.mp3",
+      "generated": "2026-10-21T17:15:10Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 1.5,
+        "passes": 1,
+        "sourceLufs": -17.5
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "uvy202w4Lj76OGwZG2bL",
+      "seed": 3086846343,
+      "sha256": "2fe370422183739766466462dfdb9f05d560d8f9bb66fbed94a30a69aa0a834c",
+      "source": "source/mp3/rolly_rematch_7.mp3",
+      "sourceSha256": "bfd8f22ef52870cbb6f23c14738fbf3ffab89da804063aeaa46ae695e669edd3",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Ready for more? My happy feet are!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_rematch_8": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] Ooh, we get to do it all over!",
+      "durationSeconds": 2.96,
+      "event": "rematch",
+      "export": "exports/mp3/rolly_rematch_8.mp3",
+      "generated": "2026-10-21T17:15:11Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 0.2,
+        "passes": 1,
+        "sourceLufs": -16.2
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "CnvOuzGqyZ8br0P7y7xi",
+      "seed": 2220730401,
+      "sha256": "98a6e959fb64888ee8fadcdb897424d6f4e3a62d0621a6df73a8b51414df7bc7",
+      "source": "source/mp3/rolly_rematch_8.mp3",
+      "sourceSha256": "6cc9b0b0336bb957d1ce29c6f6889431a4174480809bd57b6b34c85b20751699",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Ooh, we get to do it all over!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_rematch_9": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[giggles] I'll never say no to another roll!",
+      "durationSeconds": 3.84,
+      "event": "rematch",
+      "export": "exports/mp3/rolly_rematch_9.mp3",
+      "generated": "2026-10-21T17:15:12Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 0.5,
+        "passes": 1,
+        "sourceLufs": -16.5
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "go5J6GELglsUUapv8ZA5",
+      "seed": 4069986676,
+      "sha256": "24270677292327721a973dbf5f8a583fefe1a956914b3f149dd2ac813f148b6f",
+      "source": "source/mp3/rolly_rematch_9.mp3",
+      "sourceSha256": "f0e18f629e5f6c4972229354558397bab5ea65b95193990f450ee6ec2f4c5510",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "I'll never say no to another roll!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_win_10": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[squeals] Hooray for me, and a big thank-you to you!",
+      "durationSeconds": 4.64,
+      "event": "win",
+      "export": "exports/mp3/rolly_win_10.mp3",
+      "generated": "2026-10-21T17:15:04Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 1.4,
+        "passes": 1,
+        "sourceLufs": -17.4
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "zjHTFBVBB6R5woJubMsx",
+      "seed": 2912792939,
+      "sha256": "7fb4ecffb9e29c2698e5fc0e4ab09112187d94e358a77ceea4095a86ff39d7ab",
+      "source": "source/mp3/rolly_win_10.mp3",
+      "sourceSha256": "70d7c543faac6cf885f32529f94ae5a2a09d4e4c162bf23d4077aad4ed86a22c",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Hooray for me, and a big thank-you to you!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_win_6": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[excited] Is that a win for me? Happy little hops!",
+      "durationSeconds": 3.28,
+      "event": "win",
+      "export": "exports/mp3/rolly_win_6.mp3",
+      "generated": "2026-10-21T17:14:57Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 0.2,
+        "passes": 1,
+        "sourceLufs": -16.2
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "Bu2Z14hna8qJVQ3hpdJ6",
+      "seed": 4153950573,
+      "sha256": "f94a58a32bf6ffddb14d76162499072a115e8d5fc31cd678b30528df29d6857f",
+      "source": "source/mp3/rolly_win_6.mp3",
+      "sourceSha256": "e2e409aac7c09c0fbefa1e67e02fe9b134120875a5792a7bb2864bf58dffbae7",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Is that a win for me? Happy little hops!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_win_7": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[squeals] I did it! Quick, somebody catch my grin!",
+      "durationSeconds": 4.56,
+      "event": "win",
+      "export": "exports/mp3/rolly_win_7.mp3",
+      "generated": "2026-10-21T17:14:59Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": -0.7,
+        "passes": 1,
+        "sourceLufs": -15.3
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "aDOkApKMFzZYkgMHV6Tn",
+      "seed": 2758221752,
+      "sha256": "ce50865670d79cb2e381d6f4420d3ec3a1fbd3fbbdb35832f5cefdf9814ca309",
+      "source": "source/mp3/rolly_win_7.mp3",
+      "sourceSha256": "8c5e5d47601aa460fc61e5a640414d72f58aabd98f36f9a4cc86070046c4b35b",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "I did it! Quick, somebody catch my grin!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_win_8": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] The win is mine, and the giggles are for everyone!",
+      "durationSeconds": 4.08,
+      "event": "win",
+      "export": "exports/mp3/rolly_win_8.mp3",
+      "generated": "2026-10-21T17:15:00Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 1.0,
+        "passes": 1,
+        "sourceLufs": -17.0
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "JkAnp7ehmewxNhXmqP5m",
+      "seed": 3651623864,
+      "sha256": "8c99acf09a0b1187e26e0870aefd70634703b4c9916de295b7ec40076a4ef1c2",
+      "source": "source/mp3/rolly_win_8.mp3",
+      "sourceSha256": "faac8e0ece486b1abf1b2df8181e81c475f94635e763fd4702a225493357d53b",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "The win is mine, and the giggles are for everyone!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "rolly_win_9": {
+      "bot": "random",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[excited] Ooh, a victory! I might float away!",
+      "durationSeconds": 3.52,
+      "event": "win",
+      "export": "exports/mp3/rolly_win_9.mp3",
+      "generated": "2026-10-21T17:15:02Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 0.6,
+        "passes": 1,
+        "sourceLufs": -16.6
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "1kSIQFYv8Dzf7zbGO7Go",
+      "seed": 1594955608,
+      "sha256": "42367da8fff7a72dcdcd18c6a3fe6f5e127790d226cd072c21f23d056f0013d6",
+      "source": "source/mp3/rolly_win_9.mp3",
+      "sourceSha256": "8d12b21813d3916c8f32ca7400c2cd01340f57221f2be5d5db40fd4ccc377688",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Ooh, a victory! I might float away!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    }
+  },
+  "pack": {
+    "picks": "picks.json",
+    "texts": {
+      "path": "voices/elevenlabs-dicechess-bots-expansion/catalogue.json",
+      "repository": "fortemate/dicechess-assets"
+    }
+  },
+  "picks": "picks.json",
+  "review": {
+    "correctedCandidates": {
+      "grabby_loss_10": {
+        "automatedTextChecks": "both passed",
+        "initialExportSha256": "3ab3efd80ccbd97dd71f050b7c94213557c33abbc25b820a50a08d914c8baa22",
+        "initialSourceSha256": "bad3de3fb829cd5730b6780aad29fbdfd9a7789328e92aba741771b9350a8659",
+        "previousText": "There must be a shelf for disappointments somewhere.",
+        "take": 2
+      },
+      "rolly_rematch_10": {
+        "automatedTextChecks": "Semantic words passed both ASR checks; Whee/Weee interjection spelling accepted; raw discrepancy retained in local review.",
+        "initialExportSha256": "5ec2a4dfba01fde47b8bb980cbf45e0a743f9bc9adf19e01d7ff3d0178b144fe",
+        "initialSourceSha256": "53f1971784a6c710ba1a1986fb2bc357a283bf9ec99fa1c37e84ba26ce7c45b5",
+        "previousText": "Same us, fresh game! Wheee!",
+        "take": 2
+      }
+    },
+    "integrationAuthorization": "Owner requested integration of all 179 lines, including five corrected candidates, on October 22, 2026. Automated review is recorded; no human listening certification is implied.",
+    "note": "Selected for Dice Chess TV integration by the owner; runtime playback remains to be validated on a device.",
+    "selectionMethod": "Sole initial take automatically assembled for candidate exports; not human listening approval.",
+    "status": "awaiting-listening"
+  },
+  "schemaVersion": 1,
+  "status": "draft",
+  "texts": "catalogue.json",
+  "title": "Dice Chess bot voices (ElevenLabs) — English expansion, October 21, 2026"
+}

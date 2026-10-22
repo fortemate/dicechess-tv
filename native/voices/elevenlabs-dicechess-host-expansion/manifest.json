@@ -1,0 +1,1171 @@
+{
+  "attributionRequired": false,
+  "casting": "casting.json",
+  "clients": [
+    "fortemate/dicechess-tv"
+  ],
+  "derivation": {
+    "arguments": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+    "note": "Each export is its source with the gain that brings it to the target loudness, measured by ffmpeg's ebur128 filter, then a limiter, as mono MP3 without metadata. Where the limiter takes more than 0.5 LU, the gain is raised by the difference and the conversion made again, up to 3 conversions in all.",
+    "target": {
+      "bitrate": "64k",
+      "integratedLufs": -16,
+      "limitDbfs": -1.5
+    },
+    "tool": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers"
+  },
+  "directions": "directions.json",
+  "distribution": "project",
+  "generator": {
+    "kind": "voices",
+    "note": "Generation authorized by the owner on October 21, 2026 while the Creator subscription is active. Existing Fortemate apps-only restrictions apply. Provider-policy correspondence is not resolved or represented as approval by this pack.",
+    "tool": "ElevenLabs",
+    "via": "tools/elevenlabs_audio.py; existing voice IDs and model settings"
+  },
+  "id": "elevenlabs-dicechess-host-expansion",
+  "license": "Fortemate apps only",
+  "licenseFile": "LICENSE.txt",
+  "lines": {
+    "host_again_10": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] Another game together! Now that's a lovely idea!",
+      "durationSeconds": 4.32,
+      "event": "again",
+      "export": "exports/mp3/host_again_10.mp3",
+      "generated": "2026-10-21T17:14:50Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 2.2,
+        "passes": 1,
+        "sourceLufs": -18.2
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "k49gUfXJuo6CYCv0nP5A",
+      "seed": 2649828221,
+      "sha256": "9257202f98cf82f51fd45cd33b63cf9709ec8f09de2293b49c41460e7fee1d05",
+      "source": "source/mp3/host_again_10.mp3",
+      "sourceSha256": "32df6ff8ba830a75f73c574523810cbdb12b10e4b27a3291dcb2eb07fbb4b7bd",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Another game together! Now that's a lovely idea!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_again_4": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] Another round for you two? I'll stay for the fun!",
+      "durationSeconds": 3.52,
+      "event": "again",
+      "export": "exports/mp3/host_again_4.mp3",
+      "generated": "2026-10-21T17:14:42Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 0.9,
+        "passes": 1,
+        "sourceLufs": -16.9
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "BXNRfAxd0UUHNtnnQ1q8",
+      "seed": 3254181981,
+      "sha256": "87b912add90f876b1786d4e61e4538dfbb66ed7b23beea67e02c939a1da4ba2d",
+      "source": "source/mp3/host_again_4.mp3",
+      "sourceSha256": "320a1d06b18a5651235f8839360e3088046eb56325c71cd5925c9dfba7be9150",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Another round for you two? I'll stay for the fun!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_again_5": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[excited] Ooh, a fresh start! Hello again, little pieces!",
+      "durationSeconds": 4.16,
+      "event": "again",
+      "export": "exports/mp3/host_again_5.mp3",
+      "generated": "2026-10-21T17:14:43Z",
+      "loudness": {
+        "exportLufs": -16.1,
+        "gainDb": 1.6,
+        "passes": 2,
+        "sourceLufs": -17.0
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "FOb3cPjP4y1pmJIWQHzi",
+      "seed": 723392623,
+      "sha256": "ec52595b7c64837d4e4e38dd345f146e053daa6c17c527f24ffdf00e6454c773",
+      "source": "source/mp3/host_again_5.mp3",
+      "sourceSha256": "4d241354377c45b74abfdb3869eccc2e772b04f6f2627fe04673458c046c35a0",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Ooh, a fresh start! Hello again, little pieces!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_again_6": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] Same friends, new game! My favorite kind of evening!",
+      "durationSeconds": 4.56,
+      "event": "again",
+      "export": "exports/mp3/host_again_6.mp3",
+      "generated": "2026-10-21T17:14:45Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 3.2,
+        "passes": 1,
+        "sourceLufs": -19.2
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "bfboKEoFxJLpy387QPqa",
+      "seed": 1315233667,
+      "sha256": "9a2a4249d0ee1aa8203c5b5b4cae346a9224e924369158f6dee634870e1eb0bc",
+      "source": "source/mp3/host_again_6.mp3",
+      "sourceSha256": "e33b1a0766d946d56fcc589759cfbe7db643e93b81055027dafa9890b44d4a80",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Same friends, new game! My favorite kind of evening!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_again_7": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] Back to the beginning! The dice love an encore!",
+      "durationSeconds": 3.68,
+      "event": "again",
+      "export": "exports/mp3/host_again_7.mp3",
+      "generated": "2026-10-21T17:14:46Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 0.5,
+        "passes": 1,
+        "sourceLufs": -16.5
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "aQ8YMzi6PgYkqV9rUpEZ",
+      "seed": 701143825,
+      "sha256": "ba312b9d163b1181fe71e0275508f9cd9a77d428f828a01b04be92fe08839cac",
+      "source": "source/mp3/host_again_7.mp3",
+      "sourceSha256": "cc87d5a77bdd11213e2e9e96882166cad2a425a6dc419c391f5d0111c0952f09",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Back to the beginning! The dice love an encore!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_again_8": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[excited] Everybody's back on the board! Let's go again!",
+      "durationSeconds": 3.44,
+      "event": "again",
+      "export": "exports/mp3/host_again_8.mp3",
+      "generated": "2026-10-21T17:14:47Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 0.3,
+        "passes": 1,
+        "sourceLufs": -16.3
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "qLqYfUTFjn0MAIBn5BqM",
+      "seed": 1936684523,
+      "sha256": "e285554445d44d0064161308d72a9d0bd2a8ca7282ac558e32ea11e2318511cd",
+      "source": "source/mp3/host_again_8.mp3",
+      "sourceSha256": "fea8e50150790c63ac5ebda864f465044528240d18510cb8a99124f96ed782e9",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Everybody's back on the board! Let's go again!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_again_9": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] More dice, more giggles! Ready, you two?",
+      "durationSeconds": 3.84,
+      "event": "again",
+      "export": "exports/mp3/host_again_9.mp3",
+      "generated": "2026-10-21T17:14:49Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 2.4,
+        "passes": 1,
+        "sourceLufs": -18.4
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "Ic5Irx5Nt9rORzucsQHE",
+      "seed": 3688024635,
+      "sha256": "9b29cad9539c94cb3eb4be808b13dfbf2c3bfb3d6ec3308576371616450d4321",
+      "source": "source/mp3/host_again_9.mp3",
+      "sourceSha256": "55530ac5ec253b180dd5516a727a01364d40fb7c372f7e76f1ab08b3ac518c41",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "More dice, more giggles! Ready, you two?",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_black_wins_4": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] Black wins! A big bouncy cheer for both players!",
+      "durationSeconds": 4.64,
+      "event": "black_wins",
+      "export": "exports/mp3/host_black_wins_4.mp3",
+      "generated": "2026-10-21T17:15:09Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 0.1,
+        "passes": 1,
+        "sourceLufs": -16.1
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "xs4sy5kDCVejEZrnQ3sb",
+      "seed": 3446236417,
+      "sha256": "f71ab9f8c554d1d042b04bf9cadf0b19cf1e3621e53bf7cec96af188f44ddf35",
+      "source": "source/mp3/host_black_wins_4.mp3",
+      "sourceSha256": "0500fd5dc4337c829bac949b35a6002999f05d233bdda8ce1f216877f7716c96",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Black wins! A big bouncy cheer for both players!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_black_wins_5": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] The win [short pause] goes to Black! [warmly] Thank you for playing, White!",
+      "durationSeconds": 4.8,
+      "event": "black_wins",
+      "export": "exports/mp3/host_black_wins_5.mp3",
+      "generated": "2026-10-22T08:34:51Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 2.8,
+        "passes": 2,
+        "sourceLufs": -18.1
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "Kb5GCKuPvA4NfayhPoBB",
+      "seed": 1057430067,
+      "sha256": "b769e8f9e0f47901375283c2ace37be8ae65fbcf4ed24f2a7defa1de690ad205",
+      "source": "source/mp3/host_black_wins_5.mp3",
+      "sourceSha256": "2a8026fe4482c563656ca79a773af0232dc98495162a2582343316e5ff1be74a",
+      "take": 2,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "The win goes to Black! Thank you for playing, White!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_black_wins_6": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] Black [short pause] takes this one! [warmly] A little applause for you both!",
+      "durationSeconds": 4.64,
+      "event": "black_wins",
+      "export": "exports/mp3/host_black_wins_6.mp3",
+      "generated": "2026-10-22T08:14:29Z",
+      "loudness": {
+        "exportLufs": -16.1,
+        "gainDb": 3.5,
+        "passes": 2,
+        "sourceLufs": -18.9
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "CSvJ4FY1nTukxbCv6a1K",
+      "seed": 2383106356,
+      "sha256": "e06846b66d56af479dda76ab9bb651e3ceafa6f6c3b9757b4b93582f900ca4f1",
+      "source": "source/mp3/host_black_wins_6.mp3",
+      "sourceSha256": "652f59243e7a3ad6f47d80392d65dcced199af9feafccb1bda5462def35ff534",
+      "take": 2,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Black takes this one! A little applause for you both!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_draw_4": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] A draw! The dice have left you all square!",
+      "durationSeconds": 3.52,
+      "event": "draw",
+      "export": "exports/mp3/host_draw_4.mp3",
+      "generated": "2026-10-21T17:15:14Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 1.5,
+        "passes": 1,
+        "sourceLufs": -17.5
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "vQKaklyyMx1D2yA8HoM2",
+      "seed": 1131027502,
+      "sha256": "f798dbb1253e3dc7a09f53f2855632e56567a8fde884387eddc53d630d1b8d33",
+      "source": "source/mp3/host_draw_4.mp3",
+      "sourceSha256": "b1328c9f711a3811c01e08bed092294e51e726328244e760701c44e15852abcb",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "A draw! The dice have left you all square!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_draw_5": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[excited] No winner this time! Thank you for the game, you two!",
+      "durationSeconds": 3.76,
+      "event": "draw",
+      "export": "exports/mp3/host_draw_5.mp3",
+      "generated": "2026-10-21T17:15:15Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 1.6,
+        "passes": 1,
+        "sourceLufs": -17.6
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "d0wKznEUs8BlA7pSDlZj",
+      "seed": 2064114904,
+      "sha256": "dcc18d4501df7f167f48c6098cf05a184b9588be183c63f157a8cc9d7bda3f1d",
+      "source": "source/mp3/host_draw_5.mp3",
+      "sourceSha256": "b24607017215f6b6f57c0198df6432300944f4b14381474a2d965ee7e55f9a03",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "No winner this time! Thank you for the game, you two!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_draw_6": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] It's a tie! A matching pair of cheers for you both!",
+      "durationSeconds": 3.76,
+      "event": "draw",
+      "export": "exports/mp3/host_draw_6.mp3",
+      "generated": "2026-10-21T17:15:17Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 0.6,
+        "passes": 1,
+        "sourceLufs": -16.6
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "74bbLwzvv52EFEKGGOER",
+      "seed": 2962488047,
+      "sha256": "c3a0ec75c08f491c74429ccfdf049d8be2e1c43f37063453fa05b9f920ddb08f",
+      "source": "source/mp3/host_draw_6.mp3",
+      "sourceSha256": "b24459961f065ca31c60374bd42d3235e2d9d0ac114c3e170cfce084880279a7",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "It's a tie! A matching pair of cheers for you both!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_intro_10": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[excited] Your pieces are all here! Let the dice join the party!",
+      "durationSeconds": 4.16,
+      "event": "intro",
+      "export": "exports/mp3/host_intro_10.mp3",
+      "generated": "2026-10-21T17:14:40Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 0.7,
+        "passes": 1,
+        "sourceLufs": -16.7
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "evVMWftOlqbWqQb9Vh0L",
+      "seed": 2709841708,
+      "sha256": "32475556298113e74e6b4f1925ffcfabff3dadfc81b6537135b5810dbf254ac5",
+      "source": "source/mp3/host_intro_10.mp3",
+      "sourceSha256": "5a60606cda8c24000003a6bf37e7909bfeafe145ff1dfb944e7881300ae9c520",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Your pieces are all here! Let the dice join the party!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_intro_6": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] Hello, you two! I'll bring the giggles, you bring the game!",
+      "durationSeconds": 4.32,
+      "event": "intro",
+      "export": "exports/mp3/host_intro_6.mp3",
+      "generated": "2026-10-21T17:14:34Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 1.5,
+        "passes": 1,
+        "sourceLufs": -17.5
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "WQWRjVSZVVKzWbAZvS8L",
+      "seed": 1270410674,
+      "sha256": "b7d7785c27ca796fba94f271df729e82de0528c0aa28dd0222266e3116373c34",
+      "source": "source/mp3/host_intro_6.mp3",
+      "sourceSha256": "872d397c74c80ee632392ec7c8b816eaf1269c02a71da0e6c1862696e61e6036",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Hello, you two! I'll bring the giggles, you bring the game!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_intro_7": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[excited] Two players and a lovely fresh board! Here we go!",
+      "durationSeconds": 4.16,
+      "event": "intro",
+      "export": "exports/mp3/host_intro_7.mp3",
+      "generated": "2026-10-21T17:14:35Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 0.3,
+        "passes": 1,
+        "sourceLufs": -16.3
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "wjJ2gyTkLafEKVyt4Bo4",
+      "seed": 4041003240,
+      "sha256": "9daa842cde53088752691e21063fa1772c06a689bcf0681952236725856a513f",
+      "source": "source/mp3/host_intro_7.mp3",
+      "sourceSha256": "e936669309ba08b96304a28ee1da1aca5f1c3fdb8d84dab1912f9dbebc64680e",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Two players and a lovely fresh board! Here we go!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_intro_8": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] Everybody comfy? The dice are ready for you both!",
+      "durationSeconds": 3.52,
+      "event": "intro",
+      "export": "exports/mp3/host_intro_8.mp3",
+      "generated": "2026-10-21T17:14:37Z",
+      "loudness": {
+        "exportLufs": -16.1,
+        "gainDb": 1.9,
+        "passes": 2,
+        "sourceLufs": -17.3
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "cNmVbZ3dRoqThyvUIJC4",
+      "seed": 2326168571,
+      "sha256": "3ea85797d2f879757e8a8800c45127651d6cf7d4182a95ead7048a696f7cd651",
+      "source": "source/mp3/host_intro_8.mp3",
+      "sourceSha256": "e91befeef8ae68662c6c6233f858204b279023c0556e4c33519892217882e373",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Everybody comfy? The dice are ready for you both!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_intro_9": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] I'm cheering for a whole roomful of fun!",
+      "durationSeconds": 3.2,
+      "event": "intro",
+      "export": "exports/mp3/host_intro_9.mp3",
+      "generated": "2026-10-21T17:14:39Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 0.3,
+        "passes": 1,
+        "sourceLufs": -16.3
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "iIV1o8bdK8mK2IJN7M4q",
+      "seed": 1937920213,
+      "sha256": "be089a8d6a1d97ac2d0811dea0730d3a60ccb91f5c76f3a0d2905829d2a49d48",
+      "source": "source/mp3/host_intro_9.mp3",
+      "sourceSha256": "09426c8725172de663442b8930805c821fbc1d45e3e60060e5af5066bd3f05f1",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "I'm cheering for a whole roomful of fun!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_white_wins_4": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] White wins! A big bouncy cheer for both players!",
+      "durationSeconds": 4.56,
+      "event": "white_wins",
+      "export": "exports/mp3/host_white_wins_4.mp3",
+      "generated": "2026-10-21T17:15:05Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 0.5,
+        "passes": 1,
+        "sourceLufs": -16.5
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "21gxNUzMMpQP2VVALyxf",
+      "seed": 3810953991,
+      "sha256": "8488c396eff14b84f50ced2f63fefa22c0f78e083711ca664483f28ea728a0ce",
+      "source": "source/mp3/host_white_wins_4.mp3",
+      "sourceSha256": "12102f22282fc5de2ab01144046ef8ee62af28f53ec750d931b3d0b78a05885d",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "White wins! A big bouncy cheer for both players!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_white_wins_5": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] The win [short pause] goes to White! [warmly] Thank you for playing, Black!",
+      "durationSeconds": 4.88,
+      "event": "white_wins",
+      "export": "exports/mp3/host_white_wins_5.mp3",
+      "generated": "2026-10-22T08:14:28Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 2.1,
+        "passes": 1,
+        "sourceLufs": -18.1
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "ZTp4fJMtSNMHbQU2uHfW",
+      "seed": 1075681133,
+      "sha256": "29d1bf7c819b519cfb5578e745847f12dc80b0f2efbc0edb027db8233602d3e5",
+      "source": "source/mp3/host_white_wins_5.mp3",
+      "sourceSha256": "1eb0a07443685e321720dcb087b694521d5e4c093e805a83f9492c195bb450d2",
+      "take": 2,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "The win goes to White! Thank you for playing, Black!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_white_wins_6": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] White takes this one! A little applause for you both!",
+      "durationSeconds": 3.84,
+      "event": "white_wins",
+      "export": "exports/mp3/host_white_wins_6.mp3",
+      "generated": "2026-10-21T17:15:08Z",
+      "loudness": {
+        "exportLufs": -16.1,
+        "gainDb": 1.8,
+        "passes": 2,
+        "sourceLufs": -17.2
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "6NjzmvVBr9PfnkU4o9jq",
+      "seed": 3873587551,
+      "sha256": "a182314705e771ef56137bc8c6e10eed10f323b2c907110ef04b557bf9d202c2",
+      "source": "source/mp3/host_white_wins_6.mp3",
+      "sourceSha256": "a11eb14ca94ce7e140a1c8af0bf0caa597cb4ad202f30d654251168536466359",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "White takes this one! A little applause for you both!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_win_10": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[excited] The game has a winner! My applause is for you both!",
+      "durationSeconds": 4.16,
+      "event": "win",
+      "export": "exports/mp3/host_win_10.mp3",
+      "generated": "2026-10-21T17:15:03Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": -0.3,
+        "passes": 1,
+        "sourceLufs": -15.7
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "BX8HWSktcylgL68bFybl",
+      "seed": 1639621524,
+      "sha256": "7826b8edc1bd9ab08422d540f87a3d42c016ba43eeabb092188c1c9ed59d999f",
+      "source": "source/mp3/host_win_10.mp3",
+      "sourceSha256": "14da79213c22dac962920170cadeed7676876aec5459c010abb649dac8bdac77",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "The game has a winner! My applause is for you both!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_win_3": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] That's a wrap, you two! Thanks for the game!",
+      "durationSeconds": 3.04,
+      "event": "win",
+      "export": "exports/mp3/host_win_3.mp3",
+      "generated": "2026-10-21T17:14:52Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 1.0,
+        "passes": 1,
+        "sourceLufs": -17.0
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "5uQfenzanKfbqiHWDBmq",
+      "seed": 2218019408,
+      "sha256": "0adc2e161c0d2822473dee96c1d1f61008c49952a7db7e575a57759af4ca2f47",
+      "source": "source/mp3/host_win_3.mp3",
+      "sourceSha256": "2b34d0dcc7ae5b31557bcbf4101efe4e2c2ca5ae6942adee0d70ef8e559410bc",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "That's a wrap, you two! Thanks for the game!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_win_4": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[excited] A winner, and a big cheer for both players!",
+      "durationSeconds": 3.84,
+      "event": "win",
+      "export": "exports/mp3/host_win_4.mp3",
+      "generated": "2026-10-21T17:14:53Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 0.5,
+        "passes": 1,
+        "sourceLufs": -16.5
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "e283l51hN3PdQ4BNExA3",
+      "seed": 2148863781,
+      "sha256": "72350bab5ca33b3f2479dc420dbe04419c764149c9ecdaec06729a1edc1f1bf9",
+      "source": "source/mp3/host_win_4.mp3",
+      "sourceSha256": "b933ac78a826131186b53ea85264fd11ce93db299110577f8349daa9ddfcec66",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "A winner, and a big cheer for both players!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_win_5": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] Game over! Sending a little sparkle to you both!",
+      "durationSeconds": 3.52,
+      "event": "win",
+      "export": "exports/mp3/host_win_5.mp3",
+      "generated": "2026-10-21T17:14:55Z",
+      "loudness": {
+        "exportLufs": -16.2,
+        "gainDb": 2.2,
+        "passes": 2,
+        "sourceLufs": -17.5
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "v1y8G3b5Pe96FZqbtebV",
+      "seed": 3130011914,
+      "sha256": "f0338b902d084083819667721008c2cbab40f5295130461ad69495a3644dc634",
+      "source": "source/mp3/host_win_5.mp3",
+      "sourceSha256": "86ebc4c64cd35933e3a80b423989772315fe50c8be667a8975ab3346eb896f0d",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "Game over! Sending a little sparkle to you both!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_win_6": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] The result is in! Give each other a wave!",
+      "durationSeconds": 3.04,
+      "event": "win",
+      "export": "exports/mp3/host_win_6.mp3",
+      "generated": "2026-10-21T17:14:56Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 1.1,
+        "passes": 1,
+        "sourceLufs": -17.1
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "a0ybc6ls4lHEPX8OJyBh",
+      "seed": 1718531076,
+      "sha256": "4074936726336212611238b7a11de07dda77d43f2836273fc2e2d57decbc953e",
+      "source": "source/mp3/host_win_6.mp3",
+      "sourceSha256": "792d653fe76ff931f844af8357ab4c285a23117d3f5a9383bd0007e28c4ab890",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "The result is in! Give each other a wave!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_win_7": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[excited] One finished game, two lovely players! Hooray!",
+      "durationSeconds": 4.48,
+      "event": "win",
+      "export": "exports/mp3/host_win_7.mp3",
+      "generated": "2026-10-21T17:14:58Z",
+      "loudness": {
+        "exportLufs": -16.4,
+        "gainDb": 0.0,
+        "passes": 1,
+        "sourceLufs": -16.0
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "f7nsFxD6FyprzJbxn4aw",
+      "seed": 2235773203,
+      "sha256": "5047a7f21b173a617b2549ff2f45e9438360465f2f30883f1f09598a4cdd0189",
+      "source": "source/mp3/host_win_7.mp3",
+      "sourceSha256": "f73a605eb052204bc1034610dbd7cc730c0a4ac7514ffc6a0b7e001a84f67566",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "One finished game, two lovely players! Hooray!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_win_8": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[curious] That's the game! A happy little bow to both of you!",
+      "durationSeconds": 4.0,
+      "event": "win",
+      "export": "exports/mp3/host_win_8.mp3",
+      "generated": "2026-10-21T17:15:00Z",
+      "loudness": {
+        "exportLufs": -16.3,
+        "gainDb": 3.3,
+        "passes": 2,
+        "sourceLufs": -18.4
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "QhhpkSZ4owkCCHc2HgDh",
+      "seed": 2304355489,
+      "sha256": "dc8b2d1c8e503b47f86d38ee720afb728997701b3cf8eaab3361526d4764c9ce",
+      "source": "source/mp3/host_win_8.mp3",
+      "sourceSha256": "d63ccecb374c1549bf8af88c6cf5a52f9ca57865ee70e442056a7ff9e433fea3",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "That's the game! A happy little bow to both of you!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    },
+    "host_win_9": {
+      "bot": "host",
+      "derivation": "-af volume=<gain>dB,alimiter=limit=0.8414:level=0 -ac 1 -ar 24000 -c:a libmp3lame -b:a 64k -map_metadata -1 -fflags +bitexact -flags:a +bitexact",
+      "direction": "[cheerful] All done! Thanks for sharing the board, you two!",
+      "durationSeconds": 3.36,
+      "event": "win",
+      "export": "exports/mp3/host_win_9.mp3",
+      "generated": "2026-10-21T17:15:01Z",
+      "loudness": {
+        "exportLufs": -16.5,
+        "gainDb": 0.8,
+        "passes": 1,
+        "sourceLufs": -16.8
+      },
+      "model": "eleven_v4",
+      "outputFormat": "mp3_44100_192",
+      "requestId": "ik6ArDiglUaQh9a363Jp",
+      "seed": 3186566952,
+      "sha256": "df45cdf88fabc6a753a0c7b1e882bcfbceb63f2ee4289bb6c9c4294df35a3fbb",
+      "source": "source/mp3/host_win_9.mp3",
+      "sourceSha256": "5f9028694f6158e1b18be2f2b29c693ab45e3ab252d62b6726d7cf1c71c623ec",
+      "take": 1,
+      "target": {
+        "bitrate": "64k",
+        "integratedLufs": -16,
+        "limitDbfs": -1.5
+      },
+      "text": "All done! Thanks for sharing the board, you two!",
+      "voice": "Rolly",
+      "voiceId": "GlPLfBQa0x5TbIG9auXy",
+      "voiceSettings": {
+        "similarity_boost": 0.75,
+        "speed": 1.0,
+        "stability": 0.5,
+        "style": 0.0,
+        "use_speaker_boost": true
+      }
+    }
+  },
+  "pack": {
+    "picks": "picks.json",
+    "texts": {
+      "path": "voices/elevenlabs-dicechess-host-expansion/catalogue.json",
+      "repository": "fortemate/dicechess-assets"
+    }
+  },
+  "picks": "picks.json",
+  "review": {
+    "correctedCandidates": {
+      "host_black_wins_5": {
+        "automatedTextChecks": "both passed",
+        "initialExportSha256": "477b5566b649a498bbb265a13655669a3a3b32c180fe1ae12a7808b840743ca6",
+        "initialSourceSha256": "bade30029f42b75ee14c2272f1bd7e4528b2e34b04f347dc6b9320e431863963",
+        "previousText": "The win goes to Black! Thank you for playing, White!",
+        "take": 2
+      },
+      "host_black_wins_6": {
+        "automatedTextChecks": "both passed",
+        "initialExportSha256": "b4738c0930c3b5e2380baeb98d42e67e5227905a66b37dd70054385a1b5bae1e",
+        "initialSourceSha256": "a033cfcd59efc31c2b538259a798c064ae5a2a0ec92c9918164abc67d21501c9",
+        "take": 2
+      },
+      "host_white_wins_5": {
+        "automatedTextChecks": "both passed",
+        "initialExportSha256": "2699af9cc13242f7cda77be6a402993a6c2110d5d65c0a00faf7cc54c517e6f6",
+        "initialSourceSha256": "c90f86c59c7befd3e578061ff9294f10aab0a144a883e7f872c0c2cc38141528",
+        "take": 2
+      }
+    },
+    "integrationAuthorization": "Owner requested integration of all 179 lines, including five corrected candidates, on October 22, 2026. Automated review is recorded; no human listening certification is implied.",
+    "note": "Selected for Dice Chess TV integration by the owner; runtime playback remains to be validated on a device.",
+    "selectionMethod": "Sole initial take automatically assembled for candidate exports; not human listening approval.",
+    "status": "awaiting-listening"
+  },
+  "schemaVersion": 1,
+  "status": "draft",
+  "texts": "catalogue.json",
+  "title": "Dice Chess Hot Seat host (ElevenLabs) — English expansion, October 21, 2026"
+}

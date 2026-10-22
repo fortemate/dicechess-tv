@@ -61,7 +61,7 @@ const PIP = 12;
 const AVATAR = 40;
 
 // The dialog block: the portrait, and beside it the name row over a bubble
-// of up to three rows. Its height fits the taller of the two, so a line of any
+// of up to four rows. Its height fits the taller of the two, so a line of any
 // length, or none, leaves it the same. The owner kept the portrait at 96 dp
 // when the frame went, so the bubble has the frame's width as well, wider than
 // the 23 characters a row measured on the Virtual Device.
@@ -73,7 +73,7 @@ export const DIALOGUE_HEIGHT = Math.max(
   NAME_ROW + NAME_GAP + BUBBLE_ROWS * BUBBLE_LINE + BUBBLE_CHROME,
 );
 
-// The host above the bottom badge: her portrait and two rows of her line, no
+// The host above the bottom badge: her portrait and three rows of her line, no
 // taller than the bubble. The tallest center she can speak over is a result
 // with its menu, and on the Virtual Device a 76 dp portrait touched its last
 // item.

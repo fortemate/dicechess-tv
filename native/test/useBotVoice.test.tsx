@@ -353,3 +353,46 @@ test('the board counts as on screen unless the caller says otherwise', () => {
     mock.timers.reset();
   }
 });
+
+test('a completed game starts a rematch with that opponent, then a different opponent gets an intro', () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  try {
+    const { getLine, Harness } = setupHarness();
+    const first = newGame('random', 'finished-one');
+    let tree!: renderer.ReactTestRenderer;
+    act(() => {
+      tree = renderer.create(<Harness game={first} />);
+    });
+    act(() => {
+      tree.update(
+        <Harness
+          game={{
+            ...first,
+            revision: 1,
+            phase: 'ended',
+            result: { winner: 'b', reason: 'resigned' },
+          }}
+        />,
+      );
+    });
+    const again = newGame('random', 'again');
+    act(() => {
+      tree.update(<Harness game={again} />);
+    });
+    assert.equal(getLine()?.event, 'rematch');
+    const spoken = getLine();
+    act(() => {
+      tree.update(<Harness game={{ ...again, revision: 1 }} />);
+    });
+    assert.equal(getLine(), spoken, 'the opening is not said twice');
+    act(() => {
+      tree.update(<Harness game={newGame('greedy', 'different')} />);
+    });
+    assert.equal(getLine()?.event, 'intro');
+    act(() => {
+      tree.unmount();
+    });
+  } finally {
+    mock.timers.reset();
+  }
+});

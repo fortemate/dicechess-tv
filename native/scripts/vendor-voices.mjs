@@ -44,6 +44,10 @@ const PACKS = [
   'elevenlabs-dicechess-host-prowla',
   'elevenlabs-dicechess-tutorial-thinkle',
   'elevenlabs-dicechess-host-thinkle',
+  'elevenlabs-dicechess-bots-expansion',
+  'elevenlabs-dicechess-host-expansion',
+  'elevenlabs-dicechess-host-prowla-expansion',
+  'elevenlabs-dicechess-host-thinkle-expansion',
 ];
 const native = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 

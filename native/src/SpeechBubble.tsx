@@ -3,8 +3,8 @@
 // It stands beside the speaker's portrait, its tail pointing back at the face:
 // a bot's in the dialog block at the top of the panel, the Hot Seat host's
 // above the bottom badge. In the tutorial it hangs under Thinkle's portrait
-// (#264). Its text is 20 dp like every other caption (#168), in at most three
-// rows for a bot and two for the host, which every voice line fits
+// (#264). Its text is 20 dp like every other caption (#168), in at most four
+// rows for a bot and three for the host, which every voice line fits
 // (test/botVoice.test.ts).
 import React from 'react';
 import { View, Text } from 'react-native';
@@ -25,8 +25,8 @@ export type SpeechBubbleProps = {
 
 export const BUBBLE_TEXT = 20;
 export const BUBBLE_LINE = 24;
-export const BUBBLE_ROWS = 3;
-export const HOST_BUBBLE_ROWS = 2;
+export const BUBBLE_ROWS = 4;
+export const HOST_BUBBLE_ROWS = 3;
 // Padding and border above and below the text, so a bubble of n rows is
 // n * BUBBLE_LINE + BUBBLE_CHROME tall.
 export const BUBBLE_CHROME = 15;

@@ -62,6 +62,36 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     seconds: 4.08,
     text: 'Everything on this board belongs in my collection.',
   },
+  grabby_intro_10: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_intro_10.mp3',
+    seconds: 3.52,
+    text: "I've cleared a lovely spot for today's finds.",
+  },
+  grabby_intro_11: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_intro_11.mp3',
+    seconds: 4.96,
+    text: 'A visitor and a board full of curiosities. Delightful!',
+  },
+  grabby_intro_12: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_intro_12.mp3',
+    seconds: 3.92,
+    text: 'My collection could use a few finishing touches.',
+  },
+  grabby_intro_13: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_intro_13.mp3',
+    seconds: 4.8,
+    text: 'Shall we begin? I have a great deal of admiring to do.',
+  },
+  grabby_intro_14: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_intro_14.mp3',
+    seconds: 4.32,
+    text: 'What lovely craftsmanship. Especially on your side.',
+  },
+  grabby_intro_15: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_intro_15.mp3',
+    seconds: 4.16,
+    text: 'Hands off my treasures, and do enjoy the game.',
+  },
   grabby_intro_2: {
     file: 'elevenlabs-dicechess-bots/grabby_intro_2.mp3',
     seconds: 4.64,
@@ -72,10 +102,60 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     seconds: 4.48,
     text: 'A fresh board! So many shiny pieces to hoard.',
   },
+  grabby_intro_6: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_intro_6.mp3',
+    seconds: 4.56,
+    text: 'Welcome! Please admire my collection from a distance.',
+  },
+  grabby_intro_7: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_intro_7.mp3',
+    seconds: 4.16,
+    text: 'Every piece has a place. Preferably on my shelf.',
+  },
+  grabby_intro_8: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_intro_8.mp3',
+    seconds: 3.28,
+    text: 'Do come in. Mind the display cases.',
+  },
+  grabby_intro_9: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_intro_9.mp3',
+    seconds: 4.8,
+    text: 'Such fine pieces! I shall try not to stare.',
+  },
   grabby_loss_1: {
     file: 'elevenlabs-dicechess-bots/grabby_loss_1.mp3',
     seconds: 5.76,
     text: 'No! My glorious collection! How dare you?!',
+  },
+  grabby_loss_10: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_loss_10.mp3',
+    seconds: 3.36,
+    text: 'There must be a shelf somewhere for disappointments.',
+  },
+  grabby_loss_11: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_loss_11.mp3',
+    seconds: 4.4,
+    text: "Defeat? I certainly didn't order one of those!",
+  },
+  grabby_loss_12: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_loss_12.mp3',
+    seconds: 3.6,
+    text: 'My victory display was ready! Now look at it!',
+  },
+  grabby_loss_13: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_loss_13.mp3',
+    seconds: 4.16,
+    text: "Oh, bother. I'll have to dust my wounded pride.",
+  },
+  grabby_loss_14: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_loss_14.mp3',
+    seconds: 6.24,
+    text: 'Very well. Your win. My extremely dignified sulk.',
+  },
+  grabby_loss_15: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_loss_15.mp3',
+    seconds: 3.68,
+    text: 'Hmph! I shall label this a temporary setback.',
   },
   grabby_loss_2: {
     file: 'elevenlabs-dicechess-bots/grabby_loss_2.mp3',
@@ -86,6 +166,61 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     file: 'elevenlabs-dicechess-bots/grabby_loss_3.mp3',
     seconds: 6.08,
     text: 'Defeated?! My treasures... slipping away...',
+  },
+  grabby_loss_6: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_loss_6.mp3',
+    seconds: 4.16,
+    text: 'I lost? But I had such a splendid victory grin!',
+  },
+  grabby_loss_7: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_loss_7.mp3',
+    seconds: 3.12,
+    text: 'My collection and I would like a moment alone.',
+  },
+  grabby_loss_8: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_loss_8.mp3',
+    seconds: 4.56,
+    text: 'Hmph! That result is going in the back cupboard.',
+  },
+  grabby_loss_9: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_loss_9.mp3',
+    seconds: 4,
+    text: 'You won? How dreadfully inconvenient for me!',
+  },
+  grabby_rematch_10: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_rematch_10.mp3',
+    seconds: 3.44,
+    text: 'A fresh collection awaits. Shall we?',
+  },
+  grabby_rematch_4: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_rematch_4.mp3',
+    seconds: 3.68,
+    text: 'Another round? Let me straighten my crown.',
+  },
+  grabby_rematch_5: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_rematch_5.mp3',
+    seconds: 4.32,
+    text: 'Very well. I can always find room for more pieces.',
+  },
+  grabby_rematch_6: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_rematch_6.mp3',
+    seconds: 2.88,
+    text: 'Shall we reopen the display cases?',
+  },
+  grabby_rematch_7: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_rematch_7.mp3',
+    seconds: 4.08,
+    text: "Back to the board! The shelves won't fill themselves.",
+  },
+  grabby_rematch_8: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_rematch_8.mp3',
+    seconds: 3.28,
+    text: 'One more game? How thoughtful of you.',
+  },
+  grabby_rematch_9: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_rematch_9.mp3',
+    seconds: 4.48,
+    text: "Again, then! I'll bring my finest collecting grin.",
   },
   grabby_threat_1: {
     file: 'elevenlabs-dicechess-bots/grabby_threat_1.mp3',
@@ -107,6 +242,11 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     seconds: 6,
     text: 'Victory and total plunder! What a splendid haul!',
   },
+  grabby_win_10: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_win_10.mp3',
+    seconds: 4,
+    text: 'I win! My victory grin fits perfectly.',
+  },
   grabby_win_2: {
     file: 'elevenlabs-dicechess-bots/grabby_win_2.mp3',
     seconds: 4.32,
@@ -117,10 +257,35 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     seconds: 4.48,
     text: "Ha! I'll have this whole game framed!",
   },
+  grabby_win_6: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_win_6.mp3',
+    seconds: 4.08,
+    text: 'A victory! The perfect addition to my collection.',
+  },
+  grabby_win_7: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_win_7.mp3',
+    seconds: 4,
+    text: "Splendid! I'll put this win on the top shelf.",
+  },
+  grabby_win_8: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_win_8.mp3',
+    seconds: 5.44,
+    text: 'Mine, all mine! What a delightful result.',
+  },
+  grabby_win_9: {
+    file: 'elevenlabs-dicechess-bots-expansion/grabby_win_9.mp3',
+    seconds: 3.92,
+    text: 'Another space in the cabinet filled. Excellent!',
+  },
   host_again_1: {
     file: 'elevenlabs-dicechess-host/host_again_1.mp3',
     seconds: 4.24,
     text: 'Another game? Yay, more cheering for me!',
+  },
+  host_again_10: {
+    file: 'elevenlabs-dicechess-host-expansion/host_again_10.mp3',
+    seconds: 4.32,
+    text: "Another game together! Now that's a lovely idea!",
   },
   host_again_2: {
     file: 'elevenlabs-dicechess-host/host_again_2.mp3',
@@ -131,6 +296,36 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     file: 'elevenlabs-dicechess-host/host_again_3.mp3',
     seconds: 4.4,
     text: 'Back for more? The dice are all warmed up!',
+  },
+  host_again_4: {
+    file: 'elevenlabs-dicechess-host-expansion/host_again_4.mp3',
+    seconds: 3.52,
+    text: "Another round for you two? I'll stay for the fun!",
+  },
+  host_again_5: {
+    file: 'elevenlabs-dicechess-host-expansion/host_again_5.mp3',
+    seconds: 4.16,
+    text: 'Ooh, a fresh start! Hello again, little pieces!',
+  },
+  host_again_6: {
+    file: 'elevenlabs-dicechess-host-expansion/host_again_6.mp3',
+    seconds: 4.56,
+    text: 'Same friends, new game! My favorite kind of evening!',
+  },
+  host_again_7: {
+    file: 'elevenlabs-dicechess-host-expansion/host_again_7.mp3',
+    seconds: 3.68,
+    text: 'Back to the beginning! The dice love an encore!',
+  },
+  host_again_8: {
+    file: 'elevenlabs-dicechess-host-expansion/host_again_8.mp3',
+    seconds: 3.44,
+    text: "Everybody's back on the board! Let's go again!",
+  },
+  host_again_9: {
+    file: 'elevenlabs-dicechess-host-expansion/host_again_9.mp3',
+    seconds: 3.84,
+    text: 'More dice, more giggles! Ready, you two?',
   },
   host_black_wins_1: {
     file: 'elevenlabs-dicechess-host/host_black_wins_1.mp3',
@@ -146,6 +341,21 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     file: 'elevenlabs-dicechess-host/host_black_wins_3.mp3',
     seconds: 3.44,
     text: 'Three cheers for Black, and for White too!',
+  },
+  host_black_wins_4: {
+    file: 'elevenlabs-dicechess-host-expansion/host_black_wins_4.mp3',
+    seconds: 4.64,
+    text: 'Black wins! A big bouncy cheer for both players!',
+  },
+  host_black_wins_5: {
+    file: 'elevenlabs-dicechess-host-expansion/host_black_wins_5.mp3',
+    seconds: 4.8,
+    text: 'The win goes to Black! Thank you for playing, White!',
+  },
+  host_black_wins_6: {
+    file: 'elevenlabs-dicechess-host-expansion/host_black_wins_6.mp3',
+    seconds: 4.64,
+    text: 'Black takes this one! A little applause for you both!',
   },
   host_capture_1: {
     file: 'elevenlabs-dicechess-host/host_capture_1.mp3',
@@ -242,6 +452,21 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     seconds: 4.96,
     text: 'All even! Shake hands, both of you!',
   },
+  host_draw_4: {
+    file: 'elevenlabs-dicechess-host-expansion/host_draw_4.mp3',
+    seconds: 3.52,
+    text: 'A draw! The dice have left you all square!',
+  },
+  host_draw_5: {
+    file: 'elevenlabs-dicechess-host-expansion/host_draw_5.mp3',
+    seconds: 3.76,
+    text: 'No winner this time! Thank you for the game, you two!',
+  },
+  host_draw_6: {
+    file: 'elevenlabs-dicechess-host-expansion/host_draw_6.mp3',
+    seconds: 3.76,
+    text: "It's a tie! A matching pair of cheers for you both!",
+  },
   host_empty_roll_1: {
     file: 'elevenlabs-dicechess-host/host_empty_roll_1.mp3',
     seconds: 4.4,
@@ -297,6 +522,11 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     seconds: 3.04,
     text: "You two play, and I'll do the cheering!",
   },
+  host_intro_10: {
+    file: 'elevenlabs-dicechess-host-expansion/host_intro_10.mp3',
+    seconds: 4.16,
+    text: 'Your pieces are all here! Let the dice join the party!',
+  },
   host_intro_2: {
     file: 'elevenlabs-dicechess-host/host_intro_2.mp3',
     seconds: 4.08,
@@ -316,6 +546,26 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     file: 'elevenlabs-dicechess-host/host_intro_5.mp3',
     seconds: 4.08,
     text: "Ooh, a brand new game... I can't wait!",
+  },
+  host_intro_6: {
+    file: 'elevenlabs-dicechess-host-expansion/host_intro_6.mp3',
+    seconds: 4.32,
+    text: "Hello, you two! I'll bring the giggles, you bring the game!",
+  },
+  host_intro_7: {
+    file: 'elevenlabs-dicechess-host-expansion/host_intro_7.mp3',
+    seconds: 4.16,
+    text: 'Two players and a lovely fresh board! Here we go!',
+  },
+  host_intro_8: {
+    file: 'elevenlabs-dicechess-host-expansion/host_intro_8.mp3',
+    seconds: 3.52,
+    text: 'Everybody comfy? The dice are ready for you both!',
+  },
+  host_intro_9: {
+    file: 'elevenlabs-dicechess-host-expansion/host_intro_9.mp3',
+    seconds: 3.2,
+    text: "I'm cheering for a whole roomful of fun!",
   },
   host_promotion_1: {
     file: 'elevenlabs-dicechess-host/host_promotion_1.mp3',
@@ -347,20 +597,80 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     seconds: 4.56,
     text: 'Hooray, White! And hooray, Black, too!',
   },
+  host_white_wins_4: {
+    file: 'elevenlabs-dicechess-host-expansion/host_white_wins_4.mp3',
+    seconds: 4.56,
+    text: 'White wins! A big bouncy cheer for both players!',
+  },
+  host_white_wins_5: {
+    file: 'elevenlabs-dicechess-host-expansion/host_white_wins_5.mp3',
+    seconds: 4.88,
+    text: 'The win goes to White! Thank you for playing, Black!',
+  },
+  host_white_wins_6: {
+    file: 'elevenlabs-dicechess-host-expansion/host_white_wins_6.mp3',
+    seconds: 3.84,
+    text: 'White takes this one! A little applause for you both!',
+  },
   host_win_1: {
     file: 'elevenlabs-dicechess-host/host_win_1.mp3',
     seconds: 3.44,
     text: "And that's the game! Bravo, you two!",
+  },
+  host_win_10: {
+    file: 'elevenlabs-dicechess-host-expansion/host_win_10.mp3',
+    seconds: 4.16,
+    text: 'The game has a winner! My applause is for you both!',
   },
   host_win_2: {
     file: 'elevenlabs-dicechess-host/host_win_2.mp3',
     seconds: 4.32,
     text: 'We have a winner! Great game, everyone!',
   },
+  host_win_3: {
+    file: 'elevenlabs-dicechess-host-expansion/host_win_3.mp3',
+    seconds: 3.04,
+    text: "That's a wrap, you two! Thanks for the game!",
+  },
+  host_win_4: {
+    file: 'elevenlabs-dicechess-host-expansion/host_win_4.mp3',
+    seconds: 3.84,
+    text: 'A winner, and a big cheer for both players!',
+  },
+  host_win_5: {
+    file: 'elevenlabs-dicechess-host-expansion/host_win_5.mp3',
+    seconds: 3.52,
+    text: 'Game over! Sending a little sparkle to you both!',
+  },
+  host_win_6: {
+    file: 'elevenlabs-dicechess-host-expansion/host_win_6.mp3',
+    seconds: 3.04,
+    text: 'The result is in! Give each other a wave!',
+  },
+  host_win_7: {
+    file: 'elevenlabs-dicechess-host-expansion/host_win_7.mp3',
+    seconds: 4.48,
+    text: 'One finished game, two lovely players! Hooray!',
+  },
+  host_win_8: {
+    file: 'elevenlabs-dicechess-host-expansion/host_win_8.mp3',
+    seconds: 4,
+    text: "That's the game! A happy little bow to both of you!",
+  },
+  host_win_9: {
+    file: 'elevenlabs-dicechess-host-expansion/host_win_9.mp3',
+    seconds: 3.36,
+    text: 'All done! Thanks for sharing the board, you two!',
+  },
   prowla_host_again_1: {
     file: 'elevenlabs-dicechess-host-prowla/prowla_host_again_1.mp3',
     seconds: 4.56,
     text: "Another round? Oh, I hoped you'd say that.",
+  },
+  prowla_host_again_10: {
+    file: 'elevenlabs-dicechess-host-prowla-expansion/prowla_host_again_10.mp3',
+    seconds: 4.56,
+    text: 'Shall we watch a new game unfold? Off you go, both of you.',
   },
   prowla_host_again_2: {
     file: 'elevenlabs-dicechess-host-prowla/prowla_host_again_2.mp3',
@@ -377,6 +687,31 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     seconds: 3.76,
     text: 'Back so soon? I adore a rematch.',
   },
+  prowla_host_again_5: {
+    file: 'elevenlabs-dicechess-host-prowla-expansion/prowla_host_again_5.mp3',
+    seconds: 3.2,
+    text: 'Another game together? Make yourselves at home.',
+  },
+  prowla_host_again_6: {
+    file: 'elevenlabs-dicechess-host-prowla-expansion/prowla_host_again_6.mp3',
+    seconds: 4.08,
+    text: "A new round, darlings. I'll curl up right here.",
+  },
+  prowla_host_again_7: {
+    file: 'elevenlabs-dicechess-host-prowla-expansion/prowla_host_again_7.mp3',
+    seconds: 3.84,
+    text: 'The pieces are back. So am I, naturally.',
+  },
+  prowla_host_again_8: {
+    file: 'elevenlabs-dicechess-host-prowla-expansion/prowla_host_again_8.mp3',
+    seconds: 4.4,
+    text: 'Again, you two? This evening gets better and better.',
+  },
+  prowla_host_again_9: {
+    file: 'elevenlabs-dicechess-host-prowla-expansion/prowla_host_again_9.mp3',
+    seconds: 5.28,
+    text: 'Fresh dice, familiar faces. A lovely combination.',
+  },
   prowla_host_black_wins_1: {
     file: 'elevenlabs-dicechess-host-prowla/prowla_host_black_wins_1.mp3',
     seconds: 3.92,
@@ -391,6 +726,21 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     file: 'elevenlabs-dicechess-host-prowla/prowla_host_black_wins_3.mp3',
     seconds: 4.56,
     text: 'Black pounces last. What a chase, darlings.',
+  },
+  prowla_host_black_wins_4: {
+    file: 'elevenlabs-dicechess-host-prowla-expansion/prowla_host_black_wins_4.mp3',
+    seconds: 4.64,
+    text: 'Black wins, darlings. My compliments to both players.',
+  },
+  prowla_host_black_wins_5: {
+    file: 'elevenlabs-dicechess-host-prowla-expansion/prowla_host_black_wins_5.mp3',
+    seconds: 4.96,
+    text: 'This one goes to Black. A gracious bow to White as well.',
+  },
+  prowla_host_black_wins_6: {
+    file: 'elevenlabs-dicechess-host-prowla-expansion/prowla_host_black_wins_6.mp3',
+    seconds: 4.08,
+    text: 'Victory for Black. Thank you for the game, you two.',
   },
   prowla_host_capture_1: {
     file: 'elevenlabs-dicechess-host-prowla/prowla_host_capture_1.mp3',
@@ -497,6 +847,21 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     seconds: 4.56,
     text: 'A draw! You two are far too well matched.',
   },
+  prowla_host_draw_4: {
+    file: 'elevenlabs-dicechess-host-prowla-expansion/prowla_host_draw_4.mp3',
+    seconds: 4.16,
+    text: 'A draw, darlings. This chase has no winner.',
+  },
+  prowla_host_draw_5: {
+    file: 'elevenlabs-dicechess-host-prowla-expansion/prowla_host_draw_5.mp3',
+    seconds: 4.48,
+    text: 'All square. A graceful bow to each other, perhaps?',
+  },
+  prowla_host_draw_6: {
+    file: 'elevenlabs-dicechess-host-prowla-expansion/prowla_host_draw_6.mp3',
+    seconds: 4.4,
+    text: 'Neither side takes the game. Thank you, both of you.',
+  },
   prowla_host_empty_roll_1: {
     file: 'elevenlabs-dicechess-host-prowla/prowla_host_empty_roll_1.mp3',
     seconds: 4.32,
@@ -557,6 +922,11 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     seconds: 4.48,
     text: 'Two players, one board. How delicious.',
   },
+  prowla_host_intro_10: {
+    file: 'elevenlabs-dicechess-host-prowla-expansion/prowla_host_intro_10.mp3',
+    seconds: 4.8,
+    text: 'Settle in, both of you. I do enjoy a little company.',
+  },
   prowla_host_intro_2: {
     file: 'elevenlabs-dicechess-host-prowla/prowla_host_intro_2.mp3',
     seconds: 4.32,
@@ -576,6 +946,26 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     file: 'elevenlabs-dicechess-host-prowla/prowla_host_intro_5.mp3',
     seconds: 3.76,
     text: 'No dice for me, darlings. I only watch.',
+  },
+  prowla_host_intro_6: {
+    file: 'elevenlabs-dicechess-host-prowla-expansion/prowla_host_intro_6.mp3',
+    seconds: 3.68,
+    text: 'Make yourselves comfortable, you two. The board is yours.',
+  },
+  prowla_host_intro_7: {
+    file: 'elevenlabs-dicechess-host-prowla-expansion/prowla_host_intro_7.mp3',
+    seconds: 4.88,
+    text: 'A game for two, and a cozy spot for me. Perfect.',
+  },
+  prowla_host_intro_8: {
+    file: 'elevenlabs-dicechess-host-prowla-expansion/prowla_host_intro_8.mp3',
+    seconds: 3.44,
+    text: 'Welcome to the table, darlings. Shall we begin?',
+  },
+  prowla_host_intro_9: {
+    file: 'elevenlabs-dicechess-host-prowla-expansion/prowla_host_intro_9.mp3',
+    seconds: 4.48,
+    text: "Two players, fresh dice. I'll lend an attentive ear.",
   },
   prowla_host_promotion_1: {
     file: 'elevenlabs-dicechess-host-prowla/prowla_host_promotion_1.mp3',
@@ -612,10 +1002,30 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     seconds: 4,
     text: 'White takes it. What a chase, you two.',
   },
+  prowla_host_white_wins_4: {
+    file: 'elevenlabs-dicechess-host-prowla-expansion/prowla_host_white_wins_4.mp3',
+    seconds: 4.48,
+    text: 'White wins, darlings. My compliments to both players.',
+  },
+  prowla_host_white_wins_5: {
+    file: 'elevenlabs-dicechess-host-prowla-expansion/prowla_host_white_wins_5.mp3',
+    seconds: 5.04,
+    text: 'This one goes to White. A gracious bow to Black as well.',
+  },
+  prowla_host_white_wins_6: {
+    file: 'elevenlabs-dicechess-host-prowla-expansion/prowla_host_white_wins_6.mp3',
+    seconds: 4.08,
+    text: 'Victory for White. Thank you for the game, you two.',
+  },
   prowla_host_win_1: {
     file: 'elevenlabs-dicechess-host-prowla/prowla_host_win_1.mp3',
     seconds: 3.92,
     text: 'And the game is caught. Bravo, you two.',
+  },
+  prowla_host_win_10: {
+    file: 'elevenlabs-dicechess-host-prowla-expansion/prowla_host_win_10.mp3',
+    seconds: 3.52,
+    text: 'Time for a bow, darlings. The game is over.',
   },
   prowla_host_win_2: {
     file: 'elevenlabs-dicechess-host-prowla/prowla_host_win_2.mp3',
@@ -626,6 +1036,36 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     file: 'elevenlabs-dicechess-host-prowla/prowla_host_win_3.mp3',
     seconds: 4.32,
     text: "That's the game, darlings. What fun.",
+  },
+  prowla_host_win_4: {
+    file: 'elevenlabs-dicechess-host-prowla-expansion/prowla_host_win_4.mp3',
+    seconds: 3.76,
+    text: "That's the game, you two. Thank you for the company.",
+  },
+  prowla_host_win_5: {
+    file: 'elevenlabs-dicechess-host-prowla-expansion/prowla_host_win_5.mp3',
+    seconds: 5.28,
+    text: 'A winner is decided. A graceful bow to both players.',
+  },
+  prowla_host_win_6: {
+    file: 'elevenlabs-dicechess-host-prowla-expansion/prowla_host_win_6.mp3',
+    seconds: 4.24,
+    text: 'The result is in, darlings. Do congratulate each other.',
+  },
+  prowla_host_win_7: {
+    file: 'elevenlabs-dicechess-host-prowla-expansion/prowla_host_win_7.mp3',
+    seconds: 4,
+    text: 'And there we are. My compliments to you both.',
+  },
+  prowla_host_win_8: {
+    file: 'elevenlabs-dicechess-host-prowla-expansion/prowla_host_win_8.mp3',
+    seconds: 4.64,
+    text: 'One game complete. A little purr for each of you.',
+  },
+  prowla_host_win_9: {
+    file: 'elevenlabs-dicechess-host-prowla-expansion/prowla_host_win_9.mp3',
+    seconds: 4,
+    text: 'The board has its answer. Thank you, both of you.',
   },
   rampage_capture_1: {
     file: 'elevenlabs-dicechess-bots/rampage_capture_1.mp3',
@@ -677,6 +1117,36 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     seconds: 5.28,
     text: 'Step forward. Your king will not survive this day.',
   },
+  rampage_intro_10: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_intro_10.mp3',
+    seconds: 4.56,
+    text: 'Helmet straight! Cape ready! Let us begin!',
+  },
+  rampage_intro_11: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_intro_11.mp3',
+    seconds: 4.72,
+    text: 'The fortress gates are open. Enter if you dare!',
+  },
+  rampage_intro_12: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_intro_12.mp3',
+    seconds: 6.4,
+    text: 'Behold my mighty army! Small pieces, enormous ambition!',
+  },
+  rampage_intro_13: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_intro_13.mp3',
+    seconds: 4.56,
+    text: 'Drums! Trumpets! Somebody announce me properly!',
+  },
+  rampage_intro_14: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_intro_14.mp3',
+    seconds: 3.52,
+    text: 'I have polished my horns for this occasion!',
+  },
+  rampage_intro_15: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_intro_15.mp3',
+    seconds: 5.12,
+    text: 'Let the dice rumble! My grand campaign begins!',
+  },
   rampage_intro_2: {
     file: 'elevenlabs-dicechess-bots/rampage_intro_2.mp3',
     seconds: 5.2,
@@ -687,10 +1157,60 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     seconds: 4.56,
     text: 'Prepare yourself! I strike without hesitation.',
   },
+  rampage_intro_6: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_intro_6.mp3',
+    seconds: 4.8,
+    text: 'Raise the banners! This board is my battlefield!',
+  },
+  rampage_intro_7: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_intro_7.mp3',
+    seconds: 4.88,
+    text: 'Attention, pieces! Your magnificent commander has arrived!',
+  },
+  rampage_intro_8: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_intro_8.mp3',
+    seconds: 3.92,
+    text: 'I brought my loudest battle cry. Ready?',
+  },
+  rampage_intro_9: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_intro_9.mp3',
+    seconds: 5.12,
+    text: 'Stand by! A very important conquest is about to begin!',
+  },
   rampage_loss_1: {
     file: 'elevenlabs-dicechess-bots/rampage_loss_1.mp3',
     seconds: 3.84,
     text: 'Impossible! How could my onslaught fail?!',
+  },
+  rampage_loss_10: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_loss_10.mp3',
+    seconds: 3.36,
+    text: 'This cape is not equipped for disappointment!',
+  },
+  rampage_loss_11: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_loss_11.mp3',
+    seconds: 3.6,
+    text: 'Beaten! And in front of all my pieces!',
+  },
+  rampage_loss_12: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_loss_12.mp3',
+    seconds: 3.84,
+    text: 'My grand triumph appears to be missing!',
+  },
+  rampage_loss_13: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_loss_13.mp3',
+    seconds: 4.56,
+    text: 'What an outrage! A perfectly legal outrage!',
+  },
+  rampage_loss_14: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_loss_14.mp3',
+    seconds: 4.8,
+    text: 'Very well! Your victory deserves a mighty salute!',
+  },
+  rampage_loss_15: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_loss_15.mp3',
+    seconds: 3.68,
+    text: 'My pride needs a helmet of its own!',
   },
   rampage_loss_2: {
     file: 'elevenlabs-dicechess-bots/rampage_loss_2.mp3',
@@ -701,6 +1221,61 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     file: 'elevenlabs-dicechess-bots/rampage_loss_3.mp3',
     seconds: 4.96,
     text: 'Downed, but not broken! We will battle again!',
+  },
+  rampage_loss_6: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_loss_6.mp3',
+    seconds: 4.56,
+    text: 'Defeat?! But I rehearsed the victory speech!',
+  },
+  rampage_loss_7: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_loss_7.mp3',
+    seconds: 5.36,
+    text: 'My banners! Somebody lower them very, very slowly!',
+  },
+  rampage_loss_8: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_loss_8.mp3',
+    seconds: 3.52,
+    text: 'I demand a much smaller word than defeat!',
+  },
+  rampage_loss_9: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_loss_9.mp3',
+    seconds: 4.96,
+    text: 'You win. I shall stomp about it privately!',
+  },
+  rampage_rematch_10: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_rematch_10.mp3',
+    seconds: 3.92,
+    text: 'You challenge me again? Splendid courage!',
+  },
+  rampage_rematch_4: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_rematch_4.mp3',
+    seconds: 3.68,
+    text: 'Again? Raise the banners once more!',
+  },
+  rampage_rematch_5: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_rematch_5.mp3',
+    seconds: 3.92,
+    text: 'A new campaign! Assemble the pieces!',
+  },
+  rampage_rematch_6: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_rematch_6.mp3',
+    seconds: 4.56,
+    text: 'One more battle! My cape is still billowing!',
+  },
+  rampage_rematch_7: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_rematch_7.mp3',
+    seconds: 3.6,
+    text: 'Back to your posts! The rematch begins!',
+  },
+  rampage_rematch_8: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_rematch_8.mp3',
+    seconds: 4.8,
+    text: 'Another round? Excellent! I have more speeches!',
+  },
+  rampage_rematch_9: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_rematch_9.mp3',
+    seconds: 4.48,
+    text: 'Reset the board! Leave the dramatic music to me!',
   },
   rampage_threat_1: {
     file: 'elevenlabs-dicechess-bots/rampage_threat_1.mp3',
@@ -722,6 +1297,11 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     seconds: 5.84,
     text: 'Total annihilation! Kneel before the conqueror!',
   },
+  rampage_win_10: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_win_10.mp3',
+    seconds: 4.32,
+    text: 'A grand victory for a very grand commander!',
+  },
   rampage_win_2: {
     file: 'elevenlabs-dicechess-bots/rampage_win_2.mp3',
     seconds: 5.04,
@@ -731,6 +1311,26 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     file: 'elevenlabs-dicechess-bots/rampage_win_3.mp3',
     seconds: 4.96,
     text: 'Victory was inevitable! You were completely outmatched!',
+  },
+  rampage_win_6: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_win_6.mp3',
+    seconds: 4.56,
+    text: 'Sound the trumpets! Victory belongs to me!',
+  },
+  rampage_win_7: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_win_7.mp3',
+    seconds: 4.4,
+    text: 'My banner flies highest! A glorious result!',
+  },
+  rampage_win_8: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_win_8.mp3',
+    seconds: 5.28,
+    text: 'Behold! A triumph worthy of my magnificent horns!',
+  },
+  rampage_win_9: {
+    file: 'elevenlabs-dicechess-bots-expansion/rampage_win_9.mp3',
+    seconds: 4.32,
+    text: 'I win! Someone bring the ceremonial cushion!',
   },
   rolly_capture_1: {
     file: 'elevenlabs-dicechess-bots/rolly_capture_1.mp3',
@@ -782,6 +1382,36 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     seconds: 3.04,
     text: "Hey! Let's roll and see what happens!",
   },
+  rolly_intro_10: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_intro_10.mp3',
+    seconds: 4,
+    text: 'Little pieces, big adventure! Here we go!',
+  },
+  rolly_intro_11: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_intro_11.mp3',
+    seconds: 2.64,
+    text: 'I wonder what the dice will say today!',
+  },
+  rolly_intro_12: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_intro_12.mp3',
+    seconds: 3.6,
+    text: "Come on in! There's always room for a little luck!",
+  },
+  rolly_intro_13: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_intro_13.mp3',
+    seconds: 3.92,
+    text: 'Look at all those pieces! This is going to be fun!',
+  },
+  rolly_intro_14: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_intro_14.mp3',
+    seconds: 3.76,
+    text: 'My fingers are crossed. Well, most of them!',
+  },
+  rolly_intro_15: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_intro_15.mp3',
+    seconds: 3.84,
+    text: "All set? I've brought enough giggles for both of us!",
+  },
   rolly_intro_2: {
     file: 'elevenlabs-dicechess-bots/rolly_intro_2.mp3',
     seconds: 4.48,
@@ -792,10 +1422,60 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     seconds: 4.24,
     text: "I love rolling dice! Hope they're friendly today!",
   },
+  rolly_intro_6: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_intro_6.mp3',
+    seconds: 4.4,
+    text: "Ooh, a whole board of possibilities! Let's roll!",
+  },
+  rolly_intro_7: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_intro_7.mp3',
+    seconds: 3.2,
+    text: "I've got my dice and my biggest grin!",
+  },
+  rolly_intro_8: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_intro_8.mp3',
+    seconds: 3.76,
+    text: "Hello, hello! Let's make these pieces dance!",
+  },
+  rolly_intro_9: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_intro_9.mp3',
+    seconds: 3.6,
+    text: 'Ready? My lucky feeling is all tingly!',
+  },
   rolly_loss_1: {
     file: 'elevenlabs-dicechess-bots/rolly_loss_1.mp3',
     seconds: 4.8,
     text: 'Aww, good game! You got me fair and square!',
+  },
+  rolly_loss_10: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_loss_10.mp3',
+    seconds: 3.92,
+    text: 'Your win gets two thumbs up from me!',
+  },
+  rolly_loss_11: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_loss_11.mp3',
+    seconds: 4.72,
+    text: 'Oof! A little wobble for me, a big cheer for you!',
+  },
+  rolly_loss_12: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_loss_12.mp3',
+    seconds: 3.12,
+    text: "You got the win! I'll keep the giggles!",
+  },
+  rolly_loss_13: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_loss_13.mp3',
+    seconds: 3.6,
+    text: 'My victory dance will have to wait!',
+  },
+  rolly_loss_14: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_loss_14.mp3',
+    seconds: 4.48,
+    text: 'Oh! Is that my losing face? Congratulations!',
+  },
+  rolly_loss_15: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_loss_15.mp3',
+    seconds: 3.52,
+    text: 'You win this one! Thanks for the lovely game!',
   },
   rolly_loss_2: {
     file: 'elevenlabs-dicechess-bots/rolly_loss_2.mp3',
@@ -806,6 +1486,61 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     file: 'elevenlabs-dicechess-bots/rolly_loss_3.mp3',
     seconds: 4.32,
     text: "You're too good! Let's play another round!",
+  },
+  rolly_loss_6: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_loss_6.mp3',
+    seconds: 4.08,
+    text: "You won! I'm giving you my very best cheer!",
+  },
+  rolly_loss_7: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_loss_7.mp3',
+    seconds: 4.4,
+    text: 'Oh, noodles! That one goes to you!',
+  },
+  rolly_loss_8: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_loss_8.mp3',
+    seconds: 3.52,
+    text: 'I lost the game, but I found a good time!',
+  },
+  rolly_loss_9: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_loss_9.mp3',
+    seconds: 4.08,
+    text: 'Well, that went topsy-turvy! Congratulations!',
+  },
+  rolly_rematch_10: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_rematch_10.mp3',
+    seconds: 3.76,
+    text: 'Same friends, fresh game! Wheee!',
+  },
+  rolly_rematch_4: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_rematch_4.mp3',
+    seconds: 3.36,
+    text: 'Back we go! A fresh sprinkle of luck!',
+  },
+  rolly_rematch_5: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_rematch_5.mp3',
+    seconds: 3.28,
+    text: 'Another round? My grin says yes!',
+  },
+  rolly_rematch_6: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_rematch_6.mp3',
+    seconds: 3.6,
+    text: "Let's give those dice another tumble!",
+  },
+  rolly_rematch_7: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_rematch_7.mp3',
+    seconds: 2.96,
+    text: 'Ready for more? My happy feet are!',
+  },
+  rolly_rematch_8: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_rematch_8.mp3',
+    seconds: 2.96,
+    text: 'Ooh, we get to do it all over!',
+  },
+  rolly_rematch_9: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_rematch_9.mp3',
+    seconds: 3.84,
+    text: "I'll never say no to another roll!",
   },
   rolly_threat_1: {
     file: 'elevenlabs-dicechess-bots/rolly_threat_1.mp3',
@@ -827,6 +1562,11 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     seconds: 3.28,
     text: 'Yay, I won! Can we roll again?!',
   },
+  rolly_win_10: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_win_10.mp3',
+    seconds: 4.64,
+    text: 'Hooray for me, and a big thank-you to you!',
+  },
   rolly_win_2: {
     file: 'elevenlabs-dicechess-bots/rolly_win_2.mp3',
     seconds: 4.8,
@@ -837,10 +1577,35 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     seconds: 4,
     text: 'High five! That was so much fun!',
   },
+  rolly_win_6: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_win_6.mp3',
+    seconds: 3.28,
+    text: 'Is that a win for me? Happy little hops!',
+  },
+  rolly_win_7: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_win_7.mp3',
+    seconds: 4.56,
+    text: 'I did it! Quick, somebody catch my grin!',
+  },
+  rolly_win_8: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_win_8.mp3',
+    seconds: 4.08,
+    text: 'The win is mine, and the giggles are for everyone!',
+  },
+  rolly_win_9: {
+    file: 'elevenlabs-dicechess-bots-expansion/rolly_win_9.mp3',
+    seconds: 3.52,
+    text: 'Ooh, a victory! I might float away!',
+  },
   thinkle_host_again_1: {
     file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_again_1.mp3',
     seconds: 3.76,
     text: 'Another chapter! Turn the page, my friends.',
+  },
+  thinkle_host_again_10: {
+    file: 'elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_again_10.mp3',
+    seconds: 4.56,
+    text: 'Pieces in place, my friends. Let the next chapter begin.',
   },
   thinkle_host_again_2: {
     file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_again_2.mp3',
@@ -857,6 +1622,31 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     seconds: 5.04,
     text: "Round two... or three? I've lost count!",
   },
+  thinkle_host_again_5: {
+    file: 'elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_again_5.mp3',
+    seconds: 4.88,
+    text: 'Back to the first page, my friends. A new game begins.',
+  },
+  thinkle_host_again_6: {
+    file: 'elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_again_6.mp3',
+    seconds: 3.84,
+    text: 'The board is ready for another story. Are you two?',
+  },
+  thinkle_host_again_7: {
+    file: 'elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_again_7.mp3',
+    seconds: 4.16,
+    text: 'Another round together. A splendid use of an evening.',
+  },
+  thinkle_host_again_8: {
+    file: 'elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_again_8.mp3',
+    seconds: 4.56,
+    text: 'Fresh dice, familiar company. Shall we begin again?',
+  },
+  thinkle_host_again_9: {
+    file: 'elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_again_9.mp3',
+    seconds: 3.6,
+    text: 'There is room in my book for one more game.',
+  },
   thinkle_host_black_wins_1: {
     file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_black_wins_1.mp3',
     seconds: 4.64,
@@ -871,6 +1661,21 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_black_wins_3.mp3',
     seconds: 4.48,
     text: 'The stars smile on Black, and wink at White!',
+  },
+  thinkle_host_black_wins_4: {
+    file: 'elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_black_wins_4.mp3',
+    seconds: 4.8,
+    text: 'Black wins, my friends. A warm bow to both players.',
+  },
+  thinkle_host_black_wins_5: {
+    file: 'elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_black_wins_5.mp3',
+    seconds: 4.64,
+    text: 'The victory goes to Black. My thanks to White as well.',
+  },
+  thinkle_host_black_wins_6: {
+    file: 'elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_black_wins_6.mp3',
+    seconds: 4.32,
+    text: 'Black takes this game. A kind word for you both.',
   },
   thinkle_host_capture_1: {
     file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_capture_1.mp3',
@@ -977,6 +1782,21 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     seconds: 4.32,
     text: 'Level to the last! The stars applaud you both.',
   },
+  thinkle_host_draw_4: {
+    file: 'elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_draw_4.mp3',
+    seconds: 4.4,
+    text: 'A draw, my friends. A tale with no victor today.',
+  },
+  thinkle_host_draw_5: {
+    file: 'elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_draw_5.mp3',
+    seconds: 4.4,
+    text: 'Neither side takes the game. My thanks to you both.',
+  },
+  thinkle_host_draw_6: {
+    file: 'elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_draw_6.mp3',
+    seconds: 4.16,
+    text: 'All square at the ending. Let us close the book together.',
+  },
   thinkle_host_empty_roll_1: {
     file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_empty_roll_1.mp3',
     seconds: 3.84,
@@ -1037,6 +1857,11 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     seconds: 4.64,
     text: 'Hmm... the dice favour no one, young or old.',
   },
+  thinkle_host_intro_10: {
+    file: 'elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_intro_10.mp3',
+    seconds: 4.72,
+    text: 'A game begins with two willing players. Here you are!',
+  },
   thinkle_host_intro_2: {
     file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_intro_2.mp3',
     seconds: 4.32,
@@ -1056,6 +1881,26 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_intro_5.mp3',
     seconds: 4.64,
     text: 'I promise: no spells from me, only dice!',
+  },
+  thinkle_host_intro_6: {
+    file: 'elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_intro_6.mp3',
+    seconds: 4.72,
+    text: 'Two players, a fresh board, and a story yet to tell.',
+  },
+  thinkle_host_intro_7: {
+    file: 'elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_intro_7.mp3',
+    seconds: 4.4,
+    text: 'My spells are put away, my friends. This game is yours.',
+  },
+  thinkle_host_intro_8: {
+    file: 'elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_intro_8.mp3',
+    seconds: 4.16,
+    text: 'Gather round, you two. Let the dice open our story.',
+  },
+  thinkle_host_intro_9: {
+    file: 'elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_intro_9.mp3',
+    seconds: 4.96,
+    text: 'My hat is on, my book is open. The board is yours.',
   },
   thinkle_host_promotion_1: {
     file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_promotion_1.mp3',
@@ -1092,10 +1937,30 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     seconds: 4.24,
     text: 'The stars smile on White, and wink at Black!',
   },
+  thinkle_host_white_wins_4: {
+    file: 'elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_white_wins_4.mp3',
+    seconds: 4.8,
+    text: 'White wins, my friends. A warm bow to both players.',
+  },
+  thinkle_host_white_wins_5: {
+    file: 'elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_white_wins_5.mp3',
+    seconds: 4.32,
+    text: 'The victory goes to White. My thanks to Black as well.',
+  },
+  thinkle_host_white_wins_6: {
+    file: 'elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_white_wins_6.mp3',
+    seconds: 3.92,
+    text: 'White takes this game. A kind word for you both.',
+  },
   thinkle_host_win_1: {
     file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_win_1.mp3',
     seconds: 5.52,
     text: 'And that is the last page. What a story!',
+  },
+  thinkle_host_win_10: {
+    file: 'elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_win_10.mp3',
+    seconds: 4.96,
+    text: 'A winner, and two storytellers. Thank you for the game.',
   },
   thinkle_host_win_2: {
     file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_win_2.mp3',
@@ -1106,6 +1971,36 @@ export const VOICE_FILES: Readonly<Record<string, VoiceClip>> = {
     file: 'elevenlabs-dicechess-host-thinkle/thinkle_host_win_3.mp3',
     seconds: 4.08,
     text: 'My scrolls will remember this one. Bravo!',
+  },
+  thinkle_host_win_4: {
+    file: 'elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_win_4.mp3',
+    seconds: 4.48,
+    text: 'The game is complete, my friends. Thank you, both of you.',
+  },
+  thinkle_host_win_5: {
+    file: 'elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_win_5.mp3',
+    seconds: 4.56,
+    text: 'A winner is decided. A warm bow to each player.',
+  },
+  thinkle_host_win_6: {
+    file: 'elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_win_6.mp3',
+    seconds: 4.48,
+    text: 'And here our little tale ends. My thanks to you both.',
+  },
+  thinkle_host_win_7: {
+    file: 'elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_win_7.mp3',
+    seconds: 4.08,
+    text: 'The result is written. Do congratulate each other.',
+  },
+  thinkle_host_win_8: {
+    file: 'elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_win_8.mp3',
+    seconds: 4.56,
+    text: 'One game for the book, and a kind word for both players.',
+  },
+  thinkle_host_win_9: {
+    file: 'elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_win_9.mp3',
+    seconds: 4.72,
+    text: 'The final page, my friends. A bow before we close it.',
   },
   thinkle_tutor_capture_done_1: {
     file: 'elevenlabs-dicechess-tutorial-thinkle/thinkle_tutor_capture_done_1.mp3',
