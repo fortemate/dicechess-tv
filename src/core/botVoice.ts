@@ -10,6 +10,7 @@
 // The Hot Seat host's lines and pacing are in hostVoice.ts (#202), which reads
 // the turn with the same capture analysis.
 
+import { BOT_VOICE_EXPANSION } from './voiceExpansion.ts';
 import { pieceAt } from './board.ts';
 import { isCastling, isEnPassant, isPromotion } from './cues.ts';
 import type { Level } from './danger.ts';
@@ -29,6 +30,7 @@ import type { Opponent } from './opponents.ts';
 // person's king taken or the person's resignation, so its lines claim neither.
 export type VoiceEvent =
   | 'intro'
+  | 'rematch'
   | 'empty_roll'
   | 'capture_heavy'
   | 'capture'
@@ -47,6 +49,8 @@ export type BotVoiceState = {
   readonly lastSpokenTurn: number;
   readonly threatSpoken: boolean;
   readonly introSpoken: boolean;
+  // The next opening belongs to a completed game against the same opponent.
+  readonly rematch?: boolean;
   // The line each event said last, so the next is another (#159). Kept from one
   // game to the next: the same intro at the start of a rematch is a repeat too.
   readonly lastLines?: Readonly<Partial<Record<VoiceEvent, string>>>;
@@ -77,7 +81,9 @@ const BOT_PREFIX: Readonly<Record<BotMode, string>> = {
 const RAW_SCRIPTS: Readonly<
   Record<
     BotMode,
-    Readonly<Record<VoiceEvent, readonly [string, string, string]>>
+    Readonly<
+      Record<Exclude<VoiceEvent, 'rematch'>, readonly [string, string, string]>
+    >
   >
 > = {
   random: {
@@ -193,20 +199,26 @@ const RAW_SCRIPTS: Readonly<
   },
 };
 
-// Catalog of 63 curated lines: 3 lines per event for each of the 3 bots.
-export const VOICE_CATALOGUE: readonly VoiceLine[] = (
+// Original lines plus the recorded expansion, preserving every stable ID.
+const ORIGINAL_CATALOGUE: readonly VoiceLine[] = (
   Object.keys(RAW_SCRIPTS) as BotMode[]
 ).flatMap((bot) => {
   const events = RAW_SCRIPTS[bot];
-  return (Object.keys(events) as VoiceEvent[]).flatMap((event) =>
-    events[event].map((text, index) => ({
-      id: `${BOT_PREFIX[bot]}_${event}_${index + 1}`,
-      bot,
-      event,
-      text,
-    })),
+  return (Object.keys(events) as Exclude<VoiceEvent, 'rematch'>[]).flatMap(
+    (event) =>
+      events[event].map((text, index) => ({
+        id: `${BOT_PREFIX[bot]}_${event}_${index + 1}`,
+        bot,
+        event,
+        text,
+      })),
   );
 });
+
+export const VOICE_CATALOGUE: readonly VoiceLine[] = [
+  ...ORIGINAL_CATALOGUE,
+  ...BOT_VOICE_EXPANSION,
+];
 
 export function voiceLinesFor(
   bot: BotMode,
@@ -328,9 +340,11 @@ function nextVoiceState(
   currentTurn: number,
 ): BotVoiceState {
   return {
+    rematch: state.rematch,
     lastSpokenTurn: currentTurn,
     threatSpoken: state.threatSpoken || line.event === 'threat',
-    introSpoken: state.introSpoken || line.event === 'intro',
+    introSpoken:
+      state.introSpoken || line.event === 'intro' || line.event === 'rematch',
     lastLines: { ...state.lastLines, [line.event]: line.id },
   };
 }
@@ -372,7 +386,7 @@ function evaluateNonTerminalEvent(
 
   // Priority 5: Match intro (100% threshold, first turn only)
   if (!state.introSpoken && isMatchStartStep(before, after)) {
-    return 'intro';
+    return state.rematch ? 'rematch' : 'intro';
   }
 
   return null;

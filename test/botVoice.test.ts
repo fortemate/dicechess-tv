@@ -33,6 +33,7 @@ const ROOK = 4;
 
 const EVENTS: readonly VoiceEvent[] = [
   'intro',
+  'rematch',
   'empty_roll',
   'capture_heavy',
   'capture',
@@ -43,8 +44,8 @@ const EVENTS: readonly VoiceEvent[] = [
 
 const BOTS: readonly BotMode[] = ['random', 'greedy', 'aggressive'];
 
-test('catalogue contains exactly 63 lines (3 lines per event for all 3 bots)', () => {
-  assert.equal(VOICE_CATALOGUE.length, 63);
+test('catalogue includes all 159 original and expansion lines for the three bots', () => {
+  assert.equal(VOICE_CATALOGUE.length, 159);
 
   const ids = new Set<string>();
   for (const line of VOICE_CATALOGUE) {
@@ -59,10 +60,21 @@ test('catalogue contains exactly 63 lines (3 lines per event for all 3 bots)', (
       const lines = voiceLinesFor(bot, event);
       assert.equal(
         lines.length,
-        3,
-        `expected 3 lines for bot ${bot} and event ${event}`,
+        {
+          intro: 13,
+          rematch: 7,
+          loss: 13,
+          win: 8,
+          empty_roll: 3,
+          capture_heavy: 3,
+          capture: 3,
+          threat: 3,
+        }[event],
+        `unexpected pool for bot ${bot} and event ${event}`,
       );
-      for (let i = 1; i <= 3; i++) {
+      for (const i of event === 'rematch'
+        ? [4, 5, 6, 7, 8, 9, 10]
+        : [1, 2, 3]) {
         const id = `${lines[0].id.split('_')[0]}_${event}_${i}`;
         const found = voiceLineById(id);
         assert.ok(found, `expected line ${id} to exist`);
@@ -73,16 +85,16 @@ test('catalogue contains exactly 63 lines (3 lines per event for all 3 bots)', (
   }
 });
 
-// The bubble beside the bot's portrait shows at most three rows of 20 dp text
+// The bubble beside the bot's portrait shows at most four rows of 20 dp text
 // (#213). On the Virtual Device a row held 23 characters of the longest lines
 // and not 24 (2026-10-03), and the bubble has not narrowed since, so the lines
 // are wrapped at word breaks into rows of 22, one character to spare for wide
 // letters.
 const BUBBLE_ROW_CHARACTERS = 22;
 
-test('every voice line fits the three rows of the bubble beside the portrait', () => {
+test('every voice line fits the four rows of the bubble beside the portrait', () => {
   const long = VOICE_CATALOGUE.filter(
-    (line) => rowsOf(line.text, BUBBLE_ROW_CHARACTERS) > 3,
+    (line) => rowsOf(line.text, BUBBLE_ROW_CHARACTERS) > 4,
   ).map((line) => `${line.id} (${line.text})`);
   assert.deepEqual(long, []);
 });
@@ -122,8 +134,8 @@ test('deterministic seed picks exact line variant', () => {
   ).line;
 
   assert.equal(line0?.id, 'rolly_intro_1');
-  assert.equal(line1?.id, 'rolly_intro_2');
-  assert.equal(line2?.id, 'rolly_intro_3');
+  assert.equal(line1?.id, 'rolly_intro_8');
+  assert.equal(line2?.id, 'rolly_intro_15');
 });
 
 test('an event never says the same line twice in a row (#159)', () => {
@@ -136,11 +148,11 @@ test('an event never says the same line twice in a row (#159)', () => {
   };
   const pick = (random: number) =>
     botVoiceCue(game, rolledGame, rolly, 'calm', said, () => random);
-  // The other two lines share the whole range between them.
+  // Every other opening remains reachable, including the new recordings.
   assert.equal(pick(0).line?.id, 'rolly_intro_2');
-  assert.equal(pick(0.49).line?.id, 'rolly_intro_2');
-  assert.equal(pick(0.5).line?.id, 'rolly_intro_3');
-  assert.equal(pick(0.99).line?.id, 'rolly_intro_3');
+  assert.equal(pick(0.49).line?.id, 'rolly_intro_9');
+  assert.equal(pick(0.5).line?.id, 'rolly_intro_10');
+  assert.equal(pick(0.99).line?.id, 'rolly_intro_15');
   // The state remembers the line said, for this event only.
   const cue = pick(0);
   assert.deepEqual(cue.state.lastLines, { intro: 'rolly_intro_2' });
@@ -556,4 +568,64 @@ test('botVoiceLine and nextBotVoice helpers match botVoiceCue behavior', () => {
   );
   assert.deepEqual(reduced.line, line);
   assert.equal(reduced.nextState.introSpoken, true);
+});
+
+test('a completed-game opening uses the rematch pool only once', () => {
+  const game = newGame('random', 'rematch-pool');
+  const cue = botVoiceCue(
+    game,
+    game,
+    opponentOf('random'),
+    'calm',
+    {
+      ...INITIAL_BOT_VOICE_STATE,
+      rematch: true,
+    },
+    () => 0,
+  );
+  assert.equal(cue.line?.id, 'rolly_rematch_4');
+  assert.equal(cue.state.introSpoken, true);
+  assert.equal(
+    botVoiceCue(game, game, opponentOf('random'), 'calm', cue.state, () => 0)
+      .line,
+    null,
+  );
+});
+
+test('every recorded expansion line is reachable from its event pool', () => {
+  for (const bot of BOTS) {
+    const start = newGame(bot, `reach-${bot}`);
+    for (const event of ['intro', 'rematch', 'win', 'loss'] as const) {
+      const pool = voiceLinesFor(bot, event);
+      const selected = pool.map((_, index) => {
+        const after =
+          event === 'win' || event === 'loss'
+            ? {
+                ...resignGame(start),
+                turn: 1,
+                result: {
+                  winner: event === 'win' ? ('b' as const) : ('w' as const),
+                  reason: 'king-captured' as const,
+                },
+              }
+            : start;
+        return botVoiceCue(
+          start,
+          after,
+          opponentOf(bot),
+          'calm',
+          {
+            ...INITIAL_BOT_VOICE_STATE,
+            rematch: event === 'rematch',
+          },
+          () => (index + 0.5) / pool.length,
+        ).line?.id;
+      });
+      assert.deepEqual(
+        selected,
+        pool.map((line) => line.id),
+        `${bot} ${event}`,
+      );
+    }
+  }
 });

@@ -65,9 +65,7 @@ const ID_PREFIX: Readonly<Record<HostId, string>> = {
   thinkle: 'thinkle_host',
 };
 
-// Every host's lines, with the ids their clips are recorded under: Prowla's 54
-// as prowla_host_<event>_<n>, Rolly's 48 as host_<event>_<n> and Thinkle's 54
-// as thinkle_host_<event>_<n>, numbered from 1.
+// Every host's original and expansion lines, numbered by event from 1.
 export const HOST_CATALOGUE: readonly HostLine[] = HOST_IDS.flatMap((host) =>
   (Object.keys(SCRIPTS[host]) as HostEvent[]).flatMap((event) =>
     SCRIPTS[host][event].map((text, index) => ({

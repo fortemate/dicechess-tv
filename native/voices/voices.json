@@ -1,6 +1,6 @@
 {
   "upstream": "fortemate/dicechess-assets",
-  "commit": "a3053720030a56fac5acc15b056b74dff6e74c39",
+  "commit": "7f5d5a305a71f0d7ec19be7a3ca5a478ef41a606",
   "events": {
     "file": "events.json",
     "sha256": "aa06c801a49ce922464ff70ef1392a31fe9bbb3ad5a7367f47f96ceeefc31f99"
@@ -369,6 +369,261 @@
         "thinkle_host_win_2.mp3": "f851ddadbe9915acdb4e8e9abdb4bb7a6b3fbb75ccf453f965fa9dcbf05d817e",
         "thinkle_host_win_3.mp3": "70635a9cd99bb9c4dbe864448bcdc9b9a67442aa5631aed996a0a29cbd32487f"
       }
+    },
+    "elevenlabs-dicechess-bots-expansion": {
+      "title": "Dice Chess bot voices (ElevenLabs) — English expansion, October 21, 2026",
+      "license": "Fortemate apps only",
+      "licenseFile": "LICENSE.txt",
+      "distribution": "project",
+      "clients": [
+        "fortemate/dicechess-tv"
+      ],
+      "attributionRequired": false,
+      "generator": "ElevenLabs",
+      "texts": {
+        "path": "voices/elevenlabs-dicechess-bots-expansion/catalogue.json",
+        "repository": "fortemate/dicechess-assets"
+      },
+      "files": {
+        "manifest.json": "6be8d765b67ea2959087205fc4f274f0188058b8dcbb2a1a0188f414624c15dd",
+        "LICENSE.txt": "a4661efdeb8dbc7ac3929dede1d2748409cb04d564f5105647e1f6b655eb6cdd",
+        "grabby_intro_10.mp3": "4f8c14c9b6f13b2b4db1a40cd48c765a78bd5f7d38f44c560aa194c98c0e45e9",
+        "grabby_intro_11.mp3": "5461ac2b723003e50a71c8392ee54d81d111dfbea4b6c959f50d582fa64deadb",
+        "grabby_intro_12.mp3": "3ef3f3a7c802c5535f7f5259631f39655a13fb6e6e6737a235c8192c428084a4",
+        "grabby_intro_13.mp3": "ba475ca3e6f45429231887a64f5ebe68c63a5b0feefb4d5855c0a7fb5ba8a8ef",
+        "grabby_intro_14.mp3": "5ec6169276b2ecdaebaec262cdcb4c0e2b80c107872dd883016fd1a78c53f809",
+        "grabby_intro_15.mp3": "da23e03a5f159aaba2c55514d81ddc2607344ac21b54eb89cd6645f641368689",
+        "grabby_intro_6.mp3": "8267fec232dd8fde450996ff5dd4527a312e3189fa4a862f82b6d9c03df59119",
+        "grabby_intro_7.mp3": "61ef2453de059ed3b41f8dc51f6cb0ddded5acc11600f2a660a6e989354e5670",
+        "grabby_intro_8.mp3": "aee1d5b74376a191c5e7b9354df46d0265ac9cf3b72c42edad9910a3b8f9b9fd",
+        "grabby_intro_9.mp3": "5d2b09b48d5ba0dfda711d33ebaf6c6d77cc6a96648597a64b02cd602a5b13cd",
+        "grabby_loss_10.mp3": "612bb07fb7316a21ffae6b7e59632713547180a4f86d12051d5e3d3e6865607d",
+        "grabby_loss_11.mp3": "a35653c698769c0a028450f5efb56767801aa38dbee125b63d0c782a753eda24",
+        "grabby_loss_12.mp3": "83fed81482144b8a0910cc8c02c860efb52a409263ddd7892e12aa2af7adb5f3",
+        "grabby_loss_13.mp3": "75ba81a06657dbcd562bd6d3c38bc97d86eb494fb007c94a572373684fbca2ee",
+        "grabby_loss_14.mp3": "74af69b2bebe9563ed04af1223fa1d8d2b1a61f48006bc104c0b00adb79c49dc",
+        "grabby_loss_15.mp3": "1efdd815a9af08a70a35e2203b8f80004da887e5f4e05f172ccf04b9ea44607c",
+        "grabby_loss_6.mp3": "a6ff668522231e5fd132a3516d3afdff08fe60c771b0cd9d3d04cb7e76d59dc7",
+        "grabby_loss_7.mp3": "a063c63c2919d72d0b8708848bdbdeea1f0a1abb84800a3924f71cdc4f12feab",
+        "grabby_loss_8.mp3": "ac8f7cc0d602791758ccd21f1c0fdf56d0b8dc8640f3611d2ac661183abcd7d2",
+        "grabby_loss_9.mp3": "543968f56debf7f55c07494cfa16280f94b5329e245786493b2d561dcbe0d8ac",
+        "grabby_rematch_10.mp3": "6c91bd22440b343d0b8ef981b173f3c7a67ff78216a9001d1a7c64cd1bda6a16",
+        "grabby_rematch_4.mp3": "becc29b0d689ea60eb94f60272aae8b5ac27b06a99c36e97ed19b2fd8ce76a8d",
+        "grabby_rematch_5.mp3": "f53c51c84db05851caf30fc7de659d3e4e9ff5b80a162fbbf694a681560f89b8",
+        "grabby_rematch_6.mp3": "1588038547278668dce46be6c3aafe11e02a3337991574c1156dffba3aaa3e29",
+        "grabby_rematch_7.mp3": "94fd7418f1f489af3be10eafc84889a869761c0a325e3d8ce9d73811d17185b1",
+        "grabby_rematch_8.mp3": "d36e85e395a09f138151f19fd8f78a2ff8550f0a97c129d139958e6bb48c2859",
+        "grabby_rematch_9.mp3": "7a3269f30c3222716d83f7c408793de33994d8d9304c2541570c092913f14ed8",
+        "grabby_win_10.mp3": "79ddfe5662fdd67a1d39b01d4cf2d5033db0e475357bae88abbe16dbc6638afe",
+        "grabby_win_6.mp3": "fb6d753ce2218741d808d72f62b81c86850ea799555486fc5abbd8fc346d4f10",
+        "grabby_win_7.mp3": "6548c6db5ae84e23ad52ace08ae1a8d77273bef0ceab13f36523a89354782bf4",
+        "grabby_win_8.mp3": "cbf3f8437605d4ddcf2951bd33dfb6f5cf90722e50107745b924312f30066833",
+        "grabby_win_9.mp3": "f048e1662cdb60e9c0432c6786dff74bb191e03f2c58dcbce8393cb1d0b770ae",
+        "rampage_intro_10.mp3": "3415285dc0c5917f077227e43b5bf66b749cc56c9d3b14427866e49e142cf6e0",
+        "rampage_intro_11.mp3": "21e072ff6361dc9b88f76725a3143ccbd95094a7df8157b827fc850d9ab8a7c9",
+        "rampage_intro_12.mp3": "4cab24ef0944a6fb653d0dd7880c860c3ea0971e52c0ab7402c42e00b2445b92",
+        "rampage_intro_13.mp3": "2bc5c102e4ca9ead90bfc717ccc8deb3ca7e948ffe6ec97cdd3eaa9c5701eb35",
+        "rampage_intro_14.mp3": "4c96aa41963826226c96e53317f67bd0852b5180dec532f4a7ca1e55d184aa0d",
+        "rampage_intro_15.mp3": "2145561568c9f2305324447acaf090e03bc58321ec0f2d2def19ce6853e731f8",
+        "rampage_intro_6.mp3": "a6a11806d5dafe9ad18176b03f9dea0613e56edd47d207728347552edf2a58e0",
+        "rampage_intro_7.mp3": "83b59726016304d259627f6aa3d34d3649cb56bfc9303dfb101772550b47a29a",
+        "rampage_intro_8.mp3": "01c25cc914f82d89b1a6d77eb155bdfc46f870c74a1367aaafea9a4e0af453cb",
+        "rampage_intro_9.mp3": "0324ff340653b0b54c104967f742ab2778387610620d1d4b4aa2362c84647d60",
+        "rampage_loss_10.mp3": "1d5af97751de5775b764ca96c341f5286f18b43fda02fa10eb0c6f9a59ff2db0",
+        "rampage_loss_11.mp3": "04d02830b169af9da1e5a1e019318764d9b16f725d0731e2ff563907e24e8f88",
+        "rampage_loss_12.mp3": "f82a6a66fbc129ccf195891327104cbe893650b3193610d71eb642292166601c",
+        "rampage_loss_13.mp3": "6387b92998c8b149c5bc880093ff4f109d8eb6bb333d53c99848d9c8aa272dbd",
+        "rampage_loss_14.mp3": "48814abce244e0f0ec845ab10117a0874c815d8362cf3dfd03a6e138f45de53f",
+        "rampage_loss_15.mp3": "a18ab6e150db26d0a87a550430b74ead757add01315dfd5e3814fd768e6bd955",
+        "rampage_loss_6.mp3": "ca7026d1c1045d166fcbc6a1e39bc3fa0d8ac84a0f43678dc139e3704cc85f59",
+        "rampage_loss_7.mp3": "2f04f6ecfd30787d7dc964a94e2e47654a4c12110adf5bf3d57a08289bbf3dec",
+        "rampage_loss_8.mp3": "7475db59e7ee53356361db8554413041acd2c8f0e2bfccd1ab0ba146d9a9f83b",
+        "rampage_loss_9.mp3": "17568daa2085d2ff971b5964c1404f1d9b467bc977e2de8c8a5a2f9ad3cdaeb9",
+        "rampage_rematch_10.mp3": "5e144c7845ed5875876748c8fef973c9d2e17c10fae3f18f40b8f7344c0376ee",
+        "rampage_rematch_4.mp3": "f7b1dac6686a0bf92e1690e77c6cc43f7071433e61362fcd7e6ae8d88fa9758e",
+        "rampage_rematch_5.mp3": "ad5ac7743b680903807a1a822694a775200a6868b7efddfb60da8c900fcdbb4b",
+        "rampage_rematch_6.mp3": "7b799a7163cfdd1b9a5cc3ef1ad036cb51540fa85195908fc3ca4e817c5b21f5",
+        "rampage_rematch_7.mp3": "9c79718296ea95c085c5471ebf0bcb462bc5382cfa47bfb3650e6d0cb0df7869",
+        "rampage_rematch_8.mp3": "14dac82872a0bc10bceb2923cad12a8097aafdeb9df28d8c109f7b1ccc23c111",
+        "rampage_rematch_9.mp3": "888adfa37c4c3273b4b162566e4e2c357807cf74637ec16eeaa252006b4ad320",
+        "rampage_win_10.mp3": "fb4f38834beb8b5770a02f4d493c2e56abcda50b7ad7a7ed4fad81c657b33826",
+        "rampage_win_6.mp3": "3ad99323d7c66c1fa0007f0807b14341a462783b10640a7e44d6e7bfbc41b577",
+        "rampage_win_7.mp3": "14dde7d9818e161c23582532beb720680d81793e001582b510856377b9c976f2",
+        "rampage_win_8.mp3": "e14a45a0b036d0708e0a2b06478a7b38c0cc09cf908d78e59d09c2fb2e09521d",
+        "rampage_win_9.mp3": "f710e22610e114fdfd0e69432b62b118e6beb5ccbcdd476152d22f6b70667068",
+        "rolly_intro_10.mp3": "cc9ee9cab8ca1245c86a3ae38271ce5ebd9b8a619ad6a48f2e25c94f15cf708a",
+        "rolly_intro_11.mp3": "1b1235caf0a446072b022f9284496663a0383854c316877c45d1379dfd70131a",
+        "rolly_intro_12.mp3": "98ee3c4bdc71ce1c694b0467adfe06206e2c3681322a0972aa4181cefb753f5c",
+        "rolly_intro_13.mp3": "92d86c03135dd5a88d36d271a5569df2bd6c638b3c02f189b08784bfd3aa27cc",
+        "rolly_intro_14.mp3": "cd8ef7a47662b8eae95a495c007147dbb53144bc802b2d985e78725915c43d09",
+        "rolly_intro_15.mp3": "363e8640409e6fa801b57fb942cd2eccb2a8d5a3a68132bba0c9779a831f4ab9",
+        "rolly_intro_6.mp3": "ea13aa77d6de43dc36e2470efc56a210a537fe18560fa93805c4dc200fa333de",
+        "rolly_intro_7.mp3": "c191e98088b2f327cc192ee9e532a460c31c4b68c3744c835595bead6f07dc83",
+        "rolly_intro_8.mp3": "6f7ef5f034d837f6d86c3c575b46cc54cb993bc3757d87fef2fb20abc43b0ce2",
+        "rolly_intro_9.mp3": "699ca1cd86754b7af3e04c657e9c3c3ef3414383ec6dc4256940c28d94b68898",
+        "rolly_loss_10.mp3": "20572511df2e4aeee907a19be0de1b45801a9d2b9ad1faab8c977c3b2c8b41ed",
+        "rolly_loss_11.mp3": "9a59291a8a207768a88b9ed680f4a538bf6f3d658f2b57aba00aeea5304e6b93",
+        "rolly_loss_12.mp3": "638bcd4774d53eb576cba80177483e0a25e62a77ce22668ab276be489ac76121",
+        "rolly_loss_13.mp3": "9a2d93167c8242120365071b9ea21098392efe83e4b191972dc4b2ac25a9c8bd",
+        "rolly_loss_14.mp3": "136f67c01b16729d702fc74ea1d1e15da2b6702bc1d89a7d97e5adaa9429ba9d",
+        "rolly_loss_15.mp3": "563c77e81d6b0cb00ecdf57a4463f0250875fcab078d7f74fa697ca87e80aca5",
+        "rolly_loss_6.mp3": "ba6ea888322a84722c73cd703b98a85c1caa8ca6beb84fec0fb1382cb12345f7",
+        "rolly_loss_7.mp3": "aed0723ce95ca4cbedc5b69ae6bd76cd3da60caf7f73426dea304d5223f5a3ec",
+        "rolly_loss_8.mp3": "6be82639423f224377e46a24855d6209992576ef14d098c57ab7148e8ba10993",
+        "rolly_loss_9.mp3": "afefcfc25cebbd03a20d8aaa10bfe2b5acfe7f2b2beb94e9498e2d697b22d913",
+        "rolly_rematch_10.mp3": "f8378175829d0966118515a0b606b5778906caa16dfb025a937a7338f3681c95",
+        "rolly_rematch_4.mp3": "8a1d361162676fa13f43dd284039245b1e7c18d0bb331633e139b1d999a90903",
+        "rolly_rematch_5.mp3": "b9396a8ca999cd523935d92d8c32c3f09996eb22f639e6eccdb9cd0e5b17cbcb",
+        "rolly_rematch_6.mp3": "93dd742da5e899b5bd82460756268508db1d76741ffff0cca111c63cb90a8ea0",
+        "rolly_rematch_7.mp3": "2fe370422183739766466462dfdb9f05d560d8f9bb66fbed94a30a69aa0a834c",
+        "rolly_rematch_8.mp3": "98a6e959fb64888ee8fadcdb897424d6f4e3a62d0621a6df73a8b51414df7bc7",
+        "rolly_rematch_9.mp3": "24270677292327721a973dbf5f8a583fefe1a956914b3f149dd2ac813f148b6f",
+        "rolly_win_10.mp3": "7fb4ecffb9e29c2698e5fc0e4ab09112187d94e358a77ceea4095a86ff39d7ab",
+        "rolly_win_6.mp3": "f94a58a32bf6ffddb14d76162499072a115e8d5fc31cd678b30528df29d6857f",
+        "rolly_win_7.mp3": "ce50865670d79cb2e381d6f4420d3ec3a1fbd3fbbdb35832f5cefdf9814ca309",
+        "rolly_win_8.mp3": "8c99acf09a0b1187e26e0870aefd70634703b4c9916de295b7ec40076a4ef1c2",
+        "rolly_win_9.mp3": "42367da8fff7a72dcdcd18c6a3fe6f5e127790d226cd072c21f23d056f0013d6"
+      }
+    },
+    "elevenlabs-dicechess-host-expansion": {
+      "title": "Dice Chess Hot Seat host (ElevenLabs) — English expansion, October 21, 2026",
+      "license": "Fortemate apps only",
+      "licenseFile": "LICENSE.txt",
+      "distribution": "project",
+      "clients": [
+        "fortemate/dicechess-tv"
+      ],
+      "attributionRequired": false,
+      "generator": "ElevenLabs",
+      "texts": {
+        "path": "voices/elevenlabs-dicechess-host-expansion/catalogue.json",
+        "repository": "fortemate/dicechess-assets"
+      },
+      "files": {
+        "manifest.json": "5b052a6d6ec4f9f2ca383285979668e1d6183cde7ea23fd75b8681e31d6fda09",
+        "LICENSE.txt": "645f754fd130b85fef5b3fb104d59ce67f1dd7b391a03f9e67840d74b2cc51ea",
+        "host_again_10.mp3": "9257202f98cf82f51fd45cd33b63cf9709ec8f09de2293b49c41460e7fee1d05",
+        "host_again_4.mp3": "87b912add90f876b1786d4e61e4538dfbb66ed7b23beea67e02c939a1da4ba2d",
+        "host_again_5.mp3": "ec52595b7c64837d4e4e38dd345f146e053daa6c17c527f24ffdf00e6454c773",
+        "host_again_6.mp3": "9a2a4249d0ee1aa8203c5b5b4cae346a9224e924369158f6dee634870e1eb0bc",
+        "host_again_7.mp3": "ba312b9d163b1181fe71e0275508f9cd9a77d428f828a01b04be92fe08839cac",
+        "host_again_8.mp3": "e285554445d44d0064161308d72a9d0bd2a8ca7282ac558e32ea11e2318511cd",
+        "host_again_9.mp3": "9b29cad9539c94cb3eb4be808b13dfbf2c3bfb3d6ec3308576371616450d4321",
+        "host_black_wins_4.mp3": "f71ab9f8c554d1d042b04bf9cadf0b19cf1e3621e53bf7cec96af188f44ddf35",
+        "host_black_wins_5.mp3": "b769e8f9e0f47901375283c2ace37be8ae65fbcf4ed24f2a7defa1de690ad205",
+        "host_black_wins_6.mp3": "e06846b66d56af479dda76ab9bb651e3ceafa6f6c3b9757b4b93582f900ca4f1",
+        "host_draw_4.mp3": "f798dbb1253e3dc7a09f53f2855632e56567a8fde884387eddc53d630d1b8d33",
+        "host_draw_5.mp3": "dcc18d4501df7f167f48c6098cf05a184b9588be183c63f157a8cc9d7bda3f1d",
+        "host_draw_6.mp3": "c3a0ec75c08f491c74429ccfdf049d8be2e1c43f37063453fa05b9f920ddb08f",
+        "host_intro_10.mp3": "32475556298113e74e6b4f1925ffcfabff3dadfc81b6537135b5810dbf254ac5",
+        "host_intro_6.mp3": "b7d7785c27ca796fba94f271df729e82de0528c0aa28dd0222266e3116373c34",
+        "host_intro_7.mp3": "9daa842cde53088752691e21063fa1772c06a689bcf0681952236725856a513f",
+        "host_intro_8.mp3": "3ea85797d2f879757e8a8800c45127651d6cf7d4182a95ead7048a696f7cd651",
+        "host_intro_9.mp3": "be089a8d6a1d97ac2d0811dea0730d3a60ccb91f5c76f3a0d2905829d2a49d48",
+        "host_white_wins_4.mp3": "8488c396eff14b84f50ced2f63fefa22c0f78e083711ca664483f28ea728a0ce",
+        "host_white_wins_5.mp3": "29d1bf7c819b519cfb5578e745847f12dc80b0f2efbc0edb027db8233602d3e5",
+        "host_white_wins_6.mp3": "a182314705e771ef56137bc8c6e10eed10f323b2c907110ef04b557bf9d202c2",
+        "host_win_10.mp3": "7826b8edc1bd9ab08422d540f87a3d42c016ba43eeabb092188c1c9ed59d999f",
+        "host_win_3.mp3": "0adc2e161c0d2822473dee96c1d1f61008c49952a7db7e575a57759af4ca2f47",
+        "host_win_4.mp3": "72350bab5ca33b3f2479dc420dbe04419c764149c9ecdaec06729a1edc1f1bf9",
+        "host_win_5.mp3": "f0338b902d084083819667721008c2cbab40f5295130461ad69495a3644dc634",
+        "host_win_6.mp3": "4074936726336212611238b7a11de07dda77d43f2836273fc2e2d57decbc953e",
+        "host_win_7.mp3": "5047a7f21b173a617b2549ff2f45e9438360465f2f30883f1f09598a4cdd0189",
+        "host_win_8.mp3": "dc8b2d1c8e503b47f86d38ee720afb728997701b3cf8eaab3361526d4764c9ce",
+        "host_win_9.mp3": "df45cdf88fabc6a753a0c7b1e882bcfbceb63f2ee4289bb6c9c4294df35a3fbb"
+      }
+    },
+    "elevenlabs-dicechess-host-prowla-expansion": {
+      "title": "Dice Chess Hot Seat host Prowla (ElevenLabs) — English expansion, October 21, 2026",
+      "license": "Fortemate apps only",
+      "licenseFile": "LICENSE.txt",
+      "distribution": "project",
+      "clients": [
+        "fortemate/dicechess-tv"
+      ],
+      "attributionRequired": false,
+      "generator": "ElevenLabs",
+      "texts": {
+        "path": "voices/elevenlabs-dicechess-host-prowla-expansion/catalogue.json",
+        "repository": "fortemate/dicechess-assets"
+      },
+      "files": {
+        "manifest.json": "83a83081afb85a2cc33de3a9de3c0f671274e5456854efd4490971cb40fbd770",
+        "LICENSE.txt": "1073728dca9d772c4cb14072808e59840269bc3934157f7a8a8b07d4ba1cd552",
+        "prowla_host_again_10.mp3": "aa0a9720e3f17656dcedf0b749594ea4e239293c17199bbc6eb58d050096b9e5",
+        "prowla_host_again_5.mp3": "1e41e5de4476a6a13f25b51679c8e616e3f71a6adcc29e02565ed0cc52e117ab",
+        "prowla_host_again_6.mp3": "f85b045cb50e51d97f69848bb5c3dd0a4941205997102a003f47e3638b5ed44f",
+        "prowla_host_again_7.mp3": "dab83d8ee587f8c7037f510a5c6dbd5190f03d74733fc8b32cda3514699a7a1c",
+        "prowla_host_again_8.mp3": "d81f40f752b77472c338abd62f728e8449b38195293245315099b459d41e1845",
+        "prowla_host_again_9.mp3": "09e286723222adb0595464962c81ec48bec128ed9b16bb8809640feb4ebd2db9",
+        "prowla_host_black_wins_4.mp3": "40784c86bc480c16e54143da410a6a256d6b602ab78e30812f13a717311630d9",
+        "prowla_host_black_wins_5.mp3": "da3d6241a3ef0f062932ad1cab778e27c47012f5c3f54c8d4b2c1c01fd64a94a",
+        "prowla_host_black_wins_6.mp3": "bc65b631e3f15ce5a2c3d1b052047a3e897e0cc711be02d94f46ba6c38a8f10f",
+        "prowla_host_draw_4.mp3": "eaf4d3f5353cce5aac46247954d10394257c1d4391837d8c62153f95f437c680",
+        "prowla_host_draw_5.mp3": "34218b456d544d7df324d1bd6906805607dff1b2dc53018791c0fd604dbe39d4",
+        "prowla_host_draw_6.mp3": "2694d2cba62348416a98dd9c36788967b55c92285e4de516528f538a8c5e7309",
+        "prowla_host_intro_10.mp3": "52bc5be141ed85597a5faadbaefd6208de740cc6bef774a64e718a98170ba693",
+        "prowla_host_intro_6.mp3": "0720adf75fd6e1026ebb3a73020ea69f9236ed6da31de7cb737f56086d1a9a20",
+        "prowla_host_intro_7.mp3": "1ff70f223063bb26f0ee3a200378712b03a41ae7e3e71076fd2d65e55d7179b1",
+        "prowla_host_intro_8.mp3": "3479b9d14002432ad6042bbbdca2f638f54361c55f392e6967172b309b2190db",
+        "prowla_host_intro_9.mp3": "3ecd1311ec4fc09ac917fcab8de532c5f1c13264ea93c22c24e8fa6d8a6b1a8a",
+        "prowla_host_white_wins_4.mp3": "63b6de0a2c22274a60a2d431238f3ddc9f32fefb98c692cfebfc540fb7160628",
+        "prowla_host_white_wins_5.mp3": "fa4af7afc88edb281df3814d17c7c27c84fb0ae11dd992544c8b317c9ff8b9e9",
+        "prowla_host_white_wins_6.mp3": "9f1d3971a5a4cc358a40c6fe76c65636ee048d13f584d4aa8815c5f91228ca18",
+        "prowla_host_win_10.mp3": "d9ccaf31395b55759da8305e0ea97d081e93f960326b500713beab278a54e0d3",
+        "prowla_host_win_4.mp3": "032e18ad7f4c343fc821f79fb868bcf0a15830eb4058fccaa33fa0d9d93d2aa0",
+        "prowla_host_win_5.mp3": "0e492ac74d72306ff3b7be837422e2bb35369c420efbfaabb36df96404fac7f2",
+        "prowla_host_win_6.mp3": "2f686a3c551c67cee2a65b1cdced164c460ce9e16ac3180a978614914c7a0968",
+        "prowla_host_win_7.mp3": "8d2a6d8bc6e91b269930089deef7c6e11daad61a9182dd772cd95680f341bda2",
+        "prowla_host_win_8.mp3": "4233a3bb8b04b70fc11018c6b413ab01e02c693bb67e399232e7b3abba7153b9",
+        "prowla_host_win_9.mp3": "1ec70b759e1a1733c413f0a8c34a5f58d0c34dfc31277931f3b7fff18a221e29"
+      }
+    },
+    "elevenlabs-dicechess-host-thinkle-expansion": {
+      "title": "Dice Chess Hot Seat host Thinkle (ElevenLabs) — English expansion, October 21, 2026",
+      "license": "Fortemate apps only",
+      "licenseFile": "LICENSE.txt",
+      "distribution": "project",
+      "clients": [
+        "fortemate/dicechess-tv"
+      ],
+      "attributionRequired": false,
+      "generator": "ElevenLabs",
+      "texts": {
+        "path": "voices/elevenlabs-dicechess-host-thinkle-expansion/catalogue.json",
+        "repository": "fortemate/dicechess-assets"
+      },
+      "files": {
+        "manifest.json": "ca3ea3d738e35c97fe4a4a5e3b6fd246a858b70f037f7880993b23f802c4828b",
+        "LICENSE.txt": "0733b10bff7a070ca5c9388b5d558a3c89de1d860e767574996bb2aedeaaa09d",
+        "thinkle_host_again_10.mp3": "c676319259df767a28e4d7cdb79ece50419c021d19cfc17afb54530a08394943",
+        "thinkle_host_again_5.mp3": "fac6bbb22e5e5c0ad923e6ebeebc0203011e89c613f782987cddfe0280d8fbb2",
+        "thinkle_host_again_6.mp3": "95a581f99465b4ada6d8e3c739040b661f10e77129e53d422aef025409895a4e",
+        "thinkle_host_again_7.mp3": "3f7bde5316875971bbc63eb237ded1ba67505e47d721c4ae6afd1ac020d6974f",
+        "thinkle_host_again_8.mp3": "2f69dfbb9f3110f9083ed6ad450a0e18d70bc4f75d8d75cae60253c154d49645",
+        "thinkle_host_again_9.mp3": "5a7381d2d7acb220ba93eddb8a0cd65109a0550ce21c058c0dae21dd6c9f35e0",
+        "thinkle_host_black_wins_4.mp3": "4aaa5f38545b29a877a63b24c5769ad0b334e3daeb952f669c3469916704e21a",
+        "thinkle_host_black_wins_5.mp3": "7c6385fb877516c9325457a5f6332b11fa11ed2f1cde24e0fb7e44dbbf578c9c",
+        "thinkle_host_black_wins_6.mp3": "515d5a71e49bdd8516d9df79392248b3c936567d7e8b9d1e5577049b262a71b8",
+        "thinkle_host_draw_4.mp3": "7aaf15befd8823e55bb3ad52ca0bd55cc2bbb1347d731768f5129cd70132c7e6",
+        "thinkle_host_draw_5.mp3": "b1593628c957c25b8aa231b8cf0c2fd401b528483c3693dfd58e6e91eb803b44",
+        "thinkle_host_draw_6.mp3": "9df78b1de1a41429fa5440deee94d3a98030c376084057f74bf9d1b15c1f668e",
+        "thinkle_host_intro_10.mp3": "76c39674f0affc97625aed7d9ba913349e7f339b5abc37ccc73c1247a2010e4d",
+        "thinkle_host_intro_6.mp3": "a4a2158ef1b18719310956814672629c3deabc25741b0ac68e9c64373df4d22f",
+        "thinkle_host_intro_7.mp3": "39848f57be9d8f43986de25c823acf024e55a093c0379cf5e834343d35bc7997",
+        "thinkle_host_intro_8.mp3": "f53fcea7daeb210659b5f56a85704e1761e442d51ad6864ae60350f08eb2744c",
+        "thinkle_host_intro_9.mp3": "cec892c19acd8a8a39035ef11575d35509003b51a96796c07b7df806be6a3b8a",
+        "thinkle_host_white_wins_4.mp3": "50a39576bca1e4523d58af97a82a9afb0e79161552aa5626d375b903bc2fbb99",
+        "thinkle_host_white_wins_5.mp3": "80aa57ee523b0421294d28052924e9e4d6496d013b85b47a86ba937b3f3431f1",
+        "thinkle_host_white_wins_6.mp3": "f1d74d4f3d3ca3c660c3e30b1b14cb18db9da7bc52e52ba2e5dedd7ad0df30de",
+        "thinkle_host_win_10.mp3": "59dca50d017a720bb650638c3091a70b7c8a1a02d8118b2da782db0aafede267",
+        "thinkle_host_win_4.mp3": "717bbd8ea9ec4d71b954874c43c8bda65bf25337820c366b4d3f799327c6d86e",
+        "thinkle_host_win_5.mp3": "4ee38cbe3b723815b91e9ed709de12f5291f32b7c3314c82c5633a9a5a37ecb8",
+        "thinkle_host_win_6.mp3": "d9d1df3d2d46b0b86461cc2b45d8b9e6a36ef6bf1a0b2484c6fbfa56d6a37ba4",
+        "thinkle_host_win_7.mp3": "a1daeda353fd5b1358532f1f3730763fd42c552df3f3e851a4293367536ad65b",
+        "thinkle_host_win_8.mp3": "0c9b0410deb8a6696026a61ed95a937bf9cc5505234b7ecbd861328e649583c8",
+        "thinkle_host_win_9.mp3": "5834385bfd5fef19ebc40ffa832f305afee525fcbad78b2fdb5339fc57bbfb33"
+      }
     }
   },
   "lines": {
@@ -472,6 +727,66 @@
       "sha256": "fbcfb104d45dbaad64df3a25d93b1b5ad6d98ee70e34f0f8c119672df1462563",
       "seconds": 4.08
     },
+    "grabby_intro_10": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "intro",
+      "text": "I've cleared a lovely spot for today's finds.",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_intro_10.mp3",
+      "sha256": "4f8c14c9b6f13b2b4db1a40cd48c765a78bd5f7d38f44c560aa194c98c0e45e9",
+      "seconds": 3.52
+    },
+    "grabby_intro_11": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "intro",
+      "text": "A visitor and a board full of curiosities. Delightful!",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_intro_11.mp3",
+      "sha256": "5461ac2b723003e50a71c8392ee54d81d111dfbea4b6c959f50d582fa64deadb",
+      "seconds": 4.96
+    },
+    "grabby_intro_12": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "intro",
+      "text": "My collection could use a few finishing touches.",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_intro_12.mp3",
+      "sha256": "3ef3f3a7c802c5535f7f5259631f39655a13fb6e6e6737a235c8192c428084a4",
+      "seconds": 3.92
+    },
+    "grabby_intro_13": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "intro",
+      "text": "Shall we begin? I have a great deal of admiring to do.",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_intro_13.mp3",
+      "sha256": "ba475ca3e6f45429231887a64f5ebe68c63a5b0feefb4d5855c0a7fb5ba8a8ef",
+      "seconds": 4.8
+    },
+    "grabby_intro_14": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "intro",
+      "text": "What lovely craftsmanship. Especially on your side.",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_intro_14.mp3",
+      "sha256": "5ec6169276b2ecdaebaec262cdcb4c0e2b80c107872dd883016fd1a78c53f809",
+      "seconds": 4.32
+    },
+    "grabby_intro_15": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "intro",
+      "text": "Hands off my treasures, and do enjoy the game.",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_intro_15.mp3",
+      "sha256": "da23e03a5f159aaba2c55514d81ddc2607344ac21b54eb89cd6645f641368689",
+      "seconds": 4.16
+    },
     "grabby_intro_2": {
       "pack": "elevenlabs-dicechess-bots",
       "bot": "greedy",
@@ -492,6 +807,46 @@
       "sha256": "ff0fa1ae1310afc045f36d5d795a8cfeace0b5425e57bdcf27a4d8750cac8d31",
       "seconds": 4.48
     },
+    "grabby_intro_6": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "intro",
+      "text": "Welcome! Please admire my collection from a distance.",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_intro_6.mp3",
+      "sha256": "8267fec232dd8fde450996ff5dd4527a312e3189fa4a862f82b6d9c03df59119",
+      "seconds": 4.56
+    },
+    "grabby_intro_7": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "intro",
+      "text": "Every piece has a place. Preferably on my shelf.",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_intro_7.mp3",
+      "sha256": "61ef2453de059ed3b41f8dc51f6cb0ddded5acc11600f2a660a6e989354e5670",
+      "seconds": 4.16
+    },
+    "grabby_intro_8": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "intro",
+      "text": "Do come in. Mind the display cases.",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_intro_8.mp3",
+      "sha256": "aee1d5b74376a191c5e7b9354df46d0265ac9cf3b72c42edad9910a3b8f9b9fd",
+      "seconds": 3.28
+    },
+    "grabby_intro_9": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "intro",
+      "text": "Such fine pieces! I shall try not to stare.",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_intro_9.mp3",
+      "sha256": "5d2b09b48d5ba0dfda711d33ebaf6c6d77cc6a96648597a64b02cd602a5b13cd",
+      "seconds": 4.8
+    },
     "grabby_loss_1": {
       "pack": "elevenlabs-dicechess-bots",
       "bot": "greedy",
@@ -501,6 +856,66 @@
       "file": "elevenlabs-dicechess-bots/grabby_loss_1.mp3",
       "sha256": "7f358b285f5e6d8a75827c9ec1c56aeec13c624bc1449a9cac780368e5e67727",
       "seconds": 5.76
+    },
+    "grabby_loss_10": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "loss",
+      "text": "There must be a shelf somewhere for disappointments.",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_loss_10.mp3",
+      "sha256": "612bb07fb7316a21ffae6b7e59632713547180a4f86d12051d5e3d3e6865607d",
+      "seconds": 3.36
+    },
+    "grabby_loss_11": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "loss",
+      "text": "Defeat? I certainly didn't order one of those!",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_loss_11.mp3",
+      "sha256": "a35653c698769c0a028450f5efb56767801aa38dbee125b63d0c782a753eda24",
+      "seconds": 4.4
+    },
+    "grabby_loss_12": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "loss",
+      "text": "My victory display was ready! Now look at it!",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_loss_12.mp3",
+      "sha256": "83fed81482144b8a0910cc8c02c860efb52a409263ddd7892e12aa2af7adb5f3",
+      "seconds": 3.6
+    },
+    "grabby_loss_13": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "loss",
+      "text": "Oh, bother. I'll have to dust my wounded pride.",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_loss_13.mp3",
+      "sha256": "75ba81a06657dbcd562bd6d3c38bc97d86eb494fb007c94a572373684fbca2ee",
+      "seconds": 4.16
+    },
+    "grabby_loss_14": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "loss",
+      "text": "Very well. Your win. My extremely dignified sulk.",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_loss_14.mp3",
+      "sha256": "74af69b2bebe9563ed04af1223fa1d8d2b1a61f48006bc104c0b00adb79c49dc",
+      "seconds": 6.24
+    },
+    "grabby_loss_15": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "loss",
+      "text": "Hmph! I shall label this a temporary setback.",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_loss_15.mp3",
+      "sha256": "1efdd815a9af08a70a35e2203b8f80004da887e5f4e05f172ccf04b9ea44607c",
+      "seconds": 3.68
     },
     "grabby_loss_2": {
       "pack": "elevenlabs-dicechess-bots",
@@ -521,6 +936,116 @@
       "file": "elevenlabs-dicechess-bots/grabby_loss_3.mp3",
       "sha256": "76d65c96cbb7821c866cbb52b2e865bc73786c3ec817276dfdf1c55f1c31198b",
       "seconds": 6.08
+    },
+    "grabby_loss_6": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "loss",
+      "text": "I lost? But I had such a splendid victory grin!",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_loss_6.mp3",
+      "sha256": "a6ff668522231e5fd132a3516d3afdff08fe60c771b0cd9d3d04cb7e76d59dc7",
+      "seconds": 4.16
+    },
+    "grabby_loss_7": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "loss",
+      "text": "My collection and I would like a moment alone.",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_loss_7.mp3",
+      "sha256": "a063c63c2919d72d0b8708848bdbdeea1f0a1abb84800a3924f71cdc4f12feab",
+      "seconds": 3.12
+    },
+    "grabby_loss_8": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "loss",
+      "text": "Hmph! That result is going in the back cupboard.",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_loss_8.mp3",
+      "sha256": "ac8f7cc0d602791758ccd21f1c0fdf56d0b8dc8640f3611d2ac661183abcd7d2",
+      "seconds": 4.56
+    },
+    "grabby_loss_9": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "loss",
+      "text": "You won? How dreadfully inconvenient for me!",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_loss_9.mp3",
+      "sha256": "543968f56debf7f55c07494cfa16280f94b5329e245786493b2d561dcbe0d8ac",
+      "seconds": 4
+    },
+    "grabby_rematch_10": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "rematch",
+      "text": "A fresh collection awaits. Shall we?",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_rematch_10.mp3",
+      "sha256": "6c91bd22440b343d0b8ef981b173f3c7a67ff78216a9001d1a7c64cd1bda6a16",
+      "seconds": 3.44
+    },
+    "grabby_rematch_4": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "rematch",
+      "text": "Another round? Let me straighten my crown.",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_rematch_4.mp3",
+      "sha256": "becc29b0d689ea60eb94f60272aae8b5ac27b06a99c36e97ed19b2fd8ce76a8d",
+      "seconds": 3.68
+    },
+    "grabby_rematch_5": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "rematch",
+      "text": "Very well. I can always find room for more pieces.",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_rematch_5.mp3",
+      "sha256": "f53c51c84db05851caf30fc7de659d3e4e9ff5b80a162fbbf694a681560f89b8",
+      "seconds": 4.32
+    },
+    "grabby_rematch_6": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "rematch",
+      "text": "Shall we reopen the display cases?",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_rematch_6.mp3",
+      "sha256": "1588038547278668dce46be6c3aafe11e02a3337991574c1156dffba3aaa3e29",
+      "seconds": 2.88
+    },
+    "grabby_rematch_7": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "rematch",
+      "text": "Back to the board! The shelves won't fill themselves.",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_rematch_7.mp3",
+      "sha256": "94fd7418f1f489af3be10eafc84889a869761c0a325e3d8ce9d73811d17185b1",
+      "seconds": 4.08
+    },
+    "grabby_rematch_8": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "rematch",
+      "text": "One more game? How thoughtful of you.",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_rematch_8.mp3",
+      "sha256": "d36e85e395a09f138151f19fd8f78a2ff8550f0a97c129d139958e6bb48c2859",
+      "seconds": 3.28
+    },
+    "grabby_rematch_9": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "rematch",
+      "text": "Again, then! I'll bring my finest collecting grin.",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_rematch_9.mp3",
+      "sha256": "7a3269f30c3222716d83f7c408793de33994d8d9304c2541570c092913f14ed8",
+      "seconds": 4.48
     },
     "grabby_threat_1": {
       "pack": "elevenlabs-dicechess-bots",
@@ -562,6 +1087,16 @@
       "sha256": "4f2fc882511a382f39a1e0e7829ddb15aea13a99dacf67a9f76719d94661769e",
       "seconds": 6
     },
+    "grabby_win_10": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "win",
+      "text": "I win! My victory grin fits perfectly.",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_win_10.mp3",
+      "sha256": "79ddfe5662fdd67a1d39b01d4cf2d5033db0e475357bae88abbe16dbc6638afe",
+      "seconds": 4
+    },
     "grabby_win_2": {
       "pack": "elevenlabs-dicechess-bots",
       "bot": "greedy",
@@ -582,6 +1117,46 @@
       "sha256": "25ccf1a39359f59969329de02f4eec0cb3890510c4660df0bea4f51ab91f6a36",
       "seconds": 4.48
     },
+    "grabby_win_6": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "win",
+      "text": "A victory! The perfect addition to my collection.",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_win_6.mp3",
+      "sha256": "fb6d753ce2218741d808d72f62b81c86850ea799555486fc5abbd8fc346d4f10",
+      "seconds": 4.08
+    },
+    "grabby_win_7": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "win",
+      "text": "Splendid! I'll put this win on the top shelf.",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_win_7.mp3",
+      "sha256": "6548c6db5ae84e23ad52ace08ae1a8d77273bef0ceab13f36523a89354782bf4",
+      "seconds": 4
+    },
+    "grabby_win_8": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "win",
+      "text": "Mine, all mine! What a delightful result.",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_win_8.mp3",
+      "sha256": "cbf3f8437605d4ddcf2951bd33dfb6f5cf90722e50107745b924312f30066833",
+      "seconds": 5.44
+    },
+    "grabby_win_9": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "greedy",
+      "event": "win",
+      "text": "Another space in the cabinet filled. Excellent!",
+      "voice": "Grabby",
+      "file": "elevenlabs-dicechess-bots-expansion/grabby_win_9.mp3",
+      "sha256": "f048e1662cdb60e9c0432c6786dff74bb191e03f2c58dcbce8393cb1d0b770ae",
+      "seconds": 3.92
+    },
     "host_again_1": {
       "pack": "elevenlabs-dicechess-host",
       "bot": "host",
@@ -591,6 +1166,16 @@
       "file": "elevenlabs-dicechess-host/host_again_1.mp3",
       "sha256": "148d5a9996f235834f617bbb96687da0f9258ad6dd5c2f32330ca3f55591239b",
       "seconds": 4.24
+    },
+    "host_again_10": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "again",
+      "text": "Another game together! Now that's a lovely idea!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_again_10.mp3",
+      "sha256": "9257202f98cf82f51fd45cd33b63cf9709ec8f09de2293b49c41460e7fee1d05",
+      "seconds": 4.32
     },
     "host_again_2": {
       "pack": "elevenlabs-dicechess-host",
@@ -611,6 +1196,66 @@
       "file": "elevenlabs-dicechess-host/host_again_3.mp3",
       "sha256": "f1a535315939383eb32dba11d60f235e1b1de71ef74522a26c4d70d30af11c27",
       "seconds": 4.4
+    },
+    "host_again_4": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "again",
+      "text": "Another round for you two? I'll stay for the fun!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_again_4.mp3",
+      "sha256": "87b912add90f876b1786d4e61e4538dfbb66ed7b23beea67e02c939a1da4ba2d",
+      "seconds": 3.52
+    },
+    "host_again_5": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "again",
+      "text": "Ooh, a fresh start! Hello again, little pieces!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_again_5.mp3",
+      "sha256": "ec52595b7c64837d4e4e38dd345f146e053daa6c17c527f24ffdf00e6454c773",
+      "seconds": 4.16
+    },
+    "host_again_6": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "again",
+      "text": "Same friends, new game! My favorite kind of evening!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_again_6.mp3",
+      "sha256": "9a2a4249d0ee1aa8203c5b5b4cae346a9224e924369158f6dee634870e1eb0bc",
+      "seconds": 4.56
+    },
+    "host_again_7": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "again",
+      "text": "Back to the beginning! The dice love an encore!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_again_7.mp3",
+      "sha256": "ba312b9d163b1181fe71e0275508f9cd9a77d428f828a01b04be92fe08839cac",
+      "seconds": 3.68
+    },
+    "host_again_8": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "again",
+      "text": "Everybody's back on the board! Let's go again!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_again_8.mp3",
+      "sha256": "e285554445d44d0064161308d72a9d0bd2a8ca7282ac558e32ea11e2318511cd",
+      "seconds": 3.44
+    },
+    "host_again_9": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "again",
+      "text": "More dice, more giggles! Ready, you two?",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_again_9.mp3",
+      "sha256": "9b29cad9539c94cb3eb4be808b13dfbf2c3bfb3d6ec3308576371616450d4321",
+      "seconds": 3.84
     },
     "host_black_wins_1": {
       "pack": "elevenlabs-dicechess-host",
@@ -641,6 +1286,36 @@
       "file": "elevenlabs-dicechess-host/host_black_wins_3.mp3",
       "sha256": "974e1bb35b1be8da26a6b9af0e27d27776d9ae4b0999e9f43f44e44b6ae3a137",
       "seconds": 3.44
+    },
+    "host_black_wins_4": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "black_wins",
+      "text": "Black wins! A big bouncy cheer for both players!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_black_wins_4.mp3",
+      "sha256": "f71ab9f8c554d1d042b04bf9cadf0b19cf1e3621e53bf7cec96af188f44ddf35",
+      "seconds": 4.64
+    },
+    "host_black_wins_5": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "black_wins",
+      "text": "The win goes to Black! Thank you for playing, White!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_black_wins_5.mp3",
+      "sha256": "b769e8f9e0f47901375283c2ace37be8ae65fbcf4ed24f2a7defa1de690ad205",
+      "seconds": 4.8
+    },
+    "host_black_wins_6": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "black_wins",
+      "text": "Black takes this one! A little applause for you both!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_black_wins_6.mp3",
+      "sha256": "e06846b66d56af479dda76ab9bb651e3ceafa6f6c3b9757b4b93582f900ca4f1",
+      "seconds": 4.64
     },
     "host_capture_1": {
       "pack": "elevenlabs-dicechess-host",
@@ -832,6 +1507,36 @@
       "sha256": "ce92f009eccedff23077cb8ef494e7eb3260e27880d6c7b48bcc9f9b33350954",
       "seconds": 4.96
     },
+    "host_draw_4": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "draw",
+      "text": "A draw! The dice have left you all square!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_draw_4.mp3",
+      "sha256": "f798dbb1253e3dc7a09f53f2855632e56567a8fde884387eddc53d630d1b8d33",
+      "seconds": 3.52
+    },
+    "host_draw_5": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "draw",
+      "text": "No winner this time! Thank you for the game, you two!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_draw_5.mp3",
+      "sha256": "dcc18d4501df7f167f48c6098cf05a184b9588be183c63f157a8cc9d7bda3f1d",
+      "seconds": 3.76
+    },
+    "host_draw_6": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "draw",
+      "text": "It's a tie! A matching pair of cheers for you both!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_draw_6.mp3",
+      "sha256": "c3a0ec75c08f491c74429ccfdf049d8be2e1c43f37063453fa05b9f920ddb08f",
+      "seconds": 3.76
+    },
     "host_empty_roll_1": {
       "pack": "elevenlabs-dicechess-host",
       "bot": "host",
@@ -942,6 +1647,16 @@
       "sha256": "a6924af0e61c6dc4333dd48a949497ff673f8e7e8e5f66359dd821a3006e96a9",
       "seconds": 3.04
     },
+    "host_intro_10": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "intro",
+      "text": "Your pieces are all here! Let the dice join the party!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_intro_10.mp3",
+      "sha256": "32475556298113e74e6b4f1925ffcfabff3dadfc81b6537135b5810dbf254ac5",
+      "seconds": 4.16
+    },
     "host_intro_2": {
       "pack": "elevenlabs-dicechess-host",
       "bot": "host",
@@ -981,6 +1696,46 @@
       "file": "elevenlabs-dicechess-host/host_intro_5.mp3",
       "sha256": "e6b82a5dfdef09a7f1527b6733b341e11e0005c77097e5e8dad5731f3869afce",
       "seconds": 4.08
+    },
+    "host_intro_6": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "intro",
+      "text": "Hello, you two! I'll bring the giggles, you bring the game!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_intro_6.mp3",
+      "sha256": "b7d7785c27ca796fba94f271df729e82de0528c0aa28dd0222266e3116373c34",
+      "seconds": 4.32
+    },
+    "host_intro_7": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "intro",
+      "text": "Two players and a lovely fresh board! Here we go!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_intro_7.mp3",
+      "sha256": "9daa842cde53088752691e21063fa1772c06a689bcf0681952236725856a513f",
+      "seconds": 4.16
+    },
+    "host_intro_8": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "intro",
+      "text": "Everybody comfy? The dice are ready for you both!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_intro_8.mp3",
+      "sha256": "3ea85797d2f879757e8a8800c45127651d6cf7d4182a95ead7048a696f7cd651",
+      "seconds": 3.52
+    },
+    "host_intro_9": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "intro",
+      "text": "I'm cheering for a whole roomful of fun!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_intro_9.mp3",
+      "sha256": "be089a8d6a1d97ac2d0811dea0730d3a60ccb91f5c76f3a0d2905829d2a49d48",
+      "seconds": 3.2
     },
     "host_promotion_1": {
       "pack": "elevenlabs-dicechess-host",
@@ -1042,6 +1797,36 @@
       "sha256": "89104c8d07b12221d72aae365b852e73e0f12d108675f3abe27937290c1a4017",
       "seconds": 4.56
     },
+    "host_white_wins_4": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "white_wins",
+      "text": "White wins! A big bouncy cheer for both players!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_white_wins_4.mp3",
+      "sha256": "8488c396eff14b84f50ced2f63fefa22c0f78e083711ca664483f28ea728a0ce",
+      "seconds": 4.56
+    },
+    "host_white_wins_5": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "white_wins",
+      "text": "The win goes to White! Thank you for playing, Black!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_white_wins_5.mp3",
+      "sha256": "29d1bf7c819b519cfb5578e745847f12dc80b0f2efbc0edb027db8233602d3e5",
+      "seconds": 4.88
+    },
+    "host_white_wins_6": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "white_wins",
+      "text": "White takes this one! A little applause for you both!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_white_wins_6.mp3",
+      "sha256": "a182314705e771ef56137bc8c6e10eed10f323b2c907110ef04b557bf9d202c2",
+      "seconds": 3.84
+    },
     "host_win_1": {
       "pack": "elevenlabs-dicechess-host",
       "bot": "host",
@@ -1051,6 +1836,16 @@
       "file": "elevenlabs-dicechess-host/host_win_1.mp3",
       "sha256": "c5f0a4ee622b7cc3c13a65e76f36f9b4d7de4df20f0153857f510ba8232f3148",
       "seconds": 3.44
+    },
+    "host_win_10": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "win",
+      "text": "The game has a winner! My applause is for you both!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_win_10.mp3",
+      "sha256": "7826b8edc1bd9ab08422d540f87a3d42c016ba43eeabb092188c1c9ed59d999f",
+      "seconds": 4.16
     },
     "host_win_2": {
       "pack": "elevenlabs-dicechess-host",
@@ -1062,6 +1857,76 @@
       "sha256": "46cce2c578c7106a74e71a6a250668994d50f5feef1d2b10d559ecde7fea67f3",
       "seconds": 4.32
     },
+    "host_win_3": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "win",
+      "text": "That's a wrap, you two! Thanks for the game!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_win_3.mp3",
+      "sha256": "0adc2e161c0d2822473dee96c1d1f61008c49952a7db7e575a57759af4ca2f47",
+      "seconds": 3.04
+    },
+    "host_win_4": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "win",
+      "text": "A winner, and a big cheer for both players!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_win_4.mp3",
+      "sha256": "72350bab5ca33b3f2479dc420dbe04419c764149c9ecdaec06729a1edc1f1bf9",
+      "seconds": 3.84
+    },
+    "host_win_5": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "win",
+      "text": "Game over! Sending a little sparkle to you both!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_win_5.mp3",
+      "sha256": "f0338b902d084083819667721008c2cbab40f5295130461ad69495a3644dc634",
+      "seconds": 3.52
+    },
+    "host_win_6": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "win",
+      "text": "The result is in! Give each other a wave!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_win_6.mp3",
+      "sha256": "4074936726336212611238b7a11de07dda77d43f2836273fc2e2d57decbc953e",
+      "seconds": 3.04
+    },
+    "host_win_7": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "win",
+      "text": "One finished game, two lovely players! Hooray!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_win_7.mp3",
+      "sha256": "5047a7f21b173a617b2549ff2f45e9438360465f2f30883f1f09598a4cdd0189",
+      "seconds": 4.48
+    },
+    "host_win_8": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "win",
+      "text": "That's the game! A happy little bow to both of you!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_win_8.mp3",
+      "sha256": "dc8b2d1c8e503b47f86d38ee720afb728997701b3cf8eaab3361526d4764c9ce",
+      "seconds": 4
+    },
+    "host_win_9": {
+      "pack": "elevenlabs-dicechess-host-expansion",
+      "bot": "host",
+      "event": "win",
+      "text": "All done! Thanks for sharing the board, you two!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-host-expansion/host_win_9.mp3",
+      "sha256": "df45cdf88fabc6a753a0c7b1e882bcfbceb63f2ee4289bb6c9c4294df35a3fbb",
+      "seconds": 3.36
+    },
     "prowla_host_again_1": {
       "pack": "elevenlabs-dicechess-host-prowla",
       "bot": "host",
@@ -1070,6 +1935,16 @@
       "voice": "Prowla",
       "file": "elevenlabs-dicechess-host-prowla/prowla_host_again_1.mp3",
       "sha256": "4c896cd95f86a6f064c910b72bb5b1da6ebc4ded85949a41142c2503a897bfdd",
+      "seconds": 4.56
+    },
+    "prowla_host_again_10": {
+      "pack": "elevenlabs-dicechess-host-prowla-expansion",
+      "bot": "host",
+      "event": "again",
+      "text": "Shall we watch a new game unfold? Off you go, both of you.",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla-expansion/prowla_host_again_10.mp3",
+      "sha256": "aa0a9720e3f17656dcedf0b749594ea4e239293c17199bbc6eb58d050096b9e5",
       "seconds": 4.56
     },
     "prowla_host_again_2": {
@@ -1102,6 +1977,56 @@
       "sha256": "f4b0bd52b588a6dc9860c986c6172337cb2d3b91e0f47a5d6227c44c8185dbb7",
       "seconds": 3.76
     },
+    "prowla_host_again_5": {
+      "pack": "elevenlabs-dicechess-host-prowla-expansion",
+      "bot": "host",
+      "event": "again",
+      "text": "Another game together? Make yourselves at home.",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla-expansion/prowla_host_again_5.mp3",
+      "sha256": "1e41e5de4476a6a13f25b51679c8e616e3f71a6adcc29e02565ed0cc52e117ab",
+      "seconds": 3.2
+    },
+    "prowla_host_again_6": {
+      "pack": "elevenlabs-dicechess-host-prowla-expansion",
+      "bot": "host",
+      "event": "again",
+      "text": "A new round, darlings. I'll curl up right here.",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla-expansion/prowla_host_again_6.mp3",
+      "sha256": "f85b045cb50e51d97f69848bb5c3dd0a4941205997102a003f47e3638b5ed44f",
+      "seconds": 4.08
+    },
+    "prowla_host_again_7": {
+      "pack": "elevenlabs-dicechess-host-prowla-expansion",
+      "bot": "host",
+      "event": "again",
+      "text": "The pieces are back. So am I, naturally.",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla-expansion/prowla_host_again_7.mp3",
+      "sha256": "dab83d8ee587f8c7037f510a5c6dbd5190f03d74733fc8b32cda3514699a7a1c",
+      "seconds": 3.84
+    },
+    "prowla_host_again_8": {
+      "pack": "elevenlabs-dicechess-host-prowla-expansion",
+      "bot": "host",
+      "event": "again",
+      "text": "Again, you two? This evening gets better and better.",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla-expansion/prowla_host_again_8.mp3",
+      "sha256": "d81f40f752b77472c338abd62f728e8449b38195293245315099b459d41e1845",
+      "seconds": 4.4
+    },
+    "prowla_host_again_9": {
+      "pack": "elevenlabs-dicechess-host-prowla-expansion",
+      "bot": "host",
+      "event": "again",
+      "text": "Fresh dice, familiar faces. A lovely combination.",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla-expansion/prowla_host_again_9.mp3",
+      "sha256": "09e286723222adb0595464962c81ec48bec128ed9b16bb8809640feb4ebd2db9",
+      "seconds": 5.28
+    },
     "prowla_host_black_wins_1": {
       "pack": "elevenlabs-dicechess-host-prowla",
       "bot": "host",
@@ -1131,6 +2056,36 @@
       "file": "elevenlabs-dicechess-host-prowla/prowla_host_black_wins_3.mp3",
       "sha256": "9df2698b5073bb69b1da86d1222b42e25a78983a541ab6558f20575177297332",
       "seconds": 4.56
+    },
+    "prowla_host_black_wins_4": {
+      "pack": "elevenlabs-dicechess-host-prowla-expansion",
+      "bot": "host",
+      "event": "black_wins",
+      "text": "Black wins, darlings. My compliments to both players.",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla-expansion/prowla_host_black_wins_4.mp3",
+      "sha256": "40784c86bc480c16e54143da410a6a256d6b602ab78e30812f13a717311630d9",
+      "seconds": 4.64
+    },
+    "prowla_host_black_wins_5": {
+      "pack": "elevenlabs-dicechess-host-prowla-expansion",
+      "bot": "host",
+      "event": "black_wins",
+      "text": "This one goes to Black. A gracious bow to White as well.",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla-expansion/prowla_host_black_wins_5.mp3",
+      "sha256": "da3d6241a3ef0f062932ad1cab778e27c47012f5c3f54c8d4b2c1c01fd64a94a",
+      "seconds": 4.96
+    },
+    "prowla_host_black_wins_6": {
+      "pack": "elevenlabs-dicechess-host-prowla-expansion",
+      "bot": "host",
+      "event": "black_wins",
+      "text": "Victory for Black. Thank you for the game, you two.",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla-expansion/prowla_host_black_wins_6.mp3",
+      "sha256": "bc65b631e3f15ce5a2c3d1b052047a3e897e0cc711be02d94f46ba6c38a8f10f",
+      "seconds": 4.08
     },
     "prowla_host_capture_1": {
       "pack": "elevenlabs-dicechess-host-prowla",
@@ -1342,6 +2297,36 @@
       "sha256": "f68fc591578adba6b75b70bb7757ed24a44eadff031589ed042f6976d166348a",
       "seconds": 4.56
     },
+    "prowla_host_draw_4": {
+      "pack": "elevenlabs-dicechess-host-prowla-expansion",
+      "bot": "host",
+      "event": "draw",
+      "text": "A draw, darlings. This chase has no winner.",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla-expansion/prowla_host_draw_4.mp3",
+      "sha256": "eaf4d3f5353cce5aac46247954d10394257c1d4391837d8c62153f95f437c680",
+      "seconds": 4.16
+    },
+    "prowla_host_draw_5": {
+      "pack": "elevenlabs-dicechess-host-prowla-expansion",
+      "bot": "host",
+      "event": "draw",
+      "text": "All square. A graceful bow to each other, perhaps?",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla-expansion/prowla_host_draw_5.mp3",
+      "sha256": "34218b456d544d7df324d1bd6906805607dff1b2dc53018791c0fd604dbe39d4",
+      "seconds": 4.48
+    },
+    "prowla_host_draw_6": {
+      "pack": "elevenlabs-dicechess-host-prowla-expansion",
+      "bot": "host",
+      "event": "draw",
+      "text": "Neither side takes the game. Thank you, both of you.",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla-expansion/prowla_host_draw_6.mp3",
+      "sha256": "2694d2cba62348416a98dd9c36788967b55c92285e4de516528f538a8c5e7309",
+      "seconds": 4.4
+    },
     "prowla_host_empty_roll_1": {
       "pack": "elevenlabs-dicechess-host-prowla",
       "bot": "host",
@@ -1462,6 +2447,16 @@
       "sha256": "b8990315b4ed2a34174d52b34f3960fa5ed760b2500f088de3f6e156ef5ba64a",
       "seconds": 4.48
     },
+    "prowla_host_intro_10": {
+      "pack": "elevenlabs-dicechess-host-prowla-expansion",
+      "bot": "host",
+      "event": "intro",
+      "text": "Settle in, both of you. I do enjoy a little company.",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla-expansion/prowla_host_intro_10.mp3",
+      "sha256": "52bc5be141ed85597a5faadbaefd6208de740cc6bef774a64e718a98170ba693",
+      "seconds": 4.8
+    },
     "prowla_host_intro_2": {
       "pack": "elevenlabs-dicechess-host-prowla",
       "bot": "host",
@@ -1501,6 +2496,46 @@
       "file": "elevenlabs-dicechess-host-prowla/prowla_host_intro_5.mp3",
       "sha256": "8df7795bb069e6138a89bae74eca30f5705f312ade9ff6891fa27fcaf7f9152c",
       "seconds": 3.76
+    },
+    "prowla_host_intro_6": {
+      "pack": "elevenlabs-dicechess-host-prowla-expansion",
+      "bot": "host",
+      "event": "intro",
+      "text": "Make yourselves comfortable, you two. The board is yours.",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla-expansion/prowla_host_intro_6.mp3",
+      "sha256": "0720adf75fd6e1026ebb3a73020ea69f9236ed6da31de7cb737f56086d1a9a20",
+      "seconds": 3.68
+    },
+    "prowla_host_intro_7": {
+      "pack": "elevenlabs-dicechess-host-prowla-expansion",
+      "bot": "host",
+      "event": "intro",
+      "text": "A game for two, and a cozy spot for me. Perfect.",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla-expansion/prowla_host_intro_7.mp3",
+      "sha256": "1ff70f223063bb26f0ee3a200378712b03a41ae7e3e71076fd2d65e55d7179b1",
+      "seconds": 4.88
+    },
+    "prowla_host_intro_8": {
+      "pack": "elevenlabs-dicechess-host-prowla-expansion",
+      "bot": "host",
+      "event": "intro",
+      "text": "Welcome to the table, darlings. Shall we begin?",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla-expansion/prowla_host_intro_8.mp3",
+      "sha256": "3479b9d14002432ad6042bbbdca2f638f54361c55f392e6967172b309b2190db",
+      "seconds": 3.44
+    },
+    "prowla_host_intro_9": {
+      "pack": "elevenlabs-dicechess-host-prowla-expansion",
+      "bot": "host",
+      "event": "intro",
+      "text": "Two players, fresh dice. I'll lend an attentive ear.",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla-expansion/prowla_host_intro_9.mp3",
+      "sha256": "3ecd1311ec4fc09ac917fcab8de532c5f1c13264ea93c22c24e8fa6d8a6b1a8a",
+      "seconds": 4.48
     },
     "prowla_host_promotion_1": {
       "pack": "elevenlabs-dicechess-host-prowla",
@@ -1572,6 +2607,36 @@
       "sha256": "11f0b7bcb2829f8edf08b6847bdff2f043698ecf57ef3093f40d6150faabcaac",
       "seconds": 4
     },
+    "prowla_host_white_wins_4": {
+      "pack": "elevenlabs-dicechess-host-prowla-expansion",
+      "bot": "host",
+      "event": "white_wins",
+      "text": "White wins, darlings. My compliments to both players.",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla-expansion/prowla_host_white_wins_4.mp3",
+      "sha256": "63b6de0a2c22274a60a2d431238f3ddc9f32fefb98c692cfebfc540fb7160628",
+      "seconds": 4.48
+    },
+    "prowla_host_white_wins_5": {
+      "pack": "elevenlabs-dicechess-host-prowla-expansion",
+      "bot": "host",
+      "event": "white_wins",
+      "text": "This one goes to White. A gracious bow to Black as well.",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla-expansion/prowla_host_white_wins_5.mp3",
+      "sha256": "fa4af7afc88edb281df3814d17c7c27c84fb0ae11dd992544c8b317c9ff8b9e9",
+      "seconds": 5.04
+    },
+    "prowla_host_white_wins_6": {
+      "pack": "elevenlabs-dicechess-host-prowla-expansion",
+      "bot": "host",
+      "event": "white_wins",
+      "text": "Victory for White. Thank you for the game, you two.",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla-expansion/prowla_host_white_wins_6.mp3",
+      "sha256": "9f1d3971a5a4cc358a40c6fe76c65636ee048d13f584d4aa8815c5f91228ca18",
+      "seconds": 4.08
+    },
     "prowla_host_win_1": {
       "pack": "elevenlabs-dicechess-host-prowla",
       "bot": "host",
@@ -1581,6 +2646,16 @@
       "file": "elevenlabs-dicechess-host-prowla/prowla_host_win_1.mp3",
       "sha256": "3249b0077853084688b2068d59e7253190ab8b41a15c531e2adbc3c5a3a2e184",
       "seconds": 3.92
+    },
+    "prowla_host_win_10": {
+      "pack": "elevenlabs-dicechess-host-prowla-expansion",
+      "bot": "host",
+      "event": "win",
+      "text": "Time for a bow, darlings. The game is over.",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla-expansion/prowla_host_win_10.mp3",
+      "sha256": "d9ccaf31395b55759da8305e0ea97d081e93f960326b500713beab278a54e0d3",
+      "seconds": 3.52
     },
     "prowla_host_win_2": {
       "pack": "elevenlabs-dicechess-host-prowla",
@@ -1601,6 +2676,66 @@
       "file": "elevenlabs-dicechess-host-prowla/prowla_host_win_3.mp3",
       "sha256": "413f02081b44f402072e06385a18147805ce58cee5bee12f8e93fdb699d64dfc",
       "seconds": 4.32
+    },
+    "prowla_host_win_4": {
+      "pack": "elevenlabs-dicechess-host-prowla-expansion",
+      "bot": "host",
+      "event": "win",
+      "text": "That's the game, you two. Thank you for the company.",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla-expansion/prowla_host_win_4.mp3",
+      "sha256": "032e18ad7f4c343fc821f79fb868bcf0a15830eb4058fccaa33fa0d9d93d2aa0",
+      "seconds": 3.76
+    },
+    "prowla_host_win_5": {
+      "pack": "elevenlabs-dicechess-host-prowla-expansion",
+      "bot": "host",
+      "event": "win",
+      "text": "A winner is decided. A graceful bow to both players.",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla-expansion/prowla_host_win_5.mp3",
+      "sha256": "0e492ac74d72306ff3b7be837422e2bb35369c420efbfaabb36df96404fac7f2",
+      "seconds": 5.28
+    },
+    "prowla_host_win_6": {
+      "pack": "elevenlabs-dicechess-host-prowla-expansion",
+      "bot": "host",
+      "event": "win",
+      "text": "The result is in, darlings. Do congratulate each other.",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla-expansion/prowla_host_win_6.mp3",
+      "sha256": "2f686a3c551c67cee2a65b1cdced164c460ce9e16ac3180a978614914c7a0968",
+      "seconds": 4.24
+    },
+    "prowla_host_win_7": {
+      "pack": "elevenlabs-dicechess-host-prowla-expansion",
+      "bot": "host",
+      "event": "win",
+      "text": "And there we are. My compliments to you both.",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla-expansion/prowla_host_win_7.mp3",
+      "sha256": "8d2a6d8bc6e91b269930089deef7c6e11daad61a9182dd772cd95680f341bda2",
+      "seconds": 4
+    },
+    "prowla_host_win_8": {
+      "pack": "elevenlabs-dicechess-host-prowla-expansion",
+      "bot": "host",
+      "event": "win",
+      "text": "One game complete. A little purr for each of you.",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla-expansion/prowla_host_win_8.mp3",
+      "sha256": "4233a3bb8b04b70fc11018c6b413ab01e02c693bb67e399232e7b3abba7153b9",
+      "seconds": 4.64
+    },
+    "prowla_host_win_9": {
+      "pack": "elevenlabs-dicechess-host-prowla-expansion",
+      "bot": "host",
+      "event": "win",
+      "text": "The board has its answer. Thank you, both of you.",
+      "voice": "Prowla",
+      "file": "elevenlabs-dicechess-host-prowla-expansion/prowla_host_win_9.mp3",
+      "sha256": "1ec70b759e1a1733c413f0a8c34a5f58d0c34dfc31277931f3b7fff18a221e29",
+      "seconds": 4
     },
     "rampage_capture_1": {
       "pack": "elevenlabs-dicechess-bots",
@@ -1702,6 +2837,66 @@
       "sha256": "8b3bb17fa3d3b662bc49cb6392d5bdaf2e8b5ee19160f9c204d3167c6c19ea47",
       "seconds": 5.28
     },
+    "rampage_intro_10": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "intro",
+      "text": "Helmet straight! Cape ready! Let us begin!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_intro_10.mp3",
+      "sha256": "3415285dc0c5917f077227e43b5bf66b749cc56c9d3b14427866e49e142cf6e0",
+      "seconds": 4.56
+    },
+    "rampage_intro_11": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "intro",
+      "text": "The fortress gates are open. Enter if you dare!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_intro_11.mp3",
+      "sha256": "21e072ff6361dc9b88f76725a3143ccbd95094a7df8157b827fc850d9ab8a7c9",
+      "seconds": 4.72
+    },
+    "rampage_intro_12": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "intro",
+      "text": "Behold my mighty army! Small pieces, enormous ambition!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_intro_12.mp3",
+      "sha256": "4cab24ef0944a6fb653d0dd7880c860c3ea0971e52c0ab7402c42e00b2445b92",
+      "seconds": 6.4
+    },
+    "rampage_intro_13": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "intro",
+      "text": "Drums! Trumpets! Somebody announce me properly!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_intro_13.mp3",
+      "sha256": "2bc5c102e4ca9ead90bfc717ccc8deb3ca7e948ffe6ec97cdd3eaa9c5701eb35",
+      "seconds": 4.56
+    },
+    "rampage_intro_14": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "intro",
+      "text": "I have polished my horns for this occasion!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_intro_14.mp3",
+      "sha256": "4c96aa41963826226c96e53317f67bd0852b5180dec532f4a7ca1e55d184aa0d",
+      "seconds": 3.52
+    },
+    "rampage_intro_15": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "intro",
+      "text": "Let the dice rumble! My grand campaign begins!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_intro_15.mp3",
+      "sha256": "2145561568c9f2305324447acaf090e03bc58321ec0f2d2def19ce6853e731f8",
+      "seconds": 5.12
+    },
     "rampage_intro_2": {
       "pack": "elevenlabs-dicechess-bots",
       "bot": "aggressive",
@@ -1722,6 +2917,46 @@
       "sha256": "ce9101bbf6baec393232457c25fdb9af1f1346f43ad538ca2c0567bd60f2f0a3",
       "seconds": 4.56
     },
+    "rampage_intro_6": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "intro",
+      "text": "Raise the banners! This board is my battlefield!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_intro_6.mp3",
+      "sha256": "a6a11806d5dafe9ad18176b03f9dea0613e56edd47d207728347552edf2a58e0",
+      "seconds": 4.8
+    },
+    "rampage_intro_7": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "intro",
+      "text": "Attention, pieces! Your magnificent commander has arrived!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_intro_7.mp3",
+      "sha256": "83b59726016304d259627f6aa3d34d3649cb56bfc9303dfb101772550b47a29a",
+      "seconds": 4.88
+    },
+    "rampage_intro_8": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "intro",
+      "text": "I brought my loudest battle cry. Ready?",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_intro_8.mp3",
+      "sha256": "01c25cc914f82d89b1a6d77eb155bdfc46f870c74a1367aaafea9a4e0af453cb",
+      "seconds": 3.92
+    },
+    "rampage_intro_9": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "intro",
+      "text": "Stand by! A very important conquest is about to begin!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_intro_9.mp3",
+      "sha256": "0324ff340653b0b54c104967f742ab2778387610620d1d4b4aa2362c84647d60",
+      "seconds": 5.12
+    },
     "rampage_loss_1": {
       "pack": "elevenlabs-dicechess-bots",
       "bot": "aggressive",
@@ -1731,6 +2966,66 @@
       "file": "elevenlabs-dicechess-bots/rampage_loss_1.mp3",
       "sha256": "5287ef6be9b5563544cde0121219118602b495fd7bb4441053e323cc950720f0",
       "seconds": 3.84
+    },
+    "rampage_loss_10": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "loss",
+      "text": "This cape is not equipped for disappointment!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_loss_10.mp3",
+      "sha256": "1d5af97751de5775b764ca96c341f5286f18b43fda02fa10eb0c6f9a59ff2db0",
+      "seconds": 3.36
+    },
+    "rampage_loss_11": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "loss",
+      "text": "Beaten! And in front of all my pieces!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_loss_11.mp3",
+      "sha256": "04d02830b169af9da1e5a1e019318764d9b16f725d0731e2ff563907e24e8f88",
+      "seconds": 3.6
+    },
+    "rampage_loss_12": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "loss",
+      "text": "My grand triumph appears to be missing!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_loss_12.mp3",
+      "sha256": "f82a6a66fbc129ccf195891327104cbe893650b3193610d71eb642292166601c",
+      "seconds": 3.84
+    },
+    "rampage_loss_13": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "loss",
+      "text": "What an outrage! A perfectly legal outrage!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_loss_13.mp3",
+      "sha256": "6387b92998c8b149c5bc880093ff4f109d8eb6bb333d53c99848d9c8aa272dbd",
+      "seconds": 4.56
+    },
+    "rampage_loss_14": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "loss",
+      "text": "Very well! Your victory deserves a mighty salute!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_loss_14.mp3",
+      "sha256": "48814abce244e0f0ec845ab10117a0874c815d8362cf3dfd03a6e138f45de53f",
+      "seconds": 4.8
+    },
+    "rampage_loss_15": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "loss",
+      "text": "My pride needs a helmet of its own!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_loss_15.mp3",
+      "sha256": "a18ab6e150db26d0a87a550430b74ead757add01315dfd5e3814fd768e6bd955",
+      "seconds": 3.68
     },
     "rampage_loss_2": {
       "pack": "elevenlabs-dicechess-bots",
@@ -1751,6 +3046,116 @@
       "file": "elevenlabs-dicechess-bots/rampage_loss_3.mp3",
       "sha256": "fe7aa512df6788c337f5c3944339bcb8cb86fc3c893e8a889c8d3d138f779d69",
       "seconds": 4.96
+    },
+    "rampage_loss_6": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "loss",
+      "text": "Defeat?! But I rehearsed the victory speech!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_loss_6.mp3",
+      "sha256": "ca7026d1c1045d166fcbc6a1e39bc3fa0d8ac84a0f43678dc139e3704cc85f59",
+      "seconds": 4.56
+    },
+    "rampage_loss_7": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "loss",
+      "text": "My banners! Somebody lower them very, very slowly!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_loss_7.mp3",
+      "sha256": "2f04f6ecfd30787d7dc964a94e2e47654a4c12110adf5bf3d57a08289bbf3dec",
+      "seconds": 5.36
+    },
+    "rampage_loss_8": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "loss",
+      "text": "I demand a much smaller word than defeat!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_loss_8.mp3",
+      "sha256": "7475db59e7ee53356361db8554413041acd2c8f0e2bfccd1ab0ba146d9a9f83b",
+      "seconds": 3.52
+    },
+    "rampage_loss_9": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "loss",
+      "text": "You win. I shall stomp about it privately!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_loss_9.mp3",
+      "sha256": "17568daa2085d2ff971b5964c1404f1d9b467bc977e2de8c8a5a2f9ad3cdaeb9",
+      "seconds": 4.96
+    },
+    "rampage_rematch_10": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "rematch",
+      "text": "You challenge me again? Splendid courage!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_rematch_10.mp3",
+      "sha256": "5e144c7845ed5875876748c8fef973c9d2e17c10fae3f18f40b8f7344c0376ee",
+      "seconds": 3.92
+    },
+    "rampage_rematch_4": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "rematch",
+      "text": "Again? Raise the banners once more!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_rematch_4.mp3",
+      "sha256": "f7b1dac6686a0bf92e1690e77c6cc43f7071433e61362fcd7e6ae8d88fa9758e",
+      "seconds": 3.68
+    },
+    "rampage_rematch_5": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "rematch",
+      "text": "A new campaign! Assemble the pieces!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_rematch_5.mp3",
+      "sha256": "ad5ac7743b680903807a1a822694a775200a6868b7efddfb60da8c900fcdbb4b",
+      "seconds": 3.92
+    },
+    "rampage_rematch_6": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "rematch",
+      "text": "One more battle! My cape is still billowing!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_rematch_6.mp3",
+      "sha256": "7b799a7163cfdd1b9a5cc3ef1ad036cb51540fa85195908fc3ca4e817c5b21f5",
+      "seconds": 4.56
+    },
+    "rampage_rematch_7": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "rematch",
+      "text": "Back to your posts! The rematch begins!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_rematch_7.mp3",
+      "sha256": "9c79718296ea95c085c5471ebf0bcb462bc5382cfa47bfb3650e6d0cb0df7869",
+      "seconds": 3.6
+    },
+    "rampage_rematch_8": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "rematch",
+      "text": "Another round? Excellent! I have more speeches!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_rematch_8.mp3",
+      "sha256": "14dac82872a0bc10bceb2923cad12a8097aafdeb9df28d8c109f7b1ccc23c111",
+      "seconds": 4.8
+    },
+    "rampage_rematch_9": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "rematch",
+      "text": "Reset the board! Leave the dramatic music to me!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_rematch_9.mp3",
+      "sha256": "888adfa37c4c3273b4b162566e4e2c357807cf74637ec16eeaa252006b4ad320",
+      "seconds": 4.48
     },
     "rampage_threat_1": {
       "pack": "elevenlabs-dicechess-bots",
@@ -1792,6 +3197,16 @@
       "sha256": "1de1d012f6b0bff1101d64967f1a25d7c277e5e9f788eaa88b5596d1c267bd2e",
       "seconds": 5.84
     },
+    "rampage_win_10": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "win",
+      "text": "A grand victory for a very grand commander!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_win_10.mp3",
+      "sha256": "fb4f38834beb8b5770a02f4d493c2e56abcda50b7ad7a7ed4fad81c657b33826",
+      "seconds": 4.32
+    },
     "rampage_win_2": {
       "pack": "elevenlabs-dicechess-bots",
       "bot": "aggressive",
@@ -1811,6 +3226,46 @@
       "file": "elevenlabs-dicechess-bots/rampage_win_3.mp3",
       "sha256": "f4b558cab946280af89ec5b70b46914a7177c99eb1ab9a6a62a269889b933aa5",
       "seconds": 4.96
+    },
+    "rampage_win_6": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "win",
+      "text": "Sound the trumpets! Victory belongs to me!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_win_6.mp3",
+      "sha256": "3ad99323d7c66c1fa0007f0807b14341a462783b10640a7e44d6e7bfbc41b577",
+      "seconds": 4.56
+    },
+    "rampage_win_7": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "win",
+      "text": "My banner flies highest! A glorious result!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_win_7.mp3",
+      "sha256": "14dde7d9818e161c23582532beb720680d81793e001582b510856377b9c976f2",
+      "seconds": 4.4
+    },
+    "rampage_win_8": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "win",
+      "text": "Behold! A triumph worthy of my magnificent horns!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_win_8.mp3",
+      "sha256": "e14a45a0b036d0708e0a2b06478a7b38c0cc09cf908d78e59d09c2fb2e09521d",
+      "seconds": 5.28
+    },
+    "rampage_win_9": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "aggressive",
+      "event": "win",
+      "text": "I win! Someone bring the ceremonial cushion!",
+      "voice": "Rampage",
+      "file": "elevenlabs-dicechess-bots-expansion/rampage_win_9.mp3",
+      "sha256": "f710e22610e114fdfd0e69432b62b118e6beb5ccbcdd476152d22f6b70667068",
+      "seconds": 4.32
     },
     "rolly_capture_1": {
       "pack": "elevenlabs-dicechess-bots",
@@ -1912,6 +3367,66 @@
       "sha256": "2f018ba02a7d11ed2f7f1402fe40ceabd8025a4639b66d4f0e5c8f39a04b9d29",
       "seconds": 3.04
     },
+    "rolly_intro_10": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "intro",
+      "text": "Little pieces, big adventure! Here we go!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_intro_10.mp3",
+      "sha256": "cc9ee9cab8ca1245c86a3ae38271ce5ebd9b8a619ad6a48f2e25c94f15cf708a",
+      "seconds": 4
+    },
+    "rolly_intro_11": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "intro",
+      "text": "I wonder what the dice will say today!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_intro_11.mp3",
+      "sha256": "1b1235caf0a446072b022f9284496663a0383854c316877c45d1379dfd70131a",
+      "seconds": 2.64
+    },
+    "rolly_intro_12": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "intro",
+      "text": "Come on in! There's always room for a little luck!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_intro_12.mp3",
+      "sha256": "98ee3c4bdc71ce1c694b0467adfe06206e2c3681322a0972aa4181cefb753f5c",
+      "seconds": 3.6
+    },
+    "rolly_intro_13": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "intro",
+      "text": "Look at all those pieces! This is going to be fun!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_intro_13.mp3",
+      "sha256": "92d86c03135dd5a88d36d271a5569df2bd6c638b3c02f189b08784bfd3aa27cc",
+      "seconds": 3.92
+    },
+    "rolly_intro_14": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "intro",
+      "text": "My fingers are crossed. Well, most of them!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_intro_14.mp3",
+      "sha256": "cd8ef7a47662b8eae95a495c007147dbb53144bc802b2d985e78725915c43d09",
+      "seconds": 3.76
+    },
+    "rolly_intro_15": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "intro",
+      "text": "All set? I've brought enough giggles for both of us!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_intro_15.mp3",
+      "sha256": "363e8640409e6fa801b57fb942cd2eccb2a8d5a3a68132bba0c9779a831f4ab9",
+      "seconds": 3.84
+    },
     "rolly_intro_2": {
       "pack": "elevenlabs-dicechess-bots",
       "bot": "random",
@@ -1932,6 +3447,46 @@
       "sha256": "474b5e68c5338982147cdeafbad5a70ddc147a44cce0df2468c332a5ac4e02fc",
       "seconds": 4.24
     },
+    "rolly_intro_6": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "intro",
+      "text": "Ooh, a whole board of possibilities! Let's roll!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_intro_6.mp3",
+      "sha256": "ea13aa77d6de43dc36e2470efc56a210a537fe18560fa93805c4dc200fa333de",
+      "seconds": 4.4
+    },
+    "rolly_intro_7": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "intro",
+      "text": "I've got my dice and my biggest grin!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_intro_7.mp3",
+      "sha256": "c191e98088b2f327cc192ee9e532a460c31c4b68c3744c835595bead6f07dc83",
+      "seconds": 3.2
+    },
+    "rolly_intro_8": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "intro",
+      "text": "Hello, hello! Let's make these pieces dance!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_intro_8.mp3",
+      "sha256": "6f7ef5f034d837f6d86c3c575b46cc54cb993bc3757d87fef2fb20abc43b0ce2",
+      "seconds": 3.76
+    },
+    "rolly_intro_9": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "intro",
+      "text": "Ready? My lucky feeling is all tingly!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_intro_9.mp3",
+      "sha256": "699ca1cd86754b7af3e04c657e9c3c3ef3414383ec6dc4256940c28d94b68898",
+      "seconds": 3.6
+    },
     "rolly_loss_1": {
       "pack": "elevenlabs-dicechess-bots",
       "bot": "random",
@@ -1941,6 +3496,66 @@
       "file": "elevenlabs-dicechess-bots/rolly_loss_1.mp3",
       "sha256": "ff742ac16d86ec6400f5ff2a8a046777c2736ba95808d5bd3d2aa510167f5e3d",
       "seconds": 4.8
+    },
+    "rolly_loss_10": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "loss",
+      "text": "Your win gets two thumbs up from me!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_loss_10.mp3",
+      "sha256": "20572511df2e4aeee907a19be0de1b45801a9d2b9ad1faab8c977c3b2c8b41ed",
+      "seconds": 3.92
+    },
+    "rolly_loss_11": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "loss",
+      "text": "Oof! A little wobble for me, a big cheer for you!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_loss_11.mp3",
+      "sha256": "9a59291a8a207768a88b9ed680f4a538bf6f3d658f2b57aba00aeea5304e6b93",
+      "seconds": 4.72
+    },
+    "rolly_loss_12": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "loss",
+      "text": "You got the win! I'll keep the giggles!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_loss_12.mp3",
+      "sha256": "638bcd4774d53eb576cba80177483e0a25e62a77ce22668ab276be489ac76121",
+      "seconds": 3.12
+    },
+    "rolly_loss_13": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "loss",
+      "text": "My victory dance will have to wait!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_loss_13.mp3",
+      "sha256": "9a2d93167c8242120365071b9ea21098392efe83e4b191972dc4b2ac25a9c8bd",
+      "seconds": 3.6
+    },
+    "rolly_loss_14": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "loss",
+      "text": "Oh! Is that my losing face? Congratulations!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_loss_14.mp3",
+      "sha256": "136f67c01b16729d702fc74ea1d1e15da2b6702bc1d89a7d97e5adaa9429ba9d",
+      "seconds": 4.48
+    },
+    "rolly_loss_15": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "loss",
+      "text": "You win this one! Thanks for the lovely game!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_loss_15.mp3",
+      "sha256": "563c77e81d6b0cb00ecdf57a4463f0250875fcab078d7f74fa697ca87e80aca5",
+      "seconds": 3.52
     },
     "rolly_loss_2": {
       "pack": "elevenlabs-dicechess-bots",
@@ -1961,6 +3576,116 @@
       "file": "elevenlabs-dicechess-bots/rolly_loss_3.mp3",
       "sha256": "6556af14e04873a9dd0e458f5bb50c1ff341ea642161f12a1d0eab3a7d010118",
       "seconds": 4.32
+    },
+    "rolly_loss_6": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "loss",
+      "text": "You won! I'm giving you my very best cheer!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_loss_6.mp3",
+      "sha256": "ba6ea888322a84722c73cd703b98a85c1caa8ca6beb84fec0fb1382cb12345f7",
+      "seconds": 4.08
+    },
+    "rolly_loss_7": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "loss",
+      "text": "Oh, noodles! That one goes to you!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_loss_7.mp3",
+      "sha256": "aed0723ce95ca4cbedc5b69ae6bd76cd3da60caf7f73426dea304d5223f5a3ec",
+      "seconds": 4.4
+    },
+    "rolly_loss_8": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "loss",
+      "text": "I lost the game, but I found a good time!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_loss_8.mp3",
+      "sha256": "6be82639423f224377e46a24855d6209992576ef14d098c57ab7148e8ba10993",
+      "seconds": 3.52
+    },
+    "rolly_loss_9": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "loss",
+      "text": "Well, that went topsy-turvy! Congratulations!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_loss_9.mp3",
+      "sha256": "afefcfc25cebbd03a20d8aaa10bfe2b5acfe7f2b2beb94e9498e2d697b22d913",
+      "seconds": 4.08
+    },
+    "rolly_rematch_10": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "rematch",
+      "text": "Same friends, fresh game! Wheee!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_rematch_10.mp3",
+      "sha256": "f8378175829d0966118515a0b606b5778906caa16dfb025a937a7338f3681c95",
+      "seconds": 3.76
+    },
+    "rolly_rematch_4": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "rematch",
+      "text": "Back we go! A fresh sprinkle of luck!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_rematch_4.mp3",
+      "sha256": "8a1d361162676fa13f43dd284039245b1e7c18d0bb331633e139b1d999a90903",
+      "seconds": 3.36
+    },
+    "rolly_rematch_5": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "rematch",
+      "text": "Another round? My grin says yes!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_rematch_5.mp3",
+      "sha256": "b9396a8ca999cd523935d92d8c32c3f09996eb22f639e6eccdb9cd0e5b17cbcb",
+      "seconds": 3.28
+    },
+    "rolly_rematch_6": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "rematch",
+      "text": "Let's give those dice another tumble!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_rematch_6.mp3",
+      "sha256": "93dd742da5e899b5bd82460756268508db1d76741ffff0cca111c63cb90a8ea0",
+      "seconds": 3.6
+    },
+    "rolly_rematch_7": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "rematch",
+      "text": "Ready for more? My happy feet are!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_rematch_7.mp3",
+      "sha256": "2fe370422183739766466462dfdb9f05d560d8f9bb66fbed94a30a69aa0a834c",
+      "seconds": 2.96
+    },
+    "rolly_rematch_8": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "rematch",
+      "text": "Ooh, we get to do it all over!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_rematch_8.mp3",
+      "sha256": "98a6e959fb64888ee8fadcdb897424d6f4e3a62d0621a6df73a8b51414df7bc7",
+      "seconds": 2.96
+    },
+    "rolly_rematch_9": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "rematch",
+      "text": "I'll never say no to another roll!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_rematch_9.mp3",
+      "sha256": "24270677292327721a973dbf5f8a583fefe1a956914b3f149dd2ac813f148b6f",
+      "seconds": 3.84
     },
     "rolly_threat_1": {
       "pack": "elevenlabs-dicechess-bots",
@@ -2002,6 +3727,16 @@
       "sha256": "83b26e84a19f39e8f16c716cff11b62aaceafca08e20c80b28d9b82c582d7b2a",
       "seconds": 3.28
     },
+    "rolly_win_10": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "win",
+      "text": "Hooray for me, and a big thank-you to you!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_win_10.mp3",
+      "sha256": "7fb4ecffb9e29c2698e5fc0e4ab09112187d94e358a77ceea4095a86ff39d7ab",
+      "seconds": 4.64
+    },
     "rolly_win_2": {
       "pack": "elevenlabs-dicechess-bots",
       "bot": "random",
@@ -2022,6 +3757,46 @@
       "sha256": "8de85cd7cfa42d836942f07c0f93e9adf32b62252211b836e4877d7357e81c74",
       "seconds": 4
     },
+    "rolly_win_6": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "win",
+      "text": "Is that a win for me? Happy little hops!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_win_6.mp3",
+      "sha256": "f94a58a32bf6ffddb14d76162499072a115e8d5fc31cd678b30528df29d6857f",
+      "seconds": 3.28
+    },
+    "rolly_win_7": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "win",
+      "text": "I did it! Quick, somebody catch my grin!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_win_7.mp3",
+      "sha256": "ce50865670d79cb2e381d6f4420d3ec3a1fbd3fbbdb35832f5cefdf9814ca309",
+      "seconds": 4.56
+    },
+    "rolly_win_8": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "win",
+      "text": "The win is mine, and the giggles are for everyone!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_win_8.mp3",
+      "sha256": "8c99acf09a0b1187e26e0870aefd70634703b4c9916de295b7ec40076a4ef1c2",
+      "seconds": 4.08
+    },
+    "rolly_win_9": {
+      "pack": "elevenlabs-dicechess-bots-expansion",
+      "bot": "random",
+      "event": "win",
+      "text": "Ooh, a victory! I might float away!",
+      "voice": "Rolly",
+      "file": "elevenlabs-dicechess-bots-expansion/rolly_win_9.mp3",
+      "sha256": "42367da8fff7a72dcdcd18c6a3fe6f5e127790d226cd072c21f23d056f0013d6",
+      "seconds": 3.52
+    },
     "thinkle_host_again_1": {
       "pack": "elevenlabs-dicechess-host-thinkle",
       "bot": "host",
@@ -2031,6 +3806,16 @@
       "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_again_1.mp3",
       "sha256": "88437db62128a223c1dcaee46cf4f036469486a4b1a0e143987a2cf6cd2f4690",
       "seconds": 3.76
+    },
+    "thinkle_host_again_10": {
+      "pack": "elevenlabs-dicechess-host-thinkle-expansion",
+      "bot": "host",
+      "event": "again",
+      "text": "Pieces in place, my friends. Let the next chapter begin.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_again_10.mp3",
+      "sha256": "c676319259df767a28e4d7cdb79ece50419c021d19cfc17afb54530a08394943",
+      "seconds": 4.56
     },
     "thinkle_host_again_2": {
       "pack": "elevenlabs-dicechess-host-thinkle",
@@ -2062,6 +3847,56 @@
       "sha256": "e6a828459fa5f35c2583f8137456657b3798e47d9d15666c37ff652aba4377ef",
       "seconds": 5.04
     },
+    "thinkle_host_again_5": {
+      "pack": "elevenlabs-dicechess-host-thinkle-expansion",
+      "bot": "host",
+      "event": "again",
+      "text": "Back to the first page, my friends. A new game begins.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_again_5.mp3",
+      "sha256": "fac6bbb22e5e5c0ad923e6ebeebc0203011e89c613f782987cddfe0280d8fbb2",
+      "seconds": 4.88
+    },
+    "thinkle_host_again_6": {
+      "pack": "elevenlabs-dicechess-host-thinkle-expansion",
+      "bot": "host",
+      "event": "again",
+      "text": "The board is ready for another story. Are you two?",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_again_6.mp3",
+      "sha256": "95a581f99465b4ada6d8e3c739040b661f10e77129e53d422aef025409895a4e",
+      "seconds": 3.84
+    },
+    "thinkle_host_again_7": {
+      "pack": "elevenlabs-dicechess-host-thinkle-expansion",
+      "bot": "host",
+      "event": "again",
+      "text": "Another round together. A splendid use of an evening.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_again_7.mp3",
+      "sha256": "3f7bde5316875971bbc63eb237ded1ba67505e47d721c4ae6afd1ac020d6974f",
+      "seconds": 4.16
+    },
+    "thinkle_host_again_8": {
+      "pack": "elevenlabs-dicechess-host-thinkle-expansion",
+      "bot": "host",
+      "event": "again",
+      "text": "Fresh dice, familiar company. Shall we begin again?",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_again_8.mp3",
+      "sha256": "2f69dfbb9f3110f9083ed6ad450a0e18d70bc4f75d8d75cae60253c154d49645",
+      "seconds": 4.56
+    },
+    "thinkle_host_again_9": {
+      "pack": "elevenlabs-dicechess-host-thinkle-expansion",
+      "bot": "host",
+      "event": "again",
+      "text": "There is room in my book for one more game.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_again_9.mp3",
+      "sha256": "5a7381d2d7acb220ba93eddb8a0cd65109a0550ce21c058c0dae21dd6c9f35e0",
+      "seconds": 3.6
+    },
     "thinkle_host_black_wins_1": {
       "pack": "elevenlabs-dicechess-host-thinkle",
       "bot": "host",
@@ -2091,6 +3926,36 @@
       "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_black_wins_3.mp3",
       "sha256": "090278291f15106e89f8cbf9a761a325ce8082700c854fa7c101479c8c453737",
       "seconds": 4.48
+    },
+    "thinkle_host_black_wins_4": {
+      "pack": "elevenlabs-dicechess-host-thinkle-expansion",
+      "bot": "host",
+      "event": "black_wins",
+      "text": "Black wins, my friends. A warm bow to both players.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_black_wins_4.mp3",
+      "sha256": "4aaa5f38545b29a877a63b24c5769ad0b334e3daeb952f669c3469916704e21a",
+      "seconds": 4.8
+    },
+    "thinkle_host_black_wins_5": {
+      "pack": "elevenlabs-dicechess-host-thinkle-expansion",
+      "bot": "host",
+      "event": "black_wins",
+      "text": "The victory goes to Black. My thanks to White as well.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_black_wins_5.mp3",
+      "sha256": "7c6385fb877516c9325457a5f6332b11fa11ed2f1cde24e0fb7e44dbbf578c9c",
+      "seconds": 4.64
+    },
+    "thinkle_host_black_wins_6": {
+      "pack": "elevenlabs-dicechess-host-thinkle-expansion",
+      "bot": "host",
+      "event": "black_wins",
+      "text": "Black takes this game. A kind word for you both.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_black_wins_6.mp3",
+      "sha256": "515d5a71e49bdd8516d9df79392248b3c936567d7e8b9d1e5577049b262a71b8",
+      "seconds": 4.32
     },
     "thinkle_host_capture_1": {
       "pack": "elevenlabs-dicechess-host-thinkle",
@@ -2302,6 +4167,36 @@
       "sha256": "3aad60d9cf8763431b3fb25afb0fefe0c274658946ece75ddf9380242a203b39",
       "seconds": 4.32
     },
+    "thinkle_host_draw_4": {
+      "pack": "elevenlabs-dicechess-host-thinkle-expansion",
+      "bot": "host",
+      "event": "draw",
+      "text": "A draw, my friends. A tale with no victor today.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_draw_4.mp3",
+      "sha256": "7aaf15befd8823e55bb3ad52ca0bd55cc2bbb1347d731768f5129cd70132c7e6",
+      "seconds": 4.4
+    },
+    "thinkle_host_draw_5": {
+      "pack": "elevenlabs-dicechess-host-thinkle-expansion",
+      "bot": "host",
+      "event": "draw",
+      "text": "Neither side takes the game. My thanks to you both.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_draw_5.mp3",
+      "sha256": "b1593628c957c25b8aa231b8cf0c2fd401b528483c3693dfd58e6e91eb803b44",
+      "seconds": 4.4
+    },
+    "thinkle_host_draw_6": {
+      "pack": "elevenlabs-dicechess-host-thinkle-expansion",
+      "bot": "host",
+      "event": "draw",
+      "text": "All square at the ending. Let us close the book together.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_draw_6.mp3",
+      "sha256": "9df78b1de1a41429fa5440deee94d3a98030c376084057f74bf9d1b15c1f668e",
+      "seconds": 4.16
+    },
     "thinkle_host_empty_roll_1": {
       "pack": "elevenlabs-dicechess-host-thinkle",
       "bot": "host",
@@ -2422,6 +4317,16 @@
       "sha256": "17aa1fba6d694bc4554053f7561fdd9adb5430c152c134036e3392238dc443aa",
       "seconds": 4.64
     },
+    "thinkle_host_intro_10": {
+      "pack": "elevenlabs-dicechess-host-thinkle-expansion",
+      "bot": "host",
+      "event": "intro",
+      "text": "A game begins with two willing players. Here you are!",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_intro_10.mp3",
+      "sha256": "76c39674f0affc97625aed7d9ba913349e7f339b5abc37ccc73c1247a2010e4d",
+      "seconds": 4.72
+    },
     "thinkle_host_intro_2": {
       "pack": "elevenlabs-dicechess-host-thinkle",
       "bot": "host",
@@ -2461,6 +4366,46 @@
       "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_intro_5.mp3",
       "sha256": "e9080ab839f70522847d55a2badf2b7091c602714b29f0b6baab079a7939d125",
       "seconds": 4.64
+    },
+    "thinkle_host_intro_6": {
+      "pack": "elevenlabs-dicechess-host-thinkle-expansion",
+      "bot": "host",
+      "event": "intro",
+      "text": "Two players, a fresh board, and a story yet to tell.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_intro_6.mp3",
+      "sha256": "a4a2158ef1b18719310956814672629c3deabc25741b0ac68e9c64373df4d22f",
+      "seconds": 4.72
+    },
+    "thinkle_host_intro_7": {
+      "pack": "elevenlabs-dicechess-host-thinkle-expansion",
+      "bot": "host",
+      "event": "intro",
+      "text": "My spells are put away, my friends. This game is yours.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_intro_7.mp3",
+      "sha256": "39848f57be9d8f43986de25c823acf024e55a093c0379cf5e834343d35bc7997",
+      "seconds": 4.4
+    },
+    "thinkle_host_intro_8": {
+      "pack": "elevenlabs-dicechess-host-thinkle-expansion",
+      "bot": "host",
+      "event": "intro",
+      "text": "Gather round, you two. Let the dice open our story.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_intro_8.mp3",
+      "sha256": "f53fcea7daeb210659b5f56a85704e1761e442d51ad6864ae60350f08eb2744c",
+      "seconds": 4.16
+    },
+    "thinkle_host_intro_9": {
+      "pack": "elevenlabs-dicechess-host-thinkle-expansion",
+      "bot": "host",
+      "event": "intro",
+      "text": "My hat is on, my book is open. The board is yours.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_intro_9.mp3",
+      "sha256": "cec892c19acd8a8a39035ef11575d35509003b51a96796c07b7df806be6a3b8a",
+      "seconds": 4.96
     },
     "thinkle_host_promotion_1": {
       "pack": "elevenlabs-dicechess-host-thinkle",
@@ -2532,6 +4477,36 @@
       "sha256": "2b1e31c0741ccbdee47f6d14b955b361d05da565c7870727bc9a45aabc59786a",
       "seconds": 4.24
     },
+    "thinkle_host_white_wins_4": {
+      "pack": "elevenlabs-dicechess-host-thinkle-expansion",
+      "bot": "host",
+      "event": "white_wins",
+      "text": "White wins, my friends. A warm bow to both players.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_white_wins_4.mp3",
+      "sha256": "50a39576bca1e4523d58af97a82a9afb0e79161552aa5626d375b903bc2fbb99",
+      "seconds": 4.8
+    },
+    "thinkle_host_white_wins_5": {
+      "pack": "elevenlabs-dicechess-host-thinkle-expansion",
+      "bot": "host",
+      "event": "white_wins",
+      "text": "The victory goes to White. My thanks to Black as well.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_white_wins_5.mp3",
+      "sha256": "80aa57ee523b0421294d28052924e9e4d6496d013b85b47a86ba937b3f3431f1",
+      "seconds": 4.32
+    },
+    "thinkle_host_white_wins_6": {
+      "pack": "elevenlabs-dicechess-host-thinkle-expansion",
+      "bot": "host",
+      "event": "white_wins",
+      "text": "White takes this game. A kind word for you both.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_white_wins_6.mp3",
+      "sha256": "f1d74d4f3d3ca3c660c3e30b1b14cb18db9da7bc52e52ba2e5dedd7ad0df30de",
+      "seconds": 3.92
+    },
     "thinkle_host_win_1": {
       "pack": "elevenlabs-dicechess-host-thinkle",
       "bot": "host",
@@ -2541,6 +4516,16 @@
       "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_win_1.mp3",
       "sha256": "5a0ecdbe70e9cadef1cf864606e66d93b7c291403dd78cd7833ef2530b15dd3d",
       "seconds": 5.52
+    },
+    "thinkle_host_win_10": {
+      "pack": "elevenlabs-dicechess-host-thinkle-expansion",
+      "bot": "host",
+      "event": "win",
+      "text": "A winner, and two storytellers. Thank you for the game.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_win_10.mp3",
+      "sha256": "59dca50d017a720bb650638c3091a70b7c8a1a02d8118b2da782db0aafede267",
+      "seconds": 4.96
     },
     "thinkle_host_win_2": {
       "pack": "elevenlabs-dicechess-host-thinkle",
@@ -2561,6 +4546,66 @@
       "file": "elevenlabs-dicechess-host-thinkle/thinkle_host_win_3.mp3",
       "sha256": "70635a9cd99bb9c4dbe864448bcdc9b9a67442aa5631aed996a0a29cbd32487f",
       "seconds": 4.08
+    },
+    "thinkle_host_win_4": {
+      "pack": "elevenlabs-dicechess-host-thinkle-expansion",
+      "bot": "host",
+      "event": "win",
+      "text": "The game is complete, my friends. Thank you, both of you.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_win_4.mp3",
+      "sha256": "717bbd8ea9ec4d71b954874c43c8bda65bf25337820c366b4d3f799327c6d86e",
+      "seconds": 4.48
+    },
+    "thinkle_host_win_5": {
+      "pack": "elevenlabs-dicechess-host-thinkle-expansion",
+      "bot": "host",
+      "event": "win",
+      "text": "A winner is decided. A warm bow to each player.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_win_5.mp3",
+      "sha256": "4ee38cbe3b723815b91e9ed709de12f5291f32b7c3314c82c5633a9a5a37ecb8",
+      "seconds": 4.56
+    },
+    "thinkle_host_win_6": {
+      "pack": "elevenlabs-dicechess-host-thinkle-expansion",
+      "bot": "host",
+      "event": "win",
+      "text": "And here our little tale ends. My thanks to you both.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_win_6.mp3",
+      "sha256": "d9d1df3d2d46b0b86461cc2b45d8b9e6a36ef6bf1a0b2484c6fbfa56d6a37ba4",
+      "seconds": 4.48
+    },
+    "thinkle_host_win_7": {
+      "pack": "elevenlabs-dicechess-host-thinkle-expansion",
+      "bot": "host",
+      "event": "win",
+      "text": "The result is written. Do congratulate each other.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_win_7.mp3",
+      "sha256": "a1daeda353fd5b1358532f1f3730763fd42c552df3f3e851a4293367536ad65b",
+      "seconds": 4.08
+    },
+    "thinkle_host_win_8": {
+      "pack": "elevenlabs-dicechess-host-thinkle-expansion",
+      "bot": "host",
+      "event": "win",
+      "text": "One game for the book, and a kind word for both players.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_win_8.mp3",
+      "sha256": "0c9b0410deb8a6696026a61ed95a937bf9cc5505234b7ecbd861328e649583c8",
+      "seconds": 4.56
+    },
+    "thinkle_host_win_9": {
+      "pack": "elevenlabs-dicechess-host-thinkle-expansion",
+      "bot": "host",
+      "event": "win",
+      "text": "The final page, my friends. A bow before we close it.",
+      "voice": "Thinkle",
+      "file": "elevenlabs-dicechess-host-thinkle-expansion/thinkle_host_win_9.mp3",
+      "sha256": "5834385bfd5fef19ebc40ffa832f305afee525fcbad78b2fdb5339fc57bbfb33",
+      "seconds": 4.72
     },
     "thinkle_tutor_capture_done_1": {
       "pack": "elevenlabs-dicechess-tutorial-thinkle",

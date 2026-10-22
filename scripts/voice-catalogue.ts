@@ -61,7 +61,14 @@ const git = (...args: string[]): string =>
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
   const commit = git('rev-parse', 'HEAD');
-  const dirty = git('status', '--porcelain', '--', CATALOGUE_PATH) !== '';
+  const dirty =
+    git(
+      'status',
+      '--porcelain',
+      '--',
+      CATALOGUE_PATH,
+      'src/core/voiceExpansion.ts',
+    ) !== '';
   if (dirty)
     console.error(
       `${CATALOGUE_PATH} has changes that are not committed: the document is marked dirty.`,

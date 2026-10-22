@@ -96,10 +96,11 @@ export function useBotVoice(
     // Reset voice state on new game or rematch
     // A new game speaks afresh, but remembers which lines were said last, so a
     // rematch does not open with the intro it just heard.
-    if (prev?.id !== game.id) {
+    if (prev?.id !== game.id || prev.revision > game.revision) {
       voiceState.current = {
         ...INITIAL_BOT_VOICE_STATE,
         lastLines: voiceState.current.lastLines,
+        rematch: prev?.phase === 'ended' && prev.mode === game.mode,
       };
       if (timer.current) {
         timer.current();

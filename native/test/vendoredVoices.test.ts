@@ -29,6 +29,13 @@ const BOTS = 'elevenlabs-dicechess-bots';
 const HOST = 'elevenlabs-dicechess-host';
 const PROWLA = 'elevenlabs-dicechess-host-prowla';
 const THINKLE = 'elevenlabs-dicechess-host-thinkle';
+const BOTS_EXPANSION = 'elevenlabs-dicechess-bots-expansion';
+const HOST_EXPANSION = {
+  rolly: 'elevenlabs-dicechess-host-expansion',
+  prowla: 'elevenlabs-dicechess-host-prowla-expansion',
+  thinkle: 'elevenlabs-dicechess-host-thinkle-expansion',
+} as const;
+const EXPANSION_PACKS = [BOTS_EXPANSION, ...Object.values(HOST_EXPANSION)];
 const TUTOR = 'elevenlabs-dicechess-tutorial-thinkle';
 // Each host's lines are in that host's own pack.
 const HOST_PACK = { rolly: HOST, prowla: PROWLA, thinkle: THINKLE } as const;
@@ -67,13 +74,10 @@ const catalogue = JSON.parse(read('voices.json').toString('utf8')) as Catalogue;
 test('the catalogue pins one full commit of the asset repository', () => {
   assert.equal(catalogue.upstream, 'fortemate/dicechess-assets');
   assert.match(catalogue.commit, /^[0-9a-f]{40}$/);
-  assert.deepEqual(Object.keys(catalogue.packs).sort(), [
-    BOTS,
-    HOST,
-    PROWLA,
-    THINKLE,
-    TUTOR,
-  ]);
+  assert.deepEqual(
+    Object.keys(catalogue.packs).sort(),
+    [BOTS, HOST, PROWLA, THINKLE, TUTOR, ...EXPANSION_PACKS].sort(),
+  );
 });
 
 test('this repository may carry every pack, and its licence travels with it', () => {
@@ -91,15 +95,19 @@ test('this repository may carry every pack, and its licence travels with it', ()
 });
 
 test('every vendored file has the bytes the catalogue pinned, and nothing else is there', () => {
-  assert.deepEqual(readdirSync(VOICES).sort(), [
-    BOTS,
-    HOST,
-    PROWLA,
-    THINKLE,
-    TUTOR,
-    'events.json',
-    'voices.json',
-  ]);
+  assert.deepEqual(
+    readdirSync(VOICES).sort(),
+    [
+      BOTS,
+      HOST,
+      PROWLA,
+      THINKLE,
+      TUTOR,
+      'events.json',
+      'voices.json',
+      ...EXPANSION_PACKS,
+    ].sort(),
+  );
   for (const [name, pack] of Object.entries(catalogue.packs)) {
     for (const [file, digest] of Object.entries(pack.files))
       assert.equal(sha256(read(`${name}/${file}`)), digest, `${name}/${file}`);
@@ -121,8 +129,14 @@ test('every vendored file has the bytes the catalogue pinned, and nothing else i
 
 test('every line of the game has a clip recorded from its own text, in its own pack', () => {
   const said = [
-    ...VOICE_CATALOGUE.map((line) => ({ ...line, pack: BOTS })),
-    ...HOST_CATALOGUE.map((line) => ({ ...line, pack: HOST_PACK[line.host] })),
+    ...VOICE_CATALOGUE.map((line) => ({
+      ...line,
+      pack: catalogue.lines[line.id]?.pack,
+    })),
+    ...HOST_CATALOGUE.map((line) => ({
+      ...line,
+      pack: catalogue.lines[line.id]?.pack,
+    })),
     ...TUTOR_CATALOGUE.map((line) => ({ ...line, bot: 'tutor', pack: TUTOR })),
   ];
   for (const line of said) {
@@ -136,6 +150,16 @@ test('every line of the game has a clip recorded from its own text, in its own p
     assert.equal(clip.bot, line.bot, line.id);
     assert.equal(clip.event, line.event, line.id);
     assert.equal(clip.pack, line.pack, line.id);
+    const allowed =
+      line.bot === 'tutor'
+        ? [TUTOR]
+        : line.bot === 'host'
+          ? [
+              HOST_PACK[(line as { host: keyof typeof HOST_PACK }).host],
+              HOST_EXPANSION[(line as { host: keyof typeof HOST_PACK }).host],
+            ]
+          : [BOTS, BOTS_EXPANSION];
+    assert.ok(allowed.includes(clip.pack), `${line.id}: wrong pack`);
   }
   // A clip for a line the game no longer has would never play.
   assert.deepEqual(
@@ -198,4 +222,33 @@ test("the tutor's lines are said in order: each point's clips number from 1", ()
       event,
     );
   assert.equal(TUTOR_CATALOGUE.length, 48);
+});
+
+test('all 179 expansion clips are shipped, including the five selected second takes', () => {
+  const expanded = Object.entries(catalogue.lines).filter(([, r]) =>
+    EXPANSION_PACKS.includes(r.pack),
+  );
+  assert.equal(expanded.length, 179);
+  for (const id of [
+    'host_white_wins_5',
+    'host_black_wins_6',
+    'host_black_wins_5',
+    'grabby_loss_10',
+    'rolly_rematch_10',
+  ]) {
+    const clip = catalogue.lines[id];
+    const manifest = JSON.parse(
+      read(`${clip.pack}/manifest.json`).toString(),
+    ) as { lines: Record<string, { take: number; sha256: string }> };
+    assert.equal(manifest.lines[id].take, 2, id);
+    assert.equal(manifest.lines[id].sha256, clip.sha256, id);
+  }
+  assert.equal(
+    catalogue.lines.rolly_rematch_10.text,
+    'Same friends, fresh game! Wheee!',
+  );
+  assert.equal(
+    catalogue.lines.grabby_loss_10.text,
+    'There must be a shelf somewhere for disappointments.',
+  );
 });

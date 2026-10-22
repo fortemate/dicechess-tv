@@ -223,7 +223,7 @@ test('turning the host off while she speaks stops her voice, and only hers (#202
   let root = launch({ options, sounds: sounds }).root;
   // A new hotseat game: she greets both players.
   send('enter');
-  assert.match(sounds.said[0], /^prowla_host_intro_[1-5]$/);
+  assert.match(sounds.said[0], /^prowla_host_intro_(?:[1-9]|10)$/);
   // The game menu, up to its Settings, and Up to her last row.
   send('back', 'up', 'enter', 'up');
   assert.match(text(root), /Host for friends: Prowla/);
@@ -247,7 +247,7 @@ test('turning the host off while she speaks stops her voice, and only hers (#202
   root = launch({ options, sounds: bot }).root;
   // Play the computer, then Rolly: Play as is Random (#345).
   send('down', 'enter', 'enter');
-  assert.match(bot.said[0], /^rolly_intro_[123]$/);
+  assert.match(bot.said[0], /^rolly_intro_(?:[1-3]|[6-9]|1[0-5])$/);
   send('back', 'up', 'enter', 'up', 'enter', 'enter', 'enter');
   assert.match(text(root), /Host for friends: off/);
   assert.equal(bot.stopped, 0);
@@ -280,7 +280,7 @@ test('a new hotseat game opens with the host greeting both players (#202)', () =
   launch({ options, sounds });
   send('enter');
   assert.equal(sounds.said.length, 1);
-  assert.match(sounds.said[0], /^prowla_host_intro_[1-5]$/);
+  assert.match(sounds.said[0], /^prowla_host_intro_(?:[1-9]|10)$/);
 });
 
 test('the Hot Seat host is seen while she speaks, above the bottom badge, and nothing else moves (#213)', () => {
@@ -304,7 +304,7 @@ test('the Hot Seat host is seen while she speaks, above the bottom badge, and no
   // A new hotseat game: she greets both players.
   send('enter');
   assert.equal(sounds.said.length, 1);
-  assert.match(sounds.said[0], /^prowla_host_intro_[1-5]$/);
+  assert.match(sounds.said[0], /^prowla_host_intro_(?:[1-9]|10)$/);
   speaking(sounds.said[0], /FRIEND GAME · TURN 1/);
   // Her greeting said, she leaves the screen; the turn line stays.
   act(() => {
@@ -316,7 +316,7 @@ test('the Hot Seat host is seen while she speaks, above the bottom badge, and no
   send('enter', 'back', 'down', 'select', 'down', 'select');
   assert.match(text(root), /Black wins/);
   assert.equal(sounds.said.length, 2);
-  assert.match(sounds.said[1], /^prowla_host_(black_wins|win)_\d$/);
+  assert.match(sounds.said[1], /^prowla_host_(black_wins|win)_\d+$/);
   speaking(sounds.said[1], /FRIEND GAME · TURN 1/);
   act(() => {
     mock.timers.tick(10_000);
@@ -331,7 +331,7 @@ test('Rolly, chosen, hosts in her own voice, and her portrait shows with her lin
   const { root } = launch({ options, sounds });
   send('enter');
   assert.equal(sounds.said.length, 1);
-  assert.match(sounds.said[0], /^host_intro_[1-5]$/);
+  assert.match(sounds.said[0], /^host_intro_(?:[1-9]|10)$/);
   const [block] = drawn(root, 'host-block');
   assert.ok(block, 'she shows while she speaks');
   assert.equal(drawn(block, 'portrait-rolly').length, 1);
@@ -354,7 +354,7 @@ for (const [index, caption] of [
 ].entries()) {
   test(`Thinkle, chosen, hosts greeting ${index + 1} in his own voice with a U.S. caption (#279)`, (t) => {
     // Leave shuffle slots in place until this greeting can swap to the front.
-    let slot = 4;
+    let slot = 9;
     t.mock.method(Math, 'random', () => (slot-- === index ? 0 : 0.999));
     reset();
     new MMKV().set('dicechess-tv.host.v1', 'thinkle');
@@ -377,7 +377,7 @@ test('a line the bot says is handed to the voice', () => {
   // Play the computer, Rolly, on Random: the game opens with Rolly's intro.
   send('down', 'enter', 'enter', 'enter');
   assert.equal(sounds.said.length, 1);
-  assert.match(sounds.said[0], /^rolly_intro_[123]$/);
+  assert.match(sounds.said[0], /^rolly_intro_(?:[1-3]|[6-9]|1[0-5])$/);
 });
 
 test('a win as Black is heard as a win', () => {
