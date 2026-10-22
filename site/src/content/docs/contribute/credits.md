@@ -10,7 +10,7 @@ Dice Chess TV combines open-source code with public domain and permitted creativ
 ## Application & Core Engine
 
 - **Dice Chess TV (`fortemate/dicechess-tv`):** Licensed under the [GNU Affero General Public License v3.0 only](https://www.gnu.org/licenses/agpl-3.0.html) (AGPL-3.0-only).
-- **Rules Engine ([`@fortemate/dicechess-engine`](https://github.com/fortemate/dicechess-engine)):** Published on npm under AGPL-3.0-only. The current source locks version 0.14.8.
+- **Rules Engine ([`@fortemate/dicechess-engine`](https://github.com/fortemate/dicechess-engine)):** Published on npm under AGPL-3.0-only. The current source declares version range `^0.14.9`.
 
 ## Artwork & Visual Assets
 
@@ -65,11 +65,11 @@ Dice Chess TV combines open-source code with public domain and permitted creativ
 
 ### Voices
 
-- **Source:** Five voice packs, made for Dice Chess by Fortemate with [ElevenLabs](https://elevenlabs.io) on a paid plan. A fairy-tale voice was designed for each character.
-  - The bots, Rolly, Grabby and Rampage (63 lines)
-  - Rolly as the Hot Seat host (48 lines)
-  - Prowla the cat as the Hot Seat host (54 lines)
-  - Thinkle the wizard as the Hot Seat host (54 lines)
+- **Source:** Nine voice packs (446 recordings in total), made for Dice Chess by Fortemate with [ElevenLabs](https://elevenlabs.io) on a paid plan. A fairy-tale voice was designed for each character.
+  - The bots, Rolly, Grabby and Rampage (159 lines across the original and expansion packs, including dedicated rematch openings)
+  - Rolly as the Hot Seat host (77 lines across the original and expansion packs)
+  - Prowla the cat as the Hot Seat host (81 lines across the original and expansion packs)
+  - Thinkle the wizard as the Hot Seat host (81 lines across the original and expansion packs)
   - Thinkle the wizard, who teaches the tutorial and offers it on a first launch (48 lines)
 - **License:** Fortemate's own, for Fortemate's Dice Chess apps only, on the same terms for every pack. Not covered by the AGPL or by any other open license. A fork or copy of this repository may not use, publish or distribute them, and must replace them with audio of its own.
 - **Usage:** The packs are vendored under `native/voices/`, each beside its own license file. The [opponent profiles](/play/opponents/) reuse nine recordings from the bots' pack, with the text from that pack's manifest. These are the in-game ElevenLabs voices, separate from the earlier CC0 audition candidates on the unlisted tester page. ElevenLabs asks for no credit on a paid plan, and the About screen gives none: its "Made by Fortemate" covers them.

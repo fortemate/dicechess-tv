@@ -23,7 +23,7 @@ Dice Chess for Amazon Fire TV: two players sharing one screen and remote, or a g
 - **Demo video:** <https://youtu.be/Xyz0KxkmxWU>, 2:50, published on October 19, 2026 ([`scripts/demo-video/`](scripts/demo-video/README.md)).
 - **Tutorial video:** <https://youtu.be/KK8BBICjaBQ>, 4:52, recorded on the Vega Virtual Device.
 - **GitHub releases:** the [releases page](https://github.com/fortemate/dicechess-tv/releases) has the latest release, its notes and its armv7, aarch64 and x86_64 packages.
-- **Amazon Appstore:** [Dice Chess](https://www.amazon.com/dp/B0HL6K9N47/), free, has been live since October 20, 2026, with version 1.0.1, build 30. The newer 1.0.2 and 1.0.3 releases are on GitHub only.
+- **Amazon Appstore:** [Dice Chess](https://www.amazon.com/dp/B0HL6K9N47/), free, has been live since October 20, 2026, and was updated to version 1.0.4, build 58, on October 22, 2026. Version 1.0.5, build 59, is on GitHub.
 - **Browser test bench:** [`web/`](web/README.md) draws the same screens in a browser for testers without an emulator. It is not device evidence.
 
 ## Try it
@@ -79,7 +79,7 @@ Prepared for [Build, Ship, Shape: Amazon Developer Hackathon 2026](https://amazo
 
 ## Evidence
 
-The game installs, launches and plays on the Vega Virtual Device and, since October 6, 2026, on a Fire TV Stick 4K Select (Vega OS 1.2). Most features were played on the Virtual Device; on the Stick, a game was played with its own remote, the launch was measured, and Appstore builds 26 and 28 were checked. Evidence from the Virtual Device is not evidence from the Stick, and neither is a passing test, so each record says which it rests on: the release notes for [1.0.3, build 34](docs/release-notes-1.0.3-build34.md) and [1.0.2, build 33](docs/release-notes-1.0.2-build33.md), the [release validation of 1.0.1, build 30](docs/release-validation-1.0.1-build30.md), the [audio validation record](docs/audio-regression-validation-387.md) of October 14, 2026, the [board-navigation validation](docs/board-navigation-validation-299.md), and [docs/status-2026-10.md](docs/status-2026-10.md), the dated list of what was seen on which device.
+The game installs, launches and plays on the Vega Virtual Device and, since October 6, 2026, on a Fire TV Stick 4K Select (Vega OS 1.2). Most features were played on the Virtual Device; on the Stick, a game was played with its own remote, the launch was measured, and Appstore builds 26 and 28 were checked. Evidence from the Virtual Device is not evidence from the Stick, and neither is a passing test, so each record says which it rests on: the release notes for [1.0.5, build 59](docs/release-notes-1.0.5-build59.md), [1.0.4 candidate, build 55](docs/release-notes-1.0.4-build55.md), [1.0.3, build 34](docs/release-notes-1.0.3-build34.md) and [1.0.2, build 33](docs/release-notes-1.0.2-build33.md), the [1.0.5 preparation record](docs/release-preparation-1.0.5-build59.md), the [voice expansion validation](docs/voice-expansion-validation.md), the [opponent runtime validation](docs/opponent-runtime-validation-480.md), the [audio lifecycle validation](docs/audio-lifecycle-validation-479.md), the [release validation of 1.0.1, build 30](docs/release-validation-1.0.1-build30.md), the [audio validation record](docs/audio-regression-validation-387.md) of October 14, 2026, the [board-navigation validation](docs/board-navigation-validation-299.md), and [docs/status-2026-10.md](docs/status-2026-10.md), the dated list of what was seen on which device.
 
 ## Licensing
 

@@ -9,7 +9,7 @@ The app was built during [Build, Ship, Shape: Amazon Developer Hackathon 2026](h
 
 Every feature here was played on the Vega Virtual Device, and the app's automated tests cover it. Since October 6, 2026, the game has also run on a Fire TV Stick 4K Select, though not every feature has been checked there yet. On October 10, 2026, the Appstore build of 1.0.0 was checked on the Stick for Settings with the music row and Play as, Main menu and Resume game, the opponent cards, and the confirmation before a game in play is replaced.
 
-- **Version 1.0.0**, the first release, published on GitHub on October 10, 2026, with three packages: for a Fire TV Stick in developer mode, and for the Vega Virtual Device ([Get the game](/play/beta/)).
+- **Version 1.0.0**, the first release, published on GitHub on October 10, 2026, with three packages: for a Fire TV Stick in developer mode, and for the Vega Virtual Device ([Get the game](/play/beta/)). The game has been live on the [Amazon Appstore](https://www.amazon.com/dp/B0HL6K9N47/) since October 20, 2026 (starting with 1.0.1, build 30, and updated to 1.0.4, build 58, on October 22, 2026), and GitHub releases through [1.0.5, build 59](https://github.com/fortemate/dicechess-tv/releases/tag/v1.0.5%2B59) add U.S. English, board highlights, background worklet bot search, audio lifecycle improvements and 179 additional character and host voice recordings.
 - **A native board** in React Native for Vega, played entirely with the remote.
 - **Play a friend** on one remote, and **saving** after every action.
 - **A six-lesson tutorial**, offered on the first launch and leading into a first game, and a **rules guide**.
@@ -28,7 +28,7 @@ Every feature here was played on the Vega Virtual Device, and the app's automate
 
 ## Now
 
-- **Amazon Appstore review:** 1.0.1 has been submitted to the Amazon Appstore and awaits Amazon's review.
+- **Amazon Appstore update:** 1.0.4, build 58, is live on the [Amazon Appstore](https://www.amazon.com/dp/B0HL6K9N47/) as of October 22, 2026; the 1.0.5, build 59, voice expansion release on GitHub is ready for the next store update.
 - **Players' findings:** people who have never seen the game play it, from the GitHub packages on the Vega Virtual Device or a Fire TV Stick in developer mode, and tell us what they found. See [Get the game](/play/beta/).
 - **Testing on a Fire TV Stick**, under way since October 6, 2026: the launch and the response to the remote have been measured there, and the opponents' and the danger search's timings are still to come ([Performance](/technology/performance/)).
 
