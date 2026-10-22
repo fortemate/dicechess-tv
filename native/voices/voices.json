@@ -1,6 +1,6 @@
 {
   "upstream": "fortemate/dicechess-assets",
-  "commit": "7f5d5a305a71f0d7ec19be7a3ca5a478ef41a606",
+  "commit": "1a375b020be5996ce5d20ebc83a33cdb45126577",
   "events": {
     "file": "events.json",
     "sha256": "aa06c801a49ce922464ff70ef1392a31fe9bbb3ad5a7367f47f96ceeefc31f99"

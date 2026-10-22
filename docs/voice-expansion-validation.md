@@ -26,3 +26,11 @@ Observed captions included the new Rolly opening “All set? I've brought enough
 The initially selected virtual-device image did not boot. A second already-installed image booted and was used for the successful run without changing the global SDK selection.
 
 This is sampled virtual-device behavior, not a claim that a person listened to all 179 clips or that physical Fire TV Stick playback was checked. Original superseded takes and their metadata remain in the owner's local comparison bundles and workbench. Physical-device listening and release approval remain separate.
+
+## PR review and physical installation follow-up
+
+The SonarQube gate initially reported 31.4% duplication on new lines, entirely in the copied opponent transcript table. The existing duplication exception for host transcript data now also names `src/core/voiceExpansion.ts`; executable logic remains checked. The rerun quality gate passed, with no open code issues. The asset pack README files now record the owner's integration authorization while preserving the distinction from human listening approval, and the client pins that asset documentation update.
+
+At the owner's request, the ordinary and QA Dice Chess installations were removed from a physical armv7 Fire TV Stick. Their removal was verified before installing the standard Release 1.0.4/build 58 package. Package metadata and a screenshot confirmed the new installation and first-run tutorial offer. The installed JS and Hermes bundles and all five selected corrected audio files matched the package bytes by SHA-256. All 446 audio clips were counted on the device, including the presence of all 179 expansion files.
+
+The review changes affect analysis configuration, documentation and the asset commit pointer only; the runtime files match the previously built Release package. This installation readback is separate from human TV-output listening and a full physical audio/lifecycle regression session, neither of which is claimed here. The old installations were deliberately not restored because the owner requested their removal.
