@@ -31,7 +31,7 @@
     "tagline": "Three dice. One remote. A new kind of chess.",
     "link": "dicechess-tv.fortemate.com",
     "builtWith": "Built with React Native for Vega 0.83 · Vega SDK 0.24 · Vega OS",
-    "footer": "Tournament footage: International Dice Chess Federation · Recorded on the Vega Virtual Device on macOS\nMusic by pepka-prygni · Sounds by Kenney & JDSherbert · Voices: ElevenLabs · Portraits: Recraft",
+    "footer": "Tournament footage: Dice Chess Federation · dicechess.net · Recorded on the Vega Virtual Device on macOS\nMusic by pepka-prygni · Sounds by Kenney & JDSherbert · Voices: ElevenLabs · Portraits: Recraft",
     "music": {
       "file": "native/music/pepka-prygni-dicechess/warm_anticipation.mp3",
       "gainDb": -6,
@@ -50,7 +50,7 @@
           "to": 38.0,
           "badge": false,
           "caption": {
-            "title": "International Dice Chess Federation · Latvian Dice Chess Championship, Jūrmala 2020 · Riga 2024",
+            "title": "Dice Chess Federation · Latvian Dice Chess Championship, Jūrmala 2020 · Riga 2024",
             "subtitle": "Tournament footage courtesy of the federation · dicechess.net",
             "seconds": 3.5
           }
@@ -62,7 +62,7 @@
           "to": 40.5,
           "badge": false,
           "caption": {
-            "title": "International Dice Chess Federation · Latvian Dice Chess Championship, Jūrmala 2020 · Riga 2024",
+            "title": "Dice Chess Federation · Latvian Dice Chess Championship, Jūrmala 2020 · Riga 2024",
             "subtitle": "Tournament footage courtesy of the federation · dicechess.net",
             "seconds": 2.0
           }
