@@ -5,7 +5,7 @@
 // step from 0 to VOICE_STEPS. Anything unreadable falls back to the default, so
 // a damaged value cannot silence the voices for good. A bot's speech bubble
 // shows either way; the host has none yet.
-import type { KeyValueStore } from './mmkvStore';
+import type { KeyValueStore } from './keyValueStore';
 
 const ON = 'dicechess-tv.voices.v1';
 const VOLUME = 'dicechess-tv.voiceVolume.v1';

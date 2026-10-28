@@ -6,7 +6,7 @@
 // Random unless the viewer chose otherwise, as the owner decided on 2026-10-10.
 // Anything unreadable reads as Random, the default. Remembered across launches.
 import type { ColourChoice } from '../../src/core/game';
-import type { KeyValueStore } from './mmkvStore';
+import type { KeyValueStore } from './keyValueStore';
 
 export type PlayAs = ColourChoice | 'ask';
 

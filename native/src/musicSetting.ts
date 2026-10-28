@@ -3,7 +3,7 @@
 // Music is on unless the viewer turned it off, as the owner decided, and the
 // volume is a step from 0 to MUSIC_STEPS. Anything unreadable falls back to the
 // default, so a damaged value cannot silence the music for good.
-import type { KeyValueStore } from './mmkvStore';
+import type { KeyValueStore } from './keyValueStore';
 
 const ON = 'dicechess-tv.music.v1';
 const VOLUME = 'dicechess-tv.musicVolume.v1';

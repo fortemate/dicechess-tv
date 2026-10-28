@@ -4,7 +4,7 @@
 // never asked again. Remembered across launches like the other settings, and
 // read before the first render, so no launch shows one screen and flips to
 // another.
-import type { KeyValueStore } from './mmkvStore';
+import type { KeyValueStore } from './keyValueStore';
 
 const KEY = 'dicechess-tv.tutorialOffer.v1';
 
