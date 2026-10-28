@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { fileURLToPath, URL as NodeURL } from 'node:url';
 import { buildSync } from 'esbuild';
 import React from 'react';
 import { act } from 'react-test-renderer';
@@ -137,6 +138,7 @@ const catalogue: Catalogue = {
 
 test('game and screen imports do not pull in a Vega audio backend', () => {
   const bundled = buildSync({
+    absWorkingDir: fileURLToPath(new NodeURL('..', import.meta.url)),
     entryPoints: ['src/GameApp.tsx'],
     bundle: true,
     write: false,
