@@ -21,7 +21,7 @@ import {
 import { GameScreen } from './GameScreen';
 import { KeyValueSnapshotStore } from './keyValueStore';
 import type { AppEnvironment } from './appEnvironment';
-import { createSounds, type Sounds } from './sound';
+import type { Sounds, Music } from './audio';
 import {
   readSound,
   saveSound,
@@ -49,7 +49,6 @@ import {
   readTutorialOffered,
   saveTutorialOffered,
 } from './tutorialOfferSetting';
-import { createMusic, loadCatalogue, type Music } from './music';
 import { lateMusic, lateSounds } from './lateAudio';
 import {
   readMusic,
@@ -110,7 +109,7 @@ export const GameApp = ({
   music: injectedMusic,
   createWorker,
 }: AppProps & { environment: AppEnvironment }) => {
-  const { appState, openStorage, reportFullyDrawn } = environment;
+  const { appState, openStorage, reportFullyDrawn, audio } = environment;
   const activity = React.useMemo(
     () => createActivity(!isAway(appState.getCurrentState())),
     [appState],
@@ -257,11 +256,13 @@ export const GameApp = ({
   React.useEffect(() => {
     const told = (line: string) => report.current?.(line);
     // The music first, so that a bot's line can duck it (#159).
-    const realMusic = injectedMusic ? null : createMusic({ report: told });
+    const realMusic = injectedMusic
+      ? null
+      : audio.createMusic({ report: told });
     if (realMusic) late.music.attach(realMusic);
     const realSounds = injectedSounds
       ? null
-      : createSounds({
+      : audio.createSounds({
           muted: !soundHeard(initialSound),
           suspended: late.sounds.isSuspended(),
           soundVolume: soundGain(initialSound.volume),
@@ -277,7 +278,15 @@ export const GameApp = ({
       late.music.attach(null);
       realMusic?.dispose();
     };
-  }, [late, injectedMusic, injectedSounds, music, initialSound, initialVoices]);
+  }, [
+    audio,
+    late,
+    injectedMusic,
+    injectedSounds,
+    music,
+    initialSound,
+    initialVoices,
+  ]);
   React.useEffect(() => {
     if (!injectedSounds) return;
     injectedSounds.setMuted(!soundHeard(initialSound));
@@ -318,7 +327,7 @@ export const GameApp = ({
     music.setVolume(musicGain(initialMusic.volume));
     if (injectedMusic) return;
     let live = true;
-    void loadCatalogue().then((catalogue) => {
+    void audio.loadCatalogue().then((catalogue) => {
       if (!live) return;
       music.setCatalogue(catalogue);
       setMusicAvailable(catalogue !== null);
@@ -328,7 +337,7 @@ export const GameApp = ({
       // The player is the app's own: nothing may go on playing without it.
       music.setSuspended(true);
     };
-  }, [music, injectedMusic, initialMusic]);
+  }, [audio, music, injectedMusic, initialMusic]);
   const onMusic = React.useCallback(
     (next: MusicSetting) => {
       saveMusic(settings, next);

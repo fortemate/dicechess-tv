@@ -49,10 +49,16 @@ import {
   AudioContentType,
   AudioUsageType,
 } from '@amazon-devices/react-native-w3cmedia';
+import type { Sounds, SoundConfig } from './audio';
+import { LINE_TAIL_MS, speechTiming } from './speechTiming';
+export type { Sounds, SpokenLine } from './audio';
+export {
+  LINE_START_MS,
+  LINE_TAIL_MS,
+  RESULT_LINE_DELAY_MS,
+  speechTiming,
+} from './speechTiming';
 import type { Cue } from '../../src/core/cues';
-import type { VoiceLine } from '../../src/core/botVoice';
-import type { HostLine } from '../../src/core/hostVoice';
-import type { TutorLine } from '../../src/core/tutorial';
 import { CUE_FILES } from './cueFiles';
 import { EFFECT_CLIPS, EFFECT_SPRITE } from './effectSprite';
 import { VOICE_FILES } from './voiceFiles';
@@ -108,103 +114,19 @@ export const SPARE_PLAYERS = 2;
 // ended the app for its memory in the moment it came back (#478).
 export const EFFECTS_RETURN_MS = 1000;
 
-// A win or a loss is said after its jingle, which lasts about a second, rather
-// than over it, and so is the host's result. Every other line is said as it
-// happens.
-export const RESULT_LINE_DELAY_MS = 1200;
-// The events said after the jingle. The host's White or Black win may be one
-// of her lines that name no color, whose event is 'win': it waits too.
-const AFTER_JINGLE: ReadonlySet<string> = new Set([
-  'win',
-  'loss',
-  'white_wins',
-  'black_wins',
-  'draw',
-]);
-
-// A line someone says: a bot's, the Hot Seat host's, or the tutor's.
-export type SpokenLine =
-  | Pick<VoiceLine, 'id' | 'event'>
-  | Pick<HostLine, 'id' | 'event'>
-  | Pick<TutorLine, 'id' | 'event'>;
-
-// A line counts as said a little after its clip ends, so the music does not
-// swell back over its last syllable.
-export const LINE_TAIL_MS = 300;
 // A missing ended/error event must not keep a loaded player and the music's
 // duck forever. This is a watchdog, not the normal deadline for a spoken line.
 export const LINE_TIMEOUT_MS = 10_000;
-// A line is heard a moment after it is asked for, because the voice player
-// loads its clip first. On the Virtual Device each bot's voice began about
-// 0.45 s after its bubble showed (#187), so a bubble waits this much more.
-export const LINE_START_MS = 600;
 
-// When a line is heard and for how long, or null when it has no clip. The
-// speech bubble stays at least this long (#159).
-export const speechTiming = (
-  line: SpokenLine,
-): { delayMs: number; ms: number } | null => {
-  const clip = VOICE_FILES[line.id];
-  if (!clip) return null;
-  const delayMs = AFTER_JINGLE.has(line.event) ? RESULT_LINE_DELAY_MS : 0;
-  return { delayMs, ms: Math.round(clip.seconds * 1000) + LINE_TAIL_MS };
-};
-
-export type Sounds = {
-  // Called on every step of the game, even a silent one: a cue still waiting
-  // to start is dropped once the game has moved on.
-  play(cues: readonly Cue[]): void;
-  setMuted(muted: boolean): void;
-  // Linear gain from the sounds setting, 0 to 1 (#398).
-  setSoundVolume(gain: number): void;
-  // Says a bot's or the host's line in its voice, replacing any line still
-  // being said.
-  // onEnded runs only after the decoder ends the clip and its tail passes.
-  // It never runs after replacement, stop, disabled voices, suspension, failure
-  // or timeout. Muting effects with setMuted does not stop speech.
-  say(line: SpokenLine, onEnded?: () => void): void;
-  // Stops the line being said, or waiting to be said, as a new line would, for
-  // a speaker who leaves mid-line: the Hot Seat host turned off (#202).
-  stopLine(): void;
-  // The Voices setting, for every spoken line, the host's included. Off,
-  // nothing is said, and a line being said stops.
-  setVoices(on: boolean): void;
-  // Linear gain from the voices setting, 0 to 1 (#398).
-  setVoiceVolume(gain: number): void;
-  // While the app is away from the foreground or out of focus nothing plays,
-  // anything playing stops, and a cue or line still waiting is dropped rather
-  // than heard on the way back. The effects' players are let go meanwhile and
-  // made again on the return. The player's own sound setting is left alone.
-  setSuspended(suspended: boolean): void;
-  // Lets every player go for good, when the app closes. Nothing plays
-  // afterward, whatever it is told.
-  dispose(): void;
-};
-
-export type SoundOptions = {
+export type SoundOptions = SoundConfig & {
   // Which of several takes to play. Injected so a test can know.
   pick?: (count: number) => number;
-  // Where failures go, since they are never thrown.
-  report?: (line: string) => void;
-  // Start muted, when the viewer turned sound off in an earlier session.
-  muted?: boolean;
-  // Initial linear gain for effects, 0 to 1 (#398).
-  soundVolume?: number;
   // Runs a delayed cue after `wait` milliseconds. Injected so a test need not
   // wait.
   later?: (run: () => void, wait: number) => void;
-  // Start with the bots' voices off, when the viewer turned them off earlier.
-  voices?: boolean;
-  // Initial linear gain for voices, 0 to 1 (#398).
-  voiceVolume?: number;
-  // A launch away from the foreground must not open effect pipelines.
-  suspended?: boolean;
   // Pauses a cue's clip after `wait` milliseconds, once it is over. Injected so
   // a test can hold it.
   endClip?: (run: () => void, wait: number) => void;
-  // Told true when a line starts to be heard and false when it has been said or
-  // stopped, so the music can duck under it.
-  onSpeech?: (speaking: boolean) => void;
   // Makes the effects' players again `wait` milliseconds after the return to
   // the foreground; the returned function cancels it. Injected so a test can
   // say when.

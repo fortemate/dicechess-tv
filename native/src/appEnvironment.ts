@@ -1,8 +1,10 @@
+import type { AudioServices } from './audio';
 import type { KeyValueStore } from './keyValueStore';
 
 // Startup services supplied by a platform wrapper. Keep their identities stable
 // for a mounted app; switching storage requires a fresh mount, just like launch.
 export type AppEnvironment = {
+  audio: AudioServices;
   // Each handle must access the same persistent namespace. Reads and writes are
   // synchronous so the first frame contains the saved game and settings.
   openStorage(): KeyValueStore;

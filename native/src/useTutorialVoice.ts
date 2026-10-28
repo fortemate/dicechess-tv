@@ -8,7 +8,8 @@
 // module's own: off, `say` is silent and the bubble still shows the words.
 import React from 'react';
 import type { TutorLine } from '../../src/core/tutorial';
-import { LINE_START_MS, speechTiming, type Sounds } from './sound';
+import { LINE_START_MS, speechTiming } from './speechTiming';
+import type { Sounds } from './audio';
 import { useActivity } from './activity';
 
 export type TutorialVoice = Pick<Sounds, 'say' | 'stopLine'>;
