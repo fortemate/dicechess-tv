@@ -1,0 +1,55 @@
+name: Android compatibility probe
+on:
+  pull_request:
+    paths:
+      - 'android-probe/**'
+      - 'src/core/**'
+      - 'native/src/activity.ts'
+      - 'native/src/botClient.ts'
+      - 'native/src/botJob.ts'
+      - 'native/voices/**'
+      - 'mise.toml'
+      - 'package-lock.json'
+      - '.github/workflows/android-probe.yaml'
+  push:
+    branches: [next]
+    paths:
+      - 'android-probe/**'
+      - 'src/core/**'
+      - 'native/src/activity.ts'
+      - 'native/src/botClient.ts'
+      - 'native/src/botJob.ts'
+      - 'native/voices/**'
+      - 'mise.toml'
+      - 'package-lock.json'
+      - '.github/workflows/android-probe.yaml'
+permissions:
+  contents: read
+concurrency:
+  group: android-probe-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  android:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@82a612c5ab8bcda7cc5db6b7e81a8e7584c3dc6e # v5.2.3
+        with:
+          install_args: node
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: npm ci && npm ci --prefix android-probe
+      - run: npm run check --prefix android-probe
+      - run: npm run lint --prefix android-probe
+      - run: npm test --prefix android-probe
+      - run: npm run prebuild --prefix android-probe
+      # Local test APK, signed by the generated debug key. Never published.
+      - run: ./gradlew :app:assembleRelease -PreactNativeArchitectures=arm64-v8a --max-workers=4 --console=plain
+        working-directory: android-probe/android
+        env:
+          NODE_ENV: production
