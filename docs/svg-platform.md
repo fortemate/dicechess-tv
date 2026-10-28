@@ -57,3 +57,6 @@ On the aarch64 Vega Virtual Device:
 The virtual-device build contained the portrait pack, so the three SVG fallback
 faces were checked through the Node renderer and compilation tests, not observed
 on that device. No physical Fire TV or Android rendering check was performed.
+
+The subsequent [Android SVG gallery check](../android-probe/svg-validation.md)
+records emulator rendering evidence for all 15 components at both probe sizes.

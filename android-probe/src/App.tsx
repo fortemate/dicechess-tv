@@ -27,6 +27,7 @@ import {
 import { type BotWorker } from '../../native/src/botClient';
 import { createWorker } from './worker';
 import { createStore } from './store';
+import { SvgGallery } from './SvgGallery';
 
 const store = createStore('dicechess-android-probe');
 const SAVE = 'snapshot';
@@ -43,10 +44,13 @@ const actions = [
   'Play audio',
   'Seek + parallel audio',
   'Play tutorial voice',
+  'SVG artwork gallery',
 ];
 
 export default function App() {
   const [selected, setSelected] = useState(0);
+  const [gallery, setGallery] = useState(false);
+  const galleryOpen = useRef(false);
   const [events, setEvents] = useState<string[]>([]);
   const [ticks, setTicks] = useState(0);
   const [game, setGame] = useState<Game>(() => {
@@ -127,6 +131,12 @@ export default function App() {
       log('focus', 'focus');
     });
     const back = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (galleryOpen.current) {
+        galleryOpen.current = false;
+        setGallery(false);
+        log('svg-closed');
+        return true;
+      }
       cancel('Back');
       return true;
     });
@@ -144,7 +154,7 @@ export default function App() {
   }, []);
 
   useTVEventHandler((event) => {
-    if (!activity.isActive()) return;
+    if (!activity.isActive() || galleryOpen.current) return;
     log('remote', { type: event.eventType, action: event.eventKeyAction });
     // This Android TV focus target delivers D-pad releases. Handle one release
     // per press; the game's held-key/repeat policy needs its own later probe.
@@ -297,11 +307,18 @@ export default function App() {
         loadSave();
         return;
       }
+      if (selected === 8) {
+        cancel('SVG gallery');
+        galleryOpen.current = true;
+        setGallery(true);
+        return;
+      }
       await play(selected === 6, selected === 7);
     } catch (error) {
       log('action-fail', message(error));
     }
   };
+  if (gallery) return <SvgGallery activity={activity} />;
   return (
     <View style={styles.root}>
       <Text style={styles.title}>Dice Chess · Android compatibility probe</Text>
@@ -357,7 +374,7 @@ const styles = StyleSheet.create({
   action: {
     fontSize: 17,
     color: '#ffffff',
-    padding: 10,
+    padding: 7,
     borderRadius: 6,
     marginBottom: 4,
   },

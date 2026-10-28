@@ -9,8 +9,9 @@ A bounded engineering prototype based on `next`. It exercises platform boundarie
 - MMKV v4 through the existing synchronous `getString`/`set`/`delete` port, including a real partial-turn snapshot with dice and moves.
 - RN TV D-pad/OK events, Back cancellation, Android lifecycle and window focus, and a visible RN heartbeat.
 - Expo Audio completion, seeking, two concurrent players, individual volume settings, and teardown on background/blur. One original generated PCM tone and one pinned English tutorial MP3 are packaged offline.
+- All 12 shared piece components and three SVG fallback faces from `native/src/`, rendered by Android `react-native-svg`. The gallery shows every component at 48 or 114 dp, with D-pad selection, OK to switch size, and Back to return to the diagnostics.
 
-The on-screen menu uses a single native focus target. D-pad changes the selected diagnostic; OK invokes it once through `Pressable`; Back cancels pending work and audio. This does not qualify the game's board focus, held-key behavior, accessibility, or full remote flow.
+The menu and SVG gallery each use a single native focus target. D-pad changes the selected diagnostic; OK invokes it once through `Pressable`; Back returns from the gallery or cancels pending work and audio in the menu. This does not qualify the game's board focus, held-key behavior, accessibility, or full remote flow.
 
 ## Reproduce
 
@@ -44,7 +45,7 @@ adb -s <serial> install -r android/app/build/outputs/apk/release/app-release.apk
 python3 scripts/smoke.py --serial <serial>
 ```
 
-`smoke.py` **clears only `com.fortemate.dicechesstv.probe` data** before starting. It sends D-pad, OK, Back and Home events, force-stops the probe to test persistence, and records events, logcat and a screenshot under `build/smoke/`. It never installs or clears the product app. Completion events are not human listening evidence.
+`smoke.py` **clears only `com.fortemate.dicechesstv.probe` data** before starting. It sends D-pad, OK, Back and Home events, force-stops the probe to test persistence, and records events, logcat, the menu screenshot and SVG gallery screenshots at both sizes under `build/smoke/`. Screenshot inspection is separate from the script's state/event assertions. It never installs or clears the product app. Completion events are not human listening evidence.
 
 `npm run bundle` creates a standalone Android JS export for a cheaper Metro check. Native compatibility still requires the APK build and device checks. CI builds a local-test APK on PRs and relevant `next` pushes; it does not deploy, upload an APK, release, or modify the contest site.
 
@@ -60,13 +61,16 @@ Exact installed versions are locked in `package-lock.json`:
 | Worklets                 | 0.7.4, with its own Babel plugin                |
 | MMKV / Nitro Modules     | 4.3.2 / 0.37.1                                  |
 | Expo Audio               | 55.0.18                                         |
+| React Native SVG         | 15.15.3                                         |
 | Expo Asset / File System | 55.0.20 / 55.0.26                               |
 | TV config plugin         | 0.1.7                                           |
 | Android API              | Minimum 24; compile/target 36                   |
 
 These are probe choices, not an approved support matrix. The first generated project defaulted to API 22; Hermes rejected that native build because it requires API 24. `expo-build-properties` now sets 24 explicitly. Fire OS support needs model/API/ABI selection and physical-device testing. API 24 excludes older Android/Fire OS generations.
 
-Metro resolves React and React Native from this package even when importing the existing shared controller code. Expo's runtime tsconfig alias resolution is disabled because the type-only React path must not redirect runtime imports to `@types/react`. The existing Vega and web package dependencies and lockfiles are unchanged.
+The SVG version matches the [Expo SDK 55 recommendation](https://docs.expo.dev/versions/v55.0.0/sdk/svg/). Its installed license is MIT; the shared RhosGFX piece and face artwork retains its existing CC0 provenance. No artwork is copied or regenerated for Android.
+
+Metro resolves React, React Native and React Native SVG from this package even when importing the existing shared controller code. Expo's runtime tsconfig alias resolution is disabled because the type-only React path must not redirect runtime imports to `@types/react`. The existing Vega and web package dependencies and lockfiles are unchanged.
 
 The first emulator bot request exposed another boundary: Android Hermes rejected `class` syntax inside `eval`, although the APK bundled successfully and Node tests passed. The Android asset generator now applies the RN Babel preset with inline helpers to the pure engine bundle. An additional test invokes the installed Hermes compiler against that asset. This changes packaging syntax, not game rules or search policy.
 
@@ -80,4 +84,4 @@ The PCM tone is generated by `scripts/assets.mjs`. The selected Thinkle MP3 is a
 
 ## Remaining gates
 
-See [validation.md](validation.md) for observed results. Full game screens, tutorial sequencing, music crossfades/ducking, interruption recovery, repeated audio stress, accessibility, held keys, device latency, actual Fire OS hardware, and all other ABIs remain separate work. No production platform adapter or workspace migration is approved by a successful probe alone.
+See [validation.md](validation.md) for the original probe results and [svg-validation.md](svg-validation.md) for the subsequent SVG emulator check. Full game screens, tutorial sequencing, music crossfades/ducking, interruption recovery, repeated audio stress, accessibility, held keys, device latency, actual Fire OS hardware, and all other ABIs remain separate work. No production platform adapter or workspace migration is approved by a successful probe alone.
