@@ -26,8 +26,12 @@ export class KeyValueSnapshotStore<T> implements SnapshotStore<T> {
   }
 
   load(): Promise<T | null> {
-    // The executor runs now and turns read/decode errors into rejections.
-    return new Promise((resolve) => resolve(this.read()));
+    try {
+      return Promise.resolve(this.read());
+    } catch (error) {
+      // Preserve the Promise contract even when storage or decoding throws.
+      return Promise.reject(error);
+    }
   }
 
   // The synchronous read, for callers that must have the saved game before the
