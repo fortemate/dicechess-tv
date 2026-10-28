@@ -9,7 +9,7 @@
 // the only host, now reads as Prowla too.
 import { DEFAULT_HOST, HOST_IDS, type HostId } from '../../src/core/hostVoice';
 import type { CharacterId } from './Portrait';
-import type { KeyValueStore } from './mmkvStore';
+import type { KeyValueStore } from './keyValueStore';
 
 export { DEFAULT_HOST, type HostId };
 

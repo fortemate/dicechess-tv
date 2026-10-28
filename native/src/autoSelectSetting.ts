@@ -5,7 +5,7 @@
 // Off by default, as the owner asked. Anything but an explicit "on" reads as
 // off, so a damaged value cannot play moves nobody pressed OK for. Remembered
 // across launches.
-import type { KeyValueStore } from './mmkvStore';
+import type { KeyValueStore } from './keyValueStore';
 
 const KEY = 'dicechess-tv.autoSelect.v1';
 

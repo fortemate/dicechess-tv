@@ -3,7 +3,7 @@
 //
 // Standard unless the viewer chose otherwise. Anything unreadable reads as
 // Standard, the default. Remembered across launches.
-import type { KeyValueStore } from './mmkvStore';
+import type { KeyValueStore } from './keyValueStore';
 
 export type HighlightStyle =
   'standard' | 'enhanced' | 'colour-blind' | 'high-contrast';

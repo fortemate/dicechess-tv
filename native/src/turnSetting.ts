@@ -2,7 +2,7 @@
 //
 // Off by default: viewers sitting side by side on a sofa share a single
 // perspective unless they choose otherwise. Remembered across launches.
-import type { KeyValueStore } from './mmkvStore';
+import type { KeyValueStore } from './keyValueStore';
 
 const KEY = 'dicechess-tv.turnBoard.v1';
 

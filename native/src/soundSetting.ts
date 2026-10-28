@@ -3,7 +3,7 @@
 // Sounds are on unless the viewer turned them off, and the volume is a step from
 // 0 to SOUND_STEPS. Anything unreadable falls back to the default, so a damaged
 // value cannot silence the sounds for good.
-import type { KeyValueStore } from './mmkvStore';
+import type { KeyValueStore } from './keyValueStore';
 
 const ON = 'dicechess-tv.sound.v1';
 const VOLUME = 'dicechess-tv.soundVolume.v1';
