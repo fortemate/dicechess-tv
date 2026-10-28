@@ -24,8 +24,19 @@ uses the Vega wrapper through its existing keyboard shims.
 `createRemoteChannel` implements this dispatch contract for platform bridges.
 `useVegaRemote` maps Vega actions 0/1 and the three OK names (`select`, `enter`,
 `kpenter`). It ignores unknown events and keeps Back out of the observation
-channel. `useKeplerBackHandler` handles default exit; the adapter does not issue
-an additional `exitApp` call.
+channel. [The adapter](../native/src/vegaRemote.ts) registers `channel.back` and
+contains no direct `exitApp` call.
+
+The default-exit behavior is based on source inspection of the installed
+`@amazon-devices/react-native-kepler` package, version `4.0.1+rn0.83.0`, in
+`Libraries/Utilities/KeplerBackHandler.js`. On Back release, that implementation
+calls `instance.exitApp()` if no registered handler consumes the event. See also
+the repository's [Vega input notes](../site/src/content/docs/technology/vega.md#handling-the-back-button).
+
+The adapter tests use a platform stub to verify consumed/unclaimed Back. The
+virtual-device checks below verify the visible return to the launcher; neither
+counts calls inside the native SDK. The absence of a direct exit call in our
+adapter is established by code inspection, not by device instrumentation.
 
 ## Scope
 

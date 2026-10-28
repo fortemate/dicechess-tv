@@ -44,7 +44,7 @@ export function createRemoteChannel() {
       for (const entry of snapshot) entry.call(event);
     },
     back() {
-      // Newest mounted screen gets first refusal, as with native Back handlers.
+      // This channel gives the most recently registered subscriber first refusal.
       for (const entry of [...backHandlers].reverse()) {
         if (entry.call()) return true;
       }

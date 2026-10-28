@@ -1,6 +1,6 @@
 // Vega observes directions/OK through TV events, but Back must use its
-// consuming channel. An unclaimed Back closes the app through the native
-// handler; calling exitApp here as well would request exit twice.
+// consuming channel. This adapter leaves default exit to useKeplerBackHandler.
+// docs/remote-input.md records the inspected source and validation limits.
 // UserInputManager.addListener aborted on SDK 0.24; the alternate user-input
 // hook did not deliver events alongside useTVEventHandler.
 import { useCallback, useEffect, useState } from 'react';
