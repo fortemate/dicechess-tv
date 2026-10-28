@@ -14,6 +14,7 @@ import { musicGain } from '../src/musicSetting';
 import {
   fakeTimers,
   fixedOptions,
+  testRemoteInput,
   memoryStore,
   mount,
   silentSounds,
@@ -74,6 +75,7 @@ const fixture = (initial: Record<string, string> = {}, state = 'active') => {
   });
   const storage = memoryStore(initial);
   const environment: AppEnvironment = {
+    remote: testRemoteInput,
     openStorage: () => storage,
     reportFullyDrawn() {},
     appState: {

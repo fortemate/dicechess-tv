@@ -39,3 +39,10 @@ export declare function setAppState(state: KeplerAppStateStatus): void;
 export declare function appEvent(name: 'blur' | 'focus'): void;
 /** Test-only: in the foreground, and no unclaimed Back has closed the app. */
 export declare function resetPlatform(): void;
+
+export declare function subscribeTVEvents(
+  callback: (event: HWEvent) => void,
+): () => void;
+export declare function subscribeBackEvents(
+  callback: () => boolean,
+): () => void;

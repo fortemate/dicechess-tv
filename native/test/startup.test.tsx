@@ -11,6 +11,7 @@ import { decodeGame, moveGame, newGame, rollGame } from '../../src/core/game';
 import { MMKV } from './stubs/react-native-mmkv.mjs';
 import {
   fixedOptions,
+  testRemoteInput,
   memoryStore,
   mount,
   reporter,
@@ -27,6 +28,7 @@ const environment = (initial: Record<string, string> = {}) => {
   let current = 'unknown';
   let draws = 0;
   const services: AppEnvironment = {
+    remote: testRemoteInput,
     audio: {
       createSounds: silentSounds,
       createMusic: () => silentMusic(),

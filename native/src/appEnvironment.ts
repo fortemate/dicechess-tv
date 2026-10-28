@@ -1,3 +1,4 @@
+import type { RemoteInput } from './remoteInput';
 import type { AudioServices } from './audio';
 import type { KeyValueStore } from './keyValueStore';
 
@@ -5,6 +6,7 @@ import type { KeyValueStore } from './keyValueStore';
 // for a mounted app; switching storage requires a fresh mount, just like launch.
 export type AppEnvironment = {
   audio: AudioServices;
+  remote: RemoteInput;
   // Each handle must access the same persistent namespace. Reads and writes are
   // synchronous so the first frame contains the saved game and settings.
   openStorage(): KeyValueStore;
