@@ -156,6 +156,42 @@ try:
     assert not any(e['event'] == 'audio-finished' for e in events()[start:])
     launch()
     checks.append('background releases audio before completion')
+    key(20, 3)  # From audio (5) to SVG gallery (8)
+    start = len(events())
+    key(23)
+    state = wait('svg-state', start)
+    assert state == {'selected': 0, 'name': 'b', 'size': 48, 'count': 15}, state
+    time.sleep(0.5)  # Let the native SVG renderer draw before capturing pixels.
+    (out / 'svg-48.png').write_bytes(adb('exec-out', 'screencap', '-p', binary=True))
+    names = [state['name']]
+    for index in range(1, 15):
+        start = len(events())
+        key(22)  # Right visits all shared pieces and fallback faces.
+        state = wait('svg-state', start, predicate=lambda detail: detail['selected'] == index)
+        names.append(state['name'])
+    assert names == ['b', 'k', 'n', 'p', 'q', 'r', 'B', 'K', 'N', 'P', 'Q', 'R',
+                     'money-mouth-face', 'smiling-face-with-horns', 'zany-face'], names
+    # Check horizontal wrap and both vertical directions, then return to index 0.
+    for code, selected in [(22, 0), (21, 14), (19, 9), (20, 14), (22, 0)]:
+        start = len(events())
+        key(code)
+        wait('svg-state', start, predicate=lambda detail: detail['selected'] == selected)
+    start = len(events())
+    key(23)
+    wait('svg-state', start, predicate=lambda detail: detail['size'] == 114)
+    time.sleep(0.5)
+    (out / 'svg-114.png').write_bytes(adb('exec-out', 'screencap', '-p', binary=True))
+    start = len(events())
+    key(23)
+    wait('svg-state', start, predicate=lambda detail: detail['size'] == 48)
+    key(4)
+    wait('svg-closed', start)
+    start = len(events())
+    key(23)  # Focus must return to the same menu action, without another D-pad press.
+    wait('svg-state', start, predicate=lambda detail: detail['selected'] == 0 and detail['size'] == 48)
+    key(4)
+    wait('svg-closed', start)
+    checks.append('SVG gallery: 15 selections, four directions, wrap, 48/114/48 sizes, Back and reopen')
     (out / 'screen.png').write_bytes(adb('exec-out', 'screencap', '-p', binary=True))
     print(json.dumps({'passed': checks}, indent=2))
 finally:
