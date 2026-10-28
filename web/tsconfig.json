@@ -14,7 +14,7 @@
       "react-native": ["./src/shims/react-native.ts"],
       "@amazon-devices/react-native-kepler": ["./src/shims/kepler.ts"],
       "@amazon-devices/react-native-mmkv": ["./src/shims/mmkv.ts"],
-      "@amazon-devices/react-native-svg": ["./src/shims/svg.tsx"],
+      "react-native-svg": ["./src/shims/svg.tsx"],
       "@amazon-devices/react-native-w3cmedia": ["./src/shims/w3cmedia.ts"],
       "@amazon-devices/kepler-performance-api": ["./src/shims/performance.ts"],
       "react": ["./node_modules/@types/react"],

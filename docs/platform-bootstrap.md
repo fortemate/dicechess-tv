@@ -39,9 +39,10 @@ migration or storage namespace change is required.
 
 This is one preparation step toward sharing the application. The [audio services boundary](audio-services.md) supplies factories and the
 catalog loader through the environment. The [remote input boundary](remote-input.md)
-supplies normalized key transitions and consuming Back events. Rendering and other
-screen dependencies still use Vega APIs; `GameApp` is not yet an Android-ready
-entry point. The Android probe remains isolated. Android audio adapters and
+supplies normalized key transitions and consuming Back events. The
+[SVG platform boundary](svg-platform.md) keeps the artwork on standard SVG imports.
+The complete application still requires platform integration; `GameApp` is not yet
+an Android-ready entry point. The Android probe remains isolated. Android audio adapters and
 workspace extraction follow separately.
 
 ## Validation

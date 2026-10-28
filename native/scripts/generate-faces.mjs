@@ -46,7 +46,7 @@ for (const id of ids) {
 // RhosGFX Vector Emojis, CC0. See licenses/RhosGFX-Emojis-CC0.txt and
 // THIRD_PARTY_NOTICES.md for provenance and credit.
 import React from 'react';
-import { ${['Svg', ...usedComponents(children)].join(', ')} } from '@amazon-devices/react-native-svg';
+import { ${['Svg', ...usedComponents(children)].join(', ')} } from 'react-native-svg';
 import type { FaceProps } from './types';
 
 export const ${name} = ({ size }: FaceProps) => (

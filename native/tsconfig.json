@@ -10,7 +10,10 @@
     "esModuleInterop": true,
     "allowImportingTsExtensions": true,
     "skipLibCheck": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "paths": {
+      "react-native-svg": ["./node_modules/@amazon-devices/react-native-svg"]
+    }
   },
   "include": ["src/**/*", "test/**/*", "../src/core/**/*"]
 }

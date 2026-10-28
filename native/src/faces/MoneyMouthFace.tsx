@@ -3,7 +3,7 @@
 // RhosGFX Vector Emojis, CC0. See licenses/RhosGFX-Emojis-CC0.txt and
 // THIRD_PARTY_NOTICES.md for provenance and credit.
 import React from 'react';
-import { Svg, G, Path, Ellipse } from '@amazon-devices/react-native-svg';
+import { Svg, G, Path, Ellipse } from 'react-native-svg';
 import type { FaceProps } from './types';
 
 export const MoneyMouthFace = ({ size }: FaceProps) => (

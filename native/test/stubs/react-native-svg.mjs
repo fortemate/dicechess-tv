@@ -1,4 +1,4 @@
-// Stand-in for @amazon-devices/react-native-svg in Node, for the same reason.
+// Stand-in for the shared react-native-svg import in Node.
 // Each primitive becomes a host element so a test can look for it by name.
 import React from 'react';
 

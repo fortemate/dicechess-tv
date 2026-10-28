@@ -42,7 +42,8 @@ adapter is established by code inspection, not by device instrumentation.
 
 This prepares shared screens for another platform. It does not add an Android
 input adapter, change game rules, or turn the browser bench into a product.
-Rendering, assets and worker integration still need their own platform work.
+The [SVG platform boundary](svg-platform.md) covers vector artwork. Assets and
+worker integration still need their own platform work.
 
 ## Validation
 

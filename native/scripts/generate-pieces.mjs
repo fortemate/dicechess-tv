@@ -44,7 +44,7 @@ for (const file of names) {
 // RhosGFX vector chess pieces, CC0. See licenses/RhosGFX-CC0.txt and
 // THIRD_PARTY_NOTICES.md for provenance and credit.
 import React from 'react';
-import { ${['Svg', ...used].join(', ')} } from '@amazon-devices/react-native-svg';
+import { ${['Svg', ...used].join(', ')} } from 'react-native-svg';
 import type { PieceProps } from './types';
 
 const ${name}Svg = ({ size }: PieceProps) => (
