@@ -37,10 +37,11 @@ migration or storage namespace change is required.
 
 ## Scope
 
-This is one preparation step toward sharing the application. Audio factories,
-asset paths, remote input and other screen dependencies still use Vega APIs;
-`GameApp` is not yet an Android-ready entry point. The Android probe remains
-isolated. Audio adapters and workspace extraction follow separately.
+This is one preparation step toward sharing the application. The [audio services boundary](audio-services.md) supplies factories and the
+catalog loader through the environment. Remote input, rendering and other
+screen dependencies still use Vega APIs; `GameApp` is not yet an Android-ready
+entry point. The Android probe remains isolated. Android audio adapters and
+workspace extraction follow separately.
 
 ## Validation
 

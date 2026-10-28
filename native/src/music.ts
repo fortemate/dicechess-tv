@@ -46,39 +46,8 @@ import {
   AudioContentType,
   AudioUsageType,
 } from '@amazon-devices/react-native-w3cmedia';
-import type { MusicRole } from './screen';
-
-// One track, as the music catalog the build ships describes it: the file under
-// the music directory, the stretch that loops (seconds), and the gain that
-// levels it with the others.
-export type Track = {
-  file: string;
-  loopStart: number;
-  loopEnd: number;
-  gainDb: number;
-};
-
-export type Catalogue = {
-  tracks: Partial<Record<MusicRole, Track>>;
-};
-
-export type Music = {
-  // What should play now, or nothing. `pauseMs` leaves a silence first, so a
-  // result's jingle is heard on its own before the menu theme comes back.
-  setRole(role: MusicRole | null, pauseMs?: number): void;
-  setEnabled(on: boolean): void;
-  // Linear gain from the volume setting, 0 to 1.
-  setVolume(gain: number): void;
-  // While the app is away from the foreground nothing plays.
-  setSuspended(suspended: boolean): void;
-  // The catalog arrives after launch, and not at all in a build without music.
-  setCatalogue(catalogue: Catalogue | null): void;
-  // Lower while a bot's line is being said.
-  setDucked(ducked: boolean): void;
-  // Lets every player and timer go for good, when the app closes. Nothing
-  // plays afterward, whatever it is told.
-  dispose(): void;
-};
+import type { MusicRole, Music, Track, Catalogue, MusicConfig } from './audio';
+export type { Music, Track, Catalogue } from './audio';
 
 type Player = Pick<
   AudioPlayer,
@@ -101,8 +70,7 @@ export type Clock = {
   after(ms: number, run: () => void): () => void;
 };
 
-export type MusicOptions = {
-  report?: (line: string) => void;
+export type MusicOptions = MusicConfig & {
   // Injected by tests, which cannot hear and cannot wait.
   createPlayer?: () => Player;
   clock?: Clock;

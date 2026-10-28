@@ -45,13 +45,8 @@ import { useHostVoice } from './useHostVoice';
 import { DEFAULT_HOST, type HostChoice } from './hostSetting';
 import { DEFAULT_PLAY_AS, type PlayAs } from './playAsSetting';
 import { DEFAULT_HIGHLIGHTS, type HighlightStyle } from './highlightsSetting';
-import {
-  LINE_START_MS,
-  speechTiming,
-  type Sounds,
-  type SpokenLine,
-} from './sound';
-import type { Music } from './music';
+import { LINE_START_MS, speechTiming } from './speechTiming';
+import type { Sounds, SpokenLine, Music } from './audio';
 import { MUSIC_STEPS, musicHeard, type MusicSetting } from './musicSetting';
 import { DEFAULT_SOUND, soundHeard, type SoundSetting } from './soundSetting';
 import { DEFAULT_VOICES, voicesHeard, type VoiceSetting } from './voiceSetting';

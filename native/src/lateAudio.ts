@@ -10,9 +10,7 @@
 // first-launch line comes from a child's effect before App attaches the player:
 // keep that current line until attachment, unless it is stopped or silenced.
 // Effect cues before attachment are dropped rather than replayed later.
-import type { Catalogue, Music } from './music';
-import type { MusicRole } from './screen';
-import type { Sounds } from './sound';
+import type { Catalogue, Music, MusicRole, Sounds } from './audio';
 
 export type LateSounds = Sounds & {
   attach(real: Sounds | null): void;

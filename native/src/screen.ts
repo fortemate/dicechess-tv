@@ -6,6 +6,7 @@
 //
 // Nothing here decides legality. Moves come from the engine's own list, and the
 // controller in src/core/game.ts applies them.
+import type { MusicRole } from './audio';
 import {
   newGame,
   rollGame,
@@ -761,7 +762,7 @@ const show = (state: ScreenState, overlay: Overlay): ScreenState => ({
 // level of danger over one. A menu opened from a game keeps the game's music, so
 // browsing it does not crossfade back and forth; a finished game is back in the
 // menus.
-export type MusicRole = 'menu' | Level;
+export type { MusicRole } from './audio';
 export const musicRole = (
   overlay: Overlay,
   game: Game,

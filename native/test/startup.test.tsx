@@ -27,6 +27,11 @@ const environment = (initial: Record<string, string> = {}) => {
   let current = 'unknown';
   let draws = 0;
   const services: AppEnvironment = {
+    audio: {
+      createSounds: silentSounds,
+      createMusic: () => silentMusic(),
+      loadCatalogue: () => Promise.resolve(null),
+    },
     openStorage: () => storage,
     reportFullyDrawn: () => {
       draws++;
