@@ -59,6 +59,7 @@ import {
 } from './musicSetting';
 import { randomSource } from './randomSource';
 import type { ScreenOptions } from './screen';
+import { RemoteInputContext } from './remoteInput';
 import { ActivityContext, createActivity, type Activity } from './activity';
 import type { BotWorker } from './botClient';
 import { GameBoundary, type Recovery } from './Recovery';
@@ -520,43 +521,45 @@ export const GameApp = ({
   );
 
   return (
-    <ActivityContext.Provider value={activity}>
-      <GameBoundary
-        key={attempt.n}
-        onError={onError}
-        onRecover={onRecover}
-        onState={onState}
-      >
-        <GameScreen
-          options={options}
-          initial={attempt.game}
-          onCommit={onCommit}
+    <RemoteInputContext.Provider value={environment.remote}>
+      <ActivityContext.Provider value={activity}>
+        <GameBoundary
+          key={attempt.n}
+          onError={onError}
+          onRecover={onRecover}
           onState={onState}
-          sounds={sounds}
-          initialSound={attempt.sound}
-          onSound={onSound}
-          initialTurnBoard={attempt.turnBoard}
-          onTurnBoard={onTurnBoard}
-          initialVoices={attempt.voices}
-          onVoices={onVoices}
-          initialHost={attempt.host}
-          onHost={onHost}
-          initialAutoSelect={attempt.autoSelect}
-          onAutoSelect={onAutoSelect}
-          initialPlayAs={attempt.playAs}
-          onPlayAs={onPlayAs}
-          initialHighlights={attempt.highlights}
-          onHighlights={onHighlights}
-          music={music}
-          initialMusic={attempt.music}
-          onMusic={onMusic}
-          musicAvailable={musicAvailable}
-          // A recovery goes to the menu, never back to the first launch's
-          // offer of the tutorial.
-          offerTutorial={offerTutorial && attempt.n === 0}
-          onTutorialOffered={onTutorialOffered}
-        />
-      </GameBoundary>
-    </ActivityContext.Provider>
+        >
+          <GameScreen
+            options={options}
+            initial={attempt.game}
+            onCommit={onCommit}
+            onState={onState}
+            sounds={sounds}
+            initialSound={attempt.sound}
+            onSound={onSound}
+            initialTurnBoard={attempt.turnBoard}
+            onTurnBoard={onTurnBoard}
+            initialVoices={attempt.voices}
+            onVoices={onVoices}
+            initialHost={attempt.host}
+            onHost={onHost}
+            initialAutoSelect={attempt.autoSelect}
+            onAutoSelect={onAutoSelect}
+            initialPlayAs={attempt.playAs}
+            onPlayAs={onPlayAs}
+            initialHighlights={attempt.highlights}
+            onHighlights={onHighlights}
+            music={music}
+            initialMusic={attempt.music}
+            onMusic={onMusic}
+            musicAvailable={musicAvailable}
+            // A recovery goes to the menu, never back to the first launch's
+            // offer of the tutorial.
+            offerTutorial={offerTutorial && attempt.n === 0}
+            onTutorialOffered={onTutorialOffered}
+          />
+        </GameBoundary>
+      </ActivityContext.Provider>
+    </RemoteInputContext.Provider>
   );
 };

@@ -10,13 +10,23 @@ import { useEffect } from 'react';
 
 const handlers = new Set();
 
+export function subscribeTVEvents(callback) {
+  handlers.add(callback);
+  return () => {
+    handlers.delete(callback);
+  };
+}
+
 export function useTVEventHandler(callback) {
-  useEffect(() => {
-    handlers.add(callback);
-    return () => {
-      handlers.delete(callback);
-    };
-  }, [callback]);
+  useEffect(() => subscribeTVEvents(callback), [callback]);
+}
+
+export function subscribeBackEvents(callback) {
+  const subscription = keplerBackHandler.addEventListener(
+    'hardwareBackPress',
+    callback,
+  );
+  return () => subscription.remove();
 }
 
 // Back is not delivered here: it has a channel of its own (pressBack, below),

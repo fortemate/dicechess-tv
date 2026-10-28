@@ -19,6 +19,7 @@ import {
   type RulesState,
 } from '../src/RulesScreen';
 import { RULES } from '../../src/core/rules';
+import { mount } from './support';
 import { Option } from '../src/Option';
 
 test('rulesReducer: starts at index 0 and exit false', () => {
@@ -82,7 +83,7 @@ test('RulesScreen component: OK keeps topic open, Back exits (#237)', () => {
 
   let tree!: renderer.ReactTestRenderer;
   act(() => {
-    tree = renderer.create(
+    tree = mount(
       React.createElement(RulesScreen, {
         onExit: () => {
           exitCalls++;
@@ -139,7 +140,7 @@ test('RulesScreen component: Menu exits the screen', () => {
 
   let tree!: renderer.ReactTestRenderer;
   act(() => {
-    tree = renderer.create(
+    tree = mount(
       React.createElement(RulesScreen, {
         onExit: () => {
           exitCalls++;
@@ -169,7 +170,7 @@ for (const key of ['select', 'enter', 'kpenter']) {
     const reports: string[] = [];
     let tree!: renderer.ReactTestRenderer;
     act(() => {
-      tree = renderer.create(
+      tree = mount(
         React.createElement(RulesScreen, {
           onExit: () => {
             exitCalls++;

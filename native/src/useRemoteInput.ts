@@ -1,23 +1,3 @@
-// Turns Vega remote events into the board's own key vocabulary.
-//
-// This is the whole platform surface of the input path: everything downstream
-// is the pure reducer in src/core/boardInput.ts.
-//
-// Vega splits input across channels and each has one job here.
-//
-// `useTVEventHandler` observes key events and carries the directions and OK. It
-// cannot claim an event, which is fine for those and fatal for Back: an
-// unclaimed Back closes the app, so a Back seen only here would cancel nothing
-// and quit instead.
-//
-// `useKeplerBackHandler` exists for exactly that. It claims Back through the
-// consuming channel and calls `exitApp()` itself when nothing handles it, so
-// returning false from the handler is how the app agrees to close rather than a
-// failure to react.
-//
-// Two channels that were tried and rejected: `UserInputManager.addListener`
-// aborts the JS thread on 0.24, and subscribing `useAddUserInputListenerCallback`
-// to every key delivers nothing while `useTVEventHandler` is also mounted.
 import {
   useCallback,
   useContext,
@@ -25,30 +5,9 @@ import {
   useLayoutEffect,
   useRef,
 } from 'react';
-import {
-  useTVEventHandler,
-  useKeplerBackHandler,
-  type HWEvent,
-} from '@amazon-devices/react-native-kepler';
+import { RemoteInputContext, type RemoteEvent } from './remoteInput';
 import type { BoardKey } from '../../src/core/boardInput';
 import { ActivityContext } from './activity';
-
-// OK arrives under three names, and all of them mean the same to the board:
-// `select` from a physical remote, as Amazon documents it; `enter` from the
-// Virtual Device's keyboard; and `kpenter` from the Virtual Device's on-screen
-// remote, whose skin binds OK to the keypad Enter key (KEY_KPENTER). The last
-// one was missed until the owner pressed OK on that remote and nothing happened.
-// Back is absent on purpose: it arrives on the other channel.
-const KEYS: Readonly<Record<string, BoardKey>> = {
-  up: 'up',
-  down: 'down',
-  left: 'left',
-  right: 'right',
-  select: 'select',
-  enter: 'select',
-  kpenter: 'select',
-  menu: 'menu',
-};
 
 // Directions repeat while the button is held, which is how a cursor should walk
 // a board. Select must not, or one press of OK would play several actions.
@@ -58,11 +17,6 @@ const REPEATABLE: ReadonlySet<BoardKey> = new Set([
   'left',
   'right',
 ]);
-
-// eventKeyAction is 0 when the button goes down and on every repeat while it is
-// held, and 1 once when it is released.
-const DOWN = 0;
-const UP = 1;
 
 export type RemoteInputOptions = {
   // Whether the app handled Back. Returning false lets the system do what Back
@@ -84,6 +38,8 @@ export function useRemoteInput(
   options: RemoteInputOptions = {},
 ): void {
   const activity = useContext(ActivityContext);
+  const remote = useContext(RemoteInputContext);
+  if (!remote) throw new Error('Remote input requires a platform provider');
   // Reading the handlers through refs keeps a new callback identity on every
   // render from resubscribing mid-press. The refs are updated once a render has
   // been committed, not while it runs: a render can be thrown away, and a key
@@ -116,63 +72,55 @@ export function useRemoteInput(
     [activity, reset],
   );
 
-  useTVEventHandler(
-    useCallback(
-      (event: HWEvent) => {
-        const key = KEYS[String(event.eventType)];
-        if (!key) return;
-        if (REPEATABLE.has(key)) {
-          // Scope/focus changes are not physical releases. Keep tracking these
-          // events while inactive so a continuing hold cannot become a new press.
-          if (event.eventKeyAction === UP) held.current.delete(key);
-          if (event.eventKeyAction !== DOWN) return;
-          const repeat = held.current.has(key);
-          held.current.add(key);
-          if (activity.isActive()) handler.current(key, repeat);
-          return;
-        }
-        if (key === 'select') {
-          // Arm once on the physical down, and confirm on release. A canceled OK
-          // must not re-arm on a repeat after a scope or lifecycle change.
-          if (event.eventKeyAction === DOWN) {
-            const repeat = held.current.has(key);
-            held.current.add(key);
-            if (!activity.isActive() || repeat) return;
-            selectHeld.current = true;
-            press.current?.(true);
-            return;
-          }
-          if (event.eventKeyAction !== UP) return;
-          held.current.delete(key);
-          if (!activity.isActive() || !selectHeld.current) return;
-          selectHeld.current = false;
-          press.current?.(false);
-        }
-        if (!activity.isActive()) return;
-        if (event.eventKeyAction === UP) handler.current(key, false);
-      },
-      [activity],
-    ),
-  );
-
-  const backHandler = useKeplerBackHandler();
   useEffect(() => {
-    const subscription = backHandler.addEventListener(
-      'hardwareBackPress',
-      () => {
+    const confirmSelect = (phase: RemoteEvent['phase']): boolean => {
+      // Arm once on the physical down. A canceled OK must not re-arm on a
+      // repeat after a scope or lifecycle change; only release confirms it.
+      if (phase === 'down') {
+        const repeat = held.current.has('select');
+        held.current.add('select');
+        if (!activity.isActive() || repeat) return false;
+        selectHeld.current = true;
+        press.current?.(true);
+        return false;
+      }
+      held.current.delete('select');
+      if (!activity.isActive() || !selectHeld.current) return false;
+      selectHeld.current = false;
+      press.current?.(false);
+      return true;
+    };
+    return remote.subscribe(({ key, phase }) => {
+      if (REPEATABLE.has(key)) {
+        // Scope/focus changes are not physical releases. Keep tracking these
+        // events while inactive so a continuing hold cannot become a new press.
+        if (phase === 'up') held.current.delete(key);
+        if (phase !== 'down') return;
+        const repeat = held.current.has(key);
+        held.current.add(key);
+        if (activity.isActive()) handler.current(key, repeat);
+        return;
+      }
+      if (key === 'select' && !confirmSelect(phase)) return;
+      if (!activity.isActive()) return;
+      if (phase === 'up') handler.current(key, false);
+    });
+  }, [activity, remote]);
+
+  useEffect(
+    () =>
+      remote.subscribeBack(() => {
         // Behind an overlay such as Alexa's the game ignores Back like any
         // other key. Leaving it unclaimed would not ignore it: it would close
         // the app while another surface owns the remote.
         if (!activity.isActive()) return true;
-        // No handler means the screen has nowhere to go back to, and the app
-        // should close.
+        // Without a custom Back policy, deliver Back to the screen reducer.
         if (!back.current) {
           handler.current('back', false);
           return true;
         }
         return back.current();
-      },
-    );
-    return () => subscription.remove();
-  }, [backHandler, activity]);
+      }),
+    [remote, activity],
+  );
 }

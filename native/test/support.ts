@@ -6,6 +6,8 @@ import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 import {
   listenerCount,
+  subscribeTVEvents,
+  subscribeBackEvents,
   press,
   pressBack,
   resetPlatform,
@@ -18,6 +20,24 @@ import type { KeyValueStore } from '../src/mmkvStore';
 import type { Music } from '../src/music';
 import type { ScreenOptions } from '../src/screen';
 import type { Sounds } from '../src/sound';
+
+import { RemoteInputContext, type RemoteInput } from '../src/remoteInput';
+import { vegaRemoteEvent } from '../src/vegaRemote';
+
+export const testRemoteInput: RemoteInput = {
+  subscribe: (listener) =>
+    subscribeTVEvents((event) => {
+      const normalized = vegaRemoteEvent(event);
+      if (normalized) listener(normalized);
+    }),
+  subscribeBack: subscribeBackEvents,
+};
+const withRemote = (element: React.ReactElement) =>
+  React.createElement(
+    RemoteInputContext.Provider,
+    { value: testRemoteInput },
+    element,
+  );
 
 export type Instance = renderer.ReactTestInstance;
 export type Style = Record<string, unknown>;
@@ -124,8 +144,10 @@ export const mount = (
   unmount();
   let tree!: renderer.ReactTestRenderer;
   act(() => {
-    tree = renderer.create(element);
+    tree = renderer.create(withRemote(element));
   });
+  const update = tree.update.bind(tree);
+  tree.update = (next) => update(withRemote(next));
   mounted = tree;
   return tree;
 };

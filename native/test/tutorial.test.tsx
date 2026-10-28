@@ -189,16 +189,14 @@ test('playing the tutorial changes neither the saved game nor the record', () =>
 test('the tutorial takes the remote, so a press is not handled twice', () => {
   reset();
   const { root } = launch();
-  // Trees from earlier tests stay mounted, so count the change rather than the
-  // total.
+  // The platform bridge stays mounted while screens subscribe internally.
   const before = listenerCount();
 
   send('down', 'down', 'enter');
   assert.match(text(root), TUTORIAL_OPEN);
-  // Both screens are mounted and both are listening, because a hook cannot be
-  // conditional. The game screen must ignore keys, or every press would move
-  // the cursor twice and start games behind the lesson.
-  assert.equal(listenerCount(), before + 1);
+  // Entering a lesson must not add a second native bridge. The game screen
+  // still ignores keys while the tutorial owns navigation.
+  assert.equal(listenerCount(), before);
 
   send('right');
   assert.match(text(root), TUTORIAL_OPEN);
