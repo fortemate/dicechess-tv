@@ -12,7 +12,7 @@ view boxes and the size-based piece memoization are unchanged.
   use this Babel configuration. Native TypeScript paths point to the installed
   Vega SVG package for type checking.
 - Browser bench: Vite and TypeScript map the standard import to the existing DOM
-  SVG shim. Its positioning and drawing behavior are unchanged.
+  SVG shim. The shim implementation is unchanged.
 - Node tests: the test loader maps the standard import to the SVG host-element
   stub. Shared artwork can be bundled without importing a Vega backend.
 
