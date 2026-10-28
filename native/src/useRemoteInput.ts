@@ -72,42 +72,40 @@ export function useRemoteInput(
     [activity, reset],
   );
 
-  useEffect(
-    () =>
-      remote.subscribe((event: RemoteEvent) => {
-        const { key } = event;
-        if (REPEATABLE.has(key)) {
-          // Scope/focus changes are not physical releases. Keep tracking these
-          // events while inactive so a continuing hold cannot become a new press.
-          if (event.phase === 'up') held.current.delete(key);
-          if (event.phase !== 'down') return;
-          const repeat = held.current.has(key);
-          held.current.add(key);
-          if (activity.isActive()) handler.current(key, repeat);
-          return;
-        }
-        if (key === 'select') {
-          // Arm once on the physical down, and confirm on release. A canceled OK
-          // must not re-arm on a repeat after a scope or lifecycle change.
-          if (event.phase === 'down') {
-            const repeat = held.current.has(key);
-            held.current.add(key);
-            if (!activity.isActive() || repeat) return;
-            selectHeld.current = true;
-            press.current?.(true);
-            return;
-          }
-          if (event.phase !== 'up') return;
-          held.current.delete(key);
-          if (!activity.isActive() || !selectHeld.current) return;
-          selectHeld.current = false;
-          press.current?.(false);
-        }
-        if (!activity.isActive()) return;
-        if (event.phase === 'up') handler.current(key, false);
-      }),
-    [activity, remote],
-  );
+  useEffect(() => {
+    const confirmSelect = (phase: RemoteEvent['phase']): boolean => {
+      // Arm once on the physical down. A canceled OK must not re-arm on a
+      // repeat after a scope or lifecycle change; only release confirms it.
+      if (phase === 'down') {
+        const repeat = held.current.has('select');
+        held.current.add('select');
+        if (!activity.isActive() || repeat) return false;
+        selectHeld.current = true;
+        press.current?.(true);
+        return false;
+      }
+      held.current.delete('select');
+      if (!activity.isActive() || !selectHeld.current) return false;
+      selectHeld.current = false;
+      press.current?.(false);
+      return true;
+    };
+    return remote.subscribe(({ key, phase }) => {
+      if (REPEATABLE.has(key)) {
+        // Scope/focus changes are not physical releases. Keep tracking these
+        // events while inactive so a continuing hold cannot become a new press.
+        if (phase === 'up') held.current.delete(key);
+        if (phase !== 'down') return;
+        const repeat = held.current.has(key);
+        held.current.add(key);
+        if (activity.isActive()) handler.current(key, repeat);
+        return;
+      }
+      if (key === 'select' && !confirmSelect(phase)) return;
+      if (!activity.isActive()) return;
+      if (phase === 'up') handler.current(key, false);
+    });
+  }, [activity, remote]);
 
   useEffect(
     () =>

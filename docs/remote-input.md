@@ -42,9 +42,12 @@ lifecycle and input tests exercise the Vega wrapper and isolated screens.
 
 On October 28, 2026, `mise run check` passed: core 337 tests, native 730,
 browser bench 13, type checks, lint, formatting, Metro bundle and browser build.
+After the input-handler cleanup, native checks, lint and all 731 tests passed
+again, as did Metro and browser validation. The device checks below were repeated
+with the rebuilt package.
 `mise run build` produced the installable Vega packages with SDK 0.24.12044,
 build 59. The installed aarch64 package SHA-256 was
-`e7da31bdc406d6491e6def33a33281938cf1497b2b7ac5dbfcb1939bbeb16653`.
+`5a0226538b3c5f52d5f12fffe9e7751859e32535eed9ac8cc13e0d50abb6c30b`.
 
 On the aarch64 Vega Virtual Device, installed over the existing app:
 

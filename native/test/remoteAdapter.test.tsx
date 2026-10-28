@@ -86,6 +86,20 @@ test('channel subscriptions are independent, removable and ordered for Back', ()
   assert.equal(channel.back(), false);
 });
 
+test('a subscriber added during dispatch starts with the next event', () => {
+  const channel = createRemoteChannel();
+  const events: string[] = [];
+  const remove = channel.input.subscribe(() => {
+    events.push('first');
+    remove();
+    channel.input.subscribe(() => events.push('next'));
+  });
+  channel.emit({ key: 'select', phase: 'up' });
+  assert.deepEqual(events, ['first']);
+  channel.emit({ key: 'right', phase: 'down' });
+  assert.deepEqual(events, ['first', 'next']);
+});
+
 test('shared input accepts an independent platform and updates callbacks without resubscribing', () => {
   const channel = createRemoteChannel();
   const events: string[] = [];

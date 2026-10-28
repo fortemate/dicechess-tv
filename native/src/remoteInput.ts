@@ -39,7 +39,9 @@ export function createRemoteChannel() {
   return {
     input,
     emit(event: RemoteEvent) {
-      for (const entry of [...listeners]) entry.call(event);
+      // A screen mounted during dispatch starts with the next event.
+      const snapshot = [...listeners];
+      for (const entry of snapshot) entry.call(event);
     },
     back() {
       // Newest mounted screen gets first refusal, as with native Back handlers.
