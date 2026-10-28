@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { MMKV, reset } from './stubs/react-native-mmkv.mjs';
 import { MmkvSnapshotStore } from '../src/mmkvStore';
+import { KeyValueSnapshotStore } from '../src/keyValueStore';
 import {
   newGame,
   rollGame,
@@ -10,7 +11,13 @@ import {
   type Game,
 } from '../../src/core/game';
 import { decodeLedger, type Ledger } from '../../src/core/ledger';
-import { fakeTimers, launch, send, type Launched } from './support';
+import {
+  fakeTimers,
+  launch,
+  memoryStore,
+  send,
+  type Launched,
+} from './support';
 
 // Each launch is a fresh process against the same storage, which is what a
 // relaunch is. The app's sounds, music and voices run on the test's clock.
@@ -186,4 +193,54 @@ test('a damaged snapshot never replaces a good one', async () => {
     saver.save({ ...good, phase: 'nonsense' } as unknown as Game),
   );
   assert.deepEqual(store().read()!.moves, ['b1c3']);
+});
+
+test('snapshot promises read and write before returning to the caller', async () => {
+  const backing = memoryStore();
+  const saver = new KeyValueSnapshotStore<Game>({
+    key: 'game',
+    decode: decodeGame,
+    store: backing,
+  });
+  const empty = saver.load();
+  const game = rollGame(newGame('hotseat', 'immediate'), [5, 4, 2]);
+  const saved = saver.save(game);
+  // No await: writes must already be committed if the app is killed now.
+  assert.deepEqual(decodeGame(backing.getString('game')!), game);
+  const loaded = saver.load();
+  backing.delete('game');
+  // The pending result is the value at call time, not at the next microtask.
+  assert.equal(await empty, null);
+  assert.equal(await saved, undefined);
+  assert.deepEqual(await loaded, game);
+});
+
+test('snapshot promises reject storage and decode failures without throwing at the call site', async () => {
+  const failure = new Error('Storage unavailable');
+  const broken = new KeyValueSnapshotStore<Game>({
+    key: 'game',
+    decode: decodeGame,
+    store: {
+      getString() {
+        throw failure;
+      },
+      set() {
+        throw failure;
+      },
+      delete() {},
+    },
+  });
+  // Call directly: a synchronous throw fails the test before assert.rejects.
+  await assert.rejects(broken.load(), (error) => error === failure);
+  await assert.rejects(
+    broken.save(newGame('hotseat', 'broken')),
+    (error) => error === failure,
+  );
+
+  const damaged = new KeyValueSnapshotStore<Game>({
+    key: 'game',
+    decode: decodeGame,
+    store: memoryStore({ game: 'invalid JSON' }),
+  });
+  await assert.rejects(damaged.load(), SyntaxError);
 });

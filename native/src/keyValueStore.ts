@@ -25,8 +25,9 @@ export class KeyValueSnapshotStore<T> implements SnapshotStore<T> {
     this.decode = config.decode;
   }
 
-  async load(): Promise<T | null> {
-    return this.read();
+  load(): Promise<T | null> {
+    // The executor runs now and turns read/decode errors into rejections.
+    return new Promise((resolve) => resolve(this.read()));
   }
 
   // The synchronous read, for callers that must have the saved game before the
@@ -36,9 +37,13 @@ export class KeyValueSnapshotStore<T> implements SnapshotStore<T> {
     return raw === undefined ? null : this.decode(raw);
   }
 
-  async save(snapshot: T): Promise<void> {
-    // Validate before writing: a damaged snapshot must not replace a good one.
-    this.store.set(this.key, encodeSnapshot(snapshot, this.decode));
+  save(snapshot: T): Promise<void> {
+    // Write before returning, while delivering failures through the Promise.
+    return new Promise((resolve) => {
+      // Validate before writing: a damaged snapshot must not replace a good one.
+      this.store.set(this.key, encodeSnapshot(snapshot, this.decode));
+      resolve();
+    });
   }
 
   clear(): void {
