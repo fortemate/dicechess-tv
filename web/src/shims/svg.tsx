@@ -1,4 +1,4 @@
-// @amazon-devices/react-native-svg in the browser. The pieces and faces use
+// The shared react-native-svg import in the browser. The pieces and faces use
 // seven elements with plain attributes, which the DOM draws as they are, so
 // each component is the SVG element of the same name.
 //

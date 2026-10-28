@@ -42,7 +42,7 @@ export default defineConfig({
         replacement: shim('mmkv.ts'),
       },
       {
-        find: '@amazon-devices/react-native-svg',
+        find: 'react-native-svg',
         replacement: shim('svg.tsx'),
       },
       {

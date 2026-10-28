@@ -30,10 +30,8 @@ console.error = (...args) => {
 
 const STUBS = {
   'react-native': new URL('./stubs/react-native.mjs', import.meta.url).href,
-  '@amazon-devices/react-native-svg': new URL(
-    './stubs/react-native-svg.mjs',
-    import.meta.url,
-  ).href,
+  'react-native-svg': new URL('./stubs/react-native-svg.mjs', import.meta.url)
+    .href,
   '@amazon-devices/react-native-kepler': new URL(
     './stubs/react-native-kepler.mjs',
     import.meta.url,
