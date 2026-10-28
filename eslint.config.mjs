@@ -17,6 +17,10 @@ export default tseslint.config(
       'web/dist/',
       'dist/',
       'dist-vega/',
+      'android-probe/android/',
+      'android-probe/assets/',
+      'android-probe/build/',
+      'android-probe/.expo/',
     ],
   },
   js.configs.recommended,
@@ -30,8 +34,16 @@ export default tseslint.config(
       'site/scripts/**',
       'web/*.ts',
       'web/test/**',
+      'android-probe/scripts/**',
+      'android-probe/test/**',
+      'android-probe/*.cjs',
     ],
     languageOptions: { globals: globals.node },
+  },
+  {
+    files: ['android-probe/*.cjs', 'android-probe/src/**'],
+    // Metro requires static require() calls for packaged assets.
+    rules: { '@typescript-eslint/no-require-imports': 'off' },
   },
   {
     files: ['web/src/**'],

@@ -28,3 +28,9 @@ native/generated/
 # (#172).
 site/public/voices/
 site/src/voices/audition.json
+
+# Generated Android prototype projects and bundled assets.
+android-probe/android/
+android-probe/assets/
+android-probe/build/
+android-probe/.expo/
