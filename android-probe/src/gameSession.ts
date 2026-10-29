@@ -1,4 +1,4 @@
-import { decodeGame, newGame, type Game } from '../../src/core/game';
+import { decodeGame, isBotMode, newGame, type Game } from '../../src/core/game';
 import { encodeSnapshot } from '../../src/core/snapshotStore';
 import {
   initialState,
@@ -10,7 +10,7 @@ import {
 } from '../../native/src/screen';
 import type { KeyValueStore } from '../../native/src/keyValueStore';
 
-export type ProbeMode = 'hotseat' | 'random';
+export type ProbeMode = 'hotseat' | 'bot';
 export const GAME_KEY = 'game.v1';
 export type GameAction = Extract<
   ScreenAction,
@@ -41,24 +41,6 @@ export function gameStep(
   if (action.kind === 'key') {
     const { key } = action;
     const items = gameMenu(state.game);
-    // Keep this first bot slice on Rolly/White; reuse shared confirmation.
-    if (
-      state.game.mode !== 'hotseat' &&
-      overlay.kind === 'menu' &&
-      key === 'select' &&
-      items.find((item) => item.index === overlay.index)?.id === 'new-game'
-    )
-      return {
-        ...state,
-        overlay: {
-          kind: 'confirm',
-          action: 'replace',
-          index: 0,
-          mode: state.game.mode,
-          colour: 'w',
-          from: 'menu',
-        },
-      };
     if (
       overlay.kind === 'menu' &&
       ['up', 'down', 'left', 'right'].includes(key)
@@ -106,21 +88,34 @@ export function createGameSession(
   const raw = store.getString(GAME_KEY);
   const decode = (value: string) => {
     const game = decodeGame(value);
-    if (game.mode !== mode || (mode !== 'hotseat' && game.human !== 'w'))
-      throw new Error('This save belongs to a different game mode or side');
+    if (mode === 'hotseat' ? game.mode !== 'hotseat' : !isBotMode(game.mode))
+      throw new Error('This save belongs to a different game mode');
     return game;
   };
   const restored = raw === undefined ? null : decode(raw);
+  const choosing = mode === 'bot' && !restored;
+  let saved = Boolean(restored);
   let current: ScreenState = {
-    ...initialState(options, restored ?? newGame(mode, options.newId())),
-    overlay: { kind: 'none' },
-    resumable: true,
+    ...initialState(
+      options,
+      restored ??
+        newGame(mode === 'bot' ? 'random' : 'hotseat', options.newId()),
+      { playAs: 'ask' },
+    ),
+    overlay: choosing
+      ? { kind: 'opponent', index: 0, from: 'home' }
+      : { kind: 'none' },
+    resumable: !choosing,
   };
-  const save = (game: Game) =>
+  const save = (game: Game) => {
     store.set(GAME_KEY, encodeSnapshot(game, decode));
-  if (!restored) save(current.game);
+    saved = true;
+  };
+  // A first bot selection is only a preview until opponent and side are chosen.
+  if (!restored && !choosing) save(current.game);
   return {
     getState: () => current,
+    hasSave: () => saved,
     dispatch(action: GameAction) {
       const next = gameStep(current, action, options);
       if (next.game !== current.game) save(next.game);

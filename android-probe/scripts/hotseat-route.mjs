@@ -3,7 +3,7 @@
 import { boardInput } from '../../src/core/boardInput.ts';
 let raw = '';
 for await (const chunk of process.stdin) raw += chunk;
-const { focus, view, target } = JSON.parse(raw);
+const { focus, view, game, target } = JSON.parse(raw);
 const queue = [{ focus, keys: [] }];
 const seen = new Set();
 while (queue.length) {
@@ -20,7 +20,7 @@ while (queue.length) {
       next.focus,
       key,
       view.legal,
-      false,
+      game.human === 'b',
       view.dfen.split(' ')[0],
     );
     if (moved.action.type === 'none')

@@ -47,7 +47,7 @@ const actions = [
   'Seek + parallel audio',
   'Play tutorial voice',
   'SVG artwork gallery',
-  'Play against Rolly',
+  'Play against computer',
   'Play with a friend',
 ];
 
@@ -327,7 +327,7 @@ export default function App() {
       if (selected === 9 || selected === 10) {
         cancel('play game');
         gameOpen.current = true;
-        setPlaying(selected === 9 ? 'random' : 'hotseat');
+        setPlaying(selected === 9 ? 'bot' : 'hotseat');
         return;
       }
       await play(selected === 6, selected === 7);

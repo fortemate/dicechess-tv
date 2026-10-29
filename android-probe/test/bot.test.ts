@@ -13,7 +13,7 @@ after(() => rmSync(dir, { recursive: true, force: true }));
 const bundled = buildSync({
   stdin: {
     contents:
-      "export * from './src/gameSession'; export * from './src/botDriver'; export {createActivity} from '../native/src/activity';",
+      "export {flipped} from '../native/src/screen'; export * from './src/gameSession'; export * from './src/botDriver'; export {createActivity} from '../native/src/activity';",
     resolveDir: resolve('.'),
   },
   bundle: true,
@@ -26,11 +26,13 @@ const bundled = buildSync({
 });
 const file = join(dir, 'bot.mjs');
 writeFileSync(file, bundled.outputFiles[0].text);
-const { createGameSession, createBotDriver, createActivity } = (await import(
-  pathToFileURL(file).href
-)) as typeof import('../src/gameSession.ts') &
-  typeof import('../src/botDriver.ts') &
-  typeof import('../../native/src/activity.ts');
+const { createGameSession, createBotDriver, createActivity, flipped } =
+  (await import(
+    pathToFileURL(file).href
+  )) as typeof import('../src/gameSession.ts') &
+    typeof import('../src/botDriver.ts') &
+    typeof import('../../native/src/activity.ts') &
+    Pick<typeof import('../../native/src/screen.ts'), 'flipped'>;
 let ids = 0;
 const options: ScreenOptions = {
   roll: () => [1, 1, 1],
@@ -67,7 +69,7 @@ const tick = async () => {
   for (let i = 0; i < 6; i++) await Promise.resolve();
 };
 function harness(store = memory(JSON.stringify(initialBot()))) {
-  const session = createGameSession(store, options, 'random');
+  const session = createGameSession(store, options, 'bot');
   const activity = createActivity(true);
   const jobs: { run: () => void; canceled: boolean }[] = [];
   const requests: {
@@ -117,33 +119,191 @@ function harness(store = memory(JSON.stringify(initialBot()))) {
   };
 }
 
-test('bot session keeps White, rejects wrong-mode saves, and confirms a same-opponent rematch', () => {
-  const session = createGameSession(memory(), options, 'random');
-  assert.equal(session.getState().game.human, 'w');
-  for (const key of ['back', 'down', 'down', 'select'] as const)
-    session.dispatch({ kind: 'key', key });
-  assert.equal(session.getState().overlay.kind, 'confirm');
+const keys = (
+  session: ReturnType<typeof createGameSession>,
+  ...input: ('up' | 'down' | 'left' | 'right' | 'select' | 'back')[]
+) => {
+  for (const key of input) session.dispatch({ kind: 'key', key });
+};
+
+test('first bot chooser can be canceled without saving a placeholder game', () => {
+  const store = memory();
+  const session = createGameSession(store, options, 'bot');
+  assert.equal(session.hasSave(), false);
+  assert.equal(session.getState().overlay.kind, 'opponent');
+  keys(session, 'down', 'select');
+  assert.deepEqual(session.getState().overlay, {
+    kind: 'colour',
+    index: 0,
+    mode: 'greedy',
+    from: 'home',
+  });
+  keys(session, 'back');
+  assert.deepEqual(session.getState().overlay, {
+    kind: 'opponent',
+    index: 1,
+    from: 'home',
+  });
+  keys(session, 'back');
+  assert.equal(session.getState().overlay.kind, 'home');
+  assert.equal(store.getString(), undefined);
+});
+
+test('all opponents and side choices start through the shared menus and restore exactly', () => {
+  for (const [index, mode] of ['random', 'greedy', 'aggressive'].entries()) {
+    for (const [choice, colour] of ['random', 'w', 'b'].entries()) {
+      for (const randomSide of ['w', 'b'] as const) {
+        let draws = 0;
+        const opts = {
+          ...options,
+          side: () => {
+            draws++;
+            return randomSide;
+          },
+        };
+        const store = memory();
+        const session = createGameSession(store, opts, 'bot');
+        for (let i = 0; i < index; i++) keys(session, 'down');
+        keys(session, 'select');
+        for (let i = 0; i < choice; i++) keys(session, 'down');
+        assert.equal(store.getString(), undefined);
+        keys(session, 'select');
+        const { game, overlay } = session.getState();
+        assert.equal(game.mode, mode);
+        assert.equal(game.colour, colour);
+        assert.equal(game.human, colour === 'random' ? randomSide : colour);
+        assert.equal(flipped(game), game.human === 'b');
+        assert.equal(overlay.kind, 'none');
+        assert.equal(session.hasSave(), true);
+        assert.deepEqual(JSON.parse(store.getString()!), game);
+        assert.deepEqual(
+          createGameSession(store, opts, 'bot').getState().game,
+          game,
+        );
+        assert.equal(draws, colour === 'random' ? 1 : 0);
+      }
+    }
+  }
+});
+
+test('replacement draws a random side only after confirmation; cancel preserves save and opponent', () => {
+  let draws = 0;
+  const store = memory(JSON.stringify(newGame('random', 'legacy')));
+  const session = createGameSession(
+    store,
+    {
+      ...options,
+      side: () => {
+        draws++;
+        return 'b';
+      },
+    },
+    'bot',
+  );
   const old = session.getState().game;
-  session.dispatch({ kind: 'key', key: 'select' });
+  assert.equal(session.getState().overlay.kind, 'none');
+  keys(session, 'back', 'down', 'down', 'select', 'down', 'select', 'select');
+  assert.equal(session.getState().overlay.kind, 'confirm');
+  assert.equal(draws, 0);
+  keys(session, 'select'); // Cancel first.
   assert.equal(session.getState().game, old);
-  for (const key of ['down', 'down', 'select', 'down', 'select'] as const)
-    session.dispatch({ kind: 'key', key });
+  assert.deepEqual(JSON.parse(store.getString()!), old);
+  keys(
+    session,
+    'down',
+    'down',
+    'select',
+    'down',
+    'select',
+    'select',
+    'down',
+    'select',
+  );
+  assert.equal(session.getState().game.mode, 'greedy');
+  assert.equal(session.getState().game.human, 'b');
+  assert.equal(draws, 1);
   assert.notEqual(session.getState().game.id, old.id);
-  assert.equal(session.getState().game.mode, 'random');
-  assert.equal(session.getState().game.human, 'w');
-  for (const game of [
-    newGame('hotseat', 'wrong'),
-    newGame('random', 'black', undefined, 'b'),
-  ])
-    assert.throws(
-      () => createGameSession(memory(JSON.stringify(game)), options, 'random'),
-      /different/,
+});
+
+test('bot and hotseat saves remain separate; a failed first save leaves the chooser open', () => {
+  assert.throws(
+    () =>
+      createGameSession(
+        memory(JSON.stringify(newGame('hotseat', 'wrong'))),
+        options,
+        'bot',
+      ),
+    /different/,
+  );
+  assert.throws(
+    () =>
+      createGameSession(
+        memory(JSON.stringify(newGame('greedy', 'wrong'))),
+        options,
+      ),
+    /different/,
+  );
+  const store = memory();
+  store.set = () => {
+    throw new Error('disk full');
+  };
+  const session = createGameSession(store, options, 'bot');
+  keys(session, 'select');
+  const before = session.getState();
+  assert.throws(() => keys(session, 'select'), /disk full/);
+  assert.equal(session.getState(), before);
+  assert.equal(session.hasSave(), false);
+});
+
+test('each opponent plays White first for a Black player and hands over the saved turn', async () => {
+  for (const mode of ['random', 'greedy', 'aggressive'] as const) {
+    const h = harness(
+      memory(JSON.stringify(newGame(mode, 'black', undefined, 'b'))),
     );
+    h.driver.update(h.session.getState());
+    h.run();
+    h.run(); // Roll White's dice after the presentation timer.
+    assert.equal(viewGame(h.session.getState().game).side, 'w');
+    h.driver.update(h.session.getState());
+    await tick();
+    assert.equal(h.requests.length, 1);
+    assert.equal(h.requests[0].game.mode, mode);
+    h.requests[0].resolve(botReply(h.requests[0].game));
+    await tick();
+    for (let step = 0; step < 8; step++) {
+      h.run();
+      await tick();
+      h.run();
+      h.driver.update(h.session.getState());
+      await tick();
+    }
+    const state = h.session.getState();
+    assert.equal(viewGame(state.game).side, 'b');
+    assert.equal(state.game.phase, 'roll');
+    assert.equal(flipped(state.game), true);
+    assert.deepEqual(JSON.parse(h.store.getString()!), state.game);
+
+    assert.deepEqual(h.errors, []);
+    h.driver.dispose();
+  }
+});
+
+test('Black remote navigation follows the flipped board', () => {
+  const game = newGame('greedy', 'black-navigation', initialBot().start, 'b');
+  const session = createGameSession(
+    memory(JSON.stringify(game)),
+    options,
+    'bot',
+  );
+  keys(session, 'select');
+  assert.equal(session.getState().focus.cursor, 'e7');
+  keys(session, 'right');
+  assert.equal(session.getState().focus.cursor, 'd7');
 });
 
 test('bot reply is shown one saved move at a time; process restore searches only the remainder', async () => {
   const store = memory(JSON.stringify(initialBot()));
-  const session = createGameSession(store, options, 'random');
+  const session = createGameSession(store, options, 'bot');
   const before = session.getState().game;
   assert.throws(() => session.dispatch({ kind: 'bot' }), /asynchronous/);
   assert.equal(session.getState().game, before);
@@ -217,10 +377,24 @@ test('synchronous menu/replacement before React cleanup and unmount discard late
     h.run();
     h.session.dispatch({ kind: 'key', key: 'back' });
     if (action === 'replace')
-      for (const key of ['down', 'down', 'select', 'down', 'select'] as const)
+      for (const key of [
+        'down',
+        'down',
+        'select',
+        'down',
+        'select',
+        'down',
+        'select',
+        'down',
+        'select',
+      ] as const)
         h.session.dispatch({ kind: 'key', key });
     if (action === 'dispose') h.driver.dispose();
     const current = h.session.getState().game;
+    if (action === 'replace') {
+      assert.notEqual(current.id, before.id);
+      assert.equal(current.mode, 'greedy');
+    }
     h.requests[0].resolve(botReply(before));
     await tick();
     h.run();
@@ -246,7 +420,7 @@ test('worker failure leaves the saved turn unchanged and never falls back to an 
 
 test('failed bot-move persistence cannot publish the move or spend a die', () => {
   const store = memory(JSON.stringify(initialBot()));
-  const session = createGameSession(store, options, 'random');
+  const session = createGameSession(store, options, 'bot');
   const before = session.getState();
   store.set = () => {
     throw new Error('disk full');
