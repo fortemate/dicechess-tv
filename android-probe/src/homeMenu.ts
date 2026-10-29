@@ -18,7 +18,7 @@ export type HomeItem = {
   id: string;
   label: string;
   description: string;
-  action: GameRoute | { kind: 'rules' };
+  action: GameRoute | { kind: 'rules' | 'tutorial' };
 };
 export const gameMode = (game: Game): ProbeMode =>
   game.mode === 'hotseat' ? 'hotseat' : 'bot';
@@ -30,8 +30,17 @@ const summary = (game: Game) =>
 // Vega owns the menu IDs, labels and order. Unsupported screens stay hidden.
 export function homeItems(game: Game | null, unreadable = false): HomeItem[] {
   return sharedHomeItems(unreadable || Boolean(game && game.phase !== 'ended'))
-    .filter(({ id }) => ['resume', 'hotseat', 'computer', 'rules'].includes(id))
+    .filter(({ id }) =>
+      ['resume', 'hotseat', 'computer', 'learn', 'rules'].includes(id),
+    )
     .map(({ id, label }): HomeItem => {
+      if (id === 'learn')
+        return {
+          id,
+          label,
+          description: 'Learn the game with guided practice.',
+          action: { kind: 'tutorial' },
+        };
       if (id === 'rules')
         return {
           id,

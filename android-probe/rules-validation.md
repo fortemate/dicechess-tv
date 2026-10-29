@@ -1,5 +1,9 @@
 # Android TV rules reference validation
 
+This records the build before Learn to play was enabled. See
+[tutorial-validation.md](tutorial-validation.md) for its integration. Use the
+matching revision to reproduce this APK; current scripts follow the current menu.
+
 On October 29, 2026, Rules reference was enabled in the Android home and game
 menus. The implementation renders the existing Vega `RulesScreen`, with the same
 nine canonical topics, text, layout and navigation reducer. The underlying Vega
