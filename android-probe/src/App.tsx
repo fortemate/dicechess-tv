@@ -28,7 +28,8 @@ import { type BotWorker } from '../../native/src/botClient';
 import { createWorker } from './worker';
 import { createStore } from './store';
 import { SvgGallery } from './SvgGallery';
-import { HotseatScreen } from './HotseatScreen';
+import { GameScreen } from './GameScreen';
+import type { ProbeMode } from './gameSession';
 
 const store = createStore('dicechess-android-probe');
 const SAVE = 'snapshot';
@@ -46,6 +47,7 @@ const actions = [
   'Seek + parallel audio',
   'Play tutorial voice',
   'SVG artwork gallery',
+  'Play against Rolly',
   'Play with a friend',
 ];
 
@@ -53,11 +55,11 @@ export default function App() {
   const [selected, setSelected] = useState(0);
   const [gallery, setGallery] = useState(false);
   const galleryOpen = useRef(false);
-  const [playing, setPlaying] = useState(false);
+  const [playing, setPlaying] = useState<ProbeMode | null>(null);
   const gameOpen = useRef(false);
   const closeGame = useCallback(() => {
     gameOpen.current = false;
-    setPlaying(false);
+    setPlaying(null);
   }, []);
   const [events, setEvents] = useState<string[]>([]);
   const [ticks, setTicks] = useState(0);
@@ -322,10 +324,10 @@ export default function App() {
         setGallery(true);
         return;
       }
-      if (selected === 9) {
-        cancel('hotseat game');
+      if (selected === 9 || selected === 10) {
+        cancel('play game');
         gameOpen.current = true;
-        setPlaying(true);
+        setPlaying(selected === 9 ? 'random' : 'hotseat');
         return;
       }
       await play(selected === 6, selected === 7);
@@ -333,7 +335,8 @@ export default function App() {
       log('action-fail', message(error));
     }
   };
-  if (playing) return <HotseatScreen activity={activity} onExit={closeGame} />;
+  if (playing)
+    return <GameScreen activity={activity} onExit={closeGame} mode={playing} />;
   if (gallery) return <SvgGallery activity={activity} />;
   return (
     <View style={styles.root}>
@@ -388,9 +391,9 @@ const styles = StyleSheet.create({
   columns: { flex: 1, flexDirection: 'row', gap: 22 },
   menu: { width: 300 },
   action: {
-    fontSize: 17,
+    fontSize: 16,
     color: '#ffffff',
-    padding: 4,
+    padding: 3,
     borderRadius: 6,
     marginBottom: 4,
   },

@@ -15,7 +15,7 @@ after(() => rmSync(directory, { recursive: true, force: true }));
 const bundle = buildSync({
   stdin: {
     contents:
-      "export * from './src/hotseat'; export * from './src/androidRemote';",
+      "export * from './src/gameSession'; export * from './src/androidRemote';",
     resolveDir: resolve('.'),
   },
   bundle: true,
@@ -25,16 +25,11 @@ const bundle = buildSync({
 });
 const path = join(directory, 'session.mjs');
 writeFileSync(path, bundle.outputFiles[0].text);
-const {
-  createHotseatSession,
-  hotseatMenu,
-  HOTSEAT_KEY,
-  androidDirection,
-  pulseKey,
-} = (await import(
-  pathToFileURL(path).href
-)) as typeof import('../src/hotseat.ts') &
-  typeof import('../src/androidRemote.ts');
+const { createGameSession, gameMenu, GAME_KEY, androidDirection, pulseKey } =
+  (await import(
+    pathToFileURL(path).href
+  )) as typeof import('../src/gameSession.ts') &
+    typeof import('../src/androidRemote.ts');
 const options = (roll = [1, 1, 1]): ScreenOptions => {
   let id = 0;
   return {
@@ -46,7 +41,7 @@ const options = (roll = [1, 1, 1]): ScreenOptions => {
 };
 function memory(raw?: string) {
   const values = new Map<string, string>();
-  if (raw !== undefined) values.set(HOTSEAT_KEY, raw);
+  if (raw !== undefined) values.set(GAME_KEY, raw);
   let writes = 0;
   return {
     values,
@@ -63,14 +58,12 @@ function memory(raw?: string) {
     },
   };
 }
-const key = (
-  session: ReturnType<typeof createHotseatSession>,
-  name: BoardKey,
-) => session.dispatch({ kind: 'key', key: name });
+const key = (session: ReturnType<typeof createGameSession>, name: BoardKey) =>
+  session.dispatch({ kind: 'key', key: name });
 
 test('a partial hotseat turn survives a new session exactly; focus changes do not write', () => {
   const store = memory();
-  const session = createHotseatSession(store, options());
+  const session = createGameSession(store, options());
   key(session, 'select'); // roll
   assert.equal(store.writes, 2);
   key(session, 'select'); // select a pawn
@@ -81,14 +74,14 @@ test('a partial hotseat turn survives a new session exactly; focus changes do no
   assert.equal(game.moves.length, 1);
   assert.equal(game.phase, 'move');
   assert.deepEqual(game.roll, [1, 1, 1]);
-  const restored = createHotseatSession(store, options());
+  const restored = createGameSession(store, options());
   assert.deepEqual(restored.getState().game, game);
   assert.equal(viewGame(restored.getState().game).remaining, 'PP');
   assert.equal(store.writes, 3);
 });
 
 test('three pawn actions hand off to Black through the shared reducer', () => {
-  const session = createHotseatSession(memory(), options());
+  const session = createGameSession(memory(), options());
   key(session, 'select');
   for (let i = 0; i < 3; i++) {
     key(session, 'select');
@@ -102,7 +95,7 @@ test('three pawn actions hand off to Black through the shared reducer', () => {
 });
 
 test('Back cancels a selected piece before opening the limited menu; replacement needs confirmation', () => {
-  const session = createHotseatSession(memory(), options());
+  const session = createGameSession(memory(), options());
   key(session, 'select');
   key(session, 'select');
   key(session, 'back');
@@ -110,7 +103,7 @@ test('Back cancels a selected piece before opening the limited menu; replacement
   assert.equal(session.getState().overlay.kind, 'none');
   key(session, 'back');
   assert.deepEqual(
-    hotseatMenu(session.getState().game).map((item) => item.id),
+    gameMenu(session.getState().game).map((item) => item.id),
     ['resume', 'resign', 'draw', 'new-game', 'main-menu'],
   );
   const saved = session.getState().game;
@@ -132,7 +125,7 @@ test('Back cancels a selected piece before opening the limited menu; replacement
 });
 
 test('empty rolls keep the shared OK guard and then pass the turn', () => {
-  const session = createHotseatSession(memory(), options([6, 6, 6]));
+  const session = createGameSession(memory(), options([6, 6, 6]));
   key(session, 'select');
   assert.equal(session.getState().guarded, true);
   const game = session.getState().game;
@@ -148,7 +141,7 @@ test('promotion and resignation use the shared game rules and confirmation', () 
     newGame('hotseat', 'promotion', '7k/P7/8/8/8/8/8/7K w - - 0 1'),
     [1, 1, 1],
   );
-  const session = createHotseatSession(memory(JSON.stringify(game)), options());
+  const session = createGameSession(memory(JSON.stringify(game)), options());
   key(session, 'select');
   key(session, 'select');
   assert.equal(session.getState().overlay.kind, 'promotion');
@@ -162,7 +155,7 @@ test('promotion and resignation use the shared game rules and confirmation', () 
   assert.equal(session.getState().game.result?.reason, 'resigned');
   key(session, 'select');
   assert.deepEqual(
-    hotseatMenu(session.getState().game).map((item) => item.id),
+    gameMenu(session.getState().game).map((item) => item.id),
     ['new-game', 'main-menu'],
   );
   key(session, 'down');
@@ -171,7 +164,7 @@ test('promotion and resignation use the shared game rules and confirmation', () 
 });
 
 test('canceling replacement after a result restores a visible menu choice', () => {
-  const session = createHotseatSession(memory(), options());
+  const session = createGameSession(memory(), options());
   key(session, 'back');
   key(session, 'down');
   key(session, 'down');
@@ -189,23 +182,23 @@ test('canceling replacement after a result restores a visible menu choice', () =
 test('corrupt and non-hotseat saves are preserved and reported', () => {
   for (const raw of ['broken', JSON.stringify(newGame('random', 'bot'))]) {
     const store = memory(raw);
-    assert.throws(() => createHotseatSession(store, options()));
-    assert.equal(store.getString(HOTSEAT_KEY), raw);
+    assert.throws(() => createGameSession(store, options()));
+    assert.equal(store.getString(GAME_KEY), raw);
     assert.equal(store.writes, 0);
   }
 });
 
 test('a storage failure cannot advance the visible game or overwrite its last snapshot', () => {
   const store = memory();
-  const session = createHotseatSession(store, options());
+  const session = createGameSession(store, options());
   const state = session.getState();
-  const saved = store.getString(HOTSEAT_KEY);
+  const saved = store.getString(GAME_KEY);
   store.set = () => {
     throw new Error('storage unavailable');
   };
   assert.throws(() => key(session, 'select'), /storage unavailable/);
   assert.equal(session.getState(), state);
-  assert.equal(store.getString(HOTSEAT_KEY), saved);
+  assert.equal(store.getString(GAME_KEY), saved);
 });
 
 test('androidDirection accepts completed direction releases and pulseKey emits select phases', () => {
