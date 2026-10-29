@@ -4,6 +4,8 @@ Run after installing the standalone APK. This clears the probe's saved data.
 It does not install, stop, or clear the Vega/product application.
 """
 import argparse
+import importlib.util
+import sys
 import json
 from pathlib import Path
 import subprocess
@@ -54,8 +56,17 @@ def key(code, times=1):
         time.sleep(0.12)
 
 
-def launch():
-    adb('shell', 'am', 'start', '-n', f'{package}/.MainActivity')
+sys.dont_write_bytecode = True
+spec = importlib.util.spec_from_file_location('remote', Path(__file__).with_name('hotseat-smoke.py'))
+remote = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(remote)
+
+
+def launch(diagnostics=False):
+    if diagnostics:
+        remote.open_diagnostics()
+    else:
+        adb('shell', 'am', 'start', '-n', f'{package}/.MainActivity')
 
 
 checks = []
@@ -63,7 +74,7 @@ try:
     adb('shell', 'am', 'force-stop', package)
     adb('shell', 'pm', 'clear', package)
     adb('logcat', '-c')
-    launch()
+    launch(diagnostics=True)
     ready = wait('ready')
     assert ready['tv'], ready
     checks.append('TV launch')
@@ -104,7 +115,7 @@ try:
     assert saved['phase'] == 'move' and saved['moves'] and saved['roll'] == [1, 1, 1]
     adb('shell', 'am', 'force-stop', package)
     start = len(events())
-    launch()
+    launch(diagnostics=True)
     restored = wait('ready', start)
     assert restored['restored'] and restored['game'] == saved
     checks.append('process-death MMKV recovery preserves partial turn and dice')

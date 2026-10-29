@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "Dice Chess Android Probe",
+    "scheme": "dicechess-probe",
     "slug": "dicechess-android-probe",
     "version": "0.0.1",
     "orientation": "landscape",

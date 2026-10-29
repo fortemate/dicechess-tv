@@ -225,24 +225,7 @@ test('replacement draws a random side only after confirmation; cancel preserves 
   assert.notEqual(session.getState().game.id, old.id);
 });
 
-test('bot and hotseat saves remain separate; a failed first save leaves the chooser open', () => {
-  assert.throws(
-    () =>
-      createGameSession(
-        memory(JSON.stringify(newGame('hotseat', 'wrong'))),
-        options,
-        'bot',
-      ),
-    /different/,
-  );
-  assert.throws(
-    () =>
-      createGameSession(
-        memory(JSON.stringify(newGame('greedy', 'wrong'))),
-        options,
-      ),
-    /different/,
-  );
+test('a failed first save leaves the chooser open', () => {
   const store = memory();
   store.set = () => {
     throw new Error('disk full');

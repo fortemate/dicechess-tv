@@ -1,7 +1,7 @@
 """Play the hotseat slice using only remote keys on an explicitly selected device.
 
 Force-stops the disposable probe but does not clear its data. Starts a new game
-through the confirmation UI, replacing only its hotseat save. No fixture or dice
+through the confirmation UI, replacing its current save. No fixture or dice
 is injected. Requires Node from mise and the installed standalone probe APK.
 """
 import argparse
@@ -82,17 +82,77 @@ def press(code, predicate=lambda state: True):
     return wait(start, predicate)
 
 
-def open_game(up=1):
-    before = len(events('AndroidProbe'))
+def home_wait(since=0, predicate=lambda state: True, timeout=15):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        states = [e['detail'] for e in events('AndroidHome')[since:]
+                  if e['event'] == 'state' and predicate(e['detail'])]
+        if states:
+            return states[-1]
+        time.sleep(0.1)
+    raise AssertionError(f'No expected home state: {events("AndroidHome")[-3:]}')
+
+
+def open_home():
+    before = len(events('AndroidHome'))
     adb('shell', 'am', 'start', '-n', f'{package}/.MainActivity')
+    state = home_wait(before)
+    time.sleep(0.5)  # Native focus follows the first React commit.
+    return state
+
+
+def home_select(item):
+    state = home_wait()
+    assert any(i['id'] == item for i in state['items']), state
+    while state['selected'] != item:
+        before = len(events('AndroidHome'))
+        key(20)
+        state = home_wait(before)
+    key(23)
+
+
+def open_diagnostics():
+    before = len(events('AndroidProbe'))
+    adb('shell', 'am', 'start', '-a', 'android.intent.action.VIEW', '-d', 'dicechess-probe://diagnostics', '-n', f'{package}/.MainActivity')
     deadline = time.monotonic() + 30
     while not any(e['event'] == 'ready' for e in events('AndroidProbe')[before:]):
         if time.monotonic() >= deadline:
-            raise AssertionError('Diagnostic app did not become ready')
+            raise AssertionError('Diagnostics did not become ready')
         time.sleep(0.2)
-    time.sleep(0.5)  # Native focus follows the first React commit.
-    key(19, up)  # Hotseat is last; computer play is immediately above it.
-    return press(23)
+    time.sleep(0.5)
+
+
+def open_game(up=1):
+    home = open_home()
+    if any(i['id'] == 'resume' for i in home['items']):
+        before = len(events())
+        home_select('resume')
+        return wait(before)
+    before = len(events())
+    home_select('hotseat' if up == 1 else 'computer')
+    return wait(before)
+
+
+def return_home(state):
+    if state['focus']['selected']:
+        state = press(4)
+    if state['game']['phase'] == 'ended':
+        start = len(events('AndroidHome'))
+        key(4)
+        return home_wait(start)
+    if state['overlay']['kind'] != 'menu':
+        state = press(4, lambda s: s['overlay']['kind'] == 'menu')
+    target = 4 if state['game']['mode'] == 'hotseat' else 3
+    for _ in range(6):
+        if state['overlay']['index'] == target:
+            break
+        state = press(20)
+    assert state['overlay']['index'] == target
+    start = len(events('AndroidHome'))
+    key(23)
+    home = home_wait(start)
+    time.sleep(0.5)
+    return home
 
 
 def choose_bot(state, opponent=0, colour=1):
@@ -100,9 +160,15 @@ def choose_bot(state, opponent=0, colour=1):
     if state['overlay']['kind'] != 'opponent':
         if state['overlay']['kind'] != 'menu':
             state = press(4, lambda s: s['overlay']['kind'] == 'menu')
-        while state['overlay']['index'] != 2:  # Shared New game row.
+        if state['game']['mode'] == 'hotseat':
+            return_home(state)
+            before = len(events())
+            home_select('computer')
+            state = wait(before, lambda s: s['overlay']['kind'] == 'opponent')
+        while state['overlay']['kind'] == 'menu' and state['overlay']['index'] != 2:
             state = press(20)
-        state = press(23, lambda s: s['overlay']['kind'] == 'opponent')
+        if state['overlay']['kind'] == 'menu':
+            state = press(23, lambda s: s['overlay']['kind'] == 'opponent')
     while state['overlay']['index'] != opponent:
         state = press(20)
     state = press(23, lambda s: s['overlay']['kind'] == 'colour')
@@ -153,7 +219,15 @@ def main():
         if args.audio:
             audio_wait('ready')
             silent_since(0)
-        checks.append('game opens from the diagnostics with native remote focus')
+        if state['game']['mode'] != 'hotseat':
+            return_home(state)
+            before = len(events())
+            home_select('hotseat')
+            state = wait(before)
+            if state['overlay']['kind'] == 'confirm':
+                press(20)
+                state = press(23)
+        checks.append('game opens from home with native remote focus')
         # Start a fresh game by the same confirmed menu path a player uses.
         state = press(4)
         if state['game']['phase'] != 'ended':
@@ -185,7 +259,7 @@ def main():
         state = press(23, lambda s: s['focus']['selected'] is not None)
         state = press(4, lambda s: s['focus']['selected'] is None and s['overlay']['kind'] == 'none')
         assert state['game'] == saved
-        # Pause, cancel replacement, return to diagnostics, reopen the same game.
+        # Pause, cancel replacement, return home, reopen the same game.
         state = press(4)
         snapshot('game-menu.png')
         key(20, 3)
@@ -196,12 +270,14 @@ def main():
         press(23, lambda s: s['overlay']['kind'] == 'home')
         time.sleep(0.5)
         audio_start = len(events('AndroidEffects'))
-        state = press(23)
+        before = len(events())
+        home_select('resume')
+        state = wait(before)
         assert state['game'] == saved and state['view'] == saved_view
         if args.audio:
             audio_wait('ready', audio_start)
             silent_since(audio_start)
-        checks.append('Back deselects then pauses; replacement Cancel and diagnostics preserve the game')
+        checks.append('Back deselects then pauses; replacement Cancel and home preserve the game')
         # System Home and warm return retain the same game; focus works afterward.
         key(3)
         time.sleep(0.5)
@@ -221,7 +297,7 @@ def main():
         if args.audio:
             audio_wait('ready', audio_start)
             silent_since(audio_start)
-            checks.append('diagnostics reopen and process restore do not replay prior sounds')
+            checks.append('home reopen and process restore do not replay prior sounds')
         snapshot('restored-turn.png')
         checks.append('force-stop/relaunch restores position, roll, spent dice, phase and legal actions exactly')
         # Finish this side and then play at least one move for the other player.
@@ -245,7 +321,7 @@ def main():
             raise AssertionError('No legal move for the next player')
         snapshot('continued-game.png')
         checks.append('restored turn finishes and control passes to the next player for continued play')
-        # End through the shared confirmation flow, then restore that result.
+        # End through the shared confirmation flow, then return home.
         before_resign = state['game']
         press(4, lambda s: s['overlay']['kind'] == 'menu')
         key(20)
@@ -271,22 +347,18 @@ def main():
         ended = state['game']
         assert ended['result']['reason'] == 'resigned'
         snapshot('finished-game.png')
+        home_start = len(events('AndroidHome'))
+        key(23)
+        home = home_wait(home_start)
+        assert not any(i['id'] == 'resume' for i in home['items'])
         adb('shell', 'am', 'force-stop', package)
         audio_start = len(events('AndroidEffects'))
         state = open_game()
+        assert state['game']['id'] != ended['id'] and state['game']['phase'] == 'roll'
         if args.audio:
             audio_wait('ready', audio_start)
             silent_since(audio_start)
-        assert state['game'] == ended
-        press(23, lambda s: s['overlay']['kind'] == 'menu')
-        press(23, lambda s: s['overlay']['kind'] == 'confirm')
-        state = press(23, lambda s: s['overlay']['kind'] == 'menu')  # Cancel replacement after a result.
-        assert state['overlay']['index'] == 3 and state['game'] == ended
-        press(23, lambda s: s['overlay']['kind'] == 'confirm')
-        key(20)
-        state = press(23, lambda s: s['game']['phase'] == 'roll')
-        assert state['game']['id'] != ended['id'] and not state['game']['moves']
-        checks.append('resignation Cancel, confirmed result, result recovery and confirmed new game')
+        checks.append('hotseat result returns home; restart hides Resume and a new game starts directly')
         if args.audio:
             # A second result completes naturally after a fresh game, proving playback resumes.
             press(4)

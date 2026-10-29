@@ -24,6 +24,9 @@ import { useRemoteInput } from '../../native/src/useRemoteInput';
 import { randomSource } from '../../native/src/randomSource';
 import {
   colourOptions,
+  resultItems,
+  HOTSEAT_OPTION,
+  COMPUTER_OPTION,
   flipped,
   OK_GUARD_MS,
   type ScreenOptions,
@@ -54,6 +57,8 @@ import { androidDirection, pulseKey } from './androidRemote';
 import {
   createGameSession,
   gameMenu,
+  GAME_STORE,
+  type GameIntent,
   type GameAction,
   type ProbeMode,
 } from './gameSession';
@@ -63,10 +68,18 @@ const report = (event: string, detail: unknown) =>
 const errorText = (error: unknown) =>
   error instanceof Error ? error.message : String(error);
 
-function overlayChoices({ overlay, game }: ScreenState) {
+function overlayChoices({ overlay, game }: ScreenState, exitLabel: string) {
   switch (overlay.kind) {
     case 'menu':
-      return gameMenu(game).map(({ label, index }) => ({ label, index }));
+      return gameMenu(game).map(({ id, label, index }) => ({
+        label: id === 'main-menu' ? exitLabel : label,
+        index,
+      }));
+    case 'result':
+      return resultItems.map(({ id, label }, index) => ({
+        label: id === 'main-menu' ? exitLabel : label,
+        index,
+      }));
     case 'opponent':
       return OPPONENTS.map(({ name, level }, index) => ({
         label: `${name} · ${level}`,
@@ -91,6 +104,8 @@ function overlayChoices({ overlay, game }: ScreenState) {
 
 function overlayHeading(overlay: ScreenState['overlay']) {
   switch (overlay.kind) {
+    case 'result':
+      return 'Game over';
     case 'opponent':
       return 'Choose your opponent';
     case 'colour':
@@ -106,7 +121,7 @@ function overlayHeading(overlay: ScreenState['overlay']) {
   }
 }
 
-function makeSession(mode: ProbeMode) {
+function makeSession(mode: ProbeMode, intent: GameIntent) {
   const source = randomSource();
   let ids = 0;
   const options: ScreenOptions = {
@@ -126,13 +141,10 @@ function makeSession(mode: ProbeMode) {
   try {
     return {
       session: createGameSession(
-        createStore(
-          mode === 'hotseat'
-            ? 'dicechess-android-hotseat'
-            : 'dicechess-android-bot',
-        ),
+        createStore(GAME_STORE),
         options,
         mode,
+        intent,
       ),
       error: '',
     };
@@ -146,12 +158,16 @@ function Game({
   activity,
   onExit,
   mode,
+  intent,
+  exitLabel,
 }: {
   activity: Activity;
   onExit: () => void;
   mode: ProbeMode;
+  intent: GameIntent;
+  exitLabel: string;
 }) {
-  const [opened] = useState(() => makeSession(mode));
+  const [opened] = useState(() => makeSession(mode, intent));
   const [state, setState] = useState(() => opened.session?.getState());
   const [error, setError] = useState(opened.error);
   const effects = useRef<ReturnType<typeof createAndroidEffects> | null>(null);
@@ -181,9 +197,10 @@ function Game({
     },
     [opened, error],
   );
+  const playingBot = state ? isBotMode(state.game.mode) : false;
   const driver = useRef<ReturnType<typeof createBotDriver> | null>(null);
   useEffect(() => {
-    if (mode === 'hotseat' || !opened.session || error) return;
+    if (!playingBot || !opened.session || error) return;
     const owned = createBotDriver({
       activity,
       worker: createWorker(activity),
@@ -200,7 +217,7 @@ function Game({
       driver.current = null;
       owned.dispose();
     };
-  }, [activity, opened, mode, error, send]);
+  }, [activity, opened, playingBot, error, send]);
   useEffect(() => {
     if (state) driver.current?.update(state);
   }, [state]);
@@ -247,7 +264,8 @@ function Game({
         <Text style={styles.title}>Could not continue the game</Text>
         <Text style={styles.body}>{error}</Text>
         <Text style={styles.body}>
-          Saved data has not been cleared. Back or OK returns to diagnostics.
+          Saved data has not been cleared. Back or OK returns to{' '}
+          {exitLabel.toLowerCase()}.
         </Text>
       </View>
     );
@@ -258,7 +276,7 @@ function Game({
   const opponent = isBotMode(game.mode) ? opponentOf(game.mode) : null;
   const selecting = overlay.kind === 'opponent' || overlay.kind === 'colour';
   const saved = opened.session?.hasSave();
-  const choices = overlayChoices(state);
+  const choices = overlayChoices(state, exitLabel);
   const heading = overlayHeading(overlay);
   const prompt =
     botToAct(game) && !emptyRoll(game)
@@ -267,14 +285,14 @@ function Game({
         ? 'OK: roll the dice'
         : game.phase === 'handoff'
           ? emptyRoll(game)
-            ? mode === 'hotseat'
+            ? game.mode === 'hotseat'
               ? 'No legal move · OK: next player rolls'
               : 'No legal move · OK: continue'
-            : mode === 'hotseat'
+            : game.mode === 'hotseat'
               ? 'Turn complete · OK: next player rolls'
               : `Turn complete · OK: ${opponent?.name} plays`
           : game.phase === 'ended'
-            ? 'OK: game menu'
+            ? 'OK: main menu'
             : focus.selected
               ? 'Choose a destination · OK: move · Back: cancel'
               : 'Choose a highlighted piece · OK: select';
@@ -297,17 +315,24 @@ function Game({
       />
       <View style={styles.panel}>
         <Text style={styles.title}>
-          {mode === 'hotseat'
-            ? 'Play with a friend'
-            : selecting || !saved
-              ? 'Play against computer'
-              : `Play against ${opponent?.name}`}
+          {selecting
+            ? COMPUTER_OPTION
+            : game.mode === 'hotseat'
+              ? HOTSEAT_OPTION
+              : !saved
+                ? COMPUTER_OPTION
+                : `Play against ${opponent?.name}`}
         </Text>
         <Text style={styles.body}>
           {saved
             ? `${sideName(view.side)} · Turn ${game.turn}`
             : 'D-pad: choose · OK: select · Back: cancel'}
         </Text>
+        {game.result && choices.length ? (
+          <Text style={styles.heading}>
+            {outcome(game, game.result)} · {reasonOf(game, game.result)}
+          </Text>
+        ) : null}
         {choices.length ? (
           <>
             <Text style={styles.heading}>{heading}</Text>
@@ -362,10 +387,14 @@ export const GameScreen = React.memo(function GameScreen({
   activity,
   onExit,
   mode,
+  intent = 'continue',
+  exitLabel = 'Main menu',
 }: {
   activity: Activity;
   onExit: () => void;
   mode: ProbeMode;
+  intent?: GameIntent;
+  exitLabel?: string;
 }) {
   const [channel] = useState(createRemoteChannel);
   useTVEventHandler((event) => {
@@ -394,7 +423,13 @@ export const GameScreen = React.memo(function GameScreen({
             if (activity.isActive()) pulseKey(channel.emit, 'select');
           }}
         >
-          <Game activity={activity} onExit={onExit} mode={mode} />
+          <Game
+            activity={activity}
+            onExit={onExit}
+            mode={mode}
+            intent={intent}
+            exitLabel={exitLabel}
+          />
         </Pressable>
       </ActivityContext.Provider>
     </RemoteInputContext.Provider>

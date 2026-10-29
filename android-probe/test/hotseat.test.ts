@@ -154,38 +154,29 @@ test('promotion and resignation use the shared game rules and confirmation', () 
   key(session, 'select');
   assert.equal(session.getState().game.result?.reason, 'resigned');
   key(session, 'select');
-  assert.deepEqual(
-    gameMenu(session.getState().game).map((item) => item.id),
-    ['new-game', 'main-menu'],
-  );
-  key(session, 'down');
-  key(session, 'select');
   assert.equal(session.getState().overlay.kind, 'home');
 });
 
-test('canceling replacement after a result restores a visible menu choice', () => {
-  const session = createGameSession(memory(), options());
-  key(session, 'back');
-  key(session, 'down');
-  key(session, 'down');
-  key(session, 'select'); // Agree a draw.
-  assert.equal(session.getState().game.result?.reason, 'agreed-draw');
-  key(session, 'select');
-  key(session, 'select'); // New game confirmation.
-  key(session, 'select'); // Cancel.
-  assert.deepEqual(session.getState().overlay, { kind: 'menu', index: 3 });
-  key(session, 'select');
-  key(session, 'back');
-  assert.deepEqual(session.getState().overlay, { kind: 'menu', index: 3 });
+test('a finished hotseat game returns home with OK or Back, like Vega', () => {
+  for (const exit of ['select', 'back'] as const) {
+    const session = createGameSession(memory(), options());
+    key(session, 'back');
+    key(session, 'down');
+    key(session, 'down');
+    key(session, 'select');
+    assert.equal(session.getState().game.result?.reason, 'agreed-draw');
+    const ended = session.getState().game;
+    key(session, exit);
+    assert.equal(session.getState().overlay.kind, 'home');
+    assert.equal(session.getState().game, ended);
+  }
 });
 
-test('corrupt and non-hotseat saves are preserved and reported', () => {
-  for (const raw of ['broken', JSON.stringify(newGame('random', 'bot'))]) {
-    const store = memory(raw);
-    assert.throws(() => createGameSession(store, options()));
-    assert.equal(store.getString(GAME_KEY), raw);
-    assert.equal(store.writes, 0);
-  }
+test('corrupt current saves are preserved and reported', () => {
+  const store = memory('broken');
+  assert.throws(() => createGameSession(store, options()));
+  assert.equal(store.getString(GAME_KEY), 'broken');
+  assert.equal(store.writes, 0);
 });
 
 test('a storage failure cannot advance the visible game or overwrite its last snapshot', () => {
