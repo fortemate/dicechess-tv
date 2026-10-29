@@ -32,7 +32,7 @@ export type GameAction = Extract<
 export const gameMenu = (game: Game) =>
   menuItems(game)
     .map((item, index) => ({ ...item, index }))
-    .filter(({ id }) => !['rules', 'settings'].includes(id));
+    .filter(({ id }) => id !== 'settings');
 
 export function gameStep(
   state: ScreenState,

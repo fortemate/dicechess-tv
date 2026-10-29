@@ -1,25 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  BackHandler,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  useTVEventHandler,
-  useWindowDimensions,
-} from 'react-native';
+import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Board } from '../../native/src/Board';
 import { Dice } from '../../native/src/Dice';
 import { Option } from '../../native/src/Option';
-import {
-  ActivityContext,
-  scheduleActive,
-  type Activity,
-} from '../../native/src/activity';
-import {
-  createRemoteChannel,
-  RemoteInputContext,
-} from '../../native/src/remoteInput';
+import { scheduleActive, type Activity } from '../../native/src/activity';
 import { useRemoteInput } from '../../native/src/useRemoteInput';
 import { randomSource } from '../../native/src/randomSource';
 import {
@@ -33,7 +17,6 @@ import {
   type ScreenState,
 } from '../../native/src/screen';
 import { boardSide, safeInsets } from '../../native/src/layout';
-import { THEME } from '../../native/src/theme';
 import { diceOf } from '../../src/core/dice';
 import { movableSquares } from '../../src/core/boardInput';
 import {
@@ -53,7 +36,8 @@ import { createBotDriver } from './botDriver';
 import { createStore } from './store';
 import { cues } from '../../src/core/cues';
 import { createAndroidEffects } from './androidEffects';
-import { androidDirection, pulseKey } from './androidRemote';
+import { RemoteSurface } from './RemoteSurface';
+import { RulesContent } from './RulesReference';
 import {
   createGameSession,
   gameMenu,
@@ -223,6 +207,8 @@ function Game({
   }, [state]);
   useRemoteInput(
     (key, repeat) => {
+      // RulesScreen owns the remote while this mounted game keeps its session.
+      if (state?.overlay.kind === 'rules') return;
       if (error) {
         if (key === 'back' || key === 'select') onExit();
         return;
@@ -269,6 +255,8 @@ function Game({
         </Text>
       </View>
     );
+  if (state.overlay.kind === 'rules')
+    return <RulesContent onExit={() => send({ kind: 'key', key: 'back' })} />;
   const { game, focus, overlay } = state;
   const view = viewGame(game);
   const choosing = game.phase === 'move' && !botToAct(game);
@@ -396,48 +384,27 @@ export const GameScreen = React.memo(function GameScreen({
   intent?: GameIntent;
   exitLabel?: string;
 }) {
-  const [channel] = useState(createRemoteChannel);
-  useTVEventHandler((event) => {
-    const key = androidDirection(event);
-    if (key && activity.isActive()) pulseKey(channel.emit, key);
-  });
-  useEffect(() => {
-    const subscription = BackHandler.addEventListener(
-      'hardwareBackPress',
-      channel.back,
-    );
-    return () => subscription.remove();
-  }, [channel]);
   return (
-    <RemoteInputContext.Provider value={channel.input}>
-      <ActivityContext.Provider value={activity}>
-        <Pressable
-          style={styles.root}
-          hasTVPreferredFocus
-          accessibilityLabel={
-            mode === 'hotseat'
-              ? 'Two-player Dice Chess'
-              : 'Dice Chess against computer'
-          }
-          onPress={() => {
-            if (activity.isActive()) pulseKey(channel.emit, 'select');
-          }}
-        >
-          <Game
-            activity={activity}
-            onExit={onExit}
-            mode={mode}
-            intent={intent}
-            exitLabel={exitLabel}
-          />
-        </Pressable>
-      </ActivityContext.Provider>
-    </RemoteInputContext.Provider>
+    <RemoteSurface
+      activity={activity}
+      label={
+        mode === 'hotseat'
+          ? 'Two-player Dice Chess'
+          : 'Dice Chess against computer'
+      }
+    >
+      <Game
+        activity={activity}
+        onExit={onExit}
+        mode={mode}
+        intent={intent}
+        exitLabel={exitLabel}
+      />
+    </RemoteSurface>
   );
 });
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: THEME.background },
   game: { flex: 1, flexDirection: 'row', alignItems: 'center' },
   panel: { flex: 1, paddingLeft: 28 },
   title: {

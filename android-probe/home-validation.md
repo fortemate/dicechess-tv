@@ -1,5 +1,10 @@
 # Shared Android TV menu validation
 
+This records the menu/migration build before Rules reference was enabled. See
+[rules-validation.md](rules-validation.md) for the subsequent guide integration.
+Use the matching revision to reproduce this recorded APK; current smoke scripts
+follow the current supported menu.
+
 On October 29, 2026, the Android prototype adopted Vega's supported menu entries
 and one current game. Ordinary launch opens Dice Chess, with Resume game when
 an unfinished save exists, Play a friend and Play the computer. Diagnostics is

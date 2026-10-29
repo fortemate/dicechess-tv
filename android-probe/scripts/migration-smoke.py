@@ -53,7 +53,7 @@ try:
     before = len(h.events('AndroidHome'))
     h.home_select('migrate-bot')
     home = h.home_wait(before,lambda s:not s['migrating'])
-    assert [i['id'] for i in home['items']] == ['resume','hotseat','computer']
+    assert [i['id'] for i in home['items']] == ['resume','hotseat','computer','rules']
     state = choose('resume')
     assert state['game']==old['bot']
     h.snapshot('migrated-bot-turn.png')
