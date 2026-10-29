@@ -54,8 +54,8 @@ python3 scripts/smoke.py --serial <serial>
 
 The APK launches into **Dice Chess**. Its supported menu entries use the Vega
 menu definitions, labels and order: **Resume game** (when a current unfinished
-game exists), **Play a friend**, **Play the computer**, **Learn to play**, **Rules reference**, and **About**.
-Settings remains hidden until its Android behavior is supported.
+game exists), **Play a friend**, **Play the computer**, **Learn to play**, **Rules reference**, **Settings**, and **About**.
+Settings currently exposes the supported Sounds control.
 
 There is one current game, regardless of opponent or two-player mode. D-pad
 moves the highlight, OK selects, and Back leaves the app. Returning from a game
@@ -107,6 +107,32 @@ mise exec -- python3 android-probe/scripts/home-smoke.py --serial <serial> \
 ```
 
 See [home-validation.md](home-validation.md) for the build, evidence and limits.
+
+## Settings
+
+Open **Settings** from home to adjust **Sounds**. Android and Vega render the
+same `SettingsPanel`, labels, volume rings and remote hints. Left/Right changes
+the level; OK mutes or restores the remembered level. Up/Down keeps the only
+supported row selected, and Back restores focus to Settings in home. System
+Home/return keeps the panel open. Music, voices and gameplay preferences are not
+exposed until their Android behavior is connected.
+
+The canonical sound preference functions write synchronously to a separate MMKV
+settings store before publishing the new value. No game or bot is mounted by
+Settings. Opening gameplay reads those preferences: muted effects create no
+players, and the shared decibel curve sets the native player volume. These
+preferences do not change the explicit diagnostic audio probe. The default is
+Vega's level 10; the earlier probe used a fixed native gain of 0.5.
+
+```sh
+mise exec -- python3 android-probe/scripts/settings-smoke.py --serial <serial> \
+  --output android-probe/build/settings
+```
+
+The suite keeps app data and replaces the current game through normal UI.
+It checks fresh UI hierarchy, real remote input, immediate process death,
+friend/bot save preservation, muted effects and requested playback gain.
+See [settings-validation.md](settings-validation.md) for evidence and limits.
 
 ## About
 
@@ -222,7 +248,7 @@ Cursor movement does not write the save. Home, return to diagnostics and process
 restart preserve the canonical snapshot, including the partial turn and spent
 dice. Corrupt saves and storage failures show an error and keep the existing
 save; the slice does not silently reset data or implement a damaged-save recovery
-menu. Music, voices, settings and accessibility qualification remain
+menu. Music, voices, the other Vega settings and accessibility qualification remain
 separate work. See [hotseat-validation.md](hotseat-validation.md) for observed
 results and input limits.
 
@@ -230,8 +256,8 @@ Game transitions also play the existing dice, move, capture, castling, promotion
 no-move and result effects through Expo Audio. Effects start only after the save
 succeeds; opening a saved game is silent. Home, window blur and leaving the game
 release active players and cancel delayed cues. Returning does not replay them.
-The TV's media volume is expected to adjust or mute this slice, but has not been verified. An in-game sound setting,
-music and character voices are not included. See [sound-validation.md](sound-validation.md).
+The TV's media volume remains unverified. The in-app Sounds control is available
+from home; see Settings above. Music and character speech remain separate work.
 
 After installing the APK, run the gameplay check from `android-probe/`, with Node
 from mise on PATH:

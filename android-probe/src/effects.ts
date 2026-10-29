@@ -1,3 +1,9 @@
+import {
+  DEFAULT_SOUND,
+  soundHeard,
+  soundGain,
+  type SoundSetting,
+} from '../../native/src/soundSetting.ts';
 import type { Cue } from '../../src/core/cues';
 import type { Sounds } from '../../native/src/audio';
 import type { Activity } from '../../native/src/activity';
@@ -14,7 +20,7 @@ export type EffectPlayer = {
 };
 export type EffectBackend = {
   configure(): Promise<void>;
-  create(cue: Cue): EffectPlayer;
+  create(cue: Cue, gain: number): EffectPlayer;
   report(event: string, detail: unknown): void;
 };
 type Channel = 'board' | 'dice' | 'result';
@@ -40,6 +46,7 @@ export function createEffects(
     const timer = setTimeout(run, ms);
     return () => clearTimeout(timer);
   },
+  sound: SoundSetting = DEFAULT_SOUND,
 ): Pick<Sounds, 'play' | 'setSuspended' | 'dispose'> {
   let disposed = false;
   let suspended = !activity.isActive();
@@ -65,7 +72,12 @@ export function createEffects(
     cancelPending();
     [...players.values()].forEach((release) => release());
   };
-  const allowed = () => !disposed && !suspended && activity.isActive() && ready;
+  const allowed = () =>
+    !disposed &&
+    !suspended &&
+    activity.isActive() &&
+    ready &&
+    soundHeard(sound);
   const setSuspended = (value: boolean) => {
     if (disposed || suspended === value) return;
     suspended = value;
@@ -92,7 +104,7 @@ export function createEffects(
     players.get(channel)?.();
     let player: EffectPlayer;
     try {
-      player = backend.create(cue);
+      player = backend.create(cue, soundGain(sound.volume));
     } catch (error) {
       reportError(error);
       return;
@@ -130,7 +142,7 @@ export function createEffects(
         release();
       }, 10000);
       player.play();
-      backend.report('requested', { cue });
+      backend.report('requested', { cue, gain: soundGain(sound.volume) });
     } catch (error) {
       release();
       reportError(error);

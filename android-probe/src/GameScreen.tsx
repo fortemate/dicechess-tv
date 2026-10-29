@@ -157,7 +157,14 @@ function Game({
   const effects = useRef<ReturnType<typeof createAndroidEffects> | null>(null);
   useEffect(() => {
     if (error) return;
-    const owned = createAndroidEffects(activity);
+    let owned: ReturnType<typeof createAndroidEffects>;
+    try {
+      owned = createAndroidEffects(activity);
+    } catch (failure) {
+      setError(errorText(failure));
+      report('load-error', errorText(failure));
+      return;
+    }
     effects.current = owned;
     return () => {
       effects.current = null;

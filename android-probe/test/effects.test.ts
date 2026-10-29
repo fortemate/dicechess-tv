@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
+import { DEFAULT_SOUND, soundGain } from '../../native/src/soundSetting.ts';
 import { createEffects, type EffectPlayer } from '../src/effects.ts';
 import { CUE_FILES } from '../../native/src/cueFiles.ts';
 import { cues, type Cue } from '../../src/core/cues.ts';
@@ -12,7 +13,11 @@ import {
   rollGame,
 } from '../../src/core/game.ts';
 
-function harness(active = true, configure = () => Promise.resolve()) {
+function harness(
+  active = true,
+  configure = () => Promise.resolve(),
+  sound = DEFAULT_SOUND,
+) {
   const listeners = new Set<() => void>();
   const activity = {
     isActive: () => active,
@@ -26,6 +31,7 @@ function harness(active = true, configure = () => Promise.resolve()) {
   const jobs: { run: () => void; ms: number; canceled: boolean }[] = [];
   const players: {
     cue: Cue;
+    gain: number;
     played: number;
     paused: number;
     removed: number;
@@ -39,9 +45,10 @@ function harness(active = true, configure = () => Promise.resolve()) {
   const reports: { event: string; detail: unknown }[] = [];
   const backend = {
     configure,
-    create(cue: Cue): EffectPlayer {
+    create(cue: Cue, gain: number): EffectPlayer {
       const record = {
         cue,
+        gain,
         played: 0,
         paused: 0,
         removed: 0,
@@ -79,13 +86,18 @@ function harness(active = true, configure = () => Promise.resolve()) {
       reports.push({ event, detail });
     },
   };
-  const effects = createEffects(activity, backend, (run, ms) => {
-    const job = { run, ms, canceled: false };
-    jobs.push(job);
-    return () => {
-      job.canceled = true;
-    };
-  });
+  const effects = createEffects(
+    activity,
+    backend,
+    (run, ms) => {
+      const job = { run, ms, canceled: false };
+      jobs.push(job);
+      return () => {
+        job.canceled = true;
+      };
+    },
+    sound,
+  );
   return {
     effects,
     backend,
@@ -241,4 +253,17 @@ test('every shared cue has a statically bundled asset and matching pinned bytes 
       assert.equal(hash, lock.packs[pack].files[asset].sha256);
     }
   }
+});
+
+test('persisted mute suppresses all effects and volume reaches the native backend', async () => {
+  const muted = harness(true, undefined, { on: false, volume: 7 });
+  const low = harness(true, undefined, { on: true, volume: 3 });
+  await Promise.resolve();
+  muted.effects.play(['dice_roll', 'no_move']);
+  assert.equal(muted.players.length, 0);
+  assert.equal(muted.jobs.length, 0);
+  low.effects.play(['piece_move']);
+  assert.equal(low.players[0].gain, soundGain(3));
+  muted.effects.dispose();
+  low.effects.dispose();
 });

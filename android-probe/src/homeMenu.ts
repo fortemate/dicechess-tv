@@ -18,7 +18,7 @@ export type HomeItem = {
   id: string;
   label: string;
   description: string;
-  action: GameRoute | { kind: 'rules' | 'tutorial' | 'about' };
+  action: GameRoute | { kind: 'rules' | 'tutorial' | 'about' | 'settings' };
 };
 export const gameMode = (game: Game): ProbeMode =>
   game.mode === 'hotseat' ? 'hotseat' : 'bot';
@@ -38,6 +38,10 @@ const screens: Partial<
     description: 'Read the rules and special moves.',
     action: { kind: 'rules' },
   },
+  settings: {
+    description: 'Adjust the sound volume.',
+    action: { kind: 'settings' },
+  },
   about: {
     description: 'Meet the makers and see the asset credits.',
     action: { kind: 'about' },
@@ -48,7 +52,15 @@ const screens: Partial<
 export function homeItems(game: Game | null, unreadable = false): HomeItem[] {
   return sharedHomeItems(unreadable || Boolean(game && game.phase !== 'ended'))
     .filter(({ id }) =>
-      ['resume', 'hotseat', 'computer', 'learn', 'rules', 'about'].includes(id),
+      [
+        'resume',
+        'hotseat',
+        'computer',
+        'learn',
+        'rules',
+        'settings',
+        'about',
+      ].includes(id),
     )
     .map(({ id, label }): HomeItem => {
       const screen = screens[id];

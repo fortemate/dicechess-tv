@@ -47,16 +47,16 @@ import { DEFAULT_PLAY_AS, type PlayAs } from './playAsSetting';
 import { DEFAULT_HIGHLIGHTS, type HighlightStyle } from './highlightsSetting';
 import { LINE_START_MS, speechTiming } from './speechTiming';
 import type { Sounds, SpokenLine, Music } from './audio';
-import { MUSIC_STEPS, musicHeard, type MusicSetting } from './musicSetting';
-import { DEFAULT_SOUND, soundHeard, type SoundSetting } from './soundSetting';
-import { DEFAULT_VOICES, voicesHeard, type VoiceSetting } from './voiceSetting';
+import { musicHeard, type MusicSetting } from './musicSetting';
+import { DEFAULT_SOUND, type SoundSetting } from './soundSetting';
+import { DEFAULT_VOICES, type VoiceSetting } from './voiceSetting';
 import { useDanger } from './useDanger';
 import { activeClock, scheduleActive, useActivity } from './activity';
 import { cues } from '../../src/core/cues';
 import { useRemoteInput } from './useRemoteInput';
 import { THEME } from './theme';
 import { PIECES } from './pieces';
-import { Option } from './Option';
+import { Choices, SettingsPanel } from './SettingsPanel';
 import { settingsHint } from './settingsHint';
 import { BOARD_GAP, boardSide, drawnSide, safeInsets } from './layout';
 import { announce, useScreenReader } from './announcer';
@@ -171,102 +171,6 @@ const bubbleHoldMs = (line: SpokenLine): number => {
     timing ? timing.delayMs + LINE_START_MS + timing.ms : 0,
   );
 };
-
-// The volume as rings, like an opponent's level: filled up to the setting. Small
-// enough that the label and ten rings fit the panel, which measured about
-// 380 dp wide on the virtual device.
-const RING = 10;
-const VolumeRings = ({
-  volume,
-  focused,
-}: {
-  volume: number;
-  focused: boolean;
-}) => (
-  <View style={{ flexDirection: 'row', marginLeft: 10 }}>
-    {Array.from({ length: MUSIC_STEPS }, (_, i) => ringOf(i, volume, focused))}
-  </View>
-);
-
-const ringOf = (i: number, volume: number, focused: boolean) => {
-  const ink = focused ? '#f0f4f8' : '#aab8c9';
-  return (
-    <View
-      key={i}
-      testID={i < volume ? 'ring-filled' : 'ring-empty'}
-      style={{
-        width: RING,
-        height: RING,
-        borderRadius: RING / 2,
-        borderWidth: 2,
-        borderColor: ink,
-        backgroundColor: i < volume ? ink : 'transparent',
-        marginRight: 4,
-      }}
-    />
-  );
-};
-
-const Choices = ({
-  title,
-  note,
-  description,
-  options,
-  index,
-  pressed = false,
-  befores = [],
-  afters = [],
-}: {
-  title: string;
-  note?: string;
-  description?: string;
-  options: readonly string[];
-  index: number;
-  // OK is held on the focused option.
-  pressed?: boolean;
-  // Drawn before an option's label, by position.
-  befores?: (React.ReactNode | undefined)[];
-  // Drawn after an option's label, by position.
-  afters?: (React.ReactNode | undefined)[];
-}) => (
-  <View style={{ marginTop: 12 }}>
-    {/* No heading role, here or on the other screens' titles: VoiceView reads
-        a heading by itself as it appears, and on the Virtual Device that cut
-        off the result announced just before it (#257). The title is
-        announced with the menu instead (screenSpeech.ts). */}
-    <Text style={{ color: '#f0f4f8', fontSize: 30, marginBottom: 8 }}>
-      {title}
-    </Text>
-    {note ? (
-      <Text style={{ color: '#aab8c9', fontSize: 20, marginBottom: 10 }}>
-        {note}
-      </Text>
-    ) : null}
-    {options.map((option, i) => (
-      <Option
-        key={option}
-        label={option}
-        focused={i === index}
-        pressed={pressed}
-        before={befores[i]}
-        after={afters[i]}
-      />
-    ))}
-    {description !== undefined ? (
-      <Text
-        style={{
-          color: '#aab8c9',
-          fontSize: 20,
-          lineHeight: 24,
-          minHeight: 24,
-          marginTop: 10,
-        }}
-      >
-        {description}
-      </Text>
-    ) : null}
-  </View>
-);
 
 // Whose move it is, when one side belongs to the person.
 // Only the person's own turn is marked: the bot's turn says so in the prompt,
@@ -562,38 +466,6 @@ const choiceOf = (overlay: Overlay, context: ChoiceContext): Choice | null => {
   }
 };
 
-// What sits under the status: an open menu or choice, or the prompt.
-const settingsAfters = (
-  index: number,
-  context: ChoiceContext,
-): React.ReactNode[] => {
-  const musicOffset = context.hasMusic ? 1 : 0;
-  const soundRing = (
-    <VolumeRings
-      key="sound-rings"
-      volume={soundHeard(context.sound) ? context.sound.volume : 0}
-      focused={index === musicOffset}
-    />
-  );
-  const voiceRing = (
-    <VolumeRings
-      key="voice-rings"
-      volume={voicesHeard(context.voices) ? context.voices.volume : 0}
-      focused={index === musicOffset + 1}
-    />
-  );
-  if (!context.hasMusic) return [soundRing, voiceRing];
-  return [
-    <VolumeRings
-      key="music-rings"
-      volume={musicHeard(context.music) ? context.music.volume : 0}
-      focused={index === 0}
-    />,
-    soundRing,
-    voiceRing,
-  ];
-};
-
 const Panel = ({
   overlay,
   view,
@@ -620,10 +492,10 @@ const Panel = ({
     );
   if (overlay.kind === 'settings') {
     return (
-      <Choices
-        {...choice}
+      <SettingsPanel
+        settings={{ ...context, musicAvailable: context.hasMusic }}
+        index={overlay.index}
         pressed={pressed}
-        afters={settingsAfters(overlay.index, context)}
       />
     );
   }

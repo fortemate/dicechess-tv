@@ -1,5 +1,9 @@
 # Android TV About validation
 
+This records the build before Settings was enabled. See
+[settings-validation.md](settings-validation.md) for the subsequent menu and
+audio integration; current smoke scripts follow the current menu.
+
 On October 29, 2026, About was added after Rules reference in the Android home
 menu, retaining Vega's menu definition and order. It renders the shared
 `AboutScreen` through the existing Android `RemoteSurface`.

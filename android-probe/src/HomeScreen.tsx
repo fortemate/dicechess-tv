@@ -138,10 +138,12 @@ export function HomeScreen({
       ]}
     >
       <View style={styles.content}>
-        <Text style={styles.title}>
+        <Text style={[styles.title, items.length > 6 && { fontSize: 40 }]}>
           {migrating ? 'Choose a saved game' : 'Dice Chess'}
         </Text>
-        <Text style={styles.subtitle}>
+        <Text
+          style={[styles.subtitle, items.length > 6 && { marginBottom: 16 }]}
+        >
           {migrating
             ? 'Choose the current game. Original saves will be kept.'
             : 'Play against the computer or share the remote with a friend.'}
@@ -156,11 +158,16 @@ export function HomeScreen({
               key={item.id}
               label={item.label}
               focused={selected === index}
-              fontSize={26}
+              fontSize={items.length > 6 ? 24 : 26}
             />
           ))}
         </Pressable>
-        <Text style={styles.description}>
+        <Text
+          style={[
+            styles.description,
+            items.length > 6 && { marginTop: 12, minHeight: 40 },
+          ]}
+        >
           {error || items[selected].description}
         </Text>
         <Text style={styles.footer}>
