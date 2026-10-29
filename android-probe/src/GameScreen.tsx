@@ -22,13 +22,28 @@ import {
 } from '../../native/src/remoteInput';
 import { useRemoteInput } from '../../native/src/useRemoteInput';
 import { randomSource } from '../../native/src/randomSource';
-import { OK_GUARD_MS, type ScreenOptions } from '../../native/src/screen';
+import {
+  colourOptions,
+  flipped,
+  OK_GUARD_MS,
+  type ScreenOptions,
+  type ScreenState,
+} from '../../native/src/screen';
 import { boardSide, safeInsets } from '../../native/src/layout';
 import { THEME } from '../../native/src/theme';
 import { diceOf } from '../../src/core/dice';
 import { movableSquares } from '../../src/core/boardInput';
-import { emptyRoll, rollDice, sideName, viewGame } from '../../src/core/game';
+import {
+  emptyRoll,
+  isBotMode,
+  opposite,
+  randomSide,
+  rollDice,
+  sideName,
+  viewGame,
+} from '../../src/core/game';
 import { outcome, reasonOf } from '../../src/core/announcements';
+import { OPPONENTS, opponentOf } from '../../src/core/opponents';
 import { botToAct } from '../../src/core/bot';
 import { createWorker } from './worker';
 import { createBotDriver } from './botDriver';
@@ -48,13 +63,56 @@ const report = (event: string, detail: unknown) =>
 const errorText = (error: unknown) =>
   error instanceof Error ? error.message : String(error);
 
+function overlayChoices({ overlay, game }: ScreenState) {
+  switch (overlay.kind) {
+    case 'menu':
+      return gameMenu(game).map(({ label, index }) => ({ label, index }));
+    case 'opponent':
+      return OPPONENTS.map(({ name, level }, index) => ({
+        label: `${name} · ${level}`,
+        index,
+      }));
+    case 'colour':
+      return colourOptions.map((label, index) => ({ label, index }));
+    case 'confirm':
+      return [
+        { label: 'Cancel', index: 0 },
+        { label: 'Yes', index: 1 },
+      ];
+    case 'promotion':
+      return overlay.moves.map((move, index) => ({
+        label: `Promote to ${{ q: 'queen', r: 'rook', b: 'bishop', n: 'knight' }[move[4]]}`,
+        index,
+      }));
+    default:
+      return [];
+  }
+}
+
+function overlayHeading(overlay: ScreenState['overlay']) {
+  switch (overlay.kind) {
+    case 'opponent':
+      return 'Choose your opponent';
+    case 'colour':
+      return `Choose your side against ${opponentOf(overlay.mode).name}`;
+    case 'confirm':
+      return overlay.action === 'replace'
+        ? 'Replace this game?'
+        : 'Resign this game?';
+    case 'promotion':
+      return 'Choose a promotion';
+    default:
+      return 'Game menu';
+  }
+}
+
 function makeSession(mode: ProbeMode) {
   const source = randomSource();
   let ids = 0;
   const options: ScreenOptions = {
     roll: () => rollDice(source.fill),
     newId: () => `android-${Date.now()}-${++ids}`,
-    side: () => 'w',
+    side: () => randomSide(source.fill),
     // Mark this as asynchronous so the shared reducer never searches on RN.
     reply: () => {
       throw new Error('Opponent reply must come from the worker');
@@ -197,32 +255,14 @@ function Game({
   const view = viewGame(game);
   const choosing = game.phase === 'move' && !botToAct(game);
   const insets = safeInsets(width, height);
-  const menu = gameMenu(game);
-  const choices =
-    overlay.kind === 'menu'
-      ? menu.map((item) => ({ label: item.label, index: item.index }))
-      : overlay.kind === 'confirm'
-        ? [
-            { label: 'Cancel', index: 0 },
-            { label: 'Yes', index: 1 },
-          ]
-        : overlay.kind === 'promotion'
-          ? overlay.moves.map((move, index) => ({
-              label: `Promote to ${{ q: 'queen', r: 'rook', b: 'bishop', n: 'knight' }[move[4]]}`,
-              index,
-            }))
-          : [];
-  const heading =
-    overlay.kind === 'confirm'
-      ? overlay.action === 'replace'
-        ? 'Replace this game?'
-        : 'Resign this game?'
-      : overlay.kind === 'promotion'
-        ? 'Choose a promotion'
-        : 'Game menu';
+  const opponent = isBotMode(game.mode) ? opponentOf(game.mode) : null;
+  const selecting = overlay.kind === 'opponent' || overlay.kind === 'colour';
+  const saved = opened.session?.hasSave();
+  const choices = overlayChoices(state);
+  const heading = overlayHeading(overlay);
   const prompt =
     botToAct(game) && !emptyRoll(game)
-      ? 'Rolly is playing · Back: game menu'
+      ? `${opponent?.name} is playing · Back: game menu`
       : game.phase === 'roll'
         ? 'OK: roll the dice'
         : game.phase === 'handoff'
@@ -232,7 +272,7 @@ function Game({
               : 'No legal move · OK: continue'
             : mode === 'hotseat'
               ? 'Turn complete · OK: next player rolls'
-              : 'Turn complete · OK: Rolly plays'
+              : `Turn complete · OK: ${opponent?.name} plays`
           : game.phase === 'ended'
             ? 'OK: game menu'
             : focus.selected
@@ -250,16 +290,23 @@ function Game({
         board={view.dfen.split(' ')[0]}
         legal={view.legal}
         lastMove={game.lastMove}
+        flipped={flipped(game)}
         cursor={choosing ? focus.cursor : null}
         selected={focus.selected}
         movable={choosing ? movableSquares(view.legal) : []}
       />
       <View style={styles.panel}>
         <Text style={styles.title}>
-          {mode === 'hotseat' ? 'Play with a friend' : 'Play against Rolly'}
+          {mode === 'hotseat'
+            ? 'Play with a friend'
+            : selecting || !saved
+              ? 'Play against computer'
+              : `Play against ${opponent?.name}`}
         </Text>
         <Text style={styles.body}>
-          {sideName(view.side)} · Turn {game.turn}
+          {saved
+            ? `${sideName(view.side)} · Turn ${game.turn}`
+            : 'D-pad: choose · OK: select · Back: cancel'}
         </Text>
         {choices.length ? (
           <>
@@ -272,6 +319,9 @@ function Game({
                 fontSize={20}
               />
             ))}
+            {overlay.kind === 'opponent' ? (
+              <Text style={styles.body}>{OPPONENTS[overlay.index].style}</Text>
+            ) : null}
           </>
         ) : (
           <>
@@ -295,10 +345,13 @@ function Game({
           </>
         )}
         <Text style={styles.saved}>
-          Saved on this device ·{' '}
-          {mode === 'hotseat'
-            ? 'Two players share the remote'
-            : 'You: White · Rolly: Black'}
+          {saved
+            ? 'Saved on this device · '
+            : 'Choose an opponent and side to start'}
+          {saved &&
+            (game.human
+              ? `You: ${sideName(game.human)} · ${opponent?.name}: ${sideName(opposite(game.human))}`
+              : 'Two players share the remote')}
         </Text>
       </View>
     </View>
@@ -335,7 +388,7 @@ export const GameScreen = React.memo(function GameScreen({
           accessibilityLabel={
             mode === 'hotseat'
               ? 'Two-player Dice Chess'
-              : 'Dice Chess against Rolly'
+              : 'Dice Chess against computer'
           }
           onPress={() => {
             if (activity.isActive()) pulseKey(channel.emit, 'select');

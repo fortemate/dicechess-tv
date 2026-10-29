@@ -1,6 +1,6 @@
 # Android TV compatibility probe
 
-A bounded engineering prototype based on `next`. It exercises platform boundaries before moving the Vega application's folders or screens. It includes playable two-player and Rolly bot slices, but is not a complete Android port or a release candidate. The product application remains in `native/`.
+A bounded engineering prototype based on `next`. It exercises platform boundaries before moving the Vega application's folders or screens. It includes playable two-player and computer-opponent slices, but is not a complete Android port or a release candidate. The product application remains in `native/`.
 
 ## What it exercises
 
@@ -65,7 +65,7 @@ Cursor movement does not write the save. Home, return to diagnostics and process
 restart preserve the canonical snapshot, including the partial turn and spent
 dice. Corrupt saves and storage failures show an error and keep the existing
 save; the slice does not silently reset data or implement a damaged-save recovery
-menu. Music, voices, additional opponents, tutorial, settings and accessibility qualification remain
+menu. Music, voices, tutorial, settings and accessibility qualification remain
 separate work. See [hotseat-validation.md](hotseat-validation.md) for observed
 results and input limits.
 
@@ -89,16 +89,25 @@ existing `smoke.py` still clears all probe app data, including its hotseat save;
 run it first if exercising both suites. Gameplay screenshots and event reports
 are written to the ignored `build/hotseat-smoke/` directory. `--audio` also checks native playback/completion events, silent restoration, and Home interrupting an active result jingle; it finishes with an agreed draw. Events do not establish human listening quality.
 
-## Play against Rolly
+## Play against the computer
 
-Choose **Play against Rolly**, immediately above **Play with a friend**. This
-first bot slice fixes the player to White and uses Rolly's existing `random`
-mode (`random-king-capture` in the canonical engine). Other opponents and a side
-chooser are not included yet. Its `dicechess-android-bot` MMKV namespace keeps
-its game separate from the two-player save and diagnostic snapshots.
+Choose **Play against computer**, immediately above **Play with a friend**.
+Without a saved bot game, choose Rolly (Easy), Grabby (Medium) or Rampage (Hard),
+then Random, White or Black. These are the shared opponent definitions and
+canonical algorithms; the Android screen does not define separate bot strengths.
+Back returns to the opponent chooser or diagnostics without creating a save.
+
+A saved game opens directly, keeping its opponent, color and full turn snapshot.
+Earlier Rolly/White saves remain compatible. Random resolves the player's color
+once when the new game starts, and that resolved side survives a restart. Black
+plays with a flipped board and matching D-pad navigation; the computer plays
+White's opening turn. An empty roll uses the shared prompt/OK guard.
+
+The `dicechess-android-bot` MMKV namespace keeps one bot game separate from the
+two-player save and diagnostic snapshots. It is not one save per opponent.
 
 Play your moves with D-pad and OK. At the end of your turn, OK hands control to
-Rolly. The packaged engine computes a complete legal turn in the existing
+the opponent. The packaged engine computes a complete legal turn in the existing
 background Worklets runtime; the shared reducer validates the reply and reveals
 one move at a time using its existing presentation pace. Search strength is
 unchanged. The RN thread never falls back to a synchronous search.
@@ -117,8 +126,10 @@ bot move. The Node restore test covers restarting after one saved bot move and
 verifies that the driver requests only the remaining moves from that saved game.
 
 The menu offers Resume, Resign, New game and Diagnostics. Replacement and
-resignation require confirmation. New game keeps Rolly and the player's White
-side. A result stays on the board; OK opens the limited rematch/diagnostics menu.
+resignation require confirmation while a game is in progress. New game opens
+opponent and side selection again, with Cancel first at the final replacement
+confirmation. A result stays on the board; OK opens the limited rematch/diagnostics
+menu. Starting after a result does not require replacement confirmation.
 Worker failures preserve the saved turn and show an error. Back or OK returns to
 diagnostics; reopening retries the saved position without resetting the game.
 
@@ -132,7 +143,18 @@ mise exec -- python3 android-probe/scripts/bot-smoke.py --serial <serial> \
 It replaces the bot game through confirmation, uses normal random rolls and
 remote events, and checks bot turns, menu/Home pause, process recovery, save
 separation and rematch. It does not inject dice, moves or a diagnostic search
-delay. See [bot-validation.md](bot-validation.md) for the evidence and limits.
+delay. The original Rolly-only evidence remains in [bot-validation.md](bot-validation.md).
+Run the selection suite after `smoke.py` (which clears the probe's data) to also
+check cancellation before the first saved bot game:
+
+```sh
+mise exec -- python3 android-probe/scripts/selection-smoke.py --serial <serial> \
+  --output android-probe/build/opponent-selection
+```
+
+This replaces the bot save through the UI and checks all nine opponent/side
+choices, D-pad moves and exact process recovery. The selection behavior and
+current validation limits are recorded in [selection-validation.md](selection-validation.md).
 
 ## Dependency decisions
 

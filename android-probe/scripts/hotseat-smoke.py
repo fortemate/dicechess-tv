@@ -91,8 +91,28 @@ def open_game(up=1):
             raise AssertionError('Diagnostic app did not become ready')
         time.sleep(0.2)
     time.sleep(0.5)  # Native focus follows the first React commit.
-    key(19, up)  # Hotseat is last; Rolly is immediately above it.
+    key(19, up)  # Hotseat is last; computer play is immediately above it.
     return press(23)
+
+
+def choose_bot(state, opponent=0, colour=1):
+    """Start through the shared opponent/side menus, confirming replacement."""
+    if state['overlay']['kind'] != 'opponent':
+        if state['overlay']['kind'] != 'menu':
+            state = press(4, lambda s: s['overlay']['kind'] == 'menu')
+        while state['overlay']['index'] != 2:  # Shared New game row.
+            state = press(20)
+        state = press(23, lambda s: s['overlay']['kind'] == 'opponent')
+    while state['overlay']['index'] != opponent:
+        state = press(20)
+    state = press(23, lambda s: s['overlay']['kind'] == 'colour')
+    while state['overlay']['index'] != colour:
+        state = press(20)
+    state = press(23)
+    if state['overlay']['kind'] == 'confirm':
+        state = press(20)
+        state = press(23, lambda s: s['overlay']['kind'] == 'none')
+    return state
 
 
 def navigate(state, target):

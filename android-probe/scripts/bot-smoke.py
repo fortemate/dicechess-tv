@@ -57,15 +57,10 @@ try:
     h.adb('shell', 'am', 'force-stop', h.package)
     h.adb('logcat', '-c')
     state = h.open_game(2)
+    state = h.choose_bot(state)
     assert state['game']['mode'] == 'random' and state['game']['human'] == 'w'
-    h.press(4)
-    if state['game']['phase'] != 'ended':
-        h.key(20, 2)
-    h.press(23, lambda s: s['overlay']['kind'] == 'confirm')
-    h.key(20)
-    state = h.press(23, lambda s: s['game']['phase'] == 'roll' and s['view']['side'] == 'w')
     h.snapshot('new-bot-game.png')
-    checks.append('Rolly/White starts through confirmed replacement with a separate save')
+    checks.append('Rolly/White starts through opponent and side selection with a separate save')
     state = next_bot_turn(state)
     # Pause while the worker is outstanding or its paced path is being presented.
     state = h.press(4, lambda s: s['overlay']['kind'] == 'menu')
@@ -129,13 +124,13 @@ try:
     ended = h.press(23, lambda s: s['game']['phase'] == 'ended')['game']
     assert ended['result']['winner'] == 'b'
     h.snapshot('bot-result.png')
-    h.press(23); h.press(23)
-    canceled = h.press(23, lambda s: s['overlay']['kind'] == 'menu')
+    h.press(23)
+    h.press(23, lambda s: s['overlay']['kind'] == 'opponent')
+    canceled = h.press(4, lambda s: s['overlay']['kind'] == 'menu')
     assert canceled['game'] == ended and canceled['overlay']['index'] == 2
-    h.press(23); h.key(20)
-    state = h.press(23, lambda s: s['game']['phase'] == 'roll')
+    state = h.choose_bot(canceled)
     assert state['game']['id'] != ended['id'] and state['game']['human'] == 'w'
-    checks.append('resignation result and canceled/confirmed same-opponent rematch work with the remote')
+    checks.append('resignation result and canceled/reselected rematch work with the remote')
     assert not [e for e in h.events() if e['event'] in ('bot-error','load-error','save-error')]
     print(json.dumps({'passed':checks},indent=2))
 finally:

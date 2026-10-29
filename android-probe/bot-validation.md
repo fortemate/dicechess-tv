@@ -1,5 +1,8 @@
 # Android TV Rolly game validation
 
+This records the first Rolly-only slice. For subsequent opponent and side selection,
+see [selection-validation.md](selection-validation.md).
+
 On October 29, 2026, the Android prototype gained a playable game against Rolly.
 The player is White; Rolly is Black. The existing canonical `random` mode maps
 to the engine's `random-king-capture` algorithm. Additional opponents and side
