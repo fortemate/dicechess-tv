@@ -208,7 +208,7 @@ test('a storage failure cannot advance the visible game or overwrite its last sn
   assert.equal(store.getString(HOTSEAT_KEY), saved);
 });
 
-test('Android directions produce one completed key and TV select cannot duplicate Pressable', () => {
+test('androidDirection accepts completed direction releases and pulseKey emits select phases', () => {
   for (const direction of ['up', 'down', 'left', 'right']) {
     assert.equal(
       androidDirection({ eventType: direction, eventKeyAction: 0 }),
