@@ -1,4 +1,5 @@
 import { decodeGame, isBotMode, newGame, type Game } from '../../src/core/game';
+import { OPPONENTS } from '../../src/core/opponents';
 import { encodeSnapshot } from '../../src/core/snapshotStore';
 import {
   initialState,
@@ -11,14 +12,29 @@ import {
 import type { KeyValueStore } from '../../native/src/keyValueStore';
 
 export type ProbeMode = 'hotseat' | 'bot';
+export type GameIntent = 'continue' | 'new';
 export const GAME_KEY = 'game.v1';
+export const gameStoreId = (mode: ProbeMode) =>
+  mode === 'hotseat' ? 'dicechess-android-hotseat' : 'dicechess-android-bot';
+
+function decodeSavedGame(raw: string, mode: ProbeMode) {
+  const game = decodeGame(raw);
+  if (mode === 'hotseat' ? game.mode !== 'hotseat' : !isBotMode(game.mode))
+    throw new Error('This save belongs to a different game mode');
+  return game;
+}
+
+export function readSavedGame(store: KeyValueStore, mode: ProbeMode) {
+  const raw = store.getString(GAME_KEY);
+  return raw === undefined ? null : decodeSavedGame(raw, mode);
+}
 export type GameAction = Extract<
   ScreenAction,
   { kind: 'key' | 'unguard' | 'bot' }
 >;
 
 // Keep the shared menu indices and confirmation logic. The prototype exposes
-// only the implemented game flows, with its diagnostics as the exit target.
+// only the implemented game flows. The screen labels its own exit target.
 export const gameMenu = (game: Game) =>
   menuItems(game)
     .map((item, index) => ({ ...item, index }))
@@ -29,7 +45,7 @@ export const gameMenu = (game: Game) =>
     )
     .map((item) => ({
       ...item,
-      label: item.id === 'main-menu' ? 'Diagnostics' : item.label,
+      label: item.id === 'main-menu' ? 'Main menu' : item.label,
     }));
 
 export function gameStep(
@@ -67,7 +83,7 @@ export function gameStep(
   if (next.overlay.kind === 'result')
     next = { ...next, overlay: { kind: 'none' } };
   // Shared confirmation cancellation returns to menu row 0. After a result
-  // this slice only exposes New game and Diagnostics, so restore visible focus.
+  // this slice only exposes New game and Main menu, so restore visible focus.
   if (next.overlay.kind === 'menu') {
     const index = next.overlay.index;
     const available = gameMenu(next.game);
@@ -84,15 +100,10 @@ export function createGameSession(
   store: KeyValueStore,
   options: ScreenOptions,
   mode: ProbeMode = 'hotseat',
+  intent: GameIntent = 'continue',
 ) {
-  const raw = store.getString(GAME_KEY);
-  const decode = (value: string) => {
-    const game = decodeGame(value);
-    if (mode === 'hotseat' ? game.mode !== 'hotseat' : !isBotMode(game.mode))
-      throw new Error('This save belongs to a different game mode');
-    return game;
-  };
-  const restored = raw === undefined ? null : decode(raw);
+  const decode = (raw: string) => decodeSavedGame(raw, mode);
+  const restored = readSavedGame(store, mode);
   const choosing = mode === 'bot' && !restored;
   let saved = Boolean(restored);
   let current: ScreenState = {
@@ -107,12 +118,30 @@ export function createGameSession(
       : { kind: 'none' },
     resumable: !choosing,
   };
+  if (intent === 'new' && restored) {
+    current =
+      mode === 'bot'
+        ? {
+            ...current,
+            overlay: {
+              kind: 'opponent',
+              index: OPPONENTS.findIndex(({ mode }) => mode === restored.mode),
+              from: 'home',
+            },
+          }
+        : screenReducer(
+            current,
+            { kind: 'newGame', mode: 'hotseat', colour: 'random' },
+            options,
+          );
+  }
   const save = (game: Game) => {
     store.set(GAME_KEY, encodeSnapshot(game, decode));
     saved = true;
   };
   // A first bot selection is only a preview until opponent and side are chosen.
-  if (!restored && !choosing) save(current.game);
+  if ((!restored && !choosing) || (restored && current.game !== restored))
+    save(current.game);
   return {
     getState: () => current,
     hasSave: () => saved,

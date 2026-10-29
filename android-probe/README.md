@@ -12,7 +12,7 @@ A bounded engineering prototype based on `next`. It exercises platform boundarie
 - A local two-player game using the shared `Board`, `Dice` and `screenReducer`, with D-pad/OK/Back, pause, confirmed replacement/resignation, and automatic MMKV saves. Its independent storage namespace keeps diagnostic snapshots separate.
 - All 12 shared piece components and three SVG fallback faces from `native/src/`, rendered by Android `react-native-svg`. The gallery shows every component at 48 or 114 dp, with D-pad selection, OK to switch size, and Back to return to the diagnostics.
 
-The menu, SVG gallery and game each use a single native focus target. D-pad changes the selection; `Pressable` supplies completed OK presses. Back returns from the gallery, pauses/deselects in the game, or cancels pending work and audio in the diagnostic menu. The emulator checks cover discrete key presses; held-key behavior, accessibility and physical remote behavior remain separate work.
+The home screen, diagnostics, SVG gallery and game each use a single native focus target. D-pad changes the selection; `Pressable` supplies completed OK presses. Back leaves the app from home, returns from the gallery, pauses/deselects in the game, or cancels pending work/audio in diagnostics. Back in diagnostics returns home when no worker or audio player remains. The emulator checks cover discrete key presses; held-key behavior, accessibility and physical remote behavior remain separate work.
 
 ## Reproduce
 
@@ -50,15 +50,51 @@ python3 scripts/smoke.py --serial <serial>
 
 `npm run bundle` creates a standalone Android JS export for a cheaper Metro check. Native compatibility still requires the APK build and device checks. CI builds a local-test APK on PRs and relevant `next` pushes; it does not deploy, upload an APK, release, or modify the contest site.
 
+## Home screen
+
+The APK launches into **Dice Chess**, with **New game vs computer**, **New game
+with a friend**, and **Diagnostics**. A saved game adds its own **Continue** row;
+bot and friend games have separate rows and remain independent. Bot summaries
+name the opponent and resolved player color. Ended games offer **View result**.
+
+D-pad moves the highlight, OK opens the selected entry, and Back leaves the app.
+Returning from a game restores the selected home row and refreshes save summaries.
+A cold process launch stays on home without mounting a game, playing effects or
+starting the bot. Continue restores the full saved turn only when selected.
+
+New game preserves the current save until confirmed. Computer play opens the
+opponent/side selectors first; a live-game replacement then offers Cancel/Yes.
+Friend play confirms replacement of a live game immediately. Back/Cancel return
+home without overwriting it. Starting a new game after a result does not need
+replacement confirmation. An unreadable save remains reachable for its error
+message; opening home never clears or repairs it, and the other mode stays usable.
+
+**Diagnostics** contains the original compatibility checks and direct game
+entries. Its **Main menu** action cancels/disposes diagnostic work and returns
+home. Back cancels retained work/audio, or returns home when none remains. Games opened there retain **Diagnostics** as
+their exit target, while normal games offer **Main menu**. The existing smoke
+scripts enter diagnostics through the home menu with real remote events.
+
+Run `home-smoke.py` after `smoke.py` for fresh-start checks, before scripts that
+create game saves:
+
+```sh
+mise exec -- python3 android-probe/scripts/home-smoke.py --serial <serial> \
+  --output android-probe/build/home-menu
+```
+
+See [home-validation.md](home-validation.md) for the build, evidence and limits.
+
 ## Play with a friend
 
-Choose **Play with a friend**, the last diagnostic. It opens the saved two-player
-game, or creates one if no save exists. D-pad chooses a highlighted piece or a
+Choose **New game with a friend** on home, or **Continue with a friend** when a
+save exists. The direct **Play with a friend** diagnostic still opens its save
+or creates one if none exists. D-pad chooses a highlighted piece or a
 legal destination; OK rolls, selects and moves. OK after a completed turn passes
 to the other player and rolls their dice. Back cancels a selected piece first,
 then opens the game menu. The menu offers Resume, Resign, Agree a draw, New game
-and Diagnostics. Replacement and resignation use the shared confirmation flow,
-with Cancel first. After a result, the menu offers New game and Diagnostics.
+and Main menu (Diagnostics when opened there). Replacement and resignation use the shared confirmation flow,
+with Cancel first. After a result, the menu offers New game and the same exit target.
 
 Every game transition is validated and written synchronously before it is shown.
 Cursor movement does not write the save. Home, return to diagnostics and process
@@ -91,13 +127,13 @@ are written to the ignored `build/hotseat-smoke/` directory. `--audio` also chec
 
 ## Play against the computer
 
-Choose **Play against computer**, immediately above **Play with a friend**.
-Without a saved bot game, choose Rolly (Easy), Grabby (Medium) or Rampage (Hard),
+Choose **New game vs computer** on home, then Rolly (Easy), Grabby (Medium) or Rampage (Hard),
 then Random, White or Black. These are the shared opponent definitions and
 canonical algorithms; the Android screen does not define separate bot strengths.
-Back returns to the opponent chooser or diagnostics without creating a save.
+Back returns to the opponent chooser or home without creating a save. The direct
+**Play against computer** diagnostic retains its original resume-or-start behavior.
 
-A saved game opens directly, keeping its opponent, color and full turn snapshot.
+The **Continue** row opens a saved game directly, keeping its opponent, color and full turn snapshot.
 Earlier Rolly/White saves remain compatible. Random resolves the player's color
 once when the new game starts, and that resolved side survives a restart. Black
 plays with a flipped board and matching D-pad navigation; the computer plays
@@ -125,13 +161,13 @@ exact dice, position and phase recovery after a process restart before the first
 bot move. The Node restore test covers restarting after one saved bot move and
 verifies that the driver requests only the remaining moves from that saved game.
 
-The menu offers Resume, Resign, New game and Diagnostics. Replacement and
+The menu offers Resume, Resign, New game and Main menu (Diagnostics when opened there). Replacement and
 resignation require confirmation while a game is in progress. New game opens
 opponent and side selection again, with Cancel first at the final replacement
 confirmation. A result stays on the board; OK opens the limited rematch/diagnostics
 menu. Starting after a result does not require replacement confirmation.
 Worker failures preserve the saved turn and show an error. Back or OK returns to
-diagnostics; reopening retries the saved position without resetting the game.
+the screen it was opened from; reopening retries the saved position without resetting the game.
 
 Run the bot check after installing the APK:
 

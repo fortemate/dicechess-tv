@@ -82,16 +82,51 @@ def press(code, predicate=lambda state: True):
     return wait(start, predicate)
 
 
-def open_game(up=1):
-    before = len(events('AndroidProbe'))
+def home_wait(since=0, predicate=lambda state: True, timeout=15):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        states = [e['detail'] for e in events('AndroidHome')[since:]
+                  if e['event'] == 'state' and predicate(e['detail'])]
+        if states:
+            return states[-1]
+        time.sleep(0.1)
+    raise AssertionError(f'No expected home state: {events("AndroidHome")[-3:]}')
+
+
+def open_home():
+    before = len(events('AndroidHome'))
     adb('shell', 'am', 'start', '-n', f'{package}/.MainActivity')
+    state = home_wait(before)
+    time.sleep(0.5)  # Native focus follows the first React commit.
+    return state
+
+
+def home_select(item):
+    state = home_wait()
+    assert any(i['id'] == item for i in state['items']), state
+    while state['selected'] != item:
+        before = len(events('AndroidHome'))
+        key(20)
+        state = home_wait(before)
+    key(23)
+
+
+def open_diagnostics():
+    before = len(events('AndroidProbe'))
+    open_home()
+    home_select('diagnostics')
     deadline = time.monotonic() + 30
     while not any(e['event'] == 'ready' for e in events('AndroidProbe')[before:]):
         if time.monotonic() >= deadline:
-            raise AssertionError('Diagnostic app did not become ready')
+            raise AssertionError('Diagnostics did not become ready')
         time.sleep(0.2)
-    time.sleep(0.5)  # Native focus follows the first React commit.
-    key(19, up)  # Hotseat is last; computer play is immediately above it.
+    time.sleep(0.5)
+
+
+def open_game(up=1):
+    open_diagnostics()
+    # Main menu is last; the two original game entries retain their indices.
+    key(19, up + 1)
     return press(23)
 
 
