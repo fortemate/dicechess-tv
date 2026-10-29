@@ -134,6 +134,7 @@ test('same-channel replacement is bounded and old callbacks cannot release its s
   h.effects.play(['piece_capture']);
   assert.equal(h.players[0].removed, 1);
   h.players[0].emit({ playing: false, didJustFinish: true, currentTime: 1 });
+  assert.equal(h.players[1].removed, 0);
   h.active(false);
   assert.equal(h.players[1].removed, 1);
   h.effects.dispose();

@@ -13,7 +13,7 @@ rules, Vega source, dependencies or lockfiles changed.
   produce game effects.
 - The service implements only the effects/lifecycle subset of `Sounds`. Music,
   voices and in-game audio settings are outside this slice. Effects use gain 0.5;
-  the TV's media volume controls their output.
+  the TV's media volume is expected to control their output, but this is unverified.
 - Expo Audio plays separate MP3s with at most one owned player per board, dice
   and result channel. This allows a capture and result to overlap. Native
   completion releases the player; a 10-second fallback bounds stalled decoders.
