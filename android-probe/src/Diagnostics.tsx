@@ -348,6 +348,7 @@ export function Diagnostics({
         activity={activity}
         onExit={closeGame}
         mode={playing}
+        intent="new"
         exitLabel="Diagnostics"
       />
     );

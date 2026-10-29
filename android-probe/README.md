@@ -9,7 +9,7 @@ A bounded engineering prototype based on `next`. It exercises platform boundarie
 - MMKV v4 through the existing synchronous `getString`/`set`/`delete` port, including a real partial-turn snapshot with dice and moves.
 - RN TV D-pad/OK events, Back cancellation, Android lifecycle and window focus, and a visible RN heartbeat.
 - Expo Audio completion, seeking, two concurrent players, individual volume settings, and teardown on background/blur. One original generated PCM tone and one pinned English tutorial MP3 are packaged offline.
-- A local two-player game using the shared `Board`, `Dice` and `screenReducer`, with D-pad/OK/Back, pause, confirmed replacement/resignation, and automatic MMKV saves. Its independent storage namespace keeps diagnostic snapshots separate.
+- A local two-player game using the shared `Board`, `Dice` and `screenReducer`, with D-pad/OK/Back, pause, confirmed replacement/resignation, and automatic MMKV saves. The current-game namespace keeps diagnostic snapshots separate.
 - All 12 shared piece components and three SVG fallback faces from `native/src/`, rendered by Android `react-native-svg`. The gallery shows every component at 48 or 114 dp, with D-pad selection, OK to switch size, and Back to return to the diagnostics.
 
 The home screen, diagnostics, SVG gallery and game each use a single native focus target. D-pad changes the selection; `Pressable` supplies completed OK presses. Back leaves the app from home, returns from the gallery, pauses/deselects in the game, or cancels pending work/audio in diagnostics. Back in diagnostics returns home when no worker or audio player remains. The emulator checks cover discrete key presses; held-key behavior, accessibility and physical remote behavior remain separate work.
@@ -52,28 +52,51 @@ python3 scripts/smoke.py --serial <serial>
 
 ## Home screen
 
-The APK launches into **Dice Chess**, with **New game vs computer**, **New game
-with a friend**, and **Diagnostics**. A saved game adds its own **Continue** row;
-bot and friend games have separate rows and remain independent. Bot summaries
-name the opponent and resolved player color. Ended games offer **View result**.
+The APK launches into **Dice Chess**. Its supported menu entries use the Vega
+menu definitions, labels and order: **Resume game** (when a current unfinished
+game exists), **Play a friend**, and **Play the computer**. Learning, rules,
+settings and About remain hidden until their Android screens are supported.
 
-D-pad moves the highlight, OK opens the selected entry, and Back leaves the app.
-Returning from a game restores the selected home row and refreshes save summaries.
-A cold process launch stays on home without mounting a game, playing effects or
-starting the bot. Continue restores the full saved turn only when selected.
+There is one current game, regardless of opponent or two-player mode. D-pad
+moves the highlight, OK selects, and Back leaves the app. Returning from a game
+restores the selected home row. A cold launch stays on home without mounting a
+game, playing effects or starting the bot. Resume restores the exact saved turn.
 
-New game preserves the current save until confirmed. Computer play opens the
-opponent/side selectors first; a live-game replacement then offers Cancel/Yes.
-Friend play confirms replacement of a live game immediately. Back/Cancel return
-home without overwriting it. Starting a new game after a result does not need
-replacement confirmation. An unreadable save remains reachable for its error
-message; opening home never clears or repairs it, and the other mode stays usable.
+Play a friend and Play the computer enter Vega's shared home actions. Switching
+modes also replaces the current game, so a live-game replacement requires
+Cancel/Yes after any opponent/side choices. Cancel or Back preserves the save.
+An ended game does not appear as Resume and can be replaced without confirmation.
+Unreadable saves show an error and are never silently cleared or overwritten.
 
-**Diagnostics** contains the original compatibility checks and direct game
-entries. Its **Main menu** action cancels/disposes diagnostic work and returns
-home. Back cancels retained work/audio, or returns home when none remains. Games opened there retain **Diagnostics** as
-their exit target, while normal games offer **Main menu**. The existing smoke
-scripts enter diagnostics through the home menu with real remote events.
+### Existing saves
+
+The current snapshot uses `game.v1` in `dicechess-android-game`. On an upgrade
+with older saves but no current snapshot, a one-time chooser lets the player
+select a game to carry forward. Its exact validated snapshot is copied before
+continuing. Both old namespaces (`dicechess-android-hotseat` and
+`dicechess-android-bot`) remain untouched, including the unselected game or
+invalid data. They are retained for recovery; the normal menu uses only the new
+current slot. A successful migration is not repeated on later launches.
+A write failure leaves the choice available for retry. Invalid legacy data is
+reported without replacing it. There is no in-app archive/recovery browser yet.
+
+### Engineering diagnostics
+
+Diagnostics is absent from the ordinary menu. Open it explicitly on a selected
+development device with the probe's diagnostic link:
+
+```sh
+adb -s <serial> shell am start -a android.intent.action.VIEW \
+  -d dicechess-probe://diagnostics \
+  -n com.fortemate.dicechesstv.probe/.MainActivity
+```
+
+The link works at cold launch and while the activity is running. Other URLs do
+not select diagnostics. The **Main menu** diagnostic action disposes pending
+work and returns home; Back cancels retained work/audio or returns home when
+none remains. Direct game diagnostics start the selected mode through the same
+replacement flow and use the current slot, with Diagnostics as their exit target.
+The diagnostic snapshot tests retain their separate engineering namespace.
 
 Run `home-smoke.py` after `smoke.py` for fresh-start checks, before scripts that
 create game saves:
@@ -87,14 +110,13 @@ See [home-validation.md](home-validation.md) for the build, evidence and limits.
 
 ## Play with a friend
 
-Choose **New game with a friend** on home, or **Continue with a friend** when a
-save exists. The direct **Play with a friend** diagnostic still opens its save
-or creates one if none exists. D-pad chooses a highlighted piece or a
-legal destination; OK rolls, selects and moves. OK after a completed turn passes
-to the other player and rolls their dice. Back cancels a selected piece first,
-then opens the game menu. The menu offers Resume, Resign, Agree a draw, New game
-and Main menu (Diagnostics when opened there). Replacement and resignation use the shared confirmation flow,
-with Cancel first. After a result, the menu offers New game and the same exit target.
+Choose **Play a friend**, or **Resume game** for the current two-player game.
+D-pad chooses a piece or destination; OK rolls, selects and moves. OK after a
+completed turn passes to the other player and rolls their dice. Back cancels a
+selected piece first, then opens the game menu. Its shared entries are Resume
+game, Resign, Agree a draw, New game and Main menu (Diagnostics when opened
+there). Replacement and resignation use Vega's confirmation flow, with Cancel
+first. After a result, OK or Back returns to the main menu, as on Vega.
 
 Every game transition is validated and written synchronously before it is shown.
 Cursor movement does not write the save. Home, return to diagnostics and process
@@ -119,28 +141,28 @@ from mise on PATH:
 mise exec -- python3 scripts/hotseat-smoke.py --serial <serial> --audio
 ```
 
-This force-stops the disposable probe and **replaces its hotseat game through the
+This force-stops the disposable probe and **replaces its current game through the
 confirmation UI**, without clearing app data or injecting moves/dice. The
-existing `smoke.py` still clears all probe app data, including its hotseat save;
+existing `smoke.py` still clears all probe app data, including its current and legacy saves;
 run it first if exercising both suites. Gameplay screenshots and event reports
 are written to the ignored `build/hotseat-smoke/` directory. `--audio` also checks native playback/completion events, silent restoration, and Home interrupting an active result jingle; it finishes with an agreed draw. Events do not establish human listening quality.
 
 ## Play against the computer
 
-Choose **New game vs computer** on home, then Rolly (Easy), Grabby (Medium) or Rampage (Hard),
+Choose **Play the computer** on home, then Rolly (Easy), Grabby (Medium) or Rampage (Hard),
 then Random, White or Black. These are the shared opponent definitions and
 canonical algorithms; the Android screen does not define separate bot strengths.
 Back returns to the opponent chooser or home without creating a save. The direct
-**Play against computer** diagnostic retains its original resume-or-start behavior.
+**Play against computer** diagnostic starts through the same replacement flow.
 
-The **Continue** row opens a saved game directly, keeping its opponent, color and full turn snapshot.
+The **Resume game** row opens a saved game directly, keeping its opponent, color and full turn snapshot.
 Earlier Rolly/White saves remain compatible. Random resolves the player's color
 once when the new game starts, and that resolved side survives a restart. Black
 plays with a flipped board and matching D-pad navigation; the computer plays
 White's opening turn. An empty roll uses the shared prompt/OK guard.
 
-The `dicechess-android-bot` MMKV namespace keeps one bot game separate from the
-two-player save and diagnostic snapshots. It is not one save per opponent.
+The current-game namespace is shared with two-player play. Selecting another
+opponent or switching to Play a friend replaces this game only after confirmation.
 
 Play your moves with D-pad and OK. At the end of your turn, OK hands control to
 the opponent. The packaged engine computes a complete legal turn in the existing
@@ -161,12 +183,14 @@ exact dice, position and phase recovery after a process restart before the first
 bot move. The Node restore test covers restarting after one saved bot move and
 verifies that the driver requests only the remaining moves from that saved game.
 
-The menu offers Resume, Resign, New game and Main menu (Diagnostics when opened there). Replacement and
+The menu offers Resume game, Resign, New game and Main menu (Diagnostics when opened there). Replacement and
 resignation require confirmation while a game is in progress. New game opens
 opponent and side selection again, with Cancel first at the final replacement
-confirmation. A result stays on the board; OK opens a menu with New game and
-Main menu (Diagnostics when opened from diagnostics). Starting after a result
-does not require replacement confirmation.
+confirmation. A computer-game result opens Vega's **Rematch / Main menu** menu
+(Diagnostics when opened there). Rematch starts immediately against the same
+opponent with the same color preference; Random draws the side again. Back
+returns home. The shared reducer handles these actions without a separate
+Android result flow.
 Worker failures preserve the saved turn and show an error. Back or OK returns to
 the screen it was opened from; reopening retries the saved position without resetting the game.
 
@@ -177,9 +201,9 @@ mise exec -- python3 android-probe/scripts/bot-smoke.py --serial <serial> \
   --output android-probe/build/bot-game
 ```
 
-It replaces the bot game through confirmation, uses normal random rolls and
-remote events, and checks bot turns, menu/Home pause, process recovery, save
-separation and rematch. It does not inject dice, moves or a diagnostic search
+It replaces the current game through confirmation, uses normal random rolls and
+remote events, and checks bot turns, menu/Home pause, process recovery and same-opponent
+rematch. It does not inject dice, moves or a diagnostic search
 delay. The original Rolly-only evidence remains in [bot-validation.md](bot-validation.md).
 Run the selection suite after `smoke.py` (which clears the probe's data) to also
 check cancellation before the first saved bot game:
@@ -189,7 +213,7 @@ mise exec -- python3 android-probe/scripts/selection-smoke.py --serial <serial> 
   --output android-probe/build/opponent-selection
 ```
 
-This replaces the bot save through the UI and checks all nine opponent/side
+This replaces the current save through the UI and checks all nine opponent/side
 choices, D-pad moves and exact process recovery. The selection behavior and
 current validation limits are recorded in [selection-validation.md](selection-validation.md).
 

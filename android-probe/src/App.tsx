@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { AppState } from 'react-native';
+import { AppState, Linking } from 'react-native';
 import { createActivity } from '../../native/src/activity';
 import { Diagnostics } from './Diagnostics';
 import { GameScreen } from './GameScreen';
@@ -10,7 +10,28 @@ export default function App() {
   const [activity] = useState(() =>
     createActivity(AppState.currentState === 'active'),
   );
-  const [route, setRoute] = useState<HomeItem['action'] | null>(null);
+  const [route, setRoute] = useState<
+    HomeItem['action'] | { kind: 'diagnostics' } | null
+  >(null);
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    let mounted = true;
+    const open = (url: string | null) => {
+      if (mounted && url === 'dicechess-probe://diagnostics')
+        setRoute({ kind: 'diagnostics' });
+    };
+    const link = Linking.addEventListener('url', ({ url }) => open(url));
+    void Linking.getInitialURL()
+      .then(open)
+      .catch(() => {})
+      .finally(() => {
+        if (mounted) setReady(true);
+      });
+    return () => {
+      mounted = false;
+      link.remove();
+    };
+  }, []);
   const homeFocus = useRef<string | undefined>(undefined);
   const goHome = useCallback(() => setRoute(null), []);
   useEffect(() => {
@@ -30,6 +51,7 @@ export default function App() {
       activity.setActive(false);
     };
   }, [activity]);
+  if (!ready) return null;
   if (route?.kind === 'diagnostics')
     return <Diagnostics activity={activity} onExit={goHome} />;
   if (route?.kind === 'game')

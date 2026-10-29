@@ -24,6 +24,9 @@ import { useRemoteInput } from '../../native/src/useRemoteInput';
 import { randomSource } from '../../native/src/randomSource';
 import {
   colourOptions,
+  resultItems,
+  HOTSEAT_OPTION,
+  COMPUTER_OPTION,
   flipped,
   OK_GUARD_MS,
   type ScreenOptions,
@@ -54,7 +57,7 @@ import { androidDirection, pulseKey } from './androidRemote';
 import {
   createGameSession,
   gameMenu,
-  gameStoreId,
+  GAME_STORE,
   type GameIntent,
   type GameAction,
   type ProbeMode,
@@ -69,6 +72,11 @@ function overlayChoices({ overlay, game }: ScreenState, exitLabel: string) {
   switch (overlay.kind) {
     case 'menu':
       return gameMenu(game).map(({ id, label, index }) => ({
+        label: id === 'main-menu' ? exitLabel : label,
+        index,
+      }));
+    case 'result':
+      return resultItems.map(({ id, label }, index) => ({
         label: id === 'main-menu' ? exitLabel : label,
         index,
       }));
@@ -96,6 +104,8 @@ function overlayChoices({ overlay, game }: ScreenState, exitLabel: string) {
 
 function overlayHeading(overlay: ScreenState['overlay']) {
   switch (overlay.kind) {
+    case 'result':
+      return 'Game over';
     case 'opponent':
       return 'Choose your opponent';
     case 'colour':
@@ -131,7 +141,7 @@ function makeSession(mode: ProbeMode, intent: GameIntent) {
   try {
     return {
       session: createGameSession(
-        createStore(gameStoreId(mode)),
+        createStore(GAME_STORE),
         options,
         mode,
         intent,
@@ -187,9 +197,10 @@ function Game({
     },
     [opened, error],
   );
+  const playingBot = state ? isBotMode(state.game.mode) : false;
   const driver = useRef<ReturnType<typeof createBotDriver> | null>(null);
   useEffect(() => {
-    if (mode === 'hotseat' || !opened.session || error) return;
+    if (!playingBot || !opened.session || error) return;
     const owned = createBotDriver({
       activity,
       worker: createWorker(activity),
@@ -206,7 +217,7 @@ function Game({
       driver.current = null;
       owned.dispose();
     };
-  }, [activity, opened, mode, error, send]);
+  }, [activity, opened, playingBot, error, send]);
   useEffect(() => {
     if (state) driver.current?.update(state);
   }, [state]);
@@ -274,14 +285,14 @@ function Game({
         ? 'OK: roll the dice'
         : game.phase === 'handoff'
           ? emptyRoll(game)
-            ? mode === 'hotseat'
+            ? game.mode === 'hotseat'
               ? 'No legal move · OK: next player rolls'
               : 'No legal move · OK: continue'
-            : mode === 'hotseat'
+            : game.mode === 'hotseat'
               ? 'Turn complete · OK: next player rolls'
               : `Turn complete · OK: ${opponent?.name} plays`
           : game.phase === 'ended'
-            ? 'OK: game menu'
+            ? 'OK: main menu'
             : focus.selected
               ? 'Choose a destination · OK: move · Back: cancel'
               : 'Choose a highlighted piece · OK: select';
@@ -304,17 +315,24 @@ function Game({
       />
       <View style={styles.panel}>
         <Text style={styles.title}>
-          {mode === 'hotseat'
-            ? 'Play with a friend'
-            : selecting || !saved
-              ? 'Play against computer'
-              : `Play against ${opponent?.name}`}
+          {selecting
+            ? COMPUTER_OPTION
+            : game.mode === 'hotseat'
+              ? HOTSEAT_OPTION
+              : !saved
+                ? COMPUTER_OPTION
+                : `Play against ${opponent?.name}`}
         </Text>
         <Text style={styles.body}>
           {saved
             ? `${sideName(view.side)} · Turn ${game.turn}`
             : 'D-pad: choose · OK: select · Back: cancel'}
         </Text>
+        {game.result && choices.length ? (
+          <Text style={styles.heading}>
+            {outcome(game, game.result)} · {reasonOf(game, game.result)}
+          </Text>
+        ) : null}
         {choices.length ? (
           <>
             <Text style={styles.heading}>{heading}</Text>

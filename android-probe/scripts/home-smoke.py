@@ -1,7 +1,6 @@
-"""Main-menu navigation and independent saves using real remote events only.
+"""Vega menu parity and a single current game using real remote events.
 
-Run after smoke.py for the fresh-menu checks. Does not inject state or dice;
-replaces games through the normal confirmation UI.
+Run after smoke.py for a fresh save. No game state or dice are injected.
 """
 import importlib.util
 import json
@@ -16,32 +15,19 @@ spec.loader.exec_module(h)
 checks = []
 
 
-def choose_game(item):
+def choose(item):
     start = len(h.events())
     h.home_select(item)
     return h.wait(start)
 
 
-def return_home(state):
-    if state['focus']['selected']:
-        state = h.press(4)
-    if state['overlay']['kind'] != 'menu':
-        state = h.press(4, lambda s: s['overlay']['kind'] == 'menu')
-    # Last visible row is Main menu in both modes, including after a result.
-    target = 4 if state['game']['mode'] == 'hotseat' else 3
-    for _ in range(5):
-        if state['overlay']['index'] == target:
-            break
-        state = h.press(20)
-    assert state['overlay']['index'] == target, state
-    start = len(h.events('AndroidHome'))
-    h.key(23)
-    home = h.home_wait(start)
-    time.sleep(0.5)
-    return home
+def resume(saved):
+    state = choose('resume')
+    assert state['game'] == saved
+    return state
 
 
-def partial_turn(state):
+def partial(state):
     deadline = time.monotonic() + 60
     while time.monotonic() < deadline:
         state = h.wait()
@@ -50,7 +36,7 @@ def partial_turn(state):
         if state['view']['bot']:
             if game['phase'] == 'handoff' and not game['moves']:
                 time.sleep(0.8)
-                state = h.press(23)
+                h.press(23)
             else:
                 time.sleep(0.1)
             continue
@@ -61,165 +47,123 @@ def partial_turn(state):
             if state['game']['phase'] == 'move':
                 return state
         time.sleep(0.8)
-        state = h.press(23)
-    raise AssertionError('No human partial turn under normal rolls')
-
-
-def assert_continue(item, saved):
-    state = choose_game(item)
-    assert state['game'] == saved
-    return state
+        h.press(23)
+    raise AssertionError('No human partial turn')
 
 
 try:
-    h.adb('shell', 'am', 'force-stop', h.package)
-    h.adb('logcat', '-c')
+    h.adb('shell','am','force-stop',h.package)
+    h.adb('logcat','-c')
     home = h.open_home()
-    assert [i['id'] for i in home['items']] == ['new-bot', 'new-hotseat', 'diagnostics']
+    assert [(i['id'],i['label']) for i in home['items']] == [('hotseat','Play a friend'),('computer','Play the computer')]
     h.snapshot('fresh-home.png')
-    for code, selected in ((19, 'diagnostics'), (22, 'new-bot'), (20, 'new-hotseat'), (21, 'new-bot')):
-        start = len(h.events('AndroidHome'))
+    for code, selected in ((19,'computer'),(22,'hotseat'),(20,'computer'),(21,'hotseat')):
+        before = len(h.events('AndroidHome'))
         h.key(code)
-        assert h.home_wait(start)['selected'] == selected
-    checks.append('cold launch opens home; all four D-pad directions and wrap work')
-
-    state = choose_game('new-bot')
+        assert h.home_wait(before)['selected'] == selected
+    checks.append('Vega labels/order, no Diagnostics, all four directions and wrap')
+    state = choose('computer')
     assert state['overlay']['kind'] == 'opponent'
-    start = len(h.events('AndroidHome'))
+    before = len(h.events('AndroidHome'))
     h.key(4)
-    home = h.home_wait(start)
-    assert home['selected'] == 'new-bot' and len(home['items']) == 3
-    checks.append('Back from first bot selection returns home without a placeholder save')
+    home = h.home_wait(before)
+    assert home['selected'] == 'computer' and len(home['items']) == 2
+    checks.append('first computer selection cancels without saving a preview')
 
-    state = partial_turn(choose_game('new-hotseat'))
+    state = partial(choose('hotseat'))
     friend = state['game']
-    home = return_home(state)
-    assert home['selected'] == 'new-hotseat'
-    assert 'continue-hotseat' in [i['id'] for i in home['items']]
-    state = assert_continue('continue-hotseat', friend)
-    h.key(3)
-    time.sleep(1)
-    assert h.wait()['game'] == friend
-    h.adb('shell', 'am', 'start', '-n', f'{h.package}/.MainActivity')
+    home = h.return_home(state)
+    assert [i['id'] for i in home['items']] == ['resume','hotseat','computer']
+    assert home['selected'] == 'hotseat'
+    state = resume(friend)
+    h.adb('shell','am','force-stop',h.package)
+    before = len(h.events())
+    h.open_home()
     time.sleep(0.8)
-    h.press(22)  # Native focus still accepts input after Home/return.
-    assert h.wait()['game'] == friend
-    home = return_home(h.wait())
-    checks.append('friend partial turn returns to home and continues exactly; Home/return preserves input')
+    assert not h.events()[before:]
+    state = resume(friend)
+    h.return_home(state)
+    checks.append('one Resume game restores exact partial turn after a cold restart; home starts no worker')
 
-    state = choose_game('new-hotseat')
-    assert state['overlay']['kind'] == 'confirm' and state['game'] == friend
-    h.snapshot('replace-friend.png')
-    start = len(h.events('AndroidHome'))
-    h.key(23)  # Cancel first.
-    h.home_wait(start)
-    state = assert_continue('continue-hotseat', friend)
-    return_home(state)
-    state = choose_game('new-hotseat')
-    h.key(20)
-    state = h.press(23, lambda s: s['overlay']['kind'] == 'none')
-    assert state['game']['id'] != friend['id']
-    friend = state['game']
-    return_home(state)
-    checks.append('New friend game cancels without changing the save and replaces only after Yes')
+    state = choose('computer')
+    h.press(20)
+    h.press(23, lambda s:s['overlay']['kind']=='colour')
+    h.press(20, lambda s:s['overlay']['index']==1)
+    h.press(23, lambda s:s['overlay']['kind']=='confirm')
+    before = len(h.events('AndroidHome'))
+    h.key(23)
+    h.home_wait(before)
+    state = resume(friend)
+    h.return_home(state)
+    checks.append('Cancel switching friend to computer preserves the complete current game')
 
-    state = h.choose_bot(choose_game('new-bot'), 1, 2)
-    state = partial_turn(state)
+    state = h.choose_bot(choose('computer'),1,2)
+    state = partial(state)
     bot = state['game']
-    assert bot['mode'] == 'greedy' and bot['human'] == 'b'
-    home = return_home(state)
-    assert [i['id'] for i in home['items']][:2] == ['continue-bot', 'continue-hotseat']
-    h.snapshot('both-saves.png')
-    state = assert_continue('continue-bot', bot)
-    return_home(state)
-    state = assert_continue('continue-hotseat', friend)
-    return_home(state)
-    checks.append('computer game starts from home; both saves remain independently resumable')
+    assert bot['mode']=='greedy' and bot['human']=='b'
+    home = h.return_home(state)
+    assert [i['id'] for i in home['items']] == ['resume','hotseat','computer']
+    h.snapshot('current-bot-home.png')
+    state = resume(bot)
+    h.return_home(state)
+    state = choose('hotseat')
+    assert state['overlay']['kind']=='confirm' and state['game']==bot
+    before = len(h.events('AndroidHome'))
+    h.key(23)
+    h.home_wait(before)
+    state = resume(bot)
+    checks.append('confirmed computer game replaces the single slot; Cancel switching back preserves it')
 
-    state = choose_game('new-bot')
-    assert state['overlay']['kind'] == 'opponent' and state['overlay']['index'] == 1
-    start = len(h.events('AndroidHome'))
-    h.key(4)
-    h.home_wait(start)
-    state = assert_continue('continue-bot', bot)
-    return_home(state)
-    state = choose_game('new-bot')
-    h.press(20)  # Rampage.
-    h.press(23, lambda s: s['overlay']['kind'] == 'colour')
-    h.press(23, lambda s: s['overlay']['kind'] == 'confirm')
-    h.snapshot('replace-bot.png')
-    start = len(h.events('AndroidHome'))
-    h.key(23)  # Cancel.
-    h.home_wait(start)
-    state = assert_continue('continue-bot', bot)
-    checks.append('Back and final Cancel from New computer game preserve opponent, side and exact turn')
-
-    h.adb('shell', 'am', 'force-stop', h.package)
-    start = len(h.events())
-    home = h.open_home()
-    time.sleep(1.2)
-    assert not h.events()[start:], 'Game/worker must not mount while home is open'
-    state = assert_continue('continue-bot', bot)
-    return_home(state)
-    state = assert_continue('continue-hotseat', friend)
-    checks.append('process restart stays on home; both exact games resume only when selected')
-
-    # Results remain accessible, without mislabeling an ended game as Continue.
     h.press(4)
     h.key(20)
-    h.press(23, lambda s: s['overlay']['kind'] == 'confirm')
+    h.press(23,lambda s:s['overlay']['kind']=='confirm')
     h.key(20)
-    state = h.press(23, lambda s: s['game']['phase'] == 'ended')
+    state = h.press(23,lambda s:s['game']['phase']=='ended')
     ended = state['game']
-    home = return_home(state)
-    assert next(i['label'] for i in home['items'] if i['id'] == 'continue-hotseat') == 'View result with a friend'
-    h.snapshot('result-home.png')
-    state = assert_continue('continue-hotseat', ended)
-    return_home(state)
-    state = choose_game('new-hotseat')
-    assert state['overlay']['kind'] == 'none' and state['game']['phase'] == 'roll'
-    return_home(state)
-    checks.append('ended games expose View result; a new friend game after a result starts directly')
+    assert state['overlay']['kind']=='result'
+    h.snapshot('bot-result-menu.png')
+    state = h.press(23,lambda s:s['game']['id']!=ended['id'])
+    assert state['game']['mode']=='greedy' and state['game']['human']=='b' and state['game']['colour']=='b'
+    h.return_home(state)
+    checks.append('Vega result menu Rematch restarts the same opponent and side without selectors')
+
+    state = choose('hotseat')
+    h.press(20)
+    state = h.press(23,lambda s:s['game']['mode']=='hotseat' and s['overlay']['kind']=='none')
+    h.press(4)
+    h.key(20,2)
+    state = h.press(23,lambda s:s['game']['phase']=='ended')
+    assert state['game']['result']['reason']=='agreed-draw'
+    before = len(h.events('AndroidHome'))
+    h.key(23)
+    home = h.home_wait(before)
+    assert [i['id'] for i in home['items']] == ['hotseat','computer']
+    checks.append('confirmed friend game replaces computer; hotseat result returns home with no Resume')
 
     before = len(h.events('AndroidProbe'))
-    h.home_select('diagnostics')
-    deadline = time.monotonic() + 15
-    while not any(e['event'] == 'ready' for e in h.events('AndroidProbe')[before:]):
-        assert time.monotonic() < deadline
-        time.sleep(0.1)
-    time.sleep(0.5)
-    start = len(h.events('AndroidHome'))
-    h.key(4)
-    home = h.home_wait(start)
-    assert home['selected'] == 'diagnostics'
-    checks.append('Diagnostics is a separate screen; idle Back restores home focus')
-
-    h.home_select('diagnostics')
-    time.sleep(0.8)
-    h.key(20); h.key(23)  # Slow diagnostic worker.
-    h.key(19, 2)  # Main menu, the last diagnostic.
-    start = len(h.events('AndroidHome'))
+    h.open_diagnostics()
+    assert any(e['event']=='ready' for e in h.events('AndroidProbe')[before:])
+    h.key(20); h.key(23)  # Slow worker.
+    h.key(19,2)  # Main menu.
+    before = len(h.events('AndroidHome'))
     h.key(23)
-    h.home_wait(start)
+    home = h.home_wait(before)
     time.sleep(3.5)
-    assert h.home_wait()['selected'] == 'diagnostics'
-    checks.append('leaving busy diagnostics disposes its work and keeps home responsive')
+    assert [i['id'] for i in home['items']] == ['hotseat','computer']
+    checks.append('explicit diagnostic link works; exit disposes busy work and returns to ordinary home')
 
     h.key(4)
     time.sleep(0.8)
-    resumed = [line for line in h.adb('shell','dumpsys','activity','activities').splitlines()
-               if re.search(r'(topResumedActivity|mResumedActivity)', line)]
-    assert resumed and all(h.package not in line for line in resumed), resumed
-    h.adb('shell', 'am', 'start', '-n', f'{h.package}/.MainActivity')
-    time.sleep(0.8)
-    home = h.home_wait()
-    assert 'continue-bot' in [i['id'] for i in home['items']]
-    assert_continue('continue-bot', bot)
-    checks.append('Back on home leaves the activity; relaunch opens home and preserves the bot game')
+    resumed = [line for line in h.adb('shell','dumpsys','activity','activities').splitlines() if re.search(r'(topResumedActivity|mResumedActivity)',line)]
+    assert resumed and all(h.package not in line for line in resumed),resumed
+    h.adb('shell','am','force-stop',h.package)
+    home = h.open_home()
+    assert not home['migrating'] and not any(i['id']=='diagnostics' for i in home['items'])
+    checks.append('Back exits the activity; a normal cold launch never reopens diagnostics')
     assert not [e for e in h.events() if e['event'] in ('bot-error','load-error','save-error')]
-    print(json.dumps({'passed': checks}, indent=2))
+    print(json.dumps({'passed':checks},indent=2))
 finally:
-    for prefix, name in (('AndroidHome','home-events.json'),('AndroidHotseat','game-events.json'),('AndroidProbe','diagnostic-events.json')):
+    for prefix,name in (('AndroidHome','home-events.json'),('AndroidHotseat','game-events.json'),('AndroidProbe','diagnostic-events.json')):
         (h.out/name).write_text(json.dumps(h.events(prefix),indent=2)+'\n')
     (h.out/'checks.json').write_text(json.dumps({'passed':checks},indent=2)+'\n')
     (h.out/'logcat.txt').write_text(h.adb('logcat','-d','-v','brief'))

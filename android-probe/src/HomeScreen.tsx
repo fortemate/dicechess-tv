@@ -9,12 +9,26 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import type { Activity } from '../../native/src/activity';
+import { RESUME_OPTION } from '../../native/src/screen';
 import { Option } from '../../native/src/Option';
 import { safeInsets } from '../../native/src/layout';
 import { THEME } from '../../native/src/theme';
 import { androidDirection } from './androidRemote';
-import { gameStoreId, readSavedGame } from './gameSession';
-import { homeItems, type HomeItem } from './homeMenu';
+import {
+  GAME_KEY,
+  GAME_STORE,
+  legacyGameStoreId,
+  readSavedGame,
+} from './gameSession';
+import {
+  homeItems,
+  legacyGames,
+  migrateGame,
+  gameMode,
+  type HomeItem,
+  type LegacyGame,
+} from './homeMenu';
+import type { Game } from '../../src/core/game';
 import { createStore } from './store';
 
 export function HomeScreen({
@@ -26,9 +40,60 @@ export function HomeScreen({
   initialFocus?: string;
   onChoose: (item: HomeItem) => void;
 }) {
-  const [items] = useState(() =>
-    homeItems((mode) => readSavedGame(createStore(gameStoreId(mode)), mode)),
-  );
+  const [store] = useState(() => createStore(GAME_STORE));
+  const [saved, setSaved] = useState<{
+    game: Game | null;
+    legacy: LegacyGame[];
+    unreadable: boolean;
+  }>(() => {
+    try {
+      const game = readSavedGame(store);
+      return {
+        game,
+        legacy: game
+          ? []
+          : legacyGames((mode) =>
+              createStore(legacyGameStoreId(mode)).getString(GAME_KEY),
+            ),
+        unreadable: false,
+      };
+    } catch {
+      return { game: null, legacy: [], unreadable: true };
+    }
+  });
+  const [error, setError] = useState('');
+  const migrating = saved.legacy.length > 0;
+  const items = migrating
+    ? saved.legacy.map(({ mode, label, description }) => ({
+        id: `migrate-${mode}`,
+        label,
+        description,
+      }))
+    : homeItems(saved.game, saved.unreadable);
+  const choose = () => {
+    if (!activity.isActive()) return;
+    if (migrating) {
+      try {
+        const game = migrateGame(store, saved.legacy[selected]);
+        setError('');
+        setSaved({ game, legacy: [], unreadable: false });
+        setSelected(0);
+        if (game.phase === 'ended')
+          onChoose({
+            id: 'resume',
+            label: RESUME_OPTION,
+            description: '',
+            action: { kind: 'game', mode: gameMode(game), intent: 'continue' },
+          });
+      } catch (failure) {
+        setError(
+          `${failure instanceof Error ? failure.message : String(failure)}. Original saves are unchanged. Back returns to the choice.`,
+        );
+      }
+    } else {
+      onChoose(homeItems(saved.game, saved.unreadable)[selected]);
+    }
+  };
   const [selected, setSelected] = useState(() =>
     Math.max(
       0,
@@ -39,28 +104,32 @@ export function HomeScreen({
   const insets = safeInsets(width, height);
   useTVEventHandler((event) => {
     const direction = androidDirection(event);
-    if (!direction || !activity.isActive()) return;
+    if (!direction || !activity.isActive() || error) return;
     const step = direction === 'up' || direction === 'left' ? -1 : 1;
     setSelected((index) => (index + step + items.length) % items.length);
   });
   useEffect(() => {
     const back = BackHandler.addEventListener('hardwareBackPress', () => {
       if (!activity.isActive()) return true;
+      if (error) {
+        setError('');
+        return true;
+      }
       console.info('[AndroidHome] ' + JSON.stringify({ event: 'exit' }));
       BackHandler.exitApp();
       return true;
     });
     return () => back.remove();
-  }, [activity]);
+  }, [activity, error]);
   useEffect(() => {
     console.info(
       '[AndroidHome] ' +
         JSON.stringify({
           event: 'state',
-          detail: { items, selected: items[selected].id },
+          detail: { items, selected: items[selected].id, migrating, error },
         }),
     );
-  }, [items, selected]);
+  }, [items, selected, migrating, error]);
   return (
     <View
       style={[
@@ -69,16 +138,18 @@ export function HomeScreen({
       ]}
     >
       <View style={styles.content}>
-        <Text style={styles.title}>Dice Chess</Text>
+        <Text style={styles.title}>
+          {migrating ? 'Choose a saved game' : 'Dice Chess'}
+        </Text>
         <Text style={styles.subtitle}>
-          Play against the computer or share the remote with a friend.
+          {migrating
+            ? 'Choose the current game. Original saves will be kept.'
+            : 'Play against the computer or share the remote with a friend.'}
         </Text>
         <Pressable
           hasTVPreferredFocus
           accessibilityLabel={items[selected].label}
-          onPress={() => {
-            if (activity.isActive()) onChoose(items[selected]);
-          }}
+          onPress={choose}
         >
           {items.map((item, index) => (
             <Option
@@ -89,7 +160,9 @@ export function HomeScreen({
             />
           ))}
         </Pressable>
-        <Text style={styles.description}>{items[selected].description}</Text>
+        <Text style={styles.description}>
+          {error || items[selected].description}
+        </Text>
         <Text style={styles.footer}>
           D-pad: choose · OK: select · Back: leave the app
         </Text>

@@ -1,6 +1,6 @@
 """Opponent/side selection with real remote events and normal random rolls.
 
-Replaces only the probe's bot game through its UI. Run after smoke.py to also
+Replaces the probe's current game through its UI. Run after smoke.py to also
 exercise first launch with no bot save. No dice, positions or moves are injected.
 """
 import importlib.util

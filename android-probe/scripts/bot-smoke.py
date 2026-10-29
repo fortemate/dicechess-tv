@@ -1,6 +1,6 @@
 """Remote-only Rolly game checks on an explicitly selected Android emulator.
 
-Replaces the bot save through confirmation; keeps the separate hotseat save.
+Replaces the current save through confirmation.
 Uses normal random rolls and the packaged worker, with no state/dice injection.
 """
 import importlib.util
@@ -60,7 +60,7 @@ try:
     state = h.choose_bot(state)
     assert state['game']['mode'] == 'random' and state['game']['human'] == 'w'
     h.snapshot('new-bot-game.png')
-    checks.append('Rolly/White starts through opponent and side selection with a separate save')
+    checks.append('Rolly/White starts through opponent and side selection in the current save')
     state = next_bot_turn(state)
     # Pause while the worker is outstanding or its paced path is being presented.
     state = h.press(4, lambda s: s['overlay']['kind'] == 'menu')
@@ -92,7 +92,7 @@ try:
     bot_states = [e['detail'] for e in all_events if e['event'] == 'state' and e['detail']['view']['side'] == 'b']
     assert any(s['game']['moves'] for s in bot_states)
     checks.append('packaged background worker produces a legal bot move and hands control back')
-    # Human partial turn survives diagnostics and process restart too.
+    # Human partial turn survives home and process restart too.
     for _ in range(30):
         if state['view']['side'] == 'w' and state['game']['phase'] == 'roll':
             state = h.press(23)
@@ -110,27 +110,21 @@ try:
     h.key(20, 3)
     h.press(23, lambda s: s['overlay']['kind'] == 'home')
     time.sleep(0.5)
-    # Adjacent hotseat entry must retain its independent game mode/save.
-    h.key(20)
-    friend = h.press(23)
-    assert friend['game']['mode'] == 'hotseat'
     h.adb('shell', 'am', 'force-stop', h.package)
     state = h.open_game(2)
     assert state['game'] == partial
-    checks.append('human partial turn survives diagnostics/relaunch; hotseat remains independent')
+    checks.append('human partial turn survives home and process relaunch exactly')
     h.press(4); h.key(20)
     h.press(23, lambda s: s['overlay']['kind'] == 'confirm')
     h.key(20)
     ended = h.press(23, lambda s: s['game']['phase'] == 'ended')['game']
     assert ended['result']['winner'] == 'b'
     h.snapshot('bot-result.png')
-    h.press(23)
-    h.press(23, lambda s: s['overlay']['kind'] == 'opponent')
-    canceled = h.press(4, lambda s: s['overlay']['kind'] == 'menu')
-    assert canceled['game'] == ended and canceled['overlay']['index'] == 2
-    state = h.choose_bot(canceled)
+    assert h.wait()['overlay']['kind'] == 'result'
+    state = h.press(23, lambda s: s['game']['phase'] == 'roll' and s['overlay']['kind'] == 'none')
     assert state['game']['id'] != ended['id'] and state['game']['human'] == 'w'
-    checks.append('resignation result and canceled/reselected rematch work with the remote')
+    assert state['game']['mode'] == ended['mode'] and state['game']['colour'] == ended['colour']
+    checks.append('resignation opens the shared result menu; Rematch retains opponent and chosen side')
     assert not [e for e in h.events() if e['event'] in ('bot-error','load-error','save-error')]
     print(json.dumps({'passed':checks},indent=2))
 finally:
