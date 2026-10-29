@@ -18,7 +18,7 @@ export type HomeItem = {
   id: string;
   label: string;
   description: string;
-  action: GameRoute | { kind: 'rules' | 'tutorial' };
+  action: GameRoute | { kind: 'rules' | 'tutorial' | 'about' };
 };
 export const gameMode = (game: Game): ProbeMode =>
   game.mode === 'hotseat' ? 'hotseat' : 'bot';
@@ -27,27 +27,32 @@ const summary = (game: Game) =>
     ? 'Completed game'
     : `Turn ${game.turn} · ${game.human ? `You: ${sideName(game.human)}` : 'Two players share the remote'}`;
 
+const screens: Partial<
+  Record<string, Pick<HomeItem, 'description' | 'action'>>
+> = {
+  learn: {
+    description: 'Learn the game with guided practice.',
+    action: { kind: 'tutorial' },
+  },
+  rules: {
+    description: 'Read the rules and special moves.',
+    action: { kind: 'rules' },
+  },
+  about: {
+    description: 'Meet the makers and see the asset credits.',
+    action: { kind: 'about' },
+  },
+};
+
 // Vega owns the menu IDs, labels and order. Unsupported screens stay hidden.
 export function homeItems(game: Game | null, unreadable = false): HomeItem[] {
   return sharedHomeItems(unreadable || Boolean(game && game.phase !== 'ended'))
     .filter(({ id }) =>
-      ['resume', 'hotseat', 'computer', 'learn', 'rules'].includes(id),
+      ['resume', 'hotseat', 'computer', 'learn', 'rules', 'about'].includes(id),
     )
     .map(({ id, label }): HomeItem => {
-      if (id === 'learn')
-        return {
-          id,
-          label,
-          description: 'Learn the game with guided practice.',
-          action: { kind: 'tutorial' },
-        };
-      if (id === 'rules')
-        return {
-          id,
-          label,
-          description: 'Read the rules and special moves.',
-          action: { kind: 'rules' },
-        };
+      const screen = screens[id];
+      if (screen) return { id, label, ...screen };
       return {
         id,
         label,

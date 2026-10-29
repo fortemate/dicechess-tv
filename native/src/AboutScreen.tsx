@@ -10,7 +10,12 @@
 // One page, nothing to navigate. OK or Back leaves.
 import React from 'react';
 import { View, Text } from 'react-native';
-import { APP, OPEN_SOURCE, creditsFor } from '../../src/core/credits';
+import {
+  APP,
+  OPEN_SOURCE,
+  creditsFor,
+  type Credit,
+} from '../../src/core/credits';
 import type { BoardKey } from '../../src/core/boardInput';
 import { Portrait } from './Portrait';
 import { useRemoteInput } from './useRemoteInput';
@@ -19,9 +24,15 @@ import { THEME } from './theme';
 export type AboutScreenProps = {
   onExit: () => void;
   onState?: (report: string) => void;
+  // A platform build may ship a different set of assets and notices. Omitting
+  // this retains Vega's credits and its runtime portrait detection.
+  content?: {
+    credits: readonly Credit[];
+    notices: Pick<Credit, 'subject' | 'line' | 'source'>;
+  };
 };
 
-export const AboutScreen = ({ onExit, onState }: AboutScreenProps) => {
+export const AboutScreen = ({ onExit, onState, content }: AboutScreenProps) => {
   // Leaving is decided once. A second press arriving before the parent has
   // swapped this screen out must not leave twice.
   const [leaving, leave] = React.useReducer(
@@ -47,11 +58,15 @@ export const AboutScreen = ({ onExit, onState }: AboutScreenProps) => {
   // load (#212).
   const [portraits, setPortraits] = React.useState(true);
   const noPortraits = React.useCallback(() => setPortraits(false), []);
-  const credits = creditsFor(portraits);
+  const credits = content?.credits ?? creditsFor(portraits);
+  const notices = content?.notices ?? OPEN_SOURCE;
+  const portraitReport = content ? 'not-probed' : String(portraits);
 
   React.useEffect(() => {
-    onState?.(`about | credits ${credits.length} | portraits ${portraits}`);
-  }, [onState, credits.length, portraits]);
+    onState?.(
+      `about | credits ${credits.length} | portraits ${portraitReport}`,
+    );
+  }, [onState, credits.length, portraitReport]);
 
   return (
     <View
@@ -79,17 +94,19 @@ export const AboutScreen = ({ onExit, onState }: AboutScreenProps) => {
       {/* Not seen: one portrait, loaded only to learn whether the build has
           them. It is drawn transparent rather than at no size, since an image
           with no size may never be loaded. */}
-      <View
-        style={{ position: 'absolute', opacity: 0 }}
-        importantForAccessibility="no-hide-descendants"
-      >
-        <Portrait
-          character="thinkle"
-          kind="badge"
-          size={1}
-          onMissing={noPortraits}
-        />
-      </View>
+      {content ? null : (
+        <View
+          style={{ position: 'absolute', opacity: 0 }}
+          importantForAccessibility="no-hide-descendants"
+        >
+          <Portrait
+            character="thinkle"
+            kind="badge"
+            size={1}
+            onMissing={noPortraits}
+          />
+        </View>
+      )}
 
       {/* Two columns: four credits in one column would not fit a television
           screen, and a TV page has no scrolling a remote can be trusted with. */}
@@ -120,10 +137,10 @@ export const AboutScreen = ({ onExit, onState }: AboutScreenProps) => {
           only says where they are. The whole width of the screen holds the
           address without a break. */}
       <Text style={{ color: '#8dc9b6', fontSize: 20, letterSpacing: 1 }}>
-        {OPEN_SOURCE.subject}
+        {notices.subject}
       </Text>
       <Text style={{ color: '#aab8c9', fontSize: 20 }}>
-        {`${OPEN_SOURCE.line} ${OPEN_SOURCE.source}`}
+        {`${notices.line} ${notices.source}`}
       </Text>
 
       <Text style={{ color: '#98a9ba', fontSize: 20, marginTop: 'auto' }}>
