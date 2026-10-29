@@ -133,6 +133,10 @@ packaging remain separate Android work. The shared screen reserves Thinkle's
 portrait space when the Vega package image is unavailable; his name and lesson
 text remain visible. No new assets or dependencies are introduced.
 
+The Thinkle portrait placeholder was visually inspected in tutorial screenshots
+on the Android TV emulator. It was not validated on a Vega Virtual Device or
+Fire TV Stick.
+
 ```sh
 mise exec -- python3 android-probe/scripts/tutorial-smoke.py --serial <serial> \
   --output android-probe/build/tutorial
