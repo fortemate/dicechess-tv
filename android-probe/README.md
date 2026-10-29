@@ -54,8 +54,8 @@ python3 scripts/smoke.py --serial <serial>
 
 The APK launches into **Dice Chess**. Its supported menu entries use the Vega
 menu definitions, labels and order: **Resume game** (when a current unfinished
-game exists), **Play a friend**, and **Play the computer**. Learning, rules,
-settings and About remain hidden until their Android screens are supported.
+game exists), **Play a friend**, **Play the computer**, and **Rules reference**.
+Learning, settings and About remain hidden until their Android screens are supported.
 
 There is one current game, regardless of opponent or two-player mode. D-pad
 moves the highlight, OK selects, and Back leaves the app. Returning from a game
@@ -108,14 +108,44 @@ mise exec -- python3 android-probe/scripts/home-smoke.py --serial <serial> \
 
 See [home-validation.md](home-validation.md) for the build, evidence and limits.
 
+## Rules reference
+
+Open **Rules reference** from home or the in-game menu. Both entry points render
+Vega's existing `RulesScreen`, including its nine topics, text, two-column layout
+and navigation reducer. Up/Down changes topics and wraps; Left/Right and OK keep
+the current topic open. Back returns to the opener with its Rules reference row
+selected. Opening from home does not create or resume a game.
+
+While rules are open from a game, the game session stays mounted but hands the
+remote to the guide. Dice, spent moves and the saved position stay unchanged.
+Bot presentation remains paused through the guide and its return menu; work may
+finish in the background, but a result is shown only after returning to play.
+System Home/return preserves the selected topic. A process restart returns to
+home, with the original game still resumable.
+
+The Android `RemoteSurface` supplies the same single native focus target and
+shared input channel to games and the standalone guide. The existing screen
+reader hooks are present, but Android accessibility is not qualified by these
+remote-only checks.
+
+```sh
+mise exec -- python3 android-probe/scripts/rules-smoke.py --serial <serial> \
+  --output android-probe/build/rules-reference
+```
+
+The script retains app data and replaces only the current probe game through
+confirmation. It captures every topic, tests both entry points and lifecycle
+recovery, and reads rules during a real bot turn. See
+[rules-validation.md](rules-validation.md) for evidence and limits.
+
 ## Play with a friend
 
 Choose **Play a friend**, or **Resume game** for the current two-player game.
 D-pad chooses a piece or destination; OK rolls, selects and moves. OK after a
 completed turn passes to the other player and rolls their dice. Back cancels a
 selected piece first, then opens the game menu. Its shared entries are Resume
-game, Resign, Agree a draw, New game and Main menu (Diagnostics when opened
-there). Replacement and resignation use Vega's confirmation flow, with Cancel
+game, Resign, Agree a draw, New game, Main menu (Diagnostics when opened
+there), and Rules reference. Replacement and resignation use Vega's confirmation flow, with Cancel
 first. After a result, OK or Back returns to the main menu, as on Vega.
 
 Every game transition is validated and written synchronously before it is shown.
@@ -183,7 +213,7 @@ exact dice, position and phase recovery after a process restart before the first
 bot move. The Node restore test covers restarting after one saved bot move and
 verifies that the driver requests only the remaining moves from that saved game.
 
-The menu offers Resume game, Resign, New game and Main menu (Diagnostics when opened there). Replacement and
+The menu offers Resume game, Resign, New game, Main menu (Diagnostics when opened there), and Rules reference. Replacement and
 resignation require confirmation while a game is in progress. New game opens
 opponent and side selection again, with Cancel first at the final replacement
 confirmation. A computer-game result opens Vega's **Rematch / Main menu** menu

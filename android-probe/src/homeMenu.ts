@@ -18,7 +18,7 @@ export type HomeItem = {
   id: string;
   label: string;
   description: string;
-  action: GameRoute;
+  action: GameRoute | { kind: 'rules' };
 };
 export const gameMode = (game: Game): ProbeMode =>
   game.mode === 'hotseat' ? 'hotseat' : 'bot';
@@ -30,31 +30,40 @@ const summary = (game: Game) =>
 // Vega owns the menu IDs, labels and order. Unsupported screens stay hidden.
 export function homeItems(game: Game | null, unreadable = false): HomeItem[] {
   return sharedHomeItems(unreadable || Boolean(game && game.phase !== 'ended'))
-    .filter(({ id }) => ['resume', 'hotseat', 'computer'].includes(id))
-    .map(({ id, label }) => ({
-      id,
-      label,
-      description:
-        id === 'resume'
-          ? unreadable
-            ? 'The saved game could not be read. Open it for details.'
-            : game
-              ? summary(game)
-              : ''
-          : id === 'hotseat'
-            ? 'Take turns with one remote.'
-            : 'Choose Rolly, Grabby or Rampage and your side.',
-      action: {
-        kind: 'game',
-        mode:
-          id === 'resume' && game
-            ? gameMode(game)
-            : id === 'computer'
-              ? 'bot'
-              : 'hotseat',
-        intent: id === 'resume' ? 'continue' : 'new',
-      },
-    }));
+    .filter(({ id }) => ['resume', 'hotseat', 'computer', 'rules'].includes(id))
+    .map(({ id, label }): HomeItem => {
+      if (id === 'rules')
+        return {
+          id,
+          label,
+          description: 'Read the rules and special moves.',
+          action: { kind: 'rules' },
+        };
+      return {
+        id,
+        label,
+        description:
+          id === 'resume'
+            ? unreadable
+              ? 'The saved game could not be read. Open it for details.'
+              : game
+                ? summary(game)
+                : ''
+            : id === 'hotseat'
+              ? 'Take turns with one remote.'
+              : 'Choose Rolly, Grabby or Rampage and your side.',
+        action: {
+          kind: 'game',
+          mode:
+            id === 'resume' && game
+              ? gameMode(game)
+              : id === 'computer'
+                ? 'bot'
+                : 'hotseat',
+          intent: id === 'resume' ? 'continue' : 'new',
+        },
+      };
+    });
 }
 
 export type LegacyGame = {

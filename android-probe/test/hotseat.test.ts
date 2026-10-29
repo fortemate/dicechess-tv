@@ -104,7 +104,7 @@ test('Back cancels a selected piece before opening the limited menu; replacement
   key(session, 'back');
   assert.deepEqual(
     gameMenu(session.getState().game).map((item) => item.id),
-    ['resume', 'resign', 'draw', 'new-game', 'main-menu'],
+    ['resume', 'resign', 'draw', 'new-game', 'main-menu', 'rules'],
   );
   const saved = session.getState().game;
   key(session, 'down');
@@ -212,4 +212,28 @@ test('androidDirection accepts completed direction releases and pulseKey emits s
     { key: 'select', phase: 'down' },
     { key: 'select', phase: 'up' },
   ]);
+});
+
+test('rules from either game mode return to their menu row without changing the saved turn', () => {
+  for (const mode of ['hotseat', 'greedy'] as const) {
+    const game = rollGame(newGame(mode, 'rules'), [1, 1, 1]);
+    const store = memory(JSON.stringify(game));
+    const session = createGameSession(store, options());
+    key(session, 'back');
+    key(session, 'up'); // Last supported entry, using the shared menu index.
+    const menu = session.getState().overlay;
+    assert.deepEqual(menu, { kind: 'menu', index: mode === 'hotseat' ? 5 : 4 });
+    key(session, 'select');
+    assert.deepEqual(session.getState().overlay, {
+      kind: 'rules',
+      from: 'menu',
+    });
+    assert.deepEqual(session.getState().game, game);
+    key(session, 'back');
+    assert.deepEqual(session.getState().overlay, menu);
+    key(session, 'back');
+    assert.equal(session.getState().overlay.kind, 'none');
+    assert.deepEqual(session.getState().game, game);
+    assert.equal(store.writes, 0);
+  }
 });

@@ -3,6 +3,7 @@ import { AppState, Linking } from 'react-native';
 import { createActivity } from '../../native/src/activity';
 import { Diagnostics } from './Diagnostics';
 import { GameScreen } from './GameScreen';
+import { RulesReference } from './RulesReference';
 import { HomeScreen } from './HomeScreen';
 import type { HomeItem } from './homeMenu';
 
@@ -54,6 +55,8 @@ export default function App() {
   if (!ready) return null;
   if (route?.kind === 'diagnostics')
     return <Diagnostics activity={activity} onExit={goHome} />;
+  if (route?.kind === 'rules')
+    return <RulesReference activity={activity} onExit={goHome} />;
   if (route?.kind === 'game')
     return (
       <GameScreen
