@@ -164,8 +164,9 @@ verifies that the driver requests only the remaining moves from that saved game.
 The menu offers Resume, Resign, New game and Main menu (Diagnostics when opened there). Replacement and
 resignation require confirmation while a game is in progress. New game opens
 opponent and side selection again, with Cancel first at the final replacement
-confirmation. A result stays on the board; OK opens the limited rematch/diagnostics
-menu. Starting after a result does not require replacement confirmation.
+confirmation. A result stays on the board; OK opens a menu with New game and
+Main menu (Diagnostics when opened from diagnostics). Starting after a result
+does not require replacement confirmation.
 Worker failures preserve the saved turn and show an error. Back or OK returns to
 the screen it was opened from; reopening retries the saved position without resetting the game.
 
