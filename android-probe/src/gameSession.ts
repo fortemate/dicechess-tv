@@ -8,11 +8,13 @@ import {
   type ScreenOptions,
   type ScreenState,
   type ScreenAction,
+  type GameChoice,
 } from '../../native/src/screen';
 import type { KeyValueStore } from '../../native/src/keyValueStore';
 
 export type ProbeMode = 'hotseat' | 'bot';
-export type GameIntent = 'continue' | 'new';
+export type GameIntent =
+  'continue' | 'new' | { kind: 'tutorial'; choice: GameChoice };
 export const GAME_KEY = 'game.v1';
 export const GAME_STORE = 'dicechess-android-game';
 export const legacyGameStoreId = (mode: ProbeMode) =>
@@ -82,7 +84,15 @@ export function createGameSession(
         ? { kind: 'result', index: 0 }
         : { kind: 'none' },
   };
-  if (intent === 'new' || !restored) {
+  if (typeof intent === 'object') {
+    // The tutorial's closing choices use Vega's explicit new-game action:
+    // Play Rolly starts as White, and a resumable game still asks first.
+    current = screenReducer(
+      current,
+      { kind: 'newGame', ...intent.choice },
+      options,
+    );
+  } else if (intent === 'new' || !restored) {
     const index = homeItems(current.resumable).findIndex(
       ({ id }) => id === (mode === 'bot' ? 'computer' : 'hotseat'),
     );

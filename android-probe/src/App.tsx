@@ -4,6 +4,7 @@ import { createActivity } from '../../native/src/activity';
 import { Diagnostics } from './Diagnostics';
 import { GameScreen } from './GameScreen';
 import { RulesReference } from './RulesReference';
+import { LearnToPlay } from './LearnToPlay';
 import { HomeScreen } from './HomeScreen';
 import type { HomeItem } from './homeMenu';
 
@@ -57,6 +58,23 @@ export default function App() {
     return <Diagnostics activity={activity} onExit={goHome} />;
   if (route?.kind === 'rules')
     return <RulesReference activity={activity} onExit={goHome} />;
+  if (route?.kind === 'tutorial')
+    return (
+      <LearnToPlay
+        activity={activity}
+        onExit={(choice) =>
+          setRoute(
+            choice
+              ? {
+                  kind: 'game',
+                  mode: choice.mode === 'hotseat' ? 'hotseat' : 'bot',
+                  intent: { kind: 'tutorial', choice },
+                }
+              : null,
+          )
+        }
+      />
+    );
   if (route?.kind === 'game')
     return (
       <GameScreen

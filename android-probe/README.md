@@ -54,8 +54,8 @@ python3 scripts/smoke.py --serial <serial>
 
 The APK launches into **Dice Chess**. Its supported menu entries use the Vega
 menu definitions, labels and order: **Resume game** (when a current unfinished
-game exists), **Play a friend**, **Play the computer**, and **Rules reference**.
-Learning, settings and About remain hidden until their Android screens are supported.
+game exists), **Play a friend**, **Play the computer**, **Learn to play**, and **Rules reference**.
+Settings and About remain hidden until their Android screens are supported.
 
 There is one current game, regardless of opponent or two-player mode. D-pad
 moves the highlight, OK selects, and Back leaves the app. Returning from a game
@@ -108,6 +108,46 @@ mise exec -- python3 android-probe/scripts/home-smoke.py --serial <serial> \
 
 See [home-validation.md](home-validation.md) for the build, evidence and limits.
 
+## Learn to play
+
+Open **Learn to play** from home to use Vega's existing `TutorialScreen`, lesson
+reducer, board and six canonical lessons. D-pad chooses a piece or destination;
+OK rolls, selects, moves and advances completed lessons. Back puts a selected
+piece down first, then leaves the tutorial. A missed capture offers a retry.
+The lessons have their own fixed positions and rolls and receive no game store,
+ledger or bot worker. Starting, completing or leaving them does not change the
+current real game.
+
+The closing screen offers **Play Rolly** (as White), **Play a friend**, and
+**Main menu**. The first two enter Vega's shared new-game action and ask for
+Cancel/Yes before replacing an unfinished game. Cancel or Back preserves the
+save; Yes persists the chosen new game. A fresh or ended game starts directly.
+Leaving the tutorial or canceling replacement restores the Learn to play home
+selection. Reopening starts at lesson one. System Home/return keeps the current
+lesson in memory. After process death the app returns home, where Resume game
+restores the saved real game.
+
+This slice uses the shared text and visual instructions without tutorial audio.
+Voice sequencing, the first-launch tutorial offer, and character portrait asset
+packaging remain separate Android work. The shared screen reserves Thinkle's
+portrait space when the Vega package image is unavailable; his name and lesson
+text remain visible. No new assets or dependencies are introduced.
+
+The Thinkle portrait placeholder was visually inspected in tutorial screenshots
+on the Android TV emulator. It was not validated on a Vega Virtual Device or
+Fire TV Stick.
+
+```sh
+mise exec -- python3 android-probe/scripts/tutorial-smoke.py --serial <serial> \
+  --output android-probe/build/tutorial
+```
+
+The script keeps app data and replaces the current probe game through the normal
+confirmation UI. It drives every lesson with real remote keys, checks the screen's
+state reports against the shared reducer, captures lesson screens, and verifies
+exact friend and bot partial-turn recovery after leaving lessons and process death.
+See [tutorial-validation.md](tutorial-validation.md) for evidence and limits.
+
 ## Rules reference
 
 Open **Rules reference** from home or the in-game menu. Both entry points render
@@ -153,7 +193,7 @@ Cursor movement does not write the save. Home, return to diagnostics and process
 restart preserve the canonical snapshot, including the partial turn and spent
 dice. Corrupt saves and storage failures show an error and keep the existing
 save; the slice does not silently reset data or implement a damaged-save recovery
-menu. Music, voices, tutorial, settings and accessibility qualification remain
+menu. Music, voices, settings and accessibility qualification remain
 separate work. See [hotseat-validation.md](hotseat-validation.md) for observed
 results and input limits.
 
@@ -290,4 +330,4 @@ No new sound assets, rights, dependencies or lockfile changes are introduced.
 
 ## Remaining gates
 
-See [validation.md](validation.md) for the original probe results, [svg-validation.md](svg-validation.md) for the SVG check, and [hotseat-validation.md](hotseat-validation.md) for the playable two-player slice. Full game screens, tutorial sequencing, music crossfades/ducking, interruption recovery, repeated audio stress, accessibility, held keys, device latency, actual Fire OS hardware, and all other ABIs remain separate work. No production platform adapter or workspace migration is approved by a successful probe alone.
+See [validation.md](validation.md) for the original probe results, [svg-validation.md](svg-validation.md) for the SVG check, and [hotseat-validation.md](hotseat-validation.md) for the playable two-player slice. Full game parity, tutorial voice sequencing, music crossfades/ducking, full audio interruption recovery, repeated audio stress, accessibility, held keys, device latency, actual Fire OS hardware, and all other ABIs remain separate work. No production platform adapter or workspace migration is approved by a successful probe alone.

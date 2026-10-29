@@ -68,6 +68,7 @@ test('home uses Vega labels/order, one Resume game, no diagnostic or unsupported
     [
       ['hotseat', 'Play a friend'],
       ['computer', 'Play the computer'],
+      ['learn', 'Learn to play'],
       ['rules', 'Rules reference'],
     ],
   );
@@ -76,7 +77,7 @@ test('home uses Vega labels/order, one Resume game, no diagnostic or unsupported
     const items = homeItems(game);
     assert.deepEqual(
       items.map((i) => i.id),
-      ['resume', 'hotseat', 'computer', 'rules'],
+      ['resume', 'hotseat', 'computer', 'learn', 'rules'],
     );
     assert.equal(items[0].label, 'Resume game');
     assert.equal(items[0].action.kind, 'game');
@@ -86,10 +87,102 @@ test('home uses Vega labels/order, one Resume game, no diagnostic or unsupported
     assert.equal(items[0].action.mode, mode === 'hotseat' ? 'hotseat' : 'bot');
     assert.deepEqual(
       homeItems(resignGame(game)).map((i) => i.id),
-      ['hotseat', 'computer', 'rules'],
+      ['hotseat', 'computer', 'learn', 'rules'],
     );
   }
   assert.equal(homeItems(null, true)[0].id, 'resume');
+  assert.deepEqual(homeItems(null).find((i) => i.id === 'learn')?.action, {
+    kind: 'tutorial',
+  });
+});
+
+const tutorialChoices = [
+  { mode: 'random', colour: 'w' },
+  { mode: 'hotseat', colour: 'random' },
+] as const;
+
+test('tutorial closing choices start the named game without selectors on a fresh or ended save', () => {
+  for (const old of [undefined, resignGame(newGame('greedy', 'ended'))]) {
+    for (const choice of tutorialChoices) {
+      const store = memory(old && JSON.stringify(old));
+      const session = createGameSession(store, options, 'hotseat', {
+        kind: 'tutorial',
+        choice,
+      });
+      const { game, overlay } = session.getState();
+      assert.equal(game.mode, choice.mode);
+      assert.equal(game.human, choice.mode === 'random' ? 'w' : null);
+      assert.equal(game.phase, 'roll');
+      assert.equal(overlay.kind, 'none');
+      assert.deepEqual(readSavedGame(store), game);
+      assert.equal(store.writes(), 1);
+    }
+  }
+});
+
+test('tutorial closing choices protect either current game until explicit confirmation', () => {
+  for (const old of [
+    rollGame(newGame('hotseat', 'friend'), [1, 1, 1]),
+    rollGame(newGame('aggressive', 'bot', undefined, 'b', 'random'), [1, 1, 1]),
+  ]) {
+    const raw = JSON.stringify(old);
+    for (const choice of tutorialChoices) {
+      for (const cancel of ['select', 'back'] as const) {
+        const store = memory(raw);
+        const session = createGameSession(store, options, 'hotseat', {
+          kind: 'tutorial',
+          choice,
+        });
+        assert.equal(session.getState().overlay.kind, 'confirm');
+        assert.deepEqual(session.getState().game, old);
+        assert.equal(store.writes(), 0);
+        keys(session, cancel);
+        assert.equal(session.getState().overlay.kind, 'home');
+        assert.equal(store.getString(), raw);
+        assert.equal(store.writes(), 0);
+      }
+      const store = memory(raw);
+      const session = createGameSession(store, options, 'hotseat', {
+        kind: 'tutorial',
+        choice,
+      });
+      keys(session, 'down', 'select');
+      const { game, overlay } = session.getState();
+      assert.equal(overlay.kind, 'none');
+      assert.equal(game.mode, choice.mode);
+      assert.equal(game.human, choice.mode === 'random' ? 'w' : null);
+      assert.notEqual(game.id, old.id);
+      assert.deepEqual(readSavedGame(store), game);
+      assert.equal(store.writes(), 1);
+    }
+  }
+});
+
+test('tutorial replacement never clears corrupt data or publishes a failed save', () => {
+  const corrupt = memory('unreadable');
+  assert.throws(() =>
+    createGameSession(corrupt, options, 'bot', {
+      kind: 'tutorial',
+      choice: tutorialChoices[0],
+    }),
+  );
+  assert.equal(corrupt.getString(), 'unreadable');
+  assert.equal(corrupt.writes(), 0);
+  const old = JSON.stringify(rollGame(newGame('hotseat', 'old'), [1, 1, 1]));
+  const store = memory(old);
+  const session = createGameSession(store, options, 'bot', {
+    kind: 'tutorial',
+    choice: tutorialChoices[0],
+  });
+  store.set = () => {
+    throw new Error('disk full');
+  };
+  keys(session, 'down');
+  const before = session.getState();
+  assert.throws(() => keys(session, 'select'), /disk full/);
+  assert.equal(session.getState(), before);
+  assert.equal(store.getString(), old);
+  assert.equal(store.writes(), 0);
 });
 
 test('one current slot resumes either mode exactly without writes', () => {
