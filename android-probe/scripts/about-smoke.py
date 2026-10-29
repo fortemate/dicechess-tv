@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 import sys
 import time
+import xml.etree.ElementTree as ET
 sys.dont_write_bytecode = True
 spec = importlib.util.spec_from_file_location('remote', Path(__file__).with_name('hotseat-smoke.py'))
 h = importlib.util.module_from_spec(spec)
@@ -17,6 +18,7 @@ expected = 'about | credits 3 | portraits not-probed'
 
 
 def about_wait(since=0):
+    """Wait for a new mount/content report, not proof of the current screen."""
     deadline = time.monotonic() + 15
     while time.monotonic() < deadline:
         states = [e['detail'] for e in h.events('AndroidAbout')[since:] if e['event'] == 'state']
@@ -25,6 +27,19 @@ def about_wait(since=0):
             return states[-1]
         time.sleep(0.1)
     raise AssertionError(f'No About report: {h.events("AndroidAbout")[-3:]}')
+
+
+def about_visible(name):
+    """Read the active UI hierarchy afresh and require the About surface."""
+    path = '/sdcard/dicechess-about-smoke.xml'
+    h.adb('shell', 'rm', '-f', path)
+    h.adb('shell', 'uiautomator', 'dump', path)
+    hierarchy = h.adb('shell', 'cat', path)
+    (h.out / f'{name}.xml').write_text(hierarchy)
+    nodes = ET.fromstring(hierarchy).iter('node')
+    assert any(node.get('package') == h.package and
+               node.get('content-desc') == 'About Dice Chess'
+               for node in nodes), f'About is not visible: {name}'
 
 
 def enter():
@@ -50,6 +65,7 @@ def choose(item):
 
 
 def partial(state):
+    """Play real turns until the human has made part of a multi-move turn."""
     deadline = time.monotonic() + 60
     while time.monotonic() < deadline:
         state = h.wait()
@@ -80,11 +96,13 @@ try:
     enter()
     assert not h.events(), 'Opening About must not mount a game or worker'
     h.snapshot('about-credits.png')
+    about_visible('about-credits')
     checks.append('home opens the shared screen with three Android credit cards and no Vega portrait probe or game')
     before = len(h.events('AndroidHome'))
-    for code in (19, 20, 21, 22):
+    for code, direction in ((19, 'up'), (20, 'down'), (21, 'left'), (22, 'right')):
         h.key(code)
-        assert about_wait() == expected
+        about_visible(f'about-{direction}')
+        h.snapshot(f'about-{direction}.png')
         assert len(h.events('AndroidHome')) == before
     leave(23)
     assert not h.events()
@@ -95,7 +113,7 @@ try:
     time.sleep(0.6)
     h.adb('shell', 'am', 'start', '-n', f'{h.package}/.MainActivity')
     time.sleep(0.8)
-    assert about_wait() == expected
+    about_visible('about-home-return')
     leave(4)
     assert not h.events()
     checks.append('system Home/return retains About; Back restores home focus without mounting a game')

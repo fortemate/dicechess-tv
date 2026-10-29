@@ -72,6 +72,20 @@ Evidence is retained under `android-probe/build/about/` and
 updated for the new menu and parsed; their full device suites were not rerun
 for this change.
 
+The strengthened About suite was rerun on the same APK after review; all five
+groups passed. Each direction and system Home/return now reads a fresh Android
+UI hierarchy and requires this app's `About Dice Chess` surface. The previous
+dump is removed first so a failed capture cannot reuse old evidence. Mount
+reports are used only when entering About. Per-direction XML and screenshots
+are retained under `android-probe/build/about-review/`.
+
+A separate negative control invoked the same assertion on the main menu while
+old About reports remained in logcat; it correctly rejected that screen.
+`mise run check` passed again (337 core, 735 native and 13 browser tests, types,
+lint, formatting and bundles/builds). This follow-up changes only the Python
+smoke test and this record; the installed APK hash was verified unchanged.
+The earlier home/menu and Vega runs above were not repeated for this test fix.
+
 ## Vega regression
 
 The same source was built with the Vega SDK as local build 59. ARM64 package
