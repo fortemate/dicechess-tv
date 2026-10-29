@@ -40,6 +40,9 @@ limited New game/Diagnostics menu rather than exposing unimplemented screens.
 - `mise run check`: 337 core + 734 native + 13 browser tests, types, lint,
   formatting, Metro bundle and browser build passed.
 - Android types, lint and 26 tests passed: 1110 tests across all packages.
+- The bot test explicitly resolves React from the Android package, like Metro.
+  All 26 Android tests also passed in an isolated source copy with only root
+  and Android dependencies available, without `native/node_modules`.
 - Six new tests cover fixed-side rematch and wrong saves, one-move persistence
   and bot-turn recovery, pending replies behind Home/menu, replacement/unmount
   before cleanup, worker failure without inline fallback, and failed save writes.

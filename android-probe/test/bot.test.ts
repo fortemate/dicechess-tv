@@ -17,6 +17,9 @@ const bundled = buildSync({
     resolveDir: resolve('.'),
   },
   bundle: true,
+  // Shared activity imports React. Resolve the Android runtime explicitly,
+  // as Metro does; CI deliberately does not install native/node_modules.
+  alias: { react: resolve('node_modules/react') },
   platform: 'node',
   format: 'esm',
   write: false,
