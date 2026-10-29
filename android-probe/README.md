@@ -103,13 +103,18 @@ background Worklets runtime; the shared reducer validates the reply and reveals
 one move at a time using its existing presentation pace. Search strength is
 unchanged. The RN thread never falls back to a synchronous search.
 
-Back opens the menu during Rolly's turn. Menus and Home/window blur pause move
-presentation; the worker may finish computing while hidden, but its answer
-cannot update the board/save until the game is active again. Returning to the
-same position reuses the outstanding answer. Leaving the screen disposes the
-client and ignores its late reply; disposal does not forcibly interrupt a
-running native calculation. A process restart restores the exact saved dice,
-position and phase, then asks the worker for any remaining bot moves.
+[Node tests](test/bot.test.ts) demonstrate that a reply arriving behind Home or
+the menu cannot update the board/save until presentation resumes, that returning
+to the same position reuses the outstanding answer, and that disposal discards
+a late reply. Code inspection of [botDriver.ts](src/botDriver.ts) and
+[worker.ts](src/worker.ts) shows that presentation is gated separately from the
+worker request; computation may finish while hidden, but native calculation
+lifetime after disposal has not been measured. The
+[emulator run](bot-validation.md#emulator-observations) observed Back opening the
+menu during Rolly's turn, no saved-game transitions while Home was active, and
+exact dice, position and phase recovery after a process restart before the first
+bot move. The Node restore test covers restarting after one saved bot move and
+verifies that the driver requests only the remaining moves from that saved game.
 
 The menu offers Resume, Resign, New game and Diagnostics. Replacement and
 resignation require confirmation. New game keeps Rolly and the player's White

@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { resolve, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { buildSync } from 'esbuild';
-import { newGame, rollGame, viewGame } from '../../src/core/game.ts';
+import { newGame, rollGame, viewGame, type Game } from '../../src/core/game.ts';
 import { botReply, type BotReply } from '../../src/core/bot.ts';
 import type { ScreenOptions } from '../../native/src/screen.ts';
 const dir = mkdtempSync(join(tmpdir(), 'android-bot-'));
@@ -66,12 +66,12 @@ const initialBot = () =>
 const tick = async () => {
   for (let i = 0; i < 6; i++) await Promise.resolve();
 };
-function harness() {
-  const store = memory(JSON.stringify(initialBot()));
+function harness(store = memory(JSON.stringify(initialBot()))) {
   const session = createGameSession(store, options, 'random');
   const activity = createActivity(true);
   const jobs: { run: () => void; canceled: boolean }[] = [];
   const requests: {
+    game: Game;
     resolve: (reply: BotReply) => void;
     reject: (error: Error) => void;
   }[] = [];
@@ -86,8 +86,10 @@ function harness() {
     fail: (e) => errors.push(e),
     report: () => {},
     worker: {
-      request: () =>
-        new Promise((resolve, reject) => requests.push({ resolve, reject })),
+      request: (game) =>
+        new Promise((resolve, reject) =>
+          requests.push({ game, resolve, reject }),
+        ),
       dispose: () => {
         disposed++;
       },
@@ -139,7 +141,7 @@ test('bot session keeps White, rejects wrong-mode saves, and confirms a same-opp
     );
 });
 
-test('bot reply is shown one saved move at a time; process restore searches only the remainder', () => {
+test('bot reply is shown one saved move at a time; process restore searches only the remainder', async () => {
   const store = memory(JSON.stringify(initialBot()));
   const session = createGameSession(store, options, 'random');
   const before = session.getState().game;
@@ -148,15 +150,34 @@ test('bot reply is shown one saved move at a time; process restore searches only
   session.dispatch({ kind: 'bot', reply: botReply(before) });
   assert.equal(session.getState().game.moves.length, 1);
   assert.equal(session.getState().pending.length, 2);
-  const restored = createGameSession(store, options, 'random');
-  assert.deepEqual(restored.getState().game, session.getState().game);
-  assert.deepEqual(restored.getState().pending, []);
-  restored.dispatch({ kind: 'bot', reply: botReply(restored.getState().game) });
-  restored.dispatch({ kind: 'bot' });
-  assert.equal(restored.getState().game.moves.length, 3);
-  assert.equal(restored.getState().game.phase, 'handoff');
-  restored.dispatch({ kind: 'bot' });
-  assert.equal(viewGame(restored.getState().game).side, 'w');
+  const h = harness(store);
+  assert.deepEqual(h.session.getState().game, session.getState().game);
+  assert.deepEqual(h.session.getState().pending, []);
+  h.driver.update(h.session.getState());
+  await tick();
+  assert.equal(h.requests.length, 1);
+  const request = h.requests[0];
+  assert.deepEqual(request.game, session.getState().game);
+  assert.equal(request.game.moves.length, 1);
+  assert.equal(viewGame(request.game).remaining, 'PP');
+  request.resolve(botReply(request.game));
+  h.run();
+  await tick();
+  h.run();
+  assert.equal(h.session.getState().game.moves.length, 2);
+  assert.equal(h.session.getState().pending.length, 1);
+  h.driver.update(h.session.getState());
+  h.run();
+  h.run();
+  assert.equal(h.session.getState().game.moves.length, 3);
+  assert.equal(h.session.getState().game.phase, 'handoff');
+  h.driver.update(h.session.getState());
+  h.run();
+  h.run();
+  assert.equal(viewGame(h.session.getState().game).side, 'w');
+  assert.equal(h.requests.length, 1);
+  assert.deepEqual(h.errors, []);
+  h.driver.dispose();
 });
 
 test('late reply waits behind Home and the menu without a duplicate search', async () => {
