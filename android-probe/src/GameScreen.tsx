@@ -29,28 +29,36 @@ import { diceOf } from '../../src/core/dice';
 import { movableSquares } from '../../src/core/boardInput';
 import { emptyRoll, rollDice, sideName, viewGame } from '../../src/core/game';
 import { outcome, reasonOf } from '../../src/core/announcements';
+import { botToAct } from '../../src/core/bot';
+import { createWorker } from './worker';
+import { createBotDriver } from './botDriver';
 import { createStore } from './store';
 import { cues } from '../../src/core/cues';
 import { createAndroidEffects } from './androidEffects';
 import { androidDirection, pulseKey } from './androidRemote';
 import {
-  createHotseatSession,
-  hotseatMenu,
-  type HotseatAction,
-} from './hotseat';
+  createGameSession,
+  gameMenu,
+  type GameAction,
+  type ProbeMode,
+} from './gameSession';
 
 const report = (event: string, detail: unknown) =>
   console.info(`[AndroidHotseat] ${JSON.stringify({ event, detail })}`);
 const errorText = (error: unknown) =>
   error instanceof Error ? error.message : String(error);
 
-function makeSession() {
+function makeSession(mode: ProbeMode) {
   const source = randomSource();
   let ids = 0;
   const options: ScreenOptions = {
     roll: () => rollDice(source.fill),
     newId: () => `android-${Date.now()}-${++ids}`,
     side: () => 'w',
+    // Mark this as asynchronous so the shared reducer never searches on RN.
+    reply: () => {
+      throw new Error('Opponent reply must come from the worker');
+    },
     schedule: (step, ms) => {
       const timer = setTimeout(step, ms);
       return () => clearTimeout(timer);
@@ -59,9 +67,14 @@ function makeSession() {
   report('random-source', source.name);
   try {
     return {
-      session: createHotseatSession(
-        createStore('dicechess-android-hotseat'),
+      session: createGameSession(
+        createStore(
+          mode === 'hotseat'
+            ? 'dicechess-android-hotseat'
+            : 'dicechess-android-bot',
+        ),
         options,
+        mode,
       ),
       error: '',
     };
@@ -74,11 +87,13 @@ function makeSession() {
 function Game({
   activity,
   onExit,
+  mode,
 }: {
   activity: Activity;
   onExit: () => void;
+  mode: ProbeMode;
 }) {
-  const [opened] = useState(makeSession);
+  const [opened] = useState(() => makeSession(mode));
   const [state, setState] = useState(() => opened.session?.getState());
   const [error, setError] = useState(opened.error);
   const effects = useRef<ReturnType<typeof createAndroidEffects> | null>(null);
@@ -93,7 +108,7 @@ function Game({
   }, [activity, error]);
   const { width, height } = useWindowDimensions();
   const send = useCallback(
-    (action: HotseatAction) => {
+    (action: GameAction) => {
       if (!opened.session || error) return;
       try {
         const before = opened.session.getState().game;
@@ -108,6 +123,29 @@ function Game({
     },
     [opened, error],
   );
+  const driver = useRef<ReturnType<typeof createBotDriver> | null>(null);
+  useEffect(() => {
+    if (mode === 'hotseat' || !opened.session || error) return;
+    const owned = createBotDriver({
+      activity,
+      worker: createWorker(activity),
+      read: opened.session.getState,
+      send,
+      fail: (failure) => {
+        setError(errorText(failure));
+        report('bot-error', errorText(failure));
+      },
+      report: (event, detail) => report(`bot-${event}`, detail),
+    });
+    driver.current = owned;
+    return () => {
+      driver.current = null;
+      owned.dispose();
+    };
+  }, [activity, opened, mode, error, send]);
+  useEffect(() => {
+    if (state) driver.current?.update(state);
+  }, [state]);
   useRemoteInput(
     (key, repeat) => {
       if (error) {
@@ -148,7 +186,7 @@ function Game({
   if (!state || error)
     return (
       <View style={styles.error}>
-        <Text style={styles.title}>Could not load or save the game</Text>
+        <Text style={styles.title}>Could not continue the game</Text>
         <Text style={styles.body}>{error}</Text>
         <Text style={styles.body}>
           Saved data has not been cleared. Back or OK returns to diagnostics.
@@ -157,9 +195,9 @@ function Game({
     );
   const { game, focus, overlay } = state;
   const view = viewGame(game);
-  const choosing = game.phase === 'move';
+  const choosing = game.phase === 'move' && !botToAct(game);
   const insets = safeInsets(width, height);
-  const menu = hotseatMenu(game);
+  const menu = gameMenu(game);
   const choices =
     overlay.kind === 'menu'
       ? menu.map((item) => ({ label: item.label, index: item.index }))
@@ -183,17 +221,23 @@ function Game({
         ? 'Choose a promotion'
         : 'Game menu';
   const prompt =
-    game.phase === 'roll'
-      ? 'OK: roll the dice'
-      : game.phase === 'handoff'
-        ? emptyRoll(game)
-          ? 'No legal move · OK: next player rolls'
-          : 'Turn complete · OK: next player rolls'
-        : game.phase === 'ended'
-          ? 'OK: game menu'
-          : focus.selected
-            ? 'Choose a destination · OK: move · Back: cancel'
-            : 'Choose a highlighted piece · OK: select';
+    botToAct(game) && !emptyRoll(game)
+      ? 'Rolly is playing · Back: game menu'
+      : game.phase === 'roll'
+        ? 'OK: roll the dice'
+        : game.phase === 'handoff'
+          ? emptyRoll(game)
+            ? mode === 'hotseat'
+              ? 'No legal move · OK: next player rolls'
+              : 'No legal move · OK: continue'
+            : mode === 'hotseat'
+              ? 'Turn complete · OK: next player rolls'
+              : 'Turn complete · OK: Rolly plays'
+          : game.phase === 'ended'
+            ? 'OK: game menu'
+            : focus.selected
+              ? 'Choose a destination · OK: move · Back: cancel'
+              : 'Choose a highlighted piece · OK: select';
   return (
     <View
       style={[
@@ -211,7 +255,9 @@ function Game({
         movable={choosing ? movableSquares(view.legal) : []}
       />
       <View style={styles.panel}>
-        <Text style={styles.title}>Play with a friend</Text>
+        <Text style={styles.title}>
+          {mode === 'hotseat' ? 'Play with a friend' : 'Play against Rolly'}
+        </Text>
         <Text style={styles.body}>
           {sideName(view.side)} · Turn {game.turn}
         </Text>
@@ -249,19 +295,24 @@ function Game({
           </>
         )}
         <Text style={styles.saved}>
-          Saved on this device · Two players share the remote
+          Saved on this device ·{' '}
+          {mode === 'hotseat'
+            ? 'Two players share the remote'
+            : 'You: White · Rolly: Black'}
         </Text>
       </View>
     </View>
   );
 }
 
-export const HotseatScreen = React.memo(function HotseatScreen({
+export const GameScreen = React.memo(function GameScreen({
   activity,
   onExit,
+  mode,
 }: {
   activity: Activity;
   onExit: () => void;
+  mode: ProbeMode;
 }) {
   const [channel] = useState(createRemoteChannel);
   useTVEventHandler((event) => {
@@ -281,12 +332,16 @@ export const HotseatScreen = React.memo(function HotseatScreen({
         <Pressable
           style={styles.root}
           hasTVPreferredFocus
-          accessibilityLabel="Two-player Dice Chess"
+          accessibilityLabel={
+            mode === 'hotseat'
+              ? 'Two-player Dice Chess'
+              : 'Dice Chess against Rolly'
+          }
           onPress={() => {
             if (activity.isActive()) pulseKey(channel.emit, 'select');
           }}
         >
-          <Game activity={activity} onExit={onExit} />
+          <Game activity={activity} onExit={onExit} mode={mode} />
         </Pressable>
       </ActivityContext.Provider>
     </RemoteInputContext.Provider>
