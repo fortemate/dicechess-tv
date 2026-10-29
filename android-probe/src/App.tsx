@@ -5,6 +5,7 @@ import { Diagnostics } from './Diagnostics';
 import { GameScreen } from './GameScreen';
 import { RulesReference } from './RulesReference';
 import { LearnToPlay } from './LearnToPlay';
+import { About } from './About';
 import { HomeScreen } from './HomeScreen';
 import type { HomeItem } from './homeMenu';
 
@@ -58,6 +59,8 @@ export default function App() {
     return <Diagnostics activity={activity} onExit={goHome} />;
   if (route?.kind === 'rules')
     return <RulesReference activity={activity} onExit={goHome} />;
+  if (route?.kind === 'about')
+    return <About activity={activity} onExit={goHome} />;
   if (route?.kind === 'tutorial')
     return (
       <LearnToPlay

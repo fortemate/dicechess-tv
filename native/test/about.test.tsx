@@ -84,6 +84,32 @@ test('a build without the portraits credits the RhosGFX faces instead', () => {
   assert.equal(reports.at(-1), 'about | credits 4 | portraits false');
 });
 
+test('explicit build content replaces credits and notices without probing a Vega portrait', () => {
+  const reports: string[] = [];
+  const notices = {
+    subject: 'Source and credits',
+    line: 'Available at',
+    source: 'example.org/source',
+  };
+  const tree = mount(
+    React.createElement(AboutScreen, {
+      onExit: () => {},
+      onState: (report: string) => reports.push(report),
+      content: { credits: [PIECES_AND_FACES], notices },
+    }),
+  );
+  const shown = texts(tree.root);
+  assert.ok(shown.includes(APP.title) && shown.includes(APP.maker));
+  assert.ok(shown.includes(PIECES_AND_FACES.line));
+  assert.ok(shown.includes(notices.subject));
+  assert.ok(shown.includes(`${notices.line} ${notices.source}`));
+  assert.ok(!shown.includes(OPEN_SOURCE.subject));
+  assert.ok(!shown.includes(PIECES.line));
+  assert.ok(!shown.some((line) => /Music|Shipped with the app/.test(line)));
+  assert.equal(images(tree.root).length, 0);
+  assert.equal(reports.at(-1), 'about | credits 1 | portraits not-probed');
+});
+
 // The package carries the notices of the open-source software in it (#338), and
 // a viewer cannot open a file from the sofa, so the screen gives the address of
 // the site's page that lists them as well.

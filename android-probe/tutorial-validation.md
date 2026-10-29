@@ -1,5 +1,10 @@
 # Android TV Learn to play validation
 
+This records the build before About was enabled. See
+[about-validation.md](about-validation.md) for the subsequent integration.
+Use the matching revision to reproduce this APK; current smoke scripts follow
+the current supported menu.
+
 On October 29, 2026, Learn to play was enabled in the Android home menu after
 Play the computer and before Rules reference, following Vega's menu definition.
 It renders the existing `TutorialScreen`, lesson reducer and six canonical

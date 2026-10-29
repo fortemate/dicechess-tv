@@ -54,8 +54,8 @@ python3 scripts/smoke.py --serial <serial>
 
 The APK launches into **Dice Chess**. Its supported menu entries use the Vega
 menu definitions, labels and order: **Resume game** (when a current unfinished
-game exists), **Play a friend**, **Play the computer**, **Learn to play**, and **Rules reference**.
-Settings and About remain hidden until their Android screens are supported.
+game exists), **Play a friend**, **Play the computer**, **Learn to play**, **Rules reference**, and **About**.
+Settings remains hidden until its Android behavior is supported.
 
 There is one current game, regardless of opponent or two-player mode. D-pad
 moves the highlight, OK selects, and Back leaves the app. Returning from a game
@@ -107,6 +107,35 @@ mise exec -- python3 android-probe/scripts/home-smoke.py --serial <serial> \
 ```
 
 See [home-validation.md](home-validation.md) for the build, evidence and limits.
+
+## About
+
+Open **About** from home for the game name, maker, asset authors and source
+address. It reuses Vega's `AboutScreen` and remote behavior with content supplied
+by the Android build: shared RhosGFX pieces and fallback faces, JDSherbert piece
+sounds, and Kenney dice/result sounds. Author names, licenses and links retain
+the canonical credit wording. Music is absent from this prototype, so its card
+is omitted. Android does not attempt Vega's hidden portrait-file probe.
+
+The source row points to the repository and its asset notices. It does not claim
+that complete dependency licenses ship in this prototype APK: generating and
+packaging those Android notices remains a distribution gate. Vega's default
+credits, portrait detection and notice text stay the same.
+
+All four directions keep the single page open. OK or Back returns to the
+selected About home row. System Home/return retains the screen. Opening About
+mounts no game or bot worker and does not write a game snapshot; after process
+death, Resume game restores the exact current turn.
+
+```sh
+mise exec -- python3 android-probe/scripts/about-smoke.py --serial <serial> \
+  --output android-probe/build/about
+```
+
+The script keeps app data and replaces only the current probe game through the
+normal UI. It checks the screen report, directions, OK/Back, Home/return and exact
+friend/bot partial-turn preservation after process death. Visual attribution and
+platform-specific evidence are recorded in [about-validation.md](about-validation.md).
 
 ## Learn to play
 
@@ -325,7 +354,8 @@ The gameplay effects reuse the already-vendored packs in `native/sounds/`.
 Kenney casino/interface/jingle sounds are CC0. `scripts/assets.mjs` checks every
 file against `native/sounds/sounds.lock.json` and copies the original bytes,
 manifests and licenses. Keep `assets/sfx/*/LICENSE.txt` with any internal APK
-handoff. These notices are generated sidecars, not an in-app credits screen.
+handoff. The About screen shows these asset credits. The license files remain generated
+sidecars; a complete Android dependency-notice bundle is still a distribution gate.
 No new sound assets, rights, dependencies or lockfile changes are introduced.
 
 ## Remaining gates

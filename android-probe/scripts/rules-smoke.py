@@ -92,7 +92,7 @@ try:
     h.adb('shell','am','force-stop',h.package)
     h.adb('logcat','-c')
     home=h.open_home()
-    assert home['items'][-1]['id']=='rules' and home['items'][-1]['label']=='Rules reference'
+    assert next(i['label'] for i in home['items'] if i['id']=='rules')=='Rules reference'
     before=len(h.events('AndroidRules'))
     h.home_select('rules')
     rule_wait(before,0)
