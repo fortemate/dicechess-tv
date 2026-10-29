@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   AppState,
   BackHandler,
@@ -28,6 +28,7 @@ import { type BotWorker } from '../../native/src/botClient';
 import { createWorker } from './worker';
 import { createStore } from './store';
 import { SvgGallery } from './SvgGallery';
+import { HotseatScreen } from './HotseatScreen';
 
 const store = createStore('dicechess-android-probe');
 const SAVE = 'snapshot';
@@ -45,12 +46,19 @@ const actions = [
   'Seek + parallel audio',
   'Play tutorial voice',
   'SVG artwork gallery',
+  'Play with a friend',
 ];
 
 export default function App() {
   const [selected, setSelected] = useState(0);
   const [gallery, setGallery] = useState(false);
   const galleryOpen = useRef(false);
+  const [playing, setPlaying] = useState(false);
+  const gameOpen = useRef(false);
+  const closeGame = useCallback(() => {
+    gameOpen.current = false;
+    setPlaying(false);
+  }, []);
   const [events, setEvents] = useState<string[]>([]);
   const [ticks, setTicks] = useState(0);
   const [game, setGame] = useState<Game>(() => {
@@ -131,6 +139,7 @@ export default function App() {
       log('focus', 'focus');
     });
     const back = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (gameOpen.current) return false;
       if (galleryOpen.current) {
         galleryOpen.current = false;
         setGallery(false);
@@ -154,7 +163,7 @@ export default function App() {
   }, []);
 
   useTVEventHandler((event) => {
-    if (!activity.isActive() || galleryOpen.current) return;
+    if (!activity.isActive() || galleryOpen.current || gameOpen.current) return;
     log('remote', { type: event.eventType, action: event.eventKeyAction });
     // This Android TV focus target delivers D-pad releases. Handle one release
     // per press; the game's held-key/repeat policy needs its own later probe.
@@ -313,11 +322,18 @@ export default function App() {
         setGallery(true);
         return;
       }
+      if (selected === 9) {
+        cancel('hotseat game');
+        gameOpen.current = true;
+        setPlaying(true);
+        return;
+      }
       await play(selected === 6, selected === 7);
     } catch (error) {
       log('action-fail', message(error));
     }
   };
+  if (playing) return <HotseatScreen activity={activity} onExit={closeGame} />;
   if (gallery) return <SvgGallery activity={activity} />;
   return (
     <View style={styles.root}>
@@ -374,7 +390,7 @@ const styles = StyleSheet.create({
   action: {
     fontSize: 17,
     color: '#ffffff',
-    padding: 7,
+    padding: 4,
     borderRadius: 6,
     marginBottom: 4,
   },
