@@ -13,6 +13,7 @@ import time
 parser = argparse.ArgumentParser()
 parser.add_argument('--adb', default='adb')
 parser.add_argument('--serial', required=True)
+parser.add_argument('--audio', action='store_true', help='Also verify gameplay effect and lifecycle events')
 parser.add_argument('--output', default='build/hotseat-smoke')
 args = parser.parse_args()
 out = Path(args.output)
@@ -35,6 +36,24 @@ def events(prefix='AndroidHotseat'):
             except json.JSONDecodeError:
                 pass
     return result
+
+
+def audio_wait(event, since=0, cue=None, timeout=15):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        observed = events('AndroidEffects')[since:]
+        failures = [e for e in observed if e['event'] in ('error', 'timeout')]
+        assert not failures, failures
+        matches = [e for e in observed if e['event'] == event and (cue is None or e['detail'].get('cue') == cue)]
+        if matches:
+            return matches[-1]
+        time.sleep(0.05)
+    raise AssertionError(f'No audio {event}/{cue}: {observed}')
+
+
+def silent_since(start):
+    time.sleep(0.7)
+    assert not any(e['event'] in ('requested', 'playing') for e in events('AndroidEffects')[start:])
 
 
 def wait(since=0, predicate=lambda state: True, timeout=15):
@@ -110,6 +129,9 @@ try:
     adb('shell', 'am', 'force-stop', package)
     adb('logcat', '-c')
     state = open_game()
+    if args.audio:
+        audio_wait('ready')
+        silent_since(0)
     checks.append('game opens from the diagnostics with native remote focus')
     # Start a fresh game by the same confirmed menu path a player uses.
     state = press(4)
@@ -130,6 +152,10 @@ try:
                 break
     else:
         raise AssertionError('No partial turn reached within 30 normal rolls/actions')
+    if args.audio:
+        audio_wait('finished', cue='dice_roll')
+        audio_wait('finished', cue='piece_move')
+        checks.append('native playing/completion events for normal rolls and moves')
     saved = state['game']
     saved_view = state['view']
     checks.append('normal random roll and a legal remote move leave a partial turn')
@@ -148,8 +174,12 @@ try:
     key(20, 4)
     press(23, lambda s: s['overlay']['kind'] == 'home')
     time.sleep(0.5)
+    audio_start = len(events('AndroidEffects'))
     state = press(23)
     assert state['game'] == saved and state['view'] == saved_view
+    if args.audio:
+        audio_wait('ready', audio_start)
+        silent_since(audio_start)
     checks.append('Back deselects then pauses; replacement Cancel and diagnostics preserve the game')
     # System Home and warm return retain the same game; focus works afterward.
     key(3)
@@ -163,9 +193,14 @@ try:
     # Process death must recover the complete canonical snapshot and legal view.
     adb('shell', 'am', 'force-stop', package)
     start = len(events())
+    audio_start = len(events('AndroidEffects'))
     state = open_game()
     assert len(events()) > start
     assert state['game'] == saved and state['view'] == saved_view
+    if args.audio:
+        audio_wait('ready', audio_start)
+        silent_since(audio_start)
+        checks.append('diagnostics reopen and process restore do not replay prior sounds')
     snapshot('restored-turn.png')
     checks.append('force-stop/relaunch restores position, roll, spent dice, phase and legal actions exactly')
     # Finish this side and then play at least one move for the other player.
@@ -199,12 +234,28 @@ try:
     key(20)
     press(23, lambda s: s['overlay']['kind'] == 'confirm')
     key(20)
+    audio_start = len(events('AndroidEffects'))
     state = press(23, lambda s: s['game']['phase'] == 'ended')
+    if args.audio:
+        audio_wait('playing', audio_start, 'game_win')
+        key(3)
+        audio_wait('released', audio_start, 'game_win')
+        time.sleep(1)
+        assert not any(e['event'] == 'finished' and e['detail']['cue'] == 'game_win' for e in events('AndroidEffects')[audio_start:])
+        resume_start = len(events('AndroidEffects'))
+        adb('shell', 'am', 'start', '-n', f'{package}/.MainActivity')
+        time.sleep(0.8)
+        silent_since(resume_start)
+        checks.append('Home interrupts the playing result jingle; return does not replay it')
     ended = state['game']
     assert ended['result']['reason'] == 'resigned'
     snapshot('finished-game.png')
     adb('shell', 'am', 'force-stop', package)
+    audio_start = len(events('AndroidEffects'))
     state = open_game()
+    if args.audio:
+        audio_wait('ready', audio_start)
+        silent_since(audio_start)
     assert state['game'] == ended
     press(23, lambda s: s['overlay']['kind'] == 'menu')
     press(23, lambda s: s['overlay']['kind'] == 'confirm')
@@ -215,9 +266,22 @@ try:
     state = press(23, lambda s: s['game']['phase'] == 'roll')
     assert state['game']['id'] != ended['id'] and not state['game']['moves']
     checks.append('resignation Cancel, confirmed result, result recovery and confirmed new game')
+    if args.audio:
+        # A second result completes naturally after a fresh game, proving playback resumes.
+        press(4)
+        key(20, 2)
+        audio_start = len(events('AndroidEffects'))
+        press(23, lambda s: s['game']['phase'] == 'ended')
+        audio_wait('finished', audio_start, 'game_draw')
+        observed = events('AndroidEffects')
+        assert not [e for e in observed if e['event'] in ('error', 'timeout')]
+        for cue in ('dice_roll', 'piece_move', 'game_win', 'game_draw'):
+            assert any(e['event'] == 'playing' and e['detail']['cue'] == cue for e in observed), cue
+        checks.append('fresh result plays to native completion after interruption and relaunch')
     (out / 'saved-partial.json').write_text(json.dumps({'game': saved, 'view': saved_view}, indent=2) + '\n')
     print(json.dumps({'passed': checks}, indent=2))
 finally:
+    (out / 'audio-events.json').write_text(json.dumps(events('AndroidEffects'), indent=2) + '\n')
     (out / 'events.json').write_text(json.dumps(events(), indent=2) + '\n')
     (out / 'logcat.txt').write_text(adb('logcat', '-d', '-v', 'brief'))
     (out / 'checks.json').write_text(json.dumps({'passed': checks}, indent=2) + '\n')

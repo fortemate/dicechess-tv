@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   BackHandler,
   Pressable,
@@ -30,6 +30,8 @@ import { movableSquares } from '../../src/core/boardInput';
 import { emptyRoll, rollDice, sideName, viewGame } from '../../src/core/game';
 import { outcome, reasonOf } from '../../src/core/announcements';
 import { createStore } from './store';
+import { cues } from '../../src/core/cues';
+import { createAndroidEffects } from './androidEffects';
 import { androidDirection, pulseKey } from './androidRemote';
 import {
   createHotseatSession,
@@ -79,12 +81,26 @@ function Game({
   const [opened] = useState(makeSession);
   const [state, setState] = useState(() => opened.session?.getState());
   const [error, setError] = useState(opened.error);
+  const effects = useRef<ReturnType<typeof createAndroidEffects> | null>(null);
+  useEffect(() => {
+    if (error) return;
+    const owned = createAndroidEffects(activity);
+    effects.current = owned;
+    return () => {
+      effects.current = null;
+      owned.dispose();
+    };
+  }, [activity, error]);
   const { width, height } = useWindowDimensions();
   const send = useCallback(
     (action: HotseatAction) => {
       if (!opened.session || error) return;
       try {
-        setState(opened.session.dispatch(action));
+        const before = opened.session.getState().game;
+        const next = opened.session.dispatch(action);
+        setState(next);
+        if (next.game !== before)
+          effects.current?.play(cues(before, next.game));
       } catch (failure) {
         setError(errorText(failure));
         report('save-error', errorText(failure));

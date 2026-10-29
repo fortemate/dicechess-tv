@@ -85,3 +85,23 @@ for (const file of [voiceFile, 'LICENSE.txt']) {
 console.log(
   'Packaged canonical engine, original tone, pinned tutorial voice and license.',
 );
+
+// Reuse the vendored effects without changing their bytes or license notices.
+const sounds = JSON.parse(
+  await readFile(
+    new URL('../../native/sounds/sounds.lock.json', import.meta.url),
+    'utf8',
+  ),
+);
+for (const [pack, metadata] of Object.entries(sounds.packs)) {
+  await mkdir(`${root}assets/sfx/${pack}`, { recursive: true });
+  for (const [file, pin] of Object.entries(metadata.files)) {
+    const bytes = await readFile(
+      new URL(`../../native/sounds/${pack}/${file}`, import.meta.url),
+    );
+    if (createHash('sha256').update(bytes).digest('hex') !== pin.sha256)
+      throw new Error(`Pinned sound asset changed: ${pack}/${file}`);
+    await writeFile(`${root}assets/sfx/${pack}/${file}`, bytes);
+  }
+}
+console.log('Packaged pinned sound effects and their licenses.');
