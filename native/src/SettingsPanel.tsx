@@ -110,10 +110,10 @@ export function SettingsPanel({
   pressed = false,
   only,
 }: {
-  settings: Partial<ScreenSettings>;
-  index: number;
-  pressed?: boolean;
-  only?: readonly SettingId[];
+  readonly settings: Partial<ScreenSettings>;
+  readonly index: number;
+  readonly pressed?: boolean;
+  readonly only?: readonly SettingId[];
 }) {
   const rows = settingsItems(settings).filter(
     (row) => !only || only.includes(row.id),

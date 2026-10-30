@@ -81,6 +81,20 @@ def restart():
     h.open_home()
 
 
+def human_move():
+    """Wait through empty rolls and bot turns without driving the bot's cursor."""
+    deadline = time.monotonic() + 60
+    while time.monotonic() < deadline:
+        state = h.wait()
+        assert state['game']['phase'] != 'ended', state
+        if not state['view']['bot'] and not state['guarded']:
+            if state['game']['phase'] == 'move':
+                return state
+            h.press(23)
+        time.sleep(0.8)
+    raise AssertionError('No playable human turn within 60 seconds')
+
+
 try:
     h.adb('shell', 'am', 'force-stop', h.package)
     h.adb('logcat', '-c')
@@ -119,11 +133,7 @@ try:
             h.press(20)
             state = h.press(23)
         # Obtain a real rolled turn without injecting positions or randomness.
-        deadline = time.monotonic() + 60
-        while state['game']['phase'] != 'move':
-            assert time.monotonic() < deadline
-            time.sleep(0.8)
-            state = h.press(23)
+        state = human_move()
         saved = state['game']
         h.return_home(state)
         enter()
@@ -140,17 +150,9 @@ try:
         change(23)
         leave()
         before = len(h.events('AndroidEffects'))
-        state = choose('resume')
-        time.sleep(0.5)
+        choose('resume')
         # Make another real human action with sound enabled.
-        deadline = time.monotonic() + 60
-        while not any(e['event'] == 'requested' for e in h.events('AndroidEffects')[before:]):
-            assert time.monotonic() < deadline
-            if state['game']['phase'] == 'move':
-                state = h.move(state)
-            else:
-                time.sleep(0.8)
-                state = h.press(23)
+        h.move(human_move())
         requests = [e['detail'] for e in h.events('AndroidEffects')[before:] if e['event'] == 'requested']
         assert all(math.isclose(e['gain'], 10 ** (-18 / 20)) for e in requests), requests
         h.audio_wait('playing', before)

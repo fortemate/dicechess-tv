@@ -36,6 +36,7 @@ import { createBotDriver } from './botDriver';
 import { createStore } from './store';
 import { cues } from '../../src/core/cues';
 import { createAndroidEffects } from './androidEffects';
+import { openOptionalEffects } from './effects';
 import { RemoteSurface } from './RemoteSurface';
 import { RulesContent } from './RulesReference';
 import {
@@ -157,14 +158,11 @@ function Game({
   const effects = useRef<ReturnType<typeof createAndroidEffects> | null>(null);
   useEffect(() => {
     if (error) return;
-    let owned: ReturnType<typeof createAndroidEffects>;
-    try {
-      owned = createAndroidEffects(activity);
-    } catch (failure) {
-      setError(errorText(failure));
-      report('load-error', errorText(failure));
-      return;
-    }
+    const owned = openOptionalEffects(
+      () => createAndroidEffects(activity),
+      (failure) => report('sound-error', errorText(failure)),
+    );
+    if (!owned) return;
     effects.current = owned;
     return () => {
       effects.current = null;

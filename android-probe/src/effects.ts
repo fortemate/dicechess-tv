@@ -24,6 +24,20 @@ export type EffectBackend = {
   report(event: string, detail: unknown): void;
 };
 type Channel = 'board' | 'dice' | 'result';
+
+// Optional audio must never turn a valid game into a load failure.
+export function openOptionalEffects(
+  open: () => ReturnType<typeof createEffects>,
+  report: (error: unknown) => void,
+): ReturnType<typeof createEffects> | null {
+  try {
+    return open();
+  } catch (error) {
+    report(error);
+    return null;
+  }
+}
+
 const channels: Record<Cue, Channel> = {
   piece_move: 'board',
   piece_capture: 'board',

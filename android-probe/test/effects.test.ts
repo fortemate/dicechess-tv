@@ -3,7 +3,11 @@ import { test } from 'node:test';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { DEFAULT_SOUND, soundGain } from '../../native/src/soundSetting.ts';
-import { createEffects, type EffectPlayer } from '../src/effects.ts';
+import {
+  createEffects,
+  openOptionalEffects,
+  type EffectPlayer,
+} from '../src/effects.ts';
 import { CUE_FILES } from '../../native/src/cueFiles.ts';
 import { cues, type Cue } from '../../src/core/cues.ts';
 import {
@@ -266,4 +270,18 @@ test('persisted mute suppresses all effects and volume reaches the native backen
   assert.equal(low.players[0].gain, soundGain(3));
   muted.effects.dispose();
   low.effects.dispose();
+});
+
+test('optional effects retain normal playback and disposal when setup succeeds', async () => {
+  const h = harness();
+  const effects = openOptionalEffects(
+    () => h.effects,
+    () => assert.fail('unexpected sound failure'),
+  );
+  assert.equal(effects, h.effects);
+  await Promise.resolve();
+  effects!.play(['dice_roll']);
+  assert.equal(h.players.length, 1);
+  effects!.dispose();
+  assert.equal(h.players[0].removed, 1);
 });

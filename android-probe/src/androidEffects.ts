@@ -1,6 +1,5 @@
-import { readSound } from '../../native/src/soundSetting';
 import { createStore } from './store';
-import { SETTINGS_STORE } from './soundPreferences';
+import { readAndroidSound, SETTINGS_STORE } from './soundPreferences';
 import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import { CUE_FILES } from '../../native/src/cueFiles';
 import type { Activity } from '../../native/src/activity';
@@ -8,7 +7,7 @@ import { EFFECT_ASSETS } from './effectAssets';
 import { createEffects } from './effects';
 
 export function createAndroidEffects(activity: Activity) {
-  const sound = readSound(createStore(SETTINGS_STORE));
+  const sound = readAndroidSound(createStore(SETTINGS_STORE));
   return createEffects(
     activity,
     {

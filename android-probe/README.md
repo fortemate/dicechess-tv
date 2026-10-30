@@ -117,9 +117,12 @@ supported row selected, and Back restores focus to Settings in home. System
 Home/return keeps the panel open. Music, voices and gameplay preferences are not
 exposed until their Android behavior is connected.
 
-The canonical sound preference functions write synchronously to a separate MMKV
-settings store before publishing the new value. No game or bot is mounted by
-Settings. Opening gameplay reads those preferences: muted effects create no
+Canonical stepping and mute behavior are reused. Android writes mute and volume
+as one JSON value in a separate MMKV settings store before publishing it. Old
+two-key preferences remain readable and are kept intact; the next successful
+change writes the new format. A sound setup/storage failure is reported and
+disables effects for that game screen, while the saved game stays playable.
+No game or bot is mounted by Settings. Opening gameplay reads those preferences: muted effects create no
 players, and the shared decibel curve sets the native player volume. These
 preferences do not change the explicit diagnostic audio probe. The default is
 Vega's level 10; the earlier probe used a fixed native gain of 0.5.

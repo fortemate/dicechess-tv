@@ -8,19 +8,24 @@ Sounds; the other Vega settings need their Android runtime behavior first.
 `SettingsPanel` and its choice/ring rendering are extracted from Vega's game
 screen. Vega uses every existing row; Android uses the Sounds row. Labels,
 volume rings and hints remain shared. Android reuses the canonical sound
-step/toggle/read/save functions: Left/Right changes the level, OK remembers the
+step/toggle functions: Left/Right changes the level, OK remembers the
 level when muting and restores it when unmuting, and Up/Down stays on the single
 row. Back returns to the selected Settings home row.
 
-Preferences are written synchronously before the next value is shown, using a
-separate MMKV settings store. Settings mounts no game or worker. Gameplay reads
+Preferences are written synchronously as one complete JSON value before the
+next value is shown, using a separate MMKV settings store. The old two-key
+format remains readable and is not overwritten; a successful change creates
+the new value. Invalid new data is reported rather than silently reset.
+Settings mounts no game or worker. Gameplay reads
 the saved preferences when its effect service opens: mute prevents player
 creation and delayed cues, and `soundGain` supplies the native player volume.
 The default is Vega's level 10, replacing the prototype's fixed gain of 0.5.
 The diagnostic audio probe retains its separate behavior. Failed storage reads
-or writes show an error; the screen does not silently publish an unsaved choice.
+or writes show an error in Settings; it does not publish an unsaved choice.
+Game sound setup failures are reported as `sound-error` and leave effects
+disabled without setting the game error or blocking moves.
 
-## Builds
+## Initial implementation builds
 
 Standalone ARM64 Android TV release-variant APK, signed with the local debug key,
 with bundled JavaScript/assets and no Metro server. SHA-256:
@@ -35,7 +40,7 @@ Vega SDK local build 59, ARM64 package SHA-256:
 4e0f0284414fa476052f0839bc520c50db9873b637cd67201857af33c6789d87
 ```
 
-## Checks
+## Initial implementation checks
 
 - `mise run check` passed: 337 core, 736 native and 13 browser tests, types,
   lint, formatting, Vega Metro bundle and browser build.
@@ -60,6 +65,59 @@ Vega SDK local build 59, ARM64 package SHA-256:
 The menu expectations in tutorial and legacy migration scripts were updated;
 those complete device suites were not rerun. No physical Fire TV Stick test
 was performed. The Vega check is separate from Android emulator evidence.
+
+## Review fixes validated on 2026-10-30
+
+- `mise run check`, Android types/lint and both platform builds passed. All
+  1140 automated tests passed: 337 core, 736 native, 13 browser and 54 Android.
+- New tests cover legacy preference migration, a single complete write,
+  failed writes preserving both the displayed and reopened choice, malformed
+  records/read failures, and continued game moves/saves when sound setup fails.
+- A temporary diagnostic APK forced settings-store creation in
+  `createAndroidEffects` to throw `QA: settings storage unavailable`.
+  All seven `hotseat-smoke.py` groups passed on Android TV API 31, including
+  legal remote moves, exact partial-turn restoration after force-stop and
+  continued play. Four `sound-error` reports were observed, with no game
+  load/save errors and no audio events. The restored board screenshot was
+  visually inspected. This is simulated failure evidence, not a claim that
+  the normal APK encountered an actual storage failure.
+- The diagnostic source change was removed and the normal APK restored.
+  The shared Vega panel change in this revision only marks props readonly;
+  the initial Vega device and nine home/menu groups above were not rerun.
+- The first normal-APK Settings run exposed a smoke-script race after an empty
+  human roll: it treated the bot's move phase as a controllable human turn.
+  The script now waits through bot and guarded turns before sending keys or
+  choosing a move. A deterministic helper check also verified that those
+  states receive no keys.
+- The corrected Settings suite passed all four groups on the normal APK:
+  D-pad/OK/Back, Home/return, mute and remembered volume after immediate
+  process death, exact friend/bot rolled-turn preservation, muted moves and
+  native playback at level 4. Settings/game/effects logs contain no errors.
+  Settings screenshots were visually inspected.
+
+Normal Android APK SHA-256:
+
+```text
+4583712df966e8e3635c6f4ac97c67450ca642950236694a787d2e52d27d2467
+```
+
+Diagnostic Android APK SHA-256 (local validation only):
+
+```text
+e586db3506bfa648e338a499ecdc2ce9fec52594387a4f3260183212809affb9
+```
+
+Rebuilt ARM64 Vega package SHA-256:
+
+```text
+255b13d5aff5eaa5f80777399cd8b112ad19688a87fc0307360d37e455527b6e
+```
+
+Local evidence is retained under `android-probe/build/settings-review/`:
+`normal.apk`, `sound-failure.apk`, the `failure/` diagnostic smoke output, and
+`normal/` for the first Settings run and `normal-retry/` for the successful
+corrected suite. The diagnostic
+injection is not part of the committed source.
 
 ## Reproduce and limits
 
