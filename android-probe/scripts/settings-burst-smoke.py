@@ -32,13 +32,13 @@ try:
     h.open_home()
     s.enter()
     before = state()
-    after = burst([20] * 18 + [22], 2)
+    after = burst([20] * 17 + [22], 2)
     assert after['autoSelect'] and after['sound'] == before['sound'] and after['highlights'] == before['highlights']
-    after = burst([19] * 17 + [21], 1)
+    after = burst([19] * 16 + [21], 1)
     choices = ['standard', 'enhanced', 'colour-blind', 'high-contrast']
     assert after['highlights'] == choices[(choices.index(before['highlights']) - 1) % 4]
     assert after['autoSelect'] and after['sound'] == before['sound']
-    after = burst([20, 20, 22], 3)
+    after = burst([20, 20, 20, 22], 4)
     assert after['turnHotseat']
     h.snapshot('burst-settings.png')
     s.restart()
@@ -46,10 +46,10 @@ try:
     restored = state()
     for field in ('sound', 'highlights', 'autoSelect', 'turnHotseat'):
         assert restored[field] == after[field], (field, restored, after)
-    checks.append('18 Down and 17 Up events wrap correctly; immediate value keys affect only the final row; preferences survive restart')
+    checks.append('17 Down and 16 Up events wrap correctly; immediate value keys affect only the final row; preferences survive restart')
     burst([20, 20, 21], 2)
-    burst([20, 21], 3)
-    burst([19, 19], 1)
+    burst([20, 20, 21], 4)
+    burst([19, 19, 19], 1)
     while state()['highlights'] != 'standard': s.change(22)
     s.leave()
     print(json.dumps({'passed': checks}, indent=2))

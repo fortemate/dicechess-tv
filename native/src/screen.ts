@@ -1051,10 +1051,11 @@ const switched = (on: boolean, key: BoardKey): boolean =>
 
 export type GameplaySettings = Pick<
   ScreenSettings,
-  'highlights' | 'autoSelect' | 'turnHotseat'
+  'highlights' | 'autoSelect' | 'turnHotseat' | 'playAs'
 >;
-export type GameplaySettingId = 'highlights' | 'auto-select' | 'turn-board';
-/** Apply shared highlight and switch controls without mutating the previous settings or game. */
+export type GameplaySettingId =
+  'highlights' | 'auto-select' | 'turn-board' | 'play-as';
+/** Apply shared highlight, side-choice and switch controls without mutating the previous settings or game. */
 export function changeGameplaySetting<T extends GameplaySettings>(
   state: T,
   row: GameplaySettingId,
@@ -1062,6 +1063,11 @@ export function changeGameplaySetting<T extends GameplaySettings>(
 ): T {
   if (!['left', 'right', 'select'].includes(key)) return state;
   switch (row) {
+    case 'play-as':
+      return {
+        ...state,
+        playAs: cyclePlayAs(state.playAs, key === 'left' ? -1 : 1),
+      };
     case 'highlights':
       return {
         ...state,
@@ -1111,10 +1117,9 @@ const changed = (
             ? toggleVoices(state.voices)
             : stepVoices(state.voices, by),
       };
-    case 'play-as':
-      return { ...state, playAs: cyclePlayAs(state.playAs, by) };
     case 'host':
       return { ...state, host: cycleHost(state.host, by) };
+    case 'play-as':
     case 'turn-board':
     case 'highlights':
     case 'auto-select':

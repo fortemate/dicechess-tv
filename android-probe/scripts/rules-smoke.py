@@ -158,6 +158,7 @@ try:
     h.return_home(state)
     checks.append('process death while reading rules leaves the exact current game resumable')
 
+    h.configure_play_as('ask')
     state=h.choose_bot(choose('computer'),0,1)
     state=next_bot_turn(state)
     state=enter_rules(state)

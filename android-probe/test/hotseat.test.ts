@@ -292,6 +292,7 @@ test('game preferences persist independently and session restore preserves the e
   prefs.press('turn-board', 'right');
   prefs.press('turn-board', 'right');
   assert.deepEqual(createGamePreferences(store).read(), {
+    playAs: 'random',
     highlights: 'enhanced',
     autoSelect: true,
     turnHotseat: true,
@@ -318,7 +319,12 @@ test('failed game preference writes leave the published and reopened value uncha
       throw new Error('disk');
     },
   });
-  for (const row of ['highlights', 'auto-select', 'turn-board'] as const) {
+  for (const row of [
+    'highlights',
+    'auto-select',
+    'turn-board',
+    'play-as',
+  ] as const) {
     assert.throws(() => prefs.press(row, 'right'), /disk/);
     assert.deepEqual(prefs.read(), createGamePreferences(store).read());
   }
@@ -352,4 +358,79 @@ test('automatic selections save real moves and reject stale scheduled actions', 
   assert.deepEqual(createGameSession(store, opts).getState().game, moved);
   session.dispatch(pick);
   assert.deepEqual(session.getState().game, moved);
+});
+
+test('Play as uses canonical defaults, cycling and persisted values', () => {
+  const store = memory();
+  const prefs = createGamePreferences(store);
+  assert.equal(prefs.read().playAs, 'random');
+  for (const expected of ['w', 'b', 'ask', 'random']) {
+    assert.equal(prefs.press('play-as', 'right').playAs, expected);
+    assert.equal(createGamePreferences(store).read().playAs, expected);
+  }
+  assert.equal(prefs.press('play-as', 'left').playAs, 'ask');
+  assert.equal(prefs.press('play-as', 'select').playAs, 'random');
+  store.set('dicechess-tv.playAs.v1', 'invalid');
+  assert.equal(createGamePreferences(store).read().playAs, 'random');
+});
+
+test('new bot games apply White, Black, seeded Random or the Ask choice', () => {
+  for (const playAs of ['w', 'b', 'random', 'ask'] as const) {
+    for (const randomSide of ['w', 'b'] as const) {
+      const opts = { ...options(), side: () => randomSide };
+      const session = createGameSession(memory(), opts, 'bot', 'new', {
+        playAs,
+      });
+      assert.equal(session.getState().overlay.kind, 'opponent');
+      key(session, 'select');
+      if (playAs === 'ask') {
+        assert.equal(session.getState().overlay.kind, 'colour');
+        key(session, 'down'); // White, explicitly chosen in the side menu.
+        key(session, 'select');
+      }
+      assert.equal(session.getState().overlay.kind, 'none');
+      assert.equal(
+        session.getState().game.human,
+        playAs === 'random' ? randomSide : playAs === 'ask' ? 'w' : playAs,
+      );
+    }
+  }
+});
+
+test('changing Play as preserves the current bot game and canceled replacement', () => {
+  const store = memory();
+  const opts = options();
+  const session = createGameSession(store, opts, 'bot', 'new', { playAs: 'w' });
+  key(session, 'select');
+  key(session, 'select');
+  const saved = store.getString(GAME_KEY);
+  const prefs = createGamePreferences(store);
+  prefs.press('play-as', 'right');
+  prefs.press('play-as', 'right');
+  assert.equal(prefs.read().playAs, 'b');
+  const restored = createGameSession(
+    store,
+    opts,
+    'bot',
+    'continue',
+    prefs.read(),
+  );
+  assert.deepEqual(restored.getState().game, session.getState().game);
+  const canceled = createGameSession(store, opts, 'bot', 'new', prefs.read());
+  key(canceled, 'select');
+  assert.equal(canceled.getState().overlay.kind, 'confirm');
+  key(canceled, 'select');
+  assert.equal(store.getString(GAME_KEY), saved);
+  const replacement = createGameSession(
+    store,
+    opts,
+    'bot',
+    'new',
+    prefs.read(),
+  );
+  key(replacement, 'select');
+  key(replacement, 'down');
+  key(replacement, 'select');
+  assert.equal(replacement.getState().game.human, 'b');
+  assert.notEqual(replacement.getState().game.id, session.getState().game.id);
 });

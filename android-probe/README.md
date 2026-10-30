@@ -111,13 +111,13 @@ See [home-validation.md](home-validation.md) for the build, evidence and limits.
 ## Settings
 
 Open **Settings** from home to adjust **Sounds**, **Highlights**,
-**Auto-play only move**, and **Turn board for friends**.
+**Auto-play only move**, **Play as**, and **Turn board for friends**.
 See [gameplay settings validation](game-settings-validation.md). Android and Vega render the
 same `SettingsPanel`, labels, volume rings and remote hints. Left/Right changes
-the selected value; OK toggles switches or cycles Highlights, and mutes/restores
+the selected value; OK toggles switches or cycles Highlights and Play as, and mutes/restores
 the remembered Sounds level. Up/Down selects a row, and Back restores focus
 to Settings in home. System
-Home/return keeps the panel open. Music, voices, Play as and Host for friends remain separate work.
+Home/return keeps the panel open. Music, voices and Host for friends remain separate work.
 
 Canonical stepping and mute behavior are reused. Android writes mute and volume
 as one JSON value in a separate MMKV settings store before publishing it. Old
@@ -280,10 +280,16 @@ are written to the ignored `build/hotseat-smoke/` directory. `--audio` also chec
 ## Play against the computer
 
 Choose **Play the computer** on home, then Rolly (Easy), Grabby (Medium) or Rampage (Hard),
-then Random, White or Black. These are the shared opponent definitions and
+then the side menu only when **Play as: Ask** is selected in Settings.
+Play as defaults to **Random**, as on Vega; White and Black also start directly
+from the opponent card. These are the shared opponent definitions and
 canonical algorithms; the Android screen does not define separate bot strengths.
 Back returns to the opponent chooser or home without creating a save. The direct
 **Play against computer** diagnostic starts through the same replacement flow.
+
+Changing Play as affects future games only; it does not change the current
+game's side, position or roll. Preferences survive restart. See
+[Play as validation](play-as-validation.md) for checks and limits.
 
 The **Resume game** row opens a saved game directly, keeping its opponent, color and full turn snapshot.
 Earlier Rolly/White saves remain compatible. Random resolves the player's color
@@ -315,7 +321,7 @@ verifies that the driver requests only the remaining moves from that saved game.
 
 The menu offers Resume game, Resign, New game, Main menu (Diagnostics when opened there), and Rules reference. Replacement and
 resignation require confirmation while a game is in progress. New game opens
-opponent and side selection again, with Cancel first at the final replacement
+opponent selection again (and side selection for Ask), with Cancel first at the final replacement
 confirmation. A computer-game result opens Vega's **Rematch / Main menu** menu
 (Diagnostics when opened there). Rematch starts immediately against the same
 opponent with the same color preference; Random draws the side again. Back

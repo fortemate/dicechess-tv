@@ -118,6 +118,7 @@ try:
     assert not h.events()
     checks.append('system Home/return retains About; Back restores home focus without mounting a game')
 
+    h.configure_play_as('ask')
     for mode in ('hotseat', 'bot'):
         state = choose('hotseat' if mode == 'hotseat' else 'computer')
         if mode == 'bot':

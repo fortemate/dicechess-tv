@@ -28,7 +28,7 @@ try:
     enter()
     row(2)
     change(21)
-    row(3)
+    row(4)
     change(22)
     change(22)
     assert full()['turnHotseat'] is True
@@ -104,7 +104,7 @@ try:
     enter()
     row(2)
     change(21)
-    row(3)
+    row(4)
     change(21)
     row(1)
     while full()['highlights'] != 'standard':

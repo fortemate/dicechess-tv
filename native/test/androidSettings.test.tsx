@@ -64,7 +64,7 @@ test('Android settings route batched repeats and value keys before React commits
     assert.equal(store.getString('dicechess-tv.highlights.v1'), undefined);
     assert.equal(store.getString('sound.v1'), undefined);
     act(() => {
-      hold('up', 5);
+      hold('up', 6);
       release('up');
       press('left');
     });
@@ -74,6 +74,18 @@ test('Android settings route batched repeats and value keys before React commits
     );
     assert.equal(store.getString('dicechess-tv.autoSelect.v1'), 'on');
     assert.equal(store.getString('sound.v1'), undefined);
+    act(() => {
+      hold('down', 2);
+      release('down');
+      press('right');
+    });
+    assert.equal(store.getString('dicechess-tv.playAs.v1'), 'w');
+    assert.equal(store.getString('dicechess-tv.turnBoard.v1'), undefined);
+    assert.equal(store.getString('dicechess-tv.autoSelect.v1'), 'on');
+    assert.equal(
+      store.getString('dicechess-tv.highlights.v1'),
+      'high-contrast',
+    );
   } finally {
     unmount();
   }

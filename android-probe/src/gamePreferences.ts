@@ -8,6 +8,7 @@ import {
   readAutoSelect,
   saveAutoSelect,
 } from '../../native/src/autoSelectSetting';
+import { readPlayAs, savePlayAs } from '../../native/src/playAsSetting';
 import { readTurnBoard, saveTurnBoard } from '../../native/src/turnSetting';
 import {
   changeGameplaySetting,
@@ -17,6 +18,7 @@ import {
 /** Read canonical gameplay preferences, retaining Vega defaults for absent or invalid stored values. */
 export function readGamePreferences(store: KeyValueStore) {
   return {
+    playAs: readPlayAs(store),
     highlights: readHighlights(store),
     autoSelect: readAutoSelect(store),
     turnHotseat: readTurnBoard(store),
@@ -36,6 +38,7 @@ export function createGamePreferences(store: KeyValueStore) {
         saveAutoSelect(store, next.autoSelect);
       if (next.turnHotseat !== value.turnHotseat)
         saveTurnBoard(store, next.turnHotseat);
+      if (next.playAs !== value.playAs) savePlayAs(store, next.playAs);
       value = next;
       return value;
     },

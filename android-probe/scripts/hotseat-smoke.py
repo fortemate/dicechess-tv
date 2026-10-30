@@ -155,6 +155,26 @@ def return_home(state):
     return home
 
 
+def configure_play_as(choice):
+    """Set the side preference through Settings while home is visible."""
+    home_select('settings')
+    def current():
+        """Read the latest complete preference report and reject storage errors."""
+        reports = [e['detail'] for e in events('AndroidSettings') if e['event'] == 'state']
+        assert reports and not reports[-1]['error']
+        return reports[-1]
+    for _ in range(5):
+        if current()['index'] == 3: break
+        key(20)
+    for _ in range(4):
+        if current()['playAs'] == choice: break
+        key(22)
+    assert current()['playAs'] == choice
+    start = len(events('AndroidHome'))
+    key(4)
+    return home_wait(start)
+
+
 def choose_bot(state, opponent=0, colour=1):
     """Start through the shared opponent/side menus, confirming replacement."""
     if state['overlay']['kind'] != 'opponent':
