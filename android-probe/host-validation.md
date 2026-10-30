@@ -8,7 +8,7 @@ writes finish before the new value is published; invalid data reads as Prowla.
 Gameplay reads this preference without changing its saved game. Friend games
 use `useHostVoice` for the canonical event selection, scripts, shuffled bags,
 queue and pacing. The shared `HostBlock`, `Portrait` and `SpeechBubble` render
-the chosen host and caption. Space remains reserved while the caption is
+the chosen host and caption. Space remains reserved while the board is visible and the caption is
 hidden so the title, dice and prompt stay in place. Commentary is hidden behind menus, with Off, and
 in computer games. This slice supplies no voice callback: it presents text and
 portraits without host audio.
@@ -44,7 +44,7 @@ positions or settings. The host suite finishes with Prowla selected.
   commits. Existing shared host event/pacing/presentation tests also passed.
 - ARM64 Android release APK and all configured Vega architectures built.
   APK SHA-256:
-  `864a66b6b7e20afb5e61c72c1b221efbac0e68cf432b8d15f23f91e8ce5bded5`.
+  `5e78343ab6b5e14b1ca9ae4bf5d5d46e373749b71ff586526b7ce2518dabf56e`.
 
 Physical devices, held keys, accessibility and host voice playback remain
 separate work. No Vega runtime or human listening claim follows from these
@@ -72,9 +72,12 @@ After reserving the caption area, native typecheck/lint and all 739 native tests
 passed, including a new mounted presentation regression for expiry, menus,
 Off and computer games. Both mounted Android regressions and native typecheck
 also passed in an installation without Android dependencies. The full host
-smoke passed again on the final APK. The six-row burst run used the preceding
+smoke passed again on the caption-area candidate. The six-row burst run used the preceding
 APK; the final change affects only commentary layout.
 
 A separate emulator capture compared the panel before and after a real welcome
 caption expired: title, dice and prompt pixels stayed identical. Captures are
-in the ignored `android-probe/build/host-layout/` directory.
+in the ignored `android-probe/build/host-layout-final/` directory. The final APK also hides
+the reserved area in menus; the mounted regression and emulator expiry/menu
+checks passed after that spacing change, and the complete menu screenshot was
+inspected. The full host suite was not repeated after this menu-only change.

@@ -58,7 +58,7 @@ test('Android host reserves its space after a caption expires and hides behind m
       tree.update(<HostCommentary game={game} host="prowla" live={false} />);
     });
     assert.equal(blocks().length, 0);
-    assert.deepEqual(space(), reserved);
+    assert.equal(space(), undefined);
     Reflect.set(globalThis, slot, null);
     act(() => {
       tree.update(<HostCommentary game={game} host="prowla" live />);

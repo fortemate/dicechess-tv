@@ -32,7 +32,7 @@ export function HostCommentary({
         }),
     );
   }, [host, visible, line]);
-  if (game.mode !== 'hotseat' || host === 'off') return null;
+  if (!live || game.mode !== 'hotseat' || host === 'off') return null;
   return (
     <View style={{ height: HOST_HEIGHT + 20, marginTop: 12 }}>
       {visible && line ? (
