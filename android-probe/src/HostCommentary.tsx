@@ -32,13 +32,15 @@ export function HostCommentary({
         }),
     );
   }, [host, visible, line]);
-  if (!visible || !line) return null;
+  if (game.mode !== 'hotseat' || host === 'off') return null;
   return (
     <View style={{ height: HOST_HEIGHT + 20, marginTop: 12 }}>
-      <HostBlock
-        host={line.host}
-        bubble={<SpeechBubble text={line.text} rows={HOST_BUBBLE_ROWS} />}
-      />
+      {visible && line ? (
+        <HostBlock
+          host={line.host}
+          bubble={<SpeechBubble text={line.text} rows={HOST_BUBBLE_ROWS} />}
+        />
+      ) : null}
     </View>
   );
 }
