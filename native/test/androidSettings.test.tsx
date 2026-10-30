@@ -34,7 +34,19 @@ registerHooks({
     return nextResolve(specifier, context);
   },
 });
-const { Settings } = await import('../../android-probe/src/Settings');
+// Load the platform fixture through the runtime adapters above. A literal
+// TypeScript import would pull Android's dependency graph into Vega's tsc job.
+// Android CI typechecks this component with its own platform dependencies.
+const settingsUrl = new URL(
+  '../../android-probe/src/Settings.tsx',
+  import.meta.url,
+);
+const { Settings } = (await import(settingsUrl.href)) as {
+  Settings: React.ComponentType<{
+    activity: ReturnType<typeof createActivity>;
+    onExit: () => void;
+  }>;
+};
 
 test('Android settings route batched repeats and value keys before React commits', () => {
   act(() => {

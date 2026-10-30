@@ -95,3 +95,21 @@ Final verification passed: `mise run check`, Android types/lint and all 1144 tes
 with Node LCOV instrumentation. Android was rebuilt for this revision; shared
 Vega runtime code changed only in documentation, so the prior Vega build/device
 evidence remains separate.
+
+## Clean-install regression-test loading
+
+The mounted regression loads the Android component by runtime URL through its
+existing host adapters. A literal TypeScript import incorrectly pulled Android's
+React Native/MMKV dependencies into the Vega typecheck, whose CI installation
+contains only root and native packages. The typed fixture contract stays in the
+test; Android's own CI still typechecks the actual component and adapters.
+
+Validation uses a separate tracked-source copy with fresh `npm ci` and
+`npm ci --prefix native`, without Android dependencies or copied `node_modules`.
+The original test reproduces the missing-Android-module TypeScript failure in
+that copy. Application runtime code and the emulator-tested APK are unchanged.
+
+With the fixed loader, that clean macOS copy passed the exact native-board
+commands: native typecheck, lint, all 737 tests and Metro bundle. This proves
+package isolation locally; the GitHub Linux result is a separate CI check.
+No application or emulator behavior changed in this test-loading fix.
