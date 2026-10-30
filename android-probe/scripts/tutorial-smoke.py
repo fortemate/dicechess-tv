@@ -117,7 +117,7 @@ try:
     h.adb('shell', 'am', 'force-stop', h.package)
     h.adb('logcat', '-c')
     home = h.open_home()
-    assert [i['id'] for i in home['items']][-3:] == ['learn', 'rules', 'about']
+    assert [i['id'] for i in home['items']][-4:] == ['learn', 'rules', 'settings', 'about']
     assert next(i['label'] for i in home['items'] if i['id'] == 'learn') == 'Learn to play'
     state = choose('hotseat')
     if state['overlay']['kind'] == 'confirm':

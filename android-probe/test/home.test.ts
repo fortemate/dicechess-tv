@@ -70,6 +70,7 @@ test('home uses Vega labels/order, one Resume game, no diagnostic or unsupported
       ['computer', 'Play the computer'],
       ['learn', 'Learn to play'],
       ['rules', 'Rules reference'],
+      ['settings', 'Settings'],
       ['about', 'About'],
     ],
   );
@@ -78,7 +79,7 @@ test('home uses Vega labels/order, one Resume game, no diagnostic or unsupported
     const items = homeItems(game);
     assert.deepEqual(
       items.map((i) => i.id),
-      ['resume', 'hotseat', 'computer', 'learn', 'rules', 'about'],
+      ['resume', 'hotseat', 'computer', 'learn', 'rules', 'settings', 'about'],
     );
     assert.equal(items[0].label, 'Resume game');
     assert.equal(items[0].action.kind, 'game');
@@ -88,7 +89,7 @@ test('home uses Vega labels/order, one Resume game, no diagnostic or unsupported
     assert.equal(items[0].action.mode, mode === 'hotseat' ? 'hotseat' : 'bot');
     assert.deepEqual(
       homeItems(resignGame(game)).map((i) => i.id),
-      ['hotseat', 'computer', 'learn', 'rules', 'about'],
+      ['hotseat', 'computer', 'learn', 'rules', 'settings', 'about'],
     );
   }
   assert.equal(homeItems(null, true)[0].id, 'resume');

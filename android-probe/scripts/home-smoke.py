@@ -55,7 +55,7 @@ try:
     h.adb('shell','am','force-stop',h.package)
     h.adb('logcat','-c')
     home = h.open_home()
-    assert [(i['id'],i['label']) for i in home['items']] == [('hotseat','Play a friend'),('computer','Play the computer'),('learn','Learn to play'),('rules','Rules reference'),('about','About')]
+    assert [(i['id'],i['label']) for i in home['items']] == [('hotseat','Play a friend'),('computer','Play the computer'),('learn','Learn to play'),('rules','Rules reference'),('settings','Settings'),('about','About')]
     h.snapshot('fresh-home.png')
     for code, selected in ((19,'about'),(22,'hotseat'),(20,'computer'),(21,'hotseat')):
         before = len(h.events('AndroidHome'))
@@ -67,13 +67,13 @@ try:
     before = len(h.events('AndroidHome'))
     h.key(4)
     home = h.home_wait(before)
-    assert home['selected'] == 'computer' and len(home['items']) == 5
+    assert home['selected'] == 'computer' and len(home['items']) == 6
     checks.append('first computer selection cancels without saving a preview')
 
     state = partial(choose('hotseat'))
     friend = state['game']
     home = h.return_home(state)
-    assert [i['id'] for i in home['items']] == ['resume','hotseat','computer','learn','rules','about']
+    assert [i['id'] for i in home['items']] == ['resume','hotseat','computer','learn','rules','settings','about']
     assert home['selected'] == 'hotseat'
     state = resume(friend)
     h.adb('shell','am','force-stop',h.package)
@@ -102,7 +102,7 @@ try:
     bot = state['game']
     assert bot['mode']=='greedy' and bot['human']=='b'
     home = h.return_home(state)
-    assert [i['id'] for i in home['items']] == ['resume','hotseat','computer','learn','rules','about']
+    assert [i['id'] for i in home['items']] == ['resume','hotseat','computer','learn','rules','settings','about']
     h.snapshot('current-bot-home.png')
     state = resume(bot)
     h.return_home(state)
@@ -137,7 +137,7 @@ try:
     before = len(h.events('AndroidHome'))
     h.key(23)
     home = h.home_wait(before)
-    assert [i['id'] for i in home['items']] == ['hotseat','computer','learn','rules','about']
+    assert [i['id'] for i in home['items']] == ['hotseat','computer','learn','rules','settings','about']
     checks.append('confirmed friend game replaces computer; hotseat result returns home with no Resume')
 
     before = len(h.events('AndroidProbe'))
@@ -149,7 +149,7 @@ try:
     h.key(23)
     home = h.home_wait(before)
     time.sleep(3.5)
-    assert [i['id'] for i in home['items']] == ['hotseat','computer','learn','rules','about']
+    assert [i['id'] for i in home['items']] == ['hotseat','computer','learn','rules','settings','about']
     checks.append('explicit diagnostic link works; exit disposes busy work and returns to ordinary home')
 
     h.key(4)

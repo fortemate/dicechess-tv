@@ -1,3 +1,5 @@
+import { openOptionalEffects } from '../src/effects.ts';
+import { readAndroidSound } from '../src/soundPreferences.ts';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -235,5 +237,39 @@ test('rules from either game mode return to their menu row without changing the 
     assert.equal(session.getState().overlay.kind, 'none');
     assert.deepEqual(session.getState().game, game);
     assert.equal(store.writes, 0);
+  }
+});
+
+test('optional sound failure leaves a saved game playable and commits its next move', () => {
+  for (const failure of ['read', 'parse']) {
+    const store = memory();
+    const session = createGameSession(store, options());
+    key(session, 'select');
+    const saved = session.getState().game;
+    const restored = createGameSession(store, options());
+    const reports: unknown[] = [];
+    const effects = openOptionalEffects(
+      () => {
+        readAndroidSound({
+          ...store,
+          getString() {
+            if (failure === 'read') throw new Error('settings unavailable');
+            return '{';
+          },
+        });
+        throw new Error('Unexpected successful read');
+      },
+      (error) => reports.push(error),
+    );
+    assert.equal(effects, null);
+    assert.equal(reports.length, 1);
+    assert.deepEqual(restored.getState().game, saved);
+    key(restored, 'select');
+    key(restored, 'select');
+    assert.equal(restored.getState().game.revision, saved.revision + 1);
+    assert.deepEqual(
+      createGameSession(store, options()).getState().game,
+      restored.getState().game,
+    );
   }
 });
