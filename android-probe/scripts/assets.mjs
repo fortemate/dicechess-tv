@@ -1,3 +1,4 @@
+import { VOICE_FILES } from '../../native/src/voiceFiles.ts';
 // Package the same pure job as Vega. No server or runtime download is involved.
 import { build } from 'esbuild';
 import { transformAsync } from '@babel/core';
@@ -128,3 +129,45 @@ for (const [file, pin] of Object.entries({
   await writeFile(`${root}assets/portraits/${file}`, bytes);
 }
 console.log('Packaged pinned portraits and their notice.');
+
+// Bundle only canonical spoken clips, preserving their pinned bytes and licenses.
+const clipEntries = [];
+const noticeEntries = [];
+const voicePacks = new Set();
+for (const [id, clip] of Object.entries(VOICE_FILES)) {
+  const [pack, file] = clip.file.split('/');
+  const bytes = await readFile(
+    new URL(`../../native/voices/${clip.file}`, import.meta.url),
+  );
+  if (
+    createHash('sha256').update(bytes).digest('hex') !==
+    catalog.packs[pack].files[file]
+  )
+    throw new Error(`Pinned voice changed: ${clip.file}`);
+  await mkdir(`${root}assets/voices/${pack}`, { recursive: true });
+  await writeFile(`${root}assets/voices/${clip.file}`, bytes);
+  clipEntries.push(
+    `${JSON.stringify(id)}: require(${JSON.stringify('./voices/' + clip.file)})`,
+  );
+  voicePacks.add(pack);
+}
+for (const pack of voicePacks) {
+  const info = catalog.packs[pack];
+  const file = info.licenseFile;
+  const bytes = await readFile(
+    new URL(`../../native/voices/${pack}/${file}`, import.meta.url),
+  );
+  if (createHash('sha256').update(bytes).digest('hex') !== info.files[file])
+    throw new Error(`Pinned voice license changed: ${pack}`);
+  await writeFile(`${root}assets/voices/${pack}/${file}`, bytes);
+  noticeEntries.push(
+    `require(${JSON.stringify('./voices/' + pack + '/' + file)})`,
+  );
+}
+await writeFile(
+  `${root}assets/voice-assets.js`,
+  `exports.clips = {${clipEntries.join(',\n')}};\nexports.notices = [${noticeEntries.join(',')}];\n`,
+);
+console.log(
+  `Packaged ${clipEntries.length} canonical voice clips and ${voicePacks.size} licenses.`,
+);

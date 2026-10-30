@@ -74,7 +74,7 @@ test('Android host reserves its space after a caption expires and hides behind m
         <HostCommentary game={newGame('random', 'bot')} host="prowla" live />,
       );
     });
-    assert.equal(space(), undefined);
+    assert.equal(blocks().length, 0);
   } finally {
     act(() => tree.unmount());
     Reflect.deleteProperty(globalThis, slot);

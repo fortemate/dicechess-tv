@@ -110,7 +110,7 @@ See [home-validation.md](home-validation.md) for the build, evidence and limits.
 
 ## Settings
 
-Open **Settings** from home to adjust **Sounds**, **Highlights**,
+Open **Settings** from home to adjust **Sounds**, **Voices**, **Highlights**,
 **Auto-play only move**, **Play as**, **Turn board for friends**, and
 **Host for friends**.
 See [gameplay settings validation](game-settings-validation.md). Android and Vega render the
@@ -118,7 +118,7 @@ same `SettingsPanel`, labels, volume rings and remote hints. Left/Right changes
 the selected value; OK toggles switches or cycles Highlights, Play as and Host for friends, and mutes/restores
 the remembered Sounds level. Up/Down selects a row, and Back restores focus
 to Settings in home. System
-Home/return keeps the panel open. Music and voices remain separate work.
+Home/return keeps the panel open. Music remains separate work.
 
 Canonical stepping and mute behavior are reused. Android writes mute and volume
 as one JSON value in a separate MMKV settings store before publishing it. Old
@@ -188,9 +188,9 @@ selection. Reopening starts at lesson one. System Home/return keeps the current
 lesson in memory. After process death the app returns home, where Resume game
 restores the saved real game.
 
-This slice uses the shared text and visual instructions without tutorial audio.
-Voice sequencing and the first-launch tutorial offer remain separate Android
-work. Thinkle uses the shared Teacher and Portrait components with the pinned
+The shared tutorial sequences local Thinkle recordings using decoder completion
+callbacks and honors Voices mute/volume. The first-launch tutorial offer remains
+separate Android work. Thinkle uses the shared Teacher and Portrait components with the pinned
 local Android image pack. See [portrait validation](portraits-validation.md).
 
 Earlier tutorial evidence used a portrait placeholder; the portrait validation
@@ -261,7 +261,7 @@ no-move and result effects through Expo Audio. Effects start only after the save
 succeeds; opening a saved game is silent. Home, window blur and leaving the game
 release active players and cancel delayed cues. Returning does not replay them.
 The TV's media volume remains unverified. The in-app Sounds control is available
-from home; see Settings above. Music and character speech remain separate work.
+from home; see Settings above. Music remains separate work; character speech uses the Voices setting.
 
 After installing the APK, run the gameplay check from `android-probe/`, with Node
 from mise on PATH:
@@ -396,7 +396,7 @@ No new sound assets, rights, dependencies or lockfile changes are introduced.
 
 ## Remaining gates
 
-See [validation.md](validation.md) for the original probe results, [svg-validation.md](svg-validation.md) for the SVG check, and [hotseat-validation.md](hotseat-validation.md) for the playable two-player slice. Full game parity, tutorial voice sequencing, music crossfades/ducking, full audio interruption recovery, repeated audio stress, accessibility, held keys, device latency, actual Fire OS hardware, and all other ABIs remain separate work. No production platform adapter or workspace migration is approved by a successful probe alone.
+See [validation.md](validation.md) for the original probe results, [svg-validation.md](svg-validation.md) for the SVG check, and [hotseat-validation.md](hotseat-validation.md) for the playable two-player slice. Full game parity, music crossfades/ducking, full audio interruption recovery, repeated audio stress, accessibility, held keys, device latency, actual Fire OS hardware, and all other ABIs remain separate work. No production platform adapter or workspace migration is approved by a successful probe alone.
 
 ## Character portraits and opponent cards
 
@@ -418,9 +418,28 @@ intact and takes effect when gameplay reopens.
 
 Friend games reuse Vega's host cue/pacing hook, portrait and speech bubble.
 Commentary appears only while the board is visible. Off and computer games
-show no host commentary. This slice is text-only; voice playback remains
-separate work. The commentary queue/bags live for the mounted Android game
+show no host commentary. The Voices setting controls the spoken lines independently from effects;
+muting voices keeps the captions. The commentary queue/bags live for the mounted Android game
 screen; returning through home creates a new presentation session, while the
 saved game retains its exact position, dice and phase.
 
 See [host validation](host-validation.md) for reproduction and evidence.
+
+## Voices
+
+Voices uses Vega's default level 10, decibel curve and Left/Right/OK controls.
+Mute and remembered volume are saved atomically in the Android settings store;
+legacy Vega-format pairs remain readable. The setting applies to the next
+opened game or lesson without modifying its saved game snapshot.
+
+The Android speech adapter plays the existing pinned English recordings for
+all three hosts, all three opponents and Thinkle's lessons. It keeps one voice
+player, replaces stale lines, waits for decoder completion plus Vega's tail
+before advancing tutorial speech, and releases playback on menus, exit,
+background and blur. A returning tutorial restarts its current instruction;
+gameplay does not replay a canceled line. Effects and voice mute are independent.
+Music ducking remains part of the later music adapter.
+
+All 446 canonical recordings and nine original licenses are packaged offline.
+Asset generation verifies their canonical hashes; no new recordings are made.
+See [Voices validation](voices-validation.md) for evidence and limits.

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useAndroidVoice } from './useAndroidVoice';
 import { TutorialScreen } from '../../native/src/TutorialScreen';
 import { LEARN_OPTION, type GameChoice } from '../../native/src/screen';
 import type { Activity } from '../../native/src/activity';
@@ -18,9 +19,10 @@ export function LearnToPlay({
   activity: Activity;
   onExit: (choice: GameChoice | null) => void;
 }) {
+  const voice = useAndroidVoice(activity);
   return (
     <RemoteSurface activity={activity} label={LEARN_OPTION}>
-      <TutorialScreen onExit={onExit} onState={report} />
+      <TutorialScreen voice={voice} onExit={onExit} onState={report} />
     </RemoteSurface>
   );
 }
