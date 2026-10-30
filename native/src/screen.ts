@@ -1054,6 +1054,7 @@ export type GameplaySettings = Pick<
   'highlights' | 'autoSelect' | 'turnHotseat'
 >;
 export type GameplaySettingId = 'highlights' | 'auto-select' | 'turn-board';
+/** Apply shared highlight and switch controls without mutating the previous settings or game. */
 export function changeGameplaySetting<T extends GameplaySettings>(
   state: T,
   row: GameplaySettingId,
@@ -1075,6 +1076,7 @@ export function changeGameplaySetting<T extends GameplaySettings>(
 
 // What a sideways arrow, or OK, does to a row. What a row is comes from its
 // label: the rows differ with the build.
+/** Dispatch a Settings row to its canonical volume, choice or switch behavior. */
 const changed = (
   state: ScreenState,
   row: SettingId | undefined,

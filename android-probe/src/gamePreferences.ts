@@ -14,6 +14,7 @@ import {
   type GameplaySettingId,
 } from '../../native/src/screen';
 
+/** Read canonical gameplay preferences, retaining Vega defaults for absent or invalid stored values. */
 export function readGamePreferences(store: KeyValueStore) {
   return {
     highlights: readHighlights(store),
@@ -21,10 +22,12 @@ export function readGamePreferences(store: KeyValueStore) {
     turnHotseat: readTurnBoard(store),
   };
 }
+/** Keep preferences separate from the game and publish each choice only after its synchronous write succeeds. */
 export function createGamePreferences(store: KeyValueStore) {
   let value = readGamePreferences(store);
   return {
     read: () => value,
+    /** Apply shared control semantics; a failed write leaves the in-memory choice unchanged. */
     press(row: GameplaySettingId, key: BoardKey) {
       const next = changeGameplaySetting(value, row, key);
       if (next.highlights !== value.highlights)

@@ -13,9 +13,11 @@ checks = []
 change, enter, leave, restart, choose, human_move = s.change, s.enter, s.leave, s.restart, s.choose, s.human_move
 
 def full():
+    """Return the latest complete settings report, including selected row."""
     return [e['detail'] for e in h.events('AndroidSettings') if e['event'] == 'state'][-1]
 
 def row(index):
+    """Select a row using D-pad events and observed navigation state."""
     while full()['index'] != index:
         change(20)
 

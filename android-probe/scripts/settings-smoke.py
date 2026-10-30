@@ -31,12 +31,14 @@ def settings_wait(since=0):
 
 
 def enter():
+    """Open Settings through the home menu and await a fresh report."""
     before = len(h.events('AndroidSettings'))
     h.home_select('settings')
     return settings_wait(before)
 
 
 def change(code):
+    """Send a remote key and await its resulting settings report."""
     before = len(h.events('AndroidSettings'))
     h.key(code)
     return settings_wait(before)
@@ -64,6 +66,7 @@ def level(volume):
 
 
 def leave():
+    """Return home with Back and verify restored Settings focus."""
     before = len(h.events('AndroidHome'))
     h.key(4)
     home = h.home_wait(before)
@@ -71,12 +74,14 @@ def leave():
 
 
 def choose(item):
+    """Open a home item and wait for its game state."""
     before = len(h.events())
     h.home_select(item)
     return h.wait(before)
 
 
 def restart():
+    """Force-stop and relaunch without clearing persistent app data."""
     h.adb('shell', 'am', 'force-stop', h.package)
     h.open_home()
 
@@ -96,6 +101,7 @@ def human_move():
 
 
 def main():
+    """Verify sound controls, lifecycle persistence and preservation of friend and bot games."""
     try:
         h.adb('shell', 'am', 'force-stop', h.package)
         h.adb('logcat', '-c')

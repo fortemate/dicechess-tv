@@ -37,6 +37,7 @@ export const gameMenu = (game: Game) =>
     .map((item, index) => ({ ...item, index }))
     .filter(({ id }) => id !== 'settings');
 
+/** Navigate supported menu rows while delegating gameplay and guarded automatic actions to Vega. */
 export function gameStep(
   state: ScreenState,
   action: GameAction,
@@ -64,6 +65,7 @@ export function gameStep(
 
 // Persist before publishing. New games enter the same home action as Vega,
 // so cross-mode replacement, cancellation and result/rematch share its reducer.
+/** Restore a game with current preferences and synchronously persist changed snapshots before publishing state. */
 export function createGameSession(
   store: KeyValueStore,
   options: ScreenOptions,

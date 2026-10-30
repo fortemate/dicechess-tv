@@ -49,8 +49,49 @@ The same APK passed all four Sounds regression groups, including Home/return,
 mute/volume process recovery and exact friend/bot rolled-turn preservation.
 Evidence: `android-probe/build/game-settings-sounds/`.
 
-Final local debug-signed ARM64 release-variant APK SHA-256:
+Initial implementation local debug-signed ARM64 release-variant APK SHA-256:
 
 ```text
 e8d284fa6eb51e651d46454c02e26a11f07e2c273fbea97ede8780c6aa974478
 ```
+
+## Rapid-input review fix
+
+The selected Settings row is held synchronously in a ref, with React state
+used for rendering. Repeated directions and an immediate value key therefore
+use the latest row even before the next React commit.
+
+A mounted-component regression sends repeated keys inside one React `act`
+batch. It fails against the original component (the intended Auto-play setting
+is not written) and passes with the fix, including wraparound and assertions
+that unrelated settings are unchanged. Only storage and the Android focus
+wrapper are stubbed; the component and shared remote-input hook are real.
+
+On the Android TV API 31 emulator, `settings-burst-smoke.py` passed 18 Down and
+17 Up events with immediate value keys, wraparound, unrelated-value preservation
+and force-stop persistence. Android delivers these through a single `input
+keyevent` command per burst, without script sleeps between keys. This is separate
+from the deterministic pre-render regression and does not qualify physical
+remote held-key timing. Evidence: `android-probe/build/settings-burst/`.
+
+Review-fix APK SHA-256:
+
+```text
+ad0937d8faa947fb756adb7c77a290faf48b08ca2f10f15feb132b5ae91b31e7
+```
+
+JSDoc/docstrings now explain the changed controls, session/persistence contracts
+and smoke helpers. CodeRabbit's server-side documentation percentage requires
+a fresh review; the previous 20% result describes the previous commit.
+
+The same review-fix APK passed all four Sounds regression groups, including
+exact friend/bot rolled-turn preservation and mute/volume process recovery.
+Evidence: `android-probe/build/settings-burst-sounds/`. The new mounted-component
+regression is included in the native suite and its LCOV report is registered in
+`sonar-project.properties`.
+
+Final verification passed: `mise run check`, Android types/lint and all 1144 tests
+(337 core, 737 native, 13 browser and 57 Android). The new regression also passed
+with Node LCOV instrumentation. Android was rebuilt for this revision; shared
+Vega runtime code changed only in documentation, so the prior Vega build/device
+evidence remains separate.

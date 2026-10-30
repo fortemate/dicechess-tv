@@ -110,6 +110,7 @@ function overlayHeading(overlay: ScreenState['overlay']) {
   }
 }
 
+/** Restore the game and preferences independently; surface storage failures without replacing the saved game. */
 function makeSession(mode: ProbeMode, intent: GameIntent) {
   const source = randomSource();
   let ids = 0;
@@ -144,6 +145,7 @@ function makeSession(mode: ProbeMode, intent: GameIntent) {
   }
 }
 
+/** Drive the Android game through shared reducers, foreground timers and save-before-display transitions. */
 function Game({
   activity,
   onExit,
