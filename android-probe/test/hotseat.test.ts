@@ -17,7 +17,7 @@ after(() => rmSync(directory, { recursive: true, force: true }));
 const bundle = buildSync({
   stdin: {
     contents:
-      "export * from './src/gameSession'; export * from './src/androidRemote';",
+      "export * from './src/gamePreferences'; export * from './src/gameSession'; export * from './src/androidRemote';",
     resolveDir: resolve('.'),
   },
   bundle: true,
@@ -27,11 +27,18 @@ const bundle = buildSync({
 });
 const path = join(directory, 'session.mjs');
 writeFileSync(path, bundle.outputFiles[0].text);
-const { createGameSession, gameMenu, GAME_KEY, androidDirection, pulseKey } =
-  (await import(
-    pathToFileURL(path).href
-  )) as typeof import('../src/gameSession.ts') &
-    typeof import('../src/androidRemote.ts');
+const {
+  createGamePreferences,
+  createGameSession,
+  gameMenu,
+  GAME_KEY,
+  androidDirection,
+  pulseKey,
+} = (await import(
+  pathToFileURL(path).href
+)) as typeof import('../src/gameSession.ts') &
+  typeof import('../src/androidRemote.ts') &
+  typeof import('../src/gamePreferences.ts');
 const options = (roll = [1, 1, 1]): ScreenOptions => {
   let id = 0;
   return {
@@ -272,4 +279,77 @@ test('optional sound failure leaves a saved game playable and commits its next m
       restored.getState().game,
     );
   }
+});
+
+test('game preferences persist independently and session restore preserves the exact game', () => {
+  const store = memory();
+  const session = createGameSession(store, options());
+  key(session, 'select');
+  const saved = store.getString(GAME_KEY);
+  const prefs = createGamePreferences(store);
+  prefs.press('highlights', 'right');
+  prefs.press('auto-select', 'right');
+  prefs.press('turn-board', 'right');
+  prefs.press('turn-board', 'right');
+  assert.deepEqual(createGamePreferences(store).read(), {
+    highlights: 'enhanced',
+    autoSelect: true,
+    turnHotseat: true,
+  });
+  const restored = createGameSession(
+    store,
+    options(),
+    'hotseat',
+    'continue',
+    prefs.read(),
+  );
+  assert.equal(restored.getState().highlights, 'enhanced');
+  assert.equal(restored.getState().autoSelect, true);
+  assert.equal(restored.getState().turnHotseat, true);
+  assert.equal(store.getString(GAME_KEY), saved);
+  assert.deepEqual(restored.getState().game, session.getState().game);
+});
+
+test('failed game preference writes leave the published and reopened value unchanged', () => {
+  const store = memory();
+  const prefs = createGamePreferences({
+    ...store,
+    set() {
+      throw new Error('disk');
+    },
+  });
+  for (const row of ['highlights', 'auto-select', 'turn-board'] as const) {
+    assert.throws(() => prefs.press(row, 'right'), /disk/);
+    assert.deepEqual(prefs.read(), createGamePreferences(store).read());
+  }
+});
+
+test('automatic selections save real moves and reject stale scheduled actions', () => {
+  const store = memory();
+  const opts = options([4, 4, 2]);
+  const session = createGameSession(store, opts, 'hotseat', 'continue', {
+    autoSelect: true,
+  });
+  key(session, 'select');
+  key(session, 'select');
+  key(session, 'select');
+  const before = session.getState();
+  const pick = {
+    kind: 'auto' as const,
+    revision: before.game.revision,
+    selected: before.focus.selected,
+  };
+  session.dispatch(pick);
+  const selected = session.getState();
+  assert.notEqual(selected.focus.selected, null);
+  session.dispatch({
+    kind: 'auto',
+    revision: selected.game.revision,
+    selected: selected.focus.selected,
+  });
+  const moved = session.getState().game;
+  assert.equal(moved.revision, before.game.revision + 1);
+  assert.deepEqual(createGameSession(store, opts).getState().game, moved);
+  session.dispatch(pick);
+  assert.deepEqual(session.getState().game, moved);
 });

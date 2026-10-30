@@ -110,12 +110,14 @@ See [home-validation.md](home-validation.md) for the build, evidence and limits.
 
 ## Settings
 
-Open **Settings** from home to adjust **Sounds**. Android and Vega render the
+Open **Settings** from home to adjust **Sounds**, **Highlights**,
+**Auto-play only move**, and **Turn board for friends**.
+See [gameplay settings validation](game-settings-validation.md). Android and Vega render the
 same `SettingsPanel`, labels, volume rings and remote hints. Left/Right changes
-the level; OK mutes or restores the remembered level. Up/Down keeps the only
-supported row selected, and Back restores focus to Settings in home. System
-Home/return keeps the panel open. Music, voices and gameplay preferences are not
-exposed until their Android behavior is connected.
+the selected value; OK toggles switches or cycles Highlights, and mutes/restores
+the remembered Sounds level. Up/Down selects a row, and Back restores focus
+to Settings in home. System
+Home/return keeps the panel open. Music, voices, Play as and Host for friends remain separate work.
 
 Canonical stepping and mute behavior are reused. Android writes mute and volume
 as one JSON value in a separate MMKV settings store before publishing it. Old
@@ -251,7 +253,7 @@ Cursor movement does not write the save. Home, return to diagnostics and process
 restart preserve the canonical snapshot, including the partial turn and spent
 dice. Corrupt saves and storage failures show an error and keep the existing
 save; the slice does not silently reset data or implement a damaged-save recovery
-menu. Music, voices, the other Vega settings and accessibility qualification remain
+menu. Music, voices, remaining Vega settings and accessibility qualification remain
 separate work. See [hotseat-validation.md](hotseat-validation.md) for observed
 results and input limits.
 

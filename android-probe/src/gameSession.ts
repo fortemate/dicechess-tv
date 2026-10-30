@@ -6,6 +6,7 @@ import {
   menuItems,
   screenReducer,
   type ScreenOptions,
+  type GameplaySettings,
   type ScreenState,
   type ScreenAction,
   type GameChoice,
@@ -26,7 +27,7 @@ export function readSavedGame(store: KeyValueStore) {
 }
 export type GameAction = Extract<
   ScreenAction,
-  { kind: 'key' | 'unguard' | 'bot' }
+  { kind: 'key' | 'unguard' | 'bot' | 'auto' }
 >;
 
 // Retain Vega's IDs, labels, order and reducer indices. Only implemented
@@ -68,13 +69,14 @@ export function createGameSession(
   options: ScreenOptions,
   mode: ProbeMode = 'hotseat',
   intent: GameIntent = 'continue',
+  settings: Partial<GameplaySettings> = {},
 ) {
   const restored = readSavedGame(store);
   let saved = Boolean(restored);
   let current = initialState(
     options,
     restored ?? newGame('hotseat', options.newId()),
-    { playAs: 'ask' },
+    { playAs: 'ask', ...settings },
   );
   current = {
     ...current,

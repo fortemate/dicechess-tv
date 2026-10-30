@@ -1049,6 +1049,30 @@ const settingsOpener = (state: ScreenState, from: 'home' | 'menu'): Overlay =>
 const switched = (on: boolean, key: BoardKey): boolean =>
   key === 'select' ? !on : key === 'right';
 
+export type GameplaySettings = Pick<
+  ScreenSettings,
+  'highlights' | 'autoSelect' | 'turnHotseat'
+>;
+export type GameplaySettingId = 'highlights' | 'auto-select' | 'turn-board';
+export function changeGameplaySetting<T extends GameplaySettings>(
+  state: T,
+  row: GameplaySettingId,
+  key: BoardKey,
+): T {
+  if (!['left', 'right', 'select'].includes(key)) return state;
+  switch (row) {
+    case 'highlights':
+      return {
+        ...state,
+        highlights: cycleHighlights(state.highlights, key === 'left' ? -1 : 1),
+      };
+    case 'auto-select':
+      return { ...state, autoSelect: switched(state.autoSelect, key) };
+    case 'turn-board':
+      return { ...state, turnHotseat: switched(state.turnHotseat, key) };
+  }
+}
+
 // What a sideways arrow, or OK, does to a row. What a row is comes from its
 // label: the rows differ with the build.
 const changed = (
@@ -1090,11 +1114,9 @@ const changed = (
     case 'host':
       return { ...state, host: cycleHost(state.host, by) };
     case 'turn-board':
-      return { ...state, turnHotseat: switched(state.turnHotseat, key) };
     case 'highlights':
-      return { ...state, highlights: cycleHighlights(state.highlights, by) };
     case 'auto-select':
-      return { ...state, autoSelect: switched(state.autoSelect, key) };
+      return changeGameplaySetting(state, row, key);
     default: {
       const unknown: never = row;
       throw new Error(`no setting ${String(unknown)}`);
