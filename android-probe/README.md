@@ -111,13 +111,14 @@ See [home-validation.md](home-validation.md) for the build, evidence and limits.
 ## Settings
 
 Open **Settings** from home to adjust **Sounds**, **Highlights**,
-**Auto-play only move**, **Play as**, and **Turn board for friends**.
+**Auto-play only move**, **Play as**, **Turn board for friends**, and
+**Host for friends**.
 See [gameplay settings validation](game-settings-validation.md). Android and Vega render the
 same `SettingsPanel`, labels, volume rings and remote hints. Left/Right changes
-the selected value; OK toggles switches or cycles Highlights and Play as, and mutes/restores
+the selected value; OK toggles switches or cycles Highlights, Play as and Host for friends, and mutes/restores
 the remembered Sounds level. Up/Down selects a row, and Back restores focus
 to Settings in home. System
-Home/return keeps the panel open. Music, voices and Host for friends remain separate work.
+Home/return keeps the panel open. Music and voices remain separate work.
 
 Canonical stepping and mute behavior are reused. Android writes mute and volume
 as one JSON value in a separate MMKV settings store before publishing it. Old
@@ -407,3 +408,19 @@ verified during asset generation and packaged for offline use. The existing
 fallback faces remain available when an image fails to load.
 
 See [portrait validation](portraits-validation.md) for reproduction and limits.
+
+## Host for friends
+
+Choose Prowla (the Vega default), Rolly, Thinkle or Off in Settings. Left steps
+backward; Right or OK steps forward. The choice uses the canonical storage key
+and survives process restart. Changing it leaves the current game snapshot
+intact and takes effect when gameplay reopens.
+
+Friend games reuse Vega's host cue/pacing hook, portrait and speech bubble.
+Commentary appears only while the board is visible. Off and computer games
+show no host commentary. This slice is text-only; voice playback remains
+separate work. The commentary queue/bags live for the mounted Android game
+screen; returning through home creates a new presentation session, while the
+saved game retains its exact position, dice and phase.
+
+See [host validation](host-validation.md) for reproduction and evidence.

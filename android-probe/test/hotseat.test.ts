@@ -293,6 +293,7 @@ test('game preferences persist independently and session restore preserves the e
   prefs.press('turn-board', 'right');
   assert.deepEqual(createGamePreferences(store).read(), {
     playAs: 'random',
+    host: 'prowla',
     highlights: 'enhanced',
     autoSelect: true,
     turnHotseat: true,
@@ -324,6 +325,7 @@ test('failed game preference writes leave the published and reopened value uncha
     'auto-select',
     'turn-board',
     'play-as',
+    'host',
   ] as const) {
     assert.throws(() => prefs.press(row, 'right'), /disk/);
     assert.deepEqual(prefs.read(), createGamePreferences(store).read());
@@ -433,4 +435,31 @@ test('changing Play as preserves the current bot game and canceled replacement',
   key(replacement, 'select');
   assert.equal(replacement.getState().game.human, 'b');
   assert.notEqual(replacement.getState().game.id, session.getState().game.id);
+});
+
+test('host choices use Vega defaults and preserve the exact current game across restarts', () => {
+  const store = memory();
+  const session = createGameSession(store, options());
+  key(session, 'select');
+  const saved = store.getString(GAME_KEY);
+  const prefs = createGamePreferences(store);
+  assert.equal(prefs.read().host, 'prowla');
+  for (const host of ['rolly', 'thinkle', 'off', 'prowla']) {
+    assert.equal(prefs.press('host', 'right').host, host);
+    assert.equal(createGamePreferences(store).read().host, host);
+    const resumed = createGameSession(
+      store,
+      options(),
+      'hotseat',
+      'continue',
+      prefs.read(),
+    );
+    assert.equal(resumed.getState().host, host);
+    assert.deepEqual(resumed.getState().game, session.getState().game);
+    assert.equal(store.getString(GAME_KEY), saved);
+  }
+  assert.equal(prefs.press('host', 'left').host, 'off');
+  assert.equal(prefs.press('host', 'select').host, 'prowla');
+  store.set('dicechess-tv.host.v1', 'invalid');
+  assert.equal(createGamePreferences(store).read().host, 'prowla');
 });

@@ -8,6 +8,7 @@ import {
   readAutoSelect,
   saveAutoSelect,
 } from '../../native/src/autoSelectSetting';
+import { readHost, saveHost } from '../../native/src/hostSetting';
 import { readPlayAs, savePlayAs } from '../../native/src/playAsSetting';
 import { readTurnBoard, saveTurnBoard } from '../../native/src/turnSetting';
 import {
@@ -19,6 +20,7 @@ import {
 export function readGamePreferences(store: KeyValueStore) {
   return {
     playAs: readPlayAs(store),
+    host: readHost(store),
     highlights: readHighlights(store),
     autoSelect: readAutoSelect(store),
     turnHotseat: readTurnBoard(store),
@@ -39,6 +41,7 @@ export function createGamePreferences(store: KeyValueStore) {
       if (next.turnHotseat !== value.turnHotseat)
         saveTurnBoard(store, next.turnHotseat);
       if (next.playAs !== value.playAs) savePlayAs(store, next.playAs);
+      if (next.host !== value.host) saveHost(store, next.host);
       value = next;
       return value;
     },

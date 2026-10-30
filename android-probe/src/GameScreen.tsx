@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { OpponentScreen } from '../../native/src/OpponentScreen';
 import { Portrait, PORTRAIT_OF } from '../../native/src/Portrait';
+import { HostCommentary } from './HostCommentary';
 import { Board } from '../../native/src/Board';
 import { Dice } from '../../native/src/Dice';
 import { Option } from '../../native/src/Option';
@@ -279,6 +280,7 @@ function Game({
         guarded: state.guarded,
         settings: {
           playAs: state.playAs,
+          host: state.host,
           highlights: state.highlights,
           autoSelect: state.autoSelect,
           turnHotseat: state.turnHotseat,
@@ -413,6 +415,11 @@ function Game({
             <Text style={styles.body}>D-pad: choose · Back: game menu</Text>
           </>
         )}
+        <HostCommentary
+          game={game}
+          host={state.host}
+          live={overlay.kind === 'none' && !error}
+        />
         <Text style={styles.saved}>
           {saved
             ? 'Saved on this device · '
