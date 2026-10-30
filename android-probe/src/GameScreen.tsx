@@ -276,6 +276,7 @@ function Game({
         overlay: state.overlay,
         guarded: state.guarded,
         settings: {
+          playAs: state.playAs,
           highlights: state.highlights,
           autoSelect: state.autoSelect,
           turnHotseat: state.turnHotseat,

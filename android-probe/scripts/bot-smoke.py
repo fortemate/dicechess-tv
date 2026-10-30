@@ -56,6 +56,9 @@ def next_bot_turn(state):
 try:
     h.adb('shell', 'am', 'force-stop', h.package)
     h.adb('logcat', '-c')
+    h.open_home()
+    h.configure_play_as('ask')
+    h.adb('shell', 'am', 'force-stop', h.package)
     state = h.open_game(2)
     state = h.choose_bot(state)
     assert state['game']['mode'] == 'random' and state['game']['human'] == 'w'

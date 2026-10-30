@@ -155,6 +155,41 @@ def return_home(state):
     return home
 
 
+def configure_play_as(choice):
+    """Set the side preference through Settings while home is visible."""
+    def current(since):
+        """Wait for this action's complete preference report, rejecting storage errors."""
+        deadline = time.monotonic() + 15
+        while time.monotonic() < deadline:
+            observed = events('AndroidSettings')[since:]
+            assert not [e for e in observed if e['event'].endswith('error')], observed
+            reports = [e['detail'] for e in observed if e['event'] == 'state']
+            if reports:
+                assert not reports[-1]['error']
+                return reports[-1]
+            time.sleep(0.1)
+        raise AssertionError('No fresh Settings report')
+
+    before = len(events('AndroidSettings'))
+    home_select('settings')
+    state = current(before)
+    for _ in range(5):
+        if state['index'] == 3: break
+        before = len(events('AndroidSettings'))
+        key(20)
+        state = current(before)
+    assert state['index'] == 3
+    for _ in range(4):
+        if state['playAs'] == choice: break
+        before = len(events('AndroidSettings'))
+        key(22)
+        state = current(before)
+    assert state['playAs'] == choice
+    start = len(events('AndroidHome'))
+    key(4)
+    return home_wait(start)
+
+
 def choose_bot(state, opponent=0, colour=1):
     """Start through the shared opponent/side menus, confirming replacement."""
     if state['overlay']['kind'] != 'opponent':

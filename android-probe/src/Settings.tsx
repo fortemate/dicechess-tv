@@ -8,7 +8,13 @@ import { createGamePreferences } from './gamePreferences';
 import { createStore } from './store';
 import { RemoteSurface } from './RemoteSurface';
 
-const rows = ['sounds', 'highlights', 'auto-select', 'turn-board'] as const;
+const rows = [
+  'sounds',
+  'highlights',
+  'auto-select',
+  'play-as',
+  'turn-board',
+] as const;
 
 const report = (event: string, detail: unknown) =>
   console.info('[AndroidSettings] ' + JSON.stringify({ event, detail }));

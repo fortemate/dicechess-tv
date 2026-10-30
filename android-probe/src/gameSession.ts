@@ -78,7 +78,7 @@ export function createGameSession(
   let current = initialState(
     options,
     restored ?? newGame('hotseat', options.newId()),
-    { playAs: 'ask', ...settings },
+    settings,
   );
   current = {
     ...current,

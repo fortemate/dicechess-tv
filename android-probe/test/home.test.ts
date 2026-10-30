@@ -24,7 +24,7 @@ const bundle = buildSync({
 const path = join(dir, 'home.mjs');
 writeFileSync(path, bundle.outputFiles[0].text);
 const {
-  createGameSession,
+  createGameSession: createSession,
   readSavedGame,
   homeItems,
   legacyGames,
@@ -34,6 +34,15 @@ const {
 )) as typeof import('../src/gameSession.ts') &
   typeof import('../src/homeMenu.ts');
 let ids = 0;
+// Existing side-menu fixtures explicitly opt into Ask; production defaults to Random.
+const createGameSession = (...args: Parameters<typeof createSession>) => {
+  const [store, options, mode, intent, settings] = args;
+  return createSession(store, options, mode, intent, {
+    playAs: 'ask',
+    ...settings,
+  });
+};
+
 const options: ScreenOptions = {
   roll: () => [1, 1, 1],
   side: () => 'b',

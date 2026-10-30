@@ -87,12 +87,13 @@ def restart():
 
 
 def human_move():
-    """Wait through empty rolls and bot turns without driving the bot's cursor."""
+    """Acknowledge empty bot rolls, then wait for a human move without driving the bot cursor."""
     deadline = time.monotonic() + 60
     while time.monotonic() < deadline:
         state = h.wait()
         assert state['game']['phase'] != 'ended', state
-        if not state['view']['bot'] and not state['guarded']:
+        empty_bot_roll = state['view']['bot'] and state['game']['phase'] == 'handoff' and not state['game']['moves']
+        if (not state['view']['bot'] or empty_bot_roll) and not state['guarded']:
             if state['game']['phase'] == 'move':
                 return state
             h.press(23)
@@ -132,6 +133,7 @@ def main():
         leave()
         checks.append('Home/return keeps Settings visible; Back restores the selected home row')
 
+        h.configure_play_as('ask')
         for mode in ('hotseat', 'bot'):
             state = choose('hotseat' if mode == 'hotseat' else 'computer')
             if mode == 'bot':

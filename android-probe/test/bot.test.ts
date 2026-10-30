@@ -26,14 +26,27 @@ const bundled = buildSync({
 });
 const file = join(dir, 'bot.mjs');
 writeFileSync(file, bundled.outputFiles[0].text);
-const { createGameSession, createBotDriver, createActivity, flipped } =
-  (await import(
-    pathToFileURL(file).href
-  )) as typeof import('../src/gameSession.ts') &
-    typeof import('../src/botDriver.ts') &
-    typeof import('../../native/src/activity.ts') &
-    Pick<typeof import('../../native/src/screen.ts'), 'flipped'>;
+const {
+  createGameSession: createSession,
+  createBotDriver,
+  createActivity,
+  flipped,
+} = (await import(
+  pathToFileURL(file).href
+)) as typeof import('../src/gameSession.ts') &
+  typeof import('../src/botDriver.ts') &
+  typeof import('../../native/src/activity.ts') &
+  Pick<typeof import('../../native/src/screen.ts'), 'flipped'>;
 let ids = 0;
+// Existing side-menu fixtures explicitly opt into Ask; production defaults to Random.
+const createGameSession = (...args: Parameters<typeof createSession>) => {
+  const [store, options, mode, intent, settings] = args;
+  return createSession(store, options, mode, intent, {
+    playAs: 'ask',
+    ...settings,
+  });
+};
+
 const options: ScreenOptions = {
   roll: () => [1, 1, 1],
   newId: () => `bot-${++ids}`,

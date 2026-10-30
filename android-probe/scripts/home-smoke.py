@@ -97,6 +97,7 @@ try:
     h.return_home(state)
     checks.append('Cancel switching friend to computer preserves the complete current game')
 
+    h.configure_play_as('ask')
     state = h.choose_bot(choose('computer'),1,2)
     state = partial(state)
     bot = state['game']

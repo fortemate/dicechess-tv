@@ -45,6 +45,9 @@ def human_move(state):
 try:
     h.adb('shell', 'am', 'force-stop', h.package)
     h.adb('logcat', '-c')
+    h.open_home()
+    h.configure_play_as('ask')
+    h.adb('shell', 'am', 'force-stop', h.package)
     state = h.open_game(2)
     if state['overlay']['kind'] == 'opponent':
         h.snapshot('opponent-chooser.png')
