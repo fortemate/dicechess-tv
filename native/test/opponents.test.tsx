@@ -5,7 +5,12 @@ import assert from 'node:assert/strict';
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 import { OpponentScreen } from '../src/OpponentScreen';
-import { FACE_OF, PORTRAIT_OF, portraitPath } from '../src/Portrait';
+import {
+  FACE_OF,
+  PORTRAIT_OF,
+  portraitPath,
+  PortraitSources,
+} from '../src/Portrait';
 import { FACES } from '../src/faces';
 import { THEME } from '../src/theme';
 import { OPPONENTS } from '../../src/core/opponents';
@@ -114,4 +119,28 @@ test('a card shows who the opponent is and how it plays, and no record', () => {
       opponent.style,
     ]),
   );
+});
+
+test('platform portrait sources reach shared opponent cards without changing fallback behavior', () => {
+  let tree!: renderer.ReactTestRenderer;
+  act(() => {
+    tree = renderer.create(
+      <PortraitSources.Provider
+        value={(character, kind) => ({ uri: `asset:/${character}/${kind}` })}
+      >
+        <OpponentScreen index={1} pressed={false} />
+      </PortraitSources.Provider>,
+    );
+  });
+  try {
+    const images = tree.root.findAll((node) => isHost(node, 'Image'));
+    assert.deepEqual(
+      images.map((node) => node.props.source.uri),
+      ['asset:/rolly/card', 'asset:/grabby/card', 'asset:/rampage/card'],
+    );
+    act(() => images[1].props.onError());
+    assert.equal(tree.root.findAllByType(FACES[FACE_OF.greedy]).length, 1);
+  } finally {
+    act(() => tree.unmount());
+  }
 });

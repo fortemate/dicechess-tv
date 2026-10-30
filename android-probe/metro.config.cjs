@@ -19,5 +19,5 @@ config.resolver.nodeModulesPaths = [
   path.resolve(__dirname, 'node_modules'),
   path.resolve(__dirname, '../node_modules'),
 ];
-config.resolver.assetExts.push('engine');
+config.resolver.assetExts.push('engine', 'txt');
 module.exports = config;

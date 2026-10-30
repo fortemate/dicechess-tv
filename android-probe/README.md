@@ -188,14 +188,12 @@ lesson in memory. After process death the app returns home, where Resume game
 restores the saved real game.
 
 This slice uses the shared text and visual instructions without tutorial audio.
-Voice sequencing, the first-launch tutorial offer, and character portrait asset
-packaging remain separate Android work. The shared screen reserves Thinkle's
-portrait space when the Vega package image is unavailable; his name and lesson
-text remain visible. No new assets or dependencies are introduced.
+Voice sequencing and the first-launch tutorial offer remain separate Android
+work. Thinkle uses the shared Teacher and Portrait components with the pinned
+local Android image pack. See [portrait validation](portraits-validation.md).
 
-The Thinkle portrait placeholder was visually inspected in tutorial screenshots
-on the Android TV emulator. It was not validated on a Vega Virtual Device or
-Fire TV Stick.
+Earlier tutorial evidence used a portrait placeholder; the portrait validation
+records the Android image check.
 
 ```sh
 mise exec -- python3 android-probe/scripts/tutorial-smoke.py --serial <serial> \
@@ -398,3 +396,14 @@ No new sound assets, rights, dependencies or lockfile changes are introduced.
 ## Remaining gates
 
 See [validation.md](validation.md) for the original probe results, [svg-validation.md](svg-validation.md) for the SVG check, and [hotseat-validation.md](hotseat-validation.md) for the playable two-player slice. Full game parity, tutorial voice sequencing, music crossfades/ducking, full audio interruption recovery, repeated audio stress, accessibility, held keys, device latency, actual Fire OS hardware, and all other ABIs remain separate work. No production platform adapter or workspace migration is approved by a successful probe alone.
+
+## Character portraits and opponent cards
+
+Android uses Vega's `OpponentScreen` for the three opponent cards and its
+`Portrait` renderer for the cards, gameplay badge and Thinkle in the tutorial.
+A platform image-source provider supplies Metro's bundled images; Vega retains
+its existing package paths. The pinned original PNGs and their notice are
+verified during asset generation and packaged for offline use. The existing
+fallback faces remain available when an image fails to load.
+
+See [portrait validation](portraits-validation.md) for reproduction and limits.

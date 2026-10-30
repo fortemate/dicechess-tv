@@ -83,6 +83,14 @@ export const portraitPath = (
   kind: PortraitKind,
 ): string => `${ROOT}/${character}-${FILE[kind]}.png`;
 
+/** Supply platform image sources while retaining the shared portrait and fallback UI. */
+export const PortraitSources = React.createContext<
+  (
+    character: CharacterId,
+    kind: PortraitKind,
+  ) => React.ComponentProps<typeof Image>['source']
+>((character, kind) => ({ uri: portraitPath(character, kind) }));
+
 export function Portrait({
   character,
   kind,
@@ -95,6 +103,7 @@ export function Portrait({
   // Told when the portrait does not load, which means the build has none.
   onMissing?: () => void;
 }) {
+  const source = React.useContext(PortraitSources);
   const [missing, setMissing] = React.useState(false);
   if (missing) {
     const face = FALLBACK_FACE[character];
@@ -111,7 +120,7 @@ export function Portrait({
   return (
     <Image
       testID={`portrait-${character}`}
-      source={{ uri: portraitPath(character, kind) }}
+      source={source(character, kind)}
       style={{ width: size, height: size }}
       fadeDuration={0}
       onError={() => {

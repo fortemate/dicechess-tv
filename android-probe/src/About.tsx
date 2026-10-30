@@ -4,8 +4,8 @@ import type { Activity } from '../../native/src/activity';
 import { creditsFor } from '../../src/core/credits';
 import { RemoteSurface } from './RemoteSurface';
 
-// This probe ships the shared pieces/faces and both effect packs, but no music
-// or portraits. Reuse the authors' credit wording; complete Android dependency
+// This probe ships the shared pieces/faces, portraits and both effect packs, but no music.
+// Reuse the authors' credit wording; complete Android dependency
 // notices are still a distribution gate, so do not claim they ship in this APK.
 const content = {
   credits: creditsFor(false).filter(({ subject }) => subject !== 'Music'),
