@@ -157,19 +157,34 @@ def return_home(state):
 
 def configure_play_as(choice):
     """Set the side preference through Settings while home is visible."""
+    def current(since):
+        """Wait for this action's complete preference report, rejecting storage errors."""
+        deadline = time.monotonic() + 15
+        while time.monotonic() < deadline:
+            observed = events('AndroidSettings')[since:]
+            assert not [e for e in observed if e['event'].endswith('error')], observed
+            reports = [e['detail'] for e in observed if e['event'] == 'state']
+            if reports:
+                assert not reports[-1]['error']
+                return reports[-1]
+            time.sleep(0.1)
+        raise AssertionError('No fresh Settings report')
+
+    before = len(events('AndroidSettings'))
     home_select('settings')
-    def current():
-        """Read the latest complete preference report and reject storage errors."""
-        reports = [e['detail'] for e in events('AndroidSettings') if e['event'] == 'state']
-        assert reports and not reports[-1]['error']
-        return reports[-1]
+    state = current(before)
     for _ in range(5):
-        if current()['index'] == 3: break
+        if state['index'] == 3: break
+        before = len(events('AndroidSettings'))
         key(20)
+        state = current(before)
+    assert state['index'] == 3
     for _ in range(4):
-        if current()['playAs'] == choice: break
+        if state['playAs'] == choice: break
+        before = len(events('AndroidSettings'))
         key(22)
-    assert current()['playAs'] == choice
+        state = current(before)
+    assert state['playAs'] == choice
     start = len(events('AndroidHome'))
     key(4)
     return home_wait(start)

@@ -65,3 +65,23 @@ rerun in this slice.
 Local evidence is in the ignored `android-probe/build/play-as-retry/`,
 `android-probe/build/play-as-sound-regression/` and
 `android-probe/build/play-as-burst/` directories.
+
+## Review follow-up: fresh Settings reports
+
+`configure_play_as` now records the Settings event count before opening the
+panel and before every navigation/value key, then waits for a subsequent
+state report. Reports from an earlier visit cannot select the next action.
+Missing reports time out after 15 seconds; load/save errors fail immediately.
+
+A local delayed-report harness reproduced the stale-state failure with the
+previous helper and passed with the updated helper. On the same API 31 ARM64
+emulator and unchanged APK hash above, `play-as-smoke.py` passed both groups
+again: all four persisted choices, exact current-game preservation, canceled
+replacements and new-game side selection. Evidence is in the ignored
+`android-probe/build/play-as-review/` directory. `mise run check` also passed
+again (337 core, 737 native and 13 browser tests plus its static/build checks).
+
+`settings-burst-smoke.py` passed again unchanged; evidence is in
+`android-probe/build/play-as-review-burst/`. Its `[20, 20, 21]` sequence means
+Down, Down, Left: from index 2 it reaches index 4 and changes that row's value.
+Android's Up key code is 19, not 21.
