@@ -252,7 +252,7 @@ Cursor movement does not write the save. Home, return to diagnostics and process
 restart preserve the canonical snapshot, including the partial turn and spent
 dice. Corrupt saves and storage failures show an error and keep the existing
 save; the slice does not silently reset data or implement a damaged-save recovery
-menu. Music, voices, remaining Vega settings and accessibility qualification remain
+menu. Music and accessibility qualification remain
 separate work. See [hotseat-validation.md](hotseat-validation.md) for observed
 results and input limits.
 
