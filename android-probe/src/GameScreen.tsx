@@ -7,6 +7,8 @@ import { scheduleActive, type Activity } from '../../native/src/activity';
 import { useRemoteInput } from '../../native/src/useRemoteInput';
 import { randomSource } from '../../native/src/randomSource';
 import {
+  autoChoice,
+  AUTO_SELECT_MS,
   colourOptions,
   resultItems,
   HOTSEAT_OPTION,
@@ -33,6 +35,8 @@ import { OPPONENTS, opponentOf } from '../../src/core/opponents';
 import { botToAct } from '../../src/core/bot';
 import { createWorker } from './worker';
 import { createBotDriver } from './botDriver';
+import { readGamePreferences } from './gamePreferences';
+import { SETTINGS_STORE } from './soundPreferences';
 import { createStore } from './store';
 import { cues } from '../../src/core/cues';
 import { createAndroidEffects } from './androidEffects';
@@ -106,6 +110,7 @@ function overlayHeading(overlay: ScreenState['overlay']) {
   }
 }
 
+/** Restore the game and preferences independently; surface storage failures without replacing the saved game. */
 function makeSession(mode: ProbeMode, intent: GameIntent) {
   const source = randomSource();
   let ids = 0;
@@ -130,6 +135,7 @@ function makeSession(mode: ProbeMode, intent: GameIntent) {
         options,
         mode,
         intent,
+        readGamePreferences(createStore(SETTINGS_STORE)),
       ),
       error: '',
     };
@@ -139,6 +145,7 @@ function makeSession(mode: ProbeMode, intent: GameIntent) {
   }
 }
 
+/** Drive the Android game through shared reducers, foreground timers and save-before-display transitions. */
 function Game({
   activity,
   onExit,
@@ -210,6 +217,28 @@ function Game({
   useEffect(() => {
     if (state) driver.current?.update(state);
   }, [state]);
+  const auto = state ? autoChoice(state, viewGame(state.game).legal) : null;
+  useEffect(() => {
+    if (auto === null || !state || error) return;
+    const { revision } = state.game;
+    const { selected } = state.focus;
+    return scheduleActive(
+      activity,
+      (step, ms) => {
+        const timer = setTimeout(step, ms);
+        return () => clearTimeout(timer);
+      },
+      () => send({ kind: 'auto', revision, selected }),
+      AUTO_SELECT_MS,
+    );
+  }, [
+    auto,
+    state?.game.revision,
+    state?.focus.selected,
+    activity,
+    error,
+    send,
+  ]);
   useRemoteInput(
     (key, repeat) => {
       // RulesScreen owns the remote while this mounted game keeps its session.
@@ -246,6 +275,12 @@ function Game({
         focus: state.focus,
         overlay: state.overlay,
         guarded: state.guarded,
+        settings: {
+          highlights: state.highlights,
+          autoSelect: state.autoSelect,
+          turnHotseat: state.turnHotseat,
+        },
+        flipped: flipped(state.game, state.turnHotseat),
         view: viewGame(state.game),
       });
   }, [state]);
@@ -301,7 +336,8 @@ function Game({
         board={view.dfen.split(' ')[0]}
         legal={view.legal}
         lastMove={game.lastMove}
-        flipped={flipped(game)}
+        flipped={flipped(game, state.turnHotseat)}
+        highlights={state.highlights}
         cursor={choosing ? focus.cursor : null}
         selected={focus.selected}
         movable={choosing ? movableSquares(view.legal) : []}

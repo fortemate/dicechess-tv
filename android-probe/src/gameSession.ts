@@ -6,6 +6,7 @@ import {
   menuItems,
   screenReducer,
   type ScreenOptions,
+  type GameplaySettings,
   type ScreenState,
   type ScreenAction,
   type GameChoice,
@@ -26,7 +27,7 @@ export function readSavedGame(store: KeyValueStore) {
 }
 export type GameAction = Extract<
   ScreenAction,
-  { kind: 'key' | 'unguard' | 'bot' }
+  { kind: 'key' | 'unguard' | 'bot' | 'auto' }
 >;
 
 // Retain Vega's IDs, labels, order and reducer indices. Only implemented
@@ -36,6 +37,7 @@ export const gameMenu = (game: Game) =>
     .map((item, index) => ({ ...item, index }))
     .filter(({ id }) => id !== 'settings');
 
+/** Navigate supported menu rows while delegating gameplay and guarded automatic actions to Vega. */
 export function gameStep(
   state: ScreenState,
   action: GameAction,
@@ -63,18 +65,20 @@ export function gameStep(
 
 // Persist before publishing. New games enter the same home action as Vega,
 // so cross-mode replacement, cancellation and result/rematch share its reducer.
+/** Restore a game with current preferences and synchronously persist changed snapshots before publishing state. */
 export function createGameSession(
   store: KeyValueStore,
   options: ScreenOptions,
   mode: ProbeMode = 'hotseat',
   intent: GameIntent = 'continue',
+  settings: Partial<GameplaySettings> = {},
 ) {
   const restored = readSavedGame(store);
   let saved = Boolean(restored);
   let current = initialState(
     options,
     restored ?? newGame('hotseat', options.newId()),
-    { playAs: 'ask' },
+    { playAs: 'ask', ...settings },
   );
   current = {
     ...current,
