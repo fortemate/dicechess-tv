@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { OpponentScreen } from '../../native/src/OpponentScreen';
+import { Portrait, PORTRAIT_OF } from '../../native/src/Portrait';
 import { Board } from '../../native/src/Board';
 import { Dice } from '../../native/src/Dice';
 import { Option } from '../../native/src/Option';
@@ -298,12 +300,20 @@ function Game({
     );
   if (state.overlay.kind === 'rules')
     return <RulesContent onExit={() => send({ kind: 'key', key: 'back' })} />;
+  if (state.overlay.kind === 'opponent')
+    return (
+      <OpponentScreen
+        index={state.overlay.index}
+        pressed={false}
+        playAs={state.playAs}
+      />
+    );
   const { game, focus, overlay } = state;
   const view = viewGame(game);
   const choosing = game.phase === 'move' && !botToAct(game);
   const insets = safeInsets(width, height);
   const opponent = isBotMode(game.mode) ? opponentOf(game.mode) : null;
-  const selecting = overlay.kind === 'opponent' || overlay.kind === 'colour';
+  const selecting = overlay.kind === 'colour';
   const saved = opened.session?.hasSave();
   const choices = overlayChoices(state, exitLabel);
   const heading = overlayHeading(overlay);
@@ -344,6 +354,13 @@ function Game({
         movable={choosing ? movableSquares(view.legal) : []}
       />
       <View style={styles.panel}>
+        {opponent && !selecting ? (
+          <Portrait
+            character={PORTRAIT_OF[opponent.mode]}
+            kind="badge"
+            size={38}
+          />
+        ) : null}
         <Text style={styles.title}>
           {selecting
             ? COMPUTER_OPTION
@@ -374,9 +391,6 @@ function Game({
                 fontSize={20}
               />
             ))}
-            {overlay.kind === 'opponent' ? (
-              <Text style={styles.body}>{OPPONENTS[overlay.index].style}</Text>
-            ) : null}
           </>
         ) : (
           <>

@@ -105,3 +105,26 @@ for (const [pack, metadata] of Object.entries(sounds.packs)) {
   }
 }
 console.log('Packaged pinned sound effects and their licenses.');
+
+// Preserve the canonical portrait pack's pinned bytes and distribution notice.
+const portraitLock = JSON.parse(
+  await readFile(
+    new URL('../../native/portraits/portraits.lock.json', import.meta.url),
+    'utf8',
+  ),
+);
+if (portraitLock.source.version !== '1.4.1')
+  throw new Error('Unexpected portrait pack version');
+await mkdir(`${root}assets/portraits`, { recursive: true });
+for (const [file, pin] of Object.entries({
+  ...portraitLock.files,
+  [portraitLock.notice.file]: portraitLock.notice,
+})) {
+  const bytes = await readFile(
+    new URL(`../../native/portraits/${file}`, import.meta.url),
+  );
+  if (createHash('sha256').update(bytes).digest('hex') !== pin.sha256)
+    throw new Error(`Pinned portrait changed: ${file}`);
+  await writeFile(`${root}assets/portraits/${file}`, bytes);
+}
+console.log('Packaged pinned portraits and their notice.');
