@@ -14,6 +14,7 @@ const rows = [
   'auto-select',
   'play-as',
   'turn-board',
+  'host',
 ] as const;
 
 const report = (event: string, detail: unknown) =>

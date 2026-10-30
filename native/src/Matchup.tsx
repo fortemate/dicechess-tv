@@ -321,7 +321,8 @@ const DialogueBlock = ({
 // Prowla's (#258), and the line, in the free space above the bottom badge, over
 // nothing and moving nothing. Without the portraits Prowla's place stays
 // empty, so the bubble keeps its place.
-const HostBlock = ({
+/** Render the canonical host portrait and bubble within a positioned panel. */
+export const HostBlock = ({
   bubble,
   host,
 }: {
