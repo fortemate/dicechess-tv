@@ -428,34 +428,44 @@ test('failed bot-move persistence cannot publish the move or spend a die', () =>
   assert.equal(session.getState(), before);
 });
 
-test('a late bot reply waits throughout rules and the return menu, then resumes without a new search', async () => {
-  const h = harness();
-  const game = h.session.getState().game;
-  const saved = h.store.getString();
-  h.driver.update(h.session.getState());
-  await tick();
-  keys(h.session, 'back', 'up', 'select');
-  assert.equal(h.session.getState().overlay.kind, 'rules');
-  h.driver.update(h.session.getState());
-  h.requests[0].resolve(botReply(game));
-  await tick();
-  h.run();
-  h.run();
-  assert.equal(h.session.getState().game, game);
-  assert.equal(h.store.getString(), saved);
-  keys(h.session, 'back');
-  assert.deepEqual(h.session.getState().overlay, { kind: 'menu', index: 4 });
-  h.driver.update(h.session.getState());
-  h.run();
-  h.run();
-  assert.equal(h.store.getString(), saved);
-  keys(h.session, 'back');
-  h.driver.update(h.session.getState());
-  h.run();
-  await tick();
-  h.run();
-  assert.equal(h.session.getState().game.moves.length, 1);
-  assert.equal(h.requests.length, 1);
-  assert.deepEqual(h.errors, []);
-  h.driver.dispose();
+test('a late bot reply waits throughout rules/settings and their return menu without a new search', async () => {
+  for (const panel of [
+    { kind: 'rules', steps: 2, index: 4 },
+    { kind: 'settings', steps: 1, index: 5 },
+  ]) {
+    const h = harness();
+    const game = h.session.getState().game;
+    const saved = h.store.getString();
+    h.driver.update(h.session.getState());
+    await tick();
+    keys(h.session, 'back');
+    for (let i = 0; i < panel.steps; i++) keys(h.session, 'up');
+    keys(h.session, 'select');
+    assert.equal(h.session.getState().overlay.kind, panel.kind);
+    h.driver.update(h.session.getState());
+    h.requests[0].resolve(botReply(game));
+    await tick();
+    h.run();
+    h.run();
+    assert.equal(h.session.getState().game, game);
+    assert.equal(h.store.getString(), saved);
+    keys(h.session, 'back');
+    assert.deepEqual(h.session.getState().overlay, {
+      kind: 'menu',
+      index: panel.index,
+    });
+    h.driver.update(h.session.getState());
+    h.run();
+    h.run();
+    assert.equal(h.store.getString(), saved);
+    keys(h.session, 'back');
+    h.driver.update(h.session.getState());
+    h.run();
+    await tick();
+    h.run();
+    assert.equal(h.session.getState().game.moves.length, 1);
+    assert.equal(h.requests.length, 1);
+    assert.deepEqual(h.errors, []);
+    h.driver.dispose();
+  }
 });

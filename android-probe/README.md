@@ -55,7 +55,7 @@ python3 scripts/smoke.py --serial <serial>
 The APK launches into **Dice Chess**. Its supported menu entries use the Vega
 menu definitions, labels and order: **Resume game** (when a current unfinished
 game exists), **Play a friend**, **Play the computer**, **Learn to play**, **Rules reference**, **Settings**, and **About**.
-Settings currently exposes the supported Sounds control.
+Settings exposes the same eight controls as Vega; see Settings below.
 
 There is one current game, regardless of opponent or two-player mode. D-pad
 moves the highlight, OK selects, and Back leaves the app. Returning from a game
@@ -110,22 +110,23 @@ See [home-validation.md](home-validation.md) for the build, evidence and limits.
 
 ## Settings
 
-Open **Settings** from home to adjust **Music**, **Sounds**, **Voices**, **Highlights**,
+Open **Settings** from home or the game menu to adjust **Music**, **Sounds**, **Voices**, **Highlights**,
 **Auto-play only move**, **Play as**, **Turn board for friends**, and
 **Host for friends**.
 See [gameplay settings validation](game-settings-validation.md). Android and Vega render the
 same `SettingsPanel`, labels, volume rings and remote hints. Left/Right changes
 the selected value; OK toggles switches or cycles Highlights, Play as and Host for friends, and mutes/restores
 the remembered Music, Sounds or Voices level. Up/Down selects a row, and Back restores focus
-to Settings in home. System
-Home/return keeps the panel open. Music follows the app lifecycle; see Music below.
+to the Settings row in the menu that opened it. Up from Resume game reaches
+in-game Settings in one press. System Home/return keeps the panel open. Music follows the app lifecycle; see Music below.
 
 Canonical stepping and mute behavior are reused. Android writes mute and volume
 as one JSON value in a separate MMKV settings store before publishing it. Old
 two-key preferences remain readable and are kept intact; the next successful
 change writes the new format. A sound setup/storage failure is reported and
 disables effects for that game screen, while the saved game stays playable.
-No game or bot is mounted by Settings. Opening gameplay reads those preferences: muted effects create no
+Home Settings mounts no game or bot. In-game Settings keeps the current session
+mounted and pauses bot delivery and automatic moves. Opening gameplay reads those preferences: muted effects create no
 players, and the shared decibel curve sets the native player volume. These
 preferences do not change the explicit diagnostic audio probe. The default is
 Vega's level 10; the earlier probe used a fixed native gain of 0.5.
@@ -246,7 +247,7 @@ D-pad chooses a piece or destination; OK rolls, selects and moves. OK after a
 completed turn passes to the other player and rolls their dice. Back cancels a
 selected piece first, then opens the game menu. Its shared entries are Resume
 game, Resign, Agree a draw, New game, Main menu (Diagnostics when opened
-there), and Rules reference. Replacement and resignation use Vega's confirmation flow, with Cancel
+there), Rules reference, and Settings. Replacement and resignation use Vega's confirmation flow, with Cancel
 first. After a result, OK or Back returns to the main menu, as on Vega.
 
 Every game transition is validated and written synchronously before it is shown.
@@ -263,7 +264,7 @@ no-move and result effects through Expo Audio. Effects start only after the save
 succeeds; opening a saved game is silent. Home, window blur and leaving the game
 release active players and cancel delayed cues. Returning does not replay them.
 The TV's media volume remains unverified. The in-app Sounds control is available
-from home; see Settings above. Music and character speech use their independent settings.
+from home or the game menu; see Settings above. Music and character speech use their independent settings.
 
 After installing the APK, run the gameplay check from `android-probe/`, with Node
 from mise on PATH:
@@ -320,7 +321,7 @@ exact dice, position and phase recovery after a process restart before the first
 bot move. The Node restore test covers restarting after one saved bot move and
 verifies that the driver requests only the remaining moves from that saved game.
 
-The menu offers Resume game, Resign, New game, Main menu (Diagnostics when opened there), and Rules reference. Replacement and
+The menu offers Resume game, Resign, New game, Main menu (Diagnostics when opened there), Rules reference, and Settings. Replacement and
 resignation require confirmation while a game is in progress. New game opens
 opponent selection again (and side selection for Ask), with Cancel first at the final replacement
 confirmation. A computer-game result opens Vega's **Rematch / Main menu** menu
@@ -473,3 +474,22 @@ notice with internal APK handoffs. No tracks, dependencies or lockfiles change.
 
 See [Music validation](music-validation.md) for emulator evidence, reproduction
 and remaining listening/device checks.
+
+## In-game Settings
+
+The game menu includes Vega's Settings row and uses the shared reducer for row
+navigation, value changes and Back return. The shared panel stays beside the
+board, so Highlights and Turn board for friends update the current view.
+Auto-play only move waits until gameplay resumes; Play as applies to future
+games and leaves the current human side unchanged. Host changes follow Vega's
+commentary hooks. These choices persist in the same store as home Settings.
+
+Music, Sounds and Voices apply to the mounted services after a successful
+preference write. Sounds volume updates active effects; mute releases them and
+cancels delayed cues. Entering Settings stops speech. Back returns to the
+Settings game-menu row, and Back again resumes the same turn. The session and
+bot worker remain mounted; preference and navigation events do not rewrite the
+game snapshot. Invalid preference reads or failed writes preserve the save.
+
+See [in-game Settings validation](in-game-settings-validation.md) for emulator
+evidence, reproduction and limits.

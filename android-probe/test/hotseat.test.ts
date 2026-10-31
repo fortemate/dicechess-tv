@@ -103,7 +103,7 @@ test('three pawn actions hand off to Black through the shared reducer', () => {
   assert.equal(session.getState().game.mode, 'hotseat');
 });
 
-test('Back cancels a selected piece before opening the limited menu; replacement needs confirmation', () => {
+test('Back cancels a selected piece before opening the shared menu; replacement needs confirmation', () => {
   const session = createGameSession(memory(), options());
   key(session, 'select');
   key(session, 'select');
@@ -113,7 +113,7 @@ test('Back cancels a selected piece before opening the limited menu; replacement
   key(session, 'back');
   assert.deepEqual(
     gameMenu(session.getState().game).map((item) => item.id),
-    ['resume', 'resign', 'draw', 'new-game', 'main-menu', 'rules'],
+    ['resume', 'resign', 'draw', 'new-game', 'main-menu', 'rules', 'settings'],
   );
   const saved = session.getState().game;
   key(session, 'down');
@@ -229,7 +229,8 @@ test('rules from either game mode return to their menu row without changing the 
     const store = memory(JSON.stringify(game));
     const session = createGameSession(store, options());
     key(session, 'back');
-    key(session, 'up'); // Last supported entry, using the shared menu index.
+    key(session, 'up'); // Settings is last; Rules reference is immediately before it.
+    key(session, 'up');
     const menu = session.getState().overlay;
     assert.deepEqual(menu, { kind: 'menu', index: mode === 'hotseat' ? 5 : 4 });
     key(session, 'select');

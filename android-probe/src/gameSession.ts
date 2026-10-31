@@ -7,6 +7,7 @@ import {
   screenReducer,
   type ScreenOptions,
   type GameplaySettings,
+  type ScreenSettings,
   type ScreenState,
   type ScreenAction,
   type GameChoice,
@@ -30,36 +31,16 @@ export type GameAction = Extract<
   { kind: 'key' | 'unguard' | 'bot' | 'auto' }
 >;
 
-// Retain Vega's IDs, labels, order and reducer indices. Only implemented
-// screens are reachable in this prototype.
+// Retain Vega's complete menu and reducer indices, including in-game Settings.
 export const gameMenu = (game: Game) =>
-  menuItems(game)
-    .map((item, index) => ({ ...item, index }))
-    .filter(({ id }) => id !== 'settings');
+  menuItems(game).map((item, index) => ({ ...item, index }));
 
-/** Navigate supported menu rows while delegating gameplay and guarded automatic actions to Vega. */
+/** Delegate menu navigation, gameplay and guarded automatic actions to Vega. */
 export function gameStep(
   state: ScreenState,
   action: GameAction,
   options: ScreenOptions,
 ): ScreenState {
-  const { overlay } = state;
-  if (
-    action.kind === 'key' &&
-    overlay.kind === 'menu' &&
-    ['up', 'down', 'left', 'right'].includes(action.key)
-  ) {
-    const items = gameMenu(state.game);
-    const index = items.findIndex((item) => item.index === overlay.index);
-    const step = action.key === 'up' || action.key === 'left' ? -1 : 1;
-    return {
-      ...state,
-      overlay: {
-        kind: 'menu',
-        index: items[(index + step + items.length) % items.length].index,
-      },
-    };
-  }
   return screenReducer(state, action, options);
 }
 
@@ -72,6 +53,10 @@ export function createGameSession(
   mode: ProbeMode = 'hotseat',
   intent: GameIntent = 'continue',
   settings: Partial<GameplaySettings> = {},
+  preferences?: {
+    read(): ScreenSettings;
+    save(next: ScreenSettings, before: ScreenSettings): void;
+  },
 ) {
   const restored = readSavedGame(store);
   let saved = Boolean(restored);
@@ -115,8 +100,14 @@ export function createGameSession(
   return {
     getState: () => current,
     hasSave: () => saved,
+    /** Persist changed preferences or gameplay before publishing the reducer result. */
     dispatch(action: GameAction) {
-      const next = gameStep(current, action, options);
+      let next = gameStep(current, action, options);
+      if (next.overlay.kind === 'settings') {
+        if (current.overlay.kind !== 'settings' && preferences)
+          next = { ...next, ...preferences.read() };
+        else preferences?.save(next, current);
+      }
       if (next.game !== current.game) save(next.game);
       current = next;
       return current;

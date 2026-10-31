@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { OpponentScreen } from '../../native/src/OpponentScreen';
 import { Portrait, PORTRAIT_OF } from '../../native/src/Portrait';
@@ -8,6 +14,9 @@ import { HostCommentary } from './HostCommentary';
 import { Board } from '../../native/src/Board';
 import { Dice } from '../../native/src/Dice';
 import { Option } from '../../native/src/Option';
+import { SettingsPanel } from '../../native/src/SettingsPanel';
+import { MusicContext } from './MusicContext';
+import { voiceGain, voicesHeard } from '../../native/src/voiceSetting';
 import { scheduleActive, type Activity } from '../../native/src/activity';
 import { useRemoteInput } from '../../native/src/useRemoteInput';
 import { randomSource } from '../../native/src/randomSource';
@@ -41,6 +50,10 @@ import { botToAct } from '../../src/core/bot';
 import { createWorker } from './worker';
 import { createBotDriver } from './botDriver';
 import { readGamePreferences } from './gamePreferences';
+import {
+  readScreenPreferences,
+  saveScreenPreferences,
+} from './screenPreferences';
 import { SETTINGS_STORE } from './soundPreferences';
 import { createStore } from './store';
 import { cues } from '../../src/core/cues';
@@ -134,13 +147,19 @@ function makeSession(mode: ProbeMode, intent: GameIntent) {
   };
   report('random-source', source.name);
   try {
+    const preferences = createStore(SETTINGS_STORE);
     return {
       session: createGameSession(
         createStore(GAME_STORE),
         options,
         mode,
         intent,
-        readGamePreferences(createStore(SETTINGS_STORE)),
+        readGamePreferences(preferences),
+        {
+          read: () => readScreenPreferences(preferences),
+          save: (next, before) =>
+            saveScreenPreferences(preferences, next, before),
+        },
       ),
       error: '',
     };
@@ -165,6 +184,7 @@ function Game({
   exitLabel: string;
 }) {
   const voice = useAndroidVoice(activity);
+  const { apply: applyMusic } = useContext(MusicContext);
   const [opened] = useState(() => makeSession(mode, intent));
   const [state, setState] = useState(() => opened.session?.getState());
   const level = useGameMusic(state);
@@ -188,17 +208,23 @@ function Game({
     (action: GameAction) => {
       if (!opened.session || error) return;
       try {
-        const before = opened.session.getState().game;
+        const before = opened.session.getState();
         const next = opened.session.dispatch(action);
         setState(next);
-        if (next.game !== before)
-          effects.current?.play(cues(before, next.game));
+        if (next.sound !== before.sound) effects.current?.setSound(next.sound);
+        if (next.music !== before.music) applyMusic(next.music);
+        if (next.voices !== before.voices) {
+          voice.setVoices(voicesHeard(next.voices));
+          voice.setVoiceVolume(voiceGain(next.voices.volume));
+        }
+        if (next.game !== before.game)
+          effects.current?.play(cues(before.game, next.game));
       } catch (failure) {
         setError(errorText(failure));
         report('save-error', errorText(failure));
       }
     },
-    [opened, error],
+    [opened, error, applyMusic, voice],
   );
   const playingBot = state ? isBotMode(state.game.mode) : false;
   const driver = useRef<ReturnType<typeof createBotDriver> | null>(null);
@@ -279,6 +305,28 @@ function Game({
       OK_GUARD_MS,
     );
   }, [state?.guarded, error, activity, send]);
+  useEffect(() => {
+    if (state?.overlay.kind === 'settings')
+      console.info(
+        '[AndroidSettings] ' +
+          JSON.stringify({
+            event: 'state',
+            detail: {
+              music: state.music,
+              sound: state.sound,
+              voices: state.voices,
+              highlights: state.highlights,
+              autoSelect: state.autoSelect,
+              playAs: state.playAs,
+              turnHotseat: state.turnHotseat,
+              host: state.host,
+              index: state.overlay.index,
+              error,
+              from: 'game',
+            },
+          }),
+      );
+  }, [state, error]);
   useEffect(() => {
     if (state)
       report('state', {
@@ -364,63 +412,71 @@ function Game({
         movable={choosing ? movableSquares(view.legal) : []}
       />
       <View style={styles.panel}>
-        {opponent && !selecting ? (
-          <Portrait
-            character={PORTRAIT_OF[opponent.mode]}
-            kind="badge"
-            size={38}
-          />
-        ) : null}
-        <Text style={styles.title}>
-          {selecting
-            ? COMPUTER_OPTION
-            : game.mode === 'hotseat'
-              ? HOTSEAT_OPTION
-              : !saved
-                ? COMPUTER_OPTION
-                : `Play against ${opponent?.name}`}
-        </Text>
-        <Text style={styles.body}>
-          {saved
-            ? `${sideName(view.side)} · Turn ${game.turn}`
-            : 'D-pad: choose · OK: select · Back: cancel'}
-        </Text>
-        {game.result && choices.length ? (
-          <Text style={styles.heading}>
-            {outcome(game, game.result)} · {reasonOf(game, game.result)}
-          </Text>
-        ) : null}
-        {choices.length ? (
-          <>
-            <Text style={styles.heading}>{heading}</Text>
-            {choices.map((choice) => (
-              <Option
-                key={choice.index}
-                label={choice.label}
-                focused={'index' in overlay && overlay.index === choice.index}
-                fontSize={20}
-              />
-            ))}
-          </>
+        {overlay.kind === 'settings' ? (
+          <SettingsPanel settings={state} index={overlay.index} />
         ) : (
           <>
-            <Dice
-              dice={diceOf(game.roll, view.remaining, view.playable)}
-              side={view.side}
-              size={64}
-            />
-            {game.result ? (
+            {opponent && !selecting ? (
+              <Portrait
+                character={PORTRAIT_OF[opponent.mode]}
+                kind="badge"
+                size={38}
+              />
+            ) : null}
+            <Text style={styles.title}>
+              {selecting
+                ? COMPUTER_OPTION
+                : game.mode === 'hotseat'
+                  ? HOTSEAT_OPTION
+                  : !saved
+                    ? COMPUTER_OPTION
+                    : `Play against ${opponent?.name}`}
+            </Text>
+            <Text style={styles.body}>
+              {saved
+                ? `${sideName(view.side)} · Turn ${game.turn}`
+                : 'D-pad: choose · OK: select · Back: cancel'}
+            </Text>
+            {game.result && choices.length ? (
               <Text style={styles.heading}>
                 {outcome(game, game.result)} · {reasonOf(game, game.result)}
               </Text>
             ) : null}
-            <Text style={styles.heading}>{prompt}</Text>
-            {state.guarded ? (
-              <Text style={styles.body}>
-                No legal move with this roll. Wait a moment, then press OK.
-              </Text>
-            ) : null}
-            <Text style={styles.body}>D-pad: choose · Back: game menu</Text>
+            {choices.length ? (
+              <>
+                <Text style={styles.heading}>{heading}</Text>
+                {choices.map((choice) => (
+                  <Option
+                    key={choice.index}
+                    label={choice.label}
+                    focused={
+                      'index' in overlay && overlay.index === choice.index
+                    }
+                    fontSize={20}
+                  />
+                ))}
+              </>
+            ) : (
+              <>
+                <Dice
+                  dice={diceOf(game.roll, view.remaining, view.playable)}
+                  side={view.side}
+                  size={64}
+                />
+                {game.result ? (
+                  <Text style={styles.heading}>
+                    {outcome(game, game.result)} · {reasonOf(game, game.result)}
+                  </Text>
+                ) : null}
+                <Text style={styles.heading}>{prompt}</Text>
+                {state.guarded ? (
+                  <Text style={styles.body}>
+                    No legal move with this roll. Wait a moment, then press OK.
+                  </Text>
+                ) : null}
+                <Text style={styles.body}>D-pad: choose · Back: game menu</Text>
+              </>
+            )}
           </>
         )}
         <HostCommentary
@@ -432,15 +488,17 @@ function Game({
             (overlay.kind === 'none' || overlay.kind === 'result') && !error
           }
         />
-        <Text style={styles.saved}>
-          {saved
-            ? 'Saved on this device · '
-            : 'Choose an opponent and side to start'}
-          {saved &&
-            (game.human
-              ? `You: ${sideName(game.human)} · ${opponent?.name}: ${sideName(opposite(game.human))}`
-              : 'Two players share the remote')}
-        </Text>
+        {overlay.kind !== 'settings' && (
+          <Text style={styles.saved}>
+            {saved
+              ? 'Saved on this device · '
+              : 'Choose an opponent and side to start'}
+            {saved &&
+              (game.human
+                ? `You: ${sideName(game.human)} · ${opponent?.name}: ${sideName(opposite(game.human))}`
+                : 'Two players share the remote')}
+          </Text>
+        )}
       </View>
     </View>
   );

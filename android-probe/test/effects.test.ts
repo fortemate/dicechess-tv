@@ -67,6 +67,12 @@ function harness(
       };
       players.push(record);
       return {
+        get volume() {
+          return record.gain;
+        },
+        set volume(value) {
+          record.gain = value;
+        },
         play: () => {
           record.played++;
         },
@@ -284,4 +290,22 @@ test('optional effects retain normal playback and disposal when setup succeeds',
   assert.equal(h.players.length, 1);
   effects!.dispose();
   assert.equal(h.players[0].removed, 1);
+});
+
+test('live sound changes update active gain and cancel players and delayed cues when muted', async () => {
+  const h = harness();
+  await Promise.resolve();
+  h.effects.play(['piece_move', 'no_move']);
+  h.effects.setSound({ on: true, volume: 4 });
+  assert.equal(h.players[0].gain, soundGain(4));
+  h.effects.setSound({ on: false, volume: 4 });
+  assert.equal(h.players[0].removed, 1);
+  for (const job of h.jobs) job.run();
+  assert.equal(h.players.length, 1, 'mute cancels delayed no-move playback');
+  h.effects.setSound({ on: true, volume: 6 });
+  h.effects.play(['piece_move']);
+  assert.equal(h.players[1].gain, soundGain(6));
+  h.effects.dispose();
+  h.effects.setSound({ on: true, volume: 10 });
+  assert.equal(h.players[1].removed, 1);
 });

@@ -13,6 +13,7 @@ import { readPlayAs, savePlayAs } from '../../native/src/playAsSetting';
 import { readTurnBoard, saveTurnBoard } from '../../native/src/turnSetting';
 import {
   changeGameplaySetting,
+  type GameplaySettings,
   type GameplaySettingId,
 } from '../../native/src/screen';
 
@@ -34,16 +35,25 @@ export function createGamePreferences(store: KeyValueStore) {
     /** Apply shared control semantics; a failed write leaves the in-memory choice unchanged. */
     press(row: GameplaySettingId, key: BoardKey) {
       const next = changeGameplaySetting(value, row, key);
-      if (next.highlights !== value.highlights)
-        saveHighlights(store, next.highlights);
-      if (next.autoSelect !== value.autoSelect)
-        saveAutoSelect(store, next.autoSelect);
-      if (next.turnHotseat !== value.turnHotseat)
-        saveTurnBoard(store, next.turnHotseat);
-      if (next.playAs !== value.playAs) savePlayAs(store, next.playAs);
-      if (next.host !== value.host) saveHost(store, next.host);
+      saveGamePreferences(store, next, value);
       value = next;
       return value;
     },
   };
+}
+
+/** Write changed gameplay preferences without touching the game snapshot. */
+export function saveGamePreferences(
+  store: KeyValueStore,
+  next: GameplaySettings,
+  before: GameplaySettings,
+) {
+  if (next.highlights !== before.highlights)
+    saveHighlights(store, next.highlights);
+  if (next.autoSelect !== before.autoSelect)
+    saveAutoSelect(store, next.autoSelect);
+  if (next.turnHotseat !== before.turnHotseat)
+    saveTurnBoard(store, next.turnHotseat);
+  if (next.playAs !== before.playAs) savePlayAs(store, next.playAs);
+  if (next.host !== before.host) saveHost(store, next.host);
 }

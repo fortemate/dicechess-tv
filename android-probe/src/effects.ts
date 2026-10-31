@@ -10,6 +10,7 @@ import type { Activity } from '../../native/src/activity';
 
 type Status = { playing: boolean; didJustFinish: boolean; currentTime: number };
 export type EffectPlayer = {
+  volume: number;
   play(): void;
   pause(): void;
   remove(): void;
@@ -61,12 +62,15 @@ export function createEffects(
     return () => clearTimeout(timer);
   },
   sound: SoundSetting = DEFAULT_SOUND,
-): Pick<Sounds, 'play' | 'setSuspended' | 'dispose'> {
+): Pick<Sounds, 'play' | 'setSuspended' | 'dispose'> & {
+  setSound(setting: SoundSetting): void;
+} {
   let disposed = false;
   let suspended = !activity.isActive();
   let ready = false;
   let step = 0;
   const players = new Map<Channel, () => void>();
+  const gains = new Map<Channel, (gain: number) => void>();
   const pending = new Set<() => void>();
   const reportError = (error: unknown) =>
     backend.report('error', String(error));
@@ -130,6 +134,7 @@ export function createEffects(
       if (released) return;
       released = true;
       players.delete(channel);
+      gains.delete(channel);
       cancelTimeout?.();
       attempt(() => subscription?.remove());
       attempt(() => player.pause());
@@ -137,6 +142,7 @@ export function createEffects(
       backend.report('released', { cue });
     };
     players.set(channel, release);
+    gains.set(channel, (gain) => attempt(() => (player.volume = gain)));
     try {
       let reportedPlaying = false;
       subscription = player.addListener('playbackStatusUpdate', (status) => {
@@ -163,6 +169,14 @@ export function createEffects(
     }
   };
   return {
+    /** Update live gain or cancel all active and delayed effects when muted. */
+    setSound(next) {
+      if (disposed) return;
+      sound = next;
+      if (!soundHeard(sound)) stop();
+      else gains.forEach((apply) => apply(soundGain(sound.volume)));
+      backend.report('setting', sound);
+    },
     play(cues) {
       cancelPending();
       if (!allowed()) return;
