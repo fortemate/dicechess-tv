@@ -30,7 +30,9 @@ import {
 } from './homeMenu';
 import type { Game } from '../../src/core/game';
 import { createStore } from './store';
+import { LEGACY_SKIPPED_KEY } from './recovery';
 
+/** Restore the current slot or offer retained legacy saves unless the player explicitly started fresh. */
 export function HomeScreen({
   activity,
   initialFocus,
@@ -50,11 +52,12 @@ export function HomeScreen({
       const game = readSavedGame(store);
       return {
         game,
-        legacy: game
-          ? []
-          : legacyGames((mode) =>
-              createStore(legacyGameStoreId(mode)).getString(GAME_KEY),
-            ),
+        legacy:
+          game || store.getString(LEGACY_SKIPPED_KEY) === 'yes'
+            ? []
+            : legacyGames((mode) =>
+                createStore(legacyGameStoreId(mode)).getString(GAME_KEY),
+              ),
         unreadable: false,
       };
     } catch {
