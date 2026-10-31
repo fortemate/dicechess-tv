@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { OpponentScreen } from '../../native/src/OpponentScreen';
 import { Portrait, PORTRAIT_OF } from '../../native/src/Portrait';
+import { useGameMusic } from './useGameMusic';
 import { useAndroidVoice } from './useAndroidVoice';
 import { HostCommentary } from './HostCommentary';
 import { Board } from '../../native/src/Board';
@@ -166,6 +167,7 @@ function Game({
   const voice = useAndroidVoice(activity);
   const [opened] = useState(() => makeSession(mode, intent));
   const [state, setState] = useState(() => opened.session?.getState());
+  const level = useGameMusic(state);
   const [error, setError] = useState(opened.error);
   const effects = useRef<ReturnType<typeof createAndroidEffects> | null>(null);
   useEffect(() => {
@@ -424,6 +426,7 @@ function Game({
         <HostCommentary
           game={game}
           voice={voice}
+          level={level}
           host={state.host}
           live={
             (overlay.kind === 'none' || overlay.kind === 'result') && !error

@@ -1,15 +1,24 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { View, Text } from 'react-native';
 import type { Activity } from '../../native/src/activity';
 import { SettingsPanel } from '../../native/src/SettingsPanel';
 import { useRemoteInput } from '../../native/src/useRemoteInput';
 import { createSoundPreferences, SETTINGS_STORE } from './soundPreferences';
+import { MusicContext } from './MusicContext';
+import { createMusicPreferences } from './musicPreferences';
 import { createVoicePreferences } from './voicePreferences';
 import { createGamePreferences } from './gamePreferences';
 import { createStore } from './store';
 import { RemoteSurface } from './RemoteSurface';
 
 const rows = [
+  'music',
   'sounds',
   'voices',
   'highlights',
@@ -25,6 +34,7 @@ const report = (event: string, detail: unknown) =>
 function open() {
   try {
     return {
+      musicPreferences: createMusicPreferences(createStore(SETTINGS_STORE)),
       voicePreferences: createVoicePreferences(createStore(SETTINGS_STORE)),
       preferences: createSoundPreferences(createStore(SETTINGS_STORE)),
       gamePreferences: createGamePreferences(createStore(SETTINGS_STORE)),
@@ -37,7 +47,9 @@ function open() {
 }
 /** Render persisted preferences and route each remote event through the latest synchronous row selection. */
 function Content({ onExit }: { onExit: () => void }) {
+  const controller = useContext(MusicContext);
   const [opened] = useState(open);
+  const [music, setMusic] = useState(() => opened.musicPreferences?.read());
   const [voices, setVoices] = useState(() => opened.voicePreferences?.read());
   const [sound, setSound] = useState(() => opened.preferences?.read());
   const [game, setGame] = useState(() => opened.gamePreferences?.read());
@@ -58,7 +70,14 @@ function Content({ onExit }: { onExit: () => void }) {
             return;
           }
           const row = rows[selectedRow.current];
-          if (row === 'voices') setVoices(opened.voicePreferences?.press(key));
+          if (row === 'music') {
+            if (opened.musicPreferences) {
+              const next = opened.musicPreferences.press(key);
+              controller.apply(next);
+              setMusic(next);
+            }
+          } else if (row === 'voices')
+            setVoices(opened.voicePreferences?.press(key));
           else if (row === 'sounds') setSound(opened.preferences.press(key));
           else if (opened.gamePreferences)
             setGame(opened.gamePreferences.press(row, key));
@@ -67,7 +86,7 @@ function Content({ onExit }: { onExit: () => void }) {
           report('save-error', String(failure));
         }
       },
-      [opened, error, onExit],
+      [opened, error, onExit, controller],
     ),
     {
       onBack: () => {
@@ -77,8 +96,8 @@ function Content({ onExit }: { onExit: () => void }) {
     },
   );
   useEffect(() => {
-    report('state', { sound, voices, ...game, index, error });
-  }, [sound, voices, game, index, error]);
+    report('state', { music, sound, voices, ...game, index, error });
+  }, [music, sound, voices, game, index, error]);
   return (
     <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 56 }}>
       {error ? (
@@ -87,7 +106,7 @@ function Content({ onExit }: { onExit: () => void }) {
         </Text>
       ) : (
         <SettingsPanel
-          settings={{ sound, voices, ...game }}
+          settings={{ music, sound, voices, ...game }}
           only={rows}
           index={index}
         />

@@ -17,8 +17,8 @@ A shared late audio handle retains the first tutorial line before the native
 service attaches after React's first commit. Initial mute, gain and foreground
 state are applied before playback. Effects and voices remain independently
 controlled. On return from Home, tutorial speech restarts the current
-instruction; canceled gameplay lines are not replayed. Music/ducking remains
-separate work.
+instruction; canceled gameplay lines are not replayed. Music/ducking was not
+part of that slice; see [Music validation](music-validation.md) for the follow-up.
 
 `useHostVoice`, `useBotVoice`, `useDanger`, `useTutorialVoice`, caption timing
 and presentation components come from Vega. Both host and bot caption areas

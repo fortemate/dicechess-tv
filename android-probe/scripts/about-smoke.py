@@ -14,7 +14,7 @@ spec = importlib.util.spec_from_file_location('remote', Path(__file__).with_name
 h = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(h)
 checks = []
-expected = 'about | credits 3 | portraits not-probed'
+expected = 'about | credits 4 | portraits not-probed'
 
 
 def about_wait(since=0):
@@ -97,7 +97,7 @@ try:
     assert not h.events(), 'Opening About must not mount a game or worker'
     h.snapshot('about-credits.png')
     about_visible('about-credits')
-    checks.append('home opens the shared screen with three Android credit cards and no Vega portrait probe or game')
+    checks.append('home opens the shared screen with four Android credit cards and no Vega portrait probe or game')
     before = len(h.events('AndroidHome'))
     for code, direction in ((19, 'up'), (20, 'down'), (21, 'left'), (22, 'right')):
         h.key(code)

@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import type { Activity } from '../../native/src/activity';
 import { lateSounds } from '../../native/src/lateAudio';
 import { createSpeech } from './speech';
+import { speechDucking } from './musicControl';
+import { MusicContext } from './MusicContext';
 import { createStore } from './store';
 import { SETTINGS_STORE } from './soundPreferences';
 import { readAndroidVoices } from './voicePreferences';
@@ -15,10 +17,18 @@ const report = (event: string, detail: unknown) =>
 
 /** Attach native speech after commit, retaining the tutorial's first pending line. */
 export function useAndroidVoice(activity: Activity) {
+  const { music } = useContext(MusicContext);
   const [handle] = useState(lateSounds);
   useEffect(() => {
     try {
       const setting = readAndroidVoices(createStore(SETTINGS_STORE));
+      const duck = speechDucking((on) => {
+        music.setDucked(on);
+        console.info(
+          '[AndroidMusic] ' +
+            JSON.stringify({ event: 'ducked', detail: on, at: Date.now() }),
+        );
+      });
       const speech = createSpeech(
         activity,
         {
@@ -36,7 +46,10 @@ export function useAndroidVoice(activity: Activity) {
             player.volume = gain;
             return player;
           },
-          report,
+          report(event, detail) {
+            report(event, detail);
+            duck(event);
+          },
         },
         setting,
       );
@@ -56,6 +69,6 @@ export function useAndroidVoice(activity: Activity) {
       handle.setVoices(false);
       report('error', String(error));
     }
-  }, [activity, handle]);
+  }, [activity, handle, music]);
   return handle;
 }

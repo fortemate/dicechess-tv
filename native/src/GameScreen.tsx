@@ -46,7 +46,12 @@ import { DEFAULT_HOST, type HostChoice } from './hostSetting';
 import { DEFAULT_PLAY_AS, type PlayAs } from './playAsSetting';
 import { DEFAULT_HIGHLIGHTS, type HighlightStyle } from './highlightsSetting';
 import { LINE_START_MS, speechTiming } from './speechTiming';
-import type { Sounds, SpokenLine, Music } from './audio';
+import {
+  RESULT_SILENCE_MS,
+  type Sounds,
+  type SpokenLine,
+  type Music,
+} from './audio';
 import { musicHeard, type MusicSetting } from './musicSetting';
 import { DEFAULT_SOUND, type SoundSetting } from './soundSetting';
 import { DEFAULT_VOICES, type VoiceSetting } from './voiceSetting';
@@ -160,7 +165,7 @@ export type GameScreenProps = {
 
 // How long the music stays silent after a game ends, so the result's jingle is
 // heard on its own before the menu theme returns.
-export const RESULT_SILENCE_MS = 2500;
+export { RESULT_SILENCE_MS } from './audio';
 
 // A bubble stays its usual time, or until its line has been said (#159),
 // counting the moment the player takes to start the clip (#187).

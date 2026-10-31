@@ -8,12 +8,15 @@ import { LearnToPlay } from './LearnToPlay';
 import { Settings } from './Settings';
 import { About } from './About';
 import { HomeScreen } from './HomeScreen';
+import { useAndroidMusic } from './useAndroidMusic';
+import { MusicContext } from './MusicContext';
 import type { HomeItem } from './homeMenu';
 
 export default function App() {
   const [activity] = useState(() =>
     createActivity(AppState.currentState === 'active'),
   );
+  const music = useAndroidMusic(activity);
   const [route, setRoute] = useState<
     HomeItem['action'] | { kind: 'diagnostics' } | null
   >(null);
@@ -55,49 +58,57 @@ export default function App() {
       activity.setActive(false);
     };
   }, [activity]);
-  if (!ready) return null;
-  if (route?.kind === 'diagnostics')
-    return <Diagnostics activity={activity} onExit={goHome} />;
-  if (route?.kind === 'rules')
-    return <RulesReference activity={activity} onExit={goHome} />;
-  if (route?.kind === 'settings')
-    return <Settings activity={activity} onExit={goHome} />;
-  if (route?.kind === 'about')
-    return <About activity={activity} onExit={goHome} />;
-  if (route?.kind === 'tutorial')
+  useEffect(() => {
+    if (route?.kind !== 'game') music.music.setRole('menu');
+  }, [route?.kind, music.music]);
+  const screen = () => {
+    if (!ready) return null;
+    if (route?.kind === 'diagnostics')
+      return <Diagnostics activity={activity} onExit={goHome} />;
+    if (route?.kind === 'rules')
+      return <RulesReference activity={activity} onExit={goHome} />;
+    if (route?.kind === 'settings')
+      return <Settings activity={activity} onExit={goHome} />;
+    if (route?.kind === 'about')
+      return <About activity={activity} onExit={goHome} />;
+    if (route?.kind === 'tutorial')
+      return (
+        <LearnToPlay
+          activity={activity}
+          onExit={(choice) =>
+            setRoute(
+              choice
+                ? {
+                    kind: 'game',
+                    mode: choice.mode === 'hotseat' ? 'hotseat' : 'bot',
+                    intent: { kind: 'tutorial', choice },
+                  }
+                : null,
+            )
+          }
+        />
+      );
+    if (route?.kind === 'game')
+      return (
+        <GameScreen
+          activity={activity}
+          onExit={goHome}
+          mode={route.mode}
+          intent={route.intent}
+        />
+      );
     return (
-      <LearnToPlay
+      <HomeScreen
         activity={activity}
-        onExit={(choice) =>
-          setRoute(
-            choice
-              ? {
-                  kind: 'game',
-                  mode: choice.mode === 'hotseat' ? 'hotseat' : 'bot',
-                  intent: { kind: 'tutorial', choice },
-                }
-              : null,
-          )
-        }
+        initialFocus={homeFocus.current}
+        onChoose={(item) => {
+          homeFocus.current = item.id;
+          setRoute(item.action);
+        }}
       />
     );
-  if (route?.kind === 'game')
-    return (
-      <GameScreen
-        activity={activity}
-        onExit={goHome}
-        mode={route.mode}
-        intent={route.intent}
-      />
-    );
+  };
   return (
-    <HomeScreen
-      activity={activity}
-      initialFocus={homeFocus.current}
-      onChoose={(item) => {
-        homeFocus.current = item.id;
-        setRoute(item.action);
-      }}
-    />
+    <MusicContext.Provider value={music}>{screen()}</MusicContext.Provider>
   );
 }
