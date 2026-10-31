@@ -192,6 +192,9 @@ The shared tutorial sequences local Thinkle recordings using decoder completion
 callbacks and honors Voices mute/volume. The first-launch tutorial offer remains
 separate Android work. Thinkle uses the shared Teacher and Portrait components with the pinned
 local Android image pack. See [portrait validation](portraits-validation.md).
+The tutorial voice behavior is covered by the [speech unit tests](test/speech.test.ts)
+and an Android TV emulator run of the [voice smoke test](scripts/voices-smoke.py).
+Vega Virtual Device and physical-device validation of this Voices change remain pending.
 
 Earlier tutorial evidence used a portrait placeholder; the portrait validation
 records the Android image check.
@@ -439,6 +442,9 @@ before advancing tutorial speech, and releases playback on menus, exit,
 background and blur. A returning tutorial restarts its current instruction;
 gameplay does not replay a canceled line. Effects and voice mute are independent.
 Music ducking remains part of the later music adapter.
+These voice behaviors are covered by the [speech unit tests](test/speech.test.ts)
+and an Android TV emulator run of the [voice smoke test](scripts/voices-smoke.py);
+Vega Virtual Device and physical-device validation remain pending.
 
 All 446 canonical recordings and nine original licenses are packaged offline.
 Asset generation verifies their canonical hashes; no new recordings are made.
