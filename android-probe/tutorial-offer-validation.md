@@ -71,8 +71,10 @@ ordinary profile. The diagnostics smoke uses its explicit engineering link.
 - Android types/lint and all 76 existing tests passed.
 - Eight new mounted Android tests cover the initial presentation, unanswered
   relaunch, all three answers, rapid navigation/duplicate OK before React
-  commits, current/corrupt/legacy data, explicit reset, diagnostic bypass,
+  commits, current/corrupt/legacy data, explicit reset, disabled onboarding,
   background input gating and failed reads/writes.
+  The disabled case mounts `FirstLaunch` with `enabled={false}`; it does not
+  exercise the diagnostics URL handler or `App` route wiring.
 - Native types and all 14 mounted Android regressions passed in the clean
   native CI fixture without Android dependencies. The new suite generated LCOV
   and its path is included in `sonar.javascript.lcov.reportPaths`.

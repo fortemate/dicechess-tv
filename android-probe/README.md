@@ -67,7 +67,9 @@ answer write shows a retry message and keeps the offer available. Engineering
 diagnostic links bypass onboarding.
 
 Mounted Android tests cover eligibility, persistence, rapid repeated input and
-read/write failures. `tutorial-offer-smoke.py` on Android TV API 31 checks the
+read/write failures. The disabled-prop test mounts `FirstLaunch` with
+`enabled={false}`; it does not cover the diagnostics URL handler or `App` route
+wiring. `tutorial-offer-smoke.py` on Android TV API 31 checks the
 real upgrade profile and a separate clean emulator profile. See
 [tutorial-offer-validation.md](tutorial-offer-validation.md) for reproduction,
 observations and limits. Physical remotes, TalkBack and Vega runtime have not

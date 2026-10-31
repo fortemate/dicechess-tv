@@ -176,7 +176,7 @@ test('current, damaged and legacy saves suppress onboarding without changing any
   }
 });
 
-test('an answered offer or explicit fresh reset remains suppressed, and diagnostics bypass onboarding', () => {
+test('an answered offer, explicit fresh reset or disabled prop suppresses onboarding', () => {
   let h = rig();
   saveTutorialOffered(openStore(settingsId));
   writes.length = 0;
