@@ -86,9 +86,10 @@ try:
     h.return_home(state)
     checks.append('menu/calm decoder playback; mute and remembered volume survive force-stop and preserve the exact friend roll')
 
+    enabled = len(h.events('AndroidMusic'))
     configure(True)
     base = 10 ** (-18 / 20) * 10 ** (-0.1 / 20)
-    music_wait(0, lambda e: e['event'] == 'volume' and e['detail']['file'].endswith(MENU) and math.isclose(e['detail']['gain'], base, rel_tol=0.03))
+    music_wait(enabled, lambda e: e['event'] == 'volume' and e['detail']['file'].endswith(MENU) and math.isclose(e['detail']['gain'], base, rel_tol=0.03))
     # Explicitly enable voices through their row without changing the game.
     s.enter(2)
     if not full()['voices']['on']: s.change(23)

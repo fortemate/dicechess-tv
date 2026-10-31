@@ -18,7 +18,11 @@ and holds music for 2.5 seconds after a game result. Duplicate home-menu request
 do not cancel that hold. Native voice playback ducks music by 9 dB. Completion,
 cancellation and owner disposal restore it; late events from an old voice owner
 cannot unduck its successor. Home, background and blur release music players;
-returning starts the current theme again. Audio position is not persisted.
+returning resumes the current theme from its in-session position on a fresh
+player. The position is held in memory and is not persisted across process death.
+The shared engine test "leaving the foreground stops at once; coming back waits,
+then resumes where it was" verifies position recovery; the emulator scenario
+checks background release, foreground playback and unchanged saved games.
 
 ## Assets and rights
 
@@ -78,7 +82,7 @@ it is not a human listening assessment.
 On DiceChessTVProbe (Android TV API 31, ARM64), the music smoke passed all four
 groups: menu/calm native playback; mute and remembered level surviving force-stop;
 exact friend rolled-turn recovery; tutorial speech ducking and exit restoration;
-Home release and foreground theme restart; exact bot rolled-turn recovery; and
+Home release and foreground theme playback; exact bot rolled-turn recovery; and
 the result-jingle pause surviving immediate return home. These are real remote
 D-pad/OK/Back/Home transitions. The final measured result gap was 2,557 ms.
 The eight Settings rows fit on screen.
@@ -101,3 +105,19 @@ Vega runtime was not exercised in this slice.
 Local evidence is ignored under `android-probe/build/music-smoke/` and the
 corresponding `music-voices`, `music-effects`, `music-burst` and `music-about`
 folders. See their JSON event streams, screenshots and logcat output.
+
+## Review follow-up: October 31, 2026
+
+The Music smoke's second enable/gain check now captures the event count before
+changing Music and accepts only subsequent native volume events. The README and
+this report distinguish in-session music-position recovery (shared engine test)
+from persistence across process death. The redundant `Player` alias was removed;
+all engine references use `MusicPlayer` directly, with no runtime logic change.
+
+`mise run check`, Android typecheck/lint and all 73 Android tests passed again.
+ARM64 Android and all configured Vega architectures built successfully. The APK
+hash remains the same as above. On the API 31 ARM64 Android TV emulator, all four
+Music groups passed again with the fresh-event gain check, speech duck/recovery,
+background release/return, exact friend/bot save recovery and result-jingle hold.
+The other four smoke suites were not repeated for these review corrections.
+Evidence is ignored under `android-probe/build/music-review-519/`.

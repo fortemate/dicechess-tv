@@ -461,8 +461,10 @@ Initial gain and mute are applied before any track can play.
 One app-lifetime Android service adapts Expo Audio to the shared engine.
 Speech ducks music by 9 dB; completion, cancellation and voice-owner disposal
 restore it. Home, blur and background release the music players. Returning
-starts the current theme again without changing the saved game or resuming
-the old audio position. Music settings do not write the game snapshot.
+resumes the current theme from its in-session position on a fresh player
+(shared engine tests); that position is not persisted across process death.
+The Android TV emulator checks verify background release, foreground playback
+and unchanged saved games. Music settings do not write the game snapshot.
 
 All four existing MP3s and their original license are hash-checked and bundled
 offline, with canonical attribution in About. The permission is for this same

@@ -55,7 +55,6 @@ export type MusicPlayer = {
   addEventListener(event: string, listener: () => void): void;
   removeEventListener(event: string, listener: () => void): void;
 };
-type Player = MusicPlayer;
 
 export type Clock = {
   now(): number;
@@ -67,7 +66,7 @@ export type Clock = {
 
 export type MusicOptions = MusicConfig & {
   // Injected by tests, which cannot hear and cannot wait.
-  createPlayer: () => Player;
+  createPlayer: () => MusicPlayer;
   clock?: Clock;
   // Where the build puts the music: assets/music is /pkg/assets/music.
   root?: string;
@@ -110,7 +109,7 @@ const realClock: Clock = {
 
 type Voice = {
   // The player of the pass on this voice, or null while it is silent.
-  player: Player | null;
+  player: MusicPlayer | null;
   role: MusicRole | null;
   track: Track | null;
   // Where the fade is, 0 to 1, and where it is heading. It moves a whole way
@@ -221,7 +220,7 @@ export function createMusic({
   const which = (voice: Voice) => voices?.indexOf(voice) ?? -1;
 
   // Constructed spares have no native pipeline until a pass is requested.
-  const spares: Player[] = [];
+  const spares: MusicPlayer[] = [];
 
   // A voice that stops lets its player go: one that has loaded a track keeps
   // working even paused.
@@ -643,7 +642,7 @@ export function createMusic({
   // Keeps lightweight players ready; native initialization waits for a pass.
   function refill() {
     while (spares.length < SPARE_PLAYERS) {
-      let player: Player;
+      let player: MusicPlayer;
       try {
         player = createPlayer();
       } catch (error) {
