@@ -14,6 +14,9 @@ A bounded engineering prototype based on `next`. It exercises platform boundarie
 
 The home screen, diagnostics, SVG gallery and game each use a single native focus target. D-pad changes the selection; `Pressable` supplies completed OK presses. Back leaves the app from home, returns from the gallery, pauses/deselects in the game, or cancels pending work/audio in diagnostics. Back in diagnostics returns home when no worker or audio player remains. The emulator checks cover discrete key presses; held-key behavior, accessibility and physical remote behavior remain separate work.
 
+See [the Android TV regression report](regression-validation.md) for the
+cross-feature emulator run, remaining Vega differences and qualification limits.
+
 ## Reproduce
 
 Use Node from the repository's `mise.toml`, JDK 17, and an Android SDK. The initial native build downloads Gradle, Android dependencies, NDK 27.1.12297006 and CMake. Allow several GB of free disk space beyond the SDK/emulator installation.
