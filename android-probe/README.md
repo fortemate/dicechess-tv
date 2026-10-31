@@ -50,16 +50,40 @@ python3 scripts/smoke.py --serial <serial>
 
 `npm run bundle` creates a standalone Android JS export for a cheaper Metro check. Native compatibility still requires the APK build and device checks. CI builds a local-test APK on PRs and relevant `next` pushes; it does not deploy, upload an APK, release, or modify the contest site.
 
+## First launch
+
+On a new profile, Thinkle offers **Learn to play** or **Skip** before home.
+The board, portrait, captions, voice lines, choices and navigation use Vega's
+existing components and reducer. Learn to play is selected initially; D-pad
+wraps between the choices. OK opens lesson one or home. Back answers Skip and
+returns home without exiting the app.
+
+The answer is saved in the Android settings store before leaving the offer.
+Navigation alone does not answer it: an unanswered offer appears again after
+a process restart. Current or legacy game data, even unreadable data, suppresses
+the offer without changing the saved game. An explicit Start fresh reset also
+identifies a returning player. Failed startup reads bypass onboarding; a failed
+answer write shows a retry message and keeps the offer available. Engineering
+diagnostic links bypass onboarding.
+
+Mounted Android tests cover eligibility, persistence, rapid repeated input and
+read/write failures. `tutorial-offer-smoke.py` on Android TV API 31 checks the
+real upgrade profile and a separate clean emulator profile. See
+[tutorial-offer-validation.md](tutorial-offer-validation.md) for reproduction,
+observations and limits. Physical remotes, TalkBack and Vega runtime have not
+been qualified by this Android change.
+
 ## Home screen
 
-The APK launches into **Dice Chess**. Its supported menu entries use the Vega
+After the first-launch offer, the APK opens the **Dice Chess** home screen.
+Its supported menu entries use the Vega
 menu definitions, labels and order: **Resume game** (when a current unfinished
 game exists), **Play a friend**, **Play the computer**, **Learn to play**, **Rules reference**, **Settings**, and **About**.
 Settings exposes the same eight controls as Vega; see Settings below.
 
 There is one current game, regardless of opponent or two-player mode. D-pad
 moves the highlight, OK selects, and Back leaves the app. Returning from a game
-restores the selected home row. A cold launch stays on home without mounting a
+restores the selected home row. A returning player's cold launch stays on home without mounting a
 game, playing effects or starting the bot. Resume restores the exact saved turn.
 
 Play a friend and Play the computer enter Vega's shared home actions. Switching
@@ -184,14 +208,14 @@ The closing screen offers **Play Rolly** (as White), **Play a friend**, and
 **Main menu**. The first two enter Vega's shared new-game action and ask for
 Cancel/Yes before replacing an unfinished game. Cancel or Back preserves the
 save; Yes persists the chosen new game. A fresh or ended game starts directly.
-Leaving the tutorial or canceling replacement restores the Learn to play home
+Leaving a tutorial opened from home or canceling replacement restores the Learn to play home
 selection. Reopening starts at lesson one. System Home/return keeps the current
 lesson in memory. After process death the app returns home, where Resume game
 restores the saved real game.
 
 The shared tutorial sequences local Thinkle recordings using decoder completion
-callbacks and honors Voices mute/volume. The first-launch tutorial offer remains
-separate Android work. Thinkle uses the shared Teacher and Portrait components with the pinned
+callbacks and honors Voices mute/volume. The first-launch offer uses the same
+speech adapter. Thinkle uses the shared Teacher and Portrait components with the pinned
 local Android image pack. See [portrait validation](portraits-validation.md).
 The tutorial voice behavior is covered by the [speech unit tests](test/speech.test.ts)
 and an Android TV emulator run of the [voice smoke test](scripts/voices-smoke.py).
