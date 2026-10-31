@@ -6,7 +6,15 @@ import { act } from 'react-test-renderer';
 import { createActivity } from '../src/activity';
 import type { KeyValueStore } from '../src/keyValueStore';
 import type { Music } from '../src/audio';
-import { mount, unmount, send, text, silentMusic } from './support';
+import {
+  mount,
+  unmount,
+  send,
+  text,
+  silentMusic,
+  isHost,
+  styleOf,
+} from './support';
 import { focusedLabel } from './options';
 import { MENU_OPTION, FRESH_OPTION, RECOVERY_TITLE } from '../src/Recovery';
 import { pressBack } from './stubs/react-native-kepler.mjs';
@@ -225,6 +233,14 @@ test('failed reset writes or deletion keep Recovery retryable without overwritin
     assert.deepEqual(h.writes, []);
     assert.equal(h.values.get('game.v1'), 'exact saved partial turn');
     assert.match(text(h.root), /Could not reset/);
+    const error = h.root.find(
+      (node) =>
+        isHost(node, 'Text') &&
+        String(node.props.children).startsWith('Could not reset'),
+    );
+    // The renderer's 960 x 540 dp viewport keeps the error within the 5% safe area.
+    assert.equal(styleOf(error).paddingHorizontal, 48);
+    assert.equal(styleOf(error).paddingBottom, 27);
     assert.equal(focusedLabel(h.root), MENU_OPTION);
     h.failWrite(false);
     h.failDelete(true);

@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
-import { Text } from 'react-native';
+import { Text, useWindowDimensions } from 'react-native';
 import { GameBoundary, type Recovery } from '../../native/src/Recovery';
+import { safeInsets } from '../../native/src/layout';
 import type { Activity } from '../../native/src/activity';
 import type { KeyValueStore } from '../../native/src/keyValueStore';
 import { RemoteSurface } from './RemoteSurface';
@@ -31,6 +32,8 @@ export function RecoveryBoundary({
   const [attempt, setAttempt] = useState(0);
   const [fallbackAttempt, setFallbackAttempt] = useState(0);
   const [error, setError] = useState('');
+  const { width, height } = useWindowDimensions();
+  const insets = safeInsets(width, height);
   /** Stop the app-lifetime music while React disposes the failed screen's services. */
   const failed = (failure: unknown) => {
     music.setRole(null);
@@ -75,8 +78,8 @@ export function RecoveryBoundary({
               style={{
                 color: '#ffffff',
                 fontSize: 20,
-                paddingHorizontal: 48,
-                paddingBottom: 24,
+                paddingHorizontal: insets.x,
+                paddingBottom: insets.y,
               }}
             >
               {error}

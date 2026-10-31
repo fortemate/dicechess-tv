@@ -501,16 +501,19 @@ evidence, reproduction and limits.
 Routed screens are protected by Vega's `GameBoundary`. A React render failure
 shows **Something went wrong**, with **Back to the menu** selected by default.
 Android supplies a fresh remote surface after the failed screen unmounts.
-The failed game's speech, effects and worker are disposed; app-lifetime music
-stays silent on the fallback, including after Home/return.
+`recovery-smoke.py` on the Android TV API 31 emulator verifies disposal of the
+failed game's speech, effects and worker, and silent app-lifetime music on the
+fallback, including after Home/return.
 
 OK on Back to the menu returns home with Resume game focused and the exact save
 kept. Directions alone change only the selection. Choosing **Start fresh** with
 OK clears the current `game.v1` slot; settings and both older game namespaces
 are retained. A marker prevents those retained legacy games from being offered
-for migration again after the explicit reset. A storage failure keeps the
-fallback available for retry or return to the menu. Back delegates to Android's
-normal exit behavior. A normal cold launch opens home over the existing save.
+for migration again after the explicit reset. Mounted tests verify reset ordering,
+storage-failure retry and preserving recovery. The Android TV API 31 emulator
+smoke verifies Back's normal exit behavior and restoration of the existing save
+on a normal cold launch. Vega runtime, physical remotes and TalkBack have not
+been verified for this Recovery change.
 
 The engineering fault link triggers a real render exception without injecting
 a position, roll, save or preference:

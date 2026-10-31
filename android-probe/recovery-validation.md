@@ -83,3 +83,32 @@ including persisted mute/volume, ducking, lifecycle release and result timing.
 
 Evidence is ignored under `android-probe/build/recovery/` and
 `android-probe/build/recovery-music/`.
+
+## PR review validation: October 31, 2026
+
+README now names the Android TV API 31 emulator smoke and mounted tests next to
+the runtime claims, with the unverified platforms and input/accessibility paths
+stated explicitly. Reset-error text uses the shared `safeInsets` helper and
+current window dimensions. The existing mounted storage-failure test verifies
+48 dp horizontal and 27 dp bottom padding for its 960 x 540 dp viewport. The
+emulator smoke does not simulate a storage failure; that footer's layout is
+verified by the mounted test.
+
+- Repeated `mise run check`: 337 core, 743 native and 13 browser tests passed,
+  along with types, lint, formatting, Vega Metro bundle and browser build.
+- Android types/lint and all 76 tests passed. Native types and all six mounted
+  Android regressions also passed in the clean native CI fixture without
+  Android dependencies.
+- Android ARM64 and all configured Vega architectures built successfully.
+  Installed APK SHA-256:
+  `82f238c9e858f187d84abb4473dcf90d700fc82b525cc0ff950f6bc986e30f89`.
+- Repeated all four Recovery smoke groups on DiceChessTVProbe (Android TV
+  API 31, ARM64). Exact friend/bot partial-turn recovery, explicit reset,
+  preference retention, service disposal, Home/Back/cold launch and subsequent
+  gameplay passed. Recovery, Start fresh and Home/return screenshots were
+  visually inspected.
+
+The new smoke evidence is ignored under
+`android-probe/build/recovery-review-521/`. The separate Music smoke was not
+repeated for these documentation and error-layout corrections. Physical
+remotes, TalkBack and Vega runtime were not tested in this follow-up.
