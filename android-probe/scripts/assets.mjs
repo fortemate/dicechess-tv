@@ -171,3 +171,29 @@ await writeFile(
 console.log(
   `Packaged ${clipEntries.length} canonical voice clips and ${voicePacks.size} licenses.`,
 );
+
+// Keep the same game's adaptive music, original metadata and author notice.
+const music = JSON.parse(
+  await readFile(
+    new URL('../../native/music/music.json', import.meta.url),
+    'utf8',
+  ),
+);
+const musicEntries = [];
+for (const [file, hash] of Object.entries(music.files)) {
+  const bytes = await readFile(
+    new URL(`../../native/music/${music.pack}/${file}`, import.meta.url),
+  );
+  if (createHash('sha256').update(bytes).digest('hex') !== hash)
+    throw new Error(`Pinned music changed: ${file}`);
+  await mkdir(`${root}assets/music/${music.pack}`, { recursive: true });
+  await writeFile(`${root}assets/music/${music.pack}/${file}`, bytes);
+  musicEntries.push(
+    `${JSON.stringify(music.pack + '/' + file)}: require(${JSON.stringify('./music/' + music.pack + '/' + file)})`,
+  );
+}
+await writeFile(
+  `${root}assets/music-assets.js`,
+  `exports.assets = {${musicEntries.join(',\n')}};\nexports.catalogue = ${JSON.stringify({ tracks: music.tracks })};\n`,
+);
+console.log('Packaged four pinned music tracks and original metadata/notice.');

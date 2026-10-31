@@ -98,3 +98,6 @@ export type AudioServices = {
   // Resolve null for missing, unreadable or invalid music, rather than reject.
   loadCatalogue(): Promise<Catalogue | null>;
 };
+
+// Let the result jingle finish before the menu music returns.
+export const RESULT_SILENCE_MS = 2500;

@@ -30,11 +30,13 @@ def settings_wait(since=0):
     raise AssertionError('No settings report')
 
 
-def enter():
+def enter(index=0):
     """Open Settings through the home menu and await a fresh report."""
     before = len(h.events('AndroidSettings'))
     h.home_select('settings')
-    return settings_wait(before)
+    result = settings_wait(before)
+    for _ in range(index): result = change(20)
+    return result
 
 
 def change(code):
@@ -107,7 +109,7 @@ def main():
         h.adb('shell', 'am', 'force-stop', h.package)
         h.adb('logcat', '-c')
         h.open_home()
-        enter()
+        enter(1)
         assert not h.events(), 'Settings must not mount a game or worker'
         level(5)
         for code in (19, 20):
@@ -119,11 +121,11 @@ def main():
         h.snapshot('settings-volume.png')
         assert change(23) == {'on': False, 'volume': 5}
         restart()  # No Back, blur or lifecycle save is needed.
-        assert enter() == {'on': False, 'volume': 5}
+        assert enter(1) == {'on': False, 'volume': 5}
         h.snapshot('settings-muted-restored.png')
         assert change(23) == {'on': True, 'volume': 5}
         restart()
-        assert enter() == {'on': True, 'volume': 5}
+        assert enter(1) == {'on': True, 'volume': 5}
         checks.append('directions, mute and remembered volume survive immediate process death')
 
         h.key(3)
@@ -145,7 +147,7 @@ def main():
             state = human_move()
             saved = state['game']
             h.return_home(state)
-            enter()
+            enter(1)
             level(4)
             change(23)
             restart()
@@ -155,7 +157,7 @@ def main():
             state = h.move(state)
             h.silent_since(before)
             h.return_home(state)
-            assert enter() == {'on': False, 'volume': 4}
+            assert enter(1) == {'on': False, 'volume': 4}
             change(23)
             leave()
             before = len(h.events('AndroidEffects'))

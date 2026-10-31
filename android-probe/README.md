@@ -110,15 +110,15 @@ See [home-validation.md](home-validation.md) for the build, evidence and limits.
 
 ## Settings
 
-Open **Settings** from home to adjust **Sounds**, **Voices**, **Highlights**,
+Open **Settings** from home to adjust **Music**, **Sounds**, **Voices**, **Highlights**,
 **Auto-play only move**, **Play as**, **Turn board for friends**, and
 **Host for friends**.
 See [gameplay settings validation](game-settings-validation.md). Android and Vega render the
 same `SettingsPanel`, labels, volume rings and remote hints. Left/Right changes
 the selected value; OK toggles switches or cycles Highlights, Play as and Host for friends, and mutes/restores
-the remembered Sounds level. Up/Down selects a row, and Back restores focus
+the remembered Music, Sounds or Voices level. Up/Down selects a row, and Back restores focus
 to Settings in home. System
-Home/return keeps the panel open. Music remains separate work.
+Home/return keeps the panel open. Music follows the app lifecycle; see Music below.
 
 Canonical stepping and mute behavior are reused. Android writes mute and volume
 as one JSON value in a separate MMKV settings store before publishing it. Old
@@ -145,9 +145,8 @@ See [settings-validation.md](settings-validation.md) for evidence and limits.
 Open **About** from home for the game name, maker, asset authors and source
 address. It reuses Vega's `AboutScreen` and remote behavior with content supplied
 by the Android build: shared RhosGFX pieces and fallback faces, JDSherbert piece
-sounds, and Kenney dice/result sounds. Author names, licenses and links retain
-the canonical credit wording. Music is absent from this prototype, so its card
-is omitted. Android does not attempt Vega's hidden portrait-file probe.
+sounds, Kenney dice/result sounds, and pepka-prygni music. Author names, licenses and links retain
+the canonical credit wording. Android does not attempt Vega's hidden portrait-file probe.
 
 The source row points to the repository and its asset notices. It does not claim
 that complete dependency licenses ship in this prototype APK: generating and
@@ -255,7 +254,7 @@ Cursor movement does not write the save. Home, return to diagnostics and process
 restart preserve the canonical snapshot, including the partial turn and spent
 dice. Corrupt saves and storage failures show an error and keep the existing
 save; the slice does not silently reset data or implement a damaged-save recovery
-menu. Music and accessibility qualification remain
+menu. Accessibility qualification remains
 separate work. See [hotseat-validation.md](hotseat-validation.md) for observed
 results and input limits.
 
@@ -264,7 +263,7 @@ no-move and result effects through Expo Audio. Effects start only after the save
 succeeds; opening a saved game is silent. Home, window blur and leaving the game
 release active players and cancel delayed cues. Returning does not replay them.
 The TV's media volume remains unverified. The in-app Sounds control is available
-from home; see Settings above. Music remains separate work; character speech uses the Voices setting.
+from home; see Settings above. Music and character speech use their independent settings.
 
 After installing the APK, run the gameplay check from `android-probe/`, with Node
 from mise on PATH:
@@ -399,7 +398,7 @@ No new sound assets, rights, dependencies or lockfile changes are introduced.
 
 ## Remaining gates
 
-See [validation.md](validation.md) for the original probe results, [svg-validation.md](svg-validation.md) for the SVG check, and [hotseat-validation.md](hotseat-validation.md) for the playable two-player slice. Full game parity, music crossfades/ducking, full audio interruption recovery, repeated audio stress, accessibility, held keys, device latency, actual Fire OS hardware, and all other ABIs remain separate work. No production platform adapter or workspace migration is approved by a successful probe alone.
+See [validation.md](validation.md) for the original probe results, [svg-validation.md](svg-validation.md) for the SVG check, and [hotseat-validation.md](hotseat-validation.md) for the playable two-player slice. Full game parity, human listening and loop-seam assessment, full audio interruption recovery, repeated audio stress, accessibility, held keys, device latency, actual Fire OS hardware, and all other ABIs remain separate work. No production platform adapter or workspace migration is approved by a successful probe alone.
 
 ## Character portraits and opponent cards
 
@@ -441,7 +440,7 @@ player, replaces stale lines, waits for decoder completion plus Vega's tail
 before advancing tutorial speech, and releases playback on menus, exit,
 background and blur. A returning tutorial restarts its current instruction;
 gameplay does not replay a canceled line. Effects and voice mute are independent.
-Music ducking remains part of the later music adapter.
+Music ducks while a native voice player is speaking and recovers when that line ends or is canceled.
 These voice behaviors are covered by the [speech unit tests](test/speech.test.ts)
 and an Android TV emulator run of the [voice smoke test](scripts/voices-smoke.py);
 Vega Virtual Device and physical-device validation remain pending.
@@ -449,3 +448,26 @@ Vega Virtual Device and physical-device validation remain pending.
 All 446 canonical recordings and nine original licenses are packaged offline.
 Asset generation verifies their canonical hashes; no new recordings are made.
 See [Voices validation](voices-validation.md) for evidence and limits.
+
+## Music
+
+Music reuses Vega's state selection and shared adaptive engine: menu, calm,
+tense and critical themes, crossfades, pinned loop points, track gain and the
+2.5-second result-jingle gap. Settings uses the same default level 7, 3 dB
+steps and remembered mute/volume controls. A single `music.v1` JSON value is
+written before the change is published; legacy preferences remain readable.
+Initial gain and mute are applied before any track can play.
+
+One app-lifetime Android service adapts Expo Audio to the shared engine.
+Speech ducks music by 9 dB; completion, cancellation and voice-owner disposal
+restore it. Home, blur and background release the music players. Returning
+starts the current theme again without changing the saved game or resuming
+the old audio position. Music settings do not write the game snapshot.
+
+All four existing MP3s and their original license are hash-checked and bundled
+offline, with canonical attribution in About. The permission is for this same
+Dice Chess game; it does not grant general music reuse rights. Keep the original
+notice with internal APK handoffs. No tracks, dependencies or lockfiles change.
+
+See [Music validation](music-validation.md) for emulator evidence, reproduction
+and remaining listening/device checks.

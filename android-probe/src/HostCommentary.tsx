@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { View } from 'react-native';
 import type { Game } from '../../src/core/game';
 import { useBotVoice } from '../../native/src/useBotVoice';
-import { useDanger } from '../../native/src/useDanger';
+import type { Level } from '../../src/core/danger';
 import type { SpokenLine } from '../../native/src/audio';
 import type { TutorialVoice } from '../../native/src/useTutorialVoice';
 import { speechTiming, LINE_START_MS } from '../../native/src/speechTiming';
@@ -23,13 +23,14 @@ export function HostCommentary({
   host,
   live,
   voice,
+  level = 'calm',
 }: {
   game: Game;
   host: HostChoice;
   live: boolean;
   voice?: TutorialVoice;
+  level?: Level;
 }) {
-  const level = useDanger(game, undefined, false);
   const holdMs = (line: SpokenLine) => {
     const timing = speechTiming(line);
     return timing ? timing.ms + timing.delayMs + LINE_START_MS : 0;

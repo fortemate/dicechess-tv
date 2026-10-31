@@ -34,7 +34,7 @@ def voice_wait(event, since, prefix=''):
 def level4(on=True):
     """Set remembered voice level 4 through Left/Right/OK on the voice row."""
     s.enter()
-    s.change(20)
+    s.change(20); s.change(20)
     if full()['voices']['on']: s.change(23)
     s.change(22)
     for _ in range(3): s.change(22)
@@ -48,8 +48,8 @@ def level4(on=True):
 def host_choice(choice):
     """Choose a host through its real Settings row."""
     s.enter()
-    for _ in range(6): s.change(20)
-    assert full()['index'] == 6
+    for _ in range(7): s.change(20)
+    assert full()['index'] == 7
     for _ in range(4):
         if full()['host'] == choice: break
         s.change(22)
@@ -102,7 +102,7 @@ try:
     checks.append('voice mute/remembered level survive force-stop; muted tutorial keeps captions and the exact friend game')
 
     level4()
-    s.enter()
+    s.enter(1)
     sound_on = full()['sound']['on']
     if sound_on: s.change(23)
     s.leave()
@@ -183,7 +183,7 @@ try:
     h.return_home(state)
     checks.append('tutorial advances speech only after decoder completion; step change, Home and exit cancel playback; exact bot game survives')
 
-    s.enter()
+    s.enter(1)
     assert full()['voices'] == {'on': True, 'volume': 4}
     if full()['sound']['on'] != sound_on: s.change(23)
     s.leave()

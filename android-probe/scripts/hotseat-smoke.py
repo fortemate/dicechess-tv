@@ -173,12 +173,12 @@ def configure_play_as(choice):
     before = len(events('AndroidSettings'))
     home_select('settings')
     state = current(before)
-    for _ in range(7):
-        if state['index'] == 4: break
+    for _ in range(8):
+        if state['index'] == 5: break
         before = len(events('AndroidSettings'))
         key(20)
         state = current(before)
-    assert state['index'] == 4
+    assert state['index'] == 5
     for _ in range(4):
         if state['playAs'] == choice: break
         before = len(events('AndroidSettings'))
