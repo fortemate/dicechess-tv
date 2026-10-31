@@ -53,8 +53,8 @@ try:
         s.restart()
         s.enter()
         assert latest()['playAs'] == choice
-        s.change(20); s.change(20); s.change(20)
-        assert latest()['index'] == 3
+        s.change(20); s.change(20); s.change(20); s.change(20)
+        assert latest()['index'] == 4
         h.snapshot(f'settings-{choice}.png')
         s.leave()
         state = s.choose('resume')

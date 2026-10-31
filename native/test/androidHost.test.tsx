@@ -5,6 +5,7 @@ import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 import { HOST_CATALOGUE } from '../../src/core/hostVoice';
 import { newGame } from '../../src/core/game';
+import { BUBBLE_CHROME, BUBBLE_LINE, BUBBLE_ROWS } from '../src/SpeechBubble';
 import { isHost } from './support';
 
 const slot = Symbol.for('android-host-presentation-test');
@@ -69,12 +70,16 @@ test('Android host reserves its space after a caption expires and hides behind m
       tree.update(<HostCommentary game={game} host="off" live />);
     });
     assert.equal(space(), undefined);
+    const bot = newGame('random', 'bot');
     act(() => {
-      tree.update(
-        <HostCommentary game={newGame('random', 'bot')} host="prowla" live />,
-      );
+      tree.update(<HostCommentary game={bot} host="prowla" live />);
     });
-    assert.equal(space(), undefined);
+    assert.equal(blocks().length, 0);
+    assert.equal(space()?.height, BUBBLE_ROWS * BUBBLE_LINE + BUBBLE_CHROME);
+    act(() => {
+      tree.update(<HostCommentary game={bot} host="prowla" live={false} />);
+    });
+    assert.equal(tree.root.findAll((node) => isHost(node, 'View')).length, 0);
   } finally {
     act(() => tree.unmount());
     Reflect.deleteProperty(globalThis, slot);

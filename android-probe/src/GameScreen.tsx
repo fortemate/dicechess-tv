@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { OpponentScreen } from '../../native/src/OpponentScreen';
 import { Portrait, PORTRAIT_OF } from '../../native/src/Portrait';
+import { useAndroidVoice } from './useAndroidVoice';
 import { HostCommentary } from './HostCommentary';
 import { Board } from '../../native/src/Board';
 import { Dice } from '../../native/src/Dice';
@@ -162,6 +163,7 @@ function Game({
   intent: GameIntent;
   exitLabel: string;
 }) {
+  const voice = useAndroidVoice(activity);
   const [opened] = useState(() => makeSession(mode, intent));
   const [state, setState] = useState(() => opened.session?.getState());
   const [error, setError] = useState(opened.error);
@@ -256,6 +258,10 @@ function Game({
       scope: `${state?.overlay.kind}:${state?.game.revision}:${state?.focus.selected}`,
     },
   );
+  useEffect(() => {
+    if (state?.overlay.kind !== 'none' && state?.overlay.kind !== 'result')
+      voice.stopLine();
+  }, [state?.overlay.kind, voice]);
   useEffect(() => {
     if (state?.overlay.kind === 'home') onExit();
   }, [state?.overlay.kind, onExit]);
@@ -417,8 +423,11 @@ function Game({
         )}
         <HostCommentary
           game={game}
+          voice={voice}
           host={state.host}
-          live={overlay.kind === 'none' && !error}
+          live={
+            (overlay.kind === 'none' || overlay.kind === 'result') && !error
+          }
         />
         <Text style={styles.saved}>
           {saved

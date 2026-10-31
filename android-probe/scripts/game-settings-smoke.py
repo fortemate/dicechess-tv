@@ -26,13 +26,13 @@ try:
     h.adb('logcat', '-c')
     h.open_home()
     enter()
-    row(2)
+    row(3)
     change(21)
-    row(4)
+    row(5)
     change(22)
     change(22)
     assert full()['turnHotseat'] is True
-    row(1)
+    row(2)
     start = full()['highlights']
     for _ in range(4):
         change(22)
@@ -52,7 +52,7 @@ try:
     saved = state['game']
     h.return_home(state)
     enter()
-    row(1)
+    row(2)
     change(21)
     chosen = full()['highlights']
     restart()
@@ -87,7 +87,7 @@ try:
     saved = state['game']
     h.return_home(state)
     enter()
-    row(2)
+    row(3)
     change(23)
     assert full()['autoSelect']
     restart()
@@ -102,11 +102,11 @@ try:
     checks.append('persisted auto-play executes a sole legal move without game-screen keys')
     h.return_home(advanced)
     enter()
+    row(3)
+    change(21)
+    row(5)
+    change(21)
     row(2)
-    change(21)
-    row(4)
-    change(21)
-    row(1)
     while full()['highlights'] != 'standard':
         change(22)
     leave()

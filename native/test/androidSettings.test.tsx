@@ -56,7 +56,7 @@ test('Android settings route batched repeats and value keys before React commits
   try {
     // One act batch prevents a render between navigation and the value event.
     act(() => {
-      hold('down', 2);
+      hold('down', 3);
       release('down');
       press('right');
     });
@@ -64,7 +64,7 @@ test('Android settings route batched repeats and value keys before React commits
     assert.equal(store.getString('dicechess-tv.highlights.v1'), undefined);
     assert.equal(store.getString('sound.v1'), undefined);
     act(() => {
-      hold('up', 7);
+      hold('up', 8);
       release('up');
       press('left');
     });
@@ -93,6 +93,15 @@ test('Android settings route batched repeats and value keys before React commits
     });
     assert.equal(store.getString('dicechess-tv.host.v1'), 'rolly');
     assert.equal(store.getString('dicechess-tv.turnBoard.v1'), undefined);
+    act(() => {
+      hold('down', 2);
+      release('down');
+      press('select');
+    });
+    assert.deepEqual(JSON.parse(store.getString('voices.v1')!), {
+      on: false,
+      volume: 10,
+    });
   } finally {
     unmount();
   }

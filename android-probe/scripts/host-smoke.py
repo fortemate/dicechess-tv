@@ -20,8 +20,8 @@ def setting():
 def configure(choice):
     """Reach the Host row and change it using only normal remote keys."""
     s.enter()
-    for _ in range(5): s.change(20)
-    assert setting()['index'] == 5
+    for _ in range(6): s.change(20)
+    assert setting()['index'] == 6
     for _ in range(4):
         if setting()['host'] == choice: break
         s.change(22)
