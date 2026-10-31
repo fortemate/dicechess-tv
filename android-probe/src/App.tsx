@@ -11,6 +11,7 @@ import { HomeScreen } from './HomeScreen';
 import { useAndroidMusic } from './useAndroidMusic';
 import { MusicContext } from './MusicContext';
 import { RecoveryBoundary } from './RecoveryBoundary';
+import { FirstLaunch } from './FirstLaunch';
 import type { HomeItem } from './homeMenu';
 
 /** Explicit engineering fault link exercises a real render failure without modifying saved data. */
@@ -135,7 +136,17 @@ export default function App() {
           goHome();
         }}
       >
-        {fault ? <RecoveryFault /> : screen()}
+        {fault ? (
+          <RecoveryFault />
+        ) : ready ? (
+          <FirstLaunch
+            activity={activity}
+            enabled={route === null}
+            onLearn={() => setRoute({ kind: 'tutorial' })}
+          >
+            {screen()}
+          </FirstLaunch>
+        ) : null}
       </RecoveryBoundary>
     </MusicContext.Provider>
   );
