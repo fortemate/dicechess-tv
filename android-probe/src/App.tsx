@@ -10,8 +10,15 @@ import { About } from './About';
 import { HomeScreen } from './HomeScreen';
 import { useAndroidMusic } from './useAndroidMusic';
 import { MusicContext } from './MusicContext';
+import { RecoveryBoundary } from './RecoveryBoundary';
 import type { HomeItem } from './homeMenu';
 
+/** Explicit engineering fault link exercises a real render failure without modifying saved data. */
+function RecoveryFault(): React.ReactElement {
+  throw new Error('Requested diagnostic render failure');
+}
+
+/** Own route recovery and app-lifetime music while keeping platform lifecycle subscriptions stable. */
 export default function App() {
   const [activity] = useState(() =>
     createActivity(AppState.currentState === 'active'),
@@ -21,11 +28,16 @@ export default function App() {
     HomeItem['action'] | { kind: 'diagnostics' } | null
   >(null);
   const [ready, setReady] = useState(false);
+  const [recovering, setRecovering] = useState(false);
+  const [fault, setFault] = useState(false);
   useEffect(() => {
     let mounted = true;
+    /** Accept only explicit engineering links; ordinary launches keep the current route. */
     const open = (url: string | null) => {
       if (mounted && url === 'dicechess-probe://diagnostics')
         setRoute({ kind: 'diagnostics' });
+      if (mounted && url === 'dicechess-probe://diagnostics/recovery')
+        setFault(true);
     };
     const link = Linking.addEventListener('url', ({ url }) => open(url));
     void Linking.getInitialURL()
@@ -59,8 +71,11 @@ export default function App() {
     };
   }, [activity]);
   useEffect(() => {
-    if (route?.kind !== 'game') music.music.setRole('menu');
-  }, [route?.kind, music.music]);
+    if (recovering) {
+      music.music.setRole(null);
+      music.music.setSuspended(true);
+    } else if (route?.kind !== 'game') music.music.setRole('menu');
+  }, [route?.kind, music.music, recovering]);
   const screen = () => {
     if (!ready) return null;
     if (route?.kind === 'diagnostics')
@@ -109,6 +124,19 @@ export default function App() {
     );
   };
   return (
-    <MusicContext.Provider value={music}>{screen()}</MusicContext.Provider>
+    <MusicContext.Provider value={music}>
+      <RecoveryBoundary
+        activity={activity}
+        onFailure={() => setRecovering(true)}
+        onRecover={() => {
+          setFault(false);
+          setRecovering(false);
+          homeFocus.current = undefined;
+          goHome();
+        }}
+      >
+        {fault ? <RecoveryFault /> : screen()}
+      </RecoveryBoundary>
+    </MusicContext.Provider>
   );
 }

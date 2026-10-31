@@ -76,7 +76,8 @@ select a game to carry forward. Its exact validated snapshot is copied before
 continuing. Both old namespaces (`dicechess-android-hotseat` and
 `dicechess-android-bot`) remain untouched, including the unselected game or
 invalid data. They are retained for recovery; the normal menu uses only the new
-current slot. A successful migration is not repeated on later launches.
+current slot. A successful migration is not repeated on later launches. Explicit Start fresh
+also records that retained legacy saves should not be offered again.
 A write failure leaves the choice available for retry. Invalid legacy data is
 reported without replacing it. There is no in-app archive/recovery browser yet.
 
@@ -255,7 +256,8 @@ Cursor movement does not write the save. Home, return to diagnostics and process
 restart preserve the canonical snapshot, including the partial turn and spent
 dice. Corrupt saves and storage failures show an error and keep the existing
 save; the slice does not silently reset data or implement a damaged-save recovery
-menu. Accessibility qualification remains
+menu. Render failures use the shared Recovery screen described below.
+Accessibility qualification remains
 separate work. See [hotseat-validation.md](hotseat-validation.md) for observed
 results and input limits.
 
@@ -493,3 +495,38 @@ game snapshot. Invalid preference reads or failed writes preserve the save.
 
 See [in-game Settings validation](in-game-settings-validation.md) for emulator
 evidence, reproduction and limits.
+
+## Recovery from rendering errors
+
+Routed screens are protected by Vega's `GameBoundary`. A React render failure
+shows **Something went wrong**, with **Back to the menu** selected by default.
+Android supplies a fresh remote surface after the failed screen unmounts.
+`recovery-smoke.py` on the Android TV API 31 emulator verifies disposal of the
+failed game's speech, effects and worker, and silent app-lifetime music on the
+fallback, including after Home/return.
+
+OK on Back to the menu returns home with Resume game focused and the exact save
+kept. Directions alone change only the selection. Choosing **Start fresh** with
+OK clears the current `game.v1` slot; settings and both older game namespaces
+are retained. A marker prevents those retained legacy games from being offered
+for migration again after the explicit reset. Mounted tests verify reset ordering,
+storage-failure retry and preserving recovery. The Android TV API 31 emulator
+smoke verifies Back's normal exit behavior and restoration of the existing save
+on a normal cold launch. Vega runtime, physical remotes and TalkBack have not
+been verified for this Recovery change.
+
+The engineering fault link triggers a real render exception without injecting
+a position, roll, save or preference:
+
+```sh
+adb -s <serial> shell am start -a android.intent.action.VIEW \
+  -d dicechess-probe://diagnostics/recovery \
+  -n com.fortemate.dicechesstv.probe/.MainActivity
+mise exec -- python3 android-probe/scripts/recovery-smoke.py \
+  --serial <serial> --output android-probe/build/recovery
+```
+
+The link is separate from the ordinary menu. Recovery covers React errors in
+the routed screens; existing handled load/save/worker errors keep their current
+messages. Native crashes and arbitrary asynchronous callback errors need their
+own handling. See [Recovery validation](recovery-validation.md) for evidence.
