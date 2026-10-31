@@ -53,6 +53,53 @@ python3 scripts/smoke.py --serial <serial>
 
 `npm run bundle` creates a standalone Android JS export for a cheaper Metro check. Native compatibility still requires the APK build and device checks. CI builds a local-test APK on PRs and relevant `next` pushes; it does not deploy, upload an APK, release, or modify the contest site.
 
+## Manual testing with a Mac keyboard
+
+Use an Android TV AVD with the APK installed. Close the emulator before changing
+its hardware configuration. In `~/.android/avd/<avd-name>.avd/config.ini`, set:
+
+```ini
+hw.keyboard = yes
+```
+
+Cold-start the same AVD so Android picks up the hardware keyboard:
+
+```sh
+"$ANDROID_HOME/emulator/emulator" -avd <avd-name> -no-snapshot
+```
+
+This retains the AVD's saved app data. Keep audio enabled for sound checks.
+Open **More (...) > Settings > General** in the emulator's side panel and set
+**Send keyboard shortcuts to** to **Virtual device**. Activate the emulator
+window by clicking its title bar before pressing keys.
+
+Launch the installed app from Android TV or with:
+
+```sh
+adb -s <serial> shell am start -n com.fortemate.dicechesstv.probe/.MainActivity
+```
+
+| Mac key        | App action                                                                                                                |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Up / Down      | Move the selection through menus and Settings rows, or move the board cursor.                                             |
+| Left / Right   | Move the board cursor, change the selected setting, or switch Rules reference pages.                                      |
+| Enter / Return | Send OK: select, confirm, roll or move according to the current screen.                                                   |
+| Esc            | Send Back: return, deselect a piece or open the game menu according to the current screen. Back from home leaves the app. |
+
+For a quick check without changing the current game, use Up/Down to select
+**Rules reference**, press Enter, switch pages with Right and Left, then press
+Esc to return to home. This sequence was manually verified with a Mac keyboard
+on the Android TV API 31 ARM64 emulator on October 31, 2026; app logs confirmed
+menu navigation, page changes and the return to home. It checks discrete presses,
+not held-key behavior or a physical TV remote.
+
+If the app does not respond, reactivate the emulator window, check both keyboard
+settings above and cold-start after a hardware configuration change. As a fallback,
+**More (...) > Directional pad** provides on-screen directions and OK, and the
+side panel has a Back button. See the official
+[Android Emulator controls documentation](https://developer.android.com/studio/run/emulator-extended-controls).
+Keep manual testing separate from smoke scripts that clear data or replace games.
+
 ## First launch
 
 On a new profile, Thinkle offers **Learn to play** or **Skip** before home.
