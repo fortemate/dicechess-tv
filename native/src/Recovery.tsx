@@ -112,6 +112,8 @@ export type GameBoundaryProps = {
   // behind it, which is how this screen goes away.
   onRecover: (choice: Recovery) => void;
   onState?: (report: string) => void;
+  // Supply a platform focus/input surface after the failed screen has unmounted.
+  renderFallback?: (screen: React.ReactNode) => React.ReactNode;
 };
 
 // Only a class can catch a render error. It catches the errors of everything
@@ -131,13 +133,17 @@ export class GameBoundary extends React.Component<
     this.props.onError(error);
   }
 
+  /** Keep the default recovery screen, allowing a platform to supply its input surface. */
   render() {
     if (!this.state.failed) return this.props.children;
-    return (
+    const screen = (
       <RecoveryScreen
         onRecover={this.props.onRecover}
         onState={this.props.onState}
       />
     );
+    return this.props.renderFallback
+      ? this.props.renderFallback(screen)
+      : screen;
   }
 }
