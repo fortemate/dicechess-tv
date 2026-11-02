@@ -197,6 +197,11 @@ the remembered Music, Sounds or Voices level. Up/Down selects a row, and Back re
 to the Settings row in the menu that opened it. Up from Resume game reaches
 in-game Settings in one press. System Home/return keeps the panel open. Music follows the app lifecycle; see Music below.
 
+Standalone Settings uses Vega's five-percent TV safe insets. The compact Back
+footer fits below the shared panel, including its reserved description row.
+See [tutorial and Settings parity validation](tutorial-settings-validation.md)
+for native text-bound measurements across all eight rows.
+
 Canonical stepping and mute behavior are reused. Android writes mute and volume
 as one JSON value in a separate MMKV settings store before publishing it. Old
 two-key preferences remain readable and are kept intact; the next successful
@@ -255,6 +260,11 @@ piece down first, then leaves the tutorial. A missed capture offers a retry.
 The lessons have their own fixed positions and rolls and receive no game store,
 ledger or bot worker. Starting, completing or leaving them does not change the
 current real game.
+
+Each entry reads the saved Highlights choice from the separate settings store
+and passes it to the shared tutorial board, as Vega does. Missing or invalid
+values use Standard without rewriting the stored value. See
+[tutorial and Settings parity validation](tutorial-settings-validation.md).
 
 The closing screen offers **Play Rolly** (as White), **Play a friend**, and
 **Main menu**. The first two enter Vega's shared new-game action and ask for
