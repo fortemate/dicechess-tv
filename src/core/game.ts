@@ -282,6 +282,23 @@ export function newGame(
     }),
   );
 }
+export const PAWN_DIE = 1;
+export const OPENING_TURNS = 2;
+
+// A turn's roll under the optional first-turn pawn rule (#534): on White's and
+// Black's first turns (turns 1 and 2) the first die is a pawn and the other two
+// keep the random roll's faces; on every later turn, or with the rule off, all
+// three dice are kept as rolled.
+export function openingRoll(
+  turn: number,
+  roll: readonly number[],
+  firstTurnPawn = false,
+): number[] {
+  return firstTurnPawn && turn <= OPENING_TURNS && roll.length === 3
+    ? [PAWN_DIE, roll[1], roll[2]]
+    : [...roll];
+}
+
 export function rollGame(game: Game, roll: number[]): Game {
   if (
     game.phase !== 'roll' ||

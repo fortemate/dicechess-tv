@@ -76,7 +76,7 @@ test('Random is the default, and anything unreadable reads as Random', () => {
 
 test('the Play as row steps through Ask, Random, White and Black, before the friend settings', () => {
   assert.deepEqual(
-    settingsOptions({ music: { on: true, volume: 7 } }).slice(5),
+    settingsOptions({ music: { on: true, volume: 7 } }).slice(6),
     [
       'Play as: Random',
       'Turn board for friends: off',
@@ -86,7 +86,7 @@ test('the Play as row steps through Ask, Random, White and Black, before the fri
   assert.equal(cyclePlayAs('random'), 'w');
   assert.equal(cyclePlayAs('b'), 'ask');
   assert.equal(cyclePlayAs('ask', -1), 'b');
-  // In Settings, without music in the build: the fifth row.
+  // In Settings, without music in the build: the sixth row.
   const settings = drive(
     home('random'),
     'down',
@@ -96,7 +96,7 @@ test('the Play as row steps through Ask, Random, White and Black, before the fri
     'select',
   );
   assert.equal(settings.overlay.kind, 'settings');
-  const row = drive(settings, 'down', 'down', 'down', 'down');
+  const row = drive(settings, 'down', 'down', 'down', 'down', 'down');
   assert.equal(drive(row, 'select').playAs, 'w');
   assert.equal(drive(row, 'right').playAs, 'w');
   assert.equal(drive(row, 'left').playAs, 'ask');
@@ -138,7 +138,7 @@ test('changing Play as from either menu leaves a running friend or computer game
       if (from === 'menu')
         state = drive(state, 'select', 'back', 'up', 'select');
       else state = drive(state, 'up', 'up', 'select');
-      state = drive(state, 'down', 'down', 'down', 'down');
+      state = drive(state, 'down', 'down', 'down', 'down', 'down');
       for (const expected of ['w', 'b', 'ask', 'random'] as const) {
         state = drive(state, 'select');
         assert.equal(state.playAs, expected);
@@ -265,6 +265,7 @@ test('in the app, the setting is read at launch, shown on the cards, and saved w
     'down',
     'down',
     'enter',
+    'down',
     'down',
     'down',
     'down',

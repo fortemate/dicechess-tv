@@ -33,6 +33,7 @@ import {
 } from './soundSetting';
 import { readTurnBoard, saveTurnBoard } from './turnSetting';
 import { readAutoSelect, saveAutoSelect } from './autoSelectSetting';
+import { readFirstTurnPawn, saveFirstTurnPawn } from './firstTurnPawnSetting';
 import { readPlayAs, savePlayAs, type PlayAs } from './playAsSetting';
 import {
   readHighlights,
@@ -363,6 +364,15 @@ export const App = ({
     [settings],
   );
 
+  // Whether the first roll for each side fixes the first die to a pawn (#534).
+  const [initialFirstTurnPawn] = React.useState(() =>
+    readFirstTurnPawn(settings),
+  );
+  const onFirstTurnPawn = React.useCallback(
+    (on: boolean) => saveFirstTurnPawn(settings, on),
+    [settings],
+  );
+
   // The color a person plays against the computer, or Ask (#345).
   const [initialPlayAs] = React.useState(() => readPlayAs(settings));
   const onPlayAs = React.useCallback(
@@ -471,6 +481,7 @@ export const App = ({
     voices: initialVoices,
     host: initialHost,
     autoSelect: initialAutoSelect,
+    firstTurnPawn: initialFirstTurnPawn,
     playAs: initialPlayAs,
     highlights: initialHighlights,
     music: initialMusic,
@@ -497,6 +508,7 @@ export const App = ({
         voices: readVoices(settings),
         host: readHost(settings),
         autoSelect: readAutoSelect(settings),
+        firstTurnPawn: readFirstTurnPawn(settings),
         playAs: readPlayAs(settings),
         highlights: readHighlights(settings),
         music: readMusic(settings),
@@ -530,6 +542,8 @@ export const App = ({
           onHost={onHost}
           initialAutoSelect={attempt.autoSelect}
           onAutoSelect={onAutoSelect}
+          initialFirstTurnPawn={attempt.firstTurnPawn}
+          onFirstTurnPawn={onFirstTurnPawn}
           initialPlayAs={attempt.playAs}
           onPlayAs={onPlayAs}
           initialHighlights={attempt.highlights}

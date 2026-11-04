@@ -21,12 +21,18 @@ const CHOICE = {
 
 const controls = (row: SettingId | undefined) => {
   if (row === 'music' || row === 'sounds' || row === 'voices') return AUDIO;
-  if (row === 'turn-board' || row === 'auto-select') return SWITCH;
+  if (
+    row === 'turn-board' ||
+    row === 'auto-select' ||
+    row === 'first-turn-pawn'
+  )
+    return SWITCH;
   return CHOICE;
 };
 
 const description = (row: SettingId | undefined): string => {
   if (row === 'auto-select') return 'Plays the only legal move for you.';
+  if (row === 'first-turn-pawn') return 'First roll for each side has a pawn.';
   if (row === 'play-as') return 'Your color in new computer games.';
   return '';
 };

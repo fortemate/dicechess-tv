@@ -8,6 +8,7 @@
 // controller in src/core/game.ts applies them.
 import {
   newGame,
+  openingRoll,
   rollGame,
   moveGame,
   nextTurn,
@@ -273,6 +274,8 @@ export type ScreenState = {
   host: HostChoice;
   // Whether OK presses itself when the board offers only one choice (#302).
   autoSelect: boolean;
+  // Whether each side's first turn starts with a pawn on the first die (#534).
+  firstTurnPawn: boolean;
   // The color a person plays against the computer, or Ask for the choice of
   // color before each game (#345).
   playAs: PlayAs;
@@ -320,6 +323,7 @@ export type ScreenSettings = Pick<
   | 'voices'
   | 'host'
   | 'autoSelect'
+  | 'firstTurnPawn'
   | 'playAs'
   | 'highlights'
 >;
@@ -347,6 +351,7 @@ export type SettingId =
   | 'voices'
   | 'highlights'
   | 'auto-select'
+  | 'first-turn-pawn'
   | 'play-as'
   | 'turn-board'
   | 'host';
@@ -359,6 +364,7 @@ export const settingsItems = ({
   voices = DEFAULT_VOICES,
   host = DEFAULT_HOST,
   autoSelect = false,
+  firstTurnPawn = false,
   playAs = DEFAULT_PLAY_AS,
   highlights = DEFAULT_HIGHLIGHTS,
 }: Partial<ScreenSettings>): Item<SettingId>[] => [
@@ -382,6 +388,10 @@ export const settingsItems = ({
   {
     id: 'auto-select',
     label: `Auto-play only move: ${autoSelect ? 'on' : 'off'}`,
+  },
+  {
+    id: 'first-turn-pawn',
+    label: `First-turn pawn: ${firstTurnPawn ? 'on' : 'off'}`,
   },
   // Before the rows for games against a friend: it is about the computer's.
   { id: 'play-as', label: `Play as: ${playAsName(playAs)}` },
@@ -551,6 +561,7 @@ const board = (
     voices,
     host,
     autoSelect,
+    firstTurnPawn,
     playAs,
     highlights,
   }: ScreenSettings,
@@ -567,6 +578,7 @@ const board = (
   voices,
   host,
   autoSelect,
+  firstTurnPawn,
   playAs,
   highlights,
   autoStopped: null,
@@ -595,6 +607,7 @@ const played = (
     voices: state.voices,
     host: state.host,
     autoSelect: state.autoSelect,
+    firstTurnPawn: state.firstTurnPawn,
     playAs: state.playAs,
     highlights: state.highlights,
     autoStopped: state.autoStopped,
@@ -603,6 +616,15 @@ const played = (
     resumable: state.resumable && !result,
   };
 };
+
+// Rolls for `game`, fixing the first die to a pawn on each side's first turn
+// when the setting is on (#534).
+const rollFor = (
+  state: ScreenState,
+  game: Game,
+  options: ScreenOptions,
+): Game =>
+  rollGame(game, openingRoll(game.turn, options.roll(), state.firstTurnPawn));
 
 const step = (key: BoardKey, index: number, length: number): number =>
   (index + (key === 'up' || key === 'left' ? -1 : 1) + length) % length;
@@ -628,6 +650,7 @@ export const initialState = (
     voices = DEFAULT_VOICES,
     host = DEFAULT_HOST,
     autoSelect = false,
+    firstTurnPawn = false,
     playAs = DEFAULT_PLAY_AS,
     highlights = DEFAULT_HIGHLIGHTS,
   }: Partial<ScreenSettings> = {},
@@ -659,6 +682,7 @@ export const initialState = (
     voices,
     host,
     autoSelect,
+    firstTurnPawn,
     playAs,
     highlights,
     autoStopped: null,
@@ -701,7 +725,7 @@ function botStep(
   // A roll can end the game too: with nothing to play once the half-move clock
   // or the turn count has run out, the result is a draw.
   if (game.phase === 'roll') {
-    const next = rollGame(game, options.roll());
+    const next = rollFor(state, game, options);
     return {
       ...state,
       game: next,
@@ -1094,6 +1118,8 @@ const changed = (
       return { ...state, highlights: cycleHighlights(state.highlights, by) };
     case 'auto-select':
       return { ...state, autoSelect: switched(state.autoSelect, key) };
+    case 'first-turn-pawn':
+      return { ...state, firstTurnPawn: switched(state.firstTurnPawn, key) };
     default: {
       const unknown: never = row;
       throw new Error(`no setting ${String(unknown)}`);
@@ -1227,12 +1253,12 @@ const onBoard = (
   if (key === 'back' || key === 'menu') return show(state, MENU);
   if (key !== 'select' || bot || state.guarded) return state;
   if (game.phase === 'roll') {
-    return played(state, rollGame(game, options.roll()));
+    return played(state, rollFor(state, game, options));
   }
   // OK after the opponent's empty roll is the person's roll: the one press
   // they would have made on their own turn, made while the notice is up.
   if (botToAct(game))
-    return played(state, rollGame(nextTurn(game), options.roll()));
+    return played(state, rollFor(state, nextTurn(game), options));
   if (game.mode === 'hotseat') {
     const next = nextTurn(game);
     const isFlipped = flipped(next, state.turnHotseat);
@@ -1240,7 +1266,7 @@ const onBoard = (
       cursor: startFor(next.human, isFlipped),
       selected: null,
     };
-    const rolled = rollGame(next, options.roll());
+    const rolled = rollFor(state, next, options);
     return played(state, rolled, settled(focusSeed, rolled, state.turnHotseat));
   }
   const lastDice = lastDiceOf(game) ?? state.lastDice;

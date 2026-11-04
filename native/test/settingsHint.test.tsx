@@ -16,6 +16,7 @@ const AUDIO = 'Left/Right: volume · OK: mute/unmute';
 const SWITCH = 'Left: off · Right: on · OK: toggle';
 const CHOICE = 'Left/Right or OK: change';
 const AUTO = 'Plays the only legal move for you.';
+const FIRST_PAWN = 'First roll for each side has a pawn.';
 const PLAY_AS = 'Your color in new computer games.';
 
 for (const musicAvailable of [true, false]) {
@@ -38,6 +39,7 @@ for (const musicAvailable of [true, false]) {
         ['Voices: 10', AUDIO],
         ['Highlights: Standard', CHOICE],
         ['Auto-play only move: off', SWITCH, AUTO],
+        ['First-turn pawn: off', SWITCH, FIRST_PAWN],
         ['Play as: Random', CHOICE, PLAY_AS],
         ['Turn board for friends: off', SWITCH],
         ['Host for friends: Prowla', CHOICE],
@@ -45,7 +47,7 @@ for (const musicAvailable of [true, false]) {
       for (const [label, hint, description] of rows) {
         assert.equal(focusedLabel(root), label);
         assert.ok(text(root).split('\n').includes(hint), `${label}: ${hint}`);
-        for (const scope of [AUTO, PLAY_AS])
+        for (const scope of [AUTO, FIRST_PAWN, PLAY_AS])
           assert.equal(
             text(root).includes(scope),
             description === scope,
@@ -107,14 +109,14 @@ for (const initial of ['on', 'off']) {
       value('off');
       send('right');
       value('on');
-      if (key === autoKey) send('down', 'down');
+      if (key === autoKey) send('down', 'down', 'down');
     }
     send('back');
     assert.equal(focusedLabel(root), 'Settings');
     root = launch().root;
     send('up', 'up', 'enter', 'down', 'down', 'down');
     assert.equal(focusedLabel(root), 'Auto-play only move: on');
-    send('left', 'down', 'down');
+    send('left', 'down', 'down', 'down');
     assert.equal(focusedLabel(root), 'Turn board for friends: on');
     send('left');
     assert.equal(store.getString(autoKey), 'off');

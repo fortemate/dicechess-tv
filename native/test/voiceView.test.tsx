@@ -164,7 +164,7 @@ test('a setting changed where focus stands is said with its new value', () => {
   const said = listen();
   send('enter');
   assert.deepEqual(texts(said()), [
-    'Settings. Left and Right change the volume. OK mutes or unmutes. Sounds: 10, 1 of 7.',
+    'Settings. Left and Right change the volume. OK mutes or unmutes. Sounds: 10, 1 of 8.',
   ]);
   const changed = listen();
   send('enter');
@@ -176,16 +176,27 @@ test('Settings speaks new controls as focus moves, without repeating them for ea
   launch({ options: options() });
   send('up', 'up', 'enter');
   const said = listen();
-  send('down', 'down', 'right', 'down', 'enter', 'down', 'down', 'down');
+  send(
+    'down',
+    'down',
+    'right',
+    'down',
+    'enter',
+    'down',
+    'down',
+    'down',
+    'down',
+  );
   assert.deepEqual(texts(said()), [
-    'Voices: 10, 2 of 7. Left and Right change the volume. OK mutes or unmutes.',
-    'Highlights: Standard, 3 of 7. Left, Right or OK change this setting.',
+    'Voices: 10, 2 of 8. Left and Right change the volume. OK mutes or unmutes.',
+    'Highlights: Standard, 3 of 8. Left, Right or OK change this setting.',
     'Highlights: Enhanced.',
-    'Auto-play only move: off, 4 of 7. Left switches off. Right switches on. OK toggles. Plays the only legal move for you.',
+    'Auto-play only move: off, 4 of 8. Left switches off. Right switches on. OK toggles. Plays the only legal move for you.',
     'Auto-play only move: on.',
-    'Play as: Random, 5 of 7. Left, Right or OK change this setting. Your color in new computer games.',
-    'Turn board for friends: off, 6 of 7. Left switches off. Right switches on. OK toggles.',
-    'Host for friends: Prowla, 7 of 7. Left, Right or OK change this setting.',
+    'First-turn pawn: off, 5 of 8. Left switches off. Right switches on. OK toggles. First roll for each side has a pawn.',
+    'Play as: Random, 6 of 8. Left, Right or OK change this setting. Your color in new computer games.',
+    'Turn board for friends: off, 7 of 8. Left switches off. Right switches on. OK toggles.',
+    'Host for friends: Prowla, 8 of 8. Left, Right or OK change this setting.',
   ]);
   assert.ok(said().every((line) => !line.queue));
 });
@@ -196,7 +207,7 @@ test('enabling VoiceView in Settings speaks the controls for the current row', (
   assert.deepEqual(announced(), []);
   act(() => setScreenReader(true));
   assert.deepEqual(texts(announced()), [
-    'Settings. Left switches off. Right switches on. OK toggles. Auto-play only move: off, 4 of 7. Plays the only legal move for you.',
+    'Settings. Left switches off. Right switches on. OK toggles. Auto-play only move: off, 4 of 8. Plays the only legal move for you.',
   ]);
 });
 
@@ -206,11 +217,11 @@ for (const from of ['home', 'game']) {
     launch({ options: options() });
     if (from === 'game') send('enter', 'back', 'up', 'enter');
     else send('up', 'up', 'enter');
-    send('down', 'down', 'down');
+    send('down', 'down', 'down', 'down');
     const said = listen();
     send('down', 'right', 'enter', 'right', 'right');
     assert.deepEqual(texts(said()), [
-      'Play as: Random, 5 of 7. Left, Right or OK change this setting. Your color in new computer games.',
+      'Play as: Random, 6 of 8. Left, Right or OK change this setting. Your color in new computer games.',
       'Play as: White.',
       'Play as: Black.',
       'Play as: Ask.',

@@ -142,6 +142,9 @@ export type GameScreenProps = {
   // Whether OK presses itself when the board offers only one choice (#302).
   initialAutoSelect?: boolean;
   onAutoSelect?: (on: boolean) => void;
+  // Whether the first roll for each side fixes the first die to a pawn (#534).
+  initialFirstTurnPawn?: boolean;
+  onFirstTurnPawn?: (on: boolean) => void;
   // The color a person plays against the computer, or Ask (#345).
   initialPlayAs?: PlayAs;
   onPlayAs?: (choice: PlayAs) => void;
@@ -219,6 +222,7 @@ const Choices = ({
   options,
   index,
   pressed = false,
+  compact = false,
   befores = [],
   afters = [],
 }: {
@@ -229,21 +233,35 @@ const Choices = ({
   index: number;
   // OK is held on the focused option.
   pressed?: boolean;
+  // Tighter spacing and 24 dp rows so 9 settings fit the 460 dp panel (#534).
+  compact?: boolean;
   // Drawn before an option's label, by position.
   befores?: (React.ReactNode | undefined)[];
   // Drawn after an option's label, by position.
   afters?: (React.ReactNode | undefined)[];
 }) => (
-  <View style={{ marginTop: 12 }}>
+  <View style={{ marginTop: compact ? 6 : 12 }}>
     {/* No heading role, here or on the other screens' titles: VoiceView reads
         a heading by itself as it appears, and on the Virtual Device that cut
         off the result announced just before it (#257). The title is
         announced with the menu instead (screenSpeech.ts). */}
-    <Text style={{ color: '#f0f4f8', fontSize: 30, marginBottom: 8 }}>
+    <Text
+      style={{
+        color: '#f0f4f8',
+        fontSize: 30,
+        marginBottom: compact ? 4 : 8,
+      }}
+    >
       {title}
     </Text>
     {note ? (
-      <Text style={{ color: '#aab8c9', fontSize: 20, marginBottom: 10 }}>
+      <Text
+        style={{
+          color: '#aab8c9',
+          fontSize: 20,
+          marginBottom: compact ? 6 : 10,
+        }}
+      >
         {note}
       </Text>
     ) : null}
@@ -253,6 +271,7 @@ const Choices = ({
         label={option}
         focused={i === index}
         pressed={pressed}
+        {...(compact ? { fontSize: 24 } : {})}
         before={befores[i]}
         after={afters[i]}
       />
@@ -264,7 +283,7 @@ const Choices = ({
           fontSize: 20,
           lineHeight: 24,
           minHeight: 24,
-          marginTop: 10,
+          marginTop: compact ? 6 : 10,
         }}
       >
         {description}
@@ -481,6 +500,7 @@ type ChoiceContext = {
   voices: VoiceSetting;
   host: HostChoice;
   autoSelect: boolean;
+  firstTurnPawn: boolean;
   playAs: PlayAs;
   highlights: HighlightStyle;
 };
@@ -518,6 +538,7 @@ const choiceOf = (overlay: Overlay, context: ChoiceContext): Choice | null => {
         voices: context.voices,
         host: context.host,
         autoSelect: context.autoSelect,
+        firstTurnPawn: context.firstTurnPawn,
         playAs: context.playAs,
         highlights: context.highlights,
       });
@@ -628,6 +649,7 @@ const Panel = ({
       <Choices
         {...choice}
         pressed={pressed}
+        compact
         afters={settingsAfters(overlay.index, context)}
       />
     );
@@ -719,6 +741,8 @@ export const GameScreen = ({
   onHost,
   initialAutoSelect = false,
   onAutoSelect,
+  initialFirstTurnPawn = false,
+  onFirstTurnPawn,
   initialPlayAs = DEFAULT_PLAY_AS,
   onPlayAs,
   initialHighlights = DEFAULT_HIGHLIGHTS,
@@ -752,6 +776,7 @@ export const GameScreen = ({
           voices: initialVoices,
           host: initialHost,
           autoSelect: initialAutoSelect,
+          firstTurnPawn: initialFirstTurnPawn,
           playAs: initialPlayAs,
           highlights: initialHighlights,
         },
@@ -769,6 +794,7 @@ export const GameScreen = ({
     voices,
     host,
     autoSelect,
+    firstTurnPawn,
     playAs,
     highlights,
     guarded,
@@ -1095,6 +1121,14 @@ export const GameScreen = ({
   }, [autoSelect, onAutoSelect]);
 
   // Seeded like the sound, so opening the screen is not reported as a change.
+  const firstTurnPawnSetting = React.useRef(firstTurnPawn);
+  React.useEffect(() => {
+    if (firstTurnPawn === firstTurnPawnSetting.current) return;
+    firstTurnPawnSetting.current = firstTurnPawn;
+    onFirstTurnPawn?.(firstTurnPawn);
+  }, [firstTurnPawn, onFirstTurnPawn]);
+
+  // Seeded like the sound, so opening the screen is not reported as a change.
   const playAsSetting = React.useRef(playAs);
   React.useEffect(() => {
     if (playAs === playAsSetting.current) return;
@@ -1209,6 +1243,7 @@ export const GameScreen = ({
     voices,
     host,
     autoSelect,
+    firstTurnPawn,
     playAs,
     highlights,
   };

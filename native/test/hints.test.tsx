@@ -121,11 +121,13 @@ test('every row of Settings is one line, whatever it says', () => {
             voices: { on, volume: on ? 10 : 0 },
             host,
             autoSelect: on,
+            firstTurnPawn: on,
             playAs,
             highlights,
           }))
             rows.set(row.label, row.id);
   assert.ok(rows.has('Auto-play only move: off'));
+  assert.ok(rows.has('First-turn pawn: off'));
   assert.ok(rows.has('Play as: Random'));
   assert.ok(rows.has('Highlights: High contrast'));
   // The two rows for games against a friend name the mode as the home screen

@@ -12,6 +12,7 @@ import {
   resignGame,
   agreeDraw,
   rollDice,
+  openingRoll,
   emptyRoll,
   type Game,
 } from '../src/core/game.ts';
@@ -471,4 +472,15 @@ test('rolling dice clears lastMove from previous turn', () => {
   game = rollGame(game, [2, 6, 6]);
   assert.equal(game.phase, 'move');
   assert.equal(game.lastMove, null);
+});
+
+test('openingRoll fixes the first die to a pawn on turns 1 and 2 when enabled (#534)', () => {
+  const rolled = Object.freeze([5, 4, 6]);
+  assert.deepEqual(openingRoll(1, rolled, false), [5, 4, 6]);
+  assert.deepEqual(openingRoll(2, rolled, false), [5, 4, 6]);
+  assert.deepEqual(openingRoll(1, rolled), [5, 4, 6]);
+  assert.deepEqual(openingRoll(1, rolled, true), [1, 4, 6]);
+  assert.deepEqual(openingRoll(2, rolled, true), [1, 4, 6]);
+  assert.deepEqual(openingRoll(3, rolled, true), [5, 4, 6]);
+  assert.deepEqual(openingRoll(4, rolled, true), [5, 4, 6]);
 });

@@ -60,6 +60,7 @@ Long-form technical documentation, platform findings, performance benchmarks and
 | `src/playAsSetting.ts`         | The color played against the computer: Ask, Random (the default), White or Black (#352).        |
 | `src/highlightsSetting.ts`     | Board highlight style: Standard (the default), Enhanced, Color-blind or High contrast (#404).   |
 | `src/autoSelectSetting.ts`     | Whether OK presses itself when the board offers only one choice, off by default (#342).         |
+| `src/firstTurnPawnSetting.ts`  | Whether each side's first roll fixes the first die to a pawn, off by default (#534).            |
 | `src/tutorialOfferSetting.ts`  | Whether the first launch's offer of the tutorial was answered, remembered.                      |
 | `src/music.ts`                 | Plays adaptive music: menu theme or danger-level tracks with crossfades.                        |
 | `src/useDanger.ts`             | Measures king threat level at the start of each turn spread over frames.                        |
