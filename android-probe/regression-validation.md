@@ -114,6 +114,11 @@ excluded for the reason in Qualification limits.
 
 ## Remaining differences
 
+Follow-up: the November 2 tutorial/Settings change addresses the first two
+baseline findings below. See [tutorial and Settings parity validation](tutorial-settings-validation.md)
+for the new build, screenshots and checks. The table retains the October 31
+observations; the other gaps remain open.
+
 The smoke assertions above pass. The exploratory observations and source
 comparisons below identify gaps those assertions do not cover. Each entry
 states whether its basis is an emulator observation or source inspection.
@@ -132,9 +137,8 @@ states whether its basis is an emulator observation or source inspection.
 Completed-game counters are intentionally deferred until a user-facing statistics
 feature is scoped. They are not a blocker for this regression and were not added.
 
-The smallest next changes are the observed tutorial Highlights wiring and
-standalone Settings safe-area layout. Menu/held-input support, full home/game
-presentation reuse and game accessibility can be scoped separately.
+After the tutorial/Settings follow-up, Menu/held-input support, full home/game
+presentation reuse and game accessibility remain separate work.
 
 ## Qualification limits
 

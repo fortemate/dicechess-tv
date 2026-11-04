@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, useWindowDimensions } from 'react-native';
 import type { Activity } from '../../native/src/activity';
 import { SettingsPanel } from '../../native/src/SettingsPanel';
 import { useRemoteInput } from '../../native/src/useRemoteInput';
@@ -16,6 +16,7 @@ import { createVoicePreferences } from './voicePreferences';
 import { createGamePreferences } from './gamePreferences';
 import { createStore } from './store';
 import { RemoteSurface } from './RemoteSurface';
+import { safeInsets } from '../../native/src/layout';
 
 const rows = [
   'music',
@@ -47,6 +48,8 @@ function open() {
 }
 /** Render persisted preferences and route each remote event through the latest synchronous row selection. */
 function Content({ onExit }: { onExit: () => void }) {
+  const { width, height } = useWindowDimensions();
+  const insets = safeInsets(width, height);
   const controller = useContext(MusicContext);
   const [opened] = useState(open);
   const [music, setMusic] = useState(() => opened.musicPreferences?.read());
@@ -99,7 +102,14 @@ function Content({ onExit }: { onExit: () => void }) {
     report('state', { music, sound, voices, ...game, index, error });
   }, [music, sound, voices, game, index, error]);
   return (
-    <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 56 }}>
+    <View
+      style={{
+        flex: 1,
+        justifyContent: 'center',
+        paddingHorizontal: insets.x,
+        paddingVertical: insets.y,
+      }}
+    >
       {error ? (
         <Text style={{ color: '#ffffff', fontSize: 22 }}>
           Settings could not be saved or loaded. Back: return.
@@ -111,7 +121,14 @@ function Content({ onExit }: { onExit: () => void }) {
           index={index}
         />
       )}
-      <Text style={{ color: '#aab8c9', fontSize: 20, marginTop: 24 }}>
+      <Text
+        style={{
+          color: '#aab8c9',
+          fontSize: 20,
+          lineHeight: 24,
+          includeFontPadding: false,
+        }}
+      >
         Back: return
       </Text>
     </View>
