@@ -262,7 +262,7 @@ ledger or bot worker. Starting, completing or leaving them does not change the
 current real game.
 
 Each entry reads the saved Highlights choice from the separate settings store
-and passes it to the shared tutorial board, as Vega does. Missing or invalid
+and passes it to the shared tutorial board. Missing or invalid
 values use Standard without rewriting the stored value. See
 [tutorial and Settings parity validation](tutorial-settings-validation.md).
 

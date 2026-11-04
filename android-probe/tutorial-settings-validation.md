@@ -97,6 +97,30 @@ types/lint and all 76 tests. The ARM64 APK and Vega armv7, x86_64 and aarch64
 packages build successfully. The later documentation edits pass formatting,
 English-only, Sonar report-list and whitespace checks.
 
+### Review follow-up: November 4, 2026
+
+The README now states the verified Android behavior without implying a new
+Vega runtime comparison. Before checking bounds, the smoke test explicitly
+requires the Settings title, Back hint, all eight row labels, and the selected
+Auto-play only move or Play as description. Variable setting values retain
+their normal labels; the required row names are checked independently of the
+reported selection index.
+
+The text checker accepted all eight recorded native UI dumps and rejected
+12 edited copies with one required row, description, title or Back hint
+removed. The strengthened smoke then passed all three groups on a fresh
+DiceChessTVParity profile using the same APK SHA-256 recorded above. Fresh
+captures verify the required text and safe bounds across all eight rows,
+four distinct lesson-board hashes, and unchanged friend/bot partial turns
+through tutorial exit and process restart. The 17-group run above remains
+the November 2 baseline; this follow-up reruns the dedicated three-group suite.
+
+New outputs are retained under `build/parity-review-2026-11-04/`:
+`text-assertions.json` records the positive/negative text cases; `smoke/`
+holds the fresh UI dumps, screenshots, hashes, game events and checks.
+`mise run check` and all three Vega builds passed again. The original saved-game
+profile was untouched, and the temporary AVD was removed after the rerun.
+
 These are discrete ADB remote presses and Android emulator measurements.
 Mac keyboard input, held keys, TalkBack, other screen sizes/font scales, human
 listening and physical TV behavior are not qualified by this change. Vega

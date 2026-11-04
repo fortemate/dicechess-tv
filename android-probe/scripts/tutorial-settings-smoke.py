@@ -51,6 +51,24 @@ def settings_row(index):
     raise AssertionError(f'Could not reach Settings row {index}')
 
 
+def require_settings_text(texts, index):
+    """Reject missing rows or selected-row descriptions before measuring bounds."""
+    visible = {node.get('text', '') for node in texts}
+    assert 'Settings' in visible, 'Missing Settings title'
+    assert 'Back: return' in visible, 'Missing Back hint'
+    for label in (
+        'Music', 'Sounds', 'Voices', 'Highlights', 'Auto-play only move',
+        'Play as', 'Turn board for friends', 'Host for friends',
+    ):
+        assert any(text.startswith(f'{label}: ') for text in visible), f'Missing Settings row: {label}'
+    description = {
+        4: 'Plays the only legal move for you.',
+        5: 'Your color in new computer games.',
+    }.get(index)
+    if description:
+        assert description in visible, f'Missing Settings description: {description}'
+
+
 def safe_settings(index):
     """Measure native text bounds against Vega's five-percent TV safe area."""
     remote = '/sdcard/dicechess-parity-settings.xml'
@@ -59,11 +77,12 @@ def safe_settings(index):
     xml = h.adb('shell', 'cat', remote)
     (h.out / f'settings-{index}.xml').write_text(xml)
     texts = [n for n in ET.fromstring(xml).iter('node') if n.get('text')]
-    assert any(n.get('text') == 'Back: return' for n in texts)
+    require_settings_text(texts, index)
     bounds = {}
     for node in texts:
         left, top, right, bottom = map(int, re.findall(r'\d+', node.get('bounds')))
-        assert 96 <= left < right <= 1824 and 54 <= top < bottom <= 1026, node.attrib
+        assert 96 <= left < right <= 1824, node.attrib
+        assert 54 <= top < bottom <= 1026, node.attrib
         bounds[node.get('text')] = [left, top, right, bottom]
     captures[f'settings-{index}'] = bounds
     if index in (0, 4, 7):
