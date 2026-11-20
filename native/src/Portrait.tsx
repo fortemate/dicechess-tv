@@ -88,13 +88,13 @@ export function Portrait({
   kind,
   size,
   onMissing,
-}: {
+}: Readonly<{
   character: CharacterId;
   kind: PortraitKind;
   size: number;
   // Told when the portrait does not load, which means the build has none.
   onMissing?: () => void;
-}) {
+}>) {
   const [missing, setMissing] = React.useState(false);
   if (missing) {
     const face = FALLBACK_FACE[character];
