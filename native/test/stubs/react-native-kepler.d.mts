@@ -8,6 +8,8 @@ export declare function press(eventType: string): void;
 export declare function hold(eventType: string, repeats?: number): void;
 /** Test-only: let go of a held button. */
 export declare function release(eventType: string): void;
+/** Test-only: deliver a native event without normalizing its action value. */
+export declare function tvEvent(event: HWEvent): void;
 export declare function isSubscribed(): boolean;
 /** Test-only: how many screens are listening. */
 export declare function listenerCount(): number;
