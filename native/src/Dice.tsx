@@ -63,6 +63,9 @@ const Face = ({ die, side, size }: { die: Die; side: Side; size: number }) => {
   const Piece = PIECES[letter as keyof typeof PIECES];
   const edge = die.spent ? Math.round(size * 0.86) : size;
   const ringed = !die.spent && !die.leftover;
+  let opacity = 1;
+  if (die.spent) opacity = 0.3;
+  else if (die.leftover) opacity = 0.45;
   return (
     <View
       // Named for a screen reader (#257): the piece, and whether the die is
@@ -76,7 +79,7 @@ const Face = ({ die, side, size }: { die: Die; side: Side; size: number }) => {
         backgroundColor: THEME.die,
         borderWidth: ringed ? Math.max(2, Math.round(size / 24)) : 0,
         borderColor: THEME.dieRing,
-        opacity: die.spent ? 0.3 : die.leftover ? 0.45 : 1,
+        opacity,
         alignItems: 'center',
         justifyContent: 'center',
       }}
