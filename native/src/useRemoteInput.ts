@@ -24,6 +24,7 @@ import {
   useEffect,
   useLayoutEffect,
   useRef,
+  type RefObject,
 } from 'react';
 import {
   useTVEventHandler,
@@ -31,7 +32,7 @@ import {
   type HWEvent,
 } from '@amazon-devices/react-native-kepler';
 import type { BoardKey } from '../../src/core/boardInput';
-import { ActivityContext } from './activity';
+import { ActivityContext, type Activity } from './activity';
 
 // OK arrives under three names, and all of them mean the same to the board:
 // `select` from a physical remote, as Amazon documents it; `enter` from the
@@ -63,6 +64,22 @@ const REPEATABLE: ReadonlySet<BoardKey> = new Set([
 // held, and 1 once when it is released.
 const DOWN = 0;
 const UP = 1;
+
+function handleDirection(
+  event: HWEvent,
+  key: BoardKey,
+  held: RefObject<Set<BoardKey>>,
+  activity: Activity,
+  handler: RefObject<(key: BoardKey, repeat: boolean) => void>,
+): void {
+  // Scope/focus changes are not physical releases. Keep tracking these
+  // events while inactive so a continuing hold cannot become a new press.
+  if (event.eventKeyAction === UP) held.current.delete(key);
+  if (event.eventKeyAction !== DOWN) return;
+  const repeat = held.current.has(key);
+  held.current.add(key);
+  if (activity.isActive()) handler.current(key, repeat);
+}
 
 export type RemoteInputOptions = {
   // Whether the app handled Back. Returning false lets the system do what Back
@@ -122,13 +139,7 @@ export function useRemoteInput(
         const key = KEYS[String(event.eventType)];
         if (!key) return;
         if (REPEATABLE.has(key)) {
-          // Scope/focus changes are not physical releases. Keep tracking these
-          // events while inactive so a continuing hold cannot become a new press.
-          if (event.eventKeyAction === UP) held.current.delete(key);
-          if (event.eventKeyAction !== DOWN) return;
-          const repeat = held.current.has(key);
-          held.current.add(key);
-          if (activity.isActive()) handler.current(key, repeat);
+          handleDirection(event, key, held, activity, handler);
           return;
         }
         if (key === 'select') {
