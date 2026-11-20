@@ -703,65 +703,22 @@ const OWN_SCREENS: {
   about: AboutScreen,
 };
 
-type GameMatchupProps = Readonly<{
-  game: Game;
-  state: GameView;
-  isFlipped: boolean;
-  options: ScreenOptions;
-  searching: boolean;
-  voiceLine: ReturnType<typeof useBotVoice>;
-  hostLine: ReturnType<typeof useHostVoice>;
-  lastDice: LastDice | null;
-  overlay: Overlay;
-  context: ChoiceContext;
-  auto: ReturnType<typeof autoChoice>;
-  focus: ScreenState['focus'];
-  pressed: boolean;
-}>;
+function matchupThinking(
+  options: ScreenOptions,
+  searching: boolean,
+  game: Game,
+) {
+  return options.reply ? searching : botPlaying(game);
+}
 
-function renderMatchup({
-  game,
-  state,
-  isFlipped,
-  options,
-  searching,
-  voiceLine,
-  hostLine,
-  lastDice,
-  overlay,
-  context,
-  auto,
-  focus,
-  pressed,
-}: GameMatchupProps) {
-  return (
-    <Matchup
-      game={game}
-      side={state.side}
-      flipped={isFlipped}
-      thinking={options.reply ? searching : botPlaying(game)}
-      speechBubble={
-        voiceLine ? <SpeechBubble text={voiceLine.text} /> : undefined
-      }
-      hostBubble={
-        hostLine ? (
-          <SpeechBubble text={hostLine.text} rows={HOST_BUBBLE_ROWS} />
-        ) : undefined
-      }
-      host={hostLine?.host}
-      header={<ModeLine line={modeLine(game, false)} />}
-    >
-      <Status game={game} view={state} lastDice={lastDice} />
-      <Panel
-        overlay={overlay}
-        view={state}
-        context={context}
-        auto={auto !== null}
-        selected={focus.selected}
-        pressed={pressed}
-      />
-    </Matchup>
-  );
+function botSpeechBubble(voiceLine: ReturnType<typeof useBotVoice>) {
+  return voiceLine ? <SpeechBubble text={voiceLine.text} /> : undefined;
+}
+
+function hostSpeechBubble(hostLine: ReturnType<typeof useHostVoice>) {
+  return hostLine ? (
+    <SpeechBubble text={hostLine.text} rows={HOST_BUBBLE_ROWS} />
+  ) : undefined;
 }
 
 export const GameScreen = ({
@@ -1391,21 +1348,26 @@ export const GameScreen = ({
         ) : (
           // Anchored at the top: the headline, the dice and the prompt keep
           // their place whatever the prompt's length (#168).
-          renderMatchup({
-            game,
-            state,
-            isFlipped,
-            options,
-            searching,
-            voiceLine,
-            hostLine,
-            lastDice,
-            overlay,
-            context,
-            auto,
-            focus,
-            pressed,
-          })
+          <Matchup
+            game={game}
+            side={state.side}
+            flipped={isFlipped}
+            thinking={matchupThinking(options, searching, game)}
+            speechBubble={botSpeechBubble(voiceLine)}
+            hostBubble={hostSpeechBubble(hostLine)}
+            host={hostLine?.host}
+            header={<ModeLine line={modeLine(game, false)} />}
+          >
+            <Status game={game} view={state} lastDice={lastDice} />
+            <Panel
+              overlay={overlay}
+              view={state}
+              context={context}
+              auto={auto !== null}
+              selected={focus.selected}
+              pressed={pressed}
+            />
+          </Matchup>
         )}
       </View>
     </View>
