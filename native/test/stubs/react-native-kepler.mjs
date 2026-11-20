@@ -47,6 +47,12 @@ export function release(eventType) {
   deliver({ eventType, eventKeyAction: 1 });
 }
 
+// Test-only: preserve unusual native action values instead of normalizing
+// every event into a complete press. Back still uses its separate channel.
+export function tvEvent(event) {
+  deliver(event);
+}
+
 // Back does not arrive on the TV event channel: Vega routes it through a hook
 // of its own, which claims the press so the system does not close the app.
 const backSubscriptions = [];
