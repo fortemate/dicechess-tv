@@ -83,44 +83,57 @@ export const initialTutorial = (): TutorialState => atStep(0);
 
 export type TutorialInput = BoardKey | { key: BoardKey; repeat?: boolean };
 
-export function tutorialReducer(
-  state: TutorialState,
-  input: TutorialInput,
-): TutorialState {
-  const key = typeof input === 'string' ? input : input.key;
-  const repeat = typeof input === 'string' ? false : (input.repeat ?? false);
-  if (state.exit) return state;
-
-  // The closing screen: the arrows walk its choices, wrapping, as they walk a
-  // menu's, and OK takes one. Back and Menu go to the main menu, as its last
-  // choice does.
-  if (state.finished) {
-    if (key === 'back' || key === 'menu') return { ...state, exit: true };
-    if (key === 'select')
-      return { ...state, exit: true, next: CLOSING_CHOICES[state.choice].game };
-    const length = CLOSING_CHOICES.length;
-    const back = key === 'up' || key === 'left';
-    return {
-      ...state,
-      choice: (state.choice + (back ? -1 : 1) + length) % length,
-    };
-  }
-
+const completedInput = (state: TutorialState, key: BoardKey): TutorialState => {
   // Between steps: OK goes on, Back leaves. The board takes no input, so a
   // stray press cannot undo what was just learned.
-  if (state.complete) {
-    if (key === 'back' || key === 'menu') return { ...state, exit: true };
-    if (key !== 'select') return state;
-    return state.index + 1 < TUTORIAL.length
-      ? atStep(state.index + 1)
-      : {
-          ...state,
-          finished: true,
-          game: closingGame(),
-          focus: { ...state.focus, selected: null },
-        };
-  }
+  if (key === 'back' || key === 'menu') return { ...state, exit: true };
+  if (key !== 'select') return state;
+  return state.index + 1 < TUTORIAL.length
+    ? atStep(state.index + 1)
+    : {
+        ...state,
+        finished: true,
+        game: closingGame(),
+        focus: { ...state.focus, selected: null },
+      };
+};
 
+const boardTutorialInput = (
+  state: TutorialState,
+  key: BoardKey,
+  repeat: boolean,
+  current: TutorialStep,
+): TutorialState => {
+  const { legal, dfen } = viewGame(state.game);
+  const result = boardInput(
+    state.focus,
+    key,
+    legal,
+    false,
+    dfen.split(' ')[0],
+    { repeat },
+  );
+  // Back cancels a selection first and only then leaves, exactly as in a game.
+  if (result.action.type === 'exit') return { ...state, exit: true };
+  if (result.action.type === 'move') {
+    const game = moveGame(state.game, result.action.move);
+    return {
+      ...state,
+      game,
+      focus: waitingFocus(result.focus.cursor, viewGame(game).legal),
+      complete: isComplete(current, game),
+    };
+  }
+  // A promotion cannot arise: no step is played from a position that offers
+  // one, and the tests hold that.
+  return { ...state, focus: result.focus };
+};
+
+const lessonInput = (
+  state: TutorialState,
+  key: BoardKey,
+  repeat: boolean,
+): TutorialState => {
   const current = step(state);
 
   // The dice are spent and the goal was missed: OK tries the lesson again from
@@ -151,27 +164,32 @@ export function tutorialReducer(
     return { ...state, game, complete: isComplete(current, game) };
   }
 
-  const { legal, dfen } = viewGame(state.game);
-  const result = boardInput(
-    state.focus,
-    key,
-    legal,
-    false,
-    dfen.split(' ')[0],
-    { repeat },
-  );
-  // Back cancels a selection first and only then leaves, exactly as in a game.
-  if (result.action.type === 'exit') return { ...state, exit: true };
-  if (result.action.type === 'move') {
-    const game = moveGame(state.game, result.action.move);
+  return boardTutorialInput(state, key, repeat, current);
+};
+
+export function tutorialReducer(
+  state: TutorialState,
+  input: TutorialInput,
+): TutorialState {
+  const key = typeof input === 'string' ? input : input.key;
+  const repeat = typeof input === 'string' ? false : (input.repeat ?? false);
+  if (state.exit) return state;
+
+  // The closing screen: the arrows walk its choices, wrapping, as they walk a
+  // menu's, and OK takes one. Back and Menu go to the main menu, as its last
+  // choice does.
+  if (state.finished) {
+    if (key === 'back' || key === 'menu') return { ...state, exit: true };
+    if (key === 'select')
+      return { ...state, exit: true, next: CLOSING_CHOICES[state.choice].game };
+    const length = CLOSING_CHOICES.length;
+    const back = key === 'up' || key === 'left';
     return {
       ...state,
-      game,
-      focus: waitingFocus(result.focus.cursor, viewGame(game).legal),
-      complete: isComplete(current, game),
+      choice: (state.choice + (back ? -1 : 1) + length) % length,
     };
   }
-  // A promotion cannot arise: no step is played from a position that offers
-  // one, and the tests hold that.
-  return { ...state, focus: result.focus };
+
+  if (state.complete) return completedInput(state, key);
+  return lessonInput(state, key, repeat);
 }
