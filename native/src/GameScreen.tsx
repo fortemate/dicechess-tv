@@ -703,6 +703,24 @@ const OWN_SCREENS: {
   about: AboutScreen,
 };
 
+function matchupThinking(
+  options: ScreenOptions,
+  searching: boolean,
+  game: Game,
+) {
+  return options.reply ? searching : botPlaying(game);
+}
+
+function botSpeechBubble(voiceLine: ReturnType<typeof useBotVoice>) {
+  return voiceLine ? <SpeechBubble text={voiceLine.text} /> : undefined;
+}
+
+function hostSpeechBubble(hostLine: ReturnType<typeof useHostVoice>) {
+  return hostLine ? (
+    <SpeechBubble text={hostLine.text} rows={HOST_BUBBLE_ROWS} />
+  ) : undefined;
+}
+
 export const GameScreen = ({
   options,
   initial,
@@ -1334,15 +1352,9 @@ export const GameScreen = ({
             game={game}
             side={state.side}
             flipped={isFlipped}
-            thinking={options.reply ? searching : botPlaying(game)}
-            speechBubble={
-              voiceLine ? <SpeechBubble text={voiceLine.text} /> : undefined
-            }
-            hostBubble={
-              hostLine ? (
-                <SpeechBubble text={hostLine.text} rows={HOST_BUBBLE_ROWS} />
-              ) : undefined
-            }
+            thinking={matchupThinking(options, searching, game)}
+            speechBubble={botSpeechBubble(voiceLine)}
+            hostBubble={hostSpeechBubble(hostLine)}
             host={hostLine?.host}
             header={<ModeLine line={modeLine(game, false)} />}
           >
